@@ -124,3 +124,19 @@ pour le dossier `sections/` d'un thème. L'export vérifie chaque section
 5. Export Shopify complet : zones boutique, envoi vers une copie du thème
 6. Créatives : images du site source + ton produit (Nanobanana)
 7. « Remplacer par mon produit »
+
+## Sauvegarde sur GitHub
+
+Dépôt **privé** : https://github.com/omar23-max/atelier-sites (doit rester privé :
+les miniatures des sections montrent les photos des sites d'inspiration).
+
+- **Automatique** : la tâche Windows « Atelier - sauvegarde GitHub » lance
+  `scripts/sauvegarde-github.vbs` toutes les 15 minutes. S'il y a des
+  changements, une version « Sauvegarde automatique — date » est créée et
+  envoyée ; sinon rien. Hors ligne, la version part au passage suivant.
+- **À la main** : `npm run sauvegarde`.
+- **Journal** : `.git/sauvegarde.log`.
+- **Arrêter** : `schtasks /Change /TN "Atelier - sauvegarde GitHub" /DISABLE`
+  (`/ENABLE` pour relancer).
+- Jamais envoyés (`.gitignore`) : imports/, videos/, medias/, demandes/,
+  corbeille/, export/, node_modules/.
