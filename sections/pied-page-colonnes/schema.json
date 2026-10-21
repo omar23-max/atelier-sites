@@ -1,0 +1,53 @@
+{
+  "name": "Atl · Pied de page",
+  "tag": "footer",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo (clair)" },
+    { "type": "text", "id": "logo_text", "label": "Texte du logo (si pas d'image)", "default": "[ marque ]" },
+    { "type": "range", "id": "logo_width", "label": "Largeur du logo", "min": 60, "max": 260, "step": 5, "unit": "px", "default": 135 },
+    {
+      "type": "textarea",
+      "id": "about",
+      "label": "Présentation",
+      "default": "[ Mission de la marque en une phrase : pour qui, quel problème, quel engagement — 25-30 mots. ]"
+    },
+    { "type": "text", "id": "email", "label": "E-mail", "default": "[ contact@marque.com ]" },
+    { "type": "text", "id": "phone", "label": "Téléphone", "default": "[ +1 (000) 000-0000 ]" },
+    { "type": "header", "content": "Newsletter" },
+    { "type": "text", "id": "newsletter_title", "label": "Titre", "default": "[ Titre newsletter — 3 mots ]" },
+    { "type": "text", "id": "newsletter_placeholder", "label": "Texte du champ", "default": "Adresse e-mail" },
+    { "type": "header", "content": "Bas de page" },
+    { "type": "text", "id": "copyright", "label": "Copyright", "default": "© [ Année ] [ Marque ] — Tous droits réservés." },
+    {
+      "type": "textarea",
+      "id": "disclaimer",
+      "label": "Mention légale",
+      "default": "[ Mention légale obligatoire pour la catégorie de produit — 25-30 mots. ]"
+    },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#0c240e" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#ffffff" },
+    { "type": "color", "id": "color_accent", "label": "Bouton newsletter", "default": "#2db67d" }
+  ],
+  "blocks": [
+    {
+      "type": "colonne",
+      "name": "Colonne de liens",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "[ Titre — 2-3 mots ]" },
+        {
+          "type": "textarea",
+          "id": "links",
+          "label": "Liens (un par ligne : Libellé | URL)",
+          "default": "[ Lien 1 ] | /\n[ Lien 2 ] | /\n[ Lien 3 ] | /\n[ Lien 4 ] | /"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · Pied de page",
+      "blocks": [{ "type": "colonne" }, { "type": "colonne" }]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Atl · Pied de page sombre",
+  "tag": "footer",
+  "settings": [
+    { "type": "image_picker", "id": "bg_image", "label": "Image de fond" },
+    { "type": "image_picker", "id": "logo", "label": "Logo (clair)" },
+    { "type": "text", "id": "logo_text", "label": "Texte du logo (si pas d'image)", "default": "[ marque ]" },
+    {
+      "type": "textarea",
+      "id": "infos",
+      "label": "Coordonnées (une par ligne, « Libellé : valeur »)",
+      "default": "[ Horaires ] : [ 9 h – 17 h, lun.–ven. ]\n[ Adresse ] : [ adresse de l'entreprise ]\n[ E-mail ] : [ support@marque.com ]\n[ Téléphone ] : [ +1 000 000 0000 ]"
+    },
+    { "type": "url", "id": "instagram", "label": "Lien Instagram" },
+    { "type": "url", "id": "facebook", "label": "Lien Facebook" },
+    {
+      "type": "textarea",
+      "id": "disclaimer",
+      "label": "Mentions (colonne de droite, ligne vide = paragraphe)",
+      "default": "[ Mention légale de la catégorie de produit — 30-35 mots. ]\n\n[ Mention sur les témoignages — 20 mots. ]\n\n[ Conditions de la garantie — 15 mots. ]"
+    },
+    { "type": "text", "id": "copyright", "label": "Copyright", "default": "© [ Année ], [ Marque ]. Tous droits réservés." },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Afficher les moyens de paiement", "default": true },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond (haut)", "default": "#7a0b0e" },
+    { "type": "color", "id": "color_bg_2", "label": "Fond (bas)", "default": "#2c0303" }
+  ],
+  "blocks": [
+    {
+      "type": "colonne",
+      "name": "Colonne de liens",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Titre", "default": "[ Titre ]" },
+        { "type": "textarea", "id": "links", "label": "Liens (un par ligne : Libellé | URL)", "default": "[ Lien 1 ] | /\n[ Lien 2 ] | /\n[ Lien 3 ] | /\n[ Lien 4 ] | /" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Atl · Pied de page sombre", "blocks": [{ "type": "colonne" }, { "type": "colonne" }] }]
+}

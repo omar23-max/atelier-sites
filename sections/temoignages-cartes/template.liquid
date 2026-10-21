@@ -1,0 +1,39 @@
+<section
+  class="atl-temoignages-cartes"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-bg-2: {{ section.settings.color_bg_2 | default: section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-card: {{ section.settings.color_card }}; --atl-card-text: {{ section.settings.color_card_text }}; --atl-stars: {{ section.settings.color_stars }};"
+>
+  <div class="atl-temoignages-cartes__inner">
+    <p class="atl-temoignages-cartes__kicker">
+      <span class="atl-temoignages-cartes__stars" aria-hidden="true">★★★★★</span>
+      {{ section.settings.kicker }}
+    </p>
+    <h2 class="atl-temoignages-cartes__title">{{ section.settings.title }}</h2>
+    <p class="atl-temoignages-cartes__subtitle">{{ section.settings.subtitle }}</p>
+
+    <div class="atl-temoignages-cartes__track">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'temoignage' -%}
+          <article class="atl-temoignages-cartes__card" {{ block.shopify_attributes }}>
+            <p class="atl-temoignages-cartes__rating">
+              <span class="atl-temoignages-cartes__stars" aria-label="{{ block.settings.rating }} sur 5">
+                {%- for i in (1..5) -%}{%- if i <= block.settings.rating -%}★{%- else -%}☆{%- endif -%}{%- endfor -%}
+              </span>
+              {{ block.settings.rating_label }}
+            </p>
+            <h3 class="atl-temoignages-cartes__card-title">{{ block.settings.title }}</h3>
+            <p class="atl-temoignages-cartes__body">{{ block.settings.body }}</p>
+            <p class="atl-temoignages-cartes__name">✓ {{ block.settings.name }}</p>
+            <div class="atl-temoignages-cartes__meta">
+              {%- if block.settings.photo != blank -%}
+                <img src="{{ block.settings.photo | image_url: width: 120 }}" alt="" width="40" height="40" loading="lazy">
+              {%- else -%}
+                <span class="atl-temoignages-cartes__thumb">Photo</span>
+              {%- endif -%}
+              <span>{{ block.settings.product }}<br>{{ block.settings.date }}</span>
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>

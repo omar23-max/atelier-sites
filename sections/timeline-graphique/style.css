@@ -1,0 +1,220 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Readex+Pro:wght@400;500&display=swap");
+
+.atl-timeline-graphique {
+  padding: 72px 0;
+  background: var(--atl-bg, #440002);
+  color: var(--atl-text, #ffffff);
+  font-family: var(--atl-font-body, "Inter Tight", sans-serif);
+}
+
+.atl-timeline-graphique__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 493fr) minmax(0, 695fr);
+  gap: 90px;
+  align-items: center;
+  box-sizing: border-box;
+  max-width: 1310px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.atl-timeline-graphique__kicker {
+  margin: 0 0 12px;
+  font-size: 14px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.atl-timeline-graphique__title {
+  margin: 0 0 12px;
+  font-family: var(--atl-font-heading, "Readex Pro", sans-serif);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 44px;
+  letter-spacing: -0.03em;
+}
+
+.atl-timeline-graphique__text {
+  margin: 0 0 38px;
+  font-size: 18px;
+  line-height: 22px;
+  opacity: 0.8;
+}
+
+.atl-timeline-graphique__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 36px;
+}
+
+.atl-timeline-graphique__tab {
+  min-height: 45px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--atl-panel, #642224);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.atl-timeline-graphique__tab.is-active {
+  background: var(--atl-active, #a22b2e);
+  color: #ffffff;
+}
+
+.atl-timeline-graphique__panel {
+  display: none;
+}
+
+.atl-timeline-graphique__panel.is-active {
+  display: block;
+}
+
+.atl-timeline-graphique__panel h3 {
+  margin: 0 0 14px;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.atl-timeline-graphique__panel p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 22px;
+  opacity: 0.8;
+}
+
+.atl-timeline-graphique__chart {
+  position: relative;
+  padding: 32px 36px 22px 64px;
+  border-radius: 8px;
+  background: var(--atl-panel, #642224);
+}
+
+.atl-timeline-graphique__axis {
+  position: absolute;
+  left: 22px;
+  top: 32px;
+  font-size: 13px;
+  white-space: nowrap;
+  transform: rotate(-90deg) translateX(-100%);
+  transform-origin: left top;
+}
+
+.atl-timeline-graphique__plot {
+  position: relative;
+  aspect-ratio: 660 / 300;
+}
+
+.atl-timeline-graphique__plot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.atl-timeline-graphique__grid {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+}
+
+.atl-timeline-graphique__axisline {
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1.5;
+}
+
+.atl-timeline-graphique__curve {
+  fill: none;
+  stroke: var(--atl-line, #ff7b7f);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.atl-timeline-graphique__point {
+  fill: var(--atl-line, #ff7b7f);
+  filter: drop-shadow(0 0 6px var(--atl-line, #ff7b7f));
+}
+
+.atl-timeline-graphique__badge {
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 124px;
+  height: 124px;
+  border: 2px dashed color-mix(in srgb, var(--atl-active, #9f0004) 45%, transparent);
+  border-radius: 50%;
+  background: var(--atl-badge, #ffe1e0);
+  color: var(--atl-active, #9f0004);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.atl-timeline-graphique__badge.is-active {
+  display: flex;
+}
+
+.atl-timeline-graphique__badge strong {
+  font-size: 21px;
+  line-height: 22px;
+}
+
+.atl-timeline-graphique__badge span {
+  margin-top: 4px;
+  color: color-mix(in srgb, var(--atl-bg, #420002) 75%, transparent);
+  font-size: 12px;
+}
+
+.atl-timeline-graphique__labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0 0 5%;
+  font-size: 14px;
+}
+
+.atl-timeline-graphique__labels span {
+  opacity: 0.65;
+}
+
+.atl-timeline-graphique__labels .is-active {
+  font-weight: 600;
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .atl-timeline-graphique {
+    padding: 44px 0;
+  }
+
+  .atl-timeline-graphique__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .atl-timeline-graphique__title {
+    font-size: 30px;
+    line-height: 34px;
+  }
+
+  .atl-timeline-graphique__chart {
+    padding: 22px 16px 16px 44px;
+  }
+
+  .atl-timeline-graphique__badge {
+    width: 92px;
+    height: 92px;
+  }
+
+  .atl-timeline-graphique__badge strong {
+    font-size: 15px;
+    line-height: 16px;
+  }
+
+  .atl-timeline-graphique__labels {
+    font-size: 11px;
+  }
+}

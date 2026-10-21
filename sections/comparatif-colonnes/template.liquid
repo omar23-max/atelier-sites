@@ -1,0 +1,44 @@
+<section
+  class="atl-comparatif-colonnes"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-bg-2: {{ section.settings.color_bg_2 }}; --atl-card: {{ section.settings.color_card }}; --atl-accent: {{ section.settings.color_accent }};"
+>
+  <div class="atl-comparatif-colonnes__inner">
+    <p class="atl-comparatif-colonnes__kicker">{{ section.settings.kicker }}</p>
+    <h2 class="atl-comparatif-colonnes__title">{{ section.settings.title }}</h2>
+    <p class="atl-comparatif-colonnes__subtitle">{{ section.settings.subtitle }}</p>
+
+    <div class="atl-comparatif-colonnes__table">
+      <div class="atl-comparatif-colonnes__us-bg" aria-hidden="true"></div>
+      <div class="atl-comparatif-colonnes__them-bg" aria-hidden="true"></div>
+      <div class="atl-comparatif-colonnes__head"></div>
+      <div class="atl-comparatif-colonnes__head atl-comparatif-colonnes__head--us">
+        {%- if section.settings.logo != blank -%}
+          <img src="{{ section.settings.logo | image_url: width: 400 }}" alt="{{ section.settings.us_label | escape }}">
+        {%- else -%}
+          <span>♡ {{ section.settings.us_label }}</span>
+        {%- endif -%}
+      </div>
+      <div class="atl-comparatif-colonnes__head atl-comparatif-colonnes__head--them">{{ section.settings.them_label }}</div>
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'ligne' -%}
+          <div class="atl-comparatif-colonnes__label" {{ block.shopify_attributes }}>{{ block.settings.label }}</div>
+          <div class="atl-comparatif-colonnes__cell atl-comparatif-colonnes__cell--us">
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="currentColor"/><path d="M5.5 10.3l3 3 6-6.3" fill="none" stroke="#fff" stroke-width="2"/></svg>
+            {{ block.settings.us }}
+          </div>
+          <div class="atl-comparatif-colonnes__cell atl-comparatif-colonnes__cell--them">
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="rgba(255,255,255,.35)"/><path d="M6.5 6.5l7 7m0-7l-7 7" stroke="#fff" stroke-width="1.8"/></svg>
+            {{ block.settings.them }}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if section.settings.product_image != blank -%}
+        <img class="atl-comparatif-colonnes__product" src="{{ section.settings.product_image | image_url: width: 400 }}" alt="" loading="lazy">
+      {%- else -%}
+        <span class="atl-comparatif-colonnes__product atl-comparatif-colonnes__product--ph">[ Packshot détouré ]</span>
+      {%- endif -%}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,116 @@
+.atl-temoignages-cartes {
+  padding: 56px 16px;
+  background: linear-gradient(180deg, var(--atl-bg, #3b0a0e), var(--atl-bg-2, var(--atl-bg, #3b0a0e)));
+  color: var(--atl-text, #ffffff);
+  font-family: var(--atl-font-body, system-ui, -apple-system, "Segoe UI", sans-serif);
+}
+
+.atl-temoignages-cartes__inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.atl-temoignages-cartes__kicker {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+
+.atl-temoignages-cartes__stars {
+  color: var(--atl-stars, #f2a516);
+  letter-spacing: 1px;
+}
+
+.atl-temoignages-cartes__title {
+  margin: 0 0 10px;
+  font-family: var(--atl-font-heading, Georgia, "Times New Roman", serif);
+  font-size: 36px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.atl-temoignages-cartes__subtitle {
+  margin: 0 0 28px;
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.atl-temoignages-cartes__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2 * 16px) / 3);
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+}
+
+.atl-temoignages-cartes__card {
+  scroll-snap-align: start;
+  padding: 20px;
+  background: var(--atl-card, #fde8e8);
+  color: var(--atl-card-text, #3b0a0e);
+  border-radius: 10px;
+}
+
+.atl-temoignages-cartes__rating {
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+
+.atl-temoignages-cartes__card-title {
+  margin: 0 0 10px;
+  font-family: var(--atl-font-heading, Georgia, "Times New Roman", serif);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.atl-temoignages-cartes__body {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.atl-temoignages-cartes__name {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.atl-temoignages-cartes__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.atl-temoignages-cartes__meta img,
+.atl-temoignages-cartes__thumb {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.atl-temoignages-cartes__thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .atl-temoignages-cartes__title {
+    font-size: 28px;
+  }
+
+  .atl-temoignages-cartes__track {
+    grid-auto-columns: 85%;
+  }
+}

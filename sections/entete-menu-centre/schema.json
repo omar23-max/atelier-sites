@@ -1,0 +1,38 @@
+{
+  "name": "Atl · En-tête menu centré",
+  "tag": "header",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "text", "id": "logo_text", "label": "Texte du logo (si pas d'image)", "default": "[ marque ]" },
+    { "type": "range", "id": "logo_width", "label": "Largeur du logo", "min": 60, "max": 260, "step": 5, "unit": "px", "default": 125 },
+    { "type": "url", "id": "home_link", "label": "Lien du logo (accueil si vide)" },
+    { "type": "checkbox", "id": "show_currency", "label": "Afficher la devise", "default": true },
+    { "type": "text", "id": "currency_label", "label": "Devise affichée", "default": "USD" },
+    { "type": "url", "id": "cart_link", "label": "Lien du panier (/cart si vide)" },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#ffffff" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#0c240e" }
+  ],
+  "blocks": [
+    {
+      "type": "lien",
+      "name": "Lien du menu",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Libellé", "default": "[ Lien ]" },
+        { "type": "url", "id": "link", "label": "Lien" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · En-tête menu centré",
+      "blocks": [
+        { "type": "lien", "settings": { "label": "[ Boutique ]" } },
+        { "type": "lien", "settings": { "label": "[ Packs ]" } },
+        { "type": "lien", "settings": { "label": "[ À propos ]" } },
+        { "type": "lien", "settings": { "label": "[ FAQ ]" } },
+        { "type": "lien", "settings": { "label": "[ Contact ]" } }
+      ]
+    }
+  ]
+}

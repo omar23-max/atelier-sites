@@ -1,0 +1,29 @@
+{
+  "name": "Atl · Annonce flèches",
+  "tag": "div",
+  "settings": [
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#0c240e" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#ffffff" },
+    { "type": "checkbox", "id": "show_arrows", "label": "Afficher les flèches", "default": true },
+    { "type": "range", "id": "autoplay", "label": "Défilement auto (secondes, 0 = non)", "min": 0, "max": 10, "step": 1, "unit": "s", "default": 5 }
+  ],
+  "blocks": [
+    {
+      "type": "message",
+      "name": "Message",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Texte", "default": "[ Offre ou garantie — 5-7 mots ]" },
+        { "type": "url", "id": "link", "label": "Lien (optionnel)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · Annonce flèches",
+      "blocks": [
+        { "type": "message" },
+        { "type": "message", "settings": { "text": "[ Deuxième message — 4-6 mots ]" } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Readex+Pro:wght@400;500&display=swap");
+
+.atl-faq-image {
+  padding: 72px 0;
+  background: var(--atl-bg, #ffffff);
+  color: var(--atl-text, #420002);
+  font-family: var(--atl-font-body, "Inter Tight", sans-serif);
+}
+
+.atl-faq-image__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 493fr) minmax(0, 702fr);
+  gap: 72px;
+  align-items: start;
+  box-sizing: border-box;
+  max-width: 1310px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.atl-faq-image__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 493 / 450;
+  overflow: hidden;
+  border-radius: 8px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--atl-accent, #9f0004) 55%, white), color-mix(in srgb, var(--atl-accent, #9f0004) 15%, white));
+  color: color-mix(in srgb, var(--atl-text, #420002) 55%, transparent);
+  font-size: 13px;
+}
+
+.atl-faq-image__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.atl-faq-image__kicker {
+  margin: 6px 0 12px;
+  font-size: 14px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.atl-faq-image__title {
+  margin: 0 0 32px;
+  font-family: var(--atl-font-heading, "Readex Pro", sans-serif);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 44px;
+  letter-spacing: -0.03em;
+}
+
+.atl-faq-image__list {
+  border-top: 1px solid color-mix(in srgb, var(--atl-text, #420002) 18%, transparent);
+}
+
+.atl-faq-image__item {
+  border-bottom: 1px solid color-mix(in srgb, var(--atl-text, #420002) 18%, transparent);
+}
+
+.atl-faq-image__item summary {
+  position: relative;
+  padding: 20px 40px 20px 0;
+  font-size: 18px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.atl-faq-image__item summary::-webkit-details-marker {
+  display: none;
+}
+
+.atl-faq-image__item summary::after {
+  content: "+";
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  color: var(--atl-accent, #9f0004);
+  font-size: 20px;
+}
+
+.atl-faq-image__item[open] summary::after {
+  content: "–";
+}
+
+.atl-faq-image__item p {
+  margin: -4px 0 24px;
+  font-size: 16px;
+  line-height: 20px;
+  opacity: 0.6;
+}
+
+@media (max-width: 900px) {
+  .atl-faq-image {
+    padding: 44px 0;
+  }
+
+  .atl-faq-image__inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .atl-faq-image__title {
+    font-size: 30px;
+    line-height: 34px;
+  }
+
+  .atl-faq-image__item summary {
+    font-size: 16px;
+  }
+}

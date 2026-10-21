@@ -1,0 +1,25 @@
+<section
+  class="atl-stats-cartes"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-card: {{ section.settings.color_card }};{% if section.settings.card_bg != blank %} --atl-card-img: url('{{ section.settings.card_bg | image_url: width: 1000 }}');{% endif %}"
+>
+  <div class="atl-stats-cartes__inner">
+    <p class="atl-stats-cartes__kicker">{{ section.settings.kicker }}</p>
+    <h2 class="atl-stats-cartes__title">{{ section.settings.title }}</h2>
+    <p class="atl-stats-cartes__subtitle">{{ section.settings.subtitle }}</p>
+    <div class="atl-stats-cartes__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'chiffre' -%}
+          <div
+            class="atl-stats-cartes__card"
+            {% if block.settings.image != blank %}style="--atl-card-img: url('{{ block.settings.image | image_url: width: 1000 }}');"{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.source != blank -%}<p class="atl-stats-cartes__source">{{ block.settings.source }}</p>{%- endif -%}
+            <p class="atl-stats-cartes__value">{{ block.settings.value }}</p>
+            <p class="atl-stats-cartes__text">{{ block.settings.text }}</p>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>

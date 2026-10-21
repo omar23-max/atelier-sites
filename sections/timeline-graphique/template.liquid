@@ -1,0 +1,93 @@
+{%- liquid
+  assign total = 0
+  for block in section.blocks
+    if block.type == 'etape'
+      assign total = total | plus: 1
+    endif
+  endfor
+  assign last = total | minus: 1
+  if last < 1
+    assign last = 1
+  endif
+  assign step_x = 540.0 | divided_by: last
+  assign step_y = 170.0 | divided_by: last
+-%}
+<section
+  class="atl-timeline-graphique"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-panel: {{ section.settings.color_panel }}; --atl-active: {{ section.settings.color_active }}; --atl-line: {{ section.settings.color_line }}; --atl-badge: {{ section.settings.color_badge }};"
+>
+  <div class="atl-timeline-graphique__inner">
+    <div class="atl-timeline-graphique__intro">
+      <p class="atl-timeline-graphique__kicker">{{ section.settings.kicker }}</p>
+      <h2 class="atl-timeline-graphique__title">{{ section.settings.title }}</h2>
+      <p class="atl-timeline-graphique__text">{{ section.settings.text }}</p>
+      <div class="atl-timeline-graphique__tabs">
+        {%- assign n = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'etape' -%}
+            <button
+              type="button"
+              class="atl-timeline-graphique__tab{% if n == 0 %} is-active{% endif %}"
+              data-index="{{ n }}"
+              onclick="var r=this.closest('.atl-timeline-graphique'),i=this.dataset.index;r.querySelectorAll('[data-index]').forEach(function(e){e.classList.toggle('is-active',e.dataset.index===i)})"
+              {{ block.shopify_attributes }}
+            >{{ block.settings.label }}</button>
+            {%- assign n = n | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      {%- assign n = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'etape' -%}
+          <div class="atl-timeline-graphique__panel{% if n == 0 %} is-active{% endif %}" data-index="{{ n }}">
+            <h3>{{ block.settings.title }}</h3>
+            <p>{{ block.settings.text }}</p>
+          </div>
+          {%- assign n = n | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="atl-timeline-graphique__chart">
+      <span class="atl-timeline-graphique__axis">{{ section.settings.axis_label }}</span>
+      <div class="atl-timeline-graphique__plot">
+        <svg viewBox="0 0 660 300" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="20" y1="60" x2="660" y2="60" class="atl-timeline-graphique__grid"/>
+          <line x1="20" y1="140" x2="660" y2="140" class="atl-timeline-graphique__grid"/>
+          <line x1="20" y1="220" x2="660" y2="220" class="atl-timeline-graphique__grid"/>
+          <line x1="20" y1="0" x2="20" y2="290" class="atl-timeline-graphique__axisline"/>
+          <line x1="20" y1="290" x2="660" y2="290" class="atl-timeline-graphique__axisline"/>
+          <polyline class="atl-timeline-graphique__curve" points="
+            {%- for i in (0..last) -%}{%- if i < total -%}{{ step_x | times: i | plus: 80 }},{{ step_y | times: i | minus: 240 | abs }} {% endif -%}{%- endfor -%}
+          "/>
+          {%- for i in (0..last) -%}
+            {%- if i < total and i > 0 -%}
+              <circle cx="{{ step_x | times: i | plus: 80 }}" cy="{{ step_y | times: i | minus: 240 | abs }}" r="6" class="atl-timeline-graphique__point"/>
+            {%- endif -%}
+          {%- endfor -%}
+        </svg>
+        {%- assign n = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'etape' -%}
+            {%- assign bx = step_x | times: n | plus: 80 | divided_by: 6.6 -%}
+            {%- assign by = step_y | times: n | minus: 240 | abs | divided_by: 3.0 -%}
+            <div class="atl-timeline-graphique__badge{% if n == 0 %} is-active{% endif %}" data-index="{{ n }}" style="left: {{ bx }}%; top: {{ by }}%;">
+              <strong>{{ block.settings.badge_title }}</strong>
+              <span>{{ block.settings.badge_text }}</span>
+            </div>
+            {%- assign n = n | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <div class="atl-timeline-graphique__labels">
+        {%- assign n = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'etape' -%}
+            <span class="{% if n == 0 %}is-active{% endif %}" data-index="{{ n }}">{{ block.settings.label }}</span>
+            {%- assign n = n | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>

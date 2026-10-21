@@ -1,0 +1,51 @@
+<section
+  class="atl-probleme-onglets"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-accent: {{ section.settings.color_accent }}; --atl-active: {{ section.settings.color_active }}; --atl-tab: {{ section.settings.color_tab }}; --atl-card: {{ section.settings.color_card }};"
+>
+  <div class="atl-probleme-onglets__inner">
+    <div class="atl-probleme-onglets__intro">
+      <p class="atl-probleme-onglets__kicker">{{ section.settings.kicker }}</p>
+      <h2 class="atl-probleme-onglets__title">{{ section.settings.title | newline_to_br }}</h2>
+      <p class="atl-probleme-onglets__text">{{ section.settings.text }}</p>
+      <div class="atl-probleme-onglets__tabs" role="tablist">
+        {%- assign n = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'onglet' -%}
+            <button
+              type="button"
+              role="tab"
+              class="atl-probleme-onglets__tab{% if n == 0 %} is-active{% endif %}"
+              data-index="{{ n }}"
+              onclick="var r=this.closest('.atl-probleme-onglets'),i=this.dataset.index;r.querySelectorAll('.atl-probleme-onglets__tab,.atl-probleme-onglets__panel').forEach(function(e){e.classList.toggle('is-active',e.dataset.index===i)})"
+              {{ block.shopify_attributes }}
+            >{{ block.settings.label }}</button>
+            {%- assign n = n | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="atl-probleme-onglets__card">
+      {%- assign n = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'onglet' -%}
+          <div class="atl-probleme-onglets__panel{% if n == 0 %} is-active{% endif %}" data-index="{{ n }}" role="tabpanel">
+            <div class="atl-probleme-onglets__media">
+              {%- if block.settings.image != blank -%}
+                <img src="{{ block.settings.image | image_url: width: 800 }}" alt="" loading="lazy">
+              {%- else -%}
+                <span>[ Photo — personne qui ressent le symptôme ]</span>
+              {%- endif -%}
+            </div>
+            <div class="atl-probleme-onglets__body">
+              <h3><span class="atl-probleme-onglets__num">{{ n | plus: 1 }}</span>{{ block.settings.label }}</h3>
+              <p>{{ block.settings.text }}</p>
+              {%- if block.settings.source != blank -%}<p class="atl-probleme-onglets__source">{{ block.settings.source }}</p>{%- endif -%}
+            </div>
+          </div>
+          {%- assign n = n | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>

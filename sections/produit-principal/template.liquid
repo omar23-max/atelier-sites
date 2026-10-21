@@ -1,0 +1,219 @@
+{%- liquid
+  # Produit choisi dans la section, sinon celui de la page produit.
+  assign p = section.settings.product | default: product
+  assign selected_variant = ''
+  assign selected_qty = 1
+  assign selected_price = ''
+  assign selected_compare = ''
+  assign found = false
+  for block in section.blocks
+    if block.type == 'pack'
+      if found == false
+        assign selected_qty = block.settings.quantity
+        assign selected_variant = block.settings.variant_id
+        assign selected_price = block.settings.price
+        assign selected_compare = block.settings.compare_price
+      endif
+      if block.settings.selected and found == false
+        assign selected_qty = block.settings.quantity
+        assign selected_variant = block.settings.variant_id
+        assign selected_price = block.settings.price
+        assign selected_compare = block.settings.compare_price
+        assign found = true
+      endif
+    endif
+  endfor
+  assign image_count = 0
+  for block in section.blocks
+    if block.type == 'image'
+      assign image_count = image_count | plus: 1
+    endif
+  endfor
+-%}
+<section
+  class="atl-produit-principal"
+  style="--atl-page: {{ section.settings.color_page }}; --atl-text: {{ section.settings.color_text }}; --atl-accent: {{ section.settings.color_accent }}; --atl-card: {{ section.settings.color_card }}; --atl-selected: {{ section.settings.color_selected }}; --atl-bar: {{ section.settings.color_bar }}; --atl-button: {{ section.settings.color_button }}; --atl-stars: {{ section.settings.color_stars }};"
+>
+  <div class="atl-produit-principal__inner">
+    <div class="atl-produit-principal__gallery">
+      <div class="atl-produit-principal__thumbs">
+        {%- assign n = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'image' -%}
+            {%- assign img = block.settings.image | default: p.images[n] -%}
+            <button
+              type="button"
+              class="atl-produit-principal__thumb{% if n == 0 %} is-active{% endif %}"
+              data-index="{{ n }}"
+              data-full="{{ img | image_url: width: 1400 }}"
+              aria-label="{{ block.settings.alt | escape }}"
+              onclick="var r=this.closest('.atl-produit-principal');r.querySelectorAll('.atl-produit-principal__thumb').forEach(function(t){t.classList.remove('is-active')});this.classList.add('is-active');var m=r.querySelector('.atl-produit-principal__main');if(this.dataset.full){m.innerHTML='<img src=&quot;'+this.dataset.full+'&quot; alt=&quot;&quot;>'}else{m.innerHTML='<span class=&quot;atl-produit-principal__ph&quot;>[ Image '+(+this.dataset.index+1)+' de la galerie ]</span>'}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if img != blank -%}
+                <img src="{{ img | image_url: width: 240 }}" alt="{{ block.settings.alt | escape }}" loading="lazy">
+              {%- else -%}
+                <span class="atl-produit-principal__ph atl-produit-principal__ph--small">{{ n | plus: 1 }}</span>
+              {%- endif -%}
+            </button>
+            {%- assign n = n | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <div class="atl-produit-principal__stage">
+        <div class="atl-produit-principal__main">
+          {%- assign shown = false -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'image' and shown == false -%}
+              {%- assign img = block.settings.image | default: p.featured_image -%}
+              {%- if img != blank -%}
+                <img src="{{ img | image_url: width: 1400 }}" alt="{{ block.settings.alt | escape }}" fetchpriority="high">
+              {%- else -%}
+                <span class="atl-produit-principal__ph">[ Visuel produit principal — carré, produit au centre et 4 vignettes de bénéfices à droite ]</span>
+              {%- endif -%}
+              {%- assign shown = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {%- if image_count > 1 -%}
+          <button type="button" class="atl-produit-principal__arrow atl-produit-principal__arrow--prev" aria-label="Image précédente" onclick="var t=[].slice.call(this.closest('.atl-produit-principal').querySelectorAll('.atl-produit-principal__thumb'));var i=t.findIndex(function(x){return x.classList.contains('is-active')});t[(i-1+t.length)%t.length].click()">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+          <button type="button" class="atl-produit-principal__arrow atl-produit-principal__arrow--next" aria-label="Image suivante" onclick="var t=[].slice.call(this.closest('.atl-produit-principal').querySelectorAll('.atl-produit-principal__thumb'));var i=t.findIndex(function(x){return x.classList.contains('is-active')});t[(i+1)%t.length].click()">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="atl-produit-principal__info">
+      <p class="atl-produit-principal__rating"><span class="atl-produit-principal__stars" aria-hidden="true">★★★★★</span> {{ section.settings.rating_text }}</p>
+      <h1 class="atl-produit-principal__title">{{ section.settings.title }}</h1>
+      <p class="atl-produit-principal__subtitle">{{ section.settings.subtitle }}</p>
+
+      {%- assign benefits = section.settings.benefits | newline_to_br | split: '<br />' -%}
+      <ul class="atl-produit-principal__benefits">
+        {%- for line in benefits -%}
+          {%- assign b = line | strip -%}
+          {%- if b != blank -%}
+            <li>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+              {{ b }}
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+      <p class="atl-produit-principal__countdown" data-minutes="{{ section.settings.countdown_minutes }}" data-key="atl-cd-{{ section.id }}">
+        {{ section.settings.countdown_label }} <strong class="atl-produit-principal__clock">00:00:00</strong>
+      </p>
+
+      {%- form 'product', p -%}
+        <input type="hidden" name="id" class="atl-produit-principal__vid" value="{% if selected_variant != blank %}{{ selected_variant }}{% else %}{{ p.selected_or_first_available_variant.id }}{% endif %}">
+        <input type="hidden" name="quantity" value="{{ selected_qty }}" class="atl-produit-principal__qty">
+
+        <div class="atl-produit-principal__packs">
+          {%- assign first_done = false -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'pack' -%}
+              {%- liquid
+                assign is_checked = false
+                if found and block.settings.selected
+                  assign is_checked = true
+                elsif found == false and first_done == false
+                  assign is_checked = true
+                endif
+                assign first_done = true
+              -%}
+              <label class="atl-produit-principal__pack" {{ block.shopify_attributes }}>
+                <input
+                  type="radio"
+                  name="atl-pack-{{ section.id }}"
+                  data-qty="{{ block.settings.quantity }}"
+                  data-variant="{{ block.settings.variant_id }}"
+                  data-price="{{ block.settings.price | escape }}"
+                  data-compare="{{ block.settings.compare_price | escape }}"
+                  {% if is_checked %}checked{% endif %}
+                  onchange="var f=this.form;if(this.dataset.variant){f.querySelector('.atl-produit-principal__vid').value=this.dataset.variant}f.querySelector('.atl-produit-principal__qty').value=this.dataset.qty;f.querySelector('.atl-produit-principal__btn-price').textContent=this.dataset.price;f.querySelector('.atl-produit-principal__btn-compare').textContent=this.dataset.compare"
+                >
+                {%- if block.settings.tag != blank -%}<span class="atl-produit-principal__tag">{{ block.settings.tag }}</span>{%- endif -%}
+                <span class="atl-produit-principal__pack-img">
+                  {%- if block.settings.image != blank -%}
+                    <img src="{{ block.settings.image | image_url: width: 160 }}" alt="" loading="lazy">
+                  {%- else -%}
+                    <span class="atl-produit-principal__ph atl-produit-principal__ph--small">×{{ block.settings.quantity }}</span>
+                  {%- endif -%}
+                </span>
+                <span class="atl-produit-principal__pack-title">
+                  {{ block.settings.title }}
+                  {%- if block.settings.pill != blank -%}<span class="atl-produit-principal__pill">{{ block.settings.pill }}</span>{%- endif -%}
+                </span>
+                <span class="atl-produit-principal__pack-price">
+                  <strong>{{ block.settings.price }}</strong>
+                  {%- if block.settings.compare_price != blank -%}<s>{{ block.settings.compare_price }}</s>{%- endif -%}
+                </span>
+              </label>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        <p class="atl-produit-principal__stock">
+          <span class="atl-produit-principal__dot" aria-hidden="true"></span>
+          <span class="atl-produit-principal__stock-ok">{{ section.settings.stock_text }}</span> — {{ section.settings.stock_note }}
+        </p>
+
+        <button type="submit" name="add" class="atl-produit-principal__button">
+          <span class="atl-produit-principal__btn-line">
+            {{ section.settings.button_label }} ·
+            <span class="atl-produit-principal__btn-price">{{ selected_price }}</span>
+            <s class="atl-produit-principal__btn-compare">{{ selected_compare }}</s>
+          </span>
+          <span class="atl-produit-principal__btn-note">{{ section.settings.button_note }}</span>
+        </button>
+      {%- endform -%}
+
+      <p class="atl-produit-principal__perks">
+        <span>∞ {{ section.settings.perk_left }}</span>
+        <span>↻ {{ section.settings.perk_right }}</span>
+      </p>
+
+      {%- if section.settings.show_payment_icons -%}
+        <div class="atl-produit-principal__payments">
+          {%- if shop.enabled_payment_types.size > 0 -%}
+            {%- for type in shop.enabled_payment_types -%}{{ type | payment_type_svg_tag: class: 'atl-produit-principal__pay' }}{%- endfor -%}
+          {%- else -%}
+            <span class="atl-produit-principal__pay">VISA</span><span class="atl-produit-principal__pay">MC</span><span class="atl-produit-principal__pay">AMEX</span><span class="atl-produit-principal__pay">PayPal</span><span class="atl-produit-principal__pay">Apple Pay</span><span class="atl-produit-principal__pay">G Pay</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="atl-produit-principal__tabs">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'onglet' -%}
+            <details class="atl-produit-principal__tab" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+              <summary>{{ block.settings.title }}</summary>
+              <p>{{ block.settings.text | newline_to_br }}</p>
+            </details>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="atl-produit-principal__guarantee">
+        {%- if section.settings.guarantee_seal != blank -%}
+          <img class="atl-produit-principal__seal" src="{{ section.settings.guarantee_seal | image_url: width: 240 }}" alt="" loading="lazy">
+        {%- else -%}
+          <span class="atl-produit-principal__seal atl-produit-principal__seal--text">{{ section.settings.guarantee_seal_text }}</span>
+        {%- endif -%}
+        <h2>{{ section.settings.guarantee_title }}</h2>
+        <p class="atl-produit-principal__g-lead">{{ section.settings.guarantee_lead }}</p>
+        <p>{{ section.settings.guarantee_text }}</p>
+      </div>
+    </div>
+  </div>
+  <img
+    alt=""
+    hidden
+    src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+    onload="var r=this.parentNode,c=r.querySelector('.atl-produit-principal__countdown');if(!c||c.dataset.on)return;c.dataset.on=1;var k=c.dataset.key,end;try{end=+localStorage.getItem(k)}catch(e){}if(!end||end<Date.now()){end=Date.now()+c.dataset.minutes*60000;try{localStorage.setItem(k,end)}catch(e){}}var o=c.querySelector('.atl-produit-principal__clock');function p(n){return(n<10?'0':'')+n}function t(){var s=Math.max(0,Math.round((end-Date.now())/1000));o.textContent=p(Math.floor(s/3600))+':'+p(Math.floor(s%3600/60))+':'+p(s%60)}t();setInterval(t,1000)"
+  >
+</section>

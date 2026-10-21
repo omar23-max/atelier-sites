@@ -1,0 +1,36 @@
+<section
+  class="atl-hero-fond-image"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-stars: {{ section.settings.color_stars }}; --atl-button: {{ section.settings.color_button }}; --atl-button-text: {{ section.settings.color_button_text }}; --atl-overlay: {{ section.settings.overlay | divided_by: 100.0 }}; --atl-min-h: {{ section.settings.min_height }}px; --atl-image-w: {{ section.settings.image_width }}px;"
+>
+  {%- if section.settings.bg_image != blank -%}
+    <img class="atl-hero-fond-image__bg" src="{{ section.settings.bg_image | image_url: width: 2400 }}" alt="" fetchpriority="high">
+  {%- else -%}
+    <div class="atl-hero-fond-image__bg atl-hero-fond-image__bg--placeholder" aria-hidden="true">
+      <span>[ Image de fond — 1920×720, feuillage sombre ]</span>
+    </div>
+  {%- endif -%}
+
+  <div class="atl-hero-fond-image__inner">
+    <div class="atl-hero-fond-image__content">
+      <p class="atl-hero-fond-image__kicker">
+        {%- if section.settings.show_stars -%}
+          <span class="atl-hero-fond-image__stars" aria-label="5 étoiles">★★★★★</span>
+        {%- endif -%}
+        <span>{{ section.settings.kicker }}</span>
+      </p>
+      <h1 class="atl-hero-fond-image__title">{{ section.settings.title | newline_to_br }}</h1>
+      <p class="atl-hero-fond-image__text">{{ section.settings.text }}</p>
+      {%- if section.settings.button_label != blank -%}
+        <a class="atl-hero-fond-image__button" href="{{ section.settings.button_link | default: '#' }}">{{ section.settings.button_label }}</a>
+      {%- endif -%}
+    </div>
+
+    <div class="atl-hero-fond-image__media">
+      {%- if section.settings.image != blank -%}
+        <img src="{{ section.settings.image | image_url: width: 1200 }}" alt="" loading="eager">
+      {%- else -%}
+        <div class="atl-hero-fond-image__placeholder">[ Visuel produit — packshot détouré, 4-5 produits alignés ]</div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>

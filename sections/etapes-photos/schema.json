@@ -1,0 +1,39 @@
+{
+  "name": "Atl · Étapes photos",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Sur-titre", "default": "[ Mode d'emploi ]" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "[ Simple comme bonjour — 4 mots ]" },
+    { "type": "text", "id": "subtitle", "label": "Sous-titre", "default": "[ Dose et fréquence — 5-6 mots ]" },
+    { "type": "textarea", "id": "footnote", "label": "Note sous les étapes", "default": "[ Conseil de régularité pour de meilleurs résultats — 20-25 mots. ]" },
+    { "type": "range", "id": "padding_top", "label": "Marge en haut", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge en bas", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 72 },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#ffffff" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#420002" },
+    { "type": "color", "id": "color_card", "label": "Fond des cartes", "default": "#faf2f2" },
+    { "type": "color", "id": "color_accent", "label": "Étiquette d'étape", "default": "#9f0004" }
+  ],
+  "blocks": [
+    {
+      "type": "etape",
+      "name": "Étape",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Photo" },
+        { "type": "text", "id": "label", "label": "Étiquette", "default": "[ ÉTAPE 1 ]" },
+        { "type": "text", "id": "title", "label": "Titre", "default": "[ Moment de la prise — 3 mots ]" },
+        { "type": "textarea", "id": "text", "label": "Texte", "default": "[ Comment et pourquoi à ce moment-là — 20-25 mots. ]" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · Étapes photos",
+      "blocks": [
+        { "type": "etape", "settings": { "label": "[ ÉTAPE 1 ]" } },
+        { "type": "etape", "settings": { "label": "[ ÉTAPE 2 ]" } },
+        { "type": "etape", "settings": { "label": "[ ÉTAPE 3 ]" } }
+      ]
+    }
+  ]
+}

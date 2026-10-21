@@ -1,0 +1,37 @@
+{
+  "name": "Atl · FAQ avec image",
+  "tag": "section",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image (à gauche)" },
+    { "type": "text", "id": "kicker", "label": "Sur-titre", "default": "[ FAQ ]" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "[ Encore des questions ? — 3 mots ]" },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#ffffff" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#420002" },
+    { "type": "color", "id": "color_accent", "label": "Signes + / –", "default": "#9f0004" }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "[ Question fréquente — 6-9 mots ? ]" },
+        { "type": "textarea", "id": "answer", "label": "Réponse", "default": "[ Réponse claire et rassurante — 25-40 mots. ]" },
+        { "type": "checkbox", "id": "open", "label": "Ouverte par défaut", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · FAQ avec image",
+      "blocks": [
+        { "type": "question", "settings": { "open": true } },
+        { "type": "question" },
+        { "type": "question" },
+        { "type": "question" },
+        { "type": "question" },
+        { "type": "question" }
+      ]
+    }
+  ]
+}

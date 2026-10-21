@@ -1,0 +1,48 @@
+{
+  "name": "Atl · Témoignages cartes",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Accroche au-dessus du titre", "default": "[ Plus de 20 000 clients satisfaits — 4-5 mots ]" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "[ Ce que les clients remarquent — 4-5 mots ]" },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Sous-titre",
+      "default": "[ Sous-titre qui explique ce que les clients constatent après quelques semaines — 12-16 mots ]"
+    },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond de la section (haut)", "default": "#3b0a0e" },
+    { "type": "color", "id": "color_bg_2", "label": "Fond de la section (bas, dégradé)", "default": "#3b0a0e" },
+    { "type": "color", "id": "color_text", "label": "Texte de la section", "default": "#ffffff" },
+    { "type": "color", "id": "color_card", "label": "Fond des cartes", "default": "#fde8e8" },
+    { "type": "color", "id": "color_card_text", "label": "Texte des cartes", "default": "#3b0a0e" },
+    { "type": "color", "id": "color_stars", "label": "Étoiles", "default": "#f2a516" }
+  ],
+  "blocks": [
+    {
+      "type": "temoignage",
+      "name": "Témoignage",
+      "settings": [
+        { "type": "range", "id": "rating", "label": "Note (étoiles)", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "text", "id": "rating_label", "label": "Libellé de la note", "default": "[ Note 5,0 / 5 ]" },
+        { "type": "text", "id": "title", "label": "Titre", "default": "[ Titre — 2-3 mots ]" },
+        {
+          "type": "textarea",
+          "id": "body",
+          "label": "Avis",
+          "default": "[ Avis du client : ce qu'il a remarqué, comment le produit s'intègre à sa routine et le résultat obtenu — 35-45 mots. ]"
+        },
+        { "type": "text", "id": "name", "label": "Nom du client", "default": "[ Nom du client ]" },
+        { "type": "image_picker", "id": "photo", "label": "Photo (produit ou client)" },
+        { "type": "text", "id": "product", "label": "Produit acheté", "default": "[ Nom du produit — 3 mots ]" },
+        { "type": "text", "id": "date", "label": "Date", "default": "[ Date — 2 mots ]" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · Témoignages cartes",
+      "blocks": [{ "type": "temoignage" }, { "type": "temoignage" }, { "type": "temoignage" }]
+    }
+  ]
+}

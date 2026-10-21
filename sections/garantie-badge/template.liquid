@@ -1,0 +1,21 @@
+<section
+  class="atl-garantie-badge"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-badge: {{ section.settings.color_badge }}; --atl-radius: {{ section.settings.radius }}px;"
+>
+  <div class="atl-garantie-badge__card">
+    {%- if section.settings.badge_image != blank -%}
+      <img
+        class="atl-garantie-badge__badge"
+        src="{{ section.settings.badge_image | image_url: width: 240 }}"
+        alt="{{ section.settings.badge_alt | escape }}"
+        width="96"
+        height="96"
+        loading="lazy"
+      >
+    {%- else -%}
+      <div class="atl-garantie-badge__badge atl-garantie-badge__badge--text">{{ section.settings.badge_text }}</div>
+    {%- endif -%}
+    <h2 class="atl-garantie-badge__title">{{ section.settings.title }}</h2>
+    <p class="atl-garantie-badge__text">{{ section.settings.text }}</p>
+  </div>
+</section>

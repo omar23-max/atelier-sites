@@ -1,0 +1,48 @@
+<section
+  class="atl-produits-carrousel"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-accent: {{ section.settings.color_accent }}; --atl-button-text: {{ section.settings.color_button_text }}; --atl-sale: {{ section.settings.color_sale }};"
+>
+  <div class="atl-produits-carrousel__inner">
+    {%- if section.settings.title != blank -%}
+      <h2 class="atl-produits-carrousel__title">{{ section.settings.title }}</h2>
+    {%- endif -%}
+
+    <div class="atl-produits-carrousel__track">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'produit' -%}
+          <article class="atl-produits-carrousel__card" {{ block.shopify_attributes }}>
+            <a class="atl-produits-carrousel__media" href="{{ block.settings.link | default: '#' }}">
+              {%- if block.settings.image != blank -%}
+                <img src="{{ block.settings.image | image_url: width: 800 }}" alt="{{ block.settings.title | escape }}" loading="lazy" width="377" height="377">
+              {%- else -%}
+                <span class="atl-produits-carrousel__placeholder">[ Image produit — carré, produit seul sur fond feuillage sombre ]</span>
+              {%- endif -%}
+              {%- if block.settings.badge_top != blank -%}
+                <span class="atl-produits-carrousel__badge">
+                  <strong>{{ block.settings.badge_top }}</strong>
+                  {%- if block.settings.badge_bottom != blank -%}<span>{{ block.settings.badge_bottom }}</span>{%- endif -%}
+                </span>
+              {%- endif -%}
+            </a>
+
+            <p class="atl-produits-carrousel__rating">
+              <span class="atl-produits-carrousel__stars" aria-label="{{ block.settings.rating }} sur 5">
+                {%- for i in (1..5) -%}{%- if i <= block.settings.rating -%}★{%- else -%}☆{%- endif -%}{%- endfor -%}
+              </span>
+              {{ block.settings.reviews }}
+            </p>
+            <h3 class="atl-produits-carrousel__name">
+              <a href="{{ block.settings.link | default: '#' }}">{{ block.settings.title }}</a>
+            </h3>
+            <p class="atl-produits-carrousel__price">
+              <span>{{ block.settings.price }}</span>
+              {%- if block.settings.compare_price != blank -%}<s>{{ block.settings.compare_price }}</s>{%- endif -%}
+              {%- if block.settings.sale_label != blank -%}<em>{{ block.settings.sale_label }}</em>{%- endif -%}
+            </p>
+            <a class="atl-produits-carrousel__button" href="{{ block.settings.link | default: '#' }}">{{ block.settings.button_label }}</a>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Readex+Pro:wght@400;500&display=swap");
+
+.atl-stats-cartes {
+  padding: 60px 0 72px;
+  background: var(--atl-bg, #ffffff);
+  color: var(--atl-text, #420002);
+  font-family: var(--atl-font-body, "Inter Tight", sans-serif);
+}
+
+.atl-stats-cartes__inner {
+  box-sizing: border-box;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.atl-stats-cartes__kicker {
+  margin: 0 0 12px;
+  font-size: 14px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.atl-stats-cartes__title {
+  margin: 0 0 10px;
+  font-family: var(--atl-font-heading, "Readex Pro", sans-serif);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 44px;
+  letter-spacing: -0.03em;
+}
+
+.atl-stats-cartes__subtitle {
+  margin: 0 0 32px;
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.atl-stats-cartes__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px 28px;
+}
+
+.atl-stats-cartes__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 178px;
+  padding: 22px 22px;
+  border-radius: 5px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--atl-card, #3a0204) 82%, transparent), color-mix(in srgb, var(--atl-card, #3a0204) 35%, transparent)),
+    var(--atl-card-img, radial-gradient(ellipse at 85% 40%, color-mix(in srgb, var(--atl-card, #3a0204) 70%, white), transparent 60%)),
+    var(--atl-card, #3a0204);
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+}
+
+.atl-stats-cartes__source {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.atl-stats-cartes__value {
+  margin: 0 0 6px;
+  font-family: var(--atl-font-heading, "Readex Pro", sans-serif);
+  font-size: 46px;
+  font-weight: 500;
+  line-height: 44px;
+  letter-spacing: -0.03em;
+}
+
+.atl-stats-cartes__text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 21px;
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .atl-stats-cartes {
+    padding: 44px 0;
+  }
+
+  .atl-stats-cartes__title {
+    font-size: 30px;
+    line-height: 34px;
+  }
+
+  .atl-stats-cartes__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .atl-stats-cartes__card {
+    min-height: 140px;
+  }
+
+  .atl-stats-cartes__value {
+    font-size: 38px;
+    line-height: 40px;
+  }
+}

@@ -1,0 +1,203 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;700;800&display=swap");
+
+.atl-produits-carrousel {
+  padding: 51px 0 49px;
+  background: var(--atl-bg, #ffffff);
+  color: var(--atl-text, #0c240e);
+  font-family: var(--atl-font-body, "Figtree", sans-serif);
+}
+
+.atl-produits-carrousel a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.atl-produits-carrousel__inner {
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 15px;
+}
+
+.atl-produits-carrousel__title {
+  margin: 0 0 32px;
+  font-family: var(--atl-font-heading, "Figtree", sans-serif);
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.atl-produits-carrousel__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 372px;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.atl-produits-carrousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.atl-produits-carrousel__card {
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+}
+
+.atl-produits-carrousel__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--atl-sale, #16301a);
+}
+
+.atl-produits-carrousel__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.atl-produits-carrousel__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px;
+  box-sizing: border-box;
+  background: linear-gradient(170deg, var(--atl-sale, #0c240f), color-mix(in srgb, var(--atl-sale, #0c240f) 78%, white));
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.atl-produits-carrousel__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 10px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.atl-produits-carrousel__badge strong {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.atl-produits-carrousel__badge span {
+  font-size: 15px;
+}
+
+.atl-produits-carrousel__rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 2px;
+  font-size: 14px;
+}
+
+.atl-produits-carrousel__stars {
+  color: var(--atl-accent, #2db67d);
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.atl-produits-carrousel__name {
+  margin: 0 0 6px;
+  font-family: var(--atl-font-heading, "Figtree", sans-serif);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.atl-produits-carrousel__price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 20px;
+  font-size: 16px;
+}
+
+.atl-produits-carrousel__price s {
+  opacity: 0.55;
+}
+
+.atl-produits-carrousel__price em {
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: var(--atl-sale, #0c240e);
+  color: #ffffff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.atl-produits-carrousel__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 52px;
+  margin-top: auto;
+  padding: 10px 30px;
+  border-radius: 9999px;
+  background: var(--atl-accent, #2db67d);
+  color: var(--atl-button-text, #ffffff) !important;
+  font-size: 21px;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: filter 0.15s;
+}
+
+.atl-produits-carrousel__button:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 768px) {
+  .atl-produits-carrousel {
+    padding: 36px 0 32px;
+  }
+
+  .atl-produits-carrousel__inner {
+    padding-left: 0;
+  }
+
+  .atl-produits-carrousel__title {
+    margin-bottom: 22px;
+    font-size: 26px;
+  }
+
+  .atl-produits-carrousel__track {
+    grid-auto-columns: 89%;
+    gap: 12px;
+    padding: 0 14px;
+    scroll-padding: 0 14px;
+  }
+
+  .atl-produits-carrousel__name {
+    font-size: 18px;
+  }
+
+  .atl-produits-carrousel__button {
+    min-height: 48px;
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,134 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;700;800&display=swap");
+
+.atl-entete-menu-centre {
+  background: var(--atl-bg, #ffffff);
+  color: var(--atl-text, #0c240e);
+  font-family: var(--atl-font-body, "Figtree", sans-serif);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.atl-entete-menu-centre a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.atl-entete-menu-centre__inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+  box-sizing: border-box;
+  max-width: 1170px;
+  height: 68px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.atl-entete-menu-centre__logo {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+}
+
+.atl-entete-menu-centre__logo img {
+  display: block;
+  width: var(--atl-logo-w, 125px);
+  height: auto;
+}
+
+.atl-entete-menu-centre__logo span {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.atl-entete-menu-centre__nav {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  line-height: 23.4px;
+}
+
+.atl-entete-menu-centre__nav a:hover {
+  text-decoration: underline;
+}
+
+.atl-entete-menu-centre__icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  font-size: 13px;
+}
+
+.atl-entete-menu-centre__currency {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.atl-entete-menu-centre__flag {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(#b22234 0 14%, #fff 14% 28%, #b22234 28% 42%, #fff 42% 57%, #b22234 57% 71%, #fff 71% 85%, #b22234 85%);
+  box-shadow: inset 6px 6px 0 -1px #3c3b6e;
+}
+
+.atl-entete-menu-centre__cart {
+  display: flex;
+}
+
+.atl-entete-menu-centre__burger {
+  display: none;
+}
+
+.atl-entete-menu-centre__burger summary {
+  display: flex;
+  list-style: none;
+  cursor: pointer;
+}
+
+.atl-entete-menu-centre__burger summary::-webkit-details-marker {
+  display: none;
+}
+
+.atl-entete-menu-centre__drawer {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px 16px;
+  background: var(--atl-bg, #ffffff);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  font-size: 16px;
+}
+
+.atl-entete-menu-centre__drawer a {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 900px) {
+  .atl-entete-menu-centre__inner {
+    grid-template-columns: 1fr auto 1fr;
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  .atl-entete-menu-centre__burger {
+    display: block;
+    justify-self: start;
+  }
+
+  .atl-entete-menu-centre__logo {
+    justify-self: center;
+  }
+
+  .atl-entete-menu-centre__nav,
+  .atl-entete-menu-centre__currency {
+    display: none;
+  }
+}

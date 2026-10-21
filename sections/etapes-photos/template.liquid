@@ -1,0 +1,33 @@
+<section
+  class="atl-etapes-photos"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-card: {{ section.settings.color_card }}; --atl-accent: {{ section.settings.color_accent }}; --atl-pt: {{ section.settings.padding_top }}px; --atl-pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="atl-etapes-photos__inner">
+    <p class="atl-etapes-photos__kicker">{{ section.settings.kicker }}</p>
+    <h2 class="atl-etapes-photos__title">{{ section.settings.title }}</h2>
+    <p class="atl-etapes-photos__subtitle">{{ section.settings.subtitle }}</p>
+    <div class="atl-etapes-photos__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'etape' -%}
+          <article class="atl-etapes-photos__card" {{ block.shopify_attributes }}>
+            <div class="atl-etapes-photos__media">
+              {%- if block.settings.image != blank -%}
+                <img src="{{ block.settings.image | image_url: width: 500 }}" alt="" loading="lazy">
+              {%- else -%}
+                <span>[ Photo — prise pendant le repas ]</span>
+              {%- endif -%}
+            </div>
+            <div class="atl-etapes-photos__body">
+              <span class="atl-etapes-photos__label">{{ block.settings.label }}</span>
+              <h3>{{ block.settings.title }}</h3>
+              <p>{{ block.settings.text }}</p>
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- if section.settings.footnote != blank -%}
+      <p class="atl-etapes-photos__footnote">{{ section.settings.footnote }}</p>
+    {%- endif -%}
+  </div>
+</section>

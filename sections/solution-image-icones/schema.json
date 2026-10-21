@@ -1,0 +1,35 @@
+{
+  "name": "Atl · Solution icônes",
+  "tag": "section",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image (à gauche)" },
+    { "type": "text", "id": "kicker", "label": "Sur-titre", "default": "[ La solution ]" },
+    { "type": "text", "id": "title", "label": "Titre", "default": "[ Comment ça marche — 3 mots ]" },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texte (ligne vide = nouveau paragraphe)",
+      "default": "[ Le mécanisme du produit expliqué simplement : ce qu'il active et ce que le corps fait ensuite — 35-40 mots. ]\n\n[ Phrase de conclusion qui rassure — 8-10 mots. ]"
+    },
+    { "type": "range", "id": "padding_top", "label": "Marge en haut", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "label": "Marge en bas", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 72 },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#ffffff" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#420002" },
+    { "type": "color", "id": "color_card", "label": "Fond des atouts", "default": "#faf2f2" },
+    { "type": "color", "id": "color_accent", "label": "Icônes", "default": "#9f0004" }
+  ],
+  "blocks": [
+    {
+      "type": "atout",
+      "name": "Atout",
+      "settings": [
+        { "type": "image_picker", "id": "icon", "label": "Icône" },
+        { "type": "text", "id": "text", "label": "Texte", "default": "[ Atout du produit — 4-6 mots ]" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Atl · Solution icônes", "blocks": [{ "type": "atout" }, { "type": "atout" }, { "type": "atout" }, { "type": "atout" }] }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Atl · Produits carrousel",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Titre", "default": "[ Titre de la collection — 2 mots ]" },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#ffffff" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#0c240e" },
+    { "type": "color", "id": "color_accent", "label": "Étoiles et boutons", "default": "#2db67d" },
+    { "type": "color", "id": "color_button_text", "label": "Texte des boutons", "default": "#ffffff" },
+    { "type": "color", "id": "color_sale", "label": "Étiquette promo", "default": "#0c240e" }
+  ],
+  "blocks": [
+    {
+      "type": "produit",
+      "name": "Produit",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image (carrée)" },
+        { "type": "text", "id": "badge_top", "label": "Badge : ligne 1", "default": "[ Badge ]" },
+        { "type": "text", "id": "badge_bottom", "label": "Badge : ligne 2", "default": "[ 2 mots ]" },
+        { "type": "range", "id": "rating", "label": "Note (étoiles)", "min": 1, "max": 5, "step": 1, "default": 5 },
+        { "type": "text", "id": "reviews", "label": "Nombre d'avis", "default": "[ 000 avis ]" },
+        { "type": "text", "id": "title", "label": "Nom du produit", "default": "[ Nom du produit — 3-4 mots ]" },
+        { "type": "text", "id": "price", "label": "Prix", "default": "[ 00,00 $ ]" },
+        { "type": "text", "id": "compare_price", "label": "Prix barré", "default": "[ 00,00 $ ]" },
+        { "type": "text", "id": "sale_label", "label": "Étiquette promo", "default": "[ PROMO ]" },
+        { "type": "text", "id": "button_label", "label": "Bouton : texte", "default": "[ Acheter ]" },
+        { "type": "url", "id": "link", "label": "Lien du produit" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · Produits carrousel",
+      "blocks": [{ "type": "produit" }, { "type": "produit" }, { "type": "produit" }, { "type": "produit" }]
+    }
+  ]
+}

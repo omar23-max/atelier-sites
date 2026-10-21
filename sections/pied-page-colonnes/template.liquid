@@ -1,0 +1,53 @@
+<footer
+  class="atl-pied-page-colonnes"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-accent: {{ section.settings.color_accent }}; --atl-logo-w: {{ section.settings.logo_width }}px;"
+>
+  <div class="atl-pied-page-colonnes__grid">
+    <div class="atl-pied-page-colonnes__brand">
+      {%- if section.settings.logo != blank -%}
+        <img src="{{ section.settings.logo | image_url: width: 500 }}" alt="{{ section.settings.logo_text | escape }}">
+      {%- else -%}
+        <span class="atl-pied-page-colonnes__logo-text">{{ section.settings.logo_text }}</span>
+      {%- endif -%}
+      <p>{{ section.settings.about }}</p>
+      <p>{{ section.settings.email }}</p>
+      <p>{{ section.settings.phone }}</p>
+    </div>
+
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'colonne' -%}
+        <div class="atl-pied-page-colonnes__col" {{ block.shopify_attributes }}>
+          <h3>{{ block.settings.title }}</h3>
+          <ul>
+            {%- assign lines = block.settings.links | newline_to_br | split: '<br />' -%}
+            {%- for line in lines -%}
+              {%- assign parts = line | split: '|' -%}
+              {%- assign label = parts[0] | strip -%}
+              {%- if label != blank -%}
+                <li><a href="{{ parts[1] | strip | default: '#' }}">{{ label }}</a></li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <div class="atl-pied-page-colonnes__newsletter">
+      <h3>{{ section.settings.newsletter_title }}</h3>
+      {%- form 'customer' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <div class="atl-pied-page-colonnes__field">
+          <input type="email" name="contact[email]" placeholder="{{ section.settings.newsletter_placeholder | escape }}" aria-label="{{ section.settings.newsletter_placeholder | escape }}" required>
+          <button type="submit" aria-label="S'inscrire">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+
+  <div class="atl-pied-page-colonnes__bottom">
+    <p>{{ section.settings.copyright }}</p>
+    <p>{{ section.settings.disclaimer }}</p>
+  </div>
+</footer>
