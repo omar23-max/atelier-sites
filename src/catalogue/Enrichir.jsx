@@ -99,7 +99,129 @@ function Images({ images, setImages }) {
   );
 }
 
-function Method({ method, children, onSubmit, busy }) {
+// Toutes les adresses web trouvées dans un texte ou un tableau, sans doublon.
+const URL_RE = /https?:\/\/[^\s"',;<>()]+/g;
+const MAX_URLS = 100;
+function extractUrls(text) {
+  return [...new Set((String(text).match(URL_RE) ?? []).map((u) => u.replace(/[.)\]]+$/, "")))].slice(0, MAX_URLS);
+}
+
+// Plusieurs pages d'un coup : fichier Excel / CSV, lien Google Sheets, ou
+// adresses collées. Une demande est créée par adresse cochée.
+function UrlBatch({ urls, setUrls, onError }) {
+  const [sheet, setSheet] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  function addFound(found, source) {
+    if (!found.length) return onError(`Aucune adresse web (https://…) trouvée dans ${source}.`);
+    setUrls((prev) => {
+      const known = new Set(prev.map((u) => u.url));
+      return [...prev, ...found.filter((u) => !known.has(u)).map((url) => ({ url, on: true }))].slice(0, MAX_URLS);
+    });
+  }
+
+  async function readFile(file) {
+    if (!file) return;
+    setBusy(true);
+    try {
+      if (/\.(csv|txt)$/i.test(file.name)) {
+        addFound(extractUrls(await file.text()), file.name);
+      } else {
+        // Excel : toutes les feuilles, toutes les cellules (y compris les liens).
+        const XLSX = await import("xlsx");
+        const book = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        const parts = [];
+        for (const name of book.SheetNames) {
+          const ws = book.Sheets[name];
+          for (const [key, cell] of Object.entries(ws)) {
+            if (key.startsWith("!")) continue;
+            parts.push(cell.l?.Target ?? "", String(cell.v ?? ""));
+          }
+        }
+        addFound(extractUrls(parts.join("\n")), file.name);
+      }
+    } catch (e) {
+      onError(`Lecture impossible : ${e.message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function readSheet() {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/sheet?url=${encodeURIComponent(sheet.trim())}`);
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error);
+      addFound(extractUrls(body.csv), "la Google Sheet");
+      setSheet("");
+    } catch (e) {
+      onError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const checked = urls.filter((u) => u.on).length;
+  return (
+    <div className="cat-batch">
+      <strong>Plusieurs pages d'un coup</strong>
+      <div className="cat-batch__sources">
+        <label className="cat-btn cat-btn--ghost">
+          <input type="file" accept=".xlsx,.xls,.csv,.txt" hidden onChange={(e) => (readFile(e.target.files?.[0]), (e.target.value = ""))} />
+          {busy ? "Lecture…" : "Importer un fichier Excel / CSV"}
+        </label>
+        <span className="cat-batch__sheet">
+          <input value={sheet} onChange={(e) => setSheet(e.target.value)} placeholder="ou colle le lien d'une Google Sheet" />
+          <button type="button" className="cat-btn cat-btn--ghost" disabled={busy || !sheet.trim()} onClick={readSheet}>
+            Lire
+          </button>
+        </span>
+      </div>
+      <textarea
+        rows={2}
+        placeholder="ou colle ici des adresses (une par ligne, ou tout un texte : je trouve les liens)"
+        onBlur={(e) => {
+          if (e.target.value.trim()) {
+            addFound(extractUrls(e.target.value), "le texte collé");
+            e.target.value = "";
+          }
+        }}
+      />
+      <p className="cat-muted">
+        Je prends toutes les adresses https:// du fichier, quelle que soit la colonne (100 au plus). La Google Sheet doit être partagée en « Tous
+        les utilisateurs disposant du lien ».
+      </p>
+      {urls.length > 0 && (
+        <>
+          <div className="cat-batch__head">
+            <span>
+              {checked} / {urls.length} page(s) cochée(s) — une demande par page
+            </span>
+            <button type="button" className="cat-link" onClick={() => setUrls(urls.map((u) => ({ ...u, on: checked !== urls.length })))}>
+              {checked === urls.length ? "Tout décocher" : "Tout cocher"}
+            </button>
+            <button type="button" className="cat-link" onClick={() => setUrls([])}>
+              Vider la liste
+            </button>
+          </div>
+          <ul className="cat-batch__list">
+            {urls.map((u, i) => (
+              <li key={u.url}>
+                <label>
+                  <input type="checkbox" checked={u.on} onChange={() => setUrls(urls.map((x, j) => (j === i ? { ...x, on: !x.on } : x)))} />
+                  <span>{u.url}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Method({ method, children, onSubmit, busy, submitLabel }) {
   return (
     <section className="cat-panel" id={`m-${method.id}`}>
       <div className="cat-panel__head">
@@ -116,7 +238,7 @@ function Method({ method, children, onSubmit, busy }) {
         {children}
         <div>
           <button type="submit" className="cat-btn" disabled={busy}>
-            {busy ? "Envoi…" : "Enregistrer la demande"}
+            {busy ? "Envoi…" : (submitLabel ?? "Enregistrer la demande")}
           </button>
         </div>
       </form>
@@ -129,6 +251,8 @@ export function Enrichir({ onSent, onError }) {
   const [capture, setCapture] = useState({ family: "", notes: "" });
   const [captureImages, setCaptureImages] = useState([]);
   const [site, setSite] = useState({ url: "", sections: "", family: "", notes: "" });
+  const [batch, setBatch] = useState([]); // [{ url, on }] lues dans un fichier ou une Google Sheet
+  const batchChecked = batch.filter((u) => u.on).map((u) => u.url);
   const [lib, setLib] = useState({ url: "", sections: "", family: "", notes: "" });
   const [ia, setIa] = useState({ family: "", notes: "" });
   const [iaImages, setIaImages] = useState([]);
@@ -182,15 +306,40 @@ export function Enrichir({ onSent, onError }) {
       <Method
         method={m2}
         busy={busy === "site"}
-        onSubmit={() => {
-          if (!/^https?:\/\//.test(site.url)) return onError("Indique l'adresse complète de la page (https://…).");
-          send("site", site, () => setSite({ url: "", sections: "", family: "", notes: "" }));
+        submitLabel={batchChecked.length ? `Enregistrer ${batchChecked.length + (site.url ? 1 : 0)} demande(s)` : undefined}
+        onSubmit={async () => {
+          const all = [...new Set([...(site.url.trim() ? [site.url.trim()] : []), ...batchChecked])];
+          if (!all.length) return onError("Indique l'adresse d'une page (https://…), ou importe une liste d'adresses.");
+          if (all.some((u) => !/^https?:\/\//.test(u))) return onError("Indique l'adresse complète de la page (https://…).");
+          if (all.length === 1) return send("site", { ...site, url: all[0] }, () => (setSite({ url: "", sections: "", family: "", notes: "" }), setBatch([])));
+          // Plusieurs pages : une demande par adresse, avec les mêmes consignes.
+          setBusy("site");
+          let done = 0;
+          try {
+            for (const url of all) {
+              const res = await fetch("/api/requests", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type: "site", ...site, url, notes: [site.notes, `Lot de ${all.length} pages.`].filter(Boolean).join(" ") }),
+              });
+              if (!res.ok) throw new Error((await res.json()).error);
+              done++;
+            }
+            setSite({ url: "", sections: "", family: "", notes: "" });
+            setBatch([]);
+            onSent(`${done} demandes`);
+          } catch (e) {
+            onError(`${done} demande(s) enregistrée(s), puis échec : ${e.message}`);
+          } finally {
+            setBusy(null);
+          }
         }}
       >
         <label className="cat-field">
           <span>Adresse de la page</span>
           <input type="url" placeholder="https://exemple.com/products/…" value={site.url} onChange={(e) => setSite({ ...site, url: e.target.value })} />
         </label>
+        <UrlBatch urls={batch} setUrls={setBatch} onError={onError} />
         <label className="cat-field">
           <span>Sections à prélever</span>
           <input placeholder="Toutes, ou ex. : la FAQ, le comparatif et les avis" value={site.sections} onChange={(e) => setSite({ ...site, sections: e.target.value })} />

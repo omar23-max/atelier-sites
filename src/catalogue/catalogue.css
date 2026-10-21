@@ -1094,3 +1094,66 @@ textarea {
 .cat-offer .cat-field:nth-last-child(-n + 2) {
   grid-column: span 1;
 }
+
+/* Plusieurs pages d'un coup (Excel, CSV, Google Sheets) */
+.cat-batch {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed #cfcfcf;
+  border-radius: 10px;
+  background: #fafafa;
+}
+.cat-batch__sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.cat-batch__sources > label {
+  cursor: pointer;
+}
+.cat-batch__sheet {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+  min-width: 260px;
+}
+.cat-batch__sheet input {
+  flex: 1;
+}
+.cat-batch input,
+.cat-batch textarea {
+  padding: 7px 9px;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  font: inherit;
+}
+.cat-batch__head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cat-batch__list {
+  display: grid;
+  gap: 2px;
+  max-height: 260px;
+  margin: 0;
+  padding: 6px 8px;
+  overflow: auto;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  list-style: none;
+  font-size: 12.5px;
+}
+.cat-batch__list label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

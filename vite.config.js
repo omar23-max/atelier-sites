@@ -119,6 +119,23 @@ function atelierApi() {
             }
           }
 
+          // ---- Lire une Google Sheet partagée (« Tous les utilisateurs disposant du
+          // lien ») : renvoie son contenu en CSV. Uniquement docs.google.com. ----
+          if (parts[0] === "sheet" && req.method === "GET") {
+            const link = new URL(req.url, "http://x").searchParams.get("url") ?? "";
+            const m = /^https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/.exec(link);
+            if (!m) return json(res, 400, { error: "Ce n'est pas un lien Google Sheets (https://docs.google.com/spreadsheets/d/…)." });
+            const gid = /[#&?]gid=(\d+)/.exec(link)?.[1] ?? "0";
+            const r = await fetch(`https://docs.google.com/spreadsheets/d/${m[1]}/export?format=csv&gid=${gid}`, { redirect: "follow" });
+            const type = r.headers.get("content-type") ?? "";
+            if (!r.ok || !type.includes("csv")) {
+              return json(res, 403, {
+                error: "Impossible de lire la feuille : partage-la en « Tous les utilisateurs disposant du lien » (lecteur), ou télécharge-la en .xlsx / .csv.",
+              });
+            }
+            return json(res, 200, { csv: await r.text() });
+          }
+
           // ---- Corbeille commune : pages, projets, designs, templates, demandes ----
           // Rien n'est effacé : l'élément est déplacé dans corbeille/<type>/<id>__<date>
           // et peut être restauré. Un projet part avec ses pages, un template avec
@@ -392,7 +409,9 @@ function atelierApi() {
               // textes : réécrire les textes d'une page ; images : refaire ses photos d'origine.
               const types = ["capture", "site", "bibliotheque", "design", "ia", "textes", "images", "creatives", "offre"];
               if (!types.includes(body.type)) return json(res, 400, { error: "Type de demande inconnu." });
-              const folder = `${stamp()}-${body.type}`;
+              // Plusieurs demandes dans la même seconde (envoi d'un lot) : -2, -3…
+              let folder = `${stamp()}-${body.type}`;
+              for (let n = 2; existsSync(join(requestsDir, folder)); n++) folder = `${stamp()}-${body.type}-${n}`;
               const dir = join(requestsDir, folder);
               await mkdir(dir, { recursive: true });
               const images = [];
