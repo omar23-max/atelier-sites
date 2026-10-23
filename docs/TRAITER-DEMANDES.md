@@ -217,3 +217,24 @@ Demandes liées à la fiche :
 - **offre** : travailler l'offre avec les skills Hormozi (`hormozi-offer`,
   `pricing-strategy`, `offer-angles`, `objection-destroyer`) à partir de la
   fiche, puis remplir `offre`.
+
+## « Publier sur Shopify » (demande `shopify`)
+
+Créée par le bouton « Publier sur Shopify » de l'atelier (`page`, `details` :
+`projet`, `template`, `sections`). Pour la traiter, via la connexion Shopify :
+
+1. `npm run export:shopify -- --page <page>` (0 erreur) ; pour une page produit,
+   le modèle s'appelle `templates/product.atelier-<page>.json`, sinon
+   `templates/page.atelier-<page>.json` (le bouton l'indique dans `details.template`).
+2. Toujours une **copie non publiée** du thème (`themeDuplicate` si besoin) :
+   **jamais** le thème en ligne.
+3. `themeFilesUpsert`, un fichier par appel (limite de 16 384 caractères) :
+   chaque `sections/atl-<id>.liquid`, puis le modèle.
+4. Page produit : assigner le modèle au produit ; sinon créer/mettre à jour la
+   page (`pageCreate`) avec ce modèle.
+5. Noter l'envoi : `POST /api/projects/<projet>/publication` avec
+   `{ page, canal: "shopify", theme }`, puis passer la demande à « traitée ».
+
+Le bouton propose aussi « Télécharger le code Liquid (.zip) » : sections, modèle
+et `LISEZ-MOI.txt` pour les ajouter soi-même (un zip importé comme thème
+remplacerait tout le thème : ne pas le faire).

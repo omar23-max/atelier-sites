@@ -416,7 +416,7 @@ function atelierApi() {
             if (req.method === "POST") {
               const body = await readBody(req);
               // textes : réécrire les textes d'une page ; images : refaire ses photos d'origine.
-              const types = ["capture", "site", "bibliotheque", "design", "ia", "textes", "images", "creatives", "offre"];
+              const types = ["capture", "site", "bibliotheque", "design", "ia", "textes", "images", "creatives", "offre", "shopify"];
               if (!types.includes(body.type)) return json(res, 400, { error: "Type de demande inconnu." });
               // Plusieurs demandes dans la même seconde (envoi d'un lot) : -2, -3…
               let folder = `${stamp()}-${body.type}`;
