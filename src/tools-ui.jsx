@@ -31,14 +31,22 @@ function Dialog({ title, onClose, children, footer, wide }) {
 }
 
 // ---- Rebrand : rechercher / remplacer dans tous les textes de la page ----
-export function RebrandButton() {
+export function RebrandButton({ hidden = false }) {
   const [open, setOpen] = useState(false);
+  // Ouvert aussi par l'outil « Rebrand » du rail de gauche.
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener("atl-open-rebrand", onOpen);
+    return () => window.removeEventListener("atl-open-rebrand", onOpen);
+  }, []);
   return (
     <>
-      <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Remplacer un mot dans toute la page (marque, produit…)">
-        <IconReplace />
-        Rebrand
-      </button>
+      {!hidden && (
+        <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Remplacer un mot dans toute la page (marque, produit…)">
+          <IconReplace />
+          Rebrand
+        </button>
+      )}
       {open && <RebrandDialog onClose={() => setOpen(false)} />}
     </>
   );
@@ -105,14 +113,22 @@ function RebrandDialog({ onClose }) {
 }
 
 // ---- Historique : restaurer une copie de sécurité ----
-export function HistoryButton() {
+// hidden : seulement la fenêtre, ouverte par « atl-open-history » (rail de gauche).
+export function HistoryButton({ hidden = false }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener("atl-open-history", onOpen);
+    return () => window.removeEventListener("atl-open-history", onOpen);
+  }, []);
   return (
     <>
-      <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Revenir à une version précédente de la page">
-        <IconHistory />
-        Historique
-      </button>
+      {!hidden && (
+        <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Revenir à une version précédente de la page">
+          <IconHistory />
+          Historique
+        </button>
+      )}
       {open && <HistoryDialog onClose={() => setOpen(false)} />}
     </>
   );

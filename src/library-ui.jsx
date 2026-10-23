@@ -196,7 +196,7 @@ function groupedSections() {
 
 // Insère une section après la section sélectionnée (ou en fin de page),
 // la sélectionne et fait défiler l'aperçu jusqu'à elle.
-function insertSection(getPuck, type) {
+export function insertSection(getPuck, type) {
   const { appState, selectedItem, getSelectorForId, dispatch } = getPuck();
   const selector = selectedItem ? getSelectorForId(selectedItem.props.id) : null;
   const index = selector && selector.zone === ROOT_ZONE ? selector.index + 1 : appState.data.content.length;

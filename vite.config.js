@@ -287,6 +287,15 @@ function atelierApi() {
             return json(res, 200, JSON.parse(await readFile(file, "utf8")));
           }
 
+          // ---- Créer un design.md (palette du logo ou nouvelle palette) ----
+          if (parts[0] === "designs" && parts[1] && parts[1] !== "recents" && req.method === "PUT") {
+            if (!NAME.test(parts[1])) return json(res, 400, { error: "Nom de design invalide." });
+            const { markdown } = await readBody(req);
+            if (!/```json[\s\S]*```/.test(markdown ?? "")) return json(res, 400, { error: "Bloc de jetons manquant." });
+            await writeFile(join(root, "designs", `${parts[1]}.md`), markdown, "utf8");
+            return json(res, 200, { ok: true, file: `designs/${parts[1]}.md` });
+          }
+
           // ---- Derniers designs appliqués (designs/_recents.json), le plus récent d'abord ----
           if (parts[0] === "designs" && parts[1] === "recents") {
             const file = join(root, "designs", "_recents.json");

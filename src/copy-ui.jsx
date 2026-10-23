@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { IconPen } from "./icons.jsx";
@@ -22,14 +22,23 @@ function countBriefs(content) {
 // (demandes/<date>-textes/) que Claude traite : chaque consigne entre crochets
 // est remplacée par un vrai texte, au bon nombre de mots, pour ce produit et
 // ce profil client. Jamais le texte du site d'origine.
-export function RewriteButton() {
+// hidden : pas de bouton, seulement la fenêtre, ouverte par l'événement
+// « atl-open-rewrite » (outil « Régénérer » du rail de gauche).
+export function RewriteButton({ hidden = false }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener("atl-open-rewrite", onOpen);
+    return () => window.removeEventListener("atl-open-rewrite", onOpen);
+  }, []);
   return (
     <>
-      <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Remplir les textes de la page pour ton produit">
-        <IconPen />
-        Réécrire les textes
-      </button>
+      {!hidden && (
+        <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Remplir les textes de la page pour ton produit">
+          <IconPen />
+          Réécrire les textes
+        </button>
+      )}
       {open && createPortal(<RewriteDialog onClose={() => setOpen(false)} />, document.body)}
     </>
   );

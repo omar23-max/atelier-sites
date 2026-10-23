@@ -4,7 +4,7 @@ import { sections } from "./engine/sections.js";
 import { scorePage, ruleLabel } from "./engine/page-score.js";
 import { PAGE_TYPES } from "./engine/page-types.js";
 import { familyOf } from "./engine/families.js";
-import { PanelTabs, ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
+import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 const visible = sections.filter((s) => s.meta.status !== "masquee");
@@ -123,7 +123,6 @@ export function ScorePanel() {
 
   return (
     <div className="atl-score">
-      <PanelTabs />
       {!result.type ? (
         <ChooseType />
       ) : (

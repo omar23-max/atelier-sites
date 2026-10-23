@@ -1975,3 +1975,402 @@ a.atl-tool {
 select.is-missing {
   border-color: #f0a33a !important;
 }
+
+/* ---- Colonne de gauche : rail d'outils + outil choisi ---- */
+.atl-left {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  min-height: 100%;
+  font: 13px "Inter", system-ui, sans-serif;
+}
+.atl-rail {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: calc(100vh - 120px);
+  padding: 10px 0;
+  border-right: 1px solid #ececec;
+  background: #fafafa;
+}
+.atl-rail button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #555;
+  cursor: pointer;
+}
+.atl-rail button svg {
+  width: 19px;
+  height: 19px;
+}
+.atl-rail button:hover {
+  background: #eee;
+  color: #111;
+}
+.atl-rail button.is-on {
+  background: #ecebff;
+  color: #4b3fd6;
+}
+.atl-tool-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+}
+.atl-tool-panel .atl-score {
+  margin: -12px;
+}
+.atl-tool-panel__head {
+  display: flex;
+  flex-direction: column;
+}
+.atl-tool-panel__head small {
+  color: #999;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.atl-tool-panel__head b {
+  font-size: 15px;
+}
+.atl-tool-panel__hint,
+.atl-tool-panel__empty {
+  margin: 0;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.atl-tool-panel__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+}
+.atl-search {
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font: inherit;
+}
+.atl-structure {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atl-structure li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border-radius: 6px;
+}
+.atl-structure li:hover {
+  background: #f4f4f4;
+}
+.atl-structure li.is-active {
+  background: #ecebff;
+}
+.atl-structure li.is-drag {
+  opacity: 0.4;
+}
+.atl-structure__grip {
+  color: #bbb;
+  font-size: 11px;
+  letter-spacing: -2px;
+  cursor: grab;
+}
+.atl-structure__name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 3px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-structure__name b {
+  overflow: hidden;
+  font-weight: 600;
+  font-size: 12.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.atl-structure__name small {
+  overflow: hidden;
+  color: #888;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.atl-structure__tools {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+}
+.atl-structure li:hover .atl-structure__tools,
+.atl-structure li.is-active .atl-structure__tools {
+  opacity: 1;
+}
+.atl-structure__tools button {
+  width: 22px;
+  height: 22px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 11px;
+  cursor: pointer;
+}
+.atl-left__cta {
+  display: block;
+  width: 100%;
+  padding: 9px;
+  border: 0;
+  border-radius: 8px;
+  background: #111;
+  color: #fff;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  text-align: center;
+  cursor: pointer;
+}
+.atl-left__cta--ghost {
+  border: 1px solid #d5d5d5;
+  background: #fff;
+  color: #111;
+}
+.atl-left__cta:disabled {
+  opacity: 0.5;
+}
+.atl-families {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atl-families label {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.atl-families label:hover {
+  border-color: #c9c4ff;
+  background: #faf9ff;
+}
+.atl-families span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.atl-families b {
+  font-size: 12.5px;
+}
+.atl-families small {
+  overflow: hidden;
+  color: #888;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.atl-families em {
+  color: #999;
+  font-style: normal;
+  font-size: 11.5px;
+}
+.atl-back {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #4b3fd6;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-choices {
+  display: grid;
+  gap: 8px;
+}
+.atl-choices button {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-choices button:hover:not(:disabled),
+.atl-choices button.is-on {
+  border-color: #8f86ff;
+  background: #f7f6ff;
+}
+.atl-choices button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.atl-choices small {
+  color: #666;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+.atl-variants {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atl-variants button {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #e3e3e3;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-variants button:hover {
+  border-color: #8f86ff;
+}
+.atl-ai-form {
+  display: grid;
+  gap: 8px;
+}
+.atl-ai-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+.atl-ai-form textarea {
+  padding: 6px 8px;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  font: 12.5px "Inter", system-ui, sans-serif;
+  resize: vertical;
+}
+.atl-done {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #eef9f1;
+  color: #1f5f34;
+  font-size: 12.5px;
+}
+.atl-swatches {
+  display: flex;
+  gap: 3px;
+}
+.atl-swatches span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.atl-palettes {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.atl-palettes li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+}
+.atl-palettes li.is-current {
+  border-color: #8f86ff;
+  background: #f7f6ff;
+}
+.atl-palettes li > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.atl-palettes b {
+  overflow: hidden;
+  font-size: 12.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.atl-palettes small {
+  color: #888;
+  font-size: 11px;
+}
+.atl-palettes li > button {
+  flex: none;
+  padding: 5px 10px;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  background: #fff;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-palettes li > button:disabled {
+  opacity: 0.5;
+}
+.atl-custom {
+  display: flex;
+  gap: 4px;
+}
+.atl-custom input {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.atl-custom button {
+  width: 24px;
+  height: 24px;
+  border: 1px dashed #bbb;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+.atl-logo {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.atl-logo img {
+  max-width: 100%;
+  max-height: 110px;
+  padding: 8px;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #fff;
+}

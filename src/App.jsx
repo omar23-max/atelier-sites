@@ -4,12 +4,13 @@ import "@puckeditor/core/puck.css";
 import { sections } from "./engine/sections.js";
 import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
-import { FieldsPanel, FullscreenButton, LibraryPanel, PageSections } from "./library-ui.jsx";
-import { ScorePanel } from "./score-ui.jsx";
+import { FieldsPanel, FullscreenButton } from "./library-ui.jsx";
+import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
 import { DesignSelect } from "./design-ui.jsx";
-import { CatalogueLink, DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
+import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
+import { ShopifyButton } from "./shopify-ui.jsx";
 import { NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
@@ -128,31 +129,28 @@ export default function App() {
             { width: 1440, height: "auto", label: "Ordinateur", icon: "Monitor" },
           ]}
           plugins={[
-            // Remplace le panneau « Blocks » de Puck : à gauche, seulement les
-            // sections de la page ouverte (la librairie s'ouvre via « + Ajouter »).
-            { name: "blocks", label: "Sections", icon: <span className="atl-plugin-icon">▤</span>, render: PageSections },
-            // Remplace « Outline » (doublon) : la librairie par famille.
-            { name: "outline", label: "Ajouter", icon: <span className="atl-plugin-icon">＋</span>, render: LibraryPanel },
-            // Page Score : note de la page selon son type, sections manquantes.
-            { name: "score", label: "Score", icon: <span className="atl-plugin-icon">◎</span>, render: ScorePanel },
+            // Colonne de gauche : rail d'outils (Structure, Ajouter, Palette,
+            // Régénérer, Rebrand, Score). Remplace « Blocks » et « Outline » de Puck.
+            { name: "blocks", label: "Outils", icon: <span className="atl-plugin-icon">▤</span>, render: LeftPanel },
+            { name: "outline", label: "Outils", icon: <span className="atl-plugin-icon">▤</span>, render: LeftPanel },
           ]}
           overrides={{
             fields: FieldsPanel,
             headerActions: ({ children }) => (
               <>
                 {/* Contenu de la page, puis outils de la page. */}
-                <div className="atl-tools">
-                  <RebrandButton />
-                  <RewriteButton />
-                  <StudioButton />
-                </div>
-                <div className="atl-tools atl-tools--plain">
-                  <CatalogueLink />
-                  <HistoryButton />
+                {/* Rebrand, Réécrire et Studio s'ouvrent depuis le rail de gauche. */}
+                <RebrandButton hidden />
+                <RewriteButton hidden />
+                <StudioButton hidden />
+                {/* Catalogue et Historique sont en bas du rail de gauche. */}
+                <HistoryButton hidden />
+                <FullscreenButton />
+                <span className="atl-publish">
                   <DownloadHtmlButton />
-                  <FullscreenButton />
-                </div>
-                <span className="atl-publish">{children}</span>
+                  <ShopifyButton />
+                  {children}
+                </span>
               </>
             ),
           }}

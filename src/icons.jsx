@@ -50,3 +50,40 @@ export const IconGrid = () => (
     <rect x="14" y="14" width="7" height="7" rx="1" />
   </Svg>
 );
+export const IconList = () => (
+  <Svg>
+    <path d="M4 6h16M4 12h16M4 18h16" />
+  </Svg>
+);
+export const IconPlusSquare = () => (
+  <Svg>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M12 8v8M8 12h8" />
+  </Svg>
+);
+export const IconPalette = () => (
+  <Svg>
+    <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.9.3-1.7 1.2-1.7H17a4 4 0 0 0 4-4c0-5-4-10.5-9-10.5Z" />
+    <circle cx="7.5" cy="11" r="1" />
+    <circle cx="10" cy="7" r="1" />
+    <circle cx="14.5" cy="7" r="1" />
+    <circle cx="17" cy="11" r="1" />
+  </Svg>
+);
+export const IconSparkles = () => (
+  <Svg>
+    <path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2Z" />
+    <path d="M19 3v4M21 5h-4M5 17v4M7 19H3" />
+  </Svg>
+);
+export const IconSwap = () => (
+  <Svg>
+    <path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4" />
+  </Svg>
+);
+export const IconGauge = () => (
+  <Svg>
+    <path d="M12 14l4-4" />
+    <path d="M3.3 17a9 9 0 1 1 17.4 0" />
+  </Svg>
+);

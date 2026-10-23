@@ -23,7 +23,7 @@ const readAsDataUrl = (file) =>
 // avec ton produit (tes photos fournisseur, ton logo, ta palette). Crée une
 // demande (demandes/<date>-images/) que Claude traite avec Nano Banana ; les
 // images obtenues sont posées dans la page (medias/<page>/).
-export function StudioButton() {
+export function StudioButton({ hidden = false }) {
   const [open, setOpen] = useState(false);
   // Ouvert aussi depuis un champ image (« Refaire avec le Studio d'images »).
   useEffect(() => {
@@ -33,10 +33,12 @@ export function StudioButton() {
   }, []);
   return (
     <>
-      <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Refaire les photos d'origine avec ton produit">
-        <IconImage />
-        Studio d'images
-      </button>
+      {!hidden && (
+        <button type="button" className="atl-tool" onClick={() => setOpen(true)} title="Refaire les photos d'origine avec ton produit">
+          <IconImage />
+          Studio d'images
+        </button>
+      )}
       {open && createPortal(<StudioDialog onClose={() => setOpen(false)} />, document.body)}
     </>
   );
