@@ -286,10 +286,14 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     }
     // Bordures sans style : rien à écrire.
     for (const side of ["top", "right", "bottom", "left"]) {
-      if (st[`border-${side}-style`] === "none") {
+      if (st[`border-${side}-style`] === "none" || px(st[`border-${side}-width`]) === 0) {
         delete out[`border-${side}-width`];
         delete out[`border-${side}-color`];
         delete out[`border-${side}-style`];
+      } else {
+        // Bordure visible : son épaisseur est toujours écrite (sinon le
+        // navigateur prendrait la sienne, 3 px).
+        out[`border-${side}-width`] = st[`border-${side}-width`];
       }
     }
     if (st["text-decoration-line"] === "none") delete out["text-decoration-color"];
@@ -446,6 +450,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       const edge = [
         it.cutTop ? "padding-top:0;margin-top:0;border-top-width:0;" : "",
         it.cutBottom ? "padding-bottom:0;margin-bottom:0;border-bottom-width:0;" : "",
+        // Morceau d'un bloc coupé entre plusieurs sections : pas de hauteur
+        // minimale répétée (une page « plein écran » ferait un écran vide par partie).
+        it.cutTop || it.cutBottom ? "min-height:0;" : "",
       ].join("");
       let tag = n.tag === "body" ? "div" : n.tag === "picture" ? "img" : ["video", "canvas", "iframe", "object", "embed"].includes(n.tag) ? "img" : n.tag;
       if (["html", "head"].includes(tag)) tag = "div";

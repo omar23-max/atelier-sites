@@ -12,11 +12,11 @@ Faux magazine « The Skincare Magazine », fil d'Ariane, date et compteur de vue
 
 229 éléments dans l'ordre : 0 grands titres, 30 intertitres,
 195 paragraphes, 4 listes, 94 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (26 sections).
+Copie entière dans la section « Advertorial — article complet » (19 sections).
 
 ## Typographie
 
-- **Titres : Bitter** (équivalent Google Fonts : Bitter).
+- **Titres : Bitter** (équivalent Google Fonts : helvetica).
   Grand titre ? px ; intertitres 14 px.
 - **Texte : Bitter** (équivalent : Bitter), 20 px, interligne d'origine conservé à 1,6.
 
@@ -42,18 +42,17 @@ Copie entière dans la section « Advertorial — article complet » (26 section
 ```json
 {
   "polices": {
-    "titres": "Bitter",
+    "titres": "helvetica",
     "texte": "Bitter"
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f4f4f4",
+    "surface": "#f3f4f6",
+    "fond-sombre": "#00465a",
     "texte": "#303030",
-    "accent": "#303030",
-    "bouton": "#e4572e",
-    "bouton-texte": "#ffffff",
-    "fond-sombre": "#000000",
-    "texte-sur-sombre": "#ffffff"
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#47901a",
+    "bouton-texte": "#f6f9fe"
   }
 }
 ```

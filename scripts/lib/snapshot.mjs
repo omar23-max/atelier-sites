@@ -103,7 +103,7 @@ export function snapshotDesktop({ props, chromeSelector }) {
 
   function visit(el, parent) {
     if (SKIP.has(el.tagName)) return;
-    if (chromeSelector && el.matches(chromeSelector)) return;
+    if (chromeSelector && el !== document.body && el.matches(chromeSelector)) return;
     const id = nodes.length;
     el.setAttribute("data-atl-n", String(id));
     const tag = el.tagName.toLowerCase();

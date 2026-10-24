@@ -1,0 +1,13 @@
+import { chromium } from "playwright-core";
+import { readFile } from "node:fs/promises";
+const [src, out, y = 0, h = 2400, scale = 0.5] = process.argv.slice(2);
+const b = await chromium.launch({ channel: "msedge", headless: true });
+const p = await b.newPage({ viewport: { width: 1600, height: 1200 } });
+const data = (await readFile(src)).toString("base64");
+await p.setContent(`<body style="margin:0"><img id=i src="data:image/png;base64,${data}">`);
+await p.waitForTimeout(300);
+const w = await p.evaluate(() => i.naturalWidth);
+await p.evaluate(([s, y]) => { i.style.width = i.naturalWidth * s + "px"; document.body.style.marginTop = -y * s + "px"; }, [Number(scale), Number(y)]);
+await p.setViewportSize({ width: Math.round(w * scale), height: Math.round(h * scale) });
+await p.screenshot({ path: out });
+await b.close();
