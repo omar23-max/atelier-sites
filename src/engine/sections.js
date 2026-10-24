@@ -26,3 +26,7 @@ export const sections = Object.entries(schemas)
     return section;
   })
   .sort((a, b) => a.id.localeCompare(b.id));
+
+// Sections du catalogue : sans les parties d'une copie de page (meta.pageSpecific),
+// qui n'ont de sens que dans la page importée dont elles viennent.
+export const catalogueSections = sections.filter((s) => !s.meta.pageSpecific);

@@ -15,7 +15,7 @@ import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare
 
 const pageName = new URLSearchParams(location.search).get("page");
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
-const visible = sections.filter((s) => s.meta.status !== "masquee");
+const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
 const nameOf = (s, fallback) => (s?.meta.label ?? fallback).split(" — ");
 
 const TOOLS = [

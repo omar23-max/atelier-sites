@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { sections as allSections } from "../engine/sections.js";
+import { catalogueSections as allSections } from "../engine/sections.js";
 import { FAMILIES, familyOf } from "../engine/families.js";
 import { renderSectionHtml } from "../engine/render.js";
 import { Enrichir, METHODS } from "./Enrichir.jsx";

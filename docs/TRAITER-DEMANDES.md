@@ -58,10 +58,16 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      2. lire la page et écrire `imports/<dossier>/fiche.json` : `nom`,
         `produit`, `marque`, `secteur`, `pageType` (`advertorial` ou
         `listicle`), `ambiance` ;
-     3. `npm run advertorial:page -- <dossier>` : page mirror (section
-        « Advertorial — article complet », textes remplacés par des briefs),
-        `template.json` (avec `url`, `produit`, `secteur`, `lienProduit`) et
-        `designs/<dossier>-design.md` ;
+     3. `npm run advertorial:page -- <dossier>` : page mirror **au design
+        identique** (`scripts/lib/copie.mjs`) : la structure HTML d'origine et
+        ses styles réels relevés en ordinateur (1440 px) et en mobile (390 px)
+        deviennent des sections `<dossier>-p1…pN` (45 emplacements au plus,
+        `meta.pageSpecific`, absentes des listes du catalogue) ; chaque texte
+        est un emplacement rempli d'un brief de même longueur, chaque photo un
+        emplacement image. Plus `template.json` (avec `url`, `produit`,
+        `secteur`, `lienProduit`) et `designs/<dossier>-design.md`.
+        La page d'origine reste consultable telle quelle : bascule
+        « Original / Modifiable » de l'atelier (`/api/original/<dossier>`) ;
      4. `npm run thumbs` pour la vignette. Les adresses google.com/url?q=…
         sont des doublons : décoder `q=` et traiter la page une seule fois.
    - **bibliotheque** : vérifier la licence (libre/MIT = réutilisable ;

@@ -80,7 +80,7 @@ p { margin: 0 0 18px; font-size: 15px; opacity: .8; }
 }
 
 const only = process.argv[2];
-const sectionIds = (await listSectionIds()).filter((id) => !only || id === only);
+const sectionIds = (await listSectionIds()).filter((id) => (only ? id === only : !/-p\d+$/.test(id)));
 const designIds = existsSync(designsDir)
   ? (await readdir(designsDir)).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)).filter((id) => !only || id === only)
   : [];

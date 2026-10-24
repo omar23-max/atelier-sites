@@ -194,7 +194,7 @@ export function FullscreenButton() {
 // Sections proposées (non masquées), regroupées par famille.
 function groupedSections() {
   const grouped = Object.fromEntries(FAMILIES.map((f) => [f.id, []]));
-  for (const s of sections.filter((x) => x.meta.status !== "masquee")) (grouped[familyOf(s).id] ??= []).push(s);
+  for (const s of sections.filter((x) => x.meta.status !== "masquee" && !x.meta.pageSpecific)) (grouped[familyOf(s).id] ??= []).push(s);
   return grouped;
 }
 

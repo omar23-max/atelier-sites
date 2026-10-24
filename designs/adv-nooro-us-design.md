@@ -10,9 +10,9 @@ Faux avis d'expert (kinésithérapeute), ton médical rassurant, nombreuses phot
 
 ## Structure relevée
 
-372 éléments dans l'ordre : 14 grands titres, 24 intertitres,
-262 paragraphes, 4 listes, 63 images, 5 boutons.
-Copie entière dans la section « Advertorial — article complet » (11 sections).
+309 éléments dans l'ordre : 14 grands titres, 24 intertitres,
+262 paragraphes, 4 listes, 105 images, 5 boutons.
+Copie entière dans la section « Advertorial — article complet » (20 sections).
 
 ## Typographie
 
@@ -30,10 +30,7 @@ Copie entière dans la section « Advertorial — article complet » (11 section
 | Liens | #0b57d0 |
 | Bouton | #149312 |
 | Texte des boutons | #f6f9fe |
-| Encadré / bandeau | #fefbd9 |
-| Encadré / bandeau | #e2f4f9 |
-| Encadré / bandeau | #f2f2f2 |
-| Encadré / bandeau | #ffbf00 |
+
 
 ## Formes
 
@@ -50,7 +47,7 @@ Copie entière dans la section « Advertorial — article complet » (11 section
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#fefbd9",
+    "surface": "#f4f4f4",
     "texte": "#2f2f2f",
     "accent": "#0b57d0",
     "bouton": "#149312",

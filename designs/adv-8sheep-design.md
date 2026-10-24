@@ -10,9 +10,9 @@ Article pour parents, fond gris clair, Arial, témoignages de parents et tableau
 
 ## Structure relevée
 
-93 éléments dans l'ordre : 0 grands titres, 0 intertitres,
-81 paragraphes, 0 listes, 12 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (3 sections).
+81 éléments dans l'ordre : 0 grands titres, 0 intertitres,
+81 paragraphes, 0 listes, 38 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (4 sections).
 
 ## Typographie
 
@@ -30,10 +30,7 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
 | Liens | #c6c2c2 |
 | Bouton | #e4572e |
 | Texte des boutons | #ffffff |
-| Encadré / bandeau | #dae5dd |
-| Encadré / bandeau | #ecf1ed |
-| Encadré / bandeau | #ffe6e6 |
-| Encadré / bandeau | #423f3f |
+
 
 ## Formes
 
@@ -50,12 +47,12 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
   },
   "couleurs": {
     "fond": "#eeeeee",
-    "surface": "#dae5dd",
+    "surface": "#f4f4f4",
     "texte": "#000000",
     "accent": "#c6c2c2",
     "bouton": "#e4572e",
     "bouton-texte": "#ffffff",
-    "fond-sombre": "#423f3f",
+    "fond-sombre": "#000000",
     "texte-sur-sombre": "#ffffff"
   }
 }

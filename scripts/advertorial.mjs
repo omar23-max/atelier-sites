@@ -15,6 +15,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
+import { PROPS, snapshotDesktop, snapshotMobile } from "./lib/snapshot.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const [url, slug] = process.argv.slice(2);
@@ -60,6 +61,36 @@ async function scrollThrough(page) {
     scrollTo(0, 0);
   });
   await page.waitForTimeout(1000);
+}
+
+// Polices web de la page (@font-face), adresses rendues absolues.
+async function fontFaces(page) {
+  const sheets = await page.evaluate(() =>
+    [...document.styleSheets].map((sh) => {
+      try {
+        return { href: sh.href ?? location.href, css: [...sh.cssRules].map((r) => r.cssText).join("\n") };
+      } catch {
+        return { href: sh.href, css: null };
+      }
+    }),
+  );
+  const out = [];
+  for (const sh of sheets) {
+    let css = sh.css;
+    if (css == null && sh.href) css = await page.request.get(sh.href, { timeout: 15000 }).then((r) => r.text()).catch(() => "");
+    for (const face of (css ?? "").match(/@font-face\s*{[^}]*}/g) ?? []) {
+      out.push(
+        face.replace(/url\((['"]?)([^'")]+)\1\)/g, (m, q, u) => {
+          try {
+            return `url("${new URL(u, sh.href).href}")`;
+          } catch {
+            return m;
+          }
+        }),
+      );
+    }
+  }
+  return [...new Set(out)].join("\n");
 }
 
 // S'exécute dans la page : relève les éléments de l'article dans l'ordre.
@@ -129,7 +160,7 @@ function extract() {
     const box = boxOf(el);
     if (box.width < 30 || box.height < 30) return false;
     imageIndex += 1;
-    el.setAttribute("data-atl-img", String(imageIndex));
+    el.setAttribute("data-atl-old", String(imageIndex));
     const holder = bgHolder(el.parentElement ?? el);
     items.push({ kind, image: imageIndex, box, src: el.currentSrc || el.src || el.poster || null, alt: el.alt ?? "", style: { background: holder.color, bgBox: holder.box } });
     return true;
@@ -293,23 +324,42 @@ try {
   await page.screenshot({ path: join(outDir, "desktop.png"), clip: { x: 0, y: 0, width: 1440, height }, fullPage: true });
   await writeFile(join(outDir, "page.html"), await page.content(), "utf8");
 
+  // Structure et styles réels, en ordinateur puis en mobile (mêmes éléments) :
+  // la copie modifiable garde ainsi le design d'origine (lib/copie.mjs).
+  const chromeSelector = await page.evaluate(() =>
+    window.Shopify
+      ? "nav, header, footer, .shopify-section-group-header-group, .shopify-section-group-footer-group, [id*=announcement], [class*=announcement]"
+      : "nav",
+  );
+  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector });
+  snap.fonts = await fontFaces(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(1200);
+  await scrollThrough(page);
+  snap.mobile = await page.evaluate(snapshotMobile, { props: PROPS });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.waitForTimeout(1200);
+  await scrollThrough(page);
+
   // Photos : texte rendu transparent, puis chaque image découpée à sa place.
   await page.addStyleTag({ content: "* { color: transparent !important; text-shadow: none !important; }" });
   let cut = 0;
-  for (const it of report.items.filter((x) => x.image)) {
-    const file = `${String(it.image).padStart(2, "0")}.png`;
+  snap.files = {};
+  for (let k = 1; k <= snap.images; k++) {
+    const file = `${String(k).padStart(2, "0")}.png`;
     try {
-      const loc = page.locator(`[data-atl-img="${it.image}"]`).first();
+      const loc = page.locator(`[data-atl-img="${k}"]`).first();
       await loc.scrollIntoViewIfNeeded({ timeout: 3000 });
-      await page.waitForTimeout(120);
+      await page.waitForTimeout(80);
       await loc.screenshot({ path: join(imagesDir, file), timeout: 8000 });
-      it.file = `/imports/${slug}/images/${file}`;
+      snap.files[k] = `/imports/${slug}/images/${file}`;
       cut += 1;
     } catch {
-      it.file = null;
+      // image masquée ou hors écran : son emplacement restera vide
     }
   }
   report.photos = cut;
+  await writeFile(join(outDir, "snapshot.json"), JSON.stringify(snap), "utf8");
   await ctx.close();
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, locale: "en-US" });

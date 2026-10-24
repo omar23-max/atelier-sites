@@ -7,7 +7,7 @@ import { familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
-const visible = sections.filter((s) => s.meta.status !== "masquee");
+const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
 const variantsFor = (families) => visible.filter((s) => families.includes(familyOf(s).id));
 
 // Insère une section à un endroit précis, la sélectionne et la montre.

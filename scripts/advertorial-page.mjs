@@ -11,7 +11,8 @@
 // « [ Paragraphe — 48 mots ] » à la même place, avec le même style. Les photos
 // d'origine (/imports/…) servent de repère dans l'atelier et ne sont jamais exportées.
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { buildCopy } from "./lib/copie.mjs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -137,255 +138,25 @@ const LABELS = {
   separateur: "Séparateur",
 };
 
-// ---- Mise en page : rangées et colonnes relevées sur la page d'origine ----
-// Les éléments qui se chevauchent verticalement sont côte à côte : ils forment
-// une rangée, découpée en colonnes selon leur position horizontale. Deux
-// niveaux (ex. article + barre latérale, puis 3 chiffres côte à côte).
-items.forEach((it, i) => (it.idx = i));
-const top = (it) => it.box.y;
-const bottom = (it) => it.box.y + it.box.height;
-
-function groupsOf(list) {
-  const groups = [];
-  for (const it of list) {
-    const t = top(it) + 4;
-    const b = bottom(it) - 4;
-    const g = groups.findIndex((gr) => gr.bottom > t && gr.top < b);
-    if (g >= 0) {
-      const merged = groups.splice(g);
-      groups.push({
-        items: [...merged.flatMap((m) => m.items), it],
-        top: Math.min(top(it), ...merged.map((m) => m.top)),
-        bottom: Math.max(bottom(it), ...merged.map((m) => m.bottom)),
-      });
-    } else groups.push({ items: [it], top: top(it), bottom: bottom(it) });
-  }
-  return groups;
+// ---- Copie au design identique (structure et styles d'origine, lib/copie.mjs) ----
+const snap = JSON.parse(await readFile(join(dir, "snapshot.json"), "utf8"));
+const host0 = new URL(report.url).hostname.replace(/^www\./, "");
+const copy = buildCopy({ snap, slug, root, label: fiche.marque || host0 });
+// Les parties d'une ancienne copie de cette page sont remplacées.
+for (const old of await readdir(join(root, "sections"))) {
+  if (old.startsWith(`${slug}-p`)) await rm(join(root, "sections", old), { recursive: true, force: true });
 }
-
-function columnsOf(list) {
-  let cols = [];
-  for (const it of [...list].sort((a, b) => a.box.x - b.box.x)) {
-    const l = it.box.x + 4;
-    const r = it.box.x + it.box.width - 4;
-    const c = cols.find((col) => col.left < r && col.right > l);
-    if (c) {
-      c.items.push(it);
-      c.left = Math.min(c.left, it.box.x);
-      c.right = Math.max(c.right, it.box.x + it.box.width);
-    } else cols.push({ items: [it], left: it.box.x, right: it.box.x + it.box.width });
-  }
-  // Une colonne élargie peut en recouvrir une autre : on les fusionne.
-  for (let changed = true; changed; ) {
-    changed = false;
-    cols.sort((a, b) => a.left - b.left);
-    for (let i = 1; i < cols.length; i++) {
-      if (cols[i].left < cols[i - 1].right - 4) {
-        cols[i - 1].items.push(...cols[i].items);
-        cols[i - 1].right = Math.max(cols[i - 1].right, cols[i].right);
-        cols.splice(i, 1);
-        changed = true;
-        break;
-      }
-    }
-  }
-  for (const c of cols) c.items.sort((a, b) => a.idx - b.idx);
-  return cols;
+for (const s of copy.sections) {
+  const sdir = join(root, "sections", s.id);
+  await mkdir(sdir, { recursive: true });
+  await writeFile(join(sdir, "schema.json"), JSON.stringify(s.schema, null, 2) + "\n", "utf8");
+  await writeFile(join(sdir, "template.liquid"), s.template + "\n", "utf8");
+  await writeFile(join(sdir, "style.css"), s.css + "\n", "utf8");
+  await writeFile(join(sdir, "meta.json"), JSON.stringify(s.meta, null, 2) + "\n", "utf8");
 }
-
-function unitsOf(list, depth) {
-  const units = [];
-  for (const g of groupsOf(list)) {
-    if (g.items.length > 1 && depth < 2) {
-      const cols = columnsOf(g.items);
-      if (cols.length > 1) {
-        units.push({ row: true, top: g.top, bottom: g.bottom, cols: cols.map((c) => ({ left: c.left, right: c.right, units: unitsOf(c.items, depth + 1) })) });
-        continue;
-      }
-    }
-    for (const it of g.items.sort((a, b) => a.idx - b.idx)) units.push({ item: it, top: top(it), bottom: bottom(it) });
-  }
-  return units;
-}
-
-const countOf = (u) => (u.row ? u.cols.reduce((n, c) => n + c.units.reduce((m, x) => m + countOf(x), 0), 0) : 1);
-
-// Rangée trop longue pour une section (barre latérale à côté de tout l'article) :
-// coupée en tranches horizontales, chaque colonne garde sa place.
-const MAX_PIECE = BLOCKS_PER_SECTION - 2;
-function splitRow(u) {
-  if (!u.row || countOf(u) <= MAX_PIECE) return [u];
-  const all = u.cols.flatMap((c, ci) => c.units.map((x) => ({ x, ci }))).sort((a, b) => a.x.top - b.x.top);
-  const pieces = [];
-  let cur = null;
-  const lastBottom = u.cols.map(() => null);
-  for (const { x, ci } of all) {
-    if (!cur || (cur.n + countOf(x) > MAX_PIECE && cur.n > 0)) {
-      cur = { row: true, n: 0, top: x.top, bottom: x.bottom, colPrev: [...lastBottom], cols: u.cols.map((c) => ({ left: c.left, right: c.right, units: [] })) };
-      pieces.push(cur);
-    }
-    cur.cols[ci].units.push(x);
-    cur.n += countOf(x);
-    cur.bottom = Math.max(cur.bottom, x.bottom);
-    lastBottom[ci] = x.bottom;
-  }
-  return pieces;
-}
-
-const pctOf = (n, w) => (w > 0 ? (n / w) * 100 : 100);
-function blockFor(it, ctx, marge) {
-  const b = {
-    repere: "",
-    kind: it.kind,
-    text: "",
-    image: "",
-    image_width: 100,
-    link: "",
-    align: "left",
-    size: 0,
-    bold: false,
-    italic: false,
-    majuscules: false,
-    police_titres: false,
-    interligne: 0,
-    color: "",
-    bg: "",
-    marge: clamp(marge, 0, 120, 2),
-    pleine: false,
-    fond_rangee: "",
-    rangee_pleine: false,
-    fond_cellule: "",
-    fond_cellule2: "",
-    ligne: ctx.ligne ?? "",
-    colonne: ctx.colonne ?? 1,
-    largeur: ctx.largeur ?? 50,
-    decalage: ctx.decalage ?? 0,
-    ligne2: ctx.ligne2 ?? "",
-    colonne2: ctx.colonne2 ?? 1,
-    largeur2: ctx.largeur2 ?? 50,
-    decalage2: ctx.decalage2 ?? 0,
-  };
-  const n = it.idx + 1;
-  const wide = ctx.level === 0 && (it.box.width >= FULL || (it.style?.bgBox?.width ?? 0) >= FULL);
-  // Fond déjà porté par la rangée ou la colonne : pas de fond propre.
-  const inherited = (c) => ctx.fonds?.some((f) => sameColor(f, c));
-  if (it.kind === "image") {
-    b.image = it.file;
-    b.pleine = it.box.width >= FULL && ctx.level === 0;
-    b.image_width = b.pleine ? 100 : clamp(pctOf(it.box.width, ctx.width), 10, 100, 5);
-    const leftGap = it.box.x - ctx.left;
-    const rightGap = ctx.left + ctx.width - (it.box.x + it.box.width);
-    b.align = b.image_width >= 100 || Math.abs(leftGap - rightGap) < 16 ? "center" : leftGap > rightGap ? "right" : "left";
-    b.repere = `${n} · Image`;
-    return b;
-  }
-  if (it.kind === "separateur") {
-    b.repere = `${n} · Séparateur`;
-    return b;
-  }
-  const s = it.style;
-  const isHeading = it.kind === "titre" || it.kind === "intertitre";
-  b.text = brief(it);
-  b.align = align(s.textAlign);
-  b.italic = s.fontStyle === "italic";
-  b.majuscules = s.textTransform === "uppercase";
-  const lh = parseFloat(s.lineHeight);
-  if (lh && s.fontSize) b.interligne = clamp((lh / s.fontSize) * 10, 10, 30);
-  if (!isHeading && d.headingFont && d.headingFont !== d.bodyFont && s.fontFamily === d.headingFont) b.police_titres = true;
-  // Fond différent de la page : encadré (ou titre, bouton sur bandeau coloré).
-  const ownBg = it.kind === "bouton" ? s.ownBackground : !sameColor(s.background, pageBg) ? s.background : null;
-  if (ownBg && hex(ownBg) && !inherited(ownBg)) {
-    b.bg = hex(ownBg);
-    if (it.kind === "paragraphe") b.kind = "encadre";
-    b.pleine = wide && it.kind !== "bouton";
-  }
-  const refColor = isHeading ? headingColor : it.kind === "bouton" ? d.buttonTextColor : d.bodyColor;
-  if (!sameColor(s.color, refColor) && hex(s.color)) b.color = hex(s.color);
-  if (it.kind === "titre" && Math.abs(s.fontSize - sectionSettings.title_size) > 3) b.size = clamp(s.fontSize, 0, 60);
-  else if (it.kind === "intertitre" && Math.abs(s.fontSize - sectionSettings.subtitle_size) > 3) b.size = clamp(s.fontSize, 0, 60);
-  else if (!isHeading && Math.abs(s.fontSize - sectionSettings.font_size) >= 2) b.size = clamp(s.fontSize, 0, 60);
-  if (!isHeading && it.kind !== "bouton" && s.fontWeight >= 600) b.bold = true;
-  b.repere = `${n} · ${LABELS[b.kind] ?? b.kind}${it.words ? ` — ${plural(it.words, "mot")}` : ""}`;
-  return b;
-}
-
-let rowCounter = 0;
-function emit(units, ctx, prevBottom, out) {
-  for (const u of units) {
-    if (!u.row) {
-      out.push(blockFor(u.item, ctx, u.top - prevBottom));
-      prevBottom = Math.max(prevBottom, u.bottom);
-      continue;
-    }
-    const key = `r${++rowCounter}`;
-    let prevRight = ctx.left;
-    // Fond commun à toute la rangée (bandeau) ou à une colonne (carte).
-    const leaves = (x) => (x.row ? x.cols.flatMap((c) => c.units.flatMap(leaves)) : [x.item]);
-    const commonBg = (list) => {
-      const bgs = list.map((it) => it.style?.background).filter(Boolean);
-      const first = bgs[0];
-      return first && bgs.length === list.length && bgs.every((c) => sameColor(c, first)) && !sameColor(first, pageBg) && !ctx.fonds?.some((f) => sameColor(f, first)) ? first : null;
-    };
-    const rowLeaves = leaves(u);
-    const rowBg = ctx.level === 0 ? commonBg(rowLeaves) : null;
-    const rowWide = rowBg && rowLeaves.some((it) => (it.style?.bgBox?.width ?? 0) >= FULL);
-    let firstOfRow = true;
-    u.cols.forEach((c, i) => {
-      if (!c.units.length) return;
-      const w = c.right - c.left;
-      const largeur = clamp(pctOf(w, ctx.width), 5, 100);
-      const decalage = clamp(pctOf(c.left - prevRight, ctx.width), 0, 60);
-      prevRight = c.right;
-      const colonne = Math.min(i + 1, 6);
-      const fonds = [...(ctx.fonds ?? []), ...(rowBg ? [rowBg] : [])];
-      const colBg = commonBg(c.units.flatMap(leaves));
-      const cellBg = colBg && !fonds.some((f) => sameColor(f, colBg)) ? colBg : null;
-      const sub =
-        ctx.level === 0
-          ? { level: 1, width: w, left: c.left, ligne: key, colonne, largeur, decalage, fonds: [...fonds, ...(cellBg ? [cellBg] : [])] }
-          : { ...ctx, level: 2, width: w, left: c.left, ligne2: key, colonne2: colonne, largeur2: largeur, decalage2: decalage, fonds: [...fonds, ...(cellBg ? [cellBg] : [])] };
-      const start = out.length;
-      emit(c.units, sub, u.colPrev?.[i] ?? prevBottom, out);
-      if (out.length > start) {
-        if (cellBg) out[start][ctx.level === 0 ? "fond_cellule" : "fond_cellule2"] = hex(cellBg);
-        if (firstOfRow && rowBg) {
-          out[start].fond_rangee = hex(rowBg);
-          out[start].rangee_pleine = Boolean(rowWide);
-        }
-        firstOfRow = false;
-      }
-    });
-    prevBottom = Math.max(prevBottom, u.bottom);
-  }
-  return prevBottom;
-}
-
-const units = unitsOf(items, 0).flatMap(splitRow);
-const content = [];
-let chunk = [];
-let carried = Math.min(...items.map(top));
-const flush = () => {
-  if (!chunk.length) return;
-  const blocksOut = [];
-  carried = emit(chunk, { level: 0, width: contentBox.width, left: contentBox.x }, carried, blocksOut);
-  content.push({
-    type: "advertorial-article",
-    props: { id: `article-${content.length + 1}`, ...sectionSettings, blocks_element: blocksOut },
-  });
-  chunk = [];
-};
-let inChunk = 0;
-for (const u of units) {
-  const n = countOf(u);
-  if (inChunk + n > BLOCKS_PER_SECTION) {
-    flush();
-    inChunk = 0;
-  }
-  chunk.push(u);
-  inChunk += n;
-}
-flush();
+const content = copy.sections.map((s) => ({ type: s.id, props: { id: s.id, blocks_element: s.blocks } }));
 const blocks = content.flatMap((c) => c.props.blocks_element);
+
 
 const host = new URL(report.url).hostname.replace(/^www\./, "");
 const cleanUrl = `${new URL(report.url).origin}${new URL(report.url).pathname}`;
@@ -411,7 +182,7 @@ const page = {
 };
 await writeFile(join(root, "pages", `${slug}.json`), JSON.stringify(page, null, 2), "utf8");
 
-const photos = items.filter((it) => it.kind === "image").length;
+const photos = report.photos ?? 0;
 const template = {
   nom: fiche.nom ?? `${host} — ${pageType}`,
   pageType,
