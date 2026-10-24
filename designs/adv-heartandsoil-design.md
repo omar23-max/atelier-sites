@@ -1,4 +1,4 @@
-# Heart & Soil — advertorial
+# Heart & Soil — listicle
 
 Source : https://heartandsoil.co/blog/the-carnivore-diet-start-here/
 Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
@@ -12,13 +12,13 @@ Guide long de type listicle sur un blog de marque, fond beige, Source Sans Pro, 
 
 149 éléments dans l'ordre : 1 grands titres, 32 intertitres,
 87 paragraphes, 17 listes, 22 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (11 sections).
+Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie
 
 - **Titres : "Source Sans Pro", sans-serif** (équivalent Google Fonts : Source Sans Pro).
   Grand titre 80 px ; intertitres 48 px.
-- **Texte : "Source Sans Pro", sans-serif** (équivalent : Source Sans Pro), 20 px, interligne d'origine conservé à 1,6.
+- **Texte : "Source Sans Pro", sans-serif** (équivalent : sans-serif), 20 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -43,17 +43,17 @@ Copie entière dans la section « Advertorial — article complet » (11 section
 {
   "polices": {
     "titres": "Source Sans Pro",
-    "texte": "Source Sans Pro"
+    "texte": "sans-serif"
   },
   "couleurs": {
-    "fond": "#f9ebdc",
-    "surface": "#f4f4f4",
-    "texte": "#2d231a",
-    "accent": "#f5e7d4",
-    "bouton": "#e4572e",
-    "bouton-texte": "#ffffff",
-    "fond-sombre": "#2d231a",
-    "texte-sur-sombre": "#ffffff"
+    "fond": "#f5e7d4",
+    "surface": "#f9ebdc",
+    "fond-sombre": "#271d16",
+    "texte": "#2e221a",
+    "texte-sur-sombre": "#d0aa8c",
+    "accent": "#f7ecde",
+    "bouton": "#a65316",
+    "bouton-texte": "#f5e7d4"
   }
 }
 ```

@@ -13,7 +13,7 @@ Histoire personnelle (accident, douleurs cervicales) puis découverte du produit
 
 100 éléments dans l'ordre : 1 grands titres, 10 intertitres,
 86 paragraphes, 0 listes, 20 images, 2 boutons.
-Copie entière dans la section « Advertorial — article complet » (5 sections).
+Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie
 
@@ -48,13 +48,13 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f4f4f4",
+    "surface": "#f9f9f9",
+    "fond-sombre": "#151515",
     "texte": "#333333",
-    "accent": "#167ac6",
-    "bouton": "#e4572e",
-    "bouton-texte": "#ffffff",
-    "fond-sombre": "#333333",
-    "texte-sur-sombre": "#ffffff"
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#29d54f",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

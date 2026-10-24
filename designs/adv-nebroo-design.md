@@ -12,7 +12,7 @@ Presell comparatif « Nebroo vs autres appareils », Montserrat, bandeau promo -
 
 149 éléments dans l'ordre : 10 grands titres, 15 intertitres,
 121 paragraphes, 0 listes, 92 images, 2 boutons.
-Copie entière dans la section « Advertorial — article complet » (8 sections).
+Copie entière dans la section « Advertorial — article complet » (7 sections).
 
 ## Typographie
 
@@ -47,13 +47,12 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f4f4f4",
+    "surface": "#e0f0f6",
+    "fond-sombre": "#174bd2",
     "texte": "#212529",
-    "accent": "#0b57d0",
+    "accent": "#0025ff",
     "bouton": "#4782b4",
-    "bouton-texte": "#ffffff",
-    "fond-sombre": "#000000",
-    "texte-sur-sombre": "#ffffff"
+    "bouton-texte": "#ffffff"
   }
 }
 ```

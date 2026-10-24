@@ -12,13 +12,13 @@ Article pour parents, fond gris clair, Arial, témoignages de parents et tableau
 
 81 éléments dans l'ordre : 0 grands titres, 0 intertitres,
 81 paragraphes, 0 listes, 38 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (4 sections).
+Copie entière dans la section « Advertorial — article complet » (2 sections).
 
 ## Typographie
 
-- **Titres : ?** (équivalent Google Fonts : Arimo).
+- **Titres : ?** (équivalent Google Fonts : Arial).
   Grand titre ? px ; intertitres ? px.
-- **Texte : Arial, sans-serif** (équivalent : Arimo), 14 px, interligne d'origine conservé à 1,6.
+- **Texte : Arial, sans-serif** (équivalent : Arial), 14 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -42,18 +42,15 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
 ```json
 {
   "polices": {
-    "titres": "Arimo",
-    "texte": "Arimo"
+    "titres": "Arial",
+    "texte": "Arial"
   },
   "couleurs": {
-    "fond": "#eeeeee",
-    "surface": "#f4f4f4",
+    "fond": "#ffffff",
+    "surface": "#eeeeee",
     "texte": "#000000",
-    "accent": "#c6c2c2",
-    "bouton": "#e4572e",
-    "bouton-texte": "#ffffff",
-    "fond-sombre": "#000000",
-    "texte-sur-sombre": "#ffffff"
+    "bouton": "#423f3f",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

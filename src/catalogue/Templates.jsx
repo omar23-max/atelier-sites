@@ -189,9 +189,9 @@ function UseTemplate({ template, onClose, onMessage }) {
   );
 }
 
-export function TemplatesView({ onMessage }) {
+export function TemplatesView({ onMessage, initialType = "tous" }) {
   const [templates, setTemplates] = useState(null);
-  const [type, setType] = useState("tous");
+  const [type, setType] = useState(initialType);
   const [using, setUsing] = useState(null);
   const load = () => listTemplates().then(setTemplates).catch(() => setTemplates([]));
   useEffect(() => {
@@ -239,11 +239,18 @@ export function TemplatesView({ onMessage }) {
               );
             })}
           </div>
-        <div className="cat-grid">
-          {templates.filter((t) => type === "tous" || t.pageType === type).map((t) => (
-            <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} />
-          ))}
-        </div>
+        {templates.some((t) => type === "tous" || t.pageType === type) ? (
+          <div className="cat-grid">
+            {templates.filter((t) => type === "tous" || t.pageType === type).map((t) => (
+              <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} />
+            ))}
+          </div>
+        ) : (
+          <div className="cat-empty">
+            Aucun template « {pageTypeById[type]?.label ?? type} » pour l'instant. Importe une page de ce type depuis « Enrichir le
+            catalogue ».
+          </div>
+        )}
         </>
       )}
       {using && <UseTemplate template={using} onClose={() => setUsing(null)} onMessage={onMessage} />}

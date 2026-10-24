@@ -12,11 +12,11 @@ Faux avis d'expert (kinésithérapeute), ton médical rassurant, nombreuses phot
 
 309 éléments dans l'ordre : 14 grands titres, 24 intertitres,
 262 paragraphes, 4 listes, 105 images, 5 boutons.
-Copie entière dans la section « Advertorial — article complet » (20 sections).
+Copie entière dans la section « Advertorial — article complet » (14 sections).
 
 ## Typographie
 
-- **Titres : Montserrat, sans-serif** (équivalent Google Fonts : Montserrat).
+- **Titres : Montserrat, sans-serif** (équivalent Google Fonts : helvetica).
   Grand titre 38 px ; intertitres 14 px.
 - **Texte : "Open Sans", sans-serif** (équivalent : Open Sans), 17 px, interligne d'origine conservé à 1,6.
 
@@ -42,18 +42,17 @@ Copie entière dans la section « Advertorial — article complet » (20 section
 ```json
 {
   "polices": {
-    "titres": "Montserrat",
+    "titres": "helvetica",
     "texte": "Open Sans"
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f4f4f4",
+    "surface": "#e2f4f9",
+    "fond-sombre": "#333333",
     "texte": "#2f2f2f",
-    "accent": "#0b57d0",
+    "texte-sur-sombre": "#ffffff",
     "bouton": "#149312",
-    "bouton-texte": "#f6f9fe",
-    "fond-sombre": "#212529",
-    "texte-sur-sombre": "#ffffff"
+    "bouton-texte": "#f6f9fe"
   }
 }
 ```

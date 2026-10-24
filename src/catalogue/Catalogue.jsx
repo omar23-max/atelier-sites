@@ -10,6 +10,10 @@ import { TemplatesView } from "./Templates.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
 import { confirmDelete, listPages, listProjects, listTemplates } from "../projects.js";
+import { PAGE_TYPES } from "../engine/page-types.js";
+
+// Libellés courts du menu « Templates par type ».
+const TYPE_MENU = { produit: "Pages produit", landing: "Landing pages", accueil: "Pages d'accueil", advertorial: "Advertorials", listicle: "Listicles", autre: "Autres pages" };
 
 // Date d'un nom de corbeille (20261021-000105, en heure UTC) → heure locale.
 const stampDate = (s) => {
@@ -173,7 +177,14 @@ export default function Catalogue() {
   const refresh = () => {
     // Nombres affichés dans le menu : projets, pages, templates.
     Promise.all([listProjects(), listPages(), listTemplates()])
-      .then(([p, pg, t]) => setCounts({ projets: p.length, pages: pg.length, templates: t.length }))
+      .then(([p, pg, t]) =>
+        setCounts({
+          projets: p.length,
+          pages: pg.length,
+          templates: t.length,
+          parType: Object.fromEntries(PAGE_TYPES.map((x) => [x.id, t.filter((tp) => tp.pageType === x.id).length])),
+        }),
+      )
       .catch(() => {});
     api("GET", "/api/requests").then(setRequests).catch(() => {});
     api("GET", "/api/trash").then(setTrash).catch(() => {});
@@ -329,6 +340,20 @@ export default function Catalogue() {
           <button type="button" className={view === "demandes" ? "is-on" : ""} onClick={() => setView("demandes")}>
             Demandes {pending > 0 && <em className="cat-dot">{pending}</em>}
           </button>
+          <p className="cat-nav__title">Templates par type</p>
+          {PAGE_TYPES.map((t) => {
+            const n = counts.parType?.[t.id] ?? 0;
+            return (
+              <button
+                type="button"
+                key={t.id}
+                className={`${view === `templates-${t.id}` ? "is-on" : ""}${n ? "" : " is-empty"}`}
+                onClick={() => setView(`templates-${t.id}`)}
+              >
+                {TYPE_MENU[t.id] ?? t.label} <em>{n}</em>
+              </button>
+            );
+          })}
           <p className="cat-nav__title">Familles de sections</p>
           {FAMILIES.map((f) => (
             <button
@@ -417,7 +442,9 @@ export default function Catalogue() {
           )}
 
           {view === "designs" && <DesignsView targetPage={targetPage} onMessage={setMessage} />}
-          {view === "templates" && <TemplatesView onMessage={(m) => (setMessage(m), refresh())} />}
+          {(view === "templates" || view.startsWith("templates-")) && (
+            <TemplatesView key={view} initialType={view.startsWith("templates-") ? view.slice(10) : "tous"} onMessage={(m) => (setMessage(m), refresh())} />
+          )}
           {view === "pages" && <PagesView onOpenProject={(id) => setView(`projet-${id}`)} onMessage={(m) => (setMessage(m), refresh())} />}
           {view === "projets" && <ProjectsView onOpen={(id) => setView(`projet-${id}`)} onMessage={(m) => (setMessage(m), refresh())} />}
           {view.startsWith("projet-") && <ProjectDetail id={view.slice(7)} onBack={() => setView("projets")} onMessage={(m) => (setMessage(m), refresh())} />}

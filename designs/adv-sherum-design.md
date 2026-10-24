@@ -12,13 +12,13 @@ Article signé avec date du jour, résumé en tête, angle « économies sur la 
 
 80 éléments dans l'ordre : 1 grands titres, 9 intertitres,
 70 paragraphes, 0 listes, 14 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (6 sections).
+Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie
 
-- **Titres : sans-serif** (équivalent Google Fonts : Inter).
+- **Titres : sans-serif** (équivalent Google Fonts : sans-serif).
   Grand titre 40 px ; intertitres 34 px.
-- **Texte : sans-serif** (équivalent : Inter), 18 px, interligne d'origine conservé à 1,6.
+- **Texte : sans-serif** (équivalent : sans-serif), 18 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -42,18 +42,17 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
 ```json
 {
   "polices": {
-    "titres": "Inter",
-    "texte": "Inter"
+    "titres": "sans-serif",
+    "texte": "sans-serif"
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f4f4f4",
-    "texte": "#262626",
-    "accent": "#2281c9",
-    "bouton": "#e4572e",
-    "bouton-texte": "#ffffff",
+    "surface": "#feffa1",
     "fond-sombre": "#000000",
-    "texte-sur-sombre": "#ffffff"
+    "texte": "#262626",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#5cb85c",
+    "bouton-texte": "#053e14"
   }
 }
 ```

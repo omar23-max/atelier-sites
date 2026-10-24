@@ -12,13 +12,13 @@ Page de marque épurée, fond crème, grandes photos produit, chiffres d'étude 
 
 26 éléments dans l'ordre : 8 grands titres, 4 intertitres,
 13 paragraphes, 0 listes, 6 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (4 sections).
+Copie entière dans la section « Advertorial — article complet » (2 sections).
 
 ## Typographie
 
-- **Titres : Albra, " sans-serif"** (équivalent Google Fonts : Albra).
+- **Titres : Albra, " sans-serif"** (équivalent Google Fonts : proxima-nova).
   Grand titre 56 px ; intertitres 24 px.
-- **Texte : proxima-nova, " sans-serif"** (équivalent : Montserrat), 18 px, interligne d'origine conservé à 1,6.
+- **Texte : proxima-nova, " sans-serif"** (équivalent : proxima-nova), 18 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -42,18 +42,17 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
 ```json
 {
   "polices": {
-    "titres": "Albra",
-    "texte": "Montserrat"
+    "titres": "proxima-nova",
+    "texte": "proxima-nova"
   },
   "couleurs": {
     "fond": "#f9f8f6",
-    "surface": "#f4f4f4",
-    "texte": "#000000",
-    "accent": "#121212",
-    "bouton": "#2e6c74",
-    "bouton-texte": "#ffffff",
+    "surface": "#ffffff",
     "fond-sombre": "#000000",
-    "texte-sur-sombre": "#ffffff"
+    "texte": "#000000",
+    "accent": "#707070",
+    "bouton": "#233a36",
+    "bouton-texte": "#ffffff"
   }
 }
 ```
