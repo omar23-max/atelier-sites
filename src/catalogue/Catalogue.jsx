@@ -9,7 +9,7 @@ import { HoverPreviewProvider, SourceLink, useHoverPreview } from "./hover.jsx";
 import { TemplatesView } from "./Templates.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
-import { confirmDelete } from "../projects.js";
+import { confirmDelete, listPages, listProjects, listTemplates } from "../projects.js";
 
 // Date d'un nom de corbeille (20261021-000105, en heure UTC) → heure locale.
 const stampDate = (s) => {
@@ -171,11 +171,17 @@ export default function Catalogue() {
     .map((s) => (statusOverride[s.id] ? { ...s, meta: { ...s.meta, status: statusOverride[s.id] } } : s));
 
   const refresh = () => {
+    // Nombres affichés dans le menu : projets, pages, templates.
+    Promise.all([listProjects(), listPages(), listTemplates()])
+      .then(([p, pg, t]) => setCounts({ projets: p.length, pages: pg.length, templates: t.length }))
+      .catch(() => {});
     api("GET", "/api/requests").then(setRequests).catch(() => {});
     api("GET", "/api/trash").then(setTrash).catch(() => {});
     api("GET", "/api/corbeille").then(setBin).catch(() => {});
   };
-  useEffect(refresh, []);
+  const [counts, setCounts] = useState({});
+  // Recompté à chaque changement de vue : une création ou une suppression s'y voit tout de suite.
+  useEffect(refresh, [view]);
   // Liens vers une vue (#templates, #projet-<id>…) depuis l'atelier ou ailleurs.
   useEffect(() => {
     const onHash = () => setView(location.hash.slice(1) || "tout");
@@ -303,10 +309,10 @@ export default function Catalogue() {
         <nav className="cat-nav">
           <p className="cat-nav__title cat-nav__title--first">Catalogue</p>
           <button type="button" className={view === "projets" || view.startsWith("projet-") ? "is-on" : ""} onClick={() => setView("projets")}>
-            Projets
+            Projets <em>{counts.projets ?? "…"}</em>
           </button>
           <button type="button" className={view === "pages" ? "is-on" : ""} onClick={() => setView("pages")}>
-            Pages
+            Pages <em>{counts.pages ?? "…"}</em>
           </button>
           <button type="button" className={view === "tout" ? "is-on" : ""} onClick={() => setView("tout")}>
             Sections <em>{sections.length}</em>
@@ -315,7 +321,7 @@ export default function Catalogue() {
             Designs (design.md) <em>{designs.length}</em>
           </button>
           <button type="button" className={view === "templates" ? "is-on" : ""} onClick={() => setView("templates")}>
-            Templates
+            Templates <em>{counts.templates ?? "…"}</em>
           </button>
           <button type="button" className={view === "enrichir" ? "is-on" : ""} onClick={() => setView("enrichir")}>
             Enrichir le catalogue

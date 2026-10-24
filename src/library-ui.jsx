@@ -3,6 +3,10 @@ import { createPortal } from "react-dom";
 import { createUsePuck, useGetPuck } from "@puckeditor/core";
 import { FAMILIES, familyOf } from "./engine/families.js";
 import { sections } from "./engine/sections.js";
+import { applyDesign } from "./engine/design.js";
+import { designById } from "./engine/designs.js";
+
+const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 import { IconCollapse, IconExpand } from "./icons.jsx";
 
 export const ROOT_ZONE = "root:default-zone";
@@ -201,6 +205,14 @@ export function insertSection(getPuck, type) {
   const selector = selectedItem ? getSelectorForId(selectedItem.props.id) : null;
   const index = selector && selector.zone === ROOT_ZONE ? selector.index + 1 : appState.data.content.length;
   dispatch({ type: "insert", componentType: type, destinationIndex: index, destinationZone: ROOT_ZONE });
+  // La page a un design.md : la section ajoutée prend tout de suite ses couleurs
+  // (rôles déclarés dans meta.designRoles) ; les polices viennent déjà de la page.
+  const design = designById[appState.data.root?.props?.design];
+  const added = getPuck().appState.data.content[index];
+  if (design && added) {
+    const { page } = applyDesign({ root: {}, content: [added] }, design, sectionsById);
+    dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT_ZONE, data: page.content[0] });
+  }
   dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT_ZONE } } });
   setTimeout(() => {
     const added = getPuck().appState.data.content[index];

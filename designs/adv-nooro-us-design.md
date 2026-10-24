@@ -10,9 +10,9 @@ Faux avis d'expert (kinésithérapeute), ton médical rassurant, nombreuses phot
 
 ## Structure relevée
 
-343 éléments dans l'ordre : 14 grands titres, 24 intertitres,
-262 paragraphes, 4 listes, 34 images, 5 boutons.
-Copie entière dans la section « Advertorial — article complet » (10 sections).
+372 éléments dans l'ordre : 14 grands titres, 24 intertitres,
+262 paragraphes, 4 listes, 63 images, 5 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
 
 ## Typographie
 

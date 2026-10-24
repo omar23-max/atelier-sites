@@ -10,9 +10,9 @@ Faux magazine « The Skincare Magazine », fil d'Ariane, date et compteur de vue
 
 ## Structure relevée
 
-255 éléments dans l'ordre : 0 grands titres, 30 intertitres,
-195 paragraphes, 4 listes, 26 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (7 sections).
+290 éléments dans l'ordre : 0 grands titres, 30 intertitres,
+195 paragraphes, 4 listes, 61 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie
 

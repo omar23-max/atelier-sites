@@ -10,8 +10,8 @@ Article signé avec date du jour, résumé en tête, angle « économies sur la 
 
 ## Structure relevée
 
-93 éléments dans l'ordre : 1 grands titres, 9 intertitres,
-70 paragraphes, 0 listes, 13 images, 0 boutons.
+94 éléments dans l'ordre : 1 grands titres, 9 intertitres,
+70 paragraphes, 0 listes, 14 images, 0 boutons.
 Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie
@@ -32,7 +32,7 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
 | Texte des boutons | #ffffff |
 | Encadré / bandeau | #000000 |
 | Encadré / bandeau | #c3f1ff |
-| Encadré / bandeau | #feffa1 |
+| Encadré / bandeau | #222222 |
 | Encadré / bandeau | #00c148 |
 
 ## Formes

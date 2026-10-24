@@ -7,6 +7,7 @@ export const FAMILIES = [
   { id: "hero", label: "Hero", hint: "Première section d'une page d'accueil ou landing" },
   { id: "fiche-produit", label: "Fiche produit", hint: "Galerie, prix, packs, bouton d'achat" },
   { id: "collection", label: "Collection de produits", hint: "Grilles et carrousels de produits" },
+  { id: "article", label: "Article (advertorial)", hint: "Advertorial, listicle ou presell copié en entier" },
   { id: "temoignages", label: "Témoignages et avis", hint: "Avis clients, UGC, notes" },
   { id: "expert", label: "Avis d'expert", hint: "Un médecin, un spécialiste recommande le produit" },
   { id: "probleme", label: "Problème", hint: "La douleur du client" },

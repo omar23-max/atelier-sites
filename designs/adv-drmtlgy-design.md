@@ -31,7 +31,6 @@ Copie entière dans la section « Advertorial — article complet » (1 section)
 | Bouton | #2e6c74 |
 | Texte des boutons | #ffffff |
 | Encadré / bandeau | #e5e7eb |
-| Encadré / bandeau | #ffffff |
 | Encadré / bandeau | #f1f1f1 |
 | Encadré / bandeau | #2e6c74 |
 

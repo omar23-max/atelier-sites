@@ -10,9 +10,9 @@ Prelander signé par un médecin, Outfit, grandes photos avant/après, nombreuse
 
 ## Structure relevée
 
-394 éléments dans l'ordre : 2 grands titres, 24 intertitres,
-310 paragraphes, 10 listes, 48 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (10 sections).
+422 éléments dans l'ordre : 2 grands titres, 24 intertitres,
+332 paragraphes, 10 listes, 54 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
 
 ## Typographie
 

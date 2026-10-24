@@ -11,9 +11,9 @@ Page éducative de marque, fond bleu très pâle, sofia-pro, nombreuses photos p
 
 ## Structure relevée
 
-266 éléments dans l'ordre : 0 grands titres, 39 intertitres,
-171 paragraphes, 2 listes, 53 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (7 sections).
+298 éléments dans l'ordre : 0 grands titres, 39 intertitres,
+195 paragraphes, 2 listes, 59 images, 3 boutons.
+Copie entière dans la section « Advertorial — article complet » (9 sections).
 
 ## Typographie
 
@@ -29,11 +29,12 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
 | Texte | #2e6eb0 |
 | Titres | #2e6eb0 |
 | Liens | #ffffff |
-| Bouton | #ffffff |
-| Texte des boutons | #855586 |
+| Bouton | #cce9ff |
+| Texte des boutons | #1266ba |
 | Encadré / bandeau | #ffffff |
 | Encadré / bandeau | #f2e1f4 |
 | Encadré / bandeau | #fdf9f5 |
+| Encadré / bandeau | #cce9ff |
 
 ## Formes
 
@@ -53,8 +54,8 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "surface": "#ffffff",
     "texte": "#2e6eb0",
     "accent": "#ffffff",
-    "bouton": "#ffffff",
-    "bouton-texte": "#855586",
+    "bouton": "#cce9ff",
+    "bouton-texte": "#1266ba",
     "fond-sombre": "#2e6eb0",
     "texte-sur-sombre": "#ffffff"
   }
