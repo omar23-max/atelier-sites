@@ -161,7 +161,9 @@ const blocks = content.flatMap((c) => c.props.blocks_element);
 const host = new URL(report.url).hostname.replace(/^www\./, "");
 const cleanUrl = `${new URL(report.url).origin}${new URL(report.url).pathname}`;
 const pageType = fiche.pageType ?? "advertorial";
-const fonts = { titres: googleFont(d.headingFont) || googleFont(d.bodyFont), texte: googleFont(d.bodyFont) };
+// Polices de la copie : celles d'origine (déclarées par ses @font-face), pour
+// que le design.md de la page la laisse identique.
+const fonts = copy.fonts.texte ? copy.fonts : { titres: googleFont(d.headingFont) || googleFont(d.bodyFont), texte: googleFont(d.bodyFont) };
 const designId = `${slug}-design`;
 
 const page = {
@@ -208,9 +210,10 @@ await writeFile(join(dir, "template.json"), JSON.stringify(template, null, 2), "
 const count = (k) => items.filter((it) => it.kind === k).length;
 const buttonBg = sectionSettings.color_button;
 const boxes = [...new Set(blocks.map((b) => b.bg).filter(Boolean))].slice(0, 4);
+// Couleurs : les rôles relevés par la copie (valeurs d'origine) priment.
 const tokens = {
   polices: fonts,
-  couleurs: {
+  couleurs: Object.keys(copy.roles).length ? copy.roles : {
     fond: sectionSettings.color_bg,
     surface: boxes[0] ?? "#f4f4f4",
     texte: sectionSettings.color_text,

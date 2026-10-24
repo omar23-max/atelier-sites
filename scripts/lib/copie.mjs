@@ -17,6 +17,7 @@ import { join } from "node:path";
 import { INHERITED, PROPS } from "./snapshot.mjs";
 
 const MAX_SLOTS = 45;
+const HEADING_TAG = /^h[1-6]$/;
 const TINY = 40;
 
 const LOREM = (
@@ -35,6 +36,21 @@ function brief(text, words, role) {
   const filler = Array.from({ length: words - used }, (_, i) => LOREM[i % LOREM.length]).join(" ");
   return `${label} ${filler}.`;
 }
+
+const ROLE_LABELS = {
+  fond: "Fond de page",
+  surface: "Surface (encadrés)",
+  "fond-sombre": "Fond sombre",
+  texte: "Texte",
+  "texte-sur-sombre": "Texte sur fond sombre",
+  accent: "Accent (liens)",
+  bouton: "Bouton",
+  "bouton-texte": "Texte des boutons",
+};
+const hexOf = (c) => {
+  const m = /(\d+),\s*(\d+),\s*(\d+)/.exec(c ?? "");
+  return m ? `#${[m[1], m[2], m[3]].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}` : "#000000";
+};
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const px = (v) => parseFloat(v) || 0;
@@ -180,6 +196,72 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   }
   markEdges(pieces);
 
+  // ---- Couleurs et polices qui jouent un rôle sur la page d'origine ----
+  const opaque = (c) => typeof c === "string" && /^rgb\(/.test(c);
+  const lum = (c) => {
+    const m = /(\d+),\s*(\d+),\s*(\d+)/.exec(c ?? "");
+    return m ? (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255 : 1;
+  };
+  const tally = () => new Map();
+  const addTo = (m, k, w) => k && m.set(k, (m.get(k) ?? 0) + w);
+  const best = (m, keep = () => true) => [...m].filter(([k]) => keep(k)).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const backgroundUnder = (n) => {
+    for (let x = n; x; x = parentOf(x)) if (opaque(x.style["background-color"])) return x.style["background-color"];
+    return snap.htmlBackground;
+  };
+  // Bouton : une boîte colorée, au texte court, qui est ou contient un lien
+  // (<a> ou <button>, ou <div> coloré autour d'un <a>). inButton : la boîte
+  // du bouton dont fait partie l'élément (lui-même ou un parent proche).
+  const wordMemo = new Map();
+  const wordsIn = (n) => {
+    if (wordMemo.has(n.id)) return wordMemo.get(n.id);
+    const w = n.text != null ? n.words : n.kids.reduce((s, k) => s + (k.text != null ? k.words : wordsIn(byId[k.n])), 0);
+    wordMemo.set(n.id, w);
+    return w;
+  };
+  const hasLink = (n, depth) => n.tag === "a" || n.tag === "button" || (depth > 0 && n.kids.some((k) => k.text == null && hasLink(byId[k.n], depth - 1)));
+  const isButtonBox = (n) => opaque(n.style["background-color"]) && n.box.h <= 140 && wordsIn(n) > 0 && wordsIn(n) <= 12 && hasLink(n, 3);
+  const inButton = (n) => {
+    for (let x = n, i = 0; x && i < 4; x = x.parent == null ? null : parentOf(x), i++) if (isButtonBox(x)) return x;
+    return null;
+  };
+  const bgArea = tally();
+  const textColors = tally();
+  const linkColors = tally();
+  const buttonBg = tally();
+  const buttonText = tally();
+  const darkText = tally();
+  const bodyFonts = tally();
+  const headingFonts = tally();
+  for (const n of nodes) {
+    if (dead(n) || n.style.display === "none") continue;
+    const bg = n.style["background-color"];
+    const btn = inButton(n);
+    if (opaque(bg)) addTo(btn ? buttonBg : bgArea, bg, btn ? 1 : n.box.w * n.box.h);
+    if (n.text == null) continue;
+    addTo(HEADING_TAG.test(n.tag) ? headingFonts : bodyFonts, n.style["font-family"], n.words);
+    if (btn) {
+      addTo(buttonText, n.style.color, 1);
+      continue;
+    }
+    if (n.tag === "a") addTo(linkColors, n.style.color, n.words);
+    addTo(lum(backgroundUnder(n)) < 0.35 ? darkText : textColors, n.style.color, n.words);
+  }
+  // Fond de page transparent : c'est le blanc du navigateur qui s'affiche.
+  if (!opaque(nodes[0].style["background-color"]) && !opaque(snap.htmlBackground)) addTo(bgArea, "rgb(255, 255, 255)", nodes[0].box.w * nodes[0].box.h);
+  const roles = {};
+  roles.fond = best(bgArea, (c) => lum(c) >= 0.35) ?? (opaque(snap.htmlBackground) ? snap.htmlBackground : "rgb(255, 255, 255)");
+  roles.surface = best(bgArea, (c) => lum(c) >= 0.35 && c !== roles.fond);
+  roles["fond-sombre"] = best(bgArea, (c) => lum(c) < 0.35);
+  roles.texte = best(textColors);
+  roles["texte-sur-sombre"] = best(darkText, (c) => lum(c) >= 0.6);
+  roles.accent = best(linkColors, (c) => c !== roles.texte);
+  roles.bouton = best(buttonBg);
+  roles["bouton-texte"] = best(buttonText, (c) => Math.abs(lum(c) - lum(roles.bouton)) > 0.3);
+  for (const r of Object.keys(roles)) if (!roles[r]) delete roles[r];
+  const bodyFont = best(bodyFonts);
+  const headingFont = best(headingFonts) ?? bodyFont;
+
   // ---- Styles : déclarations réelles, ordinateur et mobile ----
   const defaults = snap.defaults;
   const contentWidth = (n, st, box) => box.w - px(st["padding-left"]) - px(st["padding-right"]) - px(st["border-left-width"]) - px(st["border-right-width"]);
@@ -266,6 +348,42 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     return out;
   }
 
+  // ---- Rôles du design.md ----
+  // Chaque couleur d'origine qui joue un rôle (fond, texte, bouton…) devient
+  // var(--atl-<rôle>, couleur d'origine), et les polices des titres et du texte
+  // var(--atl-font-heading / body). La section porte un réglage couleur par rôle
+  // (valeur d'origine au départ) : appliquer un design.md change toute la copie.
+  function themeColor(n, prop, v) {
+    if (!opaque(v)) return v;
+    const isBtn = n.parent != null && Boolean(inButton(n));
+    const order =
+      prop === "background-color"
+        ? isBtn
+          ? ["bouton", "fond", "surface", "fond-sombre"]
+          : ["fond", "surface", "fond-sombre", "bouton"]
+        : prop === "color"
+          ? isBtn
+            ? ["bouton-texte", "texte", "texte-sur-sombre", "accent"]
+            : n.tag === "a"
+              ? ["accent", "texte", "texte-sur-sombre"]
+              : ["texte", "texte-sur-sombre", "accent", "bouton-texte"]
+          : ["texte", "surface", "accent", "fond", "fond-sombre"];
+    const role = order.find((r) => roles[r] === v);
+    return role ? `var(--atl-${role}, ${v})` : v;
+  }
+  const COLOR_PROPS = ["color", "background-color", "border-top-color", "border-right-color", "border-bottom-color", "border-left-color", "text-decoration-color"];
+  const HEADING = HEADING_TAG;
+  function themed(n, d) {
+    const out = { ...d };
+    for (const p of COLOR_PROPS) if (out[p]) out[p] = themeColor(n, p, out[p]);
+    const ff = out["font-family"] ?? (HEADING.test(n.tag) || n.tag === "body" ? n.style["font-family"] : null);
+    if (ff) {
+      if (HEADING.test(n.tag) || (ff === headingFont && ff !== bodyFont)) out["font-family"] = `var(--atl-font-heading, ${ff})`;
+      else if (ff === bodyFont || n.tag === "body") out["font-family"] = `var(--atl-font-body, ${ff})`;
+    }
+    return out;
+  }
+
   const resetValue = (n, prop) => {
     if (INHERITED.has(prop)) return "inherit";
     if (prop === "width" || prop === "height") return "auto";
@@ -281,8 +399,8 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const ruleOf = new Map();
   function classOf(n) {
     if (ruleOf.has(n.id)) return ruleOf.get(n.id);
-    const d = declOf(n, "d");
-    const m = declOf(n, "m");
+    const d = themed(n, declOf(n, "d"));
+    const m = themed(n, declOf(n, "m"));
     const diff = {};
     for (const prop of new Set([...Object.keys(d), ...Object.keys(m)])) {
       const dv = d[prop] ?? resetValue(n, prop);
@@ -310,7 +428,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     const addText = (slot, text, words, role, link, html) => {
       textN += 1;
       const debut = text.replace(/\s+/g, " ").slice(0, 38);
-      blocks.push({ slot, repere: `${role} · ${debut}${text.length > 38 ? "…" : ""}`, text: textes === "briefs" ? brief(text, words, role) : html ?? text, image: "", link: "" });
+      // Couleurs dans le texte formaté (liens, mots colorés) : elles suivent aussi les rôles.
+      const formatted = html?.replace(/color:(rgb\([^)]*\))/g, (m, c) => `color:${themeColor({ tag: "span" }, "color", c)}`);
+      blocks.push({ slot, repere: `${role} · ${debut}${text.length > 38 ? "…" : ""}`, text: textes === "briefs" ? brief(text, words, role) : formatted ?? text, image: "", link: "" });
       return link ? slot : null;
     };
 
@@ -360,7 +480,13 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
           open += ` href="${"{%- for b in section.blocks -%}{%- if b.settings.slot == '" + slotLink + "' -%}{{ b.settings.link | default: '#' }}{%- endif -%}{%- endfor -%}"}"`;
         } else open += ` href="#"`;
       }
-      if (n.bgImage) {
+      if (n.tag === "body") {
+        // Racine de la section : les couleurs des rôles viennent de ses réglages.
+        const vars = Object.keys(roles)
+          .map((r) => `--atl-${r}: {{ section.settings.role_${r.replace(/-/g, "_")} }};`)
+          .join(" ");
+        open += ` style="${vars} ${edge}"`;
+      } else if (n.bgImage) {
         const slot = `b${n.id}`;
         blocks.push({ slot, repere: `Image de fond ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
         open += ` style="${edge}${slotLoop(slot, "{%- if b.settings.image != blank -%}background-image:url({{ b.settings.image | image_url: width: 2000 }});background-size:cover;background-position:center;{%- endif -%}")}"`;
@@ -402,7 +528,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     const css = [
       fonts,
       `/* Copie de ${label} — partie ${i + 1}. Styles relevés sur la page d'origine (ordinateur, puis mobile). */`,
-      `${scope}{display:block;background:${snap.htmlBackground && !/rgba\(.*,\s*0\)$/.test(snap.htmlBackground) ? snap.htmlBackground : "transparent"}}`,
+      `${scope}{display:block;background:${opaque(snap.htmlBackground) ? themeColor({ tag: "div" }, "background-color", snap.htmlBackground) : "transparent"}}`,
       `${scope} :where(*:not(svg, svg *)){all:revert}`,
       `${scope} img{display:inline-block}`,
       `${scope} .atl-vide{background:repeating-linear-gradient(45deg,#eee 0 10px,#f7f7f7 10px 20px)}`,
@@ -412,7 +538,11 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     const schema = {
       name: `Atl · ${slug.replace(/^adv-/, "").slice(0, 12)} ${i + 1}`,
       tag: "section",
-      settings: [{ type: "paragraph", content: "Copie au design identique d'une page importée. Chaque bloc est un emplacement de la page : modifie son texte, son image ou son lien." }],
+      settings: [
+        { type: "paragraph", content: "Copie au design identique d'une page importée. Chaque bloc est un emplacement de la page : modifie son texte, son image ou son lien." },
+        { type: "header", content: "Couleurs (suivent le design.md)" },
+        ...Object.entries(roles).map(([r, c]) => ({ type: "color", id: `role_${r.replace(/-/g, "_")}`, label: ROLE_LABELS[r] ?? r, default: hexOf(c) })),
+      ],
       max_blocks: 50,
       blocks: [
         {
@@ -436,8 +566,17 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       source: { url: null, capturedAt: null, note: "Partie de la copie au design identique de la page importée (npm run advertorial:page)." },
       preview: {},
       previewBlocks: {},
+      designRoles: Object.fromEntries(Object.keys(roles).map((r) => [`role_${r.replace(/-/g, "_")}`, r])),
     };
     return { id, schema, template: liquid, css, meta, blocks };
   });
-  return { sections, slots: sections.reduce((n, s) => n + s.blocks.length, 0), classes: classes.size };
+  const firstName = (stack) => (stack ?? "").split(",")[0].replace(/["']/g, "").trim();
+  return {
+    sections,
+    slots: sections.reduce((n, s) => n + s.blocks.length, 0),
+    classes: classes.size,
+    // Pour le design.md de la page : ses couleurs et polices d'origine, par rôle.
+    roles: Object.fromEntries(Object.entries(roles).map(([r, c]) => [r, hexOf(c)])),
+    fonts: { titres: firstName(headingFont), texte: firstName(bodyFont) },
+  };
 }

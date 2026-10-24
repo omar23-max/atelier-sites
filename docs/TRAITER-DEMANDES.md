@@ -66,6 +66,11 @@ demande « en attente » (de la plus ancienne à la plus récente) :
         est un emplacement rempli d'un brief de même longueur, chaque photo un
         emplacement image. Plus `template.json` (avec `url`, `produit`,
         `secteur`, `lienProduit`) et `designs/<dossier>-design.md`.
+        Couleurs et polices suivent le design.md : chaque couleur d'origine
+        qui joue un rôle (fond, texte, accent, bouton…) devient
+        `var(--atl-<rôle>)`, réglée par la section (`role_<rôle>`,
+        `meta.designRoles`) ; le design.md de la page reprend ces valeurs
+        d'origine (l'appliquer ne change rien, en appliquer un autre change tout).
         La page d'origine reste consultable telle quelle : bascule
         « Original / Modifiable » de l'atelier (`/api/original/<dossier>`) ;
      4. `npm run thumbs` pour la vignette. Les adresses google.com/url?q=…

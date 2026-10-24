@@ -47,13 +47,12 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f4f4f4",
-    "texte": "#262626",
-    "accent": "#2281c9",
-    "bouton": "#e4572e",
-    "bouton-texte": "#ffffff",
+    "surface": "#d9dfec",
     "fond-sombre": "#000000",
-    "texte-sur-sombre": "#ffffff"
+    "texte": "#262626",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#00c148",
+    "bouton-texte": "#ffffff"
   }
 }
 ```
