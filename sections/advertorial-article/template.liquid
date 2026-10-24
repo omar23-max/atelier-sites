@@ -1,0 +1,51 @@
+<div
+  class="atl-advertorial-article"
+  style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-heading: {{ section.settings.color_heading }}; --atl-link: {{ section.settings.color_link }}; --atl-button: {{ section.settings.color_button }}; --atl-button-text: {{ section.settings.color_button_text }}; --atl-box: {{ section.settings.color_box }}; --atl-width: {{ section.settings.width }}px; --atl-pad: {{ section.settings.padding_y }}px; --atl-size: {{ section.settings.font_size }}px; --atl-title: {{ section.settings.title_size }}px; --atl-subtitle: {{ section.settings.subtitle_size }}px;"
+>
+  <div class="atl-advertorial-article__col">
+    {%- for block in section.blocks -%}
+      {%- assign b = block.settings -%}
+      {%- capture st -%}text-align: {{ b.align }};{% if b.size > 0 %} font-size: {{ b.size }}px;{% endif %}{% if b.color != blank %} color: {{ b.color }};{% endif %}{% if b.bg != blank %} background: {{ b.bg }};{% endif %}{% if b.bold %} font-weight: 700;{% endif %}{% if b.italic %} font-style: italic;{% endif %}{%- endcapture -%}
+      {%- case b.kind -%}
+        {%- when 'surtitre' -%}
+          <p class="atl-advertorial-article__surtitre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text }}</p>
+        {%- when 'titre' -%}
+          <h1 class="atl-advertorial-article__titre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</h1>
+        {%- when 'intertitre' -%}
+          <h2 class="atl-advertorial-article__intertitre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</h2>
+        {%- when 'image' -%}
+          {%- if b.image != blank -%}
+            <figure class="atl-advertorial-article__image" style="text-align: {{ b.align }};" {{ block.shopify_attributes }}>
+              <img src="{{ b.image | image_url: width: 1600 }}" alt="{{ b.text | escape }}" style="width: {{ b.image_width }}%;" loading="lazy">
+              {%- if b.text != blank -%}<figcaption>{{ b.text }}</figcaption>{%- endif -%}
+            </figure>
+          {%- endif -%}
+        {%- when 'liste' -%}
+          {%- assign items = b.text | newline_to_br | split: '<br />' -%}
+          <ul class="atl-advertorial-article__liste" style="{{ st }}" {{ block.shopify_attributes }}>
+            {%- for it in items -%}
+              {%- assign t = it | strip -%}
+              {%- if t != blank -%}<li>{{ t }}</li>{%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- when 'citation' -%}
+          <blockquote class="atl-advertorial-article__citation" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</blockquote>
+        {%- when 'encadre' -%}
+          <div class="atl-advertorial-article__encadre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</div>
+        {%- when 'bouton' -%}
+          <p class="atl-advertorial-article__bouton-wrap" style="text-align: {{ b.align }};" {{ block.shopify_attributes }}>
+            <a class="atl-advertorial-article__bouton" href="{{ b.link | default: '#' }}" style="{% if b.size > 0 %}font-size: {{ b.size }}px;{% endif %}{% if b.bg != blank %} background: {{ b.bg }};{% endif %}{% if b.color != blank %} color: {{ b.color }};{% endif %}">{{ b.text }}</a>
+          </p>
+        {%- when 'auteur' -%}
+          <div class="atl-advertorial-article__auteur" style="{{ st }}" {{ block.shopify_attributes }}>
+            {%- if b.image != blank -%}<img src="{{ b.image | image_url: width: 120 }}" alt="" width="44" height="44" loading="lazy">{%- endif -%}
+            <span>{{ b.text }}</span>
+          </div>
+        {%- when 'separateur' -%}
+          <hr class="atl-advertorial-article__separateur" {{ block.shopify_attributes }}>
+        {%- else -%}
+          <p class="atl-advertorial-article__paragraphe" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</p>
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</div>

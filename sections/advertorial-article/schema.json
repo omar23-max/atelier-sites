@@ -1,0 +1,83 @@
+{
+  "name": "Atl · Advertorial (article)",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Colonne" },
+    { "type": "range", "id": "width", "label": "Largeur de la colonne", "min": 480, "max": 1200, "step": 10, "unit": "px", "default": 720 },
+    { "type": "range", "id": "padding_y", "label": "Marge haut et bas", "min": 0, "max": 80, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "font_size", "label": "Taille du texte", "min": 14, "max": 24, "step": 1, "unit": "px", "default": 18 },
+    { "type": "range", "id": "title_size", "label": "Taille du grand titre", "min": 24, "max": 64, "step": 1, "unit": "px", "default": 38 },
+    { "type": "range", "id": "subtitle_size", "label": "Taille des intertitres", "min": 18, "max": 44, "step": 1, "unit": "px", "default": 26 },
+    { "type": "header", "content": "Couleurs" },
+    { "type": "color", "id": "color_bg", "label": "Fond", "default": "#ffffff" },
+    { "type": "color", "id": "color_text", "label": "Texte", "default": "#222222" },
+    { "type": "color", "id": "color_heading", "label": "Titres", "default": "#111111" },
+    { "type": "color", "id": "color_link", "label": "Liens", "default": "#0b57d0" },
+    { "type": "color", "id": "color_button", "label": "Boutons", "default": "#e4572e" },
+    { "type": "color", "id": "color_button_text", "label": "Texte des boutons", "default": "#ffffff" },
+    { "type": "color", "id": "color_box", "label": "Fond des encadrés", "default": "#f4f4f4" }
+  ],
+  "blocks": [
+    {
+      "type": "element",
+      "name": "Élément",
+      "settings": [
+        { "type": "text", "id": "repere", "label": "Repère (nom dans la liste)", "default": "Paragraphe" },
+        {
+          "type": "select",
+          "id": "kind",
+          "label": "Type",
+          "options": [
+            { "value": "surtitre", "label": "Sur-titre" },
+            { "value": "titre", "label": "Grand titre" },
+            { "value": "intertitre", "label": "Intertitre" },
+            { "value": "paragraphe", "label": "Paragraphe" },
+            { "value": "image", "label": "Image" },
+            { "value": "liste", "label": "Liste" },
+            { "value": "citation", "label": "Citation" },
+            { "value": "encadre", "label": "Encadré" },
+            { "value": "bouton", "label": "Bouton" },
+            { "value": "auteur", "label": "Auteur et date" },
+            { "value": "separateur", "label": "Séparateur" }
+          ],
+          "default": "paragraphe"
+        },
+        { "type": "textarea", "id": "text", "label": "Texte (liste : un point par ligne ; image : légende)", "default": "[ Paragraphe — 40-60 mots ]" },
+        { "type": "image_picker", "id": "image", "label": "Image (type Image ou Auteur)" },
+        { "type": "range", "id": "image_width", "label": "Largeur de l'image", "min": 10, "max": 100, "step": 5, "unit": "%", "default": 100 },
+        { "type": "url", "id": "link", "label": "Lien (type Bouton)" },
+        {
+          "type": "select",
+          "id": "align",
+          "label": "Alignement",
+          "options": [
+            { "value": "left", "label": "Gauche" },
+            { "value": "center", "label": "Centre" },
+            { "value": "right", "label": "Droite" }
+          ],
+          "default": "left"
+        },
+        { "type": "range", "id": "size", "label": "Taille du texte (0 = taille de la section)", "min": 0, "max": 60, "step": 1, "unit": "px", "default": 0 },
+        { "type": "checkbox", "id": "bold", "label": "Gras", "default": false },
+        { "type": "checkbox", "id": "italic", "label": "Italique", "default": false },
+        { "type": "color", "id": "color", "label": "Couleur du texte (vide = couleur de la section)" },
+        { "type": "color", "id": "bg", "label": "Fond (vide = aucun)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Atl · Advertorial (article)",
+      "blocks": [
+        { "type": "element", "settings": { "repere": "Sur-titre", "kind": "surtitre", "text": "[ Rubrique — 1-2 mots ]" } },
+        { "type": "element", "settings": { "repere": "Grand titre", "kind": "titre", "text": "[ Titre accrocheur de l'article — 10-14 mots ]" } },
+        { "type": "element", "settings": { "repere": "Auteur", "kind": "auteur", "text": "[ Par Prénom Nom ] · [ date ]" } },
+        { "type": "element", "settings": { "repere": "Image", "kind": "image", "text": "" } },
+        { "type": "element", "settings": { "repere": "Paragraphe", "kind": "paragraphe", "text": "[ Accroche : le problème du lecteur — 40-60 mots ]" } },
+        { "type": "element", "settings": { "repere": "Intertitre", "kind": "intertitre", "text": "[ Intertitre — 6-9 mots ]" } },
+        { "type": "element", "settings": { "repere": "Paragraphe", "kind": "paragraphe", "text": "[ Paragraphe — 40-60 mots ]" } },
+        { "type": "element", "settings": { "repere": "Bouton", "kind": "bouton", "text": "[ Bouton — 3-5 mots ]", "align": "center" } }
+      ]
+    }
+  ]
+}
