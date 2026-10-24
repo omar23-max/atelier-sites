@@ -144,8 +144,14 @@ function extract() {
     : "nav";
   function walk(el) {
     for (const c of el.children) {
-      if (SKIP.has(c.tagName) || !visible(c) || c.matches(CHROME)) continue;
+      if (SKIP.has(c.tagName) || c.matches(CHROME)) continue;
       const tag = c.tagName;
+      if (!visible(c)) {
+        // Conteneur de taille nulle aux enfants positionnés (Unbounce…) : on descend.
+        const cs = getComputedStyle(c);
+        if (c.children.length && cs.display !== "none" && cs.visibility !== "hidden") walk(c);
+        continue;
+      }
       if (isButtonLike(c)) {
         pushText(c, "bouton", { link: c.href ?? c.closest("a")?.href ?? null });
         continue;
@@ -197,6 +203,9 @@ function extract() {
     }
   }
   walk(document.body);
+
+  // Page en positions absolues (Unbounce) : l'ordre du code n'est pas l'ordre affiché.
+  if (document.querySelector(".lp-pom-root")) items.sort((a, b) => a.box.y - b.box.y || a.box.x - b.box.x);
 
   // Fragments posés sur une même ligne (compte à rebours, prix barré) : un seul élément.
   for (let i = items.length - 1; i > 0; i--) {

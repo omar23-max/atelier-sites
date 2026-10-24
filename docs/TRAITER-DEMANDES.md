@@ -49,6 +49,21 @@ demande « en attente » (de la plus ancienne à la plus récente) :
    - **site** : `npm run capture -- <url> <dossier>`, REA pour les comportements
      (onglets, carrousels, sélecteurs), reconstruire les sections demandées
      (`sections` vide ou « toutes » = toutes les sections intéressantes).
+   - **site** pour un **advertorial, listicle ou presell** : la page est copiée
+     en entier, sans la découper en sections du catalogue :
+     1. `npm run advertorial -- <url> <dossier>` (dossier `adv-<marque>`) :
+        relève chaque élément dans l'ordre (titres, paragraphes, images,
+        listes, boutons) avec ses styles, découpe les photos, et signale une
+        page disparue (`advertorial.json` → `disparue: true`) ;
+     2. lire la page et écrire `imports/<dossier>/fiche.json` : `nom`,
+        `produit`, `marque`, `secteur`, `pageType` (`advertorial` ou
+        `listicle`), `ambiance` ;
+     3. `npm run advertorial:page -- <dossier>` : page mirror (section
+        « Advertorial — article complet », textes remplacés par des briefs),
+        `template.json` (avec `url`, `produit`, `secteur`, `lienProduit`) et
+        `designs/<dossier>-design.md` ;
+     4. `npm run thumbs` pour la vignette. Les adresses google.com/url?q=…
+        sont des doublons : décoder `q=` et traiter la page une seule fois.
    - **bibliotheque** : vérifier la licence (libre/MIT = réutilisable ;
      payant = reprendre la mise en page, pas le code). Si l'accès demande un
      compte, l'utilisateur se connecte lui-même ; ne jamais saisir d'identifiants.

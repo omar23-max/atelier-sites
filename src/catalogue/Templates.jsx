@@ -33,9 +33,19 @@ function TemplateCard({ template, onUse, onDelete }) {
         <span className="cat-muted cat-card__meta">
           <SourceLink url={template.url} prefix="Importé de" />
         </span>
+        {(template.produit || template.marque) && (
+          <span className="cat-card__meta">
+            Produit : <b>{template.produit || "?"}</b>
+            {template.marque && ` · ${template.marque}`}
+          </span>
+        )}
         <span className="cat-muted cat-card__meta">
-          {template.sectionsSite != null ? `${template.sectionsSite} sections sur le site · ` : "Import par captures · "}
-          {extracted} dans le catalogue · {template.photos} photos découpées
+          {template.copieEntiere
+            ? `Page copiée en entier · ${template.elements} éléments · `
+            : template.sectionsSite != null
+              ? `${template.sectionsSite} sections sur le site · ${extracted} dans le catalogue · `
+              : `Import par captures · ${extracted} dans le catalogue · `}
+          {template.photos} photos découpées
         </span>
         <div className="cat-card__badges">
           {type && <span className={`cat-badge ${type.achat ? "cat-badge--green" : "cat-badge--blue"}`}>{type.label}</span>}
@@ -142,6 +152,7 @@ function UseTemplate({ template, onClose, onMessage }) {
 
 export function TemplatesView({ onMessage }) {
   const [templates, setTemplates] = useState(null);
+  const [type, setType] = useState("tous");
   const [using, setUsing] = useState(null);
   const load = () => listTemplates().then(setTemplates).catch(() => setTemplates([]));
   useEffect(() => {
@@ -177,11 +188,24 @@ export function TemplatesView({ onMessage }) {
       ) : templates.length === 0 ? (
         <div className="cat-empty">Aucun template. Importe un site depuis « Enrichir le catalogue ».</div>
       ) : (
+        <>
+          <div className="cat-seg cat-tabs">
+            {[{ id: "tous", label: "Tous" }, ...PAGE_TYPES].map((t) => {
+              const n = t.id === "tous" ? templates.length : templates.filter((x) => x.pageType === t.id).length;
+              if (!n) return null;
+              return (
+                <button key={t.id} type="button" className={type === t.id ? "is-on" : ""} onClick={() => setType(t.id)}>
+                  {t.id === "tous" ? "Tous" : t.label} ({n})
+                </button>
+              );
+            })}
+          </div>
         <div className="cat-grid">
-          {templates.map((t) => (
+          {templates.filter((t) => type === "tous" || t.pageType === type).map((t) => (
             <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} />
           ))}
         </div>
+        </>
       )}
       {using && <UseTemplate template={using} onClose={() => setUsing(null)} onMessage={onMessage} />}
     </>
