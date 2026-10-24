@@ -88,6 +88,13 @@ demande « en attente » (de la plus ancienne à la plus récente) :
         clients absents des infos — laisser alors la consigne et le signaler ;
      4. respecter le type de page (`root.props.pageType`) : une page sans achat
         renvoie vers `pageAchat` ;
+        **copie au design identique** (sections `<page>-pN`, blocs
+        `blocks_element` avec `slot` / `text`) : portée « tout », chaque texte
+        d'origine est réécrit pour le produit des `infos`, en suivant
+        `details.prompt` (consignes de l'utilisateur), à longueur proche (la
+        mise en page en dépend) ; garder les `<span style>` et `<br>` de mise
+        en forme autour des mots équivalents ; remplacer toute marque, nom de
+        produit ou prix du site d'origine ; ne pas toucher aux blocs image ;
      5. enregistrer la page, noter dans `resultat` le nombre de textes écrits et
         les consignes laissées.
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =

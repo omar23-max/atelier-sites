@@ -56,7 +56,10 @@ function RewriteDialog({ onClose }) {
     langue: "anglais",
     ton: "",
     infos: "",
-    portee: "consignes",
+    // Page copiée avec ses textes d'origine (aucune consigne entre crochets) :
+    // on réécrit tous les textes.
+    portee: briefs > 0 ? "consignes" : "tout",
+    prompt: "",
   });
   const [state, setState] = useState(null);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
@@ -76,7 +79,7 @@ function RewriteDialog({ onClose }) {
       const res = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "textes", page: pageName, details: { ...form, pageType: root.pageType ?? null, consignes: briefs } }),
+        body: JSON.stringify({ type: "textes", page: pageName, details: { ...form, pageType: root.pageType ?? null, nbConsignes: briefs } }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
@@ -102,15 +105,34 @@ function RewriteDialog({ onClose }) {
               <b>Demande enregistrée</b> dans <code>{state.done}</code>. La page a été enregistrée.
             </p>
             <p>
-              Dis à Claude <b>« traite les demandes »</b> : il remplit les {briefs} consignes de la page, au bon nombre de mots, pour ton
-              produit et ton client, puis enregistre la page (une copie de sécurité est faite avant). Recharge ensuite l'atelier.
+              Dis à Claude <b>« traite les demandes »</b> :{" "}
+              {form.portee === "tout"
+                ? "il réécrit tous les textes de la version modifiable pour ton produit, en suivant tes consignes, à la même longueur et avec la même mise en forme"
+                : `il remplit les ${briefs} consignes de la page, au bon nombre de mots, pour ton produit et ton client`}
+              , puis enregistre la page (une copie de sécurité est faite avant). Recharge ensuite l'atelier ; l'original ne change pas.
             </p>
           </div>
         ) : (
           <div className="atl-newpage__body">
             <p className="atl-newpage__hint" style={{ margin: 0 }}>
-              {briefs} texte(s) de la page sont encore des consignes entre crochets. Les textes du site d'origine ne sont jamais repris.
+              {briefs > 0
+                ? `${briefs} texte(s) de la page sont encore des consignes entre crochets.`
+                : "La version modifiable a encore les textes de la page d'origine : ils seront tous réécrits pour ton produit (l'original reste consultable)."}{" "}
+              Les textes écrits sont neufs : rien n'est recopié du site d'origine.
             </p>
+            <fieldset className="atl-newpage__grid">
+              <legend>Tes consignes (prompt)</legend>
+              <label style={{ gridColumn: "1 / -1" }}>
+                <span>Ce que tu veux changer, comme tu le dirais à un rédacteur (facultatif)</span>
+                <textarea
+                  rows={4}
+                  value={form.prompt}
+                  onChange={set("prompt")}
+                  className="atl-copy__infos"
+                  placeholder="ex. La narratrice est une maman de 35 ans, pas une grand-mère. Ton plus urgent. Insiste sur l'absence de produits chimiques. Garde les intertitres courts."
+                />
+              </label>
+            </fieldset>
             <fieldset className="atl-newpage__grid">
               <legend>Ton produit</legend>
               <label>
