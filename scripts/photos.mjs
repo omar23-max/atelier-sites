@@ -11,7 +11,7 @@
 //
 // Ces fichiers restent sur le PC : ils servent de référence dans l'atelier et
 // ne sont jamais exportés vers Shopify ni publiés.
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -48,7 +48,9 @@ export async function cropPhotos(browser, slug) {
       const height = Math.min(p.box.height, size.h - y);
       if (width < 8 || height < 8) continue;
       const file = `${n}-${String(++k).padStart(2, "0")}.png`;
-      await page.screenshot({ path: join(imagesDir, file), fullPage: true, clip: { x, y, width, height } });
+      // Photo en partie cachée sur le site : sa capture entière (voir capture.mjs).
+      if (p.shot && existsSync(join(dir, p.shot))) await copyFile(join(dir, p.shot), join(imagesDir, file));
+      else await page.screenshot({ path: join(imagesDir, file), fullPage: true, clip: { x, y, width, height } });
       list.push({ section: s.index, n: k, file, kind: p.kind, size: `${width}x${height}`, alt: p.alt, src: p.src });
     }
   }

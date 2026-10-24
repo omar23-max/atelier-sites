@@ -203,7 +203,11 @@ function measurePage() {
       const key = `${b.x},${b.y},${b.width},${b.height}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      photos.push({ kind: n.tagName === "IMG" ? "img" : "fond", src, alt: n.alt ?? "", box: b });
+      // Photo en partie cachée (bas d'une bande de vignettes, carrousel) : on la
+      // marque pour la reprendre entière, défilée dans son conteneur.
+      const partial = visibleArea < r.width * r.height * 0.98;
+      if (partial) n.setAttribute("data-atl-photo", `${sections.length}-${photos.length}`);
+      photos.push({ kind: n.tagName === "IMG" ? "img" : "fond", src, alt: n.alt ?? "", box: b, partial });
     }
 
     const videos = scope("video, iframe[src*=youtube], iframe[src*=vimeo]").map((v) => v.currentSrc || v.src);
@@ -299,6 +303,25 @@ try {
       });
       await page.waitForTimeout(300);
       await page.screenshot({ path: join(outDir, "desktop-photos.png"), fullPage: true });
+
+      // Photos en partie cachées : défilées dans leur conteneur puis capturées
+      // entières (toujours une capture d'écran, sans le texte posé dessus).
+      const partialDir = join(outDir, "_photos-entieres");
+      for (const s of data.sections) {
+        for (const [k, p] of (s.photos ?? []).entries()) {
+          if (!p.partial) continue;
+          const loc = page.locator(`[data-atl-photo="${s.index}-${k}"]`);
+          try {
+            await loc.evaluate((el) => el.scrollIntoView({ block: "nearest", inline: "nearest" }));
+            await page.waitForTimeout(200);
+            await mkdir(partialDir, { recursive: true });
+            await loc.screenshot({ path: join(partialDir, `${s.index}-${k}.png`), timeout: 5000 });
+            p.shot = `_photos-entieres/${s.index}-${k}.png`;
+          } catch {
+            // introuvable ou invisible : la découpe dans la capture servira
+          }
+        }
+      }
     }
 
     report.views[name] = data;

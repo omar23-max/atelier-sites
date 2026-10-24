@@ -27,20 +27,27 @@ const TOOLS = [
   { id: "score", label: "Score", icon: IconGauge },
 ];
 
+// Un clic sur un outil déroule son panneau ; un second clic le referme et il
+// ne reste que le rail (la colonne se réduit à sa largeur).
 export function LeftPanel() {
-  const [tool, setTool] = useState("structure");
+  const [tool, setTool] = useState(null);
+  const toggle = (id) => setTool((t) => (t === id ? null : id));
   // Ouvrir un outil depuis ailleurs : window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: "ajouter" }))
   useEffect(() => {
     const on = (e) => setTool(e.detail);
     window.addEventListener("atl-left-tool", on);
     return () => window.removeEventListener("atl-left-tool", on);
   }, []);
+  useEffect(() => {
+    document.body.classList.toggle("atl-rail-only", !tool);
+    return () => document.body.classList.remove("atl-rail-only");
+  }, [tool]);
   const current = TOOLS.find((t) => t.id === tool);
   return (
     <div className="atl-left">
       <nav className="atl-rail" aria-label="Outils">
         {TOOLS.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" title={label} aria-label={label} className={tool === id ? "is-on" : ""} onClick={() => setTool(id)}>
+          <button key={id} type="button" title={label} aria-label={label} className={tool === id ? "is-on" : ""} onClick={() => toggle(id)}>
             <Icon />
           </button>
         ))}
@@ -53,6 +60,7 @@ export function LeftPanel() {
           <IconHistory />
         </button>
       </nav>
+      {tool && (
       <div className="atl-tool-panel">
         {tool !== "score" && (
           <div className="atl-tool-panel__head">
@@ -67,6 +75,7 @@ export function LeftPanel() {
         {tool === "rebrand" && <RebrandTool />}
         {tool === "score" && <ScorePanel />}
       </div>
+      )}
     </div>
   );
 }

@@ -2422,3 +2422,12 @@ select.is-missing {
   width: 19px;
   height: 19px;
 }
+
+/* Rail seul (aucun outil ouvert) : la colonne de gauche se réduit au rail */
+body.atl-rail-only [class*="PuckLayout"] {
+  --puck-sidebar-left-width: 48px !important;
+  --puck-user-sidebar-left-width: 48px !important;
+}
+body.atl-rail-only .atl-left {
+  grid-template-columns: 48px;
+}

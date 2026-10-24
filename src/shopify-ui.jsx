@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { sections } from "./engine/sections.js";
 import { normalizeProps } from "./engine/render.js";
-import { buildShopifySectionFile, buildShopifyTemplate } from "./engine/shopify.js";
+import { atelierImagesOf, buildShopifySectionFile, buildShopifyTemplate } from "./engine/shopify.js";
 import { pageTypeById } from "./engine/page-types.js";
 import { originalPhotoTargets } from "./engine/photos.js";
 
@@ -26,10 +26,20 @@ function buildFiles(data) {
   const templateFile = `templates/${achat ? "product" : "page"}.atelier-${pageName}.json`;
   const files = used.map((s) => ({ path: `sections/atl-${s.id}.liquid`, content: buildShopifySectionFile(s) }));
   files.push({ path: templateFile, content: JSON.stringify(buildShopifyTemplate(page, byId), null, 2) });
-  return { files, templateFile, used, invalid, achat };
+  // Images créées dans l'atelier (jamais les photos d'origine) : à envoyer dans
+  // les Fichiers de la boutique, sous le nom utilisé par le modèle.
+  const images = atelierImagesOf(page);
+  return { files, templateFile, used, invalid, achat, images };
 }
 
-const README = ({ templateFile, achat, used, photos }) => `ATELIER — code Liquid de la page « ${pageName} »
+const imagesStep = (images) =>
+  images.length
+    ? `  0. Contenu → Fichiers → Téléverser des fichiers : les ${images.length} image(s) du dossier
+     « images » de ce zip, SANS les renommer (le modèle les appelle par leur nom).
+`
+    : "";
+
+const README = ({ templateFile, achat, used, photos, images }) => `ATELIER — code Liquid de la page « ${pageName} »
 ${"=".repeat(60)}
 
 Contenu :
@@ -37,7 +47,7 @@ ${used.map((s) => `  sections/atl-${s.id}.liquid`).join("\n")}
   ${templateFile}
 
 Installer dans Shopify (toujours sur une COPIE du thème, jamais le thème en ligne) :
-  1. Boutique en ligne → Thèmes → « … » à côté du thème → Dupliquer.
+${imagesStep(images)}  1. Boutique en ligne → Thèmes → « … » à côté du thème → Dupliquer.
   2. Sur la copie : « … » → Modifier le code.
   3. Dossier « sections » → Ajouter une section → nom « atl-… » (sans .liquid)
      → coller le contenu du fichier correspondant. Une fois par fichier.
@@ -46,8 +56,11 @@ Installer dans Shopify (toujours sur une COPIE du thème, jamais le thème en li
   5. ${achat ? "Produits → ton produit → Modèle de thème" : "Pages → ta page → Modèle de thème"} : choisir « atelier-${pageName} ».
   6. Aperçu de la copie du thème pour vérifier, puis publier quand tout est prêt.
 
-Les images ne sont pas incluses : ajoute-les dans l'éditeur de thème Shopify
-(chaque section a ses champs image).${photos ? `\nAttention : ${photos} photo(s) d'origine du site d'inspiration ne sont pas incluses (elles ne doivent jamais être publiées).` : ""}
+${
+  images.length
+    ? `Images incluses : les ${images.length} image(s) créée(s) dans l'atelier (dossier « images »).`
+    : "Aucune image créée dans l'atelier : ajoute tes images dans l'éditeur de thème Shopify."
+}${photos ? `\nAttention : ${photos} photo(s) d'origine du site d'inspiration ne sont pas incluses (elles ne doivent jamais être publiées).` : ""}
 `;
 
 export function ShopifyButton() {
@@ -89,7 +102,13 @@ function ShopifyDialog({ onClose }) {
           type: "shopify",
           page: pageName,
           notes: `Envoyer la page « ${pageName} » dans une copie NON publiée du thème Shopify (${info.used.length} section(s) + ${info.templateFile}).`,
-          details: { page: pageName, projet: data.root?.props?.projet ?? null, template: info.templateFile, sections: info.used.map((s) => s.id) },
+          details: {
+            page: pageName,
+            projet: data.root?.props?.projet ?? null,
+            template: info.templateFile,
+            sections: info.used.map((s) => s.id),
+            images: info.images, // [{ src, name }] : à téléverser dans Contenu → Fichiers, sous ce nom
+          },
         }),
       });
       const body = await res.json();
@@ -107,6 +126,7 @@ function ShopifyDialog({ onClose }) {
       const { default: JSZip } = await import("jszip");
       const zip = new JSZip();
       for (const f of info.files) zip.file(f.path, f.content);
+      for (const img of info.images) zip.file(`images/${img.name}`, await (await fetch(img.src)).blob());
       zip.file("LISEZ-MOI.txt", README({ ...info, photos }));
       const blob = await zip.generateAsync({ type: "blob" });
       const a = document.createElement("a");
@@ -131,7 +151,8 @@ function ShopifyDialog({ onClose }) {
         </header>
         <div className="atl-newpage__body">
           <p className="atl-newpage__hint" style={{ margin: 0 }}>
-            {info.used.length} section(s) Shopify et le modèle <code>{info.templateFile}</code>. Toujours dans une <b>copie non publiée</b> du
+            {info.used.length} section(s) Shopify, le modèle <code>{info.templateFile}</code>
+            {info.images.length ? ` et ${info.images.length} image(s) créée(s) dans l'atelier` : " (aucune image créée dans l'atelier pour l'instant)"}. Toujours dans une <b>copie non publiée</b> du
             thème : ta boutique en ligne n'est jamais modifiée.
             {photos > 0 && ` ${photos} photo(s) d'origine ne partent pas : remplace-les par tes images (Régénérer → images).`}
           </p>

@@ -82,13 +82,39 @@ export function validateSection({ id, schema, template, css }) {
   return errors;
 }
 
+// Images créées dans l'atelier (medias/<page>/…) : seules images exportées.
+// Dans Shopify, un réglage image pointe vers un fichier de la boutique
+// (Contenu → Fichiers) : shopify://shop_images/<nom>. Le nom est préfixé par la
+// page pour éviter les doublons entre pages. Les photos d'origine (/imports/…)
+// et les liens externes ne partent jamais.
+export const isAtelierImage = (v) => typeof v === "string" && v.startsWith("/medias/");
+export const shopifyImageName = (v) =>
+  `atl-${v.replace(/^\/medias\//, "").replace(/\//g, "-")}`
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-");
+
+// Toutes les images de l'atelier utilisées par une page : [{ src, name }].
+export function atelierImagesOf(page) {
+  const found = new Map();
+  const walk = (v) => {
+    if (isAtelierImage(v)) found.set(v, shopifyImageName(v));
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === "object") Object.values(v).forEach(walk);
+  };
+  (page.content ?? []).forEach((item) => walk(item.props));
+  return [...found].map(([src, name]) => ({ src, name }));
+}
+
 // Réglages à écrire dans un modèle JSON : seulement ce qui diffère du défaut
-// Shopify, et jamais les images (dans l'atelier ce sont des URL, alors que
-// Shopify attend un fichier de la boutique).
+// Shopify ; pour les images, seulement celles créées dans l'atelier.
 function settingsDiff(settings, values) {
   const out = {};
   for (const s of settings ?? []) {
-    if (INFO_SETTING_TYPES.includes(s.type) || ["image_picker", "video_url"].includes(s.type)) continue;
+    if (INFO_SETTING_TYPES.includes(s.type) || s.type === "video_url") continue;
+    if (s.type === "image_picker") {
+      if (isAtelierImage(values?.[s.id])) out[s.id] = `shopify://shop_images/${shopifyImageName(values[s.id])}`;
+      continue;
+    }
     const v = values?.[s.id];
     if (v === undefined || v === "" || v === s.default) continue;
     out[s.id] = v;

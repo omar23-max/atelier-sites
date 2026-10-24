@@ -6,9 +6,9 @@
 // Résultat dans export/shopify/ :
 //   sections/atl-<id>.liquid
 //   templates/page.atelier-<nom>.json   (avec --page)
-import { mkdir, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { buildShopifySectionFile, buildShopifyTemplate, validateSection } from "../src/engine/shopify.js";
+import { atelierImagesOf, buildShopifySectionFile, buildShopifyTemplate, validateSection } from "../src/engine/shopify.js";
 import { normalizeProps } from "../src/engine/render.js";
 import { sectionsWithOriginalPhotos } from "./render-page.mjs";
 import { listSectionIds, loadPage, loadSection, root } from "./lib/load.mjs";
@@ -60,6 +60,14 @@ if (pageName && failed === 0) {
     for (const item of toReplace) console.warn(`    ${sectionsById[item.type].meta.label ?? item.type}`);
   }
   const template = buildShopifyTemplate(page, sectionsById);
+  // Images créées dans l'atelier : copiées sous le nom attendu par le modèle
+  // (à téléverser dans Contenu → Fichiers de la boutique).
+  const images = atelierImagesOf(page);
+  if (images.length) {
+    await mkdir(join(outDir, "images"), { recursive: true });
+    for (const img of images) await copyFile(join(root, img.src), join(outDir, "images", img.name));
+    console.log(`✓ ${images.length} image(s) de l'atelier  →  export/shopify/images/`);
+  }
   const file = `page.atelier-${pageName}.json`;
   await writeFile(join(outDir, "templates", file), JSON.stringify(template, null, 2), "utf8");
   console.log(`✓ page ${pageName}  →  export/shopify/templates/${file}`);

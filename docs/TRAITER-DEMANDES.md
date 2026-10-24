@@ -228,11 +228,16 @@ Créée par le bouton « Publier sur Shopify » de l'atelier (`page`, `details` 
    `templates/page.atelier-<page>.json` (le bouton l'indique dans `details.template`).
 2. Toujours une **copie non publiée** du thème (`themeDuplicate` si besoin) :
    **jamais** le thème en ligne.
-3. `themeFilesUpsert`, un fichier par appel (limite de 16 384 caractères) :
+3. **Images de l'atelier** (`details.images` : `[{ src, name }]`, seulement les
+   images créées dans l'atelier, `medias/…` — jamais les photos d'origine) :
+   les téléverser dans les Fichiers de la boutique **sous ce nom exact**
+   (`stagedUploadsCreate` puis `fileCreate` avec `filename: name`, attendre
+   `fileStatus: READY`). Le modèle les appelle `shopify://shop_images/<name>`.
+4. `themeFilesUpsert`, un fichier par appel (limite de 16 384 caractères) :
    chaque `sections/atl-<id>.liquid`, puis le modèle.
-4. Page produit : assigner le modèle au produit ; sinon créer/mettre à jour la
+5. Page produit : assigner le modèle au produit ; sinon créer/mettre à jour la
    page (`pageCreate`) avec ce modèle.
-5. Noter l'envoi : `POST /api/projects/<projet>/publication` avec
+6. Noter l'envoi : `POST /api/projects/<projet>/publication` avec
    `{ page, canal: "shopify", theme }`, puis passer la demande à « traitée ».
 
 Le bouton propose aussi « Télécharger le code Liquid (.zip) » : sections, modèle
