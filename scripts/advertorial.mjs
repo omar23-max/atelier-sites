@@ -15,7 +15,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
-import { PROPS, snapshotDesktop, snapshotMobile } from "./lib/snapshot.mjs";
+import { PROPS, TEXT_PROPS, snapshotDesktop, snapshotMobile, snapshotMobileByPath } from "./lib/snapshot.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const [url, slug] = process.argv.slice(2);
@@ -331,12 +331,12 @@ try {
       ? "nav, header, footer, .shopify-section-group-header-group, .shopify-section-group-footer-group, [id*=announcement], [class*=announcement]"
       : "nav",
   );
-  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector });
+  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector, textProps: TEXT_PROPS });
   snap.fonts = await fontFaces(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(1200);
   await scrollThrough(page);
-  snap.mobile = await page.evaluate(snapshotMobile, { props: PROPS });
+  snap.mobile = await page.evaluate(snapshotMobile, { props: PROPS, textProps: TEXT_PROPS });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.waitForTimeout(1200);
   await scrollThrough(page);
@@ -359,7 +359,6 @@ try {
     }
   }
   report.photos = cut;
-  await writeFile(join(outDir, "snapshot.json"), JSON.stringify(snap), "utf8");
   await ctx.close();
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, locale: "en-US" });
@@ -369,6 +368,16 @@ try {
   await dismissOverlays(m);
   await scrollThrough(m);
   await dismissOverlays(m);
+  // Styles mobile relevés sur la page chargée en mobile (certains sites,
+  // comme Unbounce, choisissent leur mise en page mobile au chargement) :
+  // chaque élément est retrouvé par sa place dans la page. À défaut, on garde
+  // la valeur relevée en rétrécissant la fenêtre.
+  const targets = snap.nodes.map((n) => ({ id: n.id, tag: n.tag, path: n.path, domPath: n.domPath ?? null }));
+  const fresh = await m.evaluate(snapshotMobileByPath, { props: PROPS, textProps: TEXT_PROPS, targets });
+  const found = Object.keys(fresh).length;
+  for (const [id, styles] of Object.entries(fresh)) snap.mobile[id] = styles;
+  report.mobileRetrouves = `${found}/${snap.nodes.length}`;
+  await writeFile(join(outDir, "snapshot.json"), JSON.stringify(snap), "utf8");
   const mh = Math.min(await m.evaluate(() => document.documentElement.scrollHeight), MAX_SHOT);
   await m.screenshot({ path: join(outDir, "mobile.png"), clip: { x: 0, y: 0, width: 390, height: mh }, fullPage: true });
   await mctx.close();

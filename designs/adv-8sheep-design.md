@@ -12,7 +12,7 @@ Article pour parents, fond gris clair, Arial, témoignages de parents et tableau
 
 81 éléments dans l'ordre : 0 grands titres, 0 intertitres,
 81 paragraphes, 0 listes, 38 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (2 sections).
+Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie
 

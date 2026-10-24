@@ -95,7 +95,14 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   // ---- Découpe en sections ----
   const full = (n) => ({ n, kids: aliveKids(n).map((k) => (k.text != null ? k : full(byId[k.n]))) });
   const itemCount = (it) => (it.text != null ? 1 : it.empty ? 0 : it.kids ? it.kids.reduce((s, k) => s + itemCount(k), (isImageSlot(it.n) ? 1 : 0) + (it.n.text != null ? 1 : 0)) : count(it.n));
+// Cadre dont tous les enfants sont en position absolue (Unbounce…).
+  const allAbsoluteKids = (n) => {
+    const kids = aliveKids(n).filter((k) => k.text == null).map((k) => byId[k.n]);
+    return kids.length > 0 && aliveKids(n).every((k) => k.text == null && ["absolute", "fixed"].includes(byId[k.n].style.position));
+  };
   const sideBySide = (n) => {
+    // Des éléments posés en coordonnées fixes ne sont pas des colonnes.
+    if (allAbsoluteKids(n)) return false;
     const kids = aliveKids(n).filter((k) => k.text == null).map((k) => byId[k.n]).filter((k) => k.box.w > 0 && k.box.h > 0);
     for (let i = 0; i < kids.length; i++)
       for (let j = i + 1; j < kids.length; j++) {
@@ -146,7 +153,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       cur = [];
       curCount = 0;
     };
-    for (const k of kids) {
+    // Cadre en positions absolues : découpé de haut en bas, par tranches.
+    const ordered = allAbsoluteKids(n) ? [...kids].sort((a, b) => byId[a.n].box.y - byId[b.n].box.y) : kids;
+    for (const k of ordered) {
       const c = k.text != null ? 1 : count(byId[k.n]);
       if (curCount + c <= max) {
         cur.push(k.text != null ? k : full(byId[k.n]));
@@ -195,6 +204,41 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     }
   }
   markEdges(pieces);
+
+  // Mise en page en positions absolues (Unbounce…) coupée en plusieurs
+  // sections : chaque partie ne garde que sa tranche du cadre. Le cadre est
+  // remonté (marge négative) et raccourci à la hauteur de ses éléments ; la
+  // section coupe ce qui dépasse. Calculé en ordinateur et en mobile.
+  const mBox = (n) => mobile[n.id]?.__box;
+  function sliceOf(it, boxOf) {
+    let top = Infinity;
+    let bottom = -Infinity;
+    const walk = (x) => {
+      if (!x || x.text != null || x.empty) return;
+      const b = boxOf(x.n);
+      if (b && b.h > 0 && b.y != null && (x.n.text != null || x.n.image || !(x.kids ?? []).length)) {
+        top = Math.min(top, b.y);
+        bottom = Math.max(bottom, b.y + b.h);
+      }
+      for (const k of x.kids ?? []) walk(k);
+    };
+    for (const k of it.kids ?? []) walk(k);
+    const own = boxOf(it.n);
+    if (!own || own.y == null || top === Infinity) return null;
+    return { top: Math.max(0, Math.round(top - own.y)), bottom: Math.round(bottom - own.y) };
+  }
+  pieces.forEach((piece) => {
+    piece.slices = [];
+    const walk = (it) => {
+      if (!it || it.text != null) return;
+      if ((it.cutTop || it.cutBottom) && !["absolute", "fixed"].includes(it.n.style.position) && allAbsoluteKids(it.n)) {
+        it.shifted = true;
+        piece.slices.push({ n: it.n, d: sliceOf(it, (n) => n.box), m: sliceOf(it, mBox) });
+      }
+      for (const k of it.kids ?? []) walk(k);
+    };
+    walk(piece);
+  });
 
   // ---- Couleurs et polices qui jouent un rôle sur la page d'origine ----
   const opaque = (c) => typeof c === "string" && /^rgb\(/.test(c);
@@ -448,7 +492,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       const cls = classOf(n);
       used.add(cls);
       const edge = [
-        it.cutTop ? "padding-top:0;margin-top:0;border-top-width:0;" : "",
+        it.cutTop ? (it.shifted ? "padding-top:0;border-top-width:0;" : "padding-top:0;margin-top:0;border-top-width:0;") : "",
         it.cutBottom ? "padding-bottom:0;margin-bottom:0;border-bottom-width:0;" : "",
         // Morceau d'un bloc coupé entre plusieurs sections : pas de hauteur
         // minimale répétée (une page « plein écran » ferait un écran vide par partie).
@@ -532,6 +576,13 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     const scope = `.atl-${id}`;
     const rules = [...used].map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.d)}}`);
     const mrules = [...used].filter((c) => Object.keys(c.m).length).map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.m)}}`);
+    // Tranche d'un cadre en positions absolues (voir plus haut).
+    const slice = (s) => `margin-top:-${s.top}px;height:${s.bottom}px;min-height:0`;
+    for (const s of piece.slices) {
+      if (s.d) rules.push(`${scope} .${classOf(s.n).name}{${slice(s.d)}}`);
+      if (s.m) mrules.push(`${scope} .${classOf(s.n).name}{${slice(s.m)}}`);
+    }
+    if (piece.slices.length) rules.push(`${scope}{overflow:hidden}`);
     const css = [
       fonts,
       `/* Copie de ${label} — partie ${i + 1}. Styles relevés sur la page d'origine (ordinateur, puis mobile). */`,

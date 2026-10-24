@@ -22,6 +22,12 @@ export const PROPS = [
   "overflow-x", "overflow-y", "object-fit", "object-position", "list-style-type", "list-style-position", "visibility", "aspect-ratio",
 ];
 
+// Propriétés du texte prises sur l'élément qui porte presque tout le texte.
+export const TEXT_PROPS = [
+  "color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "word-spacing",
+  "text-transform", "text-decoration-line", "text-decoration-color", "text-shadow",
+];
+
 export const INHERITED = new Set([
   "color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "word-spacing",
   "text-align", "text-transform", "text-indent", "white-space", "visibility", "list-style-type", "list-style-position", "text-shadow",
@@ -29,7 +35,7 @@ export const INHERITED = new Set([
 
 // Dans la page, à 1440 px : arbre des éléments, emplacements de texte et
 // d'image, styles calculés et styles par défaut de chaque balise.
-export function snapshotDesktop({ props, chromeSelector }) {
+export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }) {
   const SKIP = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "TEMPLATE", "LINK", "META", "BASE", "TITLE", "HEAD", "IFRAME-NONE"]);
   const INLINE = new Set(["inline", "inline-block", "inline-flex", "contents"]);
   const TRANSPARENT = (c) => !c || c === "transparent" || /rgba\(.*,\s*0\)$/.test(c);
@@ -67,7 +73,27 @@ export function snapshotDesktop({ props, chromeSelector }) {
   // Mise en forme dans le texte (gras, italique, couleur, souligné, surligné,
   // taille) : gardée en <span style> simples, le reste du balisage est retiré.
   const escText = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  function inlineHtml(root) {
+  // Place d'un élément dans la page : rangs successifs depuis <body> (« 0/3/1 »),
+  // pour le retrouver sur la page chargée en mobile.
+  function pathOf(el) {
+    const steps = [];
+    for (let x = el; x && x !== document.body; x = x.parentElement) steps.unshift([...x.parentElement.children].indexOf(x));
+    return steps.join("/");
+  }
+  function dominantOf(leaf) {
+    const total = leaf.textContent.trim().length || 1;
+    let dom = leaf;
+    for (;;) {
+      const next = [...dom.children].find((c) => c.textContent.trim().length >= total * 0.8 && getComputedStyle(c).display !== "none");
+      if (!next) return dom;
+      dom = next;
+    }
+  }
+  function inlineHtml(root, dom) {
+    // Les éléments qui enveloppent le style dominant ne comptent pas : leur
+    // style est déjà celui du texte (relevé en ordinateur et en mobile).
+    const wraps = (el) => el.contains(dom);
+    const baseOf = (c) => (wraps(c.parentElement) ? getComputedStyle(dom) : getComputedStyle(c.parentElement));
     const walk = (node) =>
       [...node.childNodes]
         .map((c) => {
@@ -77,8 +103,8 @@ export function snapshotDesktop({ props, chromeSelector }) {
           if (cs.display === "none") return "";
           if (c.tagName === "BR") return "<br>";
           const inner = walk(c);
-          if (!inner.trim()) return inner;
-          const p = getComputedStyle(c.parentElement);
+          if (!inner.trim() || wraps(c)) return inner;
+          const p = baseOf(c);
           const st = [];
           if (cs.color !== p.color) st.push(`color:${cs.color}`);
           if (cs.fontWeight !== p.fontWeight) st.push(`font-weight:${cs.fontWeight}`);
@@ -87,6 +113,9 @@ export function snapshotDesktop({ props, chromeSelector }) {
           if (cs.textDecorationLine !== "none" && cs.textDecorationLine !== p.textDecorationLine) st.push(`text-decoration:${cs.textDecorationLine}`);
           if (!TRANSPARENT(cs.backgroundColor)) st.push(`background-color:${cs.backgroundColor}`);
           if (cs.textTransform !== p.textTransform) st.push(`text-transform:${cs.textTransform}`);
+          if (cs.fontFamily !== p.fontFamily) st.push(`font-family:${cs.fontFamily.replace(/"/g, "'")}`);
+          if (cs.letterSpacing !== p.letterSpacing) st.push(`letter-spacing:${cs.letterSpacing}`);
+          if (cs.lineHeight !== p.lineHeight) st.push(`line-height:${cs.lineHeight}`);
           return st.length ? `<span style="${st.join(";")}">${inner}</span>` : inner;
         })
         .join("");
@@ -108,7 +137,7 @@ export function snapshotDesktop({ props, chromeSelector }) {
     el.setAttribute("data-atl-n", String(id));
     const tag = el.tagName.toLowerCase();
     const cs = getComputedStyle(el);
-    const node = { id, parent, tag, style: read(el), box: boxOf(el), kids: [] };
+    const node = { id, parent, tag, path: pathOf(el), style: read(el), box: boxOf(el), kids: [] };
     nodes.push(node);
     if (parent != null) nodes[parent].kids.push({ n: id });
     if (tag === "a") node.href = Boolean(el.getAttribute("href"));
@@ -139,7 +168,16 @@ export function snapshotDesktop({ props, chromeSelector }) {
       const text = clean(el.innerText);
       node.text = text;
       node.words = words(text);
-      const html = inlineHtml(el);
+      // Le texte prend le style de l'élément qui porte presque tout le texte
+      // (ex. <p> en Arial autour d'un <span> en Nunito 32 px).
+      const dom = dominantOf(el);
+      if (dom !== el) {
+        const ds = read(dom);
+        for (const p of TEXT_PROPS) node.style[p] = ds[p];
+        dom.setAttribute("data-atl-tx", String(id));
+        node.domPath = pathOf(dom);
+      }
+      const html = inlineHtml(el, dom);
       if (/<(span|br)\b/.test(html)) node.html = html;
       return;
     }
@@ -175,15 +213,55 @@ export function snapshotDesktop({ props, chromeSelector }) {
 }
 
 // Dans la page, à 390 px : les mêmes éléments, leurs styles en mobile.
-export function snapshotMobile({ props }) {
+export function snapshotMobile({ props, textProps }) {
   const out = {};
   for (const el of document.querySelectorAll("[data-atl-n]")) {
     const cs = getComputedStyle(el);
     const o = {};
     for (const p of props) o[p] = cs.getPropertyValue(p);
     const r = el.getBoundingClientRect();
-    o.__box = { w: Math.ceil(r.width * 100) / 100, h: Math.ceil(r.height * 100) / 100 };
+    o.__box = { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.ceil(r.width * 100) / 100, h: Math.ceil(r.height * 100) / 100 };
     out[el.getAttribute("data-atl-n")] = o;
+  }
+  // Style de texte dominant, en mobile aussi.
+  for (const dom of document.querySelectorAll("[data-atl-tx]")) {
+    const o = out[dom.getAttribute("data-atl-tx")];
+    if (!o) continue;
+    const cs = getComputedStyle(dom);
+    for (const p of textProps) o[p] = cs.getPropertyValue(p);
+  }
+  return out;
+}
+
+// Dans la page chargée en mobile (390 px) : les styles de chaque élément du
+// relevé ordinateur, retrouvé par sa place dans la page (même balise exigée).
+export function snapshotMobileByPath({ props, textProps, targets }) {
+  const resolve = (path) => {
+    let x = document.body;
+    if (path === "") return x;
+    for (const step of path.split("/")) {
+      x = x?.children[Number(step)];
+      if (!x) return null;
+    }
+    return x;
+  };
+  const out = {};
+  for (const t of targets) {
+    const el = resolve(t.path);
+    if (!el || el.tagName.toLowerCase() !== t.tag) continue;
+    const cs = getComputedStyle(el);
+    const o = {};
+    for (const p of props) o[p] = cs.getPropertyValue(p);
+    const r = el.getBoundingClientRect();
+    o.__box = { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.ceil(r.width * 100) / 100, h: Math.ceil(r.height * 100) / 100 };
+    if (t.domPath) {
+      const dom = resolve(t.domPath);
+      if (dom) {
+        const ds = getComputedStyle(dom);
+        for (const p of textProps) o[p] = ds.getPropertyValue(p);
+      }
+    }
+    out[t.id] = o;
   }
   return out;
 }
