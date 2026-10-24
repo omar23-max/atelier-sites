@@ -2431,3 +2431,105 @@ body.atl-rail-only [class*="PuckLayout"] {
 body.atl-rail-only .atl-left {
   grid-template-columns: 48px;
 }
+
+/* ---- Bascule Original / Modifiable (pages issues d'un import) ---- */
+.atl-switch,
+.atl-original__seg {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid #d6d6d6;
+  border-radius: 8px;
+  background: #fff;
+  gap: 2px;
+}
+
+.atl-topbar .atl-switch button,
+.atl-original__seg button {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #555;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.atl-topbar .atl-switch button.is-on,
+.atl-original__seg button.is-on {
+  background: #111;
+  color: #fff;
+}
+
+.atl-original {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  background: #e9e9ec;
+  font-size: 13px;
+}
+
+.atl-original__bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.atl-original__bar a {
+  color: #0b57d0;
+}
+
+.atl-original__muted {
+  color: #777;
+}
+
+.atl-original__back {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.atl-original__stage {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 6px 24px 0;
+  overflow: hidden;
+}
+
+.atl-original__frame {
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.atl-original__frame iframe {
+  border: 0;
+  transform-origin: 0 0;
+  background: #fff;
+}
+
+.atl-original__shot {
+  overflow-y: auto;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.atl-original__shot img {
+  display: block;
+}

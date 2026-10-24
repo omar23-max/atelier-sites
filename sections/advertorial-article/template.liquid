@@ -1,51 +1,90 @@
+{%- comment -%}
+  Les blocs se suivent dans l'ordre de la page. Des blocs de même « Rangée »
+  sont posés côte à côte, chacun dans sa « Colonne » (largeur et écart en %),
+  avec un second niveau (« Sous-rangée ») à l'intérieur d'une colonne.
+{%- endcomment -%}
 <div
   class="atl-advertorial-article"
   style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-heading: {{ section.settings.color_heading }}; --atl-link: {{ section.settings.color_link }}; --atl-button: {{ section.settings.color_button }}; --atl-button-text: {{ section.settings.color_button_text }}; --atl-box: {{ section.settings.color_box }}; --atl-width: {{ section.settings.width }}px; --atl-pad: {{ section.settings.padding_y }}px; --atl-size: {{ section.settings.font_size }}px; --atl-title: {{ section.settings.title_size }}px; --atl-subtitle: {{ section.settings.subtitle_size }}px;"
 >
   <div class="atl-advertorial-article__col">
+    {%- assign cur_r1 = '' -%}
+    {%- assign cur_c1 = '' -%}
+    {%- assign cur_r2 = '' -%}
+    {%- assign cur_c2 = '' -%}
     {%- for block in section.blocks -%}
       {%- assign b = block.settings -%}
-      {%- capture st -%}text-align: {{ b.align }};{% if b.size > 0 %} font-size: {{ b.size }}px;{% endif %}{% if b.color != blank %} color: {{ b.color }};{% endif %}{% if b.bg != blank %} background: {{ b.bg }};{% endif %}{% if b.bold %} font-weight: 700;{% endif %}{% if b.italic %} font-style: italic;{% endif %}{%- endcapture -%}
+      {%- assign k1 = b.ligne | strip -%}
+      {%- assign kc1 = '' -%}
+      {%- assign k2 = '' -%}
+      {%- assign kc2 = '' -%}
+      {%- if k1 != blank -%}
+        {%- assign kc1 = k1 | append: '/' | append: b.colonne -%}
+        {%- assign l2 = b.ligne2 | strip -%}
+        {%- if l2 != blank -%}
+          {%- assign k2 = kc1 | append: '/' | append: l2 -%}
+          {%- assign kc2 = k2 | append: '/' | append: b.colonne2 -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- assign k1 = '' -%}
+      {%- endif -%}
+
+      {%- if cur_c2 != '' and kc2 != cur_c2 -%}</div>{%- assign cur_c2 = '' -%}{%- endif -%}
+      {%- if cur_r2 != '' and k2 != cur_r2 -%}</div>{%- assign cur_r2 = '' -%}{%- endif -%}
+      {%- if cur_c1 != '' and kc1 != cur_c1 -%}</div>{%- assign cur_c1 = '' -%}{%- endif -%}
+      {%- if cur_r1 != '' and k1 != cur_r1 -%}</div>{%- assign cur_r1 = '' -%}{%- endif -%}
+
+      {%- if k1 != '' and cur_r1 == '' -%}<div class="atl-advertorial-article__row{% if b.rangee_pleine %} atl-advertorial-article--pleine{% endif %}"{% if b.fond_rangee != blank %} style="background: {{ b.fond_rangee }}; padding-top: 10px; padding-bottom: 10px;"{% endif %}>{%- assign cur_r1 = k1 -%}{%- endif -%}
+      {%- if kc1 != '' and cur_c1 == '' -%}<div class="atl-advertorial-article__cell" style="--w: {{ b.largeur }}%; --o: {{ b.decalage }}%;{% if b.fond_cellule != blank %} background: {{ b.fond_cellule }}; padding: 12px;{% endif %}">{%- assign cur_c1 = kc1 -%}{%- endif -%}
+      {%- if k2 != '' and cur_r2 == '' -%}<div class="atl-advertorial-article__row">{%- assign cur_r2 = k2 -%}{%- endif -%}
+      {%- if kc2 != '' and cur_c2 == '' -%}<div class="atl-advertorial-article__cell" style="--w: {{ b.largeur2 }}%; --o: {{ b.decalage2 }}%;{% if b.fond_cellule2 != blank %} background: {{ b.fond_cellule2 }}; padding: 12px;{% endif %}">{%- assign cur_c2 = kc2 -%}{%- endif -%}
+
+      {%- capture st -%}margin-top: {{ b.marge }}px; text-align: {{ b.align }};{% if b.size > 0 %} font-size: {{ b.size }}px;{% endif %}{% if b.interligne > 0 %} line-height: {{ b.interligne | divided_by: 10.0 }};{% endif %}{% if b.color != blank %} color: {{ b.color }};{% endif %}{% if b.bg != blank %} background: {{ b.bg }};{% endif %}{% if b.bold %} font-weight: 700;{% endif %}{% if b.italic %} font-style: italic;{% endif %}{% if b.majuscules %} text-transform: uppercase;{% endif %}{% if b.police_titres %} font-family: var(--atl-font-heading, inherit);{% endif %}{%- endcapture -%}
+      {%- capture cls -%}{% if b.pleine %} atl-advertorial-article--pleine{% endif %}{%- endcapture -%}
       {%- case b.kind -%}
         {%- when 'surtitre' -%}
-          <p class="atl-advertorial-article__surtitre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text }}</p>
+          <p class="atl-advertorial-article__surtitre{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text }}</p>
         {%- when 'titre' -%}
-          <h1 class="atl-advertorial-article__titre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</h1>
+          <h1 class="atl-advertorial-article__titre{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</h1>
         {%- when 'intertitre' -%}
-          <h2 class="atl-advertorial-article__intertitre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</h2>
+          <h2 class="atl-advertorial-article__intertitre{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</h2>
         {%- when 'image' -%}
           {%- if b.image != blank -%}
-            <figure class="atl-advertorial-article__image" style="text-align: {{ b.align }};" {{ block.shopify_attributes }}>
+            <figure class="atl-advertorial-article__image{{ cls }}" style="margin-top: {{ b.marge }}px; text-align: {{ b.align }};{% if b.bg != blank %} background: {{ b.bg }};{% endif %}" {{ block.shopify_attributes }}>
               <img src="{{ b.image | image_url: width: 1600 }}" alt="{{ b.text | escape }}" style="width: {{ b.image_width }}%;" loading="lazy">
               {%- if b.text != blank -%}<figcaption>{{ b.text }}</figcaption>{%- endif -%}
             </figure>
           {%- endif -%}
         {%- when 'liste' -%}
           {%- assign items = b.text | newline_to_br | split: '<br />' -%}
-          <ul class="atl-advertorial-article__liste" style="{{ st }}" {{ block.shopify_attributes }}>
+          <ul class="atl-advertorial-article__liste{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>
             {%- for it in items -%}
               {%- assign t = it | strip -%}
               {%- if t != blank -%}<li>{{ t }}</li>{%- endif -%}
             {%- endfor -%}
           </ul>
         {%- when 'citation' -%}
-          <blockquote class="atl-advertorial-article__citation" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</blockquote>
+          <blockquote class="atl-advertorial-article__citation{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</blockquote>
         {%- when 'encadre' -%}
-          <div class="atl-advertorial-article__encadre" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</div>
+          <div class="atl-advertorial-article__encadre{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</div>
         {%- when 'bouton' -%}
-          <p class="atl-advertorial-article__bouton-wrap" style="text-align: {{ b.align }};" {{ block.shopify_attributes }}>
-            <a class="atl-advertorial-article__bouton" href="{{ b.link | default: '#' }}" style="{% if b.size > 0 %}font-size: {{ b.size }}px;{% endif %}{% if b.bg != blank %} background: {{ b.bg }};{% endif %}{% if b.color != blank %} color: {{ b.color }};{% endif %}">{{ b.text }}</a>
+          <p class="atl-advertorial-article__bouton-wrap" style="margin-top: {{ b.marge }}px; text-align: {{ b.align }};" {{ block.shopify_attributes }}>
+            <a class="atl-advertorial-article__bouton" href="{{ b.link | default: '#' }}" style="{% if b.size > 0 %}font-size: {{ b.size }}px;{% endif %}{% if b.bg != blank %} background: {{ b.bg }};{% endif %}{% if b.color != blank %} color: {{ b.color }};{% endif %}{% if b.majuscules %} text-transform: uppercase;{% endif %}">{{ b.text }}</a>
           </p>
         {%- when 'auteur' -%}
-          <div class="atl-advertorial-article__auteur" style="{{ st }}" {{ block.shopify_attributes }}>
+          <div class="atl-advertorial-article__auteur{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>
             {%- if b.image != blank -%}<img src="{{ b.image | image_url: width: 120 }}" alt="" width="44" height="44" loading="lazy">{%- endif -%}
             <span>{{ b.text }}</span>
           </div>
         {%- when 'separateur' -%}
-          <hr class="atl-advertorial-article__separateur" {{ block.shopify_attributes }}>
+          <hr class="atl-advertorial-article__separateur" style="margin-top: {{ b.marge }}px;" {{ block.shopify_attributes }}>
         {%- else -%}
-          <p class="atl-advertorial-article__paragraphe" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</p>
+          <p class="atl-advertorial-article__paragraphe{{ cls }}" style="{{ st }}" {{ block.shopify_attributes }}>{{ b.text | newline_to_br }}</p>
       {%- endcase -%}
     {%- endfor -%}
+    {%- if cur_c2 != '' -%}</div>{%- endif -%}
+    {%- if cur_r2 != '' -%}</div>{%- endif -%}
+    {%- if cur_c1 != '' -%}</div>{%- endif -%}
+    {%- if cur_r1 != '' -%}</div>{%- endif -%}
   </div>
 </div>

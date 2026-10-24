@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
-import { confirmDelete, createPage, listPages, listProjects, listTemplates, pageNameFor, trashItem } from "../projects.js";
+import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
 import { SourceLink, useHoverPreview } from "./hover.jsx";
 
 const sameSource = (a, b) => {
@@ -54,9 +54,12 @@ function TemplateCard({ template, onUse, onDelete }) {
         </div>
       </div>
       <div className="cat-card__actions">
+        <a className="cat-btn cat-btn--ghost" href={`/api/original/${template.id}`} target="_blank" rel="noreferrer" title="La page d'origine : textes, design et images">
+          Original
+        </a>
         {template.page && (
           <a className="cat-btn cat-btn--ghost" href={`/?page=${template.page}`}>
-            Ouvrir le mirror
+            Version modifiable
           </a>
         )}
         <button type="button" className="cat-btn" disabled={!template.page} onClick={() => onUse(template)}>
@@ -70,30 +73,50 @@ function TemplateCard({ template, onUse, onDelete }) {
   );
 }
 
-// « Utiliser dans un projet » : nouvelle page du projet, copie de la page mirror.
+// « Utiliser dans un projet » : la première question est « dans quel projet ? ».
+// Projet existant, ou nouveau projet créé sur place (une page appartient
+// toujours à un projet). La page est une copie de la page mirror du template.
+const NEW = "__nouveau__";
+
 function UseTemplate({ template, onClose, onMessage }) {
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState(null);
   const [pages, setPages] = useState([]);
   const [projet, setProjet] = useState("");
+  const [nom, setNom] = useState("");
+  const [produit, setProduit] = useState(template.produit ?? "");
   const [pageType, setPageType] = useState(template.pageType ?? "produit");
   const [profil, setProfil] = useState("");
+  const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    listProjects().then((p) => (setProjects(p), setProjet(p[0]?.id ?? ""))).catch(() => {});
+    listProjects()
+      .then((p) => (setProjects(p), setProjet(p.length ? "" : NEW)))
+      .catch(() => (setProjects([]), setProjet(NEW)));
     listPages().then(setPages).catch(() => {});
   }, []);
+  const isNew = projet === NEW;
+  const newId = slug(nom);
 
   async function create() {
-    const project = projects.find((p) => p.id === projet);
+    setError(null);
+    if (!projet) return setError("Choisis le projet, ou crée-en un nouveau.");
+    let id = projet;
+    let project = projects.find((p) => p.id === projet);
     setBusy(true);
     try {
-      const name = await createPage(
-        { name: pageNameFor(projet, pageType, profil), projet, produit: project?.produit || project?.nom || "", pageType, profil, source: template.page },
-        pages,
-      );
+      if (isNew) {
+        if (!nom.trim() || !NAME.test(newId)) throw new Error("Donne un nom au nouveau projet.");
+        if (projects.some((p) => p.id === newId)) throw new Error(`Le projet « ${nom} » existe déjà : choisis-le dans la liste.`);
+        project = { id: newId, nom: nom.trim(), produit: produit.trim(), description: "", creeLe: new Date().toISOString() };
+        await saveProject(project);
+        id = newId;
+      }
+      let name = pageNameFor(id, pageType, profil);
+      for (let n = 2; pages.some((p) => p.name === name); n++) name = pageNameFor(id, pageType, `${profil} ${n}`);
+      await createPage({ name, projet: id, produit: project?.produit || project?.nom || "", pageType, profil, source: template.page }, pages);
       location.href = `/?page=${name}`;
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      setError(e.message);
       setBusy(false);
     }
   }
@@ -107,22 +130,36 @@ function UseTemplate({ template, onClose, onMessage }) {
             ×
           </button>
         </header>
-        {projects.length === 0 ? (
-          <p>
-            Crée d'abord un projet (Catalogue → <b>Projets</b> → « + Nouveau projet »).
-          </p>
+        {!projects ? (
+          <p className="cat-muted">Chargement des projets…</p>
         ) : (
           <div className="cat-use__form">
             <label className="cat-field">
-              <span>Projet</span>
-              <select value={projet} onChange={(e) => setProjet(e.target.value)}>
+              <span>Dans quel projet ?</span>
+              <select value={projet} onChange={(e) => setProjet(e.target.value)} autoFocus>
+                {projects.length > 0 && <option value="">— Choisir le projet —</option>}
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.nom}
+                    {p.produit ? ` · ${p.produit}` : ""}
                   </option>
                 ))}
+                <option value={NEW}>+ Créer un nouveau projet</option>
               </select>
             </label>
+            {projects.length === 0 && <p className="cat-muted">Aucun projet pour l'instant : crée le premier ici.</p>}
+            {isNew && (
+              <>
+                <label className="cat-field">
+                  <span>Nom du nouveau projet</span>
+                  <input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex. Coussin cervical" />
+                </label>
+                <label className="cat-field">
+                  <span>Produit</span>
+                  <input value={produit} onChange={(e) => setProduit(e.target.value)} placeholder="Nom du produit vendu" />
+                </label>
+              </>
+            )}
             <label className="cat-field">
               <span>Type de page</span>
               <select value={pageType} onChange={(e) => setPageType(e.target.value)}>
@@ -138,10 +175,12 @@ function UseTemplate({ template, onClose, onMessage }) {
               <input value={profil} onChange={(e) => setProfil(e.target.value)} placeholder="ex. femmes 45+" />
             </label>
             <p className="cat-muted">
-              La page reprend les sections et le design du template ; les photos et textes d'origine restent des repères à remplacer.
+              La page reprend la mise en page et le design du template ; les photos et textes d'origine restent des repères à remplacer. La
+              version « Original » reste consultable depuis l'atelier.
             </p>
-            <button type="button" className="cat-btn" disabled={busy} onClick={create}>
-              {busy ? "Création…" : "Créer la page et l'ouvrir"}
+            {error && <p className="cat-error">{error}</p>}
+            <button type="button" className="cat-btn" disabled={busy || !projet} onClick={create}>
+              {busy ? "Création…" : isNew ? "Créer le projet et la page" : "Créer la page et l'ouvrir"}
             </button>
           </div>
         )}

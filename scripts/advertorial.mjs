@@ -77,12 +77,14 @@ function extract() {
     const r = el.getBoundingClientRect();
     return { x: round(r.left + scrollX), y: round(r.top + scrollY), width: round(r.width), height: round(r.height) };
   };
-  const bgOf = (el) => {
+  const bgOf = (el) => bgHolder(el).color;
+  // Élément qui porte le fond visible derrière el (et sa boîte : bandeau pleine largeur ?).
+  const bgHolder = (el) => {
     for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
       const c = getComputedStyle(n).backgroundColor;
-      if (!TRANSPARENT(c)) return c;
+      if (!TRANSPARENT(c)) return { color: c, box: boxOf(n) };
     }
-    return "rgb(255, 255, 255)";
+    return { color: "rgb(255, 255, 255)", box: null };
   };
   const styleOf = (el) => {
     const cs = getComputedStyle(el);
@@ -95,6 +97,7 @@ function extract() {
       color: cs.color,
       textAlign: cs.textAlign,
       background: bgOf(el),
+      bgBox: bgHolder(el).box,
       ownBackground: TRANSPARENT(cs.backgroundColor) ? null : cs.backgroundColor,
       borderRadius: cs.borderRadius,
       textTransform: cs.textTransform,
@@ -124,10 +127,11 @@ function extract() {
   let imageIndex = 0;
   const pushImage = (el, kind = "image") => {
     const box = boxOf(el);
-    if (box.width < 90 || box.height < 50) return false;
+    if (box.width < 30 || box.height < 30) return false;
     imageIndex += 1;
     el.setAttribute("data-atl-img", String(imageIndex));
-    items.push({ kind, image: imageIndex, box, src: el.currentSrc || el.src || el.poster || null, alt: el.alt ?? "" });
+    const holder = bgHolder(el.parentElement ?? el);
+    items.push({ kind, image: imageIndex, box, src: el.currentSrc || el.src || el.poster || null, alt: el.alt ?? "", style: { background: holder.color, bgBox: holder.box } });
     return true;
   };
   const pushText = (el, kind, extra = {}) => {

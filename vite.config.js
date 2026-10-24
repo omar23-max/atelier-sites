@@ -52,6 +52,34 @@ function atelierApi() {
         const [path] = (req.url ?? "/").split("?");
         const parts = path.split("/").filter(Boolean).map(decodeURIComponent);
         try {
+          // ---- Page d'origine d'un import (vue « Original ») ----
+          // Le HTML capturé, tel quel : textes, design et images d'origine.
+          // Scripts retirés et bloqués ; <base> pointe vers le site pour ses CSS et images.
+          if (parts[0] === "original" && parts[1] && req.method === "GET") {
+            const base = join(importsDir, parts[1]);
+            const file = join(base, "page.html");
+            if (!/^[a-z0-9-]+$/.test(parts[1]) || !existsSync(file)) return json(res, 404, { error: "Pas de page d'origine pour cet import." });
+            if (parts[2] === "info") {
+              const report = ["advertorial.json", "capture.json"].map((f) => join(base, f)).find((f) => existsSync(f));
+              const r = report ? JSON.parse(await readFile(report, "utf8")) : {};
+              return json(res, 200, { url: r.url ?? null, capturedAt: r.capturedAt ?? null, desktop: existsSync(join(base, "desktop.png")), mobile: existsSync(join(base, "mobile.png")) });
+            }
+            const report = ["advertorial.json", "capture.json"].map((f) => join(base, f)).find((f) => existsSync(f));
+            const url = report ? JSON.parse(await readFile(report, "utf8")).url : null;
+            let html = await readFile(file, "utf8");
+            html = html
+              .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+              .replace(/<base\b[^>]*>/gi, "")
+              .replace(/<meta[^>]+http-equiv=["']?refresh[^>]*>/gi, "")
+              .replace(/\son[a-z]+=("[^"]*"|'[^']*')/gi, "");
+            const head = `<base href="${String(url ?? "").replace(/"/g, "&quot;")}"><meta name="referrer" content="no-referrer"><style>html,body{overflow:auto!important}</style>`;
+            html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => m + head) : head + html;
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            res.setHeader("Content-Security-Policy", "script-src 'none'; frame-ancestors 'self'");
+            return res.end(html);
+          }
+
           // ---- Pages ----
           if (parts[0] === "pages") {
             const name = parts[1];

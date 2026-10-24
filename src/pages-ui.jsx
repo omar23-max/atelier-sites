@@ -18,9 +18,12 @@ export function useProjectsAndTemplates() {
   return { projects, templates };
 }
 
+// Pages mirror des templates : plusieurs pages du même type, on ajoute le produit.
 const pageLabel = (p) => {
   const type = pageTypeById[p.pageType];
-  return type ? `${type.label}${p.profil ? ` · ${p.profil}` : ""}` : p.title;
+  if (!type) return p.title;
+  const detail = !p.projet && p.importSource ? p.produit || p.importSource : p.profil;
+  return `${type.label}${detail ? ` · ${detail}` : ""}`;
 };
 
 // Groupe d'une page : son projet, ou « Templates » pour les pages mirror des

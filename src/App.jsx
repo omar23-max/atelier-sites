@@ -11,6 +11,7 @@ import { StudioButton } from "./studio-ui.jsx";
 import { DesignSelect } from "./design-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
+import { OriginalSwitch } from "./original-ui.jsx";
 import { NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
@@ -102,6 +103,7 @@ export default function App() {
           <div className="atl-group">
             <DesignSelect pageName={pageName} current={data?.root?.props?.design ?? null} getData={() => latest.current ?? data} />
           </div>
+          <OriginalSwitch importSource={data?.root?.props?.importSource ?? null} />
         </div>
         {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
       </div>
