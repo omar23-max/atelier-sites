@@ -92,16 +92,27 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     return false;
   };
 
-  function split(n, max = MAX_SLOTS) {
-    if (count(n) <= max || n.text != null) return [full(n)];
+  // `first` : place restante dans la section en cours pour la première partie.
+  function split(n, max = MAX_SLOTS, first = max) {
+    if (count(n) <= first || n.text != null) return [full(n)];
     const kids = aliveKids(n);
     if (sideBySide(n)) {
-      // Colonnes côte à côte (article + barre latérale) : chacune est découpée
-      // en proportion, et chaque section garde toutes les colonnes à leur place
-      // (une colonne déjà terminée reste là, vide, pour garder les largeurs).
+      // Colonnes côte à côte (article + barre latérale) : chaque section garde
+      // toutes les colonnes à leur place (une colonne déjà terminée reste là,
+      // vide, pour garder les largeurs). Une petite colonne (barre latérale)
+      // reste entière ; la grande prend toute la place restante.
       const elems = kids.filter((k) => k.text == null);
       const total = elems.reduce((s, k) => s + count(byId[k.n]), 0) || 1;
-      const parts = new Map(elems.map((k) => [k, split(byId[k.n], Math.max(6, Math.floor((max * count(byId[k.n])) / total)))]));
+      const big = elems.reduce((a, b) => (count(byId[b.n]) > count(byId[a.n]) ? b : a));
+      const others = total - count(byId[big.n]);
+      const parts = new Map(
+        elems.map((k) => {
+          if (k !== big && others <= first / 2) return [k, [full(byId[k.n])]];
+          if (k === big && others <= first / 2) return [k, split(byId[k.n], max - others, first - others)];
+          const share = count(byId[k.n]) / total;
+          return [k, split(byId[k.n], Math.max(6, Math.floor(max * share)), Math.max(6, Math.floor(first * share)))];
+        }),
+      );
       const rounds = Math.max(...[...parts.values()].map((p) => p.length));
       return Array.from({ length: rounds }, (_, i) => ({
         n,
@@ -112,7 +123,8 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     }
     const groups = [];
     let cur = [];
-    let curCount = 0;
+    // La première partie démarre avec la place déjà prise dans la section en cours.
+    let curCount = max - first;
     const flush = () => {
       if (cur.length) groups.push(cur);
       cur = [];
@@ -120,14 +132,25 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     };
     for (const k of kids) {
       const c = k.text != null ? 1 : count(byId[k.n]);
-      if (c > max) {
-        flush();
-        for (const piece of split(byId[k.n], max)) groups.push([piece]);
+      if (curCount + c <= max) {
+        cur.push(k.text != null ? k : full(byId[k.n]));
+        curCount += c;
         continue;
       }
-      if (curCount + c > max) flush();
-      cur.push(k.text != null ? k : full(byId[k.n]));
-      curCount += c;
+      // Élément trop grand pour la place restante : s'il tient dans une section,
+      // il passe à la suivante ; sinon il est coupé et remplit d'abord la place restante.
+      if (c <= max || max - curCount < 6) flush();
+      if (c <= max) {
+        cur.push(full(byId[k.n]));
+        curCount = c;
+        continue;
+      }
+      const parts = split(byId[k.n], max, max - curCount);
+      parts.forEach((p, i) => {
+        if (i > 0) flush();
+        cur.push(p);
+        curCount += itemCount(p);
+      });
     }
     flush();
     return groups.map((g) => ({ n, kids: g }));
@@ -322,7 +345,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         blocks.push({ slot, repere: `Image ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
         return slotLoop(
           slot,
-          `{%- if b.settings.image != blank -%}<img class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}" loading="lazy"${styleAttr}>{%- else -%}<div class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
+          `{%- if b.settings.image != blank -%}<img class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}"${styleAttr}>{%- else -%}<div class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
         );
       }
       if (["input", "select", "textarea"].includes(tag)) {

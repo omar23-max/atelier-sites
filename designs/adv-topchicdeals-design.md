@@ -12,7 +12,7 @@ Témoignage de grands-parents, angle « sans produits chimiques pour les enfants
 
 79 éléments dans l'ordre : 5 grands titres, 6 intertitres,
 68 paragraphes, 0 listes, 19 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (6 sections).
+Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie
 
