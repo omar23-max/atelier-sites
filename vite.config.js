@@ -1,4 +1,5 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
+import { createClient } from "@supabase/supabase-js";
 import react from "@vitejs/plugin-react";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
@@ -35,7 +36,15 @@ function json(res, status, body) {
 //   sections/   le catalogue de sections
 //   corbeille/  les sections supprimées (restaurables)
 //   demandes/   les demandes d'enrichissement du catalogue, que Claude traite
+// Base Supabase (clé secrète dans .env.local, utilisée seulement ici, côté serveur).
+function supabaseClient() {
+  const env = loadEnv("development", root, "");
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return null;
+  return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
+}
+
 function atelierApi() {
+  const db = supabaseClient();
   return {
     name: "atelier-api",
     configureServer(server) {
@@ -116,6 +125,60 @@ function atelierApi() {
               await mkdir(pagesDir, { recursive: true });
               await writeFile(file, JSON.stringify(data, null, 2) + "\n", "utf8");
               return json(res, 200, { ok: true, file: `pages/${name}.json` });
+            }
+          }
+
+          // ---- Suivi des ventes et des tests (table « suivi » de Supabase) ----
+          //   GET    /api/suivi?projet=<id>   lignes + indicateurs par page
+          //   POST   /api/suivi                ajoute ou remplace la ligne (page, jour, source)
+          //   DELETE /api/suivi/<id>
+          if (parts[0] === "suivi") {
+            if (!db) return json(res, 503, { error: "Supabase n'est pas relié (.env.local)." });
+            if (req.method === "GET") {
+              const projet = new URL(req.url, "http://x").searchParams.get("projet");
+              if (!NAME.test(projet ?? "")) return json(res, 400, { error: "Projet invalide." });
+              const [lignes, resume] = await Promise.all([
+                db.from("suivi").select("*").eq("projet_id", projet).order("jour", { ascending: false }).limit(500),
+                db.from("suivi_par_page").select("*").eq("projet_id", projet),
+              ]);
+              if (lignes.error || resume.error) return json(res, 500, { error: (lignes.error ?? resume.error).message });
+              return json(res, 200, { lignes: lignes.data, resume: resume.data });
+            }
+            if (req.method === "POST") {
+              const b = await readBody(req);
+              if (!NAME.test(b.projet ?? "") || !NAME.test(b.page ?? "") || !/^\d{4}-\d{2}-\d{2}$/.test(b.jour ?? ""))
+                return json(res, 400, { error: "Projet, page et jour (AAAA-MM-JJ) sont obligatoires." });
+              const num = (v) => (v === "" || v == null ? 0 : Number(v));
+              const row = {
+                projet_id: b.projet,
+                page_id: b.page,
+                jour: b.jour,
+                source: String(b.source || "toutes").slice(0, 40),
+                depense_pub: num(b.depense_pub),
+                visites: Math.round(num(b.visites)),
+                ajouts_panier: Math.round(num(b.ajouts_panier)),
+                commandes: Math.round(num(b.commandes)),
+                chiffre: num(b.chiffre),
+                notes: b.notes ? String(b.notes).slice(0, 500) : null,
+              };
+              if (Object.values(row).some((v) => typeof v === "number" && !Number.isFinite(v))) return json(res, 400, { error: "Chiffres invalides." });
+              // Un projet tout juste créé n'est peut-être pas encore synchronisé : on l'envoie d'abord.
+              const projectFile = join(projectsDir, `${b.projet}.json`);
+              if (existsSync(projectFile)) {
+                const p = JSON.parse(await readFile(projectFile, "utf8"));
+                const { error: pe } = await db
+                  .from("projets")
+                  .upsert({ id: p.id, nom: p.nom, produit: p.produit ?? null, description: p.description ?? null, cree_le: p.creeLe ?? null }, { onConflict: "id", ignoreDuplicates: true });
+                if (pe) return json(res, 500, { error: pe.message });
+              }
+              const { error } = await db.from("suivi").upsert(row, { onConflict: "page_id,jour,source" });
+              if (error) return json(res, 500, { error: error.message });
+              return json(res, 200, { ok: true });
+            }
+            if (req.method === "DELETE" && /^\d+$/.test(parts[1] ?? "")) {
+              const { error } = await db.from("suivi").delete().eq("id", Number(parts[1]));
+              if (error) return json(res, 500, { error: error.message });
+              return json(res, 200, { ok: true });
             }
           }
 

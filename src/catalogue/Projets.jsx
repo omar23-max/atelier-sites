@@ -8,6 +8,7 @@ import { pageTexts } from "../engine/texts.js";
 import { confirmDelete, createPage, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, trashItem } from "../projects.js";
 import { NewProjectDialog } from "../pages-ui.jsx";
 import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf } from "./ProjectExtras.jsx";
+import { ResultsTab } from "./ResultsTab.jsx";
 
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
 const isBrief = (t) => /^\s*\[[^\]]+\]\s*$/.test(t) || /\[[^\]]*\d+[^\]]*mots?[^\]]*\]/i.test(t);
@@ -129,6 +130,7 @@ const TABS = [
   { id: "creatives", label: "Créatives" },
   { id: "offre", label: "Offre" },
   { id: "publication", label: "Publication" },
+  { id: "resultats", label: "Résultats" },
 ];
 
 export function ProjectDetail({ id, onBack, onMessage }) {
@@ -224,6 +226,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
       {tab === "creatives" && <CreativesTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
       {tab === "offre" && <OfferTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
       {tab === "publication" && <PublicationTab project={project} pages={pages} onSave={saveProjectPatch} />}
+      {tab === "resultats" && <ResultsTab project={project} pages={pages} onMessage={onMessage} />}
     </>
   );
 }
