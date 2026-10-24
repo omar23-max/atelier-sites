@@ -10,9 +10,9 @@ Témoignage de grands-parents, angle « sans produits chimiques pour les enfants
 
 ## Structure relevée
 
-92 éléments dans l'ordre : 5 grands titres, 6 intertitres,
-68 paragraphes, 0 listes, 13 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (3 sections).
+79 éléments dans l'ordre : 5 grands titres, 6 intertitres,
+68 paragraphes, 0 listes, 19 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (6 sections).
 
 ## Typographie
 
@@ -30,10 +30,7 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
 | Liens | #2281c9 |
 | Bouton | #e4572e |
 | Texte des boutons | #ffffff |
-| Encadré / bandeau | #000000 |
-| Encadré / bandeau | #d1edef |
-| Encadré / bandeau | #222222 |
-| Encadré / bandeau | #00c148 |
+
 
 ## Formes
 
@@ -50,7 +47,7 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#000000",
+    "surface": "#f4f4f4",
     "texte": "#262626",
     "accent": "#2281c9",
     "bouton": "#e4572e",

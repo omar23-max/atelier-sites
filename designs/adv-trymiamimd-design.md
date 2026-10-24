@@ -10,9 +10,9 @@ Prelander signé par un médecin, Outfit, grandes photos avant/après, nombreuse
 
 ## Structure relevée
 
-422 éléments dans l'ordre : 2 grands titres, 24 intertitres,
-332 paragraphes, 10 listes, 54 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (11 sections).
+368 éléments dans l'ordre : 2 grands titres, 24 intertitres,
+332 paragraphes, 10 listes, 124 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (20 sections).
 
 ## Typographie
 
@@ -30,10 +30,7 @@ Copie entière dans la section « Advertorial — article complet » (11 section
 | Liens | #0000ee |
 | Bouton | #e4572e |
 | Texte des boutons | #ffffff |
-| Encadré / bandeau | #fffdcf |
-| Encadré / bandeau | #fff0f0 |
-| Encadré / bandeau | #f2f9ff |
-| Encadré / bandeau | #10416b |
+
 
 ## Formes
 
@@ -50,12 +47,12 @@ Copie entière dans la section « Advertorial — article complet » (11 section
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#fffdcf",
+    "surface": "#f4f4f4",
     "texte": "#000000",
     "accent": "#0000ee",
     "bouton": "#e4572e",
     "bouton-texte": "#ffffff",
-    "fond-sombre": "#10416b",
+    "fond-sombre": "#ffffff",
     "texte-sur-sombre": "#ffffff"
   }
 }

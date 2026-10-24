@@ -2533,3 +2533,24 @@ body.atl-rail-only .atl-left {
 .atl-original__shot img {
   display: block;
 }
+
+/* La bascule Original / Modifiable reste sur la ligne de la barre du haut :
+   les trois blocs (projet, page, design) se resserrent pour lui laisser sa place. */
+.atl-topbar {
+  flex-wrap: nowrap;
+}
+.atl-topbar .atl-switch {
+  flex: 0 0 auto;
+  height: 34px;
+  align-items: center;
+  box-sizing: border-box;
+}
+.atl-topbar .atl-switch button {
+  height: 28px;
+  border: 0;
+  white-space: nowrap;
+}
+.atl-topbar__groups:has(> .atl-switch) {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: center;
+}

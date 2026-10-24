@@ -10,9 +10,9 @@ Guide long de type listicle sur un blog de marque, fond beige, Source Sans Pro, 
 
 ## Structure relevée
 
-163 éléments dans l'ordre : 1 grands titres, 32 intertitres,
-87 paragraphes, 17 listes, 14 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (5 sections).
+149 éléments dans l'ordre : 1 grands titres, 32 intertitres,
+87 paragraphes, 17 listes, 22 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
 
 ## Typographie
 
@@ -30,10 +30,7 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
 | Liens | #f5e7d4 |
 | Bouton | #e4572e |
 | Texte des boutons | #ffffff |
-| Encadré / bandeau | #2d231a |
-| Encadré / bandeau | #e8d7c4 |
-| Encadré / bandeau | #000000 |
-| Encadré / bandeau | #271d16 |
+
 
 ## Formes
 
@@ -50,7 +47,7 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
   },
   "couleurs": {
     "fond": "#f9ebdc",
-    "surface": "#2d231a",
+    "surface": "#f4f4f4",
     "texte": "#2d231a",
     "accent": "#f5e7d4",
     "bouton": "#e4572e",

@@ -11,9 +11,9 @@ Histoire personnelle (accident, douleurs cervicales) puis découverte du produit
 
 ## Structure relevée
 
-111 éléments dans l'ordre : 1 grands titres, 10 intertitres,
-86 paragraphes, 0 listes, 11 images, 2 boutons.
-Copie entière dans la section « Advertorial — article complet » (3 sections).
+100 éléments dans l'ordre : 1 grands titres, 10 intertitres,
+86 paragraphes, 0 listes, 20 images, 2 boutons.
+Copie entière dans la section « Advertorial — article complet » (5 sections).
 
 ## Typographie
 
@@ -31,9 +31,7 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
 | Liens | #167ac6 |
 | Bouton | #e4572e |
 | Texte des boutons | #ffffff |
-| Encadré / bandeau | #f9f9f9 |
-| Encadré / bandeau | #447cda |
-| Encadré / bandeau | #fff8d3 |
+
 
 ## Formes
 
@@ -50,7 +48,7 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f9f9f9",
+    "surface": "#f4f4f4",
     "texte": "#333333",
     "accent": "#167ac6",
     "bouton": "#e4572e",
