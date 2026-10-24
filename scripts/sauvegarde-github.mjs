@@ -46,3 +46,11 @@ try {
 } finally {
   rmSync(lock, { force: true });
 }
+
+// Puis la base Supabase (sans effet tant qu'elle n'est pas reliée).
+try {
+  const out = execFileSync(process.execPath, [join(root, "scripts", "sync-supabase.mjs")], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  if (!out.startsWith("Supabase n'est pas encore relié")) log(out);
+} catch (e) {
+  log(`ÉCHEC Supabase : ${String(e.stdout || e.stderr || e.message).trim().split("\n")[0]}`);
+}
