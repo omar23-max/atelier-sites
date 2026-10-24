@@ -2534,23 +2534,71 @@ body.atl-rail-only .atl-left {
   display: block;
 }
 
-/* La bascule Original / Modifiable reste sur la ligne de la barre du haut :
-   les trois blocs (projet, page, design) se resserrent pour lui laisser sa place. */
-.atl-topbar {
-  flex-wrap: nowrap;
-}
-.atl-topbar .atl-switch {
+
+/* Bascule Original / Modifiable dans la barre de l'aperçu ; l'original prend
+   la place de l'aperçu, à la même taille d'écran. */
+.atl-switch-host {
+  display: inline-flex;
   flex: 0 0 auto;
-  height: 34px;
   align-items: center;
-  box-sizing: border-box;
+  margin-right: 12px;
 }
-.atl-topbar .atl-switch button {
+.atl-switch-host .atl-switch {
+  flex: 0 0 auto;
+}
+.atl-switch-host .atl-switch button {
   height: 28px;
-  border: 0;
   white-space: nowrap;
 }
-.atl-topbar__groups:has(> .atl-switch) {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+[class*="PuckCanvas-inner"] {
+  position: relative;
+}
+.atl-original-pane {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  overflow: hidden;
+  background: #e9e9ec;
+}
+.atl-original-pane__note {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  font: 500 12px "Inter", system-ui, sans-serif;
+  color: #666;
+}
+.atl-original-pane__note a {
+  color: #0b57d0;
+}
+.atl-original-pane__frame {
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+.atl-original-pane__frame iframe {
+  border: 0;
+  transform-origin: 0 0;
+  background: #fff;
+}
+/* Puck impose 36 px de large aux éléments de sa barre : la bascule garde sa taille. */
+.atl-switch-host,
+.atl-switch-host .atl-switch {
+  width: auto !important;
+  height: auto !important;
+}
+.atl-switch-host .atl-switch button {
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #555;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-switch-host .atl-switch button.is-on {
+  background: #111;
+  color: #fff;
 }

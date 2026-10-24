@@ -43,7 +43,7 @@ export function snapshotDesktop({ props, chromeSelector }) {
   };
   const boxOf = (el) => {
     const r = el.getBoundingClientRect();
-    return { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.round(r.width), h: Math.round(r.height) };
+    return { x: Math.round(r.left + scrollX), y: Math.round(r.top + scrollY), w: Math.ceil(r.width * 100) / 100, h: Math.ceil(r.height * 100) / 100 };
   };
   // Un élément « bloc » visuel : bouton, pastille… même s'il est en ligne.
   const looksBoxed = (el, cs) =>
@@ -63,6 +63,35 @@ export function snapshotDesktop({ props, chromeSelector }) {
     }
     return true;
   };
+
+  // Mise en forme dans le texte (gras, italique, couleur, souligné, surligné,
+  // taille) : gardée en <span style> simples, le reste du balisage est retiré.
+  const escText = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function inlineHtml(root) {
+    const walk = (node) =>
+      [...node.childNodes]
+        .map((c) => {
+          if (c.nodeType === 3) return escText(c.textContent.replace(/\s+/g, " "));
+          if (c.nodeType !== 1) return "";
+          const cs = getComputedStyle(c);
+          if (cs.display === "none") return "";
+          if (c.tagName === "BR") return "<br>";
+          const inner = walk(c);
+          if (!inner.trim()) return inner;
+          const p = getComputedStyle(c.parentElement);
+          const st = [];
+          if (cs.color !== p.color) st.push(`color:${cs.color}`);
+          if (cs.fontWeight !== p.fontWeight) st.push(`font-weight:${cs.fontWeight}`);
+          if (cs.fontStyle !== p.fontStyle) st.push(`font-style:${cs.fontStyle}`);
+          if (cs.fontSize !== p.fontSize) st.push(`font-size:${cs.fontSize}`);
+          if (cs.textDecorationLine !== "none" && cs.textDecorationLine !== p.textDecorationLine) st.push(`text-decoration:${cs.textDecorationLine}`);
+          if (!TRANSPARENT(cs.backgroundColor)) st.push(`background-color:${cs.backgroundColor}`);
+          if (cs.textTransform !== p.textTransform) st.push(`text-transform:${cs.textTransform}`);
+          return st.length ? `<span style="${st.join(";")}">${inner}</span>` : inner;
+        })
+        .join("");
+    return walk(root).replace(/\s*<br>\s*/g, "<br>").trim();
+  }
 
   const nodes = [];
   let imageCount = 0;
@@ -110,6 +139,8 @@ export function snapshotDesktop({ props, chromeSelector }) {
       const text = clean(el.innerText);
       node.text = text;
       node.words = words(text);
+      const html = inlineHtml(el);
+      if (/<(span|br)\b/.test(html)) node.html = html;
       return;
     }
     for (const c of el.childNodes) {
@@ -151,7 +182,7 @@ export function snapshotMobile({ props }) {
     const o = {};
     for (const p of props) o[p] = cs.getPropertyValue(p);
     const r = el.getBoundingClientRect();
-    o.__box = { w: Math.round(r.width), h: Math.round(r.height) };
+    o.__box = { w: Math.ceil(r.width * 100) / 100, h: Math.ceil(r.height * 100) / 100 };
     out[el.getAttribute("data-atl-n")] = o;
   }
   return out;

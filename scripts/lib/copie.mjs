@@ -4,8 +4,9 @@
 //
 // - La structure HTML d'origine est gardée telle quelle, chaque élément reçoit
 //   une classe qui porte ses styles réels (ordinateur, puis mobile < 750 px).
-// - Chaque texte devient un emplacement modifiable (bloc « Élément ») rempli
-//   d'un brief de même longueur : aucun texte d'origine n'est repris.
+// - Chaque texte devient un emplacement modifiable (bloc « Élément »). Au départ
+//   la version modifiable est identique à l'original : texte d'origine
+//   (choix de l'utilisateur, 2026-10-24) ; avec --briefs, un brief de même longueur.
 // - Chaque photo devient un emplacement image (photo d'origine en repère, jamais
 //   exportée). Les petites icônes restent incrustées.
 // - La page est découpée en sections de 45 emplacements au plus (Shopify : 50
@@ -38,7 +39,7 @@ function brief(text, words, role) {
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const px = (v) => parseFloat(v) || 0;
 
-export function buildCopy({ snap, slug, root, label }) {
+export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const nodes = snap.nodes;
   const mobile = snap.mobile;
   const byId = nodes;
@@ -283,9 +284,10 @@ export function buildCopy({ snap, slug, root, label }) {
     const blocks = [];
     const used = new Set();
     let textN = 0;
-    const addText = (slot, text, words, role, link) => {
+    const addText = (slot, text, words, role, link, html) => {
       textN += 1;
-      blocks.push({ slot, repere: `${role} — ${plural(words, "mot")}`, text: brief(text, words, role), image: "", link: "" });
+      const debut = text.replace(/\s+/g, " ").slice(0, 38);
+      blocks.push({ slot, repere: `${role} · ${debut}${text.length > 38 ? "…" : ""}`, text: textes === "briefs" ? brief(text, words, role) : html ?? text, image: "", link: "" });
       return link ? slot : null;
     };
 
@@ -345,7 +347,7 @@ export function buildCopy({ snap, slug, root, label }) {
       let inner = "";
       if (n.text != null) {
         const slot = slotLink ?? `s${n.id}`;
-        addText(slot, n.text, n.words, roleOf(n), Boolean(slotLink));
+        addText(slot, n.text, n.words, roleOf(n), Boolean(slotLink), n.html);
         inner = textSlot(slot);
       } else if (!it.empty) {
         inner = (it.kids ?? []).map((k, i) => (k.text != null ? html({ ...k, pid: n.id, k: i }, tag) : html(k, tag))).join("");
