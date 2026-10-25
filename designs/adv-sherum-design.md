@@ -1,7 +1,7 @@
 # Sherum — advertorial
 
 Source : https://live.sherum.com/offer/Sherum/sherum-cooling-ace/view10996
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Sherum Cooling Ace (climatiseur portable) · Secteur : Maison — climatisation / électroménager
 
 ## Ambiance

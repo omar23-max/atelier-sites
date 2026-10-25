@@ -1,7 +1,7 @@
 # Derila — advertorial
 
 Source : https://derila.com/articles/people-sleep-with-pain
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Derila Memory Foam Pillow · Secteur : Maison — sommeil / confort
 Page d'achat d'origine : https://derila.com/derila/product
 
@@ -12,7 +12,7 @@ Histoire personnelle (accident, douleurs cervicales) puis découverte du produit
 ## Structure relevée
 
 100 éléments dans l'ordre : 1 grands titres, 10 intertitres,
-86 paragraphes, 0 listes, 20 images, 2 boutons.
+86 paragraphes, 0 listes, 19 images, 2 boutons.
 Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie

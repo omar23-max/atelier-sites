@@ -1,7 +1,7 @@
 # Heart & Soil — listicle
 
 Source : https://heartandsoil.co/blog/the-carnivore-diet-start-here/
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Compléments d'organes de bœuf (Beef Organs) · Secteur : Santé — nutrition / compléments
 
 ## Ambiance
