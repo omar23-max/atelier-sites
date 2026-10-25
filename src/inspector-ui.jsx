@@ -83,6 +83,7 @@ function treeForItem(item) {
           const pos = (c) => (c.k == null ? -1 : ord.indexOf(c.k));
           children = [...children].sort((a, b) => pos(a) - pos(b));
         }
+        children = textRuns(children, n.gid ?? null);
         return children.length ? { group: true, id, gid: n.gid ?? null, size: n.size ?? 0, kind: n.kind, label: n.label, children, k: n.k, parent } : null;
       }
       const i = bySlot.get(n.slot);
@@ -120,6 +121,32 @@ function treeForItem(item) {
     });
   }
   return leaves;
+}
+
+// Paragraphes qui se suivent (sans titre, image ni bouton entre eux) : un
+// seul élément « Texte », comme sur Whitelabeler. Chaque paragraphe garde son
+// emplacement dans la page ; seul l'éditeur les regroupe.
+function textRuns(children, parent) {
+  const out = [];
+  let run = [];
+  const flush = () => {
+    if (run.length > 1) out.push({ group: true, run: true, id: `t:${run[0].key}`, gid: null, size: 0, kind: "texte", label: run.map((l) => plain(l.text)).join(" "), children: run, k: null, parent });
+    else out.push(...run);
+    run = [];
+  };
+  for (const c of children) {
+    if (!c.group && c.type === "texte" && plain(c.text)) run.push(c);
+    else (flush(), out.push(c));
+  }
+  flush();
+  return out;
+}
+const runHtml = (leaves) => leaves.map((l) => l.text ?? "").join("<br><br>");
+// Texte modifié → un morceau par paragraphe (les morceaux en trop vont dans le
+// dernier, les paragraphes en trop deviennent vides).
+function splitRun(html, leaves) {
+  const parts = String(html ?? "").split(/(?:\s*<br\s*\/?>\s*){2,}/i);
+  return Object.fromEntries(leaves.map((l, i) => [l.key, { text: i === leaves.length - 1 ? parts.slice(i).join("<br><br>") : (parts[i] ?? "") }]));
 }
 
 const leavesOf = (nodes) => nodes.flatMap((n) => (n.group ? leavesOf(n.children) : [n]));
@@ -269,6 +296,11 @@ export function Inspector({ children }) {
   const nodeOf = (s) => (s?.sectionId && (s.key || s.group) && content[indexOf(s.sectionId)] ? pathTo(treeForItem(content[indexOf(s.sectionId)]), sameNode(s))?.at(-1) : null);
 
   function choose(next, { scroll = true } = {}) {
+    // Un paragraphe d'un texte regroupé : c'est tout le texte qui est choisi.
+    if (next?.key && next.sectionId && content[indexOf(next.sectionId)]) {
+      const owner = pathTo(treeForItem(content[indexOf(next.sectionId)]), sameNode(next))?.at(-2);
+      if (owner?.run) next = { sectionId: next.sectionId, group: owner.id, fromTree: next.fromTree };
+    }
     // Tout de suite : la sélection de section que Puck déclenche ensuite ne
     // doit pas effacer l'élément choisi.
     selRef.current = next;
@@ -291,8 +323,10 @@ export function Inspector({ children }) {
     const sub = Boolean(sel?.key || sel?.group);
     // Sur <html> : la classe de <body> est réécrite par ailleurs.
     if (doc) sub ? doc.documentElement.setAttribute("data-atl-sub", "") : doc.documentElement.removeAttribute("data-atl-sub");
-    const el = sub ? domOf(sel.sectionId, nodeOf(sel)) : null;
+    const node = sub ? nodeOf(sel) : null;
+    const el = node ? domOf(sel.sectionId, node) : null;
     mark(el, "atl-hl-on");
+    if (node?.run) node.children.forEach((c) => domOf(sel.sectionId, c)?.classList.add("atl-hl-on"));
     if (el && sel.fromTree) el.scrollIntoView({ block: "center", behavior: "smooth" });
     const row = treeRef.current?.querySelector(".is-chosen");
     row?.scrollIntoView({ block: "nearest" });
@@ -570,7 +604,9 @@ export function Inspector({ children }) {
 
   return (
     <div className="atl-insp" ref={rootRef}>
-      <TreeView
+      {/* Comme Whitelabeler : soit la structure de la page, soit les réglages
+          de l'élément choisi, jamais les deux (un seul ascenseur). */}
+      {!sel && <TreeView
         content={content}
         sel={sel}
         openSec={openSec}
@@ -583,7 +619,7 @@ export function Inspector({ children }) {
         onMove={moveNode}
         onMoveSection={moveSection}
         treeRef={treeRef}
-      />
+      />}
       <div className="atl-insp__detail">
         {sel?.page && (
           <div className="atl-insp__panel">
@@ -621,7 +657,17 @@ export function Inspector({ children }) {
             onChangeProps={(props) => updateProps(sel.sectionId, props)}
           />
         )}
-        {sel?.group && selNode && (
+        {sel?.group && selNode?.run && (
+          <TextRunSettings
+            key={selNode.id}
+            item={content[indexOf(sel.sectionId)]}
+            node={selNode}
+            onBack={close}
+            onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode.children.map((l) => l.key), label: "Texte" })}
+            onChange={(values) => updateValues(sel.sectionId, values)}
+          />
+        )}
+        {sel?.group && selNode && !selNode.run && (
           <div className="atl-insp__panel">
             <PanelHead
               onBack={close}
@@ -646,7 +692,7 @@ export function Inspector({ children }) {
         <CanvasToolbar
           sel={sel}
           node={selNode}
-          label={selNode ? (selNode.group ? selNode.label : (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
+          label={selNode ? (selNode.run ? "Texte" : selNode.group ? selNode.label : (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
           editing={editing}
           onFormat={format}
           onParent={() => {
@@ -780,6 +826,23 @@ function Nodes({ nodes, sectionId, depth, sel, openGroups, setOpenGroups, onChoo
     },
   });
   return nodes.map((n, i) => {
+    // Texte de plusieurs paragraphes : une seule ligne, comme un élément.
+    if (n.run) {
+      const chosen = sel?.sectionId === sectionId && sel.group === n.id;
+      return (
+        <div
+          key={n.id}
+          className={`atl-insp__row atl-insp__row--leaf${chosen ? " is-chosen" : ""}`}
+          style={{ paddingLeft: 22 + depth * 14 }}
+          onContextMenu={(e) => (e.preventDefault(), onMenu({ x: e.clientX, y: e.clientY, sectionId, group: n.id }))}
+        >
+          <span className="atl-insp__ico atl-insp__ico--texte">¶</span>
+          <button type="button" className="atl-insp__name" onClick={() => onChoose({ sectionId, group: n.id })} title={n.label}>
+            {n.label}
+          </button>
+        </div>
+      );
+    }
     if (n.group) {
       const gkey = `${sectionId}/${n.id}`;
       const isOpen = openGroups[gkey] ?? depth <= 1;
@@ -990,6 +1053,28 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
       >
         Supprimer le bloc
       </button>
+    </div>
+  );
+}
+
+// Texte de plusieurs paragraphes : une seule zone (une ligne vide sépare les
+// paragraphes) ; le style choisi s'applique à tous.
+function TextRunSettings({ item, node, onBack, onAi, onChange }) {
+  if (!item) return null;
+  const section = byId[item.type];
+  const props = normalizeProps(section, item.props);
+  const [sectionName] = (section.meta.label ?? section.id).split(" — ");
+  const leaves = node.children;
+  const first = (props.blocks_element ?? []).find((b) => b.slot === leaves[0].key);
+  return (
+    <div className="atl-insp__panel">
+      <PanelHead onBack={onBack} title="¶ Texte" sub={`${sectionName} · ${leaves.length} paragraphes`} onAi={onAi} />
+      <div className="atl-insp__field">
+        <span className="atl-rte__label">Texte</span>
+        <RichText value={runHtml(leaves)} onChange={(v) => onChange(splitRun(v, leaves))} />
+        <p className="atl-insp__hint">Une ligne vide sépare deux paragraphes. Double-clic dans la page pour écrire directement.</p>
+      </div>
+      {first && <StylePanel sectionId={item.props.id} leaf={leaves[0]} block={first} onChange={(style) => onChange(Object.fromEntries(leaves.map((l) => [l.key, { style }])))} />}
     </div>
   );
 }
