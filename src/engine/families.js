@@ -13,6 +13,7 @@ export const FAMILIES = [
   { id: "probleme", label: "Problème", hint: "La douleur du client" },
   { id: "solution", label: "Solution et mécanisme", hint: "Comment le produit fonctionne" },
   { id: "avantages", label: "Avantages", hint: "Bénéfices, icônes, listes" },
+  { id: "listicle", label: "Listicle (raisons d'acheter)", hint: "« 5 raisons… », « Pourquoi les gens… » : une liste numérotée de raisons, chacune avec image" },
   { id: "ingredients", label: "Ingrédients et composition", hint: "Ce qu'il y a dedans" },
   { id: "mode-emploi", label: "Mode d'emploi", hint: "Étapes, how it works" },
   { id: "resultats", label: "Résultats et calendrier", hint: "Avant/après, à quoi s'attendre" },

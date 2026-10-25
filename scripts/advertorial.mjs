@@ -331,7 +331,8 @@ try {
       ? "nav, header, footer, .shopify-section-group-header-group, .shopify-section-group-footer-group, [id*=announcement], [class*=announcement]"
       : "nav",
   );
-  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector, textProps: TEXT_PROPS });
+  // ATL_GARDER_MENU=1 : la page est une section seule (Whitelabeler), son menu compris.
+  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector: process.env.ATL_GARDER_MENU ? "atl-aucun" : chromeSelector, textProps: TEXT_PROPS });
   snap.fonts = await fontFaces(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(1200);

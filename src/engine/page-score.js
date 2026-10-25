@@ -8,6 +8,7 @@
 // précède dans la liste.
 import { familyById } from "./families.js";
 import { pageTypeOf } from "./page-types.js";
+import { familiesInText } from "./fonctions.js";
 
 // families : une seule de ces familles suffit. points : poids dans la note.
 const R = (families, points, why) => ({ families: [].concat(families), points, why });
@@ -115,21 +116,8 @@ function verdictOf(score) {
 }
 
 // Une partie copiée d'une vraie page (famille « article ») mélange plusieurs
-// sujets : on devine ce qu'elle contient d'après ses textes, en anglais comme
-// en français. Une même partie peut compter pour plusieurs familles.
-const SIGNALS = {
-  temoignages: /\b(verified (buyer|purchase)|reviews?|testimonials?|avis clients?)\b|★|⭐|\bi (love|felt|tried|bought)\b|\bj'ai (testé|essayé|acheté)/i,
-  garantie: /money[- ]back|guarantee|satisfaction garantie|garantie|rembours/i,
-  offre: /\b(order now|buy now|shop now|get (yours|it|my)|claim|limited|in stock|discount|sold out)\b|% off|commander|profitez|stock limité|\d+ ?% de réduction/i,
-  faq: /\bfaq\b|frequently asked|questions fréquentes/i,
-  expert: /\b(dr\.|doctor|dermatologist|physician|nutritionist|expert|médecin|docteur)/i,
-  comparatif: /\bvs\.?\s|compared to|comparison|other brands|contrairement aux|par rapport aux/i,
-  resultats: /\b(within|after) \d+ (days?|weeks?)\b|\bresults?\b|en \d+ (jours|semaines)|résultats?/i,
-  probleme: /\b(pain|suffer|struggl|tired of|problem|frustrat)|douleur|souffr|problème|marre de/i,
-  solution: /\b(how (it|does it) works?|secret|discover|breakthrough|technology|solution)|découv|fonctionne|technologie/i,
-  "pied-de-page": /©|copyright|privacy policy|terms (of|and)|mentions légales|confidentialité/i,
-};
-
+// sujets : on devine ce qu'elle contient d'après ses textes (fonctions.js).
+// Une même partie peut compter pour plusieurs familles.
 function familiesOf(item, index, sectionsById) {
   const section = sectionsById[item.type];
   const family = section?.meta?.family ?? null;
@@ -140,7 +128,7 @@ function familiesOf(item, index, sectionsById) {
     .map((b) => `${b?.repere ?? ""} ${b?.text ?? ""}`)
     .join(" ")
     .replace(/<[^>]+>/g, " ");
-  const found = Object.entries(SIGNALS).filter(([, re]) => re.test(text)).map(([f]) => f);
+  const found = familiesInText(text);
   if (index === 0) found.unshift("entete", "hero");
   return found;
 }

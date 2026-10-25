@@ -15,6 +15,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { INHERITED, PROPS } from "./snapshot.mjs";
+import { fonctionOf } from "../../src/engine/fonctions.js";
 
 const MAX_SLOTS = 45;
 const HEADING_TAG = /^h[1-6]$/;
@@ -714,8 +715,12 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       ],
       presets: [{ name: `Atl · ${slug.replace(/^adv-/, "").slice(0, 12)} ${i + 1}` }],
     };
+    // Nom par fonction (« Hero · Problème »), comme Whitelabeler, puis le produit.
+    const fonction = fonctionOf(blocks.map((b) => `${b.repere ?? ""} ${b.text ?? ""}`).join(" "), { first: i === 0, last: i === pieces.length - 1 });
     const meta = {
-      label: `${label} — partie ${i + 1}`,
+      label: `${fonction.nom} — ${label}`,
+      fonction: fonction.nom,
+      families: fonction.families,
       family: "article",
       pageSpecific: slug,
       source: { url: null, capturedAt: null, note: "Partie de la copie au design identique de la page importée (npm run advertorial:page)." },
