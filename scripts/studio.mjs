@@ -28,25 +28,48 @@ if (demande.type !== "images") throw new Error("Ce n'est pas une demande « imag
 const { details } = demande;
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
+// Références : « #2 = Produit · Face avant », « #4 = Marque · Logo » (les
+// anciennes demandes n'ont pas de groupe).
+const refLabel = (r) => `#${r.ordre} = ${r.groupe === "marque" ? "Brand" : r.groupe === "produit" ? "Product" : ""}${r.groupe ? " · " : ""}${r.etiquette}`;
+const PUB_FORMATS = { "1:1": [1024, 1024], "4:5": [1024, 1280], "9:16": [1024, 1820] };
+
 function consigneFor(cible, size) {
-  const refs = details.references.map((r) => `#${r.ordre} = ${r.etiquette}`).join(", ");
-  const mode =
-    details.mode === "pub"
-      ? "Make it a stronger, scroll-stopping advertising version of the LEFT photo, keeping its idea and layout."
-      : "Recreate the LEFT photo faithfully: same composition, framing, people, setting, lighting and mood.";
+  const refs = details.references.map(refLabel).join(", ");
+  const product = details.produit || "the product";
+  const colors = details.marque?.couleurs ? Object.entries(details.marque.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
+  const fonts = details.marque?.polices ? Object.values(details.marque.polices).filter(Boolean).join(" / ") : "";
+  const pub = details.mode === "pub";
   return [
     "This image is a reference board. LEFT (large, labelled ORIGINAL): the photo to recreate.",
     `RIGHT (numbered): the user's own references: ${refs}.`,
-    mode,
-    `Replace the product shown in the original with the user's product "${details.produit || "the product"}" exactly as it looks in the references (shape, colours, label).`,
-    "Use the user's logo and colours from the references; never keep the original brand name or logo.",
-    details.textes ? `Text changes inside the image: ${details.textes}.` : "Keep any text short and legible; replace the original brand's words with the user's.",
+    pub
+      ? `Turn the LEFT photo into a scroll-stopping social media AD (${details.format ?? "4:5"}), keeping its idea: bold, clean layout, product as the hero.`
+      : "Recreate the LEFT photo faithfully: same composition, framing, people, setting, lighting and mood.",
+    `Replace the product shown in the original with the user's product "${product}" exactly as it looks in the Product references (shape, colours, label).`,
+    details.description ? `What the product is: ${details.description}.` : "",
+    "Brand: use the logo and style of the Brand references; never keep the original brand name, logo or packaging.",
+    colors ? `Brand colours: ${colors}.` : "",
+    fonts ? `Brand fonts (for any text): ${fonts}.` : "",
+    `Rewrite EVERY piece of visible text (labels, packaging, signs, captions) so it names "${product}" or is neutral; no other brand name may stay readable.`,
+    details.textes ? `Exact text changes: ${details.textes}.` : "",
+    pub && details.accroche ? `Headline written on the ad, large and legible: "${details.accroche}".` : "",
+    pub && details.cta ? `Call-to-action button on the ad: "${details.cta}".` : "",
     cible.brief ? `Purpose of this image on the page: ${cible.brief}.` : "",
     cible.consigne ? `Extra instruction: ${cible.consigne}.` : "",
-    `Output ONLY the recreated photo, as one single image with the same aspect ratio as the original (${size}). No board, no labels, no split screen.`,
+    pub
+      ? "Output ONLY the finished ad, as one single image. No board, no labels, no split screen."
+      : `Output ONLY the recreated photo, as one single image with the same aspect ratio as the original (${size}). No board, no labels, no split screen.`,
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+// Avancement lu par l'atelier (Studio d'images) : { faites, total, etat }.
+async function progress(patch) {
+  const file = join(dir, "demande.json");
+  const current = JSON.parse(await readFile(file, "utf8"));
+  current.progression = { ...current.progression, ...patch };
+  await writeFile(file, JSON.stringify(current, null, 2) + "\n", "utf8");
 }
 
 if (command === "planches") {
@@ -110,9 +133,14 @@ if (command === "generer") {
   const results = join(dir, "resultats");
   await mkdir(results, { recursive: true });
   const todo = details.cibles.filter((c) => !existsSync(join(results, `${c.key}.png`)));
-  const limit = details.rythme === "5" ? 5 : details.rythme === "une-par-une" ? 1 : todo.length;
+  // Rythme : tout, 5, un nombre choisi, ou une image par lancement (on montre
+  // chaque image avant la suivante).
+  const limit = details.rythme === "5" ? 5 : details.rythme === "n" ? Math.max(1, Number(details.n) || 1) : details.rythme === "une-par-une" ? 1 : todo.length;
   const refs = demande.images.map((file) => join(dir, file));
-  const labels = details.references.map((r) => `image ${r.ordre + 1} = ${r.etiquette}`).join(", ");
+  const labels = details.references.map((r) => refLabel({ ...r, ordre: r.ordre + 1 }).replace(/^#/, "image ")).join(", ");
+  const total = details.cibles.length;
+  let faites = total - todo.length;
+  await progress({ faites, total, etat: "en cours" });
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   const page = await browser.newPage();
   let done = 0;
@@ -127,9 +155,11 @@ if (command === "generer") {
         .replace(/the LEFT photo/g, "the first photo")
         .replace(" No board, no labels, no split screen.", " No collage, no labels, no split screen.");
       try {
-        const png = await editImageFiles({ key: env.OPENAI_API_KEY, files: [source, ...refs], prompt, size: sizeFor(w, h) });
+        const [fw, fh] = details.mode === "pub" ? (PUB_FORMATS[details.format] ?? PUB_FORMATS["4:5"]) : [w, h];
+        const png = await editImageFiles({ key: env.OPENAI_API_KEY, files: [source, ...refs], prompt, size: sizeFor(fw, fh) });
         await writeFile(join(results, `${cible.key}.png`), png);
         done++;
+        await progress({ faites: ++faites });
         console.log(`✓ ${cible.key}`);
       } catch (e) {
         console.warn(`✗ ${cible.key} : ${e.message}`);
@@ -138,10 +168,26 @@ if (command === "generer") {
   } finally {
     await browser.close();
   }
+  await progress({ etat: faites >= total ? "terminé" : "en pause, à relancer" });
   console.log(`\n${done} image(s) créée(s) avec gpt-image-2 ; ${todo.length - done} restante(s). Ensuite : node scripts/studio.mjs appliquer ${folderArg}`);
 }
 
-if (command === "appliquer") {
+// Mode pub : les visuels sont rangés à part (medias/<page>/pubs/), la page
+// garde ses photos.
+if (command === "appliquer" && details.mode === "pub") {
+  const pubsDir = join(root, "medias", demande.page, "pubs");
+  await mkdir(pubsDir, { recursive: true });
+  let n = 0;
+  for (const cible of details.cibles) {
+    const result = join(dir, "resultats", `${cible.key}.png`);
+    if (!existsSync(result)) continue;
+    await copyFile(result, join(pubsDir, `${cible.key}-${(details.format ?? "4:5").replace(":", "x")}.png`));
+    n++;
+  }
+  console.log(`✓ ${n} pub(s) dans medias/${demande.page}/pubs/ (la page n'est pas modifiée).`);
+}
+
+if (command === "appliquer" && details.mode !== "pub") {
   const pageFile = join(root, "pages", `${demande.page}.json`);
   const pageData = JSON.parse(await readFile(pageFile, "utf8"));
   await mkdir(join(root, "pages", "_historique"), { recursive: true });

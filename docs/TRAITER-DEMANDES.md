@@ -134,18 +134,23 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      5. enregistrer la page, noter dans `resultat` le nombre de textes écrits et
         les consignes laissées.
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =
-     références de l'utilisateur dans l'ordre, `details` = produit, mode
-     fidèle/pub, rythme, textes à changer, `references` étiquetées, `cibles`) :
+     références de l'utilisateur dans l'ordre (produit puis marque), `details` =
+     produit, description, mode fidele/pub (pub : format 1:1 / 4:5 / 9:16,
+     accroche, bouton), rythme (tout / 5 / n / une-par-une), textes à changer,
+     `references` étiquetées avec leur groupe, `marque` (couleurs et polices du
+     design.md), `prixEstime`, `cibles`) :
      1. `node scripts/studio.mjs generer demandes/<dossier>` → chaque image
         avec **gpt-image-2** (OpenAI, `OPENAI_API_KEY` de `.env.local`) : photo
         d'origine + références envoyées comme images séparées, dans
-        `resultats/<clé>.png`. Respecte le rythme (tout / 5 / une par une ; une
+        `resultats/<clé>.png`. Respecte le rythme (tout / 5 / n / une par une ; une
         image déjà faite n'est pas refaite, relancer pour la suite) ;
      2. regarder chaque résultat (produit fidèle, aucune trace de la marque
         d'origine) ; pour en refaire une, supprimer son `resultats/<clé>.png`
         et relancer ; « une par une » : montrer chaque image avant la suivante ;
      3. `node scripts/studio.mjs appliquer demandes/<dossier>` → copie dans
-        `medias/<page>/` et pose dans la page (copie de sécurité avant) ;
+        `medias/<page>/` et pose dans la page (copie de sécurité avant) ; en
+        mode pub : rangé dans `medias/<page>/pubs/`, la page ne change pas.
+        L'avancement (`progression` de demande.json) s'affiche dans le Studio ;
      4. noter dans `resultat` les images faites et celles à refaire.
      Ancienne voie (si OpenAI indisponible) : `planches` puis
      `mcp__nanobanana__edit_image` avec la planche et sa consigne (clé Google
