@@ -429,6 +429,19 @@ function atelierApi() {
             return json(res, 200, out.sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt))));
           }
 
+          // ---- Section refaite par l'IA : écrite dans sections/<id>/ ----
+          if (parts[0] === "sections-ia" && req.method === "POST") {
+            const { id, schema, template, css, meta } = await readBody(req);
+            if (!NAME.test(id ?? "") || !meta?.pageSpecific) return json(res, 400, { error: "Section invalide." });
+            const dir = join(sectionsDir, id);
+            await mkdir(dir, { recursive: true });
+            await writeFile(join(dir, "schema.json"), JSON.stringify(schema, null, 2) + "\n", "utf8");
+            await writeFile(join(dir, "template.liquid"), template + "\n", "utf8");
+            await writeFile(join(dir, "style.css"), css + "\n", "utf8");
+            await writeFile(join(dir, "meta.json"), JSON.stringify(meta, null, 2) + "\n", "utf8");
+            return json(res, 200, { ok: true, id });
+          }
+
           // ---- Retravailler avec l'IA (OpenAI, clé de .env.local) ----
           if (parts[0] === "ia" && req.method === "POST") {
             const env = loadEnv("development", root, "");
@@ -441,6 +454,10 @@ function atelierApi() {
               }
               if (parts[1] === "image" && NAME.test(b.page ?? "")) {
                 return json(res, 200, await reworkImage({ key: env.OPENAI_API_KEY, root, ...b }));
+              }
+              if (parts[1] === "section") {
+                const { rebuildSection } = await import("./scripts/lib/ia.mjs");
+                return json(res, 200, await rebuildSection({ key: env.OPENAI_API_KEY, ...b }));
               }
             } catch (e) {
               return json(res, 502, { error: e.message });

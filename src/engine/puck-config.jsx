@@ -141,6 +141,9 @@ const EDITOR_CSS = `
 .atl-hl { outline: 2px solid #2c6ecb !important; outline-offset: 2px; }
 .atl-hl-on { outline: 3px solid #2c6ecb !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(44, 110, 203, 0.18) !important; }
 [data-atl-slot] { cursor: pointer; }
+/* Écriture directe dans la page : le texte reçoit la souris et le clavier. */
+html[data-atl-editing] [class*="DraggableComponent-overlay"] { pointer-events: none !important; }
+[contenteditable="true"] { pointer-events: auto !important; cursor: text; outline: 2px solid #6d4aff !important; outline-offset: 3px; }
 /* Un élément ou un groupe est choisi : seul lui s'éclaire, pas toute la section. */
 html[data-atl-sub] .atl-shopify-section.atl-is-selected::after { display: none; }
 /* Pas de teinte de Puck au survol (ni sur la section choisie) : seule la

@@ -102,3 +102,38 @@ export async function reworkImage({ key, root, page, source, prompt, references 
   await writeFile(join(dir, file), Buffer.from(body.data[0].b64_json, "base64"));
   return { url: `/medias/${page}/${file}` };
 }
+
+// « Reconstruire avec l'IA » : la section redessinée selon la consigne (et une
+// image de référence facultative). Retourne { html, css } : une seule racine
+// .ROOT, CSS préfixé par .ROOT, textes et images gardés sauf consigne contraire.
+export async function rebuildSection({ key, html, css, prompt, reference, rootClass }) {
+  const system = [
+    "Tu es intégrateur web pour des pages de vente Shopify.",
+    "On te donne le HTML et le CSS actuels d'une section de page, et une consigne.",
+    `Rends une nouvelle version de la section : une seule racine <div class="${rootClass}">…</div>.`,
+    `Toutes les règles CSS commencent par .${rootClass} ; ajoute les règles mobiles dans @media (max-width: 749px).`,
+    "Garde tous les textes et toutes les images (mêmes valeurs src) sauf si la consigne dit autre chose.",
+    "N'utilise que des balises HTML simples (div, section, h1-h4, p, span, strong, em, a, ul, li, img, button) ; pas de script, pas de style en ligne, pas d'autre ressource externe.",
+    "Polices : var(--atl-font-heading, inherit) pour les titres, var(--atl-font-body, inherit) pour le texte.",
+    'Réponds uniquement en JSON : {"html":"…","css":"…"}.',
+  ].join("\n");
+  const content = [{ type: "text", text: JSON.stringify({ consigne: prompt, html: html.slice(0, 60000), css: css.slice(0, 40000) }) }];
+  if (reference) content.push({ type: "image_url", image_url: { url: reference } });
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { ...headers(key), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "gpt-5.4",
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content },
+      ],
+    }),
+  });
+  if (!res.ok) throw await openaiError(res);
+  const body = await res.json();
+  const out = JSON.parse(body.choices?.[0]?.message?.content ?? "{}");
+  if (!out.html) throw new Error("L'IA n'a pas rendu de section.");
+  return { html: out.html, css: out.css ?? "" };
+}

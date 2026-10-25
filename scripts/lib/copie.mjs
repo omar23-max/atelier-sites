@@ -486,7 +486,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (it.text != null) {
         const slot = `t${it.pid}_${it.k}`;
         addText(slot, it.text, it.words, "Texte");
-        return `<span data-atl-slot="${slot}">${textSlot(slot)}</span>`;
+        return `<span data-atl-slot="${slot}" style="${slotLoop(slot, "{{ b.settings.style }}")}">${textSlot(slot)}</span>`;
       }
       const n = it.n;
       const cls = classOf(n);
@@ -516,7 +516,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         blocks.push({ slot, repere: `Image ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
         return slotLoop(
           slot,
-          `{%- if b.settings.image != blank -%}<img data-atl-slot="${slot}" class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}"${styleAttr}>{%- else -%}<div data-atl-slot="${slot}" class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
+          `{%- if b.settings.image != blank -%}<img data-atl-slot="${slot}" class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}" style="${edge}{{ b.settings.style }}">{%- else -%}<div data-atl-slot="${slot}" class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
         );
       }
       if (["input", "select", "textarea"].includes(tag)) {
@@ -539,11 +539,20 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         const vars = Object.keys(roles)
           .map((r) => `--atl-${r}: {{ section.settings.role_${r.replace(/-/g, "_")} }};`)
           .join(" ");
-        open += ` style="${vars} ${edge}"`;
+        // Réglages « Design / Layout » de la section : fond, marges, largeur.
+        const design =
+          "{%- if section.settings.fond_section != blank -%}background-color:{{ section.settings.fond_section }};{%- endif -%}" +
+          "{%- if section.settings.marge_haut != blank -%}padding-top:{{ section.settings.marge_haut }}px;{%- endif -%}" +
+          "{%- if section.settings.marge_bas != blank -%}padding-bottom:{{ section.settings.marge_bas }}px;{%- endif -%}" +
+          "{%- case section.settings.largeur -%}{%- when 'large' -%}max-width:1200px;margin-left:auto;margin-right:auto;{%- when 'etroite' -%}max-width:760px;margin-left:auto;margin-right:auto;{%- endcase -%}";
+        open += ` style="${vars} ${edge}${design}"`;
       } else if (n.bgImage) {
         const slot = `b${n.id}`;
         blocks.push({ slot, repere: `Image de fond ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
-        open += ` style="${edge}${slotLoop(slot, "{%- if b.settings.image != blank -%}background-image:url({{ b.settings.image | image_url: width: 2000 }});background-size:cover;background-position:center;{%- endif -%}")}"`;
+        open += ` style="${edge}${slotLoop(slot, "{%- if b.settings.image != blank -%}background-image:url({{ b.settings.image | image_url: width: 2000 }});background-size:cover;background-position:center;{%- endif -%}{{ b.settings.style }}")}"`;
+      } else if (n.text != null) {
+        // Style propre à l'élément (réglé dans l'atelier), après le style d'origine.
+        open += ` style="${edge}${slotLoop(slotLink ?? `s${n.id}`, "{{ b.settings.style }}")}"`;
       } else open += styleAttr;
       open += ">";
       if (["br", "hr", "img", "wbr"].includes(tag)) return open;
@@ -658,6 +667,21 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         ...Object.entries(roles).map(([r, c]) => ({ type: "color", id: `role_${r.replace(/-/g, "_")}`, label: ROLE_LABELS[r] ?? r, default: hexOf(c) })),
         { type: "header", content: "Ordre des éléments" },
         { type: "text", id: "ordres", label: "Ordre (réglé par l'atelier en déplaçant les éléments)" },
+        { type: "header", content: "Design" },
+        { type: "color", id: "fond_section", label: "Fond de la section (vide = d'origine)" },
+        { type: "text", id: "marge_haut", label: "Marge en haut, px (vide = d'origine)" },
+        { type: "text", id: "marge_bas", label: "Marge en bas, px (vide = d'origine)" },
+        {
+          type: "select",
+          id: "largeur",
+          label: "Largeur du contenu",
+          options: [
+            { value: "", label: "D'origine" },
+            { value: "large", label: "Large (1200 px)" },
+            { value: "etroite", label: "Étroite (760 px)" },
+          ],
+          default: "",
+        },
       ],
       max_blocks: 50,
       blocks: [
@@ -670,6 +694,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
             { type: "textarea", id: "text", label: "Texte (ou texte alternatif de l'image)" },
             { type: "image_picker", id: "image", label: "Image" },
             { type: "url", id: "link", label: "Lien (boutons et liens)" },
+            { type: "text", id: "style", label: "Style de l'élément (réglé par l'atelier)" },
           ],
         },
       ],

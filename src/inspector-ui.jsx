@@ -177,7 +177,9 @@ function applyValues(item, values) {
   if (section.meta.arbre) {
     const blocks = (props.blocks_element ?? []).map((b) => {
       const v = values[b.slot];
-      return v ? { ...b, ...(v.text != null ? { text: v.text } : {}), ...(v.image != null ? { image: v.image } : {}) } : b;
+      return v
+        ? { ...b, ...(v.text != null ? { text: v.text } : {}), ...(v.image != null ? { image: v.image } : {}), ...(v.style != null ? { style: v.style } : {}) }
+        : b;
     });
     return { ...item, props: { ...props, blocks_element: blocks } };
   }
@@ -252,6 +254,8 @@ export function Inspector({ children }) {
   const [menu, setMenu] = useState(null);
   const [ai, setAi] = useState(null);
   const treeRef = useRef(null);
+  const editRef = useRef(null);
+  const [editing, setEditing] = useState(false);
   const selRef = useRef(sel);
   selRef.current = sel;
   // Puck affiche ce panneau à deux endroits (dont un caché) : seul le panneau
@@ -326,9 +330,18 @@ export function Inspector({ children }) {
       return { sectionId: sec.dataset.atlId, key: el?.dataset.atlSlot ?? undefined, group: el?.dataset.atlGroup ?? undefined };
     };
     const onClick = (e) => {
-      if (!visible()) return;
+      if (!visible() || editRef.current) return;
       const t = target(e);
       if (t) setTimeout(() => choose(t, { scroll: false }), 0);
+    };
+    // Double-clic sur un texte : on écrit directement dans la page.
+    const onDouble = (e) => {
+      if (!visible() || editRef.current) return;
+      const t = target(e);
+      if (!t?.key) return;
+      e.preventDefault();
+      choose(t, { scroll: false });
+      setTimeout(() => startEdit(t, { x: e.clientX, y: e.clientY }), 0);
     };
     const onMenu = (e) => {
       if (!visible()) return;
@@ -347,9 +360,11 @@ export function Inspector({ children }) {
       if (next === doc) return;
       doc?.removeEventListener("click", onClick, true);
       doc?.removeEventListener("contextmenu", onMenu, true);
+      doc?.removeEventListener("dblclick", onDouble, true);
       doc = next;
       doc?.addEventListener("click", onClick, true);
       doc?.addEventListener("contextmenu", onMenu, true);
+      doc?.addEventListener("dblclick", onDouble, true);
     };
     attach();
     const timer = setInterval(attach, 1000);
@@ -357,6 +372,7 @@ export function Inspector({ children }) {
       clearInterval(timer);
       doc?.removeEventListener("click", onClick, true);
       doc?.removeEventListener("contextmenu", onMenu, true);
+      doc?.removeEventListener("dblclick", onDouble, true);
     };
   }, [content]);
 
@@ -434,9 +450,98 @@ export function Inspector({ children }) {
 
   const selNode = nodeOf(sel);
   const close = () => {
+    finishEdit();
     setSel(null);
     getPuck().dispatch({ type: "setUi", ui: { itemSelector: null } });
   };
+
+  // ---- Écrire directement dans la page ----
+  // Le texte choisi devient modifiable dans l'aperçu ; Échap, un clic ailleurs
+  // ou ✓ enregistre. Les raccourcis de Puck sont coupés pendant la frappe.
+  function startEdit(target, point) {
+    const node = nodeOf(target);
+    const el = node && !node.group && !isImageType(node.type) ? domOf(target.sectionId, node) : null;
+    if (!el) return;
+    const doc = el.ownerDocument;
+    const win = doc.defaultView;
+    const before = el.innerHTML;
+    el.contentEditable = "true";
+    doc.documentElement.setAttribute("data-atl-editing", "");
+    el.focus();
+    const range = point && doc.caretRangeFromPoint?.(point.x, point.y);
+    if (range) {
+      const s = win.getSelection();
+      s.removeAllRanges();
+      s.addRange(range);
+    }
+    const keys = (e) => {
+      if (!el.contains(e.target)) return;
+      e.stopPropagation();
+      if (e.key === "Escape") finishEdit();
+    };
+    const blur = () => setTimeout(() => editRef.current?.el === el && finishEdit(), 120);
+    win.addEventListener("keydown", keys, true);
+    el.addEventListener("blur", blur);
+    editRef.current = { el, key: node.key, sectionId: target.sectionId, before, keys, blur, win };
+    setEditing(true);
+  }
+  function finishEdit() {
+    const ed = editRef.current;
+    if (!ed) return;
+    editRef.current = null;
+    ed.win.removeEventListener("keydown", ed.keys, true);
+    ed.el.removeEventListener("blur", ed.blur);
+    ed.el.contentEditable = "false";
+    ed.el.ownerDocument.documentElement.removeAttribute("data-atl-editing");
+    const html = cleanHtml(ed.el.innerHTML);
+    setEditing(false);
+    if (html !== cleanHtml(ed.before)) updateValues(ed.sectionId, { [ed.key]: { text: html } });
+  }
+  function format(cmd) {
+    const ed = editRef.current;
+    if (!ed) return;
+    if (cmd === "done") return finishEdit();
+    ed.el.focus();
+    if (cmd === "link") {
+      const url = prompt("Lien (https://… ou /products/…) :");
+      if (url) ed.el.ownerDocument.execCommand("createLink", false, url);
+      return;
+    }
+    ed.el.ownerDocument.execCommand(cmd, false);
+  }
+
+  // ---- Reconstruire / nettoyer une section avec l'IA ----
+  // La nouvelle section est enregistrée dans sections/, la page est sauvegardée
+  // (copie de sécurité avant) puis l'atelier se recharge pour l'afficher.
+  async function rebuildSection(sectionId, instruction, reference) {
+    const item = itemOf(sectionId);
+    const section = byId[item.type];
+    const root = canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
+    if (!root) throw new Error("Section introuvable dans l'aperçu.");
+    const html = root.querySelector(":scope > div:last-child")?.innerHTML ?? root.innerHTML;
+    const res = await fetch("/api/ia/section", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html, css: section.css, prompt: instruction, reference, rootClass: "ROOT" }),
+    });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error);
+    const id = `${pageName}-ia-${Date.now().toString(36)}`.slice(0, 80);
+    const label = (section.meta.label ?? section.id).replace(/ — refaite par l'IA$/, "");
+    const made = htmlToSection(body.html, body.css, id, "ROOT", label, pageName);
+    const saved = await fetch("/api/sections-ia", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, schema: made.schema, template: made.template, css: made.css, meta: made.meta }),
+    });
+    if (!saved.ok) throw new Error((await saved.json()).error);
+    await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
+    const data = getPuck().appState.data;
+    const content = data.content.map((c) => (c.props.id === sectionId ? { type: id, props: { id, blocks_element: made.blocks } } : c));
+    const put = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...data, content }) });
+    if (!put.ok) throw new Error((await put.json()).error);
+    location.reload();
+  }
 
   return (
     <div className="atl-insp" ref={rootRef}>
@@ -461,9 +566,19 @@ export function Inspector({ children }) {
             <div className="atl-insp__puck">{children}</div>
           </div>
         )}
-        {sel?.sectionId && !sel.key && !sel.group && content[indexOf(sel.sectionId)] && (
-          <SectionSettings item={content[indexOf(sel.sectionId)]} onBack={close} onAi={() => setAi({ sectionId: sel.sectionId, keys: null })} onChange={(props) => updateProps(sel.sectionId, props)} />
-        )}
+        {sel?.sectionId && !sel.key && !sel.group && content[indexOf(sel.sectionId)] &&
+          (byId[content[indexOf(sel.sectionId)].type]?.meta.arbre ? (
+            <CopySectionSettings
+              key={sel.sectionId}
+              item={content[indexOf(sel.sectionId)]}
+              onBack={close}
+              onChange={(props) => updateProps(sel.sectionId, props)}
+              onAiTexts={() => setAi({ sectionId: sel.sectionId, keys: null })}
+              onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
+            />
+          ) : (
+            <SectionSettings item={content[indexOf(sel.sectionId)]} onBack={close} onAi={() => setAi({ sectionId: sel.sectionId, keys: null })} onChange={(props) => updateProps(sel.sectionId, props)} />
+          ))}
         {sel?.key && content[indexOf(sel.sectionId)] && (
           <ElementSettings
             item={content[indexOf(sel.sectionId)]}
@@ -495,6 +610,30 @@ export function Inspector({ children }) {
         )}
       </div>
       {!sel?.page && <div style={{ display: "none" }}>{children}</div>}
+      {sel?.sectionId && visible() && (
+        <CanvasToolbar
+          sel={sel}
+          node={selNode}
+          label={selNode ? (selNode.group ? selNode.label : (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
+          editing={editing}
+          onFormat={format}
+          onParent={() => {
+            const path = pathTo(treeForItem(itemOf(sel.sectionId)), sameNode(sel)) ?? [];
+            const parent = path.at(-2);
+            choose(parent ? { sectionId: sel.sectionId, group: parent.id } : { sectionId: sel.sectionId });
+          }}
+          onUp={() => (selNode ? step(sel.sectionId, selNode, -1) : moveSection(sel.sectionId, content[indexOf(sel.sectionId) - 1]?.props.id, false))}
+          onDown={() => (selNode ? step(sel.sectionId, selNode, 1) : moveSection(sel.sectionId, content[indexOf(sel.sectionId) + 1]?.props.id, true))}
+          onEdit={() => startEdit(sel)}
+          onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null })}
+          onHide={() => {
+            const block = (normalizeProps(byId[itemOf(sel.sectionId).type], itemOf(sel.sectionId).props).blocks_element ?? []).find((b) => b.slot === sel.key);
+            const d = parseStyle(block?.style);
+            d.display = /none/.test(d.display ?? "") ? "" : "none";
+            updateValues(sel.sectionId, { [sel.key]: { style: writeStyle(d) } });
+          }}
+        />
+      )}
       {menu && <ContextMenu x={menu.x} y={menu.y} items={menuItems(menu)} onClose={() => setMenu(null)} />}
       {ai && content[indexOf(ai.sectionId)] && (
         <AiDialog target={ai} item={content[indexOf(ai.sectionId)]} onClose={() => setAi(null)} onApply={(values) => updateValues(ai.sectionId, values)} root={getPuck().appState.data.root?.props ?? {}} />
@@ -763,8 +902,10 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
               <RichText value={block.text} onChange={(v) => set({ text: v })} />
             </div>
             {(leaf.type === "bouton" || leaf.type === "lien") && <LinkField block={block} onChange={(link) => onChangeLink(onChangeProps, props, elementKey, link)} />}
+            <p className="atl-insp__hint">Double-clic sur le texte dans la page pour l'écrire directement.</p>
           </>
         )}
+        <StylePanel sectionId={item.props.id} leaf={leaf} block={block} onChange={(style) => onChange({ [elementKey]: { style } })} />
         <p className="atl-insp__hint">Clic droit sur un élément (ici ou dans l'aperçu) pour le retravailler avec l'IA.</p>
       </div>
     );
@@ -1053,5 +1194,436 @@ function RichText({ value, onChange }) {
       </div>
       <div ref={ref} className="atl-rte__area" contentEditable suppressContentEditableWarning onInput={emit} />
     </div>
+  );
+}
+
+// ---- Style d'un élément (comme Whitelabeler) : police, taille, graisse,
+// interligne, couleur, alignement, masquer. Écrit dans le réglage « style » du
+// bloc (CSS en ligne, après le style d'origine). ----
+const parseStyle = (s) =>
+  Object.fromEntries(
+    String(s ?? "")
+      .split(";")
+      .map((p) => p.trim())
+      .filter((p) => p.includes(":"))
+      .map((p) => [p.slice(0, p.indexOf(":")).trim(), p.slice(p.indexOf(":") + 1).trim()]),
+  );
+const writeStyle = (d) =>
+  Object.entries(d)
+    .filter(([, v]) => v !== "" && v != null)
+    .map(([k, v]) => `${k}:${v}`)
+    .join(";");
+const FONT_CHOICES = [
+  { value: "", label: "D'origine" },
+  { value: "var(--atl-font-heading, inherit)", label: "Police des titres" },
+  { value: "var(--atl-font-body, inherit)", label: "Police du texte" },
+];
+const toHex = (c) => {
+  const m = /(\d+),\s*(\d+),\s*(\d+)/.exec(c ?? "");
+  return m ? `#${[m[1], m[2], m[3]].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}` : "#000000";
+};
+
+function Seg({ value, options, onChange }) {
+  return (
+    <div className="atl-seg2">
+      {options.map((o) => (
+        <button key={o.value} type="button" className={value === o.value ? "is-on" : ""} onClick={() => onChange(value === o.value ? "" : o.value)} title={o.title ?? o.label}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function StylePanel({ sectionId, leaf, block, onChange }) {
+  const d = parseStyle(block.style);
+  const el = domOf(sectionId, leaf);
+  const cs = el ? el.ownerDocument.defaultView.getComputedStyle(el) : null;
+  const set = (patch) => {
+    const next = { ...d };
+    for (const [k, v] of Object.entries(patch)) {
+      if (v === "" || v == null) delete next[k];
+      else next[k] = v;
+    }
+    onChange(writeStyle(next));
+  };
+  const px = (k) => (d[k] ? parseFloat(d[k]) : "");
+  const hidden = /none/.test(d.display ?? "");
+  const image = isImageType(leaf.type);
+  return (
+    <div className="atl-style">
+      {!image && (
+        <>
+          <p className="atl-style__title">Typographie</p>
+          <label className="atl-style__row">
+            <span>Police</span>
+            <select value={d["font-family"] ?? ""} onChange={(e) => set({ "font-family": e.target.value })}>
+              {FONT_CHOICES.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="atl-style__row">
+            <span>Taille</span>
+            <span className="atl-style__px">
+              <input type="number" min="6" max="160" value={px("font-size")} placeholder={cs ? Math.round(parseFloat(cs.fontSize)) : ""} onChange={(e) => set({ "font-size": e.target.value ? `${e.target.value}px` : "" })} />
+              px
+            </span>
+          </label>
+          <div className="atl-style__row">
+            <span>Graisse</span>
+            <Seg
+              value={d["font-weight"] ?? ""}
+              options={["400", "500", "600", "700"].map((w) => ({ value: w, label: w }))}
+              onChange={(v) => set({ "font-weight": v })}
+            />
+          </div>
+          <label className="atl-style__row">
+            <span>Interligne</span>
+            <input
+              type="number"
+              step="0.05"
+              min="0.8"
+              max="3"
+              value={d["line-height"] ?? ""}
+              placeholder={cs && cs.lineHeight !== "normal" ? (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)).toFixed(2) : "auto"}
+              onChange={(e) => set({ "line-height": e.target.value })}
+            />
+          </label>
+          <p className="atl-style__title">Couleur</p>
+          <div className="atl-style__row">
+            <span>Texte</span>
+            <span className="atl-style__color">
+              <input type="color" value={d.color && d.color.startsWith("#") ? d.color : toHex(cs?.color)} onChange={(e) => set({ color: e.target.value })} />
+              <code>{d.color ?? "d'origine"}</code>
+              {d.color && (
+                <button type="button" onClick={() => set({ color: "" })} title="Couleur d'origine">
+                  ↺
+                </button>
+              )}
+            </span>
+          </div>
+          <p className="atl-style__title">Alignement</p>
+          <Seg
+            value={d["text-align"] ?? ""}
+            options={[
+              { value: "left", label: "⯇", title: "À gauche" },
+              { value: "center", label: "≡", title: "Centré" },
+              { value: "right", label: "⯈", title: "À droite" },
+            ]}
+            onChange={(v) => set({ "text-align": v })}
+          />
+        </>
+      )}
+      {image && (
+        <>
+          <p className="atl-style__title">Image</p>
+          <label className="atl-style__row">
+            <span>Coins arrondis</span>
+            <span className="atl-style__px">
+              <input type="number" min="0" max="200" value={px("border-radius")} placeholder={cs ? Math.round(parseFloat(cs.borderTopLeftRadius)) : ""} onChange={(e) => set({ "border-radius": e.target.value ? `${e.target.value}px` : "" })} />
+              px
+            </span>
+          </label>
+          <div className="atl-style__row">
+            <span>Cadrage</span>
+            <Seg
+              value={d["object-fit"] ?? ""}
+              options={[
+                { value: "cover", label: "Remplir" },
+                { value: "contain", label: "Entière" },
+              ]}
+              onChange={(v) => set({ "object-fit": v })}
+            />
+          </div>
+        </>
+      )}
+      <label className="atl-style__toggle">
+        <input type="checkbox" checked={hidden} onChange={(e) => set({ display: e.target.checked ? "none" : "" })} /> Masquer cet élément
+      </label>
+      {block.style && (
+        <button type="button" className="atl-style__reset" onClick={() => onChange("")}>
+          Rétablir le style d'origine
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---- Réglages d'une partie copiée : Design · Layout · Couleurs, et l'IA ----
+function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild }) {
+  const [tab, setTab] = useState("design");
+  const [prompt, setPrompt] = useState("");
+  const [ref, setRef] = useState(null);
+  const [busy, setBusy] = useState(null);
+  const section = byId[item.type];
+  const props = normalizeProps(section, item.props);
+  const [name, variant] = (section.meta.label ?? section.id).split(" — ");
+  const set = (k, v) => onChange({ ...props, [k]: v });
+  const root = canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(item.props.id)}"] [class^="atl-"]`);
+  const cs = root ? root.ownerDocument.defaultView.getComputedStyle(root) : null;
+  const roles = editableSettings(section.schema.settings).filter((s) => s.id.startsWith("role_"));
+  const rebuild = async (instruction) => {
+    setBusy(instruction ? "Reconstruction en cours (30 à 90 s)…" : "Nettoyage en cours (30 à 90 s)…");
+    try {
+      await onRebuild(instruction || "Remets de l'ordre dans cette section : alignements, espacements et tailles cohérents et réguliers, sans changer les textes ni les images.", ref);
+    } catch (e) {
+      setBusy(null);
+      alert(e.message);
+    }
+  };
+  const readRef = (file) => {
+    const r = new FileReader();
+    r.onload = () => setRef(r.result);
+    r.readAsDataURL(file);
+  };
+  return (
+    <div className="atl-insp__panel">
+      <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} />
+      <div className="atl-tabs2">
+        {[
+          ["design", "Design"],
+          ["layout", "Layout"],
+          ["couleurs", "Couleurs"],
+        ].map(([id, label]) => (
+          <button key={id} type="button" className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === "design" && (
+        <div className="atl-style">
+          <p className="atl-style__title">Fond</p>
+          <div className="atl-style__row">
+            <span>Couleur</span>
+            <span className="atl-style__color">
+              <input type="color" value={props.fond_section || toHex(cs?.backgroundColor)} onChange={(e) => set("fond_section", e.target.value)} />
+              <code>{props.fond_section || "d'origine"}</code>
+              {props.fond_section && (
+                <button type="button" onClick={() => set("fond_section", "")}>
+                  ↺
+                </button>
+              )}
+            </span>
+          </div>
+          <p className="atl-style__title">Marges</p>
+          <div className="atl-style__two">
+            <label>
+              <span>Haut</span>
+              <span className="atl-style__px">
+                <input type="number" min="0" max="400" value={props.marge_haut ?? ""} placeholder={cs ? Math.round(parseFloat(cs.paddingTop)) : ""} onChange={(e) => set("marge_haut", e.target.value)} />
+                px
+              </span>
+            </label>
+            <label>
+              <span>Bas</span>
+              <span className="atl-style__px">
+                <input type="number" min="0" max="400" value={props.marge_bas ?? ""} placeholder={cs ? Math.round(parseFloat(cs.paddingBottom)) : ""} onChange={(e) => set("marge_bas", e.target.value)} />
+                px
+              </span>
+            </label>
+          </div>
+        </div>
+      )}
+      {tab === "layout" && (
+        <div className="atl-style">
+          <p className="atl-style__title">Largeur du contenu</p>
+          <Seg
+            value={props.largeur ?? ""}
+            options={[
+              { value: "", label: "D'origine" },
+              { value: "large", label: "Large" },
+              { value: "etroite", label: "Étroite" },
+            ]}
+            onChange={(v) => set("largeur", v)}
+          />
+          <p className="atl-insp__hint">L'ordre des éléments se change en les glissant dans l'arbre, ou avec Monter / Descendre.</p>
+        </div>
+      )}
+      {tab === "couleurs" && <FieldList settings={roles} meta={section.meta} values={props} onChange={onChange} />}
+
+      <div className="atl-aibox">
+        <p className="atl-aibox__title">✨ Reconstruire avec l'IA</p>
+        <p className="atl-aibox__hint">Dis ce qui doit changer : l'IA redessine cette section, le reste de la page ne bouge pas.</p>
+        <textarea rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="ex. Mets les avis sur 2 colonnes · Moins chargé, titre plus gros · Cette vidéo devient une image" />
+        <label className="atl-aibox__ref">
+          {ref ? <img src={ref} alt="" /> : <span>+ Image de référence (facultatif)</span>}
+          <input type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && readRef(e.target.files[0])} />
+        </label>
+        <button type="button" className="atl-aibox__go" disabled={!!busy || !prompt.trim()} onClick={() => rebuild(prompt.trim())}>
+          Reconstruire la section
+        </button>
+        <div className="atl-aibox__row">
+          <button type="button" onClick={onAiTexts} disabled={!!busy}>
+            Réécrire les textes
+          </button>
+          <button type="button" onClick={() => rebuild("")} disabled={!!busy}>
+            Nettoyer ✨
+          </button>
+        </div>
+        {busy && <p className="atl-aidlg__step">{busy}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ---- Section refaite par l'IA → nouvelle section de l'atelier ----
+// Le HTML rendu par l'IA devient un gabarit Liquid : chaque texte et chaque
+// image devient un emplacement modifiable (comme les copies de page).
+const INLINE_TAGS = /^(SPAN|B|STRONG|I|EM|U|A|BR|SMALL|SUP|SUB|MARK)$/;
+function htmlToSection(html, css, id, rootClass, label, page) {
+  const doc = new DOMParser().parseFromString(`<body>${html}</body>`, "text/html");
+  const root = doc.body.firstElementChild;
+  if (!root) throw new Error("L'IA n'a pas rendu de HTML exploitable.");
+  root.classList.add(`atl-${id}`);
+  const blocks = [];
+  const leaves = [];
+  let n = 0;
+  const isLeaf = (el) => el.textContent.trim() && [...el.querySelectorAll("*")].every((c) => INLINE_TAGS.test(c.tagName));
+  const walk = (el) => {
+    for (const c of [...el.children]) {
+      if (c.tagName === "IMG") {
+        const slot = `i${++n}`;
+        blocks.push({ slot, repere: "Image", text: c.getAttribute("alt") ?? "", image: c.getAttribute("src") ?? "", link: "", style: "" });
+        leaves.push({ slot, type: "image" });
+        c.setAttribute("src", `@@IMG_${slot}@@`);
+        c.setAttribute("data-atl-slot", slot);
+        c.setAttribute("style", `@@STYLE_${slot}@@`);
+        continue;
+      }
+      if (isLeaf(c)) {
+        const slot = `s${++n}`;
+        const text = c.innerHTML.trim();
+        const type = /^H[1-4]$/.test(c.tagName) ? "titre" : c.tagName === "A" || c.tagName === "BUTTON" ? "bouton" : "texte";
+        blocks.push({ slot, repere: `${TYPE[type].label} · ${plain(text).slice(0, 38)}`, text, image: "", link: "", style: "" });
+        leaves.push({ slot, type });
+        c.innerHTML = `@@TEXT_${slot}@@`;
+        c.setAttribute("data-atl-slot", slot);
+        c.setAttribute("style", `@@STYLE_${slot}@@`);
+        if (c.tagName === "A") c.setAttribute("href", `@@LINK_${slot}@@`);
+        continue;
+      }
+      walk(c);
+    }
+  };
+  walk(root);
+  const loop = (slot, inner) => `{%- for b in section.blocks -%}{%- if b.settings.slot == '${slot}' -%}${inner}{%- endif -%}{%- endfor -%}`;
+  const template = root.outerHTML
+    .replace(/\{/g, "&#123;")
+    .replace(/\}/g, "&#125;")
+    .replace(/@@TEXT_(\w+)@@/g, (_, s) => loop(s, "{{ b.settings.text | newline_to_br }}"))
+    .replace(/@@IMG_(\w+)@@/g, (_, s) => loop(s, "{{ b.settings.image | image_url: width: 1600 }}"))
+    .replace(/@@STYLE_(\w+)@@/g, (_, s) => loop(s, "{{ b.settings.style }}"))
+    .replace(/@@LINK_(\w+)@@/g, (_, s) => loop(s, "{{ b.settings.link | default: '#' }}"));
+  const scoped = css.replaceAll(`.${rootClass}`, `.atl-${id}`);
+  const schema = {
+    name: `Atl · IA ${id.slice(-10)}`,
+    tag: "section",
+    settings: [{ type: "paragraph", content: "Section refaite par l'IA dans l'atelier." }],
+    max_blocks: 50,
+    blocks: [
+      {
+        type: "element",
+        name: "Élément",
+        settings: [
+          { type: "text", id: "repere", label: "Repère" },
+          { type: "text", id: "slot", label: "Emplacement (ne pas modifier)" },
+          { type: "textarea", id: "text", label: "Texte (ou texte alternatif de l'image)" },
+          { type: "image_picker", id: "image", label: "Image" },
+          { type: "url", id: "link", label: "Lien (boutons et liens)" },
+          { type: "text", id: "style", label: "Style de l'élément (réglé par l'atelier)" },
+        ],
+      },
+    ],
+    presets: [{ name: `Atl · IA ${id.slice(-10)}` }],
+  };
+  const meta = {
+    label: `${label} — refaite par l'IA`,
+    family: "article",
+    pageSpecific: page,
+    source: { url: null, capturedAt: new Date().toISOString().slice(0, 10), note: "Section reconstruite avec l'IA (Reconstruire / Nettoyer)." },
+    preview: {},
+    previewBlocks: {},
+    arbre: { group: true, kind: "groupe", label: "Section", children: leaves.map((l) => ({ slot: l.slot, type: l.type })) },
+  };
+  return { schema, template, css: scoped, meta, blocks: blocks.slice(0, 50) };
+}
+
+// ---- Barre flottante sur l'élément choisi (comme Whitelabeler) ----
+function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat }) {
+  const [pos, setPos] = useState(null);
+  useEffect(() => {
+    let raf;
+    const tick = () => {
+      const frame = canvasFrame();
+      const el = node ? domOf(sel.sectionId, node) : frame?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sel.sectionId)}"]`);
+      if (frame && el) {
+        const fr = frame.getBoundingClientRect();
+        const scale = fr.width / frame.offsetWidth || 1;
+        const r = el.getBoundingClientRect();
+        const top = fr.top + r.top * scale;
+        const visible = top > fr.top - 10 && top < fr.bottom;
+        setPos(visible ? { top: Math.max(fr.top + 4, top - 34), left: Math.min(fr.right - 300, fr.left + (r.left + r.width) * scale - 290) } : null);
+      } else setPos(null);
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [sel?.sectionId, sel?.key, sel?.group, node]);
+  if (!pos) return null;
+  const isText = node && !node.group && !isImageType(node.type);
+  return createPortal(
+    <div className="atl-float" style={{ top: pos.top, left: Math.max(8, pos.left) }} onMouseDown={(e) => e.preventDefault()}>
+      <b>{label}</b>
+      {editing ? (
+        <>
+          <button type="button" onClick={() => onFormat("bold")} title="Gras">
+            <strong>B</strong>
+          </button>
+          <button type="button" onClick={() => onFormat("italic")} title="Italique">
+            <i>I</i>
+          </button>
+          <button type="button" onClick={() => onFormat("underline")} title="Souligné">
+            <u>U</u>
+          </button>
+          <button type="button" onClick={() => onFormat("link")} title="Lien">
+            🔗
+          </button>
+          <button type="button" onClick={() => onFormat("done")} title="Terminer (Échap)">
+            ✓
+          </button>
+        </>
+      ) : (
+        <>
+          {node && (
+            <button type="button" onClick={onParent} title="Sélectionner le parent">
+              ⬆
+            </button>
+          )}
+          <button type="button" onClick={onUp} title="Monter">
+            ▲
+          </button>
+          <button type="button" onClick={onDown} title="Descendre">
+            ▼
+          </button>
+          {isText && (
+            <button type="button" onClick={onEdit} title="Écrire dans la page (double-clic)">
+              ✎
+            </button>
+          )}
+          <button type="button" onClick={onAi} title="Retravailler avec l'IA">
+            ✨
+          </button>
+          {node && !node.group && (
+            <button type="button" onClick={onHide} title="Masquer">
+              👁
+            </button>
+          )}
+        </>
+      )}
+    </div>,
+    document.body,
   );
 }

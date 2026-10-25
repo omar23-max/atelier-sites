@@ -144,3 +144,44 @@ grand aperçu au survol, Ajouter ou glisser dans la page.
 | Édition directe du texte dans l'aperçu | ❌ (panneau de droite) |
 | Import d'un fichier HTML | ❌ |
 | Templates de sites prêts à l'emploi | 🟡 nos pages importées pourraient en servir |
+
+## 3. L'éditeur observé en direct (2026-10-24, page « healthy power », lecture seule)
+
+**Barre du haut** : nom de la page (modifiable), « Calculate score · 1 credit »,
+« Saved », vues ordinateur / tablette / mobile, annuler / rétablir, Download
+HTML, Preview, crédits, Publish to Shopify, lien de partage.
+
+**Rail de gauche** : To-do · Theme · AI · Page Score · Structure · Section
+Library · Training. Un seul panneau à gauche, qui change selon l'outil ou
+l'élément choisi ; pas de panneau à droite.
+
+**Structure** : en tête, « Do people buy on this page? » (bascule : achat = le
+bouton devient un vrai ajout au panier Shopify ; pas d'achat = chaque bouton
+devient un lien) ; recherche de sections ; liste des sections dépliables
+(Heading, Text… avec icône de type) ; œil au survol pour masquer.
+
+**Choix dans la page** :
+- un clic choisit l'élément **le plus profond** (paragraphe, titre…) : fin cadre
+  bleu autour de lui seul + étiquette violette (« Paragraph ») ;
+- barre flottante en haut à droite de l'élément : **Select parent** (remonter au
+  conteneur, jusqu'à la section), **Duplicate**, **Delete** ;
+- barre de mise en forme cachée (Bold, Italic, Underline, Link) : le texte se
+  modifie **directement dans la page** ;
+- survol : petite étiquette du type d'élément, pas de remplissage coloré ;
+- pas de menu au clic droit.
+
+**Réglages d'un texte** (panneau de gauche) : Typography (police, taille px,
+graisse 400/500/600/700, interligne), Color (pastille + hex), Alignment. Pas de
+champ texte : le texte se tape dans la page.
+
+**Réglages d'une section** : onglets **Design** (fond, marges haut/bas en px) et
+**Layout** (colonnes, alignement du contenu, espacement px, largeur du conteneur
+Full / Wide / Narrow). Barre flottante de section : nom, ▲ ▼, dupliquer,
+supprimer. Trois actions IA **par section** :
+- **Rebuild with AI** : « dis ce qui doit changer », l'IA redessine la section
+  (image de référence facultative), le reste de la page ne bouge pas ;
+- **Rewrite copy** : nouveaux textes pour la section, la mise en page reste ;
+- **Clean up** : remet de l'ordre dans une section désordonnée (« a retry is free »).
+
+**Panneau AI** (page entière) : « Rewrite all copy » (formule GROW) et
+« Images for this page » → Image Mirror Studio.
