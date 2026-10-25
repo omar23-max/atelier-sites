@@ -429,6 +429,25 @@ function atelierApi() {
             return json(res, 200, out.sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt))));
           }
 
+          // ---- Retravailler avec l'IA (OpenAI, clé de .env.local) ----
+          if (parts[0] === "ia" && req.method === "POST") {
+            const env = loadEnv("development", root, "");
+            const { rewriteTexts, reworkImage } = await import("./scripts/lib/ia.mjs");
+            const b = await readBody(req);
+            try {
+              if (parts[1] === "textes") {
+                const items = await rewriteTexts({ key: env.OPENAI_API_KEY, items: b.items, prompt: b.prompt, contexte: b.contexte });
+                return json(res, 200, { items });
+              }
+              if (parts[1] === "image" && NAME.test(b.page ?? "")) {
+                return json(res, 200, await reworkImage({ key: env.OPENAI_API_KEY, root, ...b }));
+              }
+            } catch (e) {
+              return json(res, 502, { error: e.message });
+            }
+            return json(res, 400, { error: "Demande IA invalide." });
+          }
+
           // ---- Tes images (studio ou ajoutées à la main) : medias/<page>/ ----
           // Téléverser une image depuis le panneau de droite.
           if (parts[0] === "medias" && NAME.test(parts[1] ?? "") && req.method === "POST") {

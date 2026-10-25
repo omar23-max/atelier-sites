@@ -72,7 +72,8 @@ function settingToField(setting, ctx) {
 }
 
 // Les titres de groupe (« header ») restent dans le panneau, à leur place.
-function fieldsFor(settings, ctx) {
+// Exporté : le panneau de droite (inspector-ui) affiche aussi ces champs.
+export function fieldsFor(settings, ctx) {
   const fields = {};
   (settings ?? []).forEach((s, i) => {
     if (s.type === "paragraph") return;
@@ -136,6 +137,15 @@ const EDITOR_CSS = `
 /* Photo d'origine du site d'inspiration : repère orange tant qu'elle n'est pas remplacée. */
 .atl-shopify-section img[src^="/imports/"] { outline: 3px dashed #f59e0b; outline-offset: -3px; }
 .atl-shopify-section [style*="/imports/"] { box-shadow: inset 0 0 0 3px #f59e0b; }
+/* Élément survolé ou choisi dans le panneau de droite. */
+.atl-hl { outline: 2px solid #2c6ecb !important; outline-offset: 2px; }
+.atl-hl-on { outline: 3px solid #2c6ecb !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(44, 110, 203, 0.18) !important; }
+[data-atl-slot] { cursor: pointer; }
+/* Un élément ou un groupe est choisi : seul lui s'éclaire, pas toute la section. */
+html[data-atl-sub] .atl-shopify-section.atl-is-selected::after { display: none; }
+/* Pas de teinte de Puck au survol (ni sur la section choisie) : seule la
+   sélection s'éclaire. La barre d'actions de la section reste. */
+[class*="DraggableComponent-overlay"] { opacity: 0 !important; }
 @keyframes atl-glow {
   0% { box-shadow: 0 0 0 0 rgba(91, 124, 255, 0.9), inset 0 0 40px rgba(91, 124, 255, 0.6); background: rgba(91, 124, 255, 0.18); }
   100% { box-shadow: 0 0 28px 6px rgba(91, 124, 255, 0.55), inset 0 0 26px rgba(91, 124, 255, 0.35); background: rgba(91, 124, 255, 0.06); }

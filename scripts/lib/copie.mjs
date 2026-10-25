@@ -486,7 +486,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (it.text != null) {
         const slot = `t${it.pid}_${it.k}`;
         addText(slot, it.text, it.words, "Texte");
-        return textSlot(slot);
+        return `<span data-atl-slot="${slot}">${textSlot(slot)}</span>`;
       }
       const n = it.n;
       const cls = classOf(n);
@@ -516,7 +516,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         blocks.push({ slot, repere: `Image ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
         return slotLoop(
           slot,
-          `{%- if b.settings.image != blank -%}<img class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}"${styleAttr}>{%- else -%}<div class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
+          `{%- if b.settings.image != blank -%}<img data-atl-slot="${slot}" class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}"${styleAttr}>{%- else -%}<div data-atl-slot="${slot}" class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
         );
       }
       if (["input", "select", "textarea"].includes(tag)) {
@@ -524,6 +524,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         return `<${tag} class="${classAttr}" disabled></${tag}>`;
       }
       let open = `<${tag} class="${classAttr}"`;
+      if (n.text != null) open += ` data-atl-slot="s${n.id}"`;
+      if (gids.has(`g${n.id}`)) open += ` data-atl-group="g${n.id}"`;
+      else if (n.bgImage) open += ` data-atl-slot="b${n.id}"`;
       let slotLink = null;
       if (tag === "a") {
         if (n.text != null) {
@@ -550,12 +553,65 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         addText(slot, n.text, n.words, roleOf(n), Boolean(slotLink), n.html);
         inner = textSlot(slot);
       } else if (!it.empty) {
-        inner = (it.kids ?? []).map((k, i) => (k.text != null ? html({ ...k, pid: n.id, k: i }, tag) : html(k, tag))).join("");
+        const parts = (it.kids ?? []).map((k, i) => (k.text != null ? html({ ...k, pid: n.id, k: i }, tag) : html(k, tag)));
+        inner = gids.has(`g${n.id}`) && parts.length > 1 ? ordered(`g${n.id}`, parts) : parts.join("");
       }
       return `${open}${inner}</${tag}>`;
     }
+    // Conteneurs dont on peut changer l'ordre des enfants (groupes de l'arbre).
+    const tree = treeOf(piece);
+    const gids = new Set();
+    (function collect(t) {
+      if (!t) return;
+      if (t.gid) gids.add(t.gid);
+      (t.children ?? []).forEach(collect);
+    })(tree);
+    // Enfants dans l'ordre du réglage « ordres » (« g12=2,0,1;g40=… ») ;
+    // sans réglage, l'ordre d'origine. Identique dans l'atelier et sur Shopify.
+    const ordered = (gid, parts) =>
+      parts.map((p, i) => `{%- capture ${gid}_${i} -%}${p}{%- endcapture -%}`).join("") +
+      `{%- assign o = section.settings.ordres | default: '' | prepend: ';' -%}` +
+      `{%- if o contains ';${gid}=' -%}{%- assign ord = o | split: ';${gid}=' | last | split: ';' | first | split: ',' -%}` +
+      `{%- else -%}{%- assign ord = '${parts.map((_, i) => i).join(",")}' | split: ',' -%}{%- endif -%}` +
+      `{%- for x in ord -%}{%- case x -%}${parts.map((_, i) => `{%- when '${i}' -%}{{ ${gid}_${i} }}`).join("")}{%- endcase -%}{%- endfor -%}`;
     const liquid = html(piece);
-    return { liquid, blocks, used };
+    return { liquid, blocks, used, tree };
+  }
+
+  // Arbre affiché dans le panneau de droite (comme Shopify) : les conteneurs
+  // qui regroupent plusieurs éléments deviennent des groupes ou des colonnes ;
+  // les enveloppes à un seul enfant disparaissent.
+  const GROUP_LABELS = { section: "Section", article: "Article", aside: "Encadré latéral", header: "En-tête", footer: "Pied", ul: "Liste", ol: "Liste", li: "Point", a: "Lien", button: "Bouton", form: "Formulaire", nav: "Menu", figure: "Figure" };
+  function leafType(n) {
+    if (n.image && !n.bgImage) return ["video", "iframe", "canvas", "object", "embed"].includes(n.tag) ? "video" : "image";
+    if (inButton(n) || n.tag === "button") return "bouton";
+    if (n.tag === "a") return "lien";
+    if (HEADING_TAG.test(n.tag) || px(n.style["font-size"]) >= 21) return "titre";
+    return "texte";
+  }
+  function treeOf(it, pid, k) {
+    if (it.text != null) return { slot: `t${pid}_${k}`, type: "texte" };
+    const n = it.n;
+    if (n.svg || it.empty) return null;
+    if (n.image && !n.bgImage) return tinyImage(n) ? null : { slot: `i${n.id}`, type: leafType(n), size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` };
+    if (n.text != null) return { slot: `s${n.id}`, type: leafType(n) };
+    // k : rang de l'enfant dans son conteneur (sert à changer l'ordre).
+    let children = (it.kids ?? [])
+      .map((kid, i) => {
+        const t = treeOf(kid, n.id, i);
+        return t && { ...t, k: i };
+      })
+      .filter(Boolean);
+    if (n.bgImage) children.unshift({ slot: `b${n.id}`, type: "image-fond", size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` });
+    if (!children.length) return null;
+    if (children.length === 1) return children[0];
+    // gid : le conteneur, dont l'ordre des enfants peut changer ; size : nombre d'enfants.
+    const own = { gid: `g${n.id}`, size: (it.kids ?? []).length };
+    if (sideBySide(n)) {
+      children = children.map((c, i) => (c.group ? { ...c, label: `Colonne ${i + 1}`, kind: "colonne" } : { group: true, kind: "colonne", label: `Colonne ${i + 1}`, children: [c], k: c.k }));
+      return { group: true, kind: "colonnes", label: `Colonnes (${children.length})`, children, ...own };
+    }
+    return { group: true, kind: "groupe", label: GROUP_LABELS[n.tag] ?? "Bloc", children, ...own };
   }
 
   // Polices : seulement celles que la page utilise, jeu latin.
@@ -572,7 +628,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
 
   const sections = pieces.map((piece, i) => {
     const id = `${slug}-p${i + 1}`;
-    const { liquid, blocks, used } = renderSection(piece, id);
+    const { liquid, blocks, used, tree } = renderSection(piece, id);
     const scope = `.atl-${id}`;
     const rules = [...used].map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.d)}}`);
     const mrules = [...used].filter((c) => Object.keys(c.m).length).map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.m)}}`);
@@ -600,6 +656,8 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         { type: "paragraph", content: "Copie au design identique d'une page importée. Chaque bloc est un emplacement de la page : modifie son texte, son image ou son lien." },
         { type: "header", content: "Couleurs (suivent le design.md)" },
         ...Object.entries(roles).map(([r, c]) => ({ type: "color", id: `role_${r.replace(/-/g, "_")}`, label: ROLE_LABELS[r] ?? r, default: hexOf(c) })),
+        { type: "header", content: "Ordre des éléments" },
+        { type: "text", id: "ordres", label: "Ordre (réglé par l'atelier en déplaçant les éléments)" },
       ],
       max_blocks: 50,
       blocks: [
@@ -624,6 +682,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       source: { url: null, capturedAt: null, note: "Partie de la copie au design identique de la page importée (npm run advertorial:page)." },
       preview: {},
       previewBlocks: {},
+      arbre: tree,
       designRoles: Object.fromEntries(Object.keys(roles).map((r) => [`role_${r.replace(/-/g, "_")}`, r])),
     };
     return { id, schema, template: liquid, css, meta, blocks };

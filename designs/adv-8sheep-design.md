@@ -16,9 +16,9 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
 
 ## Typographie
 
-- **Titres : ?** (équivalent Google Fonts : Arial).
+- **Titres : ?** (équivalent Google Fonts : Nunito Sans).
   Grand titre ? px ; intertitres ? px.
-- **Texte : Arial, sans-serif** (équivalent : Arial), 14 px, interligne d'origine conservé à 1,6.
+- **Texte : Arial, sans-serif** (équivalent : Nunito Sans), 14 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -42,13 +42,13 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
 ```json
 {
   "polices": {
-    "titres": "Arial",
-    "texte": "Arial"
+    "titres": "Nunito Sans",
+    "texte": "Nunito Sans"
   },
   "couleurs": {
     "fond": "#ffffff",
     "surface": "#eeeeee",
-    "texte": "#000000",
+    "texte": "#423f3f",
     "bouton": "#423f3f",
     "bouton-texte": "#ffffff"
   }

@@ -4,7 +4,7 @@ import "@puckeditor/core/puck.css";
 import { sections } from "./engine/sections.js";
 import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
-import { FieldsPanel, FullscreenButton } from "./library-ui.jsx";
+import { FullscreenButton } from "./library-ui.jsx";
 import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
@@ -12,6 +12,7 @@ import { DesignSelect } from "./design-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
+import { Inspector } from "./inspector-ui.jsx";
 import { NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
@@ -137,7 +138,7 @@ export default function App() {
             { name: "outline", label: "Outils", icon: <span className="atl-plugin-icon">▤</span>, render: LeftPanel },
           ]}
           overrides={{
-            fields: FieldsPanel,
+            fields: Inspector,
             headerActions: ({ children }) => (
               <>
                 {/* Contenu de la page, puis outils de la page. */}
