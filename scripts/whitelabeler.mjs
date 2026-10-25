@@ -80,8 +80,12 @@ for (const [i, m] of opens.entries()) {
   const snap = JSON.parse(await readFile(join(root, "imports", slug, "snapshot.json"), "utf8"));
   const id = `wl-${nature.replace(/_/g, "-")}-${counters[nature]}`;
   const copy = buildCopy({ snap, slug: id, root, label: nom });
+  // Parties d'un import précédent devenues inutiles. Les dossiers gardés sont
+  // réécrits sur place : le serveur de l'atelier perd la trace d'un dossier
+  // supprimé puis recréé.
+  const keep = new Set(copy.sections.length === 1 ? [id] : copy.sections.map((_, p) => `${id}-${p + 1}`));
   for (const old of await readdir(join(root, "sections"))) {
-    if (old === id || old.startsWith(`${id}-p`)) await rm(join(root, "sections", old), { recursive: true, force: true });
+    if ((old === id || old.startsWith(`${id}-`)) && !keep.has(old)) await rm(join(root, "sections", old), { recursive: true, force: true });
   }
   for (const [p, s] of copy.sections.entries()) {
     // Une section du catalogue : utilisable sur toute page, textes et images

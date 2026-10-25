@@ -29,6 +29,8 @@ const imagesDir = join(outDir, "images");
 const MAX_SHOT = 15000;
 
 async function dismissOverlays(page) {
+  // Section Whitelabeler seule : pas de pop-up, et ses blocs « sticky » sont du contenu.
+  if (process.env.ATL_GARDER_MENU) return;
   await page.keyboard.press("Escape").catch(() => {});
   await page.evaluate(() => {
     const vw = innerWidth;

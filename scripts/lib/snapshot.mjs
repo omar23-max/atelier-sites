@@ -150,6 +150,12 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
       else if (visible) markImage(el, node);
       return;
     }
+    // Emplacement d'image vide de Whitelabeler (fond gris et consigne en ::after) :
+    // une image, pour pouvoir y mettre la sienne.
+    if (el.hasAttribute("data-wld-img") && !el.children.length) {
+      if (visible) markImage(el, node);
+      return;
+    }
     if (["img", "video", "canvas", "iframe", "picture", "object", "embed"].includes(tag)) {
       if (visible) markImage(el, node);
       return;

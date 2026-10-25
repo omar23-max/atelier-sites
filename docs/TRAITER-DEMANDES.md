@@ -25,6 +25,37 @@ Un import fait pour un projet alimente aussi le catalogue : le projet reçoit sa
 copie de la page, le catalogue garde le template et les sections pour les
 prochains projets.
 
+### Chaque section est nommée par sa fonction
+
+Comme Whitelabeler (Header, Testimonials, Social proof, Reviews…), une section
+porte le nom de ce qu'elle fait, pas celui du produit : « Hero · Problème —
+Derila », « Avis clients — Nooro ». À chaque import, et à chaque section
+extraite d'une page pour le catalogue, on l'analyse et on lui donne ce nom :
+
+- les copies de pages sont nommées toutes seules (`scripts/lib/copie.mjs`,
+  règles dans `src/engine/fonctions.js`, les mêmes que le Page Score) ;
+- pour renommer des sections déjà là : `node scripts/nommer-sections.mjs
+  [<copie>]` ;
+- si le nom trouvé est faux, on corrige `label` et `fonction` dans le
+  `meta.json` à la main.
+
+### Sections Whitelabeler
+
+Les sections ajoutées sur une page Whitelabeler (Section Library, 4 crédits
+chacune) se copient depuis la page elle-même, jamais depuis le panneau de la
+bibliothèque (aperçus incomplets) :
+
+1. Dans Whitelabeler, l'utilisateur clique **Download HTML** (gratuit) ;
+2. on copie le fichier dans `imports/wl-<page>/source.html` ;
+3. avec l'atelier ouvert (port 5180) : `node scripts/whitelabeler.mjs
+   imports/wl-<page>/source.html` (ou suivi des n° de sections à copier).
+
+Chaque section du fichier porte sa nature (`data-wld-section`) : elle devient
+une section du catalogue `wl-<nature>-<n>`, au design identique, rangée dans sa
+famille (les « Reasons to buy » vont dans **Listicle (raisons d'acheter)**),
+avec ses textes et emplacements d'image comme contenu de départ. Le Page Score
+les propose quand la famille manque.
+
 ## Traiter les demandes
 
 Quand l'utilisateur dit « traite les demandes du catalogue », pour chaque
