@@ -21,7 +21,7 @@ const readAsDataUrl = (file) =>
 
 // Bouton « Studio d'images » : chaque photo d'origine de la page est refaite
 // avec ton produit (tes photos fournisseur, ton logo, ta palette). Crée une
-// demande (demandes/<date>-images/) que Claude traite avec Nano Banana ; les
+// demande (demandes/<date>-images/) que Claude traite avec gpt-image-2 ; les
 // images obtenues sont posées dans la page (medias/<page>/).
 export function StudioButton({ hidden = false }) {
   const [open, setOpen] = useState(false);
@@ -118,7 +118,7 @@ function StudioDialog({ onClose }) {
               <b>Demande enregistrée</b> dans <code>{state.done}</code> : {state.count} photo(s) à refaire. La page a été enregistrée.
             </p>
             <p>
-              Dis à Claude <b>« traite les demandes »</b>. Chaque image est créée avec Nano Banana à partir de la photo d'origine et de tes
+              Dis à Claude <b>« traite les demandes »</b>. Chaque image est créée avec gpt-image-2 (OpenAI) à partir de la photo d'origine et de tes
               références, puis posée à sa place dans la page. Recharge ensuite l'atelier.
             </p>
           </div>

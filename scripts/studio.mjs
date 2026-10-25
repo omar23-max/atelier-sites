@@ -18,8 +18,8 @@ import { chromium } from "playwright-core";
 import { root } from "./lib/load.mjs";
 
 const [command, folderArg] = process.argv.slice(2);
-if (!["planches", "appliquer"].includes(command) || !folderArg) {
-  console.error("Usage : node scripts/studio.mjs planches|appliquer demandes/<date>-images");
+if (!["planches", "generer", "appliquer"].includes(command) || !folderArg) {
+  console.error("Usage : node scripts/studio.mjs planches|generer|appliquer demandes/<date>-images");
   process.exit(1);
 }
 const dir = resolve(root, folderArg);
@@ -91,6 +91,54 @@ if (command === "planches") {
   }
   await writeFile(join(dir, "consignes.json"), JSON.stringify(consignes, null, 2) + "\n", "utf8");
   console.log(`\n${details.cibles.length} planche(s) dans ${folderArg}/planches/, consignes dans consignes.json.`);
+}
+
+// node scripts/studio.mjs generer <dossier-demande>
+//   Crée chaque image avec gpt-image-2 (OpenAI, clé OPENAI_API_KEY de
+//   .env.local) : la photo d'origine et les références sont envoyées comme
+//   images séparées (pas de planche). Respecte le rythme demandé : tout, les
+//   5 premières, ou une par une (une image par lancement). Les images déjà
+//   faites (resultats/<clé>.png) ne sont pas refaites.
+if (command === "generer") {
+  const { editImageFiles, sizeFor } = await import("./lib/ia.mjs");
+  const env = Object.fromEntries(
+    (existsSync(join(root, ".env.local")) ? await readFile(join(root, ".env.local"), "utf8") : "")
+      .split(/\r?\n/)
+      .filter((l) => /^[A-Z_]+=/.test(l))
+      .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()]),
+  );
+  const results = join(dir, "resultats");
+  await mkdir(results, { recursive: true });
+  const todo = details.cibles.filter((c) => !existsSync(join(results, `${c.key}.png`)));
+  const limit = details.rythme === "5" ? 5 : details.rythme === "une-par-une" ? 1 : todo.length;
+  const refs = demande.images.map((file) => join(dir, file));
+  const labels = details.references.map((r) => `image ${r.ordre + 1} = ${r.etiquette}`).join(", ");
+  const browser = await chromium.launch({ channel: "msedge", headless: true });
+  const page = await browser.newPage();
+  let done = 0;
+  try {
+    for (const cible of todo.slice(0, limit)) {
+      const source = join(root, cible.source);
+      await page.goto(pathToFileURL(source).href);
+      const [w, h] = await page.evaluate(() => [document.images[0]?.naturalWidth ?? 0, document.images[0]?.naturalHeight ?? 0]);
+      const prompt = consigneFor(cible, `${w}x${h}`)
+        .replace("This image is a reference board. LEFT (large, labelled ORIGINAL): the photo to recreate.", "The FIRST image is the photo to recreate.")
+        .replace(/RIGHT \(numbered\): the user's own references: [^.]*\./, refs.length ? `The other images are the user's own references: ${labels}.` : "")
+        .replace(/the LEFT photo/g, "the first photo")
+        .replace(" No board, no labels, no split screen.", " No collage, no labels, no split screen.");
+      try {
+        const png = await editImageFiles({ key: env.OPENAI_API_KEY, files: [source, ...refs], prompt, size: sizeFor(w, h) });
+        await writeFile(join(results, `${cible.key}.png`), png);
+        done++;
+        console.log(`✓ ${cible.key}`);
+      } catch (e) {
+        console.warn(`✗ ${cible.key} : ${e.message}`);
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+  console.log(`\n${done} image(s) créée(s) avec gpt-image-2 ; ${todo.length - done} restante(s). Ensuite : node scripts/studio.mjs appliquer ${folderArg}`);
 }
 
 if (command === "appliquer") {

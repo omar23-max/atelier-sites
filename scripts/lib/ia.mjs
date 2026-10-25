@@ -137,3 +137,23 @@ export async function rebuildSection({ key, html, css, prompt, reference, rootCl
   if (!out.html) throw new Error("L'IA n'a pas rendu de section.");
   return { html: out.html, css: out.css ?? "" };
 }
+
+// Édition d'image brute (Studio d'images) : images = chemins locaux absolus,
+// la première est l'image à refaire, les suivantes des références.
+export async function editImageFiles({ key, files, prompt, size = "1024x1024", quality = "medium" }) {
+  const fd = new FormData();
+  fd.append("model", IMAGE_MODEL);
+  fd.append("prompt", prompt);
+  fd.append("size", size);
+  fd.append("quality", quality);
+  for (const [i, file] of files.slice(0, 8).entries()) {
+    const type = /\.jpe?g$/i.test(file) ? "image/jpeg" : /\.webp$/i.test(file) ? "image/webp" : "image/png";
+    fd.append("image[]", new Blob([await readFile(file)], { type }), `image-${i}.png`);
+  }
+  const res = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: headers(key), body: fd });
+  if (!res.ok) throw await openaiError(res);
+  const body = await res.json();
+  return Buffer.from(body.data[0].b64_json, "base64");
+}
+
+export { sizeFor };

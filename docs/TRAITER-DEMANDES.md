@@ -105,19 +105,20 @@ demande « en attente » (de la plus ancienne à la plus récente) :
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =
      références de l'utilisateur dans l'ordre, `details` = produit, mode
      fidèle/pub, rythme, textes à changer, `references` étiquetées, `cibles`) :
-     1. `node scripts/studio.mjs planches demandes/<dossier>` → une planche par
-        photo (`planches/<clé>.png` : photo d'origine + références numérotées)
-        et `consignes.json` (la consigne de chaque image) ;
-     2. pour chaque cible, `mcp__nanobanana__edit_image` avec la planche et sa
-        consigne ; regarder le résultat (produit fidèle, aucune trace de la marque
-        d'origine), refaire si besoin ; enregistrer l'image retenue dans
-        `resultats/<clé>.png`. Rythme « 5 » : s'arrêter après 5 ; « une par
-        une » : montrer chaque image à l'utilisateur avant la suivante ;
+     1. `node scripts/studio.mjs generer demandes/<dossier>` → chaque image
+        avec **gpt-image-2** (OpenAI, `OPENAI_API_KEY` de `.env.local`) : photo
+        d'origine + références envoyées comme images séparées, dans
+        `resultats/<clé>.png`. Respecte le rythme (tout / 5 / une par une ; une
+        image déjà faite n'est pas refaite, relancer pour la suite) ;
+     2. regarder chaque résultat (produit fidèle, aucune trace de la marque
+        d'origine) ; pour en refaire une, supprimer son `resultats/<clé>.png`
+        et relancer ; « une par une » : montrer chaque image avant la suivante ;
      3. `node scripts/studio.mjs appliquer demandes/<dossier>` → copie dans
         `medias/<page>/` et pose dans la page (copie de sécurité avant) ;
      4. noter dans `resultat` les images faites et celles à refaire.
-     Prérequis : clé Google de Nano Banana avec facturation activée (le palier
-     gratuit donne 0 image pour ce modèle).
+     Ancienne voie (si OpenAI indisponible) : `planches` puis
+     `mcp__nanobanana__edit_image` avec la planche et sa consigne (clé Google
+     avec facturation activée).
    - **ia** : concevoir la section d'après la description, en s'appuyant sur la
      référence jointe si elle existe (l'utilisateur n'aime pas les sites
      « générés par IA » : rester sobre et proche des codes des vrais sites).

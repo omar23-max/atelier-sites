@@ -6,6 +6,7 @@ import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
+import { designById } from "./engine/designs.js";
 
 // Panneau de droite, façon éditeur de thème Shopify :
 //   - en haut, l'arbre de la page : sections, sous-sections (groupes,
@@ -510,6 +511,30 @@ export function Inspector({ children }) {
     ed.el.ownerDocument.execCommand(cmd, false);
   }
 
+  // ---- « ADN » de la page : une section ajoutée prend son style ----
+  // Palette et polices du design.md de la page, plus un extrait du CSS d'une
+  // partie copiée voisine (rayons, ombres, boutons, tailles) comme modèle.
+  async function adaptToPage(sectionId) {
+    const data = getPuck().appState.data;
+    const root = data.root?.props ?? {};
+    const design = designById[root.design];
+    const index = indexOf(sectionId);
+    const neighbours = [index - 1, index + 1, index - 2, index + 2].map((i) => data.content[i]).filter((c) => c && byId[c.type]?.meta.pageSpecific);
+    const css = neighbours[0] ? byId[neighbours[0].type].css.replace(/@font-face\s*{[^}]*}/g, "").slice(0, 6000) : "";
+    const colors = design?.tokens?.couleurs ? Object.entries(design.tokens.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
+    const fonts = [root.font_heading || design?.tokens?.polices?.titres, root.font_body || design?.tokens?.polices?.texte].filter(Boolean).join(" / ");
+    const instruction = [
+      "Adapte cette section au style du reste de la page, pour qu'elle s'y fonde : mêmes couleurs, polices, tailles de texte, espacements, coins arrondis, ombres et style de boutons.",
+      colors && `Palette de la page (rôle couleur) : ${colors}.`,
+      fonts && `Polices de la page (titres / texte) : ${fonts}.`,
+      css && `Extrait du CSS d'une section voisine, à prendre comme modèle de style (pas de structure) :\n${css}`,
+      "Garde tous les textes, toutes les images et l'ordre du contenu.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    await rebuildSection(sectionId, instruction, null);
+  }
+
   // ---- Reconstruire / nettoyer une section avec l'IA ----
   // La nouvelle section est enregistrée dans sections/, la page est sauvegardée
   // (copie de sécurité avant) puis l'atelier se recharge pour l'afficher.
@@ -563,6 +588,7 @@ export function Inspector({ children }) {
         {sel?.page && (
           <div className="atl-insp__panel">
             <PanelHead onBack={close} title="Réglages de la page" sub="Titre, type, produit, polices" />
+            <TranslatePage content={content} root={getPuck().appState.data.root?.props ?? {}} onApply={(id, values) => updateValues(id, values)} />
             <div className="atl-insp__puck">{children}</div>
           </div>
         )}
@@ -577,7 +603,13 @@ export function Inspector({ children }) {
               onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
             />
           ) : (
-            <SectionSettings item={content[indexOf(sel.sectionId)]} onBack={close} onAi={() => setAi({ sectionId: sel.sectionId, keys: null })} onChange={(props) => updateProps(sel.sectionId, props)} />
+            <SectionSettings
+              item={content[indexOf(sel.sectionId)]}
+              onBack={close}
+              onAi={() => setAi({ sectionId: sel.sectionId, keys: null })}
+              onChange={(props) => updateProps(sel.sectionId, props)}
+              onAdapt={content.some((c) => byId[c.type]?.meta.pageSpecific) || getPuck().appState.data.root?.props?.design ? () => adaptToPage(sel.sectionId) : null}
+            />
           ))}
         {sel?.key && content[indexOf(sel.sectionId)] && (
           <ElementSettings
@@ -844,7 +876,8 @@ function PanelHead({ onBack, title, sub, onAi }) {
   );
 }
 
-function SectionSettings({ item, onBack, onAi, onChange }) {
+function SectionSettings({ item, onBack, onAi, onChange, onAdapt }) {
+  const [busy, setBusy] = useState(false);
   if (!item) return null;
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
@@ -860,6 +893,30 @@ function SectionSettings({ item, onBack, onAi, onChange }) {
         <FieldList settings={section.schema.settings} meta={section.meta} values={props} onChange={onChange} />
       ) : (
         <p className="atl-insp__empty">Cette section n'a pas de réglage général : ouvre ses éléments dans l'arbre.</p>
+      )}
+      {onAdapt && (
+        <div className="atl-aibox">
+          <p className="atl-aibox__title">✨ Adapter au style de la page</p>
+          <p className="atl-aibox__hint">
+            L'IA redessine cette section avec la palette, les polices, les espacements et l'allure du reste de la page, en gardant ses textes et ses images.
+          </p>
+          <button
+            type="button"
+            className="atl-aibox__go"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await onAdapt();
+              } catch (e) {
+                setBusy(false);
+                alert(e.message);
+              }
+            }}
+          >
+            {busy ? "Adaptation en cours (30 à 90 s)…" : "Adapter la section"}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -1627,5 +1684,74 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
       )}
     </div>,
     document.body,
+  );
+}
+
+// ---- Traduire toute la page en un clic (comme « Rewrite in another language ») ----
+// Tous les textes de toutes les sections, section par section, par lots ;
+// mise en forme et longueur gardées. Ctrl+Z annule section par section.
+const LANGUES = [
+  { value: "français du Québec", label: "Français (Québec)" },
+  { value: "français de France", label: "Français (France)" },
+  { value: "anglais américain", label: "Anglais (États-Unis)" },
+  { value: "espagnol", label: "Espagnol" },
+  { value: "allemand", label: "Allemand" },
+  { value: "italien", label: "Italien" },
+  { value: "portugais du Brésil", label: "Portugais (Brésil)" },
+  { value: "arabe", label: "Arabe" },
+];
+
+function TranslatePage({ content, root, onApply }) {
+  const [langue, setLangue] = useState(LANGUES[0].value);
+  const [state, setState] = useState(null);
+  async function run() {
+    const jobs = content.map((item) => ({ id: item.props.id, texts: byId[item.type] ? aiTargets(item).texts : [] })).filter((j) => j.texts.length);
+    const total = jobs.reduce((n, j) => n + j.texts.length, 0);
+    if (!total) return setState({ error: "Aucun texte à traduire." });
+    if (!confirm(`Traduire les ${total} textes de la page en ${langue} ?`)) return;
+    let done = 0;
+    try {
+      for (const job of jobs) {
+        for (let i = 0; i < job.texts.length; i += 40) {
+          const batch = job.texts.slice(i, i + 40);
+          setState({ busy: true, step: `${done} / ${total} textes traduits…` });
+          const res = await fetch("/api/ia/textes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: batch,
+              prompt: `Traduis chaque texte en ${langue}, de façon naturelle et vendeuse pour une page de vente (pas mot à mot). Garde les chiffres, les noms de marque et de produit, les balises de mise en forme, et une longueur proche de l'original.`,
+              contexte: { produit: root.produit ?? "", typeDePage: root.pageType ?? "" },
+            }),
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error);
+          onApply(job.id, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
+          done += batch.length;
+        }
+      }
+      setState({ done: `${done} textes traduits en ${langue}. Ctrl+Z pour annuler, Publish pour enregistrer.` });
+    } catch (e) {
+      setState({ error: `${e.message} (${done} / ${total} déjà traduits)` });
+    }
+  }
+  return (
+    <div className="atl-aibox">
+      <p className="atl-aibox__title">🌐 Traduire la page</p>
+      <p className="atl-aibox__hint">Tous les textes de la page, dans une autre langue, en gardant la mise en forme et la longueur.</p>
+      <select value={langue} onChange={(e) => setLangue(e.target.value)} disabled={state?.busy}>
+        {LANGUES.map((l) => (
+          <option key={l.value} value={l.value}>
+            {l.label}
+          </option>
+        ))}
+      </select>
+      <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
+        {state?.busy ? "Traduction en cours…" : "Traduire toute la page"}
+      </button>
+      {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
+      {state?.done && <p className="atl-topbar__ok">{state.done}</p>}
+      {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+    </div>
   );
 }

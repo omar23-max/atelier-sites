@@ -1,7 +1,7 @@
 # DRMTLGY — advertorial
 
 Source : https://www.drmtlgy.com/pages/matte-utm-advertorial
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Matte Universal Tinted Moisturizer SPF 46 · Secteur : Beauté — soins de la peau
 
 ## Ambiance
@@ -11,7 +11,7 @@ Page de marque épurée, fond crème, grandes photos produit, chiffres d'étude 
 ## Structure relevée
 
 26 éléments dans l'ordre : 8 grands titres, 4 intertitres,
-13 paragraphes, 0 listes, 6 images, 1 boutons.
+13 paragraphes, 0 listes, 5 images, 1 boutons.
 Copie entière dans la section « Advertorial — article complet » (2 sections).
 
 ## Typographie
