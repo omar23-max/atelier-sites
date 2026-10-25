@@ -1565,8 +1565,10 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
         const r = el.getBoundingClientRect();
         const top = fr.top + r.top * scale;
         const visible = top > fr.top - 10 && top < fr.bottom;
-        setPos(visible ? { top: Math.max(fr.top + 4, top - 34), left: Math.min(fr.right - 300, fr.left + (r.left + r.width) * scale - 290) } : null);
-      } else setPos(null);
+        const next = visible ? { top: Math.round(Math.max(fr.top + 4, top - 34)), left: Math.round(Math.min(fr.right - 300, fr.left + (r.left + r.width) * scale - 290)) } : null;
+        // Seulement si la barre a bougé : sinon on redessinerait à chaque image.
+        setPos((p) => (p?.top === next?.top && p?.left === next?.left ? p : next));
+      } else setPos((p) => (p ? null : p));
       raf = requestAnimationFrame(tick);
     };
     tick();
