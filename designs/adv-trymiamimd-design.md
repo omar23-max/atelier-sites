@@ -1,7 +1,7 @@
 # MiamiMD — advertorial
 
 Source : https://trymiamimd.com/prelanders/lift-firm/v3-1-i5/
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Age Defying Lift & Firm Cream · Secteur : Beauté — anti-âge
 
 ## Ambiance

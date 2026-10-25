@@ -1,7 +1,7 @@
 # The Collagen Co. — advertorial
 
 Source : https://us.thecollagen.co/pages/what-is-collagen
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Beauty Marine Collagen (non aromatisé) · Secteur : Beauté — compléments collagène
 Page d'achat d'origine : https://us.thecollagen.co/pages/shop-1
 
