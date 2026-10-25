@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { renderSectionHtml } from "../engine/render.js";
 
 const DELAY_MS = 450; // temps de survol avant l'ouverture de l'aperçu
+const CLOSE_MS = 250; // délai pour passer de la miniature à l'aperçu sans qu'il se ferme
 const IMPORT = /@import\s+(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g;
 
 export function sectionDocument(section) {
@@ -16,31 +17,41 @@ ${section.css.replace(IMPORT, "")}
 
 const HoverContext = createContext(null);
 
-// Grand aperçu flottant : s'ouvre après un court survol, se ferme dès que la
-// souris quitte la miniature. Il ne capte pas la souris (pointer-events: none).
-function Floating({ item }) {
+// Grand aperçu flottant : s'ouvre après un court survol de la miniature et
+// reste ouvert tant que la souris est sur lui. La molette fait défiler
+// l'aperçu, jamais la page derrière (bloquée pendant l'ouverture).
+// Sections : rendu réel à 1440 px réduit à la taille de l'écran (net à tout
+// zoom). Templates : la capture pleine page d'origine, pas la vignette.
+function Floating({ item, onEnter, onLeave }) {
   const [height, setHeight] = useState(700);
+  const [imageFailed, setImageFailed] = useState(false);
   const width = Math.min(1180, window.innerWidth * 0.86);
-  const maxHeight = window.innerHeight * 0.84;
+  const maxHeight = window.innerHeight * 0.86;
   const doc = useMemo(() => (item.kind === "section" ? sectionDocument(item.value) : null), [item]);
+  const frame = { onMouseEnter: onEnter, onMouseLeave: onLeave };
 
-  if (item.kind === "design") {
+  if (item.kind !== "section") {
+    const src = !imageFailed && item.value.full ? item.value.full : item.value.thumbnail;
     return (
-      <div className="cat-float">
-        <img src={item.value.thumbnail} alt="" style={{ width: Math.min(900, width) }} />
+      <div className="cat-float" {...frame}>
+        <div className="cat-float__scroll" style={{ width: Math.min(item.value.full ? 1000 : 900, width), maxHeight }}>
+          <img src={src} alt="" style={{ width: "100%" }} onError={() => setImageFailed(true)} />
+        </div>
       </div>
     );
   }
   const scale = width / 1440;
   return (
-    <div className="cat-float">
-      <div style={{ width, height: Math.min(height * scale, maxHeight), overflow: "hidden" }}>
-        <iframe
-          title="Aperçu"
-          srcDoc={doc}
-          style={{ width: 1440, height, border: 0, transform: `scale(${scale})`, transformOrigin: "top left" }}
-          onLoad={(e) => setHeight(Math.max(200, e.currentTarget.contentDocument.documentElement.scrollHeight))}
-        />
+    <div className="cat-float" {...frame}>
+      <div className="cat-float__scroll" style={{ width, maxHeight }}>
+        <div style={{ height: height * scale, overflow: "hidden" }}>
+          <iframe
+            title="Aperçu"
+            srcDoc={doc}
+            style={{ width: 1440, height, border: 0, transform: `scale(${scale})`, transformOrigin: "top left", pointerEvents: "none" }}
+            onLoad={(e) => setHeight(Math.max(200, e.currentTarget.contentDocument.documentElement.scrollHeight))}
+          />
+        </div>
       </div>
     </div>
   );
@@ -57,16 +68,35 @@ export function HoverPreviewProvider({ children }) {
       },
       leave() {
         clearTimeout(timer.current);
+        timer.current = setTimeout(() => setItem(null), CLOSE_MS);
+      },
+      stay() {
+        clearTimeout(timer.current);
+      },
+      close() {
+        clearTimeout(timer.current);
         setItem(null);
       },
     }),
     [],
   );
   useEffect(() => () => clearTimeout(timer.current), []);
+  // Pendant l'aperçu : la page derrière ne défile pas ; Échap le ferme.
+  useEffect(() => {
+    if (!item) return;
+    const before = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && api.close();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.documentElement.style.overflow = before;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [item, api]);
   return (
     <HoverContext.Provider value={api}>
       {children}
-      {item && createPortal(<Floating item={item} />, document.body)}
+      {item && createPortal(<Floating key={item.value?.id ?? item.value?.full ?? item.value?.thumbnail} item={item} onEnter={api.stay} onLeave={api.leave} />, document.body)}
     </HoverContext.Provider>
   );
 }

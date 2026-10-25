@@ -20,7 +20,8 @@ export const sectionsFromTemplate = (t) =>
   sections.filter((s) => (t.sections ?? []).includes?.(s.id) || sameSource(s.meta.source?.url, t.url));
 
 function TemplateCard({ template, onUse, onDelete }) {
-  const hover = useHoverPreview("design", { thumbnail: template.vignette });
+  // Aperçu : la capture pleine page (nette), la vignette en secours.
+  const hover = useHoverPreview("template", { thumbnail: template.vignette, full: template.vignette?.replace(/vignette.png$/, "desktop.png") });
   const type = pageTypeById[template.pageType];
   const extracted = sectionsFromTemplate(template).length;
   return (

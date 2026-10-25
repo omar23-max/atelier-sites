@@ -398,12 +398,17 @@ textarea {
   background: #fff;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);
   transform: translate(-50%, -50%);
-  pointer-events: none;
   animation: cat-float-in 0.18s ease-out;
 }
 
 .cat-float img {
   display: block;
+}
+
+/* La molette fait défiler l'aperçu, pas la page derrière. */
+.cat-float__scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 @keyframes cat-float-in {
