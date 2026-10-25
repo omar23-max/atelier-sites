@@ -152,7 +152,7 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
     }
     // Emplacement d'image vide de Whitelabeler (fond gris et consigne en ::after) :
     // une image, pour pouvoir y mettre la sienne.
-    if (el.hasAttribute("data-wld-img") && !el.children.length) {
+    if ((el.hasAttribute("data-wld-img") || el.hasAttribute("data-wld-video")) && !el.children.length) {
       if (visible) markImage(el, node);
       return;
     }
