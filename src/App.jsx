@@ -104,7 +104,13 @@ export default function App() {
           <div className="atl-group">
             <DesignSelect pageName={pageName} current={data?.root?.props?.design ?? null} getData={() => latest.current ?? data} />
           </div>
-          <OriginalSwitch importSource={data?.root?.props?.importSource ?? null} />
+          <OriginalSwitch
+            importSource={data?.root?.props?.importSource ?? null}
+            pageName={pageName}
+            projet={data?.root?.props?.projet ?? null}
+            pages={pages}
+            getData={() => latest.current ?? data}
+          />
         </div>
         {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
       </div>

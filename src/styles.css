@@ -3271,3 +3271,48 @@ body.atl-rail-only .atl-left {
   font: 12.5px "Inter", system-ui, sans-serif;
   background: #fff;
 }
+
+/* ---- Menu « ⋯ » de la page (repartir de l'original, supprimer) ---- */
+.atl-pagemenu {
+  position: relative;
+  display: inline-flex;
+}
+.atl-switch .atl-pagemenu__btn {
+  padding: 4px 10px;
+  border: 0;
+  border-left: 1px solid #e2e2e2;
+  border-radius: 0 6px 6px 0;
+  background: transparent;
+  color: #555;
+  font-weight: 700;
+  cursor: pointer;
+}
+.atl-pagemenu__list {
+  position: fixed;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  min-width: 210px;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.atl-pagemenu__list button {
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #222;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.atl-pagemenu__list button:hover {
+  background: #f2f2f2;
+}
+.atl-pagemenu__list button.is-danger {
+  color: #b42318;
+}

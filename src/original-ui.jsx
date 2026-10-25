@@ -21,7 +21,96 @@ function useElement(selector) {
   return el;
 }
 
-export function OriginalSwitch({ importSource }) {
+// Deux gestes sur la version modifiable d'une page de projet, sans jamais
+// toucher au template du catalogue (pages/<importSource>.json) :
+// « Repartir de l'original » remet ses sections telles que dans le template
+// (l'état actuel part dans l'historique) ; « Supprimer cette page » l'envoie
+// à la corbeille, d'où on peut la restaurer.
+async function resetFromOriginal(pageName, importSource, current) {
+  const res = await fetch(`/api/pages/${importSource}`);
+  if (!res.ok) throw new Error("La page d'origine n'est plus dans le catalogue.");
+  const original = await res.json();
+  await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
+  const props = { ...current.root?.props };
+  for (const k of ["design", "font_heading", "font_body"]) if (original.root?.props?.[k] != null) props[k] = original.root.props[k];
+  const put = await fetch(`/api/pages/${pageName}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...current, root: { ...current.root, props }, content: original.content }),
+  });
+  if (!put.ok) throw new Error((await put.json()).error);
+}
+
+function PageMenu({ pageName, importSource, projet, pages, getData }) {
+  // open : position de la liste (la barre de Puck coupe ce qui dépasse, la
+  // liste est donc posée sur la page entière).
+  const [open, setOpen] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => !e.target.closest?.(".atl-pagemenu, .atl-pagemenu__list") && setOpen(null);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  async function reset() {
+    setOpen(null);
+    if (!confirm("Remettre cette page comme la page d'origine du catalogue ?\n\nTes modifications partent dans l'historique (bouton Historique pour revenir en arrière).")) return;
+    setBusy(true);
+    try {
+      await resetFromOriginal(pageName, importSource, getData());
+      location.reload();
+    } catch (e) {
+      setBusy(false);
+      alert(e.message);
+    }
+  }
+
+  async function remove() {
+    setOpen(null);
+    if (!confirm("Supprimer cette page du projet ?\n\nLa page d'origine reste dans le catalogue. Celle-ci part dans la corbeille, d'où tu peux la restaurer.")) return;
+    setBusy(true);
+    const res = await fetch(`/api/corbeille/pages/${pageName}`, { method: "POST" });
+    if (!res.ok) {
+      setBusy(false);
+      return alert((await res.json()).error);
+    }
+    const next = pages.find((p) => p.name !== pageName && p.projet === projet);
+    location.replace(next ? `/?page=${next.name}` : "/catalogue.html#projets");
+  }
+
+  return (
+    <span className="atl-pagemenu">
+      <button
+        type="button"
+        className="atl-pagemenu__btn"
+        disabled={busy}
+        onClick={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          setOpen((o) => (o ? null : { top: r.bottom + 6, left: r.left }));
+        }}
+        title="Repartir de l'original, supprimer la page"
+      >
+        {busy ? "…" : "⋯"}
+      </button>
+      {open &&
+        createPortal(
+        <span className="atl-pagemenu__list" role="menu" style={open}>
+          <button type="button" role="menuitem" onClick={reset}>
+            ↺ Repartir de l'original
+          </button>
+          <button type="button" role="menuitem" className="is-danger" onClick={remove}>
+            🗑 Supprimer cette page
+          </button>
+        </span>,
+          document.body,
+        )}
+    </span>
+  );
+}
+
+export function OriginalSwitch({ importSource, pageName, projet, pages = [], getData }) {
   const [info, setInfo] = useState(null);
   const [view, setView] = useState("modifiable");
   const bar = useElement('[class*="ViewportControls-actionsInner"]');
@@ -59,6 +148,8 @@ export function OriginalSwitch({ importSource }) {
           <button type="button" className={view === "modifiable" ? "is-on" : ""} onClick={() => setView("modifiable")} title="La version que tu modifies et publies">
             Modifiable
           </button>
+          {/* La page du template elle-même (sans projet) n'a pas ce menu : c'est l'original. */}
+          {projet && pageName !== importSource && <PageMenu pageName={pageName} importSource={importSource} projet={projet} pages={pages} getData={getData} />}
         </span>,
         slot,
       )}
