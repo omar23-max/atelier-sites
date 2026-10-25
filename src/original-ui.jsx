@@ -42,6 +42,9 @@ async function resetFromOriginal(pageName, importSource, current) {
 }
 
 function PageMenu({ pageName, importSource, projet, pages, getData }) {
+  // La page du template elle-même (sans projet) : l'original, on ne la remet
+  // pas à zéro et on ne la supprime pas d'ici.
+  const original = !projet || pageName === importSource;
   // open : position de la liste (la barre de Puck coupe ce qui dépasse, la
   // liste est donc posée sur la page entière).
   const [open, setOpen] = useState(null);
@@ -97,12 +100,23 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
       {open &&
         createPortal(
         <div className="atl-pagemenu__list" role="menu" style={open}>
-          <button type="button" role="menuitem" onClick={reset}>
-            ↺ Repartir de l'original
-          </button>
-          <button type="button" role="menuitem" className="is-danger" onClick={remove}>
-            🗑 Supprimer cette page
-          </button>
+          {original ? (
+            <>
+              <p className="atl-pagemenu__note">C'est la page d'origine du catalogue : elle ne se supprime pas d'ici. Pour la modifier, utilise-la dans un projet.</p>
+              <button type="button" role="menuitem" onClick={() => location.assign("/catalogue.html#templates")}>
+                ➕ L'utiliser dans un projet…
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" role="menuitem" onClick={reset}>
+                ↺ Repartir de l'original
+              </button>
+              <button type="button" role="menuitem" className="is-danger" onClick={remove}>
+                🗑 Supprimer cette page
+              </button>
+            </>
+          )}
         </div>,
           document.body,
         )}
@@ -148,8 +162,7 @@ export function OriginalSwitch({ importSource, pageName, projet, pages = [], get
           <button type="button" className={view === "modifiable" ? "is-on" : ""} onClick={() => setView("modifiable")} title="La version que tu modifies et publies">
             Modifiable
           </button>
-          {/* La page du template elle-même (sans projet) n'a pas ce menu : c'est l'original. */}
-          {projet && pageName !== importSource && <PageMenu pageName={pageName} importSource={importSource} projet={projet} pages={pages} getData={getData} />}
+          <PageMenu pageName={pageName} importSource={importSource} projet={projet} pages={pages} getData={getData} />
         </span>,
         slot,
       )}
