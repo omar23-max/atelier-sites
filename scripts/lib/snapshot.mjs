@@ -177,6 +177,15 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
         dom.setAttribute("data-atl-tx", String(id));
         node.domPath = pathOf(dom);
       }
+      // Interligne réel : certains sites (Unbounce) mettent 0 sur le paragraphe
+      // et la vraie valeur sur les mots qu'il contient. On garde la plus grande.
+      const lineOf = (x) => {
+        const c = getComputedStyle(x);
+        const lh = parseFloat(c.lineHeight);
+        return Number.isNaN(lh) ? parseFloat(c.fontSize) * 1.2 : lh;
+      };
+      const inner = Math.max(lineOf(el), ...[...el.querySelectorAll("*")].filter((c) => c.textContent.trim()).map(lineOf));
+      if (inner > (parseFloat(node.style["line-height"]) || 0) + 0.5) node.style["line-height"] = `${inner}px`;
       const html = inlineHtml(el, dom);
       if (/<(span|br)\b/.test(html)) node.html = html;
       return;
@@ -260,6 +269,16 @@ export function snapshotMobileByPath({ props, textProps, targets }) {
         const ds = getComputedStyle(dom);
         for (const p of textProps) o[p] = ds.getPropertyValue(p);
       }
+    }
+    if (t.leaf) {
+      // Même règle d'interligne qu'en ordinateur (voir snapshotDesktop).
+      const lineOf = (x) => {
+        const c = getComputedStyle(x);
+        const lh = parseFloat(c.lineHeight);
+        return Number.isNaN(lh) ? parseFloat(c.fontSize) * 1.2 : lh;
+      };
+      const inner = Math.max(lineOf(el), ...[...el.querySelectorAll("*")].filter((c) => c.textContent.trim()).map(lineOf));
+      if (inner > (parseFloat(o["line-height"]) || 0) + 0.5) o["line-height"] = `${inner}px`;
     }
     out[t.id] = o;
   }

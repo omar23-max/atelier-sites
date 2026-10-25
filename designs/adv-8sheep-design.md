@@ -1,7 +1,7 @@
 # 8Sheep Organics — advertorial
 
 Source : https://get.8sheep.com/ep-jr-advt-v2/
-Capturé le : 2026-10-24 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
 Produit : Junior's Magnesium Lotion · Secteur : Santé — enfants / compléments
 
 ## Ambiance

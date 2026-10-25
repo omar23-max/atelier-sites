@@ -185,3 +185,36 @@ supprimer. Trois actions IA **par section** :
 
 **Panneau AI** (page entière) : « Rewrite all copy » (formule GROW) et
 « Images for this page » → Image Mirror Studio.
+
+## 4. Analyse technique REA (2026-10-24, lecture seule, sans crédit)
+
+Méthode : liste des scripts et des domaines contactés par l'éditeur (Claude in
+Chrome), puis analyse statique REA des 3 scripts de l'éditeur
+(`analyze_javascript_application`, Evidence `ev_4c2a2f0e1ffd…`, 911 Ko,
+60 appels réseau relevés, rien d'exécuté).
+
+**Pile observée** : Next.js (App Router, Turbopack, `NEXT_DEPLOYMENT_ID` de type
+Vercel), connexion Clerk (`clerk.whitelabeler.ai`), éditeur visuel **GrapesJS**
+(29 mentions, `getHtml` / `getCss`), paiement PayPal. Domaines contactés par le
+navigateur : app.whitelabeler.ai, clerk.whitelabeler.ai, fonts.googleapis.com.
+
+**IA** : aucun fournisseur ni modèle n'apparaît côté navigateur ; toutes les
+fonctions IA passent par leurs propres routes serveur. Le fournisseur et les
+modèles sont donc **inconnus** (non visibles sans accès à leur serveur).
+Indices seulement : images en qualité High / Medium / Low (comme les modèles
+gpt-image d'OpenAI), vidéos 480p / 720p et GIF de 5 s. Ce sont des inférences.
+
+**Fonctions IA (routes serveur) et coût en crédits** :
+- `/api/capture-mirror`, `/api/generate-wireframe(-v2)` : Mirror 1 / 2 (10) ;
+- `/api/generate-copy` : réécrire la page (10), une section (2), autre langue (15) ;
+- `/api/generate-rebuild` : reconstruire une section (3) — envoie HTML/CSS de la
+  section, consigne, image de référence ; reçoit `{ html, css, notes }` ;
+- `/api/generate-cleanup` : nettoyer (même prix que rebuild) ;
+- `/api/section-dna` puis `/api/section-build` : ajouter une section depuis leur
+  banque (1 + 3) — envoie palette, polices, classes réservées, sections voisines ;
+- `/api/generate-theme` : recolorer la page à la marque (1) ;
+- `/api/score-page` : Page Score (1) — HTML, type de page, motifs déjà construits ;
+- `/api/generate-liquid` : conversion en Liquid Shopify (réponse en flux) ;
+- `/api/brain/sections` : la « banque » de sections ; `/api/mirror/generate` :
+  image du Studio (2) ; `/api/canvas/boards/…/generations` : images (1-2) et
+  vidéos (5 à 30) ; `/api/gif/clip` (10) ; publication Shopify (10, republier gratuit).

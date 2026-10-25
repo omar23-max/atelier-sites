@@ -61,6 +61,11 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const byId = nodes;
   const parentOf = (n) => (n.parent == null ? null : byId[n.parent]);
   const mStyle = (n) => mobile[n.id] ?? n.style;
+  // Tablette (750-1199 px), si la capture l'a relevée ; sinon le style ordinateur.
+  const tablet = snap.tablet ?? {};
+  const tStyle = (n) => tablet[n.id] ?? n.style;
+  const styleIn = (n, mode) => (mode === "d" ? n.style : mode === "t" ? tStyle(n) : mStyle(n));
+  const boxIn = (n, mode) => (mode === "d" ? n.box : (mode === "t" ? tablet : mobile)[n.id]?.__box ?? n.box);
   const dead = (n) => n.style.display === "none" && mStyle(n).display === "none";
 
   // ---- Emplacements ----
@@ -233,7 +238,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (!it || it.text != null) return;
       if ((it.cutTop || it.cutBottom) && !["absolute", "fixed"].includes(it.n.style.position) && allAbsoluteKids(it.n)) {
         it.shifted = true;
-        piece.slices.push({ n: it.n, d: sliceOf(it, (n) => n.box), m: sliceOf(it, mBox) });
+        piece.slices.push({ n: it.n, d: sliceOf(it, (n) => n.box), t: snap.tablet ? sliceOf(it, (n) => tablet[n.id]?.__box) : null, m: sliceOf(it, mBox) });
       }
       for (const k of it.kids ?? []) walk(k);
     };
@@ -312,11 +317,11 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const isReplaced = (n) => n.svg || n.image && !n.bgImage || ["input", "select", "textarea"].includes(n.tag);
 
   function declOf(n, mode) {
-    const st = mode === "d" ? n.style : mStyle(n);
-    const box = mode === "d" ? n.box : mobile[n.id]?.__box ?? n.box;
+    const st = styleIn(n, mode);
+    const box = boxIn(n, mode);
     const p = parentOf(n);
-    const pst = p ? (mode === "d" ? p.style : mStyle(p)) : null;
-    const pbox = p ? (mode === "d" ? p.box : mobile[p.id]?.__box ?? p.box) : null;
+    const pst = p ? styleIn(p, mode) : null;
+    const pbox = p ? boxIn(p, mode) : null;
     const def = defaults[n.tag] ?? defaults.div ?? {};
     const out = {};
     for (const prop of PROPS) {
@@ -449,16 +454,22 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     if (ruleOf.has(n.id)) return ruleOf.get(n.id);
     const d = themed(n, declOf(n, "d"));
     const m = themed(n, declOf(n, "m"));
-    const diff = {};
-    for (const prop of new Set([...Object.keys(d), ...Object.keys(m)])) {
-      const dv = d[prop] ?? resetValue(n, prop);
-      const mv = m[prop] ?? resetValue(n, prop);
-      if (dv !== mv) diff[prop] = mv;
-    }
-    const key = `${declText(d)}|${declText(diff)}`;
+    // Écarts avec l'ordinateur, en mobile et en tablette.
+    const diffOf = (o) => {
+      const out = {};
+      for (const prop of new Set([...Object.keys(d), ...Object.keys(o)])) {
+        const dv = d[prop] ?? resetValue(n, prop);
+        const ov = o[prop] ?? resetValue(n, prop);
+        if (dv !== ov) out[prop] = ov;
+      }
+      return out;
+    };
+    const diff = diffOf(m);
+    const tdiff = snap.tablet && tablet[n.id] ? diffOf(themed(n, declOf(n, "t"))) : {};
+    const key = `${declText(d)}|${declText(diff)}|${declText(tdiff)}`;
     let cls = classes.get(key);
     if (!cls) {
-      cls = { name: `c${slug.replace(/^adv-/, "").replace(/[^a-z0-9]/g, "")}${classes.size}`, d, m: diff };
+      cls = { name: `c${slug.replace(/^adv-/, "").replace(/[^a-z0-9]/g, "")}${classes.size}`, d, m: diff, t: tdiff };
       classes.set(key, cls);
     }
     ruleOf.set(n.id, cls);
@@ -643,8 +654,10 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     const mrules = [...used].filter((c) => Object.keys(c.m).length).map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.m)}}`);
     // Tranche d'un cadre en positions absolues (voir plus haut).
     const slice = (s) => `margin-top:-${s.top}px;height:${s.bottom}px;min-height:0`;
+    const trules = [...used].filter((c) => Object.keys(c.t ?? {}).length).map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.t)}}`);
     for (const s of piece.slices) {
       if (s.d) rules.push(`${scope} .${classOf(s.n).name}{${slice(s.d)}}`);
+      if (s.t) trules.push(`${scope} .${classOf(s.n).name}{${slice(s.t)}}`);
       if (s.m) mrules.push(`${scope} .${classOf(s.n).name}{${slice(s.m)}}`);
     }
     if (piece.slices.length) rules.push(`${scope}{overflow:hidden}`);
@@ -656,6 +669,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       `${scope} img{display:inline-block}`,
       `${scope} .atl-vide{background:repeating-linear-gradient(45deg,#eee 0 10px,#f7f7f7 10px 20px)}`,
       ...rules,
+      trules.length ? `@media (min-width: 750px) and (max-width: 1199px){\n${trules.join("\n")}\n}` : "",
       mrules.length ? `@media (max-width: 749px){\n${mrules.join("\n")}\n}` : "",
     ].join("\n");
     const schema = {

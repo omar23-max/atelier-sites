@@ -372,15 +372,28 @@ try {
   // comme Unbounce, choisissent leur mise en page mobile au chargement) :
   // chaque élément est retrouvé par sa place dans la page. À défaut, on garde
   // la valeur relevée en rétrécissant la fenêtre.
-  const targets = snap.nodes.map((n) => ({ id: n.id, tag: n.tag, path: n.path, domPath: n.domPath ?? null }));
+  const targets = snap.nodes.map((n) => ({ id: n.id, tag: n.tag, path: n.path, domPath: n.domPath ?? null, leaf: n.text != null }));
   const fresh = await m.evaluate(snapshotMobileByPath, { props: PROPS, textProps: TEXT_PROPS, targets });
   const found = Object.keys(fresh).length;
   for (const [id, styles] of Object.entries(fresh)) snap.mobile[id] = styles;
   report.mobileRetrouves = `${found}/${snap.nodes.length}`;
-  await writeFile(join(outDir, "snapshot.json"), JSON.stringify(snap), "utf8");
   const mh = Math.min(await m.evaluate(() => document.documentElement.scrollHeight), MAX_SHOT);
   await m.screenshot({ path: join(outDir, "mobile.png"), clip: { x: 0, y: 0, width: 390, height: mh }, fullPage: true });
   await mctx.close();
+
+  // Tablette (1024 px), chargée directement à cette largeur : la copie a ainsi
+  // trois paliers (ordinateur, tablette 750-1199 px, mobile < 750 px).
+  const tctx = await browser.newContext({ viewport: { width: 1024, height: 768 }, deviceScaleFactor: 1, locale: "en-US" });
+  const tp = await tctx.newPage();
+  await tp.goto(url, { waitUntil: "networkidle", timeout: 60000 }).catch(() => {});
+  await tp.waitForTimeout(1200);
+  await dismissOverlays(tp);
+  await scrollThrough(tp);
+  await dismissOverlays(tp);
+  snap.tablet = await tp.evaluate(snapshotMobileByPath, { props: PROPS, textProps: TEXT_PROPS, targets });
+  report.tabletteRetrouves = `${Object.keys(snap.tablet).length}/${snap.nodes.length}`;
+  await tctx.close();
+  await writeFile(join(outDir, "snapshot.json"), JSON.stringify(snap), "utf8");
 } catch (error) {
   report.error = String(error?.message ?? error).slice(0, 400);
   report.disparue = report.disparue ?? true;
