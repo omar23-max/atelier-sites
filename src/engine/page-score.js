@@ -114,19 +114,51 @@ function verdictOf(score) {
   return "Faible";
 }
 
+// Une partie copiée d'une vraie page (famille « article ») mélange plusieurs
+// sujets : on devine ce qu'elle contient d'après ses textes, en anglais comme
+// en français. Une même partie peut compter pour plusieurs familles.
+const SIGNALS = {
+  temoignages: /\b(verified (buyer|purchase)|reviews?|testimonials?|avis clients?)\b|★|⭐|\bi (love|felt|tried|bought)\b|\bj'ai (testé|essayé|acheté)/i,
+  garantie: /money[- ]back|guarantee|satisfaction garantie|garantie|rembours/i,
+  offre: /\b(order now|buy now|shop now|get (yours|it|my)|claim|limited|in stock|discount|sold out)\b|% off|commander|profitez|stock limité|\d+ ?% de réduction/i,
+  faq: /\bfaq\b|frequently asked|questions fréquentes/i,
+  expert: /\b(dr\.|doctor|dermatologist|physician|nutritionist|expert|médecin|docteur)/i,
+  comparatif: /\bvs\.?\s|compared to|comparison|other brands|contrairement aux|par rapport aux/i,
+  resultats: /\b(within|after) \d+ (days?|weeks?)\b|\bresults?\b|en \d+ (jours|semaines)|résultats?/i,
+  probleme: /\b(pain|suffer|struggl|tired of|problem|frustrat)|douleur|souffr|problème|marre de/i,
+  solution: /\b(how (it|does it) works?|secret|discover|breakthrough|technology|solution)|découv|fonctionne|technologie/i,
+  "pied-de-page": /©|copyright|privacy policy|terms (of|and)|mentions légales|confidentialité/i,
+};
+
+function familiesOf(item, index, sectionsById) {
+  const section = sectionsById[item.type];
+  const family = section?.meta?.family ?? null;
+  if (!section?.meta?.pageSpecific) return family ? [family] : [];
+  const text = Object.values(item.props ?? {})
+    .filter(Array.isArray)
+    .flat()
+    .map((b) => `${b?.repere ?? ""} ${b?.text ?? ""}`)
+    .join(" ")
+    .replace(/<[^>]+>/g, " ");
+  const found = Object.entries(SIGNALS).filter(([, re]) => re.test(text)).map(([f]) => f);
+  if (index === 0) found.unshift("entete", "hero");
+  return found;
+}
+
 // page : données Puck { root, content } ; sectionsById : sections du catalogue.
 export function scorePage(page, sectionsById) {
   const root = page.root?.props ?? {};
   const type = pageTypeOf(root);
   if (!type) return { type: null };
   const content = page.content ?? [];
-  const familyAt = content.map((item) => sectionsById[item.type]?.meta?.family ?? null);
+  const familiesAt = content.map((item, i) => familiesOf(item, i, sectionsById));
+  const has = (fams) => (list) => list.some((f) => fams.includes(f));
   const rules = RULES[type.id] ?? [];
   const total = rules.reduce((n, r) => n + r.points, 0);
 
   const results = rules.map((rule, i) => {
     if (rule.check === "pageAchat") return { rule, ok: Boolean(String(root.pageAchat ?? "").trim()) };
-    const ok = familyAt.some((f) => rule.families.includes(f));
+    const ok = familiesAt.some(has(rule.families));
     if (ok) return { rule, ok };
     // Placement : après la dernière section présente qui la précède dans l'ordre
     // type ; sinon avant la première qui la suit ; sinon en fin de page.
@@ -134,18 +166,20 @@ export function scorePage(page, sectionsById) {
     let where = "à la fin de la page";
     for (let j = i - 1; j >= 0 && index === null; j--) {
       const fams = rules[j].families ?? [];
-      const at = familyAt.findLastIndex((f) => fams.includes(f));
+      const at = familiesAt.findLastIndex(has(fams));
       if (at >= 0) {
+        const f = familiesAt[at].find((x) => fams.includes(x));
         index = at + 1;
-        where = `après « ${familyById[familyAt[at]]?.label ?? familyAt[at]} »`;
+        where = `après « ${familyById[f]?.label ?? f} »`;
       }
     }
     for (let j = i + 1; j < rules.length && index === null; j++) {
       const fams = rules[j].families ?? [];
-      const at = familyAt.findIndex((f) => fams.includes(f));
+      const at = familiesAt.findIndex(has(fams));
       if (at >= 0) {
+        const f = familiesAt[at].find((x) => fams.includes(x));
         index = at;
-        where = `avant « ${familyById[familyAt[at]]?.label ?? familyAt[at]} »`;
+        where = `avant « ${familyById[f]?.label ?? f} »`;
       }
     }
     return { rule, ok, index: index ?? content.length, where };
