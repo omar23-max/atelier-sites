@@ -81,7 +81,7 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
   }
 
   return (
-    <span className="atl-pagemenu">
+    <div className="atl-pagemenu">
       <button
         type="button"
         className="atl-pagemenu__btn"
@@ -96,17 +96,17 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
       </button>
       {open &&
         createPortal(
-        <span className="atl-pagemenu__list" role="menu" style={open}>
+        <div className="atl-pagemenu__list" role="menu" style={open}>
           <button type="button" role="menuitem" onClick={reset}>
             ↺ Repartir de l'original
           </button>
           <button type="button" role="menuitem" className="is-danger" onClick={remove}>
             🗑 Supprimer cette page
           </button>
-        </span>,
+        </div>,
           document.body,
         )}
-    </span>
+    </div>
   );
 }
 
