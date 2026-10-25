@@ -9,7 +9,12 @@
 
 export const PAGE_TYPES = [
   { id: "produit", label: "Page produit", achat: true, hint: "Galerie, prix, packs et bouton panier : l'achat se fait ici." },
+  // Page d'offre : page de promotion taillée pour une pub (pack, -50 %, 1 acheté =
+  // 1 offert, cadeau, compte à rebours), souvent sans menu. La page produit
+  // est la fiche standard de la boutique, pour tout le trafic.
+  { id: "offre", label: "Page d'offre", achat: true, hint: "Une promotion précise (pack, réduction, cadeau) pour le trafic des pubs : l'offre d'abord, souvent sans menu." },
   { id: "landing", label: "Landing page de vente", achat: true, hint: "Longue page de vente avec bloc d'achat, pour une pub précise." },
+  { id: "collection", label: "Page collection", achat: true, hint: "Grille de produits ou de packs : on choisit et on ajoute au panier." },
   { id: "accueil", label: "Page d'accueil", achat: false, hint: "Présente la marque et mène vers les produits." },
   { id: "advertorial", label: "Advertorial (article)", achat: false, hint: "Article qui raconte un problème et renvoie vers la page d'achat." },
   { id: "listicle", label: "Listicle", achat: false, hint: "« 7 raisons de… » : une liste qui renvoie vers la page d'achat." },

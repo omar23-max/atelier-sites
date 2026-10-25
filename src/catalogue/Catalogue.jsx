@@ -13,7 +13,7 @@ import { confirmDelete, listPages, listProjects, listTemplates } from "../projec
 import { PAGE_TYPES } from "../engine/page-types.js";
 
 // Libellés courts du menu « Templates par type ».
-const TYPE_MENU = { produit: "Pages produit", landing: "Landing pages", accueil: "Pages d'accueil", advertorial: "Advertorials", listicle: "Listicles", autre: "Autres pages" };
+const TYPE_MENU = { produit: "Pages produit", offre: "Pages d'offre", collection: "Pages collection", landing: "Landing pages", accueil: "Pages d'accueil", advertorial: "Advertorials", listicle: "Listicles", autre: "Autres pages" };
 
 // Date d'un nom de corbeille (20261021-000105, en heure UTC) → heure locale.
 const stampDate = (s) => {

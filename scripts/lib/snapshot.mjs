@@ -140,6 +140,9 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
     const node = { id, parent, tag, path: pathOf(el), style: read(el), box: boxOf(el), kids: [] };
     nodes.push(node);
     if (parent != null) nodes[parent].kids.push({ n: id });
+    // Début d'une section de la page (thème Shopify, ou balise <section>) : sert
+    // à extraire les sections pour le catalogue (scripts/sections-page.mjs).
+    if (/^shopify-section/.test(el.id) || el.classList.contains("shopify-section") || tag === "section") node.sec = el.id || tag;
     if (tag === "a") node.href = Boolean(el.getAttribute("href"));
     if (["input", "select", "textarea", "button"].includes(tag)) node.type = el.getAttribute("type") ?? "";
     const visible = cs.display !== "none" && node.box.w > 0 && node.box.h > 0;
