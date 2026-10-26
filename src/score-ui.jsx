@@ -5,6 +5,7 @@ import { scorePage, ruleLabel } from "./engine/page-score.js";
 import { PAGE_TYPES } from "./engine/page-types.js";
 import { familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
+import { adaptInstructionFor, rebuildSectionWith, savePageWith } from "./inspector-ui.jsx";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
@@ -107,6 +108,36 @@ export function ScorePanel() {
 
   // Ajoute un modèle pour chaque famille manquante qui en a un, une à une,
   // en recalculant l'emplacement après chaque ajout.
+  const [ai, setAi] = useState(null);
+
+  // Comme Whitelabeler (« Build all recommended ») : les sections ajoutées sont
+  // aussitôt redessinées par l'IA au style de la page, textes écrits pour le
+  // produit de la page. Une seule sauvegarde et un rechargement à la fin.
+  async function addAllWithAi() {
+    const before = new Set(getPuck().appState.data.content.map((c) => c.props.id));
+    addAll();
+    await new Promise((r) => setTimeout(r, 1500));
+    const data = getPuck().appState.data;
+    const added = data.content.filter((c) => !before.has(c.props.id)).map((c) => c.props.id);
+    const produit = data.root?.props?.produit || null;
+    const replacements = [];
+    try {
+      for (const [i, id] of added.entries()) {
+        setAi({ step: `Section ${i + 1} / ${added.length} : l'IA l'adapte à la page${produit ? " et à ton produit" : ""}…` });
+        scrollCanvasTo(id);
+        await new Promise((r) => setTimeout(r, 600));
+        replacements.push(await rebuildSectionWith(getPuck, id, adaptInstructionFor(getPuck().appState.data, id, { produit }), null, { reload: false }));
+      }
+      setAi({ step: "Enregistrement…" });
+      await savePageWith(getPuck, replacements);
+      location.reload();
+    } catch (e) {
+      // Les sections déjà refaites sont gardées.
+      if (replacements.length) await savePageWith(getPuck, replacements).catch(() => {});
+      setAi({ error: `${e.message} (${replacements.length} / ${added.length} adaptées, les sections ajoutées restent telles quelles)` });
+    }
+  }
+
   function addAll() {
     const done = new Set();
     for (;;) {
@@ -139,9 +170,22 @@ export function ScorePanel() {
               </span>
             </div>
           </div>
+          {addable.length > 0 && (
+            <>
+              <button type="button" className="atl-score__all atl-score__all--ia" disabled={ai?.step} onClick={addAllWithAi}>
+                ✨ Ajouter les {addable.length} section(s) conseillée(s) et les adapter
+              </button>
+              <p className="atl-score__note">
+                Chaque section est placée où elle doit aller, puis l'IA la redessine au style de la page et écrit ses textes pour
+                {result.type && " ton produit"} (≈ 1 min par section).
+              </p>
+              {ai?.step && <p className="atl-aidlg__step">{ai.step}</p>}
+              {ai?.error && <p className="atl-topbar__error">{ai.error}</p>}
+            </>
+          )}
           {addable.length > 1 && (
             <button type="button" className="atl-score__all" onClick={addAll}>
-              Ajouter les {addable.length} sections conseillées
+              Ajouter les {addable.length} sections conseillées (sans IA)
             </button>
           )}
           <ol className="atl-score__list">

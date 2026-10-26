@@ -3401,3 +3401,176 @@ body.atl-rail-only .atl-left {
   font: 400 14.5px "Inter", system-ui, sans-serif;
   color: #2f2f2f;
 }
+.atl-score__all--ia {
+  background: linear-gradient(90deg, #6d5bff, #b45bff) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+.atl-aibox input {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 7px 9px;
+  border: 1px solid #d7d3ff;
+  border-radius: 7px;
+  font: inherit;
+}
+/* Intensité de la marque (outil Palette) */
+.atl-intensity {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+  font-size: 12.5px;
+}
+.atl-intensity small {
+  color: #777;
+}
+.atl-intensity__seg {
+  display: flex;
+  gap: 4px;
+}
+.atl-intensity__seg button {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.atl-intensity__seg button.is-on {
+  border-color: #6d5bff;
+  background: #6d5bff;
+  color: #fff;
+}
+
+/* ---- Planche des images ---- */
+.atl-board {
+  width: min(1180px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.atl-board__refs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #eee;
+}
+.atl-board__refs figure {
+  position: relative;
+  margin: 0;
+}
+.atl-board__refs img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.atl-board__refs figure button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+}
+.atl-board__refs small {
+  flex-basis: 100%;
+  color: #777;
+}
+.atl-board__add {
+  padding: 16px 12px;
+  border: 1.5px dashed #c9c1f5;
+  border-radius: 8px;
+  color: #5a4bd6;
+  font-weight: 600;
+  cursor: pointer;
+}
+.atl-board__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 16px 18px 22px;
+  list-style: none;
+}
+.atl-board__grid li {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+}
+.atl-board__img {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f3f3f3;
+}
+.atl-board__img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.atl-board__busy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  color: #5a4bd6;
+  font-weight: 700;
+}
+.atl-board__grid input {
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font: inherit;
+}
+.atl-board__actions {
+  display: flex;
+  gap: 6px;
+}
+.atl-board__actions button {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #d7d3ff;
+  border-radius: 6px;
+  background: #faf9ff;
+  color: #4a3dc4;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Vue Mobile / Tablette / Ordinateur (barre du haut) */
+.atl-devices {
+  display: inline-flex;
+  align-self: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  background: #fff;
+}
+.atl-devices button {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #444;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.atl-devices button.is-on {
+  background: #111;
+  color: #fff;
+}

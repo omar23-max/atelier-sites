@@ -64,6 +64,25 @@ function atelierApi() {
   return {
     name: "atelier-api",
     configureServer(server) {
+      // Lien de partage : la page en lecture seule, telle qu'elle sera publiée
+      // (/partage/<page>). Servie par l'atelier : visible seulement là où
+      // l'atelier tourne, tant qu'il n'est pas publié en ligne.
+      server.middlewares.use("/partage", async (req, res) => {
+        const name = decodeURIComponent((req.url ?? "/").split("?")[0].replace(/^\//, ""));
+        if (!/^[a-z0-9][a-z0-9-]*$/.test(name) || !existsSync(join(pagesDir, `${name}.json`))) {
+          res.statusCode = 404;
+          return res.end("Page introuvable.");
+        }
+        try {
+          const { renderPage } = await server.ssrLoadModule("/scripts/render-page.mjs");
+          const html = await renderPage(name, { withPhotos: true });
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(html.replace("<head>", '<head><meta name="robots" content="noindex">'));
+        } catch (e) {
+          res.statusCode = 500;
+          res.end(`Rendu impossible : ${e.message}`);
+        }
+      });
       server.middlewares.use("/api", async (req, res, next) => {
         const [path] = (req.url ?? "/").split("?");
         const parts = path.split("/").filter(Boolean).map(decodeURIComponent);

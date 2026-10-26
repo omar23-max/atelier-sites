@@ -105,6 +105,19 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
       {open &&
         createPortal(
         <div className="atl-pagemenu__list" role="menu" style={open}>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={async () => {
+              // La version enregistrée (Publish) de la page, en lecture seule.
+              const url = `${location.origin}/partage/${pageName}`;
+              await navigator.clipboard?.writeText(url).catch(() => {});
+              window.open(url, "_blank", "noopener");
+              setOpen(null);
+            }}
+          >
+            🔗 Lien de partage (lecture seule)
+          </button>
           {original ? (
             <>
               <p className="atl-pagemenu__note">C'est la page d'origine du catalogue : elle ne se supprime pas d'ici. Pour la modifier, utilise-la dans un projet.</p>

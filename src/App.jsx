@@ -8,6 +8,8 @@ import { FullscreenButton } from "./library-ui.jsx";
 import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
+import { BoardButton } from "./board-ui.jsx";
+import { DeviceSwitch } from "./device-ui.jsx";
 import { DesignSelect } from "./design-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
@@ -152,8 +154,10 @@ export default function App() {
                 <RebrandButton hidden />
                 <RewriteButton hidden />
                 <StudioButton hidden />
+                <BoardButton />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
+                <DeviceSwitch />
                 <FullscreenButton />
                 <span className="atl-publish">
                   <DownloadHtmlButton />

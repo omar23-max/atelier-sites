@@ -140,7 +140,8 @@ if (command === "generer") {
   const labels = details.references.map((r) => refLabel({ ...r, ordre: r.ordre + 1 }).replace(/^#/, "image ")).join(", ");
   const total = details.cibles.length;
   let faites = total - todo.length;
-  await progress({ faites, total, etat: "en cours" });
+  const sautees = [];
+  await progress({ faites, total, etat: "en cours", sautees });
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   const page = await browser.newPage();
   let done = 0;
@@ -162,7 +163,11 @@ if (command === "generer") {
         await progress({ faites: ++faites });
         console.log(`✓ ${cible.key}`);
       } catch (e) {
-        console.warn(`✗ ${cible.key} : ${e.message}`);
+        // Image refusée ou ratée (ex. photo d'enfant refusée par OpenAI) :
+        // notée, et on passe à la suivante.
+        sautees.push({ key: cible.key, raison: e.message.slice(0, 160) });
+        await progress({ sautees });
+        console.warn(`✗ ${cible.key} : ${e.message} — sautée, on continue`);
       }
     }
   } finally {

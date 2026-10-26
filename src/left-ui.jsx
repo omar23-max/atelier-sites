@@ -4,7 +4,7 @@ import { sections } from "./engine/sections.js";
 import { FAMILIES, familyOf } from "./engine/families.js";
 import { designs, designById } from "./engine/designs.js";
 import { parseDesign } from "./engine/design.js";
-import { designMarkdown, extractPalette, paletteToRoles } from "./engine/palette.js";
+import { brandRoles, designMarkdown, extractPalette } from "./engine/palette.js";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
@@ -371,6 +371,7 @@ function PaletteTool() {
   const [logo, setLogo] = useState(null);
   const [logoColors, setLogoColors] = useState([]);
   const [custom, setCustom] = useState(["#ffffff", "#1a1a1a", "#2f7d5b", "#f2efe8", "#0f2e22"]);
+  const [level, setLevel] = useState(2); // intensité de la marque, 1 à 4
   const [state, setState] = useState(null);
 
   useEffect(() => {
@@ -404,8 +405,8 @@ function PaletteTool() {
   async function applyPalette(colors, origine, suffix) {
     let id = `${base}-${suffix}`;
     for (let n = 2; designById[id]; n++) id = `${base}-${suffix}-${n}`;
-    const couleurs = paletteToRoles(colors, currentDesign?.tokens.couleurs ?? {});
-    const markdown = designMarkdown({ title: `${project?.nom ?? base} — palette ${suffix === "logo" ? "du logo" : "personnalisée"}`, origine, polices, couleurs });
+    const couleurs = brandRoles(colors, currentDesign?.tokens.couleurs ?? {}, level);
+    const markdown = designMarkdown({ title: `${project?.nom ?? base} — palette ${suffix === "logo" ? "du logo" : "personnalisée"} (intensité ${level})`, origine: `${origine}, intensité ${level}/4`, polices, couleurs });
     const res = await fetch(`/api/designs/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markdown }) });
     if (!res.ok) return setState({ error: (await res.json()).error });
     await apply(parseDesign(id, markdown));
@@ -477,6 +478,27 @@ function PaletteTool() {
             </li>
           ))}
         </ul>
+      )}
+
+      {(mode === "logo" || mode === "palette") && (
+        <div className="atl-intensity">
+          <span>Intensité de la marque</span>
+          <div className="atl-intensity__seg">
+            {[
+              [1, "Discrète"],
+              [2, "Marquée"],
+              [3, "Forte"],
+              [4, "Totale"],
+            ].map(([n, label]) => (
+              <button key={n} type="button" className={level === n ? "is-on" : ""} onClick={() => setLevel(n)} title={label}>
+                {n}
+              </button>
+            ))}
+          </div>
+          <small>
+            {["", "Boutons et liens à tes couleurs.", "+ fonds de cartes et encadrés teintés.", "+ sections sombres à ta couleur.", "Toute la page : fonds et textes compris."][level]}
+          </small>
+        </div>
       )}
 
       {mode === "logo" && (
@@ -554,6 +576,10 @@ function RegenerateTool() {
     <>
       <p className="atl-tool-panel__hint">Deux choix : refaire les textes de la page, ou refaire ses images avec ton produit.</p>
       <div className="atl-choices">
+        <button type="button" onClick={() => open("atl-open-board")}>
+          <b>Planche des images</b>
+          <small>Toutes les images de la page côte à côte : en refaire une avec une consigne, ou en créer une pour une section.</small>
+        </button>
         <button type="button" onClick={() => open("atl-open-rewrite")}>
           <b>Régénérer les textes</b>
           <small>Toutes les consignes entre crochets remplacées par de vrais textes, pour ton produit et ton client.</small>

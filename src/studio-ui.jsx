@@ -130,6 +130,7 @@ function Progress() {
             <span>
               {d.details?.mode === "pub" ? "Pubs" : "Photos"} · {d.dossier.slice(0, 10)} : <b>{faites}</b> sur {total} générée(s)
               {d.progression?.etat ? ` · ${d.progression.etat}` : d.statut === "en attente" ? " · en attente" : ""}
+              {d.progression?.sautees?.length > 0 && ` · ${d.progression.sautees.length} sautée(s), refusée(s) par l'IA`}
             </span>
             <i style={{ width: `${total ? (100 * faites) / total : 0}%` }} />
           </div>

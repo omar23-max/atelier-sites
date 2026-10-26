@@ -164,7 +164,7 @@ function pathTo(nodes, test, path = []) {
 const sameNode = (sel) => (n) => (sel.key ? n.key === sel.key : sel.group ? n.group && n.id === sel.group : false);
 
 // Textes et images retravaillables d'une section (ou d'une partie : `keys`).
-function aiTargets(item, keys = null) {
+export function aiTargets(item, keys = null) {
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
   const texts = [];
@@ -199,7 +199,7 @@ function aiTargets(item, keys = null) {
 }
 
 // Écrit des valeurs (clé → { text } ou { image }) dans les props d'une section.
-function applyValues(item, values) {
+export function applyValues(item, values) {
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
   if (section.meta.arbre) {
@@ -268,6 +268,75 @@ function domOf(sectionId, node) {
 function mark(el, cls) {
   canvasFrame()?.contentDocument.querySelectorAll(`.${cls}`).forEach((e) => e.classList.remove(cls));
   el?.classList.add(cls);
+}
+
+
+// ---- Reconstruire une section avec l'IA (aussi utilisé par le Page Score) ----
+// « ADN » de la page : palette et polices du design.md, plus un extrait du CSS
+// d'une partie copiée voisine (rayons, ombres, boutons, tailles) comme modèle.
+// produit : les textes sont en plus réécrits pour ce produit.
+export function adaptInstructionFor(data, sectionId, { produit = null } = {}) {
+  const root = data.root?.props ?? {};
+  const design = designById[root.design];
+  const index = data.content.findIndex((c) => c.props.id === sectionId);
+  const neighbours = [index - 1, index + 1, index - 2, index + 2, index - 3, index + 3].map((i) => data.content[i]).filter((c) => c && byId[c.type]?.meta.pageSpecific);
+  const css = neighbours[0] ? byId[neighbours[0].type].css.replace(/@font-face\s*{[^}]*}/g, "").slice(0, 6000) : "";
+  const colors = design?.tokens?.couleurs ? Object.entries(design.tokens.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
+  const fonts = [root.font_heading || design?.tokens?.polices?.titres, root.font_body || design?.tokens?.polices?.texte].filter(Boolean).join(" / ");
+  return [
+    "Adapte cette section au style du reste de la page, pour qu'elle s'y fonde : mêmes couleurs, polices, tailles de texte, espacements, coins arrondis, ombres et style de boutons.",
+    colors && `Palette de la page (rôle couleur) : ${colors}.`,
+    fonts && `Polices de la page (titres / texte) : ${fonts}.`,
+    css && `Extrait du CSS d'une section voisine, à prendre comme modèle de style (pas de structure) :\n${css}`,
+    produit
+      ? `Réécris aussi tous les textes pour le produit « ${produit} »${root.profil ? `, pour ce profil de client : ${root.profil}` : ""} : même longueur, même rôle (titre, liste, avis…), pas de chiffres inventés. Garde les images et l'ordre du contenu.`
+      : "Garde tous les textes, toutes les images et l'ordre du contenu.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+// Refait une section : l'IA rend HTML + CSS, qui deviennent une section de la
+// page (sections/<page>-ia-…). reload : false pour enchaîner plusieurs
+// sections ; on reçoit alors { sectionId, item } et c'est à l'appelant
+// d'enregistrer la page puis de la recharger.
+export async function rebuildSectionWith(getPuck, sectionId, instruction, reference, { reload = true } = {}) {
+  const data = getPuck().appState.data;
+  const item = data.content.find((c) => c.props.id === sectionId);
+  const section = byId[item.type];
+  const root = canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
+  if (!root) throw new Error("Section introuvable dans l'aperçu.");
+  const html = root.querySelector(":scope > div:last-child")?.innerHTML ?? root.innerHTML;
+  const res = await fetch("/api/ia/section", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ html, css: section.css, prompt: instruction, reference, rootClass: "ROOT" }),
+  });
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error);
+  const id = `${pageName}-ia-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.slice(0, 80);
+  const label = (section.meta.label ?? section.id).replace(/ — refaite par l'IA$/, "");
+  const made = htmlToSection(body.html, body.css, id, "ROOT", label, pageName);
+  const saved = await fetch("/api/sections-ia", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, schema: made.schema, template: made.template, css: made.css, meta: { ...made.meta, family: section.meta.family ?? made.meta.family } }),
+  });
+  if (!saved.ok) throw new Error((await saved.json()).error);
+  const replacement = { sectionId, item: { type: id, props: { id, blocks_element: made.blocks } } };
+  if (!reload) return replacement;
+  await savePageWith(getPuck, [replacement]);
+  location.reload();
+}
+
+// Enregistre la page avec des sections remplacées (copie de sécurité avant).
+export async function savePageWith(getPuck, replacements) {
+  await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
+  const data = getPuck().appState.data;
+  const byOld = new Map(replacements.map((r) => [r.sectionId, r.item]));
+  const content = data.content.map((c) => byOld.get(c.props.id) ?? c);
+  const put = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...data, content }) });
+  if (!put.ok) throw new Error((await put.json()).error);
 }
 
 // ---- Panneau ----
@@ -548,59 +617,8 @@ export function Inspector({ children }) {
   // ---- « ADN » de la page : une section ajoutée prend son style ----
   // Palette et polices du design.md de la page, plus un extrait du CSS d'une
   // partie copiée voisine (rayons, ombres, boutons, tailles) comme modèle.
-  async function adaptToPage(sectionId) {
-    const data = getPuck().appState.data;
-    const root = data.root?.props ?? {};
-    const design = designById[root.design];
-    const index = indexOf(sectionId);
-    const neighbours = [index - 1, index + 1, index - 2, index + 2].map((i) => data.content[i]).filter((c) => c && byId[c.type]?.meta.pageSpecific);
-    const css = neighbours[0] ? byId[neighbours[0].type].css.replace(/@font-face\s*{[^}]*}/g, "").slice(0, 6000) : "";
-    const colors = design?.tokens?.couleurs ? Object.entries(design.tokens.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
-    const fonts = [root.font_heading || design?.tokens?.polices?.titres, root.font_body || design?.tokens?.polices?.texte].filter(Boolean).join(" / ");
-    const instruction = [
-      "Adapte cette section au style du reste de la page, pour qu'elle s'y fonde : mêmes couleurs, polices, tailles de texte, espacements, coins arrondis, ombres et style de boutons.",
-      colors && `Palette de la page (rôle couleur) : ${colors}.`,
-      fonts && `Polices de la page (titres / texte) : ${fonts}.`,
-      css && `Extrait du CSS d'une section voisine, à prendre comme modèle de style (pas de structure) :\n${css}`,
-      "Garde tous les textes, toutes les images et l'ordre du contenu.",
-    ]
-      .filter(Boolean)
-      .join("\n");
-    await rebuildSection(sectionId, instruction, null);
-  }
-
-  // ---- Reconstruire / nettoyer une section avec l'IA ----
-  // La nouvelle section est enregistrée dans sections/, la page est sauvegardée
-  // (copie de sécurité avant) puis l'atelier se recharge pour l'afficher.
-  async function rebuildSection(sectionId, instruction, reference) {
-    const item = itemOf(sectionId);
-    const section = byId[item.type];
-    const root = canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
-    if (!root) throw new Error("Section introuvable dans l'aperçu.");
-    const html = root.querySelector(":scope > div:last-child")?.innerHTML ?? root.innerHTML;
-    const res = await fetch("/api/ia/section", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ html, css: section.css, prompt: instruction, reference, rootClass: "ROOT" }),
-    });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error);
-    const id = `${pageName}-ia-${Date.now().toString(36)}`.slice(0, 80);
-    const label = (section.meta.label ?? section.id).replace(/ — refaite par l'IA$/, "");
-    const made = htmlToSection(body.html, body.css, id, "ROOT", label, pageName);
-    const saved = await fetch("/api/sections-ia", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, schema: made.schema, template: made.template, css: made.css, meta: made.meta }),
-    });
-    if (!saved.ok) throw new Error((await saved.json()).error);
-    await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
-    const data = getPuck().appState.data;
-    const content = data.content.map((c) => (c.props.id === sectionId ? { type: id, props: { id, blocks_element: made.blocks } } : c));
-    const put = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...data, content }) });
-    if (!put.ok) throw new Error((await put.json()).error);
-    location.reload();
-  }
+  const adaptToPage = (sectionId) => rebuildSectionWith(getPuck, sectionId, adaptInstructionFor(getPuck().appState.data, sectionId), null);
+  const rebuildSection = (sectionId, instruction, reference) => rebuildSectionWith(getPuck, sectionId, instruction, reference);
 
   return (
     <div className="atl-insp" ref={rootRef}>
@@ -624,6 +642,7 @@ export function Inspector({ children }) {
         {sel?.page && (
           <div className="atl-insp__panel">
             <PanelHead onBack={close} title="Réglages de la page" sub="Titre, type, produit, polices" />
+            <RewritePage content={content} root={getPuck().appState.data.root?.props ?? {}} onApply={(id, values) => updateValues(id, values)} />
             <TranslatePage content={content} root={getPuck().appState.data.root?.props ?? {}} onApply={(id, values) => updateValues(id, values)} />
             <div className="atl-insp__puck">{children}</div>
           </div>
@@ -645,6 +664,7 @@ export function Inspector({ children }) {
               onAi={() => setAi({ sectionId: sel.sectionId, keys: null })}
               onChange={(props) => updateProps(sel.sectionId, props)}
               onAdapt={content.some((c) => byId[c.type]?.meta.pageSpecific) || getPuck().appState.data.root?.props?.design ? () => adaptToPage(sel.sectionId) : null}
+              onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
             />
           ))}
         {sel?.key && content[indexOf(sel.sectionId)] && (
@@ -939,7 +959,7 @@ function PanelHead({ onBack, title, sub, onAi }) {
   );
 }
 
-function SectionSettings({ item, onBack, onAi, onChange, onAdapt }) {
+function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild }) {
   const [busy, setBusy] = useState(false);
   if (!item) return null;
   const section = byId[item.type];
@@ -957,6 +977,7 @@ function SectionSettings({ item, onBack, onAi, onChange, onAdapt }) {
       ) : (
         <p className="atl-insp__empty">Cette section n'a pas de réglage général : ouvre ses éléments dans l'arbre.</p>
       )}
+      {onRebuild && <RebuildBox onRebuild={onRebuild} />}
       {onAdapt && (
         <div className="atl-aibox">
           <p className="atl-aibox__title">✨ Adapter au style de la page</p>
@@ -1611,6 +1632,46 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild }) {
   );
 }
 
+// « Reconstruire avec l'IA » pour une section du catalogue : consigne et image
+// de référence facultative (la même chose que pour les sections copiées).
+function RebuildBox({ onRebuild }) {
+  const [prompt, setPrompt] = useState("");
+  const [ref, setRef] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const readRef = (file) => {
+    const r = new FileReader();
+    r.onload = () => setRef(r.result);
+    r.readAsDataURL(file);
+  };
+  return (
+    <div className="atl-aibox">
+      <p className="atl-aibox__title">✨ Reconstruire avec l'IA</p>
+      <p className="atl-aibox__hint">Dis ce qui doit changer, et montre un exemple si tu veux : l'IA redessine cette section.</p>
+      <textarea rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="ex. Comme sur l'image · 3 colonnes au lieu de 2 · Plus aéré" />
+      <label className="atl-aibox__ref">
+        {ref ? <img src={ref} alt="" /> : <span>+ Image de référence (facultatif)</span>}
+        <input type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && readRef(e.target.files[0])} />
+      </label>
+      <button
+        type="button"
+        className="atl-aibox__go"
+        disabled={busy || (!prompt.trim() && !ref)}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            await onRebuild(prompt.trim() || "Redessine cette section comme sur l'image de référence, en gardant ses textes et ses images.", ref);
+          } catch (e) {
+            setBusy(false);
+            alert(e.message);
+          }
+        }}
+      >
+        {busy ? "Reconstruction en cours (30 à 90 s)…" : "Reconstruire la section"}
+      </button>
+    </div>
+  );
+}
+
 // ---- Section refaite par l'IA → nouvelle section de l'atelier ----
 // Le HTML rendu par l'IA devient un gabarit Liquid : chaque texte et chaque
 // image devient un emplacement modifiable (comme les copies de page).
@@ -1785,6 +1846,61 @@ const LANGUES = [
   { value: "portugais du Brésil", label: "Portugais (Brésil)" },
   { value: "arabe", label: "Arabe" },
 ];
+
+// Comme « Rewrite copy » de Whitelabeler : une seule fiche (marque + tout ce
+// qu'on sait du produit) et toute la page est réécrite, longueur gardée pour
+// chaque emplacement, mise en forme comprise. Par lots de 40 textes.
+function RewritePage({ content, root, onApply }) {
+  const [form, setForm] = useState({ marque: "", infos: "" });
+  const [state, setState] = useState(null);
+  async function run() {
+    if (!form.infos.trim() && !root.produit) return setState({ error: "Colle d'abord ce que tu sais du produit." });
+    const jobs = content.map((item) => ({ id: item.props.id, texts: byId[item.type] ? aiTargets(item).texts : [] })).filter((j) => j.texts.length);
+    const total = jobs.reduce((n, j) => n + j.texts.length, 0);
+    if (!total) return setState({ error: "Aucun texte à réécrire." });
+    if (!confirm(`Réécrire les ${total} textes de la page pour ${form.marque || root.produit || "ton produit"} ?`)) return;
+    let done = 0;
+    try {
+      for (const job of jobs) {
+        for (let i = 0; i < job.texts.length; i += 40) {
+          const batch = job.texts.slice(i, i + 40);
+          setState({ busy: true, step: `${done} / ${total} textes réécrits…` });
+          const res = await fetch("/api/ia/textes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: batch,
+              prompt:
+                "Réécris chaque texte pour MON produit et MA marque (voir contexte), en gardant le rôle du texte dans la page (titre, accroche, liste, avis, bouton…), sa longueur et ses balises de mise en forme. Remplace tout nom de marque, de produit, prix ou chiffre de la page d'origine par les miens ; si une information manque, reste général plutôt que d'inventer.",
+              contexte: { marque: form.marque || "", produit: root.produit ?? "", profilClient: root.profil ?? "", infosProduit: form.infos.slice(0, 8000), typeDePage: root.pageType ?? "" },
+            }),
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error);
+          onApply(job.id, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
+          done += batch.length;
+        }
+      }
+      setState({ done: `${done} textes réécrits. Ctrl+Z pour annuler, Publish pour enregistrer.` });
+    } catch (e) {
+      setState({ error: `${e.message} (${done} / ${total} déjà réécrits)` });
+    }
+  }
+  return (
+    <div className="atl-aibox">
+      <p className="atl-aibox__title">✍️ Réécrire toute la page pour mon produit</p>
+      <p className="atl-aibox__hint">Colle tout ce que tu sais du produit (page fournisseur, notes, bénéfices, ingrédients). Chaque texte est réécrit à sa longueur.</p>
+      <input value={form.marque} onChange={(e) => setForm({ ...form, marque: e.target.value })} placeholder="Nom de ta marque" disabled={state?.busy} />
+      <textarea rows={5} value={form.infos} onChange={(e) => setForm({ ...form, infos: e.target.value })} placeholder={`Ce que tu sais de ${root.produit || "ton produit"}…`} disabled={state?.busy} />
+      <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
+        {state?.busy ? "Réécriture en cours…" : "Réécrire toute la page"}
+      </button>
+      {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
+      {state?.done && <p className="atl-topbar__ok">{state.done}</p>}
+      {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+    </div>
+  );
+}
 
 function TranslatePage({ content, root, onApply }) {
   const [langue, setLangue] = useState(LANGUES[0].value);

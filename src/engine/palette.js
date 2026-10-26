@@ -72,6 +72,29 @@ export async function extractPalette(src, count = 6) {
 }
 
 // Palette libre (2 à 8 couleurs) → les 13 rôles d'un design.md.
+// Thème de marque en 4 intensités (comme « Theme your page » de Whitelabeler) :
+// 1 = discret (boutons et liens à la couleur de la marque), 2 = + surfaces
+// teintées, 3 = + sections sombres à la couleur de la marque, 4 = toute la
+// palette (fonds compris). Les autres rôles gardent la page telle quelle.
+const LEVEL_ROLES = [
+  ["accent", "accent-clair", "bouton", "bouton-texte", "etoiles"],
+  ["surface", "surface-forte"],
+  ["fond-sombre", "fond-sombre-2", "surface-sombre", "texte-sur-sombre"],
+  ["fond", "texte"],
+];
+export function brandRoles(colors, base = {}, level = 4) {
+  const full = paletteToRoles(colors, base);
+  const out = { ...base };
+  for (const roles of LEVEL_ROLES.slice(0, level)) for (const r of roles) if (full[r]) out[r] = full[r];
+  // Niveau 2 : surfaces plus marquées qu'au niveau 4 (le fond, lui, ne change pas).
+  if (level >= 2 && level < 4 && full.accent) {
+    out.surface = mix(base.fond ?? "#ffffff", full.accent, 0.1);
+    out["surface-forte"] = mix(base.fond ?? "#ffffff", full.accent, 0.22);
+  }
+  if (level === 4 && full.accent) out.fond = mix(full.fond, full.accent, 0.04);
+  return out;
+}
+
 export function paletteToRoles(colors, base = {}) {
   const list = [...new Set(colors.filter((c) => /^#[0-9a-f]{6}$/i.test(c)).map((c) => c.toLowerCase()))];
   if (!list.length) return base;
