@@ -32,7 +32,12 @@ async function resetFromOriginal(pageName, importSource, current) {
   const original = await res.json();
   await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
   const props = { ...current.root?.props };
-  for (const k of ["design", "font_heading", "font_body"]) if (original.root?.props?.[k] != null) props[k] = original.root.props[k];
+  // Design et polices exactement comme l'original (une police absente de
+  // l'original ne doit pas rester imposée à la page).
+  for (const k of ["design", "font_heading", "font_body"]) {
+    if (original.root?.props?.[k] != null) props[k] = original.root.props[k];
+    else delete props[k];
+  }
   const put = await fetch(`/api/pages/${pageName}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
