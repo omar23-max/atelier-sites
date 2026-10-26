@@ -5,6 +5,7 @@ import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { scorePage } from "../engine/page-score.js";
 import { designById } from "../engine/designs.js";
 import { confirmDelete, getPage, listPages, listProjects, trashItem } from "../projects.js";
+import { useHoverPreview } from "./hover.jsx";
 
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
 // Seules les pages d'un projet (créées ou modifiées dans l'atelier) sont ici ;
@@ -17,10 +18,15 @@ const groupOf = (p) => p.projet;
 const loadedAt = Date.now();
 function PageThumb({ name, data }) {
   const [failed, setFailed] = useState(false);
+  // Survol : la page entière en grand, qu'on fait défiler (medias/_vignettes/<page>-full.jpg).
+  const hover = useHoverPreview("template", {
+    thumbnail: `/medias/_vignettes/${name}.png?v=${loadedAt}`,
+    full: `/medias/_vignettes/${name}-full.jpg?v=${loadedAt}`,
+  });
   const shown = (data?.content ?? []).slice(0, 4).map((item) => byId[item.type]).filter((s) => s?.thumbnail);
   if (!failed && data?.content?.length)
     return (
-      <span className="cat-page-thumb">
+      <span className="cat-page-thumb" {...hover}>
         <img src={`/medias/_vignettes/${name}.png?v=${loadedAt}`} alt="" loading="lazy" onError={() => setFailed(true)} />
       </span>
     );

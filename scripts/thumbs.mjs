@@ -144,7 +144,7 @@ try {
         await full.setContent(await page.content(), { waitUntil: "networkidle", timeout: 60000 });
         await full.evaluate(() => document.fonts.ready);
         const height = Math.min(15000, await full.evaluate(() => document.documentElement.scrollHeight));
-        await full.screenshot({ path: join(out, `${name}-full.jpg`), type: "jpeg", quality: 82, clip: { x: 0, y: 0, width: 1440, height } });
+        await full.screenshot({ path: join(out, `${name}-full.jpg`), type: "jpeg", quality: 82, fullPage: true, clip: { x: 0, y: 0, width: 1440, height } });
         await full.close();
         console.log(`✓ page ${name} (${height}px)`);
       } catch (e) {
