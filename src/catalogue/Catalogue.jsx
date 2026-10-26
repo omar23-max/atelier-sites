@@ -354,7 +354,7 @@ export default function Catalogue() {
               </button>
             );
           })}
-          <p className="cat-nav__title">Familles de sections</p>
+          <p className="cat-nav__title">Section library</p>
           {FAMILIES.map((f) => (
             <button
               type="button"

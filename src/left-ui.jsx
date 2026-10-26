@@ -263,35 +263,33 @@ function AddTool() {
     }
   }
 
+  // Menu déroulant des types, comme la « Section library » de Whitelabeler :
+  // une seule liste, ses 24 types d'abord puis ceux de structure de page.
+  const typeSelect = (
+    <select className="atl-family-select" value={family ?? ""} onChange={(e) => (setFamily(e.target.value || null), setMode(null), setState(null))}>
+      <option value="">Choose a section type…</option>
+      {FAMILIES.map((f) => (
+        <option key={f.id} value={f.id}>
+          {f.label}
+        </option>
+      ))}
+    </select>
+  );
+
   // 1. Type de section
   if (!family) {
     return (
       <>
-        <p className="atl-tool-panel__hint">Quel type de section ? {hasSelection ? "Elle sera ajoutée après la section sélectionnée." : "Elle sera ajoutée en fin de page."}</p>
-        <ul className="atl-families">
-          {FAMILIES.map((f) => (
-            <li key={f.id}>
-              <label>
-                <input type="radio" name="atl-family" onChange={() => (setFamily(f.id), setMode(null), setState(null))} />
-                <span>
-                  <b>{f.label}</b>
-                  <small>{f.hint}</small>
-                </span>
-                <em>{grouped[f.id]?.length ?? 0}</em>
-              </label>
-            </li>
-          ))}
-        </ul>
+        {typeSelect}
+        <p className="atl-tool-panel__hint">{hasSelection ? "Elle sera ajoutée après la section sélectionnée." : "Elle sera ajoutée en fin de page."}</p>
       </>
     );
   }
 
   return (
     <>
-      <button type="button" className="atl-back" onClick={() => (setFamily(null), setMode(null))}>
-        ← Types de section
-      </button>
-      <p className="atl-tool-panel__title">{current.label}</p>
+      {typeSelect}
+      <p className="atl-tool-panel__hint">{current.hint}</p>
 
       {/* 2. Galerie ou IA */}
       {!mode && (
