@@ -7,13 +7,23 @@ import { designById } from "../engine/designs.js";
 import { confirmDelete, getPage, listPages, listProjects, trashItem } from "../projects.js";
 
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
-const TEMPLATES = "__templates";
-const NO_PROJECT = "__sans-projet";
-const groupOf = (p) => p.projet || (p.importSource ? TEMPLATES : NO_PROJECT);
+// Seules les pages d'un projet (créées ou modifiées dans l'atelier) sont ici ;
+// les pages copiées de sites sont des templates (Catalogue → Templates).
+const groupOf = (p) => p.projet;
 
-// Aperçu d'une page : les miniatures de ses premières sections, empilées.
-function PageThumb({ data }) {
+// Aperçu d'une page : le haut de la vraie page (medias/_vignettes/<page>.png,
+// refait à chaque enregistrement) ; à défaut, les miniatures de ses premières
+// sections, empilées.
+const loadedAt = Date.now();
+function PageThumb({ name, data }) {
+  const [failed, setFailed] = useState(false);
   const shown = (data?.content ?? []).slice(0, 4).map((item) => byId[item.type]).filter((s) => s?.thumbnail);
+  if (!failed && data?.content?.length)
+    return (
+      <span className="cat-page-thumb">
+        <img src={`/medias/_vignettes/${name}.png?v=${loadedAt}`} alt="" loading="lazy" onError={() => setFailed(true)} />
+      </span>
+    );
   return (
     <span className="cat-page-thumb">
       {shown.length ? shown.map((s, i) => <img key={i} src={s.thumbnail} alt="" loading="lazy" />) : <span>Page vide</span>}
@@ -66,15 +76,16 @@ export function PagesView({ onOpenProject, onMessage }) {
     const q = filter.q.trim().toLowerCase();
     const visible = (pages ?? []).filter(
       ({ info }) =>
+        info.projet &&
         (!filter.projet || groupOf(info) === filter.projet) &&
         (!filter.type || info.pageType === filter.type) &&
         (!q || [info.name, info.title, info.profil, info.produit].join(" ").toLowerCase().includes(q)),
     );
-    const order = [...projects.map((p) => p.id), TEMPLATES, NO_PROJECT];
+    const order = projects.map((p) => p.id);
     return order
       .map((id) => ({
         id,
-        label: id === TEMPLATES ? "Templates (pages importées)" : id === NO_PROJECT ? "Sans projet" : `Projet · ${names[id] ?? id}`,
+        label: `Projet · ${names[id] ?? id}`,
         items: visible.filter(({ info }) => groupOf(info) === id),
       }))
       .filter((g) => g.items.length);
@@ -84,7 +95,7 @@ export function PagesView({ onOpenProject, onMessage }) {
     <>
       <h1>Pages</h1>
       <p className="cat-lead">
-        Toutes tes pages, rangées par projet : type, profil client visé, design, score. Ouvre-les dans l'atelier pour les modifier.
+        Les pages de tes projets, créées ou modifiées dans l'atelier, rangées par projet : type, profil client visé, design, score. Les pages copiées de sites sont dans Templates.
       </p>
 
       <section className="cat-panel cat-pages-filters">
@@ -97,8 +108,6 @@ export function PagesView({ onOpenProject, onMessage }) {
                 {p.nom}
               </option>
             ))}
-            <option value={TEMPLATES}>Templates (pages importées)</option>
-            <option value={NO_PROJECT}>Sans projet</option>
           </select>
         </label>
         <label className="cat-field">
@@ -129,7 +138,7 @@ export function PagesView({ onOpenProject, onMessage }) {
               <h2>
                 {g.label} <span className="cat-muted">· {g.items.length}</span>
               </h2>
-              {g.id !== TEMPLATES && g.id !== NO_PROJECT && (
+              {(
                 <button type="button" className="cat-link" onClick={() => onOpenProject(g.id)}>
                   Voir le projet →
                 </button>
@@ -142,7 +151,7 @@ export function PagesView({ onOpenProject, onMessage }) {
                 return (
                   <article key={info.name} className="cat-card">
                     <a className="cat-card__thumb cat-card__thumb--page" href={`/?page=${info.name}`} title="Ouvrir dans l'atelier">
-                      <PageThumb data={data} />
+                      <PageThumb name={info.name} data={data} />
                     </a>
                     <div className="cat-card__body">
                       <strong>{type ? `${type.label}${info.profil ? ` · ${info.profil}` : ""}` : info.title}</strong>

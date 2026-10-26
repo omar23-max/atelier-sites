@@ -1,9 +1,12 @@
 // Génère les miniatures du catalogue :
 //   sections/<id>/thumbnail.png   pour chaque section
 //   designs/<nom>.png             pour chaque fichier design.md
+//   medias/_vignettes/<page>.png  pour chaque page (le haut de la vraie page,
+//                                 refait après chaque enregistrement)
 // Usage : npm run thumbs              (tout)
 //         npm run thumbs -- <id>      (une section ou un design)
-import { readdir, readFile, rm, writeFile } from "node:fs/promises";
+//         npm run thumbs -- page:<nom> (la vignette d'une page)
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -11,6 +14,7 @@ import { chromium } from "playwright-core";
 import { renderSectionHtml, setPhotoResolver } from "../src/engine/render.js";
 import { parseDesign } from "../src/engine/design.js";
 import { listSectionIds, loadSection, photoDataUrl, root, sectionsDir } from "./lib/load.mjs";
+import { renderPage } from "./render-page.mjs";
 
 // Les miniatures montrent les photos d'origine : elles restent sur le PC.
 setPhotoResolver(photoDataUrl);
@@ -80,9 +84,10 @@ p { margin: 0 0 18px; font-size: 15px; opacity: .8; }
 }
 
 const only = process.argv[2];
-const sectionIds = (await listSectionIds()).filter((id) => (only ? id === only : !/-p\d+$/.test(id)));
+const onlyPage = only?.startsWith("page:") ? only.slice(5) : null;
+const sectionIds = onlyPage ? [] : (await listSectionIds()).filter((id) => (only ? id === only : !/-p\d+$/.test(id)));
 const designIds = existsSync(designsDir)
-  ? (await readdir(designsDir)).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)).filter((id) => !only || id === only)
+  ? (await readdir(designsDir)).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)).filter((id) => !onlyPage && (!only || id === only))
   : [];
 
 const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -116,13 +121,45 @@ try {
       console.log(`✓ design ${id}`);
     }
   }
+  // Pages : vignette = le haut de la page telle que l'atelier la rend (photos
+  // d'origine comprises : la vignette reste sur le PC).
+  const pagesDir = join(root, "pages");
+  const pageNames = onlyPage
+    ? [onlyPage]
+    : only
+      ? []
+      : (await readdir(pagesDir)).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5));
+  if (pageNames.length) {
+    const out = join(root, "medias", "_vignettes");
+    await mkdir(out, { recursive: true });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1600 }, deviceScaleFactor: SCALE });
+    const page = await context.newPage();
+    for (const name of pageNames) {
+      try {
+        await page.setContent(await renderPage(name, { withPhotos: true }), { waitUntil: "networkidle", timeout: 60000 });
+        await page.evaluate(() => document.fonts.ready);
+        await page.screenshot({ path: join(out, `${name}.png`), clip: { x: 0, y: 0, width: 1440, height: 1600 } });
+        // Page entière, nette, pour le grand aperçu au survol (on y fait défiler).
+        const full = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 0.75 });
+        await full.setContent(await page.content(), { waitUntil: "networkidle", timeout: 60000 });
+        await full.evaluate(() => document.fonts.ready);
+        const height = Math.min(15000, await full.evaluate(() => document.documentElement.scrollHeight));
+        await full.screenshot({ path: join(out, `${name}-full.jpg`), type: "jpeg", quality: 82, clip: { x: 0, y: 0, width: 1440, height } });
+        await full.close();
+        console.log(`✓ page ${name} (${height}px)`);
+      } catch (e) {
+        console.error(`✗ page ${name} : ${e.message.split("\n")[0]}`);
+      }
+    }
+    await context.close();
+  }
   // Templates : vignette = le haut de la capture du site importé.
   const importsDir = join(root, "imports");
   const templateIds = existsSync(importsDir)
     ? (await readdir(importsDir, { withFileTypes: true }))
         .filter((d) => d.isDirectory() && existsSync(join(importsDir, d.name, "desktop.png")))
         .map((d) => d.name)
-        .filter((id) => !only || id === only)
+        .filter((id) => !onlyPage && (!only || id === only))
     : [];
   if (templateIds.length) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1600 }, deviceScaleFactor: SCALE });

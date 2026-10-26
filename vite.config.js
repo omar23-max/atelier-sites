@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import { createClient } from "@supabase/supabase-js";
 import react from "@vitejs/plugin-react";
+import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -23,6 +24,21 @@ async function readBody(req) {
   let raw = "";
   for await (const chunk of req) raw += chunk;
   return raw ? JSON.parse(raw) : {};
+}
+
+// Vignette d'une page (medias/_vignettes/<page>.png) refaite en arrière-plan
+// après un enregistrement ; plusieurs enregistrements rapprochés n'en lancent
+// qu'une, quelques secondes après le dernier.
+const thumbTimers = new Map();
+function refreshPageThumb(name) {
+  clearTimeout(thumbTimers.get(name));
+  thumbTimers.set(
+    name,
+    setTimeout(() => {
+      thumbTimers.delete(name);
+      spawn(process.execPath, [join(root, "scripts", "thumbs.mjs"), `page:${name}`], { cwd: root, stdio: "ignore", windowsHide: true }).on("error", () => {});
+    }, 4000),
+  );
 }
 
 function json(res, status, body) {
@@ -152,6 +168,7 @@ function atelierApi() {
               if (!Array.isArray(data?.content)) return json(res, 400, { error: "Contenu de page invalide." });
               await mkdir(pagesDir, { recursive: true });
               await writeFile(file, JSON.stringify(data, null, 2) + "\n", "utf8");
+              refreshPageThumb(name);
               return json(res, 200, { ok: true, file: `pages/${name}.json` });
             }
           }

@@ -180,7 +180,7 @@ export default function Catalogue() {
       .then(([p, pg, t]) =>
         setCounts({
           projets: p.length,
-          pages: pg.length,
+          pages: pg.filter((p) => p.projet).length,
           templates: t.length,
           parType: Object.fromEntries(PAGE_TYPES.map((x) => [x.id, t.filter((tp) => tp.pageType === x.id).length])),
         }),
