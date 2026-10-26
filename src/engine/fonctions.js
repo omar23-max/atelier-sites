@@ -9,7 +9,7 @@
 // section sont possibles ; le nom garde les deux plus marquées.
 export const FONCTIONS = [
   { family: "bandeaux", nom: "Bandeau d'annonce", re: /\b(free shipping|livraison (offerte|gratuite)|limited time|today only|advertorial|advertisement)\b/gi },
-  { family: "temoignages", nom: "Avis clients", re: /\b(verified (buyer|purchase)|reviews?|testimonials?|avis clients?)\b|★|⭐|\bi (love|felt|tried|bought|was skeptical)\b|\bj'ai (testé|essayé|acheté)/gi },
+  { family: "temoignages", nom: "Avis clients", re: /\b(verified (buyer|purchase)|testimonials?|avis clients?)\b|[★⭐]+|\bi (love|felt|tried|bought|was skeptical)\b|\bj'ai (testé|essayé|acheté)|\breviews?\b(?! ?\))/gi },
   { family: "garantie", nom: "Garantie", re: /money[- ]back|guarantee|satisfaction garantie|garantie|rembours/gi },
   { family: "offre", nom: "Offre", re: /\b(order now|buy now|shop now|get (yours|it|my)|claim|limited|in stock|discount|sold out|check availability)\b|% off|commander|profitez|stock limité|\d+ ?% de réduction/gi },
   { family: "faq", nom: "FAQ", re: /\bfaq\b|frequently asked|questions fréquentes/gi },
@@ -23,6 +23,14 @@ export const FONCTIONS = [
   { family: "avantages", nom: "Avantages", re: /\bbenefits?\b|avantages?|bienfaits?/gi },
   { family: "mode-emploi", nom: "Mode d'emploi", re: /\b(step \d|how to use|simply)\b|étape \d|mode d'emploi/gi },
   { family: "newsletter", nom: "Newsletter", re: /\b(subscribe|newsletter|sign up)\b|inscri(s|vez)/gi },
+  { family: "presse", nom: "Vu dans la presse", re: /\bas seen (in|on)\b|\b(as )?featured (in|on)\b|vu (dans|à) la/gi },
+  { family: "packs", nom: "Packs", w: 2, re: /\bbundle|starter (kit|pack)|\b\d+[- ](bottles?|jars?|packs?|months?)( supply)?\b|\bbuy \d+,? get\b|\b(most popular|best value)\b|meilleure offre/gi },
+  { family: "fiche-produit", nom: "Bloc d'achat", w: 3, re: /\badd to (cart|bag)\b|ajouter au panier|\bquantity\b|quantité|subscribe (&|and) save|one[- ]time purchase|achat unique/gi },
+  { family: "details-produit", nom: "Détails du produit", re: /\bspecifications?\b|\bdimensions\b|what'?s in the box|what'?s included|caractéristiques|contenu du coffret/gi },
+  { family: "marque", nom: "Notre histoire", re: /\bour (story|mission|founder)\b|\bfounded (in|by)\b|notre (histoire|mission)/gi },
+  { family: "confiance", nom: "Badges de confiance", re: /secure checkout|\bssl\b|\bgmp\b|third[- ]party tested|made in (the )?usa|cruelty[- ]free|paiement sécurisé/gi },
+  { family: "video", nom: "Vidéo", re: /\bwatch (the|our|how)\b|\bvideos?\b|vidéos?/gi },
+  { family: "chiffres", nom: "Chiffres clés", re: /\b\d{2,3}% (of|des|of users)\b|\b\d{2,3},\d{3}\+|\b\d+k\+/gi },
   { family: "pied-de-page", nom: "Pied de page", re: /©|copyright|privacy policy|terms (of|and)|mentions légales|confidentialité/gi },
 ];
 export const FONCTION_BY_FAMILY = Object.fromEntries(FONCTIONS.map((f) => [f.family, f]));
@@ -39,7 +47,8 @@ export function familiesInText(text) {
 // first / last : la section ouvre ou ferme la page.
 export function fonctionOf(text, { first = false, last = false } = {}) {
   const t = plain(text);
-  const scored = FONCTIONS.map((f) => ({ ...f, n: (t.match(f.re) ?? []).length })).filter((f) => f.n > 0);
+  // w : poids d'un signe (un bouton panier dit plus qu'une étoile).
+  const scored = FONCTIONS.map((f) => ({ ...f, n: (t.match(f.re) ?? []).length * (f.w ?? 1) })).filter((f) => f.n > 0);
   if (last) scored.forEach((f) => f.family === "pied-de-page" && (f.n += 5));
   scored.sort((a, b) => b.n - a.n);
   const noms = scored.slice(0, first ? 1 : 2).map((f) => f.nom);

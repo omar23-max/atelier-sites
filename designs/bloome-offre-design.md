@@ -1,0 +1,60 @@
+# Bloome — produit
+
+Source : https://bloomelab.com/products/flo-brush
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Produit : FLO Brush 4-en-1 · Secteur : Beauté — chute de cheveux
+Page d'achat d'origine : https://bloomelab.com/products/flo-brush#MainContent
+
+## Ambiance
+
+Fiche produit de boutique : galerie, choix de packs, avis d'expert.
+
+## Structure relevée
+
+198 éléments dans l'ordre : 5 grands titres, 27 intertitres,
+161 paragraphes, 1 listes, 96 images, 4 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
+
+## Typographie
+
+- **Titres : Montserrat** (équivalent Google Fonts : Montserrat).
+  Grand titre 50 px ; intertitres 40 px.
+- **Texte : Montserrat, sans-serif** (équivalent : Montserrat), 14 px, interligne d'origine conservé à 1,6.
+
+## Couleurs
+
+| Rôle | Couleur |
+|---|---|
+| Fond de page | #ffffff |
+| Texte | #1f1f1f |
+| Titres | #191e2f |
+| Liens | #191e2f |
+| Bouton | #191e2f |
+| Texte des boutons | #ffffff |
+
+
+## Formes
+
+- Colonne de lecture : 422 px à 1440 px.
+- Rayon des boutons : 0px.
+
+## Jetons (utilisés par l'atelier)
+
+```json
+{
+  "polices": {
+    "titres": "Montserrat",
+    "texte": "Montserrat"
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f5f5f5",
+    "fond-sombre": "#191e2f",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#f5f5f5",
+    "bouton-texte": "#000000"
+  }
+}
+```

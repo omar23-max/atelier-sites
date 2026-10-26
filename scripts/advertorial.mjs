@@ -323,7 +323,7 @@ try {
   report.disparue = Boolean(gone);
 
   const height = Math.min(report.pageHeight, MAX_SHOT);
-  await page.screenshot({ path: join(outDir, "desktop.png"), clip: { x: 0, y: 0, width: 1440, height }, fullPage: true });
+  await page.screenshot({ path: join(outDir, "desktop.png"), clip: { x: 0, y: 0, width: 1440, height }, fullPage: true, timeout: 180000, animations: "disabled" });
   await writeFile(join(outDir, "page.html"), await page.content(), "utf8");
 
   // Structure et styles réels, en ordinateur puis en mobile (mêmes éléments) :
@@ -381,7 +381,7 @@ try {
   for (const [id, styles] of Object.entries(fresh)) snap.mobile[id] = styles;
   report.mobileRetrouves = `${found}/${snap.nodes.length}`;
   const mh = Math.min(await m.evaluate(() => document.documentElement.scrollHeight), MAX_SHOT);
-  await m.screenshot({ path: join(outDir, "mobile.png"), clip: { x: 0, y: 0, width: 390, height: mh }, fullPage: true });
+  await m.screenshot({ path: join(outDir, "mobile.png"), clip: { x: 0, y: 0, width: 390, height: mh }, fullPage: true, timeout: 180000, animations: "disabled" });
   await mctx.close();
 
   // Tablette (1024 px), chargée directement à cette largeur : la copie a ainsi

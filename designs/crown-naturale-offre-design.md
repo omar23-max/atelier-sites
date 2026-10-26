@@ -1,0 +1,59 @@
+# Crown Naturale — offre
+
+Source : https://more.crownnaturale.com/herbal-greens-powder
+Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Produit : Herbal Greens Powder · Secteur : Santé — poudre verte
+
+## Ambiance
+
+Page d'offre : 3 packs (1, 3, 6 mois), garantie 90 jours, FAQ.
+
+## Structure relevée
+
+80 éléments dans l'ordre : 3 grands titres, 21 intertitres,
+56 paragraphes, 0 listes, 49 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (5 sections).
+
+## Typographie
+
+- **Titres : Poppins** (équivalent Google Fonts : Poppins).
+  Grand titre 36 px ; intertitres 18 px.
+- **Texte : Poppins** (équivalent : Poppins), 18 px, interligne d'origine conservé à 1,6.
+
+## Couleurs
+
+| Rôle | Couleur |
+|---|---|
+| Fond de page | #ffffff |
+| Texte | #303030 |
+| Titres | #303030 |
+| Liens | #0b57d0 |
+| Bouton | #e4572e |
+| Texte des boutons | #ffffff |
+
+
+## Formes
+
+- Colonne de lecture : 1090 px à 1440 px.
+- Rayon des boutons : ?.
+
+## Jetons (utilisés par l'atelier)
+
+```json
+{
+  "polices": {
+    "titres": "Poppins",
+    "texte": "Poppins"
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#d3dfd1",
+    "fond-sombre": "#000000",
+    "texte": "#303030",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#000000",
+    "bouton": "#ff9900",
+    "bouton-texte": "#000000"
+  }
+}
+```
