@@ -536,6 +536,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         return `<${tag} class="${classAttr}" disabled></${tag}>`;
       }
       let open = `<${tag} class="${classAttr}"`;
+      if (n.open) open += " open";
       if (n.text != null) open += ` data-atl-slot="s${n.id}"`;
       if (gids.has(`g${n.id}`)) open += ` data-atl-group="g${n.id}"`;
       else if (n.bgImage) open += ` data-atl-slot="b${n.id}"`;

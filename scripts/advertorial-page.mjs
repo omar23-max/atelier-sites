@@ -170,8 +170,9 @@ const page = {
   root: {
     props: {
       title: `Import — ${host} (${pageType})`,
-      font_heading: fonts.titres,
-      font_body: fonts.texte,
+      // Pas de police imposée à toute la page : chaque titre et chaque texte
+      // garde la sienne (une page mélange souvent plusieurs polices de titre).
+      // Le design.md les note ; on ne les applique qu'en changeant de design.
       design: designId,
       pageType,
       produit: fiche.produit ?? "",

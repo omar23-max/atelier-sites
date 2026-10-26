@@ -65,6 +65,37 @@ async function scrollThrough(page) {
   await page.waitForTimeout(1000);
 }
 
+// Images chargées « à la demande » (lazy) : on les force toutes avant de lire
+// la page, sinon elles ont une taille nulle et disparaissent de la copie.
+async function loadLazyImages(page) {
+  await page.evaluate(async () => {
+    for (const img of document.querySelectorAll("img")) {
+      img.loading = "eager";
+      for (const a of ["data-src", "data-lazy-src", "data-original", "data-lazy"]) {
+        const v = img.getAttribute(a);
+        if (v && !/^data:/.test(v) && (!img.getAttribute("src") || /^data:|placeholder|blank|spacer/i.test(img.getAttribute("src")))) img.src = v;
+      }
+      const set = img.getAttribute("data-srcset");
+      if (set && !img.getAttribute("srcset")) img.srcset = set;
+      img.classList.remove("lazyload", "lazy");
+    }
+    for (const source of document.querySelectorAll("source[data-srcset]")) source.srcset = source.getAttribute("data-srcset");
+    // Défilement lent : les scripts de chargement différé voient chaque écran.
+    const step = Math.max(200, Math.floor(innerHeight * 0.5));
+    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+      scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    scrollTo(0, 0);
+    // Attente des images (10 s au plus).
+    await Promise.race([
+      Promise.all([...document.images].filter((i) => !i.complete).map((i) => new Promise((r) => ((i.onload = r), (i.onerror = r))))),
+      new Promise((r) => setTimeout(r, 10000)),
+    ]);
+  });
+  await page.waitForTimeout(800);
+}
+
 // Polices web de la page (@font-face), adresses rendues absolues.
 async function fontFaces(page) {
   const sheets = await page.evaluate(() =>
@@ -316,6 +347,7 @@ try {
   await page.waitForTimeout(1500);
   await dismissOverlays(page);
   await scrollThrough(page);
+  await loadLazyImages(page);
   await dismissOverlays(page);
 
   Object.assign(report, await page.evaluate(extract));
@@ -333,8 +365,10 @@ try {
       ? "nav, header, footer, .shopify-section-group-header-group, .shopify-section-group-footer-group, [id*=announcement], [class*=announcement]"
       : "nav",
   );
-  // ATL_GARDER_MENU=1 : la page est une section seule (Whitelabeler), son menu compris.
-  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector: process.env.ATL_GARDER_MENU ? "atl-aucun" : chromeSelector, textProps: TEXT_PROPS });
+  // La copie reprend toute la page, en-tête, bandeau d'annonce et pied de page
+  // de la boutique compris (un template doit être identique à l'original).
+  // ATL_SANS_THEME=1 : on les laisse de côté (article qui garde ceux de la boutique).
+  const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector: process.env.ATL_SANS_THEME ? chromeSelector : "atl-aucun", textProps: TEXT_PROPS });
   snap.fonts = await fontFaces(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(1200);
