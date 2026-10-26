@@ -16,7 +16,15 @@ import { fileURLToPath } from "node:url";
 import { buildCopy } from "./lib/copie.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const [source, ...only] = process.argv.slice(2);
+// Options pour un aperçu de la Section library (une section par fichier) :
+//   --type <code du menu> (catégorie), --id <id de la section>, --numero <n>.
+const argv = process.argv.slice(2);
+const opt = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : null);
+const optType = opt("--type");
+const optId = opt("--id");
+const optNum = opt("--numero");
+const positional = argv.filter((a, i) => !a.startsWith("--") && !argv[i - 1]?.startsWith("--"));
+const [source, ...only] = positional;
 if (!source || !existsSync(source)) {
   console.error("Usage : node scripts/whitelabeler.mjs imports/<dossier>/source.html [n°…]");
   process.exit(1);
@@ -80,7 +88,7 @@ for (const [i, m] of opens.entries()) {
   counters[nature] = (counters[nature] ?? 0) + 1;
   const n = i + 1;
   if (only.length && !only.includes(String(n))) continue;
-  const [family, nom] = NATURES[nature] ?? ["autres", nature.replace(/_/g, " ")];
+  const [family, nom] = NATURES[optType ?? nature] ?? NATURES[nature] ?? ["autres", nature.replace(/_/g, " ")];
   const titre = /aria-label="([^"]+)"/.exec(m[0])?.[1];
   const num = String(n).padStart(2, "0");
   // La page de cette section seule.
@@ -101,7 +109,8 @@ for (const [i, m] of opens.entries()) {
     continue;
   }
   const snap = JSON.parse(await readFile(join(root, "imports", slug, "snapshot.json"), "utf8"));
-  const id = `wl-${nature.replace(/_/g, "-")}-${counters[nature]}`;
+  const id = optId ?? `wl-${nature.replace(/_/g, "-")}-${counters[nature]}`;
+  const numero = optNum ?? counters[nature];
   const copy = buildCopy({ snap, slug: id, root, label: nom });
   // Parties d'un import précédent devenues inutiles. Les dossiers gardés sont
   // réécrits sur place : le serveur de l'atelier perd la trace d'un dossier
@@ -116,12 +125,12 @@ for (const [i, m] of opens.entries()) {
     const sid = copy.sections.length === 1 ? id : `${id}-${p + 1}`;
     const css = s.css.replaceAll(`atl-${s.id}`, `atl-${sid}`);
     const template = s.template.replaceAll(`atl-${s.id}`, `atl-${sid}`);
-    const schema = { ...s.schema, presets: [{ name: `${nom} ${counters[nature]}`, blocks: s.blocks.map((b) => ({ type: "element", settings: b })) }] };
+    const schema = { ...s.schema, presets: [{ name: `${nom} ${numero}`, blocks: s.blocks.map((b) => ({ type: "element", settings: b })) }] };
     const { pageSpecific, families, fonction, ...rest } = s.meta;
     const suffix = copy.sections.length > 1 ? ` (${p + 1}/${copy.sections.length})` : "";
     const meta = {
       ...rest,
-      label: `${nom}${titre && titre !== "Reasons to buy" ? ` · ${titre}` : ""}${suffix} — Whitelabeler ${counters[nature]}`,
+      label: `${nom}${titre && titre !== "Reasons to buy" ? ` · ${titre}` : ""}${suffix} — Whitelabeler ${numero}`,
       family,
       fonction: nom,
       source: { url: null, capturedAt: new Date().toISOString().slice(0, 10), note: `Section Whitelabeler « ${nature} » copiée depuis imports/${folder}/source.html (scripts/whitelabeler.mjs).` },
