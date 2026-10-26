@@ -14,7 +14,7 @@ export const FONCTIONS = [
   { family: "offre", nom: "Offre", re: /\b(order now|buy now|shop now|get (yours|it|my)|claim|limited|in stock|discount|sold out|check availability)\b|% off|commander|profitez|stock limité|\d+ ?% de réduction/gi },
   { family: "faq", nom: "FAQ", re: /\bfaq\b|frequently asked|questions fréquentes/gi },
   { family: "expert", nom: "Avis d'expert", re: /\b(dr\.|doctor|dermatologist|physician|nutritionist|expert|médecin|docteur)/gi },
-  { family: "comparatif", nom: "Tableau comparatif", re: /\bvs\.?\s|compared to|comparison|other brands|contrairement aux|par rapport aux/gi },
+  { family: "comparatif", nom: "Tableau comparatif", re: /\bvs\.?\s|compared to|comparison|other brands|\bis better\b|\bwhy (our|we)\b.*\bbetter\b|contrairement aux|par rapport aux/gi, w: 2 },
   { family: "resultats", nom: "Résultats", re: /\b(within|after) \d+ (days?|weeks?)\b|\bresults?\b|en \d+ (jours|semaines)|résultats?/gi },
   { family: "probleme", nom: "Problème", re: /\b(pain|suffer|struggl|tired of|problem|frustrat)|douleur|souffr|problème|marre de/gi },
   { family: "solution", nom: "Solution", re: /\b(how (it|does it) works?|secret|discover|breakthrough|technology|solution)|découv|fonctionne|technologie/gi },
@@ -30,7 +30,7 @@ export const FONCTIONS = [
   { family: "marque", nom: "Notre histoire", re: /\bour (story|mission|founder)\b|\bfounded (in|by)\b|notre (histoire|mission)/gi },
   { family: "confiance", nom: "Badges de confiance", re: /secure checkout|\bssl\b|\bgmp\b|third[- ]party tested|made in (the )?usa|cruelty[- ]free|paiement sécurisé/gi },
   { family: "video", nom: "Vidéo", re: /\bwatch (the|our|how)\b|\bvideos?\b|vidéos?/gi },
-  { family: "chiffres", nom: "Chiffres clés", re: /\b\d{2,3}% (of|des|of users)\b|\b\d{2,3},\d{3}\+|\b\d+k\+/gi },
+  { family: "chiffres", nom: "Chiffres clés", re: /\b\d{2,3}% (of|des|of users)\b|\b\d{2,3},\d{3}\+|\b\d+k\+|\b\d+(\.\d+)?\+? ?(million|millions|billion)\b/gi, w: 2 },
   { family: "pied-de-page", nom: "Pied de page", re: /©|copyright|privacy policy|terms (of|and)|mentions légales|confidentialité/gi },
 ];
 export const FONCTION_BY_FAMILY = Object.fromEntries(FONCTIONS.map((f) => [f.family, f]));
@@ -52,7 +52,9 @@ export function fonctionOf(text, { first = false, last = false } = {}) {
   if (last) scored.forEach((f) => f.family === "pied-de-page" && (f.n += 5));
   scored.sort((a, b) => b.n - a.n);
   const noms = scored.slice(0, first ? 1 : 2).map((f) => f.nom);
-  if (first) noms.unshift("Hero");
+  // La première section n'est un « Hero » que si ce n'est pas déjà un bloc d'achat.
+  const buyBox = scored[0]?.family === "fiche-produit" || scored[0]?.family === "packs";
+  if (first && !buyBox) noms.unshift("Hero");
   if (!noms.length) noms.push("Contenu");
-  return { nom: noms.join(" · "), families: [...(first ? ["entete", "hero"] : []), ...scored.map((f) => f.family)] };
+  return { nom: noms.join(" · "), families: [...(first && !buyBox ? ["entete", "hero"] : []), ...scored.map((f) => f.family)] };
 }

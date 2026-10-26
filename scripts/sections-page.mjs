@@ -104,8 +104,8 @@ for (const [i, top] of tops.entries()) {
   n++;
   // Beaucoup de prix et plusieurs boutons d'achat : une grille de produits.
   const prices = (text.match(/[$€£]\s?\d/g) ?? []).length;
-  const buys = (text.match(/add to (cart|bag)|shop now|ajouter au panier|buy/gi) ?? []).length;
-  const grid = prices >= 6 && buys >= 3;
+  const buys = (text.match(/add to (cart|bag)|shop now|ajouter au panier|view product/gi) ?? []).length;
+  const grid = prices >= 6 && buys >= 4;
   const family = grid ? "collection" : (f.families.find((x) => x !== "entete") ?? "autres");
   if (grid) f.nom = "Grille de produits";
   // Très grande section (grille de 30 produits…) : on garde son début, une
