@@ -11,8 +11,8 @@ Fiche produit : galerie, choix, accordéons.
 ## Structure relevée
 
 139 éléments dans l'ordre : 3 grands titres, 21 intertitres,
-108 paragraphes, 0 listes, 84 images, 7 boutons.
-Copie entière dans la section « Advertorial — article complet » (8 sections).
+108 paragraphes, 0 listes, 86 images, 7 boutons.
+Copie entière dans la section « Advertorial — article complet » (9 sections).
 
 ## Typographie
 

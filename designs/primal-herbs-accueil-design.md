@@ -12,8 +12,8 @@ Page d'accueil de marque : hero, produits phares, preuves.
 ## Structure relevée
 
 126 éléments dans l'ordre : 11 grands titres, 44 intertitres,
-69 paragraphes, 1 listes, 55 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (8 sections).
+69 paragraphes, 1 listes, 57 images, 1 boutons.
+Copie entière dans la section « Advertorial — article complet » (9 sections).
 
 ## Typographie
 
@@ -49,7 +49,7 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
   "couleurs": {
     "fond": "#ffffff",
     "surface": "#fbfbf7",
-    "fond-sombre": "#3d4d45",
+    "fond-sombre": "#0c2016",
     "texte": "#0c2016",
     "texte-sur-sombre": "#ffffff",
     "accent": "#ffffff",

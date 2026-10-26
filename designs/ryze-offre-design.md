@@ -12,8 +12,8 @@ Page d'offre.
 ## Structure relevée
 
 277 éléments dans l'ordre : 17 grands titres, 51 intertitres,
-199 paragraphes, 0 listes, 179 images, 10 boutons.
-Copie entière dans la section « Advertorial — article complet » (22 sections).
+199 paragraphes, 0 listes, 183 images, 10 boutons.
+Copie entière dans la section « Advertorial — article complet » (23 sections).
 
 ## Typographie
 

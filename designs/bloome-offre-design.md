@@ -1,7 +1,7 @@
 # Bloome — produit
 
 Source : https://bloomelab.com/products/flo-brush
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : FLO Brush 4-en-1 · Secteur : Beauté — chute de cheveux
 Page d'achat d'origine : https://bloomelab.com/products/flo-brush#MainContent
 
@@ -12,8 +12,8 @@ Fiche produit de boutique : galerie, choix de packs, avis d'expert.
 ## Structure relevée
 
 198 éléments dans l'ordre : 5 grands titres, 27 intertitres,
-161 paragraphes, 1 listes, 96 images, 4 boutons.
-Copie entière dans la section « Advertorial — article complet » (11 sections).
+161 paragraphes, 1 listes, 97 images, 4 boutons.
+Copie entière dans la section « Advertorial — article complet » (12 sections).
 
 ## Typographie
 

@@ -11,8 +11,8 @@ Fiche produit de boutique.
 ## Structure relevée
 
 135 éléments dans l'ordre : 5 grands titres, 14 intertitres,
-110 paragraphes, 2 listes, 81 images, 2 boutons.
-Copie entière dans la section « Advertorial — article complet » (9 sections).
+110 paragraphes, 2 listes, 84 images, 2 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
 
 ## Typographie
 
@@ -48,11 +48,11 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
   "couleurs": {
     "fond": "#ffffff",
     "surface": "#f9f9f7",
-    "fond-sombre": "#363432",
+    "fond-sombre": "#212121",
     "texte": "#000000",
     "texte-sur-sombre": "#ffffff",
     "accent": "#3a3a3c",
-    "bouton": "#ff9900",
+    "bouton": "#ffffff",
     "bouton-texte": "#3a3a3c"
   }
 }

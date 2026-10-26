@@ -1,7 +1,7 @@
 # PrimePrometics — listicle
 
 Source : https://www.primeprometics.com/pages/eyelash-tips-tbla
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Mascara pour femmes 40+ · Secteur : Beauté — cils
 
 ## Ambiance
@@ -11,8 +11,8 @@ Liste « Arrêtez ces 6 erreurs » puis découverte du produit, ton éditorial.
 ## Structure relevée
 
 93 éléments dans l'ordre : 1 grands titres, 29 intertitres,
-63 paragraphes, 0 listes, 38 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (6 sections).
+63 paragraphes, 0 listes, 39 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (7 sections).
 
 ## Typographie
 
@@ -48,10 +48,10 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
   "couleurs": {
     "fond": "#ffffff",
     "surface": "#f5f5f5",
-    "fond-sombre": "#010000",
+    "fond-sombre": "#c23378",
     "texte": "#212529",
     "texte-sur-sombre": "#ffffff",
-    "accent": "#292929",
+    "accent": "#ffffff",
     "bouton": "#c23378",
     "bouton-texte": "#ffffff"
   }

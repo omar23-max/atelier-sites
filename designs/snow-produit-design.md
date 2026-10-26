@@ -12,7 +12,7 @@ Page d'accueil de marque : hero, grille de produits, avis.
 ## Structure relevée
 
 54 éléments dans l'ordre : 3 grands titres, 6 intertitres,
-12 paragraphes, 0 listes, 20 images, 1 boutons.
+12 paragraphes, 0 listes, 23 images, 1 boutons.
 Copie entière dans la section « Advertorial — article complet » (4 sections).
 
 ## Typographie

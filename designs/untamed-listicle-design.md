@@ -1,7 +1,7 @@
 # Untamed — landing
 
 Source : https://untamed.com/pages/food-cats-will-go-wild-for
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Repas pour chats · Secteur : Animaux — nourriture pour chats
 Page d'achat d'origine : https://untamed.com/products/try-now
 
@@ -12,12 +12,12 @@ Landing de vente : hero avec chat, « comment ça marche », recettes, essai à 
 ## Structure relevée
 
 78 éléments dans l'ordre : 4 grands titres, 14 intertitres,
-56 paragraphes, 1 listes, 58 images, 3 boutons.
+56 paragraphes, 1 listes, 61 images, 3 boutons.
 Copie entière dans la section « Advertorial — article complet » (7 sections).
 
 ## Typographie
 
-- **Titres : Poppins** (équivalent Google Fonts : Poppins).
+- **Titres : Poppins** (équivalent Google Fonts : QuincyCF-Bold).
   Grand titre 74 px ; intertitres 23 px.
 - **Texte : Poppins** (équivalent : Poppins), 16 px, interligne d'origine conservé à 1,6.
 
@@ -43,7 +43,7 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
 ```json
 {
   "polices": {
-    "titres": "Poppins",
+    "titres": "QuincyCF-Bold",
     "texte": "Poppins"
   },
   "couleurs": {
@@ -52,6 +52,7 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "fond-sombre": "#2e4740",
     "texte": "#2e4740",
     "texte-sur-sombre": "#fcf5e3",
+    "accent": "#ffffff",
     "bouton": "#91dae0",
     "bouton-texte": "#2e4740"
   }

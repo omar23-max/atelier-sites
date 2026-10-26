@@ -1,9 +1,9 @@
 # Hostage Tape — listicle
 
 Source : https://hostagetape.com/pages/ht-listicalt
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Bande buccale pour le sommeil · Secteur : Santé — sommeil
-Page d'achat d'origine : https://hostagetape.com/pages/sleep-quiz
+Page d'achat d'origine : https://hostagetape.com/products/starter
 
 ## Ambiance
 
@@ -11,14 +11,14 @@ Page d'achat d'origine : https://hostagetape.com/pages/sleep-quiz
 
 ## Structure relevée
 
-101 éléments dans l'ordre : 6 grands titres, 14 intertitres,
-79 paragraphes, 1 listes, 24 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (4 sections).
+101 éléments dans l'ordre : 1 grands titres, 14 intertitres,
+82 paragraphes, 2 listes, 35 images, 2 boutons.
+Copie entière dans la section « Advertorial — article complet » (5 sections).
 
 ## Typographie
 
 - **Titres : -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif** (équivalent Google Fonts : -apple-system).
-  Grand titre 58 px ; intertitres 26 px.
+  Grand titre 52 px ; intertitres 34 px.
 - **Texte : -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif** (équivalent : -apple-system), 16 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
@@ -29,13 +29,13 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
 | Texte | #1a1a1a |
 | Titres | #000000 |
 | Liens | #0b57d0 |
-| Bouton | #000000 |
+| Bouton | #0b61cd |
 | Texte des boutons | #ffffff |
 
 
 ## Formes
 
-- Colonne de lecture : 422 px à 1440 px.
+- Colonne de lecture : 686 px à 1440 px.
 - Rayon des boutons : 8px.
 
 ## Jetons (utilisés par l'atelier)
@@ -50,9 +50,9 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "fond": "#ffffff",
     "surface": "#f5f5f5",
     "fond-sombre": "#111111",
-    "texte": "#333333",
+    "texte": "#555555",
     "texte-sur-sombre": "#ffffff",
-    "accent": "#000000",
+    "accent": "#ffffff",
     "bouton": "#ffffff",
     "bouton-texte": "#000000"
   }

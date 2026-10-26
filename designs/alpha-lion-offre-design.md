@@ -1,7 +1,7 @@
 # Alpha Lion — offre
 
 Source : https://try.alphalion.com/offers/shb-lp01
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : SuperHuman Burn · Secteur : Sport — brûleur de graisse
 
 ## Ambiance
@@ -10,8 +10,8 @@ Page d'offre avec compte à rebours (Fall Sale), ton sportif.
 
 ## Structure relevée
 
-175 éléments dans l'ordre : 21 grands titres, 35 intertitres,
-115 paragraphes, 3 listes, 32 images, 1 boutons.
+174 éléments dans l'ordre : 21 grands titres, 34 intertitres,
+115 paragraphes, 3 listes, 31 images, 1 boutons.
 Copie entière dans la section « Advertorial — article complet » (7 sections).
 
 ## Typographie

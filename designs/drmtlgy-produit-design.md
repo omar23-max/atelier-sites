@@ -1,7 +1,7 @@
 # DRMTLGY — produit
 
 Source : https://www.drmtlgy.com/pages/lec-3-reasons-why-listicle
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Luminous Eye Corrector SPF 41 · Secteur : Beauté — soin des yeux
 Page d'achat d'origine : https://www.drmtlgy.com/en-ca/pages/lec-3-reasons-why-listicle#shopify-section-template--product_section_drm_v_2_nmBYVF
 
@@ -12,8 +12,8 @@ Fiche produit de boutique : galerie, teintes, offre -25 %, FAQ en accordéon, pr
 ## Structure relevée
 
 64 éléments dans l'ordre : 10 grands titres, 0 intertitres,
-50 paragraphes, 0 listes, 64 images, 4 boutons.
-Copie entière dans la section « Advertorial — article complet » (4 sections).
+50 paragraphes, 0 listes, 74 images, 4 boutons.
+Copie entière dans la section « Advertorial — article complet » (6 sections).
 
 ## Typographie
 
@@ -49,10 +49,10 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
   "couleurs": {
     "fond": "#f9f8f6",
     "surface": "#ffffff",
-    "fond-sombre": "#000000",
+    "fond-sombre": "#231f20",
     "texte": "#000000",
     "texte-sur-sombre": "#ffffff",
-    "accent": "#707070",
+    "accent": "#121212",
     "bouton": "#233a36",
     "bouton-texte": "#ffffff"
   }

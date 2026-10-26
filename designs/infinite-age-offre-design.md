@@ -1,7 +1,7 @@
 # Infinite Age — offre
 
 Source : https://infiniteage.com/pages/lp2
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Sea Moss Advanced · Secteur : Santé — glycémie / nerfs
 Page d'achat d'origine : https://checkout.infiniteage.com/paypal-split-60d
 
@@ -12,7 +12,7 @@ Page d'offre : promesse, bénéfices, presse, FAQ longue.
 ## Structure relevée
 
 102 éléments dans l'ordre : 9 grands titres, 26 intertitres,
-60 paragraphes, 4 listes, 116 images, 3 boutons.
+60 paragraphes, 4 listes, 117 images, 3 boutons.
 Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie

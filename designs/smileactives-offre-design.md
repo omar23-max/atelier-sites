@@ -11,8 +11,8 @@ Page d'offre spéciale.
 ## Structure relevée
 
 117 éléments dans l'ordre : 16 grands titres, 54 intertitres,
-45 paragraphes, 2 listes, 33 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (4 sections).
+45 paragraphes, 2 listes, 37 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (5 sections).
 
 ## Typographie
 
@@ -50,7 +50,7 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "surface": "#02a4b4",
     "fond-sombre": "#0048ff",
     "texte": "#000000",
-    "accent": "#565656",
+    "accent": "#ffffff",
     "bouton": "#e05652",
     "bouton-texte": "#ffffff"
   }

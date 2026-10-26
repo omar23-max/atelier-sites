@@ -1,7 +1,7 @@
 # Luma Nutrition — landing
 
 Source : https://lumanutrition.com/pages/berberine
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Berberine 1 200 mg · Secteur : Santé — glycémie
 Page d'achat d'origine : https://lumanutrition.com/products/berberine#main
 
@@ -49,10 +49,10 @@ Copie entière dans la section « Advertorial — article complet » (10 section
   "couleurs": {
     "fond": "#ffffff",
     "surface": "#fbfbfa",
-    "fond-sombre": "#0a6b59",
+    "fond-sombre": "#0e1113",
     "texte": "#14181a",
     "texte-sur-sombre": "#ffffff",
-    "accent": "#ffd700",
+    "accent": "#ffffff",
     "bouton": "#e8a33d",
     "bouton-texte": "#14181a"
   }

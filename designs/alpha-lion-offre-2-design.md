@@ -1,7 +1,7 @@
 # Alpha Lion — offre
 
 Source : https://try.alphalion.com/offers/b2o-lp01
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Burn2O (shot liquide sans caféine) · Secteur : Sport — brûleur de graisse
 Page d'achat d'origine : https://try.alphalion.com/offers/b2o-lp01-control#buy-box
 
@@ -13,7 +13,7 @@ Page d'offre avec compte à rebours, packs.
 
 146 éléments dans l'ordre : 3 grands titres, 42 intertitres,
 99 paragraphes, 1 listes, 20 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (8 sections).
+Copie entière dans la section « Advertorial — article complet » (6 sections).
 
 ## Typographie
 

@@ -1,7 +1,7 @@
 # Lume — offre
 
 Source : https://try.lumedeodorant.com/fb-pro-2
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Déodorant sans aluminium (Starter Pack) · Secteur : Hygiène — déodorant
 
 ## Ambiance

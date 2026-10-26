@@ -1,7 +1,7 @@
 # Nectar — listicle
 
 Source : https://drinknectar.co/pages/10-reasons-why
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : Mélange d'électrolytes · Secteur : Santé — hydratation
 Page d'achat d'origine : https://drinknectar.com/pages/10-reasons-why#MainContent
 
@@ -13,7 +13,7 @@ Page d'achat d'origine : https://drinknectar.com/pages/10-reasons-why#MainConten
 
 43 éléments dans l'ordre : 7 grands titres, 9 intertitres,
 24 paragraphes, 2 listes, 19 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (2 sections).
+Copie entière dans la section « Advertorial — article complet » (3 sections).
 
 ## Typographie
 
@@ -51,6 +51,7 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
     "surface": "#eef7ff",
     "fond-sombre": "#0d3063",
     "texte": "#0d3063",
+    "texte-sur-sombre": "#ffffff",
     "bouton": "#0d3063",
     "bouton-texte": "#ffffff"
   }

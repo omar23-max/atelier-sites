@@ -10,9 +10,9 @@ Fiche produit sombre : packs, avant/après, témoignages.
 
 ## Structure relevée
 
-127 éléments dans l'ordre : 5 grands titres, 24 intertitres,
-86 paragraphes, 11 listes, 56 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (6 sections).
+128 éléments dans l'ordre : 5 grands titres, 24 intertitres,
+87 paragraphes, 11 listes, 59 images, 1 boutons.
+Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie
 
@@ -51,6 +51,7 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "fond-sombre": "#1c1c1c",
     "texte": "#ffffff",
     "texte-sur-sombre": "#ffffff",
+    "accent": "#f4f4f4",
     "bouton": "#5f7b87",
     "bouton-texte": "#ffffff"
   }

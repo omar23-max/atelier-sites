@@ -1,7 +1,7 @@
 # Ancestral Supplements — landing
 
 Source : https://ancestralsupplements.com/pages/fem
-Capturé le : 2026-10-25 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
 Produit : FEM (organes pour femmes) · Secteur : Santé — femmes
 
 ## Ambiance
@@ -51,7 +51,8 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "fond-sombre": "#261c16",
     "texte": "#261c16",
     "texte-sur-sombre": "#f9f1e7",
-    "bouton": "#ffffff",
+    "accent": "#1f0a00",
+    "bouton": "#fcf8ed",
     "bouton-texte": "#1f0a00"
   }
 }
