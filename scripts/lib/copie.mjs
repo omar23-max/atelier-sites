@@ -382,6 +382,20 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       const inFlow = aliveKids(n).some((k) => k.text != null || !["absolute", "fixed"].includes(byId[k.n].style.position));
       const noContent = n.text == null && !inFlow;
       if (abs || noContent || (n.bgImage && st["overflow-y"] === "hidden")) out.height = `${box.h}px`;
+      // Bloc qui coupe son contenu (réponse de FAQ fermée, texte replié,
+      // panneau d'onglet caché) : sa hauteur réelle le garde fermé.
+      const clips = /hidden|clip/.test(st["overflow-y"] ?? st.overflow ?? "");
+      if (clips && !out.height) {
+        const kidsBottom = Math.max(
+          -Infinity,
+          ...aliveKids(n)
+            .filter((k) => k.text == null)
+            .map((k) => boxIn(byId[k.n], mode))
+            .filter((b) => b && b.h > 0)
+            .map((b) => b.y + b.h),
+        );
+        if (box.h < 1 || kidsBottom > box.y + box.h + 2) out.height = `${box.h}px`;
+      }
       // Bloc centré : marges automatiques plutôt qu'en pixels.
       const ml = px(st["margin-left"]);
       const mr = px(st["margin-right"]);
@@ -390,6 +404,12 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         out["margin-right"] = "auto";
       }
     }
+    // Invisible et sans taille sur l'original (version pour un autre écran,
+    // onglet inactif) : dans la copie il ne doit pas non plus prendre de place.
+    if (st.visibility === "hidden" && (!box.w || !box.h)) out.display = "none";
+    // Texte réservé aux lecteurs d'écran (bloc absolu de 1 px) : rien à voir,
+    // et hors de son bloc il allongerait la page.
+    if (st.position === "absolute" && box.w <= 1 && box.h <= 1) out.display = "none";
     // Grilles en pixels → proportions (s'adaptent à la largeur).
     const cols = out["grid-template-columns"];
     if (cols && /^[\d.]+px( [\d.]+px)+$/.test(cols)) {
