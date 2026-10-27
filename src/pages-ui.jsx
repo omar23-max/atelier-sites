@@ -158,8 +158,8 @@ export function NewPageButton({ pages, projects, templates }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} title="Nouvelle page dans ce projet">
-        + Nouvelle
+      <button type="button" onClick={() => setOpen(true)} title="Nouvelle page dans ce projet" className="atl-plus" aria-label="Nouvelle page">
+        +
       </button>
       {open && <NewPageDialog pages={pages} projects={projects} templates={templates} onClose={() => setOpen(false)} />}
     </>
@@ -472,8 +472,8 @@ export function NewProjectButton({ pages, projects, templates }) {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} title="Nouveau projet (un produit ou une gamme)">
-        + Nouveau
+      <button type="button" onClick={() => setOpen(true)} title="Nouveau projet (un produit ou une gamme)" className="atl-plus" aria-label="Nouveau projet">
+        +
       </button>
       {open && <NewProjectDialog pages={pages} projects={projects} templates={templates} onClose={() => setOpen(false)} />}
     </>

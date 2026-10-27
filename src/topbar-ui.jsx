@@ -1,0 +1,43 @@
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { createUsePuck, useGetPuck } from "@puckeditor/core";
+
+const usePuckSelect = createUsePuck();
+
+// Les outils de l'éditeur (annuler, écrans, langue, HTML, Shopify, Publish)
+// sont rendus par Puck dans son en-tête (overrides.headerActions) mais
+// affichés dans la barre du haut, à côté de Projet / Page / Design : une seule
+// barre au lieu de deux. Le portail garde le contexte de Puck.
+export function TopbarTools({ children }) {
+  const [slot, setSlot] = useState(null);
+  useEffect(() => setSlot(document.getElementById("atl-topbar-tools")), []);
+  return slot ? createPortal(<div className="atl-tools">{children}</div>, slot) : null;
+}
+
+// Annuler / Rétablir (remplace ceux de l'en-tête de Puck, masqué), placés
+// dans la barre de l'aperçu (Original / Modifiable, zoom) pour libérer la
+// barre du haut.
+export function UndoRedo() {
+  const getPuck = useGetPuck();
+  const hasPast = usePuckSelect((s) => s.history.hasPast);
+  const hasFuture = usePuckSelect((s) => s.history.hasFuture);
+  const [slot, setSlot] = useState(null);
+  useEffect(() => {
+    const find = () => document.querySelector('[class*="ViewportControls-actionsInner"]');
+    if (find()) return setSlot(find());
+    const timer = setInterval(() => find() && (setSlot(find()), clearInterval(timer)), 300);
+    return () => clearInterval(timer);
+  }, []);
+  if (!slot) return null;
+  return createPortal(
+    <div className="atl-undo" role="group" aria-label="Historique des modifications">
+      <button type="button" disabled={!hasPast} onClick={() => getPuck().history.back()} title="Annuler (Ctrl+Z)" aria-label="Annuler">
+        ↶
+      </button>
+      <button type="button" disabled={!hasFuture} onClick={() => getPuck().history.forward()} title="Rétablir (Ctrl+Y)" aria-label="Rétablir">
+        ↷
+      </button>
+    </div>,
+    slot,
+  );
+}

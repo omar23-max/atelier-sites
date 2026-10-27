@@ -3604,7 +3604,7 @@ body.atl-rail-only .atl-left {
   grid-template-columns: 0 var(--puck-sidebar-left-width, 48px) 0 minmax(0, 1fr) !important;
 }
 html[data-atl-edit] [class*="PuckLayout-inner"] {
-  grid-template-columns: 0 48px 360px minmax(0, 1fr) !important;
+  grid-template-columns: 0 48px 300px minmax(0, 1fr) !important;
 }
 html:not([data-atl-edit]) [class*="Sidebar--right"] {
   visibility: hidden;
@@ -3629,11 +3629,93 @@ html[data-atl-edit] .atl-tool-panel {
 /* Outil ouvert dans la colonne de gauche (Palette, Ajouter…) : même largeur
    que l'éditeur de section, pour que noms et boutons « Appliquer » restent visibles. */
 body:not(.atl-rail-only) [class*="PuckLayout"] {
-  --puck-sidebar-left-width: 408px !important;
-  --puck-user-sidebar-left-width: 408px !important;
+  --puck-sidebar-left-width: 348px !important;
+  --puck-user-sidebar-left-width: 348px !important;
 }
 .atl-palettes { grid-template-columns: minmax(0, 1fr); }
 .atl-palettes li { min-width: 0; }
 
 /* Langue de la page (EN / FR) dans la barre du haut */
 .atl-langs button { min-width: 38px; font-weight: 600; }
+
+/* ---- Une seule barre en haut ----
+   Projet / Page / Design (chacun avec « + »), puis écrans, langue, HTML,
+   Shopify, Publish. L'en-tête de Puck (boutons des panneaux) est masqué ;
+   Annuler / Rétablir vont dans la barre de l'aperçu. */
+[class*="PuckHeader"] {
+  display: none !important;
+}
+.atl-topbar {
+  gap: 10px;
+  height: 54px;
+  padding: 6px 12px;
+}
+.atl-topbar__groups {
+  gap: 8px;
+}
+.atl-group {
+  gap: 6px;
+  height: 40px;
+  padding: 0 4px 0 10px;
+}
+.atl-group .atl-topbar__field > span,
+.atl-group__label {
+  font-size: 14px;
+}
+.atl-group .atl-topbar__field {
+  gap: 6px;
+}
+.atl-topbar button.atl-plus {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 7px;
+  font: 600 18px/1 "Inter", system-ui, sans-serif;
+}
+#atl-topbar-tools {
+  display: contents;
+}
+.atl-tools {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+.atl-tools .atl-publish {
+  margin-left: 6px;
+}
+.atl-tools .atl-devices button {
+  padding: 5px 9px;
+  font-size: 14px;
+}
+.atl-topbar .atl-tools button {
+  border: 0;
+}
+.atl-topbar .atl-tools .atl-publish button,
+.atl-topbar .atl-tools .atl-publish a {
+  border: 1px solid #ccc;
+}
+/* Annuler / Rétablir dans la barre de l'aperçu */
+.atl-undo {
+  display: inline-flex;
+  gap: 2px;
+  margin-right: 6px;
+}
+.atl-undo button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #333;
+  font-size: 18px;
+  cursor: pointer;
+}
+.atl-undo button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+.atl-undo button:disabled {
+  color: #c4c4c4;
+  cursor: default;
+}

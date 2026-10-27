@@ -29,9 +29,10 @@ export function DeviceSwitch() {
           type="button"
           className={current?.label === d.label ? "is-on" : ""}
           onClick={() => document.querySelector(`button[title="${d.puck}"]`)?.click()}
-          title={`Voir la page sur ${d.label.toLowerCase()} (${d.width} px)`}
+          title={`${d.label} (${d.width} px)`}
+          aria-label={d.label}
         >
-          <span aria-hidden="true">{d.icon}</span> {d.label}
+          <span aria-hidden="true">{d.icon}</span>
         </button>
       ))}
     </div>

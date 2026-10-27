@@ -11,7 +11,8 @@ import { StudioButton } from "./studio-ui.jsx";
 import { BoardButton } from "./board-ui.jsx";
 import { DeviceSwitch } from "./device-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
-import { DesignSelect } from "./design-ui.jsx";
+import { DesignSelect, NewDesignButton } from "./design-ui.jsx";
+import { TopbarTools, UndoRedo } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
@@ -109,6 +110,7 @@ export default function App() {
           </div>
           <div className="atl-group">
             <DesignSelect pageName={pageName} current={data?.root?.props?.design ?? null} getData={() => latest.current ?? data} />
+            <NewDesignButton />
           </div>
           <OriginalSwitch
             importSource={data?.root?.props?.importSource ?? null}
@@ -118,6 +120,8 @@ export default function App() {
             getData={() => latest.current ?? data}
           />
         </div>
+        {/* Écrans, langue, HTML, Shopify, Publish : rendus par Puck (topbar-ui). */}
+        <div id="atl-topbar-tools" />
         {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
       </div>
       {data && pages.length > 0 && (
@@ -161,14 +165,19 @@ export default function App() {
                 <BoardButton />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
-                <DeviceSwitch />
-                <LanguageSwitch />
                 <FullscreenButton />
-                <span className="atl-publish">
-                  <DownloadHtmlButton />
-                  <ShopifyButton />
-                  {children}
-                </span>
+                {/* Annuler / Rétablir : dans la barre de l'aperçu. */}
+                <UndoRedo />
+                {/* Une seule barre en haut : ces outils s'affichent à côté de Projet / Page / Design. */}
+                <TopbarTools>
+                  <DeviceSwitch />
+                  <LanguageSwitch />
+                  <span className="atl-publish">
+                    <DownloadHtmlButton />
+                    <ShopifyButton />
+                    {children}
+                  </span>
+                </TopbarTools>
               </>
             ),
           }}

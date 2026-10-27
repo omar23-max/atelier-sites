@@ -59,3 +59,13 @@ export function DesignSelect({ pageName, current, getData }) {
     </label>
   );
 }
+
+// « + » du bloc Design : un nouveau design.md, depuis l'outil Palette
+// (choisir un design, partir du logo ou d'une palette).
+export function NewDesignButton() {
+  return (
+    <button type="button" className="atl-plus" title="Nouveau design (palette, logo ou design.md)" aria-label="Nouveau design" onClick={() => window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: "palette" }))}>
+      +
+    </button>
+  );
+}
