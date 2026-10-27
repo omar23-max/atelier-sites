@@ -9,10 +9,9 @@ import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
 import { BoardButton } from "./board-ui.jsx";
-import { DeviceSwitch } from "./device-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
 import { DesignSelect, NewDesignButton } from "./design-ui.jsx";
-import { TopbarTools, UndoRedo } from "./topbar-ui.jsx";
+import { PreviewBarLanguage, TopbarTools, UndoRedo } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
@@ -169,9 +168,11 @@ export default function App() {
                 {/* Annuler / Rétablir : dans la barre de l'aperçu. */}
                 <UndoRedo />
                 {/* Une seule barre en haut : ces outils s'affichent à côté de Projet / Page / Design. */}
-                <TopbarTools>
-                  <DeviceSwitch />
+                {/* EN / FR : dans la barre de l'aperçu, avant les écrans (ceux de Puck). */}
+                <PreviewBarLanguage>
                   <LanguageSwitch />
+                </PreviewBarLanguage>
+                <TopbarTools>
                   <span className="atl-publish">
                     <DownloadHtmlButton />
                     <ShopifyButton />

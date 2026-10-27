@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 // Bascule « Original / Modifiable » d'une page issue d'un import
@@ -245,9 +245,56 @@ function usePreviewSize(canvas) {
   return size;
 }
 
+// Position dans la page, de 0 (haut) à 1 (bas) : les deux versions n'ont pas
+// exactement la même hauteur, on garde la même proportion.
+const ratioOf = (w) => w.scrollY / Math.max(1, w.document.documentElement.scrollHeight - w.innerHeight);
+const scrollToRatio = (w, r) => w.scrollTo(0, r * Math.max(0, w.document.documentElement.scrollHeight - w.innerHeight));
+
 function OriginalView({ importSource, info, canvas }) {
   const { width, scale, height } = usePreviewSize(canvas);
   const frameHeight = (height - 40) / scale;
+  const frameRef = useRef(null);
+
+  // Défilement lié : l'original s'ouvre à l'endroit où l'on était dans la
+  // copie, et le faire défiler fait défiler la copie (cachée dessous) — au
+  // retour sur « Modifiable », on est au même endroit.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const copy = () => [...canvas.querySelectorAll("iframe")].find((f) => f !== frame)?.contentWindow;
+    let detach = () => {};
+    // L'événement « load » arrive parfois avant ce code : on attend que la
+    // page d'origine soit là (pas about:blank) plutôt que de l'écouter.
+    const timer = setInterval(() => {
+      const ow = frame.contentWindow;
+      const pw = copy();
+      const ready = ow && ow.location.href !== "about:blank" && ow.document.readyState !== "loading";
+      if (!ready || !pw) return;
+      clearInterval(timer);
+      const start = ratioOf(pw);
+      scrollToRatio(ow, start);
+      // Les images de l'original changent sa hauteur en arrivant : on recale.
+      setTimeout(() => scrollToRatio(ow, start), 700);
+      // La page d'origine est isolée (sans scripts) : ses événements « scroll »
+      // n'arrivent pas, on relève sa position régulièrement. La copie est
+      // cachée pendant ce temps (sans hauteur) : la position lui est appliquée
+      // juste après son retour, en revenant sur « Modifiable ».
+      let ratio = start;
+      // (Au retour, la page d'origine est déjà retirée : on garde la dernière
+      // position relevée tant qu'elle était affichée.)
+      const poll = setInterval(() => {
+        if (frame.isConnected && ow.document?.documentElement?.scrollHeight > ow.innerHeight) ratio = ratioOf(ow);
+      }, 150);
+      detach = () => {
+        clearInterval(poll);
+        setTimeout(() => {
+          const w = copy();
+          if (w) scrollToRatio(w, ratio);
+        }, 80);
+      };
+    }, 150);
+    return () => (clearInterval(timer), detach());
+  }, [canvas]);
   return (
     <div className="atl-original-pane">
       <div className="atl-original-pane__note">
@@ -264,6 +311,7 @@ function OriginalView({ importSource, info, canvas }) {
       </div>
       <div className="atl-original-pane__frame" style={{ width: width * scale, height: frameHeight * scale }}>
         <iframe
+          ref={frameRef}
           title="Page d'origine"
           src={`/api/original/${importSource}`}
           sandbox="allow-same-origin"

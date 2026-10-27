@@ -14,6 +14,34 @@ export function TopbarTools({ children }) {
   return slot ? createPortal(<div className="atl-tools">{children}</div>, slot) : null;
 }
 
+// Une place dans la barre de l'aperçu (Original / Modifiable, écrans, zoom).
+// La barre est en flex : `order` (CSS) range les éléments ajoutés.
+function usePreviewBarSlot(className) {
+  const [slot, setSlot] = useState(null);
+  useEffect(() => {
+    let host = null;
+    const attach = () => {
+      const bar = document.querySelector('[class*="ViewportControls-actionsInner"]');
+      if (!bar) return false;
+      host = document.createElement("span");
+      host.className = className;
+      bar.append(host);
+      setSlot(host);
+      return true;
+    };
+    if (attach()) return () => host?.remove();
+    const timer = setInterval(() => attach() && clearInterval(timer), 300);
+    return () => (clearInterval(timer), host?.remove());
+  }, [className]);
+  return slot;
+}
+
+// EN / FR dans la barre de l'aperçu, juste avant les écrans.
+export function PreviewBarLanguage({ children }) {
+  const slot = usePreviewBarSlot("atl-lang-host");
+  return slot ? createPortal(children, slot) : null;
+}
+
 // Annuler / Rétablir (remplace ceux de l'en-tête de Puck, masqué), placés
 // dans la barre de l'aperçu (Original / Modifiable, zoom) pour libérer la
 // barre du haut.
