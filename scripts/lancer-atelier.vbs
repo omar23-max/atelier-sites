@@ -28,7 +28,7 @@ End Function
 
 If Not ServeurPret() Then
   shell.CurrentDirectory = dossier
-  shell.Run """C:\Program Files\nodejs\node.exe"" """ & dossier & "\node_modules\vite\bin\vite.js""", 0, False
+  shell.Run """C:\Program Files\nodejs\node.exe"" """ & dossier & "\scripts\serveur-atelier.mjs""", 0, False
   For i = 1 To 40
     WScript.Sleep 500
     If ServeurPret() Then Exit For

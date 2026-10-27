@@ -31,7 +31,11 @@ const TOOLS = [
 // ne reste que le rail (la colonne se réduit à sa largeur).
 export function LeftPanel() {
   const [tool, setTool] = useState(null);
-  const toggle = (id) => setTool((t) => (t === id ? null : id));
+  const toggle = (id) => {
+    // Un seul panneau à la fois : ouvrir un outil referme l'éditeur.
+    window.dispatchEvent(new CustomEvent("atl-close-editor"));
+    setTool((t) => (t === id ? null : id));
+  };
   // Ouvrir un outil depuis ailleurs : window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: "ajouter" }))
   useEffect(() => {
     const on = (e) => setTool(e.detail);
@@ -51,6 +55,9 @@ export function LeftPanel() {
             <Icon />
           </button>
         ))}
+        <button type="button" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
+          ⚙
+        </button>
         {/* En bas : le catalogue et l'historique de la page. */}
         <span className="atl-rail__sep" />
         <a href="/catalogue.html" title="Catalogue" aria-label="Catalogue">

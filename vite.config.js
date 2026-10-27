@@ -59,6 +59,63 @@ function supabaseClient() {
   return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 }
 
+// Toutes les sections en UN module (au lieu de 5 fichiers par section, soit
+// plus de 3 000 requêtes au chargement) : virtual:atelier-sections. Refait à
+// chaque changement dans sections/ ; l'atelier se recharge alors.
+function sectionsBundle() {
+  const ID = "virtual:atelier-sections";
+  const RESOLVED = "\0" + ID;
+  const dir = join(root, "sections");
+  let cache = null;
+  async function build() {
+    const out = [];
+    for (const id of (await readdir(dir)).sort()) {
+      const d = join(dir, id);
+      if (!existsSync(join(d, "schema.json"))) continue;
+      try {
+        const read = (f) => (existsSync(join(d, f)) ? readFile(join(d, f), "utf8") : Promise.resolve(""));
+        const [schema, meta, template, css] = await Promise.all([read("schema.json"), read("meta.json"), read("template.liquid"), read("style.css")]);
+        out.push({
+          id,
+          schema: JSON.parse(schema),
+          meta: meta ? JSON.parse(meta) : {},
+          template,
+          css,
+          thumbnail: existsSync(join(d, "thumbnail.png")) ? `/sections/${id}/thumbnail.png` : null,
+        });
+      } catch (e) {
+        out.push({ id, schema: { name: id, settings: [] }, meta: { label: `${id} (illisible : ${e.message})` }, template: "", css: "", thumbnail: null });
+      }
+    }
+    return `export default ${JSON.stringify(out)};`;
+  }
+  return {
+    name: "atelier-sections",
+    resolveId: (id) => (id === ID ? RESOLVED : null),
+    async load(id) {
+      if (id !== RESOLVED) return null;
+      cache ??= await build();
+      return cache;
+    },
+    configureServer(server) {
+      let timer = null;
+      const onChange = (file) => {
+        if (!file.split(String.fromCharCode(92)).join("/").includes("/sections/")) return;
+        cache = null;
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          const mod = server.moduleGraph.getModuleById(RESOLVED);
+          if (mod) server.moduleGraph.invalidateModule(mod);
+          server.ws.send({ type: "full-reload" });
+        }, 400);
+      };
+      server.watcher.on("add", onChange);
+      server.watcher.on("change", onChange);
+      server.watcher.on("unlink", onChange);
+    },
+  };
+}
+
 function atelierApi() {
   const db = supabaseClient();
   return {
@@ -630,7 +687,7 @@ function atelierApi() {
 }
 
 export default defineConfig({
-  plugins: [react(), atelierApi()],
+  plugins: [react(), atelierApi(), sectionsBundle()],
   build: {
     rollupOptions: {
       input: { atelier: join(root, "index.html"), catalogue: join(root, "catalogue.html") },

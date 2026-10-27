@@ -3594,3 +3594,34 @@ body.atl-rail-only .atl-left {
   box-shadow: 0 0 0 3px rgba(109, 91, 255, 0.25);
   pointer-events: none;
 }
+
+/* ---- Éditeur à gauche (comme Whitelabeler) ----
+   Puck : « rail | outils | aperçu | panneau de droite ». On met le panneau de
+   droite (l'éditeur) juste après le rail ; il n'apparaît que quand une
+   section, un élément ou les réglages de la page sont choisis. */
+[class*="PuckLayout-inner"] {
+  grid-template-areas: "header header header header" "sidenav left right editor" !important;
+  grid-template-columns: 0 var(--puck-sidebar-left-width, 48px) 0 minmax(0, 1fr) !important;
+}
+html[data-atl-edit] [class*="PuckLayout-inner"] {
+  grid-template-columns: 0 48px 360px minmax(0, 1fr) !important;
+}
+html:not([data-atl-edit]) [class*="Sidebar--right"] {
+  visibility: hidden;
+  overflow: hidden;
+}
+[class*="Sidebar--right"] {
+  border-left: 0 !important;
+  border-right: 1px solid #e5e5e5;
+  background: #fff;
+}
+/* Pas de poignée de redimensionnement ni de fil d'Ariane « Page › … » de Puck. */
+[class*="Sidebar--right"] + [class*="Sidebar-resizeHandle"],
+[class*="Sidebar--right"] [class*="SidebarSection-breadcrumbs"],
+[class*="Sidebar--right"] [class*="SidebarSection-title"] {
+  display: none !important;
+}
+/* Quand l'éditeur est ouvert, le panneau d'outil du rail est fermé. */
+html[data-atl-edit] .atl-tool-panel {
+  display: none;
+}

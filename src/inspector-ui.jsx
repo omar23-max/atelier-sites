@@ -365,7 +365,9 @@ export function Inspector({ children }) {
   // Puck affiche ce panneau à deux endroits (dont un caché) : seul le panneau
   // visible écoute l'aperçu, sinon chaque clic compterait deux fois.
   const rootRef = useRef(null);
-  const visible = () => (rootRef.current?.getBoundingClientRect().width ?? 0) > 0;
+  // Le panneau de droite de Puck (pas sa copie cachée) : c'est lui qui pilote.
+  const isMain = () => Boolean(rootRef.current?.closest('[class*="Sidebar--right"]'));
+  const visible = () => isMain() && (rootRef.current?.getBoundingClientRect().width ?? 0) > 0;
 
   const indexOf = (id) => content.findIndex((c) => c.props.id === id);
   const itemOf = (id) => getPuck().appState.data.content[indexOf(id)];
@@ -407,6 +409,26 @@ export function Inspector({ children }) {
     const row = treeRef.current?.querySelector(".is-chosen");
     row?.scrollIntoView({ block: "nearest" });
   }, [sel, content]);
+
+  // Comme Whitelabeler : l'éditeur s'ouvre à gauche (à côté du rail) quand
+  // une section, un élément ou les réglages de la page sont choisis, et se
+  // referme sinon ; un outil du rail ouvert le referme.
+  useEffect(() => {
+    if (!isMain()) return;
+    document.documentElement.toggleAttribute("data-atl-edit", Boolean(sel));
+    if (sel) window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: null }));
+  }, [sel]);
+  useEffect(() => {
+    const onClose = () => isMain() && selRef.current && close();
+    const onPage = () => isMain() && (getPuck().dispatch({ type: "setUi", ui: { itemSelector: null } }), setSel({ page: true }));
+    window.addEventListener("atl-close-editor", onClose);
+    window.addEventListener("atl-open-page-settings", onPage);
+    return () => {
+      window.removeEventListener("atl-close-editor", onClose);
+      window.removeEventListener("atl-open-page-settings", onPage);
+      if (isMain()) document.documentElement.removeAttribute("data-atl-edit");
+    };
+  }, []);
 
   // Section choisie dans l'aperçu (hors élément) : elle devient le choix.
   useEffect(() => {
@@ -450,13 +472,13 @@ export function Inspector({ children }) {
         sec?.addEventListener("click", (ev) => ev.stopPropagation(), { once: true });
         return;
       }
-      if (!visible() || editRef.current) return;
+      if (!isMain() || editRef.current) return;
       const t = target(e);
       if (t) setTimeout(() => choose(t, { scroll: false }), 0);
     };
     // Double-clic sur un texte : on écrit directement dans la page.
     const onDouble = (e) => {
-      if (!visible() || editRef.current) return;
+      if (!isMain() || editRef.current) return;
       const t = target(e);
       if (!t?.key) return;
       e.preventDefault();
@@ -464,7 +486,7 @@ export function Inspector({ children }) {
       setTimeout(() => startEdit(t, { x: e.clientX, y: e.clientY }), 0);
     };
     const onMenu = (e) => {
-      if (!visible()) return;
+      if (!isMain()) return;
       const t = target(e);
       if (!t) return;
       e.preventDefault();
@@ -724,7 +746,7 @@ export function Inspector({ children }) {
         )}
       </div>
       {!sel?.page && <div style={{ display: "none" }}>{children}</div>}
-      {sel?.sectionId && visible() && (
+      {sel?.sectionId && isMain() && (
         <CanvasToolbar
           sel={sel}
           node={selNode}
