@@ -42,24 +42,23 @@ async function mirrorHere(template, onMessage) {
 
 // « La page originale a-t-elle changé ? » : site en ligne contre la capture
 // enregistrée (~40 s). Pas de re-vérification de la copie elle-même.
-function SiteCheck({ template, onMessage }) {
+function SiteCheck({ template, onMessage, onChecked }) {
   const [busy, setBusy] = useState(false);
-  const [last, setLast] = useState(template.controleSite ?? null);
   if (!template.url) return null;
   return (
     <>
       <button
         type="button"
-        className="cat-btn cat-btn--ghost"
+        className="cat-tpl__link"
         disabled={busy}
-        title="Compare la page en ligne à la capture faite à l'import"
+        title="Compare la page en ligne à la capture faite à l'import (~40 s)"
         onClick={async () => {
           setBusy(true);
           try {
             const res = await fetch(`/api/verifier/${template.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ site: true }) });
             const r = await res.json();
             if (!res.ok || r.erreur) throw new Error(r.error ?? r.erreur);
-            setLast({ date: r.date, score: r.score, change: r.change, verdict: r.verdict });
+            onChecked({ date: r.date, score: r.score, change: r.change, verdict: r.verdict });
             onMessage?.({
               text: `${template.nom} : ${r.verdict} (${r.score} / 100). ${r.textes}, ${r.images}, hauteur ${r.hauteur.ecart}.${r.change ? " Pour reprendre la nouvelle version : réimporter la page." : ""}`,
               error: r.change,
@@ -71,13 +70,8 @@ function SiteCheck({ template, onMessage }) {
           }
         }}
       >
-        {busy ? "Contrôle en cours (~40 s)…" : "Vérifier si la page originale a changé"}
+        {busy ? "Contrôle… (~40 s)" : "Vérifier l'original"}
       </button>
-      {last && (
-        <span className={`cat-badge ${last.change ? "cat-badge--red" : last.score < 95 ? "cat-badge--grey" : "cat-badge--green"}`} title={`Contrôlé le ${String(last.date).slice(0, 10)}`}>
-          {last.change ? "Original modifié" : last.score < 95 ? "Petits changements" : "Original inchangé"} · {String(last.date).slice(0, 10)}
-        </span>
-      )}
     </>
   );
 }
@@ -87,70 +81,80 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
   const hover = useHoverPreview("template", { thumbnail: template.vignette, full: template.vignette?.replace(/vignette.png$/, "desktop.png") });
   const type = pageTypeById[template.pageType];
   const extracted = sectionsFromTemplate(template).length;
+  const [check, setCheck] = useState(template.controleSite ?? null);
+  const host = (() => {
+    try {
+      return new URL(template.url).hostname.replace(/^www\./, "");
+    } catch {
+      return null;
+    }
+  })();
+  const score = template.verification?.score;
+  const props = template.propositions;
   return (
-    <article className="cat-card">
-      <a className="cat-card__thumb cat-card__thumb--template" href={template.page ? `/?page=${template.page}` : undefined} {...(template.vignette ? hover : {})}>
+    <article className="cat-card cat-tpl">
+      <a className="cat-tpl__thumb" href={template.page ? `/?page=${template.page}` : undefined} title="Ouvrir la version modifiable" {...(template.vignette ? hover : {})}>
         {template.vignette ? <img src={template.vignette} alt="" loading="lazy" /> : <span>Pas de vignette</span>}
+        {type && <span className={`cat-tpl__type${type.achat ? " is-achat" : ""}`}>{type.label}</span>}
       </a>
-      <div className="cat-card__body">
-        <strong>{template.nom}</strong>
-        <span className="cat-muted cat-card__meta">
-          <SourceLink url={template.url} prefix="Importé de" />
+      <div className="cat-tpl__body">
+        <strong className="cat-tpl__title" title={template.nom}>
+          {template.nom}
+        </strong>
+        <span className="cat-tpl__meta">
+          {host && (
+            <a href={template.url} target="_blank" rel="noreferrer noopener">
+              {host} ↗
+            </a>
+          )}
+          {template.marque && <> · {template.marque}</>}
         </span>
-        {(template.produit || template.marque) && (
-          <span className="cat-card__meta">
-            Produit : <b>{template.produit || "?"}</b>
-            {template.marque && ` · ${template.marque}`}
-          </span>
-        )}
-        <span className="cat-muted cat-card__meta">
-          {template.copieEntiere
-            ? `Page copiée en entier · ${template.elements} éléments · `
-            : template.sectionsSite != null
-              ? `${template.sectionsSite} sections sur le site · ${extracted} dans le catalogue · `
-              : `Import par captures · ${extracted} dans le catalogue · `}
-          {template.photos} photos découpées
+        <span className="cat-tpl__meta cat-tpl__meta--muted">
+          {template.copieEntiere ? `${template.elements} éléments` : template.sectionsSite != null ? `${template.sectionsSite} sections · ${extracted} au catalogue` : `Captures · ${extracted} au catalogue`}
+          {` · ${template.photos} photos`}
+          {template.niche ? ` · ${template.niche}` : ""}
         </span>
-        <div className="cat-card__badges">
-          {type && <span className={`cat-badge ${type.achat ? "cat-badge--green" : "cat-badge--blue"}`}>{type.label}</span>}
-          {template.niche && <span className="cat-badge cat-badge--grey">{template.niche}</span>}
-          {template.design && <span className="cat-badge cat-badge--grey">{template.design}.md</span>}
-          {template.propositions?.manquantes?.length > 0 && (
-            <span
-              className="cat-badge cat-badge--blue"
-              title={template.propositions.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n")}
-            >
-              Page Score {template.propositions.score} · {template.propositions.manquantes.length} section(s) proposée(s)
+        <div className="cat-tpl__badges">
+          {score != null && (
+            <span className={`cat-tpl__badge ${score >= 95 ? "is-ok" : "is-warn"}`} title={`Copie vérifiée à l'import le ${String(template.verification.date).slice(0, 10)}${template.verification.copycat?.note ? ` · Copycat : ${template.verification.copycat.note}` : ""}`}>
+              Copie {score}/100
             </span>
           )}
-          {template.verification?.score != null && (
-            <span className={`cat-badge ${template.verification.score >= 95 ? "cat-badge--green" : "cat-badge--grey"}`} title={`Vérifiée à l'import le ${String(template.verification.date).slice(0, 10)}${template.verification.copycat?.note ? ` · Copycat : ${template.verification.copycat.note}` : ""}`}>
-              Copie {template.verification.score} / 100
+          {props && (
+            <span className="cat-tpl__badge is-info" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
+              Score {props.score} · {props.manquantes.length ? `${props.manquantes.length} à ajouter` : "complet"}
+            </span>
+          )}
+          {check && (
+            <span className={`cat-tpl__badge ${check.change ? "is-bad" : check.score < 95 ? "is-warn" : "is-ok"}`} title={`${check.verdict} — contrôlé le ${String(check.date).slice(0, 10)}`}>
+              {check.change ? "Original modifié" : check.score < 95 ? "Original retouché" : "Original inchangé"}
             </span>
           )}
         </div>
       </div>
-      <div className="cat-card__actions">
-        <a className="cat-btn cat-btn--ghost" href={`/api/original/${template.id}`} target="_blank" rel="noreferrer" title="La page d'origine : textes, design et images">
-          Original
-        </a>
-        {template.page && (
-          <a className="cat-btn cat-btn--ghost" href={`/?page=${template.page}`}>
-            Version modifiable
-          </a>
-        )}
-        <button type="button" className="cat-btn" disabled={!template.page} onClick={() => onUse(template)}>
+      <div className="cat-tpl__actions">
+        <button type="button" className="cat-tpl__primary" disabled={!template.page} onClick={() => onUse(template)}>
           Utiliser dans un projet
         </button>
         {currentPage && template.page && currentPage !== template.page && (
-          <button type="button" className="cat-btn" title={`Remplace les sections de « ${currentPage} » par celles de ce template`} onClick={() => mirrorHere(template, onMessage)}>
+          <button type="button" className="cat-tpl__secondary" title={`Remplace les sections de « ${currentPage} » par celles de ce template`} onClick={() => mirrorHere(template, onMessage)}>
             Miroring dans la page actuelle
           </button>
         )}
-        <SiteCheck template={template} onMessage={onMessage} />
-        <button type="button" className="cat-btn cat-btn--danger" onClick={() => onDelete(template)}>
-          Supprimer
-        </button>
+        <div className="cat-tpl__links">
+          <a className="cat-tpl__link" href={`/api/original/${template.id}`} target="_blank" rel="noreferrer" title="La page d'origine : textes, design et images">
+            Original
+          </a>
+          {template.page && (
+            <a className="cat-tpl__link" href={`/?page=${template.page}`} title="Ouvrir la copie modifiable dans l'atelier">
+              Modifiable
+            </a>
+          )}
+          <SiteCheck template={template} onMessage={onMessage} onChecked={setCheck} />
+          <button type="button" className="cat-tpl__link cat-tpl__delete" onClick={() => onDelete(template)} title="Supprimer ce template (corbeille)" aria-label="Supprimer ce template">
+            🗑
+          </button>
+        </div>
       </div>
     </article>
   );
@@ -272,7 +276,7 @@ function UseTemplate({ template, onClose, onMessage }) {
   );
 }
 
-export function TemplatesView({ onMessage, initialType = "tous" }) {
+export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {} }) {
   const [templates, setTemplates] = useState(null);
   const [type, setType] = useState(initialType);
   const [using, setUsing] = useState(null);
@@ -300,7 +304,11 @@ export function TemplatesView({ onMessage, initialType = "tous" }) {
 
   return (
     <>
-      <h1>Templates</h1>
+      <h1 className="cat-h1-type">
+        Templates
+        {/* Le type affiché (menu de gauche ou onglet), à côté du titre. */}
+        {type !== "tous" && <span>{typeLabels[type] ?? pageTypeById[type]?.label ?? type}</span>}
+      </h1>
       <p className="cat-lead">
         Chaque site ou page importé devient un template : la page reconstruite (« mirror »), ses sections ajoutées au catalogue, son
         design.md et ses photos d'origine découpées. Utilise-le comme point de départ d'une page de projet.

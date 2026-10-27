@@ -12,7 +12,7 @@ export const FONCTIONS = [
   { family: "temoignages", nom: "Avis clients", re: /\b(verified (buyer|purchase)|testimonials?|avis clients?)\b|[★⭐]+|\bi (love|felt|tried|bought|was skeptical)\b|\bj'ai (testé|essayé|acheté)|\breviews?\b(?! ?\))/gi },
   { family: "garantie", nom: "Garantie", re: /money[- ]back|guarantee|satisfaction garantie|garantie|rembours/gi },
   { family: "offre", nom: "Offre", re: /\b(order now|buy now|shop now|get (yours|it|my)|claim|limited|in stock|discount|sold out|check availability)\b|% off|commander|profitez|stock limité|\d+ ?% de réduction/gi },
-  { family: "faq", nom: "FAQ", re: /\bfaq\b|frequently asked|questions fréquentes/gi },
+  { family: "faq", nom: "FAQ", re: /\bfaqs?\b|frequently asked|questions fréquentes|common questions|(?:got|have|any) questions|\bquestions\s*\?/gi },
   { family: "expert", nom: "Avis d'expert", re: /\b(dr\.|doctor|dermatologist|physician|nutritionist|expert|médecin|docteur)/gi },
   { family: "comparatif", nom: "Tableau comparatif", re: /\bvs\.?\s|compared to|comparison|other brands|\bis better\b|\bwhy (our|we)\b.*\bbetter\b|contrairement aux|par rapport aux/gi, w: 2 },
   { family: "resultats", nom: "Résultats", re: /\b(within|after) \d+ (days?|weeks?)\b|\bresults?\b|en \d+ (jours|semaines)|résultats?/gi },

@@ -488,7 +488,7 @@ export default function Catalogue() {
 
           {view === "designs" && <DesignsView targetPage={targetPage} onMessage={setMessage} />}
           {(view === "templates" || view.startsWith("templates-")) && (
-            <TemplatesView key={view} initialType={view.startsWith("templates-") ? view.slice(10) : "tous"} onMessage={(m) => (setMessage(m), refresh())} />
+            <TemplatesView key={view} typeLabels={TYPE_MENU} initialType={view.startsWith("templates-") ? view.slice(10) : "tous"} onMessage={(m) => (setMessage(m), refresh())} />
           )}
           {view === "pages" && <PagesView onOpenProject={(id) => setView(`projet-${id}`)} onMessage={(m) => (setMessage(m), refresh())} />}
           {view === "projets" && <ProjectsView onOpen={(id) => setView(`projet-${id}`)} onMessage={(m) => (setMessage(m), refresh())} />}
