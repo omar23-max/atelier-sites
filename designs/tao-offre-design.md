@@ -54,6 +54,72 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "accent": "#ffffff",
     "bouton": "#44c8e9",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "sofia-pro",
+      "taille": 30,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#0e424f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "All Colors Now Available for Pre-Order. Get Yours Up To 40% OFF!"
+    },
+    "h2": {
+      "police": "sofia-pro",
+      "taille": 40,
+      "graisse": 600,
+      "interligne": 1.4,
+      "couleur": "#0e424f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "The Only Toothbrush On The Market With Dentist-Approved UV-C Germ Killing Technology"
+    },
+    "h3": {
+      "police": "sofia-pro",
+      "taille": 32,
+      "graisse": 600,
+      "interligne": 1.4,
+      "couleur": "#0e424f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "It’s a total breeze to use"
+    },
+    "sousTitre": {
+      "police": "sofia-pro",
+      "taille": 16,
+      "graisse": 600,
+      "interligne": 1.25,
+      "couleur": "#0e424f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Order by Oct 25 11:59pm to save!"
+    },
+    "texte": {
+      "police": "Adlinnaka Condensed",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#555555",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Simply put the brush-head in the base station and your brush automatically gets dried and "
+    },
+    "bouton": {
+      "police": "sofia-pro",
+      "taille": 14.4,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": "capitalize",
+      "espacement": "0.36px",
+      "exemple": "See More Reviews",
+      "fond": "#f78d26",
+      "rayon": "100px",
+      "hauteur": 40,
+      "marges": "12px 20px"
+    }
   }
 }
 ```

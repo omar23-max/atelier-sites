@@ -54,6 +54,82 @@ Copie entière dans la section « Advertorial — article complet » (11 section
     "accent": "#3a3a3c",
     "bouton": "#ffffff",
     "bouton-texte": "#3a3a3c"
+  },
+  "styles": {
+    "entete": {
+      "police": "nitti",
+      "taille": 16,
+      "graisse": 500,
+      "interligne": 1.5,
+      "couleur": "#3a3a3c",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "RESULTS"
+    },
+    "h1": {
+      "police": "Moret",
+      "taille": 48,
+      "graisse": 500,
+      "interligne": 1,
+      "couleur": "#3a3a3c",
+      "casse": null,
+      "espacement": null,
+      "exemple": "flasher pro"
+    },
+    "h2": {
+      "police": "Moret",
+      "taille": 72,
+      "graisse": 300,
+      "interligne": 1,
+      "couleur": "#3a3a3c",
+      "casse": null,
+      "espacement": null,
+      "exemple": "up to 95% hair reduction"
+    },
+    "h3": {
+      "police": "nitti",
+      "taille": 20,
+      "graisse": 500,
+      "interligne": 1.4,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "VISIBLE REDUCTION IN"
+    },
+    "sousTitre": {
+      "police": "Circular",
+      "taille": 16,
+      "graisse": 500,
+      "interligne": 1.5,
+      "couleur": "#3a3a3c",
+      "casse": "uppercase",
+      "espacement": "0.8px",
+      "exemple": "LONG-LASTING HAIR REMOVAL + VISIBLY YOUNGER SKIN"
+    },
+    "texte": {
+      "police": "Circular",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.8,
+      "couleur": "#3a3a3c",
+      "casse": null,
+      "espacement": null,
+      "exemple": "I'm amazed at how well the Nood Flasher Pro is working. I've always struggled with sensiti"
+    },
+    "bouton": {
+      "police": "nitti",
+      "taille": 16,
+      "graisse": 600,
+      "interligne": 1,
+      "couleur": "#3a3a3c",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "FILTERS",
+      "fond": "#ff9900",
+      "rayon": "50px",
+      "hauteur": 45,
+      "marges": "12px 24px"
+    }
   }
 }
 ```

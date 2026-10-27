@@ -55,6 +55,62 @@ Copie entière dans la section « Advertorial — article complet » (23 section
     "accent": "#000000",
     "bouton": "#fcfbf3",
     "bouton-texte": "#4d1c1a"
+  },
+  "styles": {
+    "h1": {
+      "police": "Sofia Pro",
+      "taille": 64,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#533a2d",
+      "casse": "capitalize",
+      "espacement": null,
+      "exemple": "Supercharge Your Matcha Ritual"
+    },
+    "h2": {
+      "police": "Sofia Pro",
+      "taille": 17.5,
+      "graisse": 700,
+      "interligne": 1.4,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Smooth taste"
+    },
+    "sousTitre": {
+      "police": "Sofia Pro",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#533a2d",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Make your matcha experience even more magical with the power of 6 functional mushrooms. Ou"
+    },
+    "texte": {
+      "police": "Sofia Pro",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#533a2d",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Make your matcha experience even more magical with the power of 6 functional mushrooms. Ou"
+    },
+    "bouton": {
+      "police": "sofiaproregular",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "WRITE A REVIEW",
+      "fond": "#258419",
+      "rayon": "2px",
+      "hauteur": 38,
+      "marges": "7px 14px"
+    }
   }
 }
 ```

@@ -54,6 +54,63 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "accent": "#c8166b",
     "bouton": "#2196f3",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "Lato",
+      "taille": 16,
+      "graisse": 600,
+      "interligne": 1.75,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "SAVE 40%",
+      "fond": "#2196f3"
+    },
+    "h1": {
+      "police": "Poppins",
+      "taille": 40,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Smell Better"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Tough on odor but gentle enough to use everywhere (yes, everywhere!), Lume is a smarter de"
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 700,
+      "interligne": 1.4,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": "0.5px",
+      "exemple": "CHOOSE TWO DEODORANTS AND GET TWO MINIS FOR FREE"
+    },
+    "bouton": {
+      "police": "Lato",
+      "taille": 16,
+      "graisse": 600,
+      "interligne": 1.75,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "SAVE 40%",
+      "fond": "#2196f3",
+      "rayon": "22px",
+      "hauteur": 44,
+      "marges": "0px 0px"
+    }
   }
 }
 ```

@@ -54,6 +54,72 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "accent": "#f7ecde",
     "bouton": "#a65316",
     "bouton-texte": "#f5e7d4"
+  },
+  "styles": {
+    "h1": {
+      "police": "Burford Base",
+      "taille": 80,
+      "graisse": 400,
+      "interligne": 0.65,
+      "couleur": "#ffede0",
+      "casse": null,
+      "espacement": "-7px",
+      "exemple": "The Beginner’s Guide to The Carnivore Diet: 9 Things to Know"
+    },
+    "h2": {
+      "police": "Source Sans Pro",
+      "taille": 48,
+      "graisse": 600,
+      "interligne": 1.1,
+      "couleur": "#2d231a",
+      "casse": null,
+      "espacement": "-0.5px",
+      "exemple": "Key Takeaways"
+    },
+    "h3": {
+      "police": "Source Sans Pro",
+      "taille": 34,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#2d231a",
+      "casse": null,
+      "espacement": "-0.35px",
+      "exemple": "Weight Loss and Body Composition"
+    },
+    "sousTitre": {
+      "police": "Source Sans Pro",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#2d231a",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Fact Checked by Dr. Paul Saladino"
+    },
+    "texte": {
+      "police": "Source Sans Pro",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#2d231a",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Medical Disclaimer: This post is for informational purposes only and does not constitute m"
+    },
+    "bouton": {
+      "police": "Source Sans Pro",
+      "taille": 18,
+      "graisse": 600,
+      "interligne": 1,
+      "couleur": "#f5e7d4",
+      "casse": "uppercase",
+      "espacement": "2px",
+      "exemple": "BUILD YOUR FOUNDATION",
+      "fond": "#a65316",
+      "rayon": "8px",
+      "hauteur": 70,
+      "marges": "0px 16px"
+    }
   }
 }
 ```

@@ -55,6 +55,83 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "accent": "#ffffff",
     "bouton": "#91dae0",
     "bouton-texte": "#2e4740"
+  },
+  "styles": {
+    "entete": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 600,
+      "interligne": 1.5,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Try for £7 today",
+      "fond": "#91dae0"
+    },
+    "h1": {
+      "police": "QuincyCF-Bold",
+      "taille": 46,
+      "graisse": 400,
+      "interligne": 0.93,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": "-0.16px",
+      "exemple": "Turn mealtime into"
+    },
+    "h2": {
+      "police": "QuincyCF-Bold",
+      "taille": 46,
+      "graisse": 400,
+      "interligne": 0.93,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": "-0.16px",
+      "exemple": "How Untamed works"
+    },
+    "h3": {
+      "police": "QuincyCF-Bold",
+      "taille": 20,
+      "graisse": 500,
+      "interligne": 0.95,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Chicken Breast"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.38,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Introducing Untamed – Whole meat food that your cat will go wild for."
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.38,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Introducing Untamed – Whole meat food that your cat will go wild for."
+    },
+    "bouton": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 600,
+      "interligne": 1.5,
+      "couleur": "#2e4740",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Try for £7 today",
+      "fond": "#91dae0",
+      "rayon": "999px",
+      "hauteur": 51,
+      "marges": "12px 22px"
+    }
   }
 }
 ```

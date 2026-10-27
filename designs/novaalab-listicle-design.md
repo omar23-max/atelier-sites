@@ -54,6 +54,38 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
     "accent": "#3d4852",
     "bouton": "#000000",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Urbanist",
+      "taille": 20,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#222323",
+      "casse": null,
+      "espacement": null,
+      "exemple": "SUNSET SUPER SALE"
+    },
+    "sousTitre": {
+      "police": "Montserrat",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.56,
+      "couleur": "#222323",
+      "casse": null,
+      "espacement": null,
+      "exemple": "By Dr Olivia Harper"
+    },
+    "texte": {
+      "police": "Urbanist",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#222323",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Summary: Finally, a pain solution that actually works! Novaa Light Pad uses clinically pro"
+    }
   }
 }
 ```

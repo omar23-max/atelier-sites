@@ -54,6 +54,83 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "accent": "#121212",
     "bouton": "#e16203",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "Mori",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1px",
+      "exemple": "Skip to content",
+      "fond": "#121212"
+    },
+    "h1": {
+      "police": "Migra",
+      "taille": 40,
+      "graisse": 600,
+      "interligne": 1.3,
+      "couleur": "#000000",
+      "casse": "capitalize",
+      "espacement": "2px",
+      "exemple": "As Seen In"
+    },
+    "h2": {
+      "police": "Migra",
+      "taille": 40,
+      "graisse": 600,
+      "interligne": 1.3,
+      "couleur": "#000000",
+      "casse": "capitalize",
+      "espacement": "2px",
+      "exemple": "As Seen In"
+    },
+    "h3": {
+      "police": "PP Mori",
+      "taille": 18,
+      "graisse": 600,
+      "interligne": 1.3,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Shipping & Duties"
+    },
+    "sousTitre": {
+      "police": "PP Mori",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 1.3,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "\"Trust the reviews, this product works\""
+    },
+    "texte": {
+      "police": "PP Mori",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.3,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "“I hated my skin which made me hate myself. Acne completely destroyed me and my confidence"
+    },
+    "bouton": {
+      "police": "Apercu Mono Pro",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.3,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "TRY IT RISK-FREE & SAVE 46%",
+      "fond": "#e16203",
+      "rayon": "5px",
+      "hauteur": 66,
+      "marges": "20px 55px"
+    }
   }
 }
 ```

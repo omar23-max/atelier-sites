@@ -53,6 +53,50 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "texte-sur-sombre": "#ffffff",
     "bouton": "#00c148",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Poppins",
+      "taille": 36,
+      "graisse": 700,
+      "interligne": 1.75,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Still Using Harsh Bug Sprays? Discover a Safe, Chemical-Free Way to Protect Your Kids"
+    },
+    "h2": {
+      "police": "Poppins",
+      "taille": 34,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Discover a Smarter, Safer Way to Keep Mosquitoes Away: Hilipert SafeBuzz™ Band"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 2,
+      "couleur": "#262626",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Fun fact: Only pregnant female mosquitoes bite. The SafeBuzz™ Band emits ultrasonic waves ",
+      "fond": "#d1edef"
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 2,
+      "couleur": "#262626",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Fun fact: Only pregnant female mosquitoes bite. The SafeBuzz™ Band emits ultrasonic waves ",
+      "fond": "#d1edef"
+    }
   }
 }
 ```

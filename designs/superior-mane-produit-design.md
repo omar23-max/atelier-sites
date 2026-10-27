@@ -54,6 +54,82 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "accent": "#f4f4f4",
     "bouton": "#5f7b87",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "Helvetica",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1px",
+      "exemple": "Home"
+    },
+    "h1": {
+      "police": "Helvetica",
+      "taille": 26,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Root Activator Shampoo™ - Sale"
+    },
+    "h2": {
+      "police": "Oswald",
+      "taille": 36,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "FREQUENTLY ASKED QUESTIONS"
+    },
+    "h3": {
+      "police": "Oswald",
+      "taille": 22,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "PHASE 1: CLEAR & REPAIR"
+    },
+    "sousTitre": {
+      "police": "Helvetica",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "• Revives Thinning Hair at the Root • Strengthens Each Strand from Day 1 • Thicker, Health"
+    },
+    "texte": {
+      "police": "Helvetica",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "• Revives Thinning Hair at the Root • Strengthens Each Strand from Day 1 • Thicker, Health"
+    },
+    "bouton": {
+      "police": "Helvetica",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Polygonum Multiflorum Extract",
+      "fond": "#5f7b87",
+      "rayon": "0px",
+      "hauteur": 50,
+      "marges": "8px 15px"
+    }
   }
 }
 ```

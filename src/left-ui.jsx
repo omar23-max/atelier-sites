@@ -60,7 +60,7 @@ export function LeftPanel() {
         </button>
         {/* En bas : le catalogue et l'historique de la page. */}
         <span className="atl-rail__sep" />
-        <a href="/catalogue.html" title="Catalogue" aria-label="Catalogue">
+        <a href={`/catalogue.html${location.search}#tout`} title="Catalogue" aria-label="Catalogue">
           <IconGrid />
         </a>
         <button type="button" title="Historique de la page" aria-label="Historique" onClick={() => window.dispatchEvent(new CustomEvent("atl-open-history"))}>

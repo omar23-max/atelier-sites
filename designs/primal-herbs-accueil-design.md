@@ -55,6 +55,74 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "accent": "#ffffff",
     "bouton": "#d0d0d0",
     "bouton-texte": "#000000"
+  },
+  "styles": {
+    "entete": {
+      "police": "ABC Diatype",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1px",
+      "exemple": "Skip to content",
+      "fond": "#121212"
+    },
+    "h1": {
+      "police": "ABC Diatype",
+      "taille": 60,
+      "graisse": 500,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Tired of feeling less confident?"
+    },
+    "h2": {
+      "police": "ABC Diatype",
+      "taille": 28,
+      "graisse": 500,
+      "interligne": 1.3,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "0.6px",
+      "exemple": "Get 10% off your first order"
+    },
+    "sousTitre": {
+      "police": "ABC Diatype",
+      "taille": 21,
+      "graisse": 500,
+      "interligne": 1,
+      "couleur": "#0c2016",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Get Your Primal Power Now",
+      "fond": "#ffffff"
+    },
+    "texte": {
+      "police": "ABC Diatype",
+      "taille": 22,
+      "graisse": 400,
+      "interligne": 0.68,
+      "couleur": "#0c2016",
+      "casse": null,
+      "espacement": null,
+      "exemple": "How do I know if Primal Herbs are for me?"
+    },
+    "bouton": {
+      "police": "ABC Diatype",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1px",
+      "exemple": "Skip to content",
+      "fond": "#121212",
+      "rayon": "0px",
+      "hauteur": 47,
+      "marges": "0px 30px"
+    }
   }
 }
 ```

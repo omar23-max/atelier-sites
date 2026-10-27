@@ -53,6 +53,48 @@ Copie entière dans la section « Advertorial — article complet » (14 section
     "texte-sur-sombre": "#ffffff",
     "bouton": "#149312",
     "bouton-texte": "#f6f9fe"
+  },
+  "styles": {
+    "h1": {
+      "police": "Montserrat",
+      "taille": 19,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "GET 50% OFF NOORO NOW!"
+    },
+    "h3": {
+      "police": "helvetica",
+      "taille": 14,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#3b5998",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Wilma Devon"
+    },
+    "sousTitre": {
+      "police": "Montserrat",
+      "taille": 17,
+      "graisse": 700,
+      "interligne": 1.41,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "4.8 out of 5"
+    },
+    "texte": {
+      "police": "Helvetica",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 1.43,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "The massager helps my feet and ankles with my edema. I walk a lot for my job and getting h"
+    }
   }
 }
 ```

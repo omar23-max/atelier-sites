@@ -53,6 +53,62 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "texte-sur-sombre": "#ffffff",
     "bouton": "#ffffff",
     "bouton-texte": "#003a66"
+  },
+  "styles": {
+    "h1": {
+      "police": "Poppins",
+      "taille": 26,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "00"
+    },
+    "h2": {
+      "police": "Poppins",
+      "taille": 14,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": "0.84px",
+      "exemple": "SHOP"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "50% OFF with 2 FREE GIFTS"
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 1.8,
+      "couleur": "#013660",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Perfect item to keep my clothes at my finger tips"
+    },
+    "bouton": {
+      "police": "Poppins",
+      "taille": 14,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#013660",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Show More",
+      "fond": "#d0e2f0",
+      "rayon": "4px",
+      "hauteur": 42,
+      "marges": "12px 24px"
+    }
   }
 }
 ```

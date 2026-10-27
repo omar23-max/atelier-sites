@@ -55,6 +55,72 @@ Copie entière dans la section « Advertorial — article complet » (28 section
     "accent": "#000000",
     "bouton": "#ffffff",
     "bouton-texte": "#000000"
+  },
+  "styles": {
+    "h1": {
+      "police": "Practical Grotesk",
+      "taille": 26,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#212121",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Lifetune One"
+    },
+    "h2": {
+      "police": "Practical Grotesk",
+      "taille": 32,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "6.53 million EMF sources."
+    },
+    "h3": {
+      "police": "Practical Grotesk",
+      "taille": 16,
+      "graisse": 500,
+      "interligne": 1.4,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "-0.25px",
+      "exemple": "Ask Airi"
+    },
+    "sousTitre": {
+      "police": "Practical Grotesk",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#212121",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Apply LifeTune One to your phone, tablet, headphones, or other personal wireless devices t"
+    },
+    "texte": {
+      "police": "Practical Grotesk",
+      "taille": 22.5,
+      "graisse": 400,
+      "interligne": 1.37,
+      "couleur": "#212121",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Public Co. Traded in US, Canada & EU"
+    },
+    "bouton": {
+      "police": "Practical Grotesk",
+      "taille": 14.4,
+      "graisse": 500,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "0.36px",
+      "exemple": "Write a review",
+      "fond": "#42799f",
+      "rayon": "5.4px",
+      "hauteur": 40,
+      "marges": "12px 20px"
+    }
   }
 }
 ```

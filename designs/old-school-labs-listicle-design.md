@@ -55,6 +55,73 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "accent": "#ffffff",
     "bouton": "#000000",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "Montserrat",
+      "taille": 14,
+      "graisse": 350,
+      "interligne": 1.43,
+      "couleur": "#374151",
+      "casse": null,
+      "espacement": "-0.28px",
+      "exemple": "Skip to main content",
+      "fond": "#ffffff"
+    },
+    "h1": {
+      "police": "Gotham-Black",
+      "taille": 48,
+      "graisse": 400,
+      "interligne": 1.1,
+      "couleur": "#ff005e",
+      "casse": null,
+      "espacement": "0.56px",
+      "exemple": "7 Reasons Why 150,000+ Women Swapped Endless Squats for This $35 BBL Alternative"
+    },
+    "h3": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "0%",
+      "exemple": "Sell-Out Risk: High"
+    },
+    "sousTitre": {
+      "police": "Gotham-Medium",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.75,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "-3%",
+      "exemple": "Last updated May 16, 2025"
+    },
+    "texte": {
+      "police": "Gotham-Medium",
+      "taille": 22,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "-3%",
+      "exemple": "Our proprietary formula helps muscles store water exactly where you want it—giving your gl"
+    },
+    "bouton": {
+      "police": "Montserrat",
+      "taille": 14,
+      "graisse": 350,
+      "interligne": 1.43,
+      "couleur": "#374151",
+      "casse": null,
+      "espacement": "-0.28px",
+      "exemple": "Skip to main content",
+      "fond": "#ffffff",
+      "rayon": "0px",
+      "hauteur": 28,
+      "marges": "4px 4px"
+    }
   }
 }
 ```

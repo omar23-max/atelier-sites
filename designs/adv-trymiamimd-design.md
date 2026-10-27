@@ -53,6 +53,52 @@ Copie entière dans la section « Advertorial — article complet » (15 section
     "texte-sur-sombre": "#ffffff",
     "bouton": "#3cc918",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Outfit",
+      "taille": 54,
+      "graisse": 700,
+      "interligne": 1.22,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Is Botox Out? Shrink Lines In 10 Hours With This Wrinkle Solution!"
+    },
+    "h2": {
+      "police": "Outfit",
+      "taille": 37.3,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Age Defying Lift & Firm Cream"
+    },
+    "texte": {
+      "police": "Outfit",
+      "taille": 24,
+      "graisse": 400,
+      "interligne": 1.42,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Skincare technology is more advanced now than ever before."
+    },
+    "bouton": {
+      "police": "Outfit",
+      "taille": 32,
+      "graisse": 700,
+      "interligne": 2.19,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "CLAIM DISCOUNT",
+      "fond": "#3cc918",
+      "rayon": "0px",
+      "hauteur": 70,
+      "marges": "0px 0px"
+    }
   }
 }
 ```

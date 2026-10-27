@@ -55,6 +55,58 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "accent": "#ffffff",
     "bouton": "#ea2c00",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Garnett",
+      "taille": 26,
+      "graisse": 800,
+      "interligne": 1.2,
+      "couleur": "#14103b",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "A BETTER WAY TO KEEP YOUR HEAD SMOOTH & BALD"
+    },
+    "h2": {
+      "police": "Garnett",
+      "taille": 48,
+      "graisse": 750,
+      "interligne": 1.1,
+      "couleur": "#14103b",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "REAL CUSTOMER REVIEWS"
+    },
+    "h3": {
+      "police": "Inter",
+      "taille": 36,
+      "graisse": 600,
+      "interligne": 1.13,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "1. Get the Smooth, Clean-Bald Look You Actually Want"
+    },
+    "sousTitre": {
+      "police": "Garnett",
+      "taille": 13,
+      "graisse": 500,
+      "interligne": 1.55,
+      "couleur": "#14103b",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Top, Sides or Back"
+    },
+    "texte": {
+      "police": "Inter",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.38,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": "0.4px",
+      "exemple": "See why guys are using Freebird to stay clean-shaven with less prep, less mess, and an eas"
+    }
   }
 }
 ```

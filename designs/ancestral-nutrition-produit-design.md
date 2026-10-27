@@ -54,6 +54,73 @@ Copie entière dans la section « Advertorial — article complet » (12 section
     "accent": "#ffffff",
     "bouton": "#fbf9f5",
     "bouton-texte": "#3a3a3a"
+  },
+  "styles": {
+    "entete": {
+      "police": "Lato",
+      "taille": 16.5,
+      "graisse": 400,
+      "interligne": 1.18,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1.1px",
+      "exemple": "Skip to content",
+      "fond": "#918953"
+    },
+    "h1": {
+      "police": "Lato",
+      "taille": 40,
+      "graisse": 900,
+      "interligne": 1.3,
+      "couleur": "#3a3a3a",
+      "casse": null,
+      "espacement": "0.6px",
+      "exemple": "Ancestral Nutrition Guarantee"
+    },
+    "h2": {
+      "police": "Lato",
+      "taille": 40,
+      "graisse": 900,
+      "interligne": 1.3,
+      "couleur": "#3a3a3a",
+      "casse": null,
+      "espacement": "0.6px",
+      "exemple": "Ancestral Nutrition Guarantee"
+    },
+    "h3": {
+      "police": "Lato",
+      "taille": 15,
+      "graisse": 900,
+      "interligne": 1.3,
+      "couleur": "#3a3a3a",
+      "casse": null,
+      "espacement": "0.6px",
+      "exemple": "What are beef liver capsules?"
+    },
+    "texte": {
+      "police": "Lato",
+      "taille": 24,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#3a3a3a",
+      "casse": null,
+      "espacement": "0.66px",
+      "exemple": "They’re important nutrients that we evolved with. Liver is the most nutrient dense organ i"
+    },
+    "bouton": {
+      "police": "Lato",
+      "taille": 16,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "0.66px",
+      "exemple": "Write a review",
+      "fond": "#d7be69",
+      "rayon": "0px",
+      "hauteur": 40,
+      "marges": "10px 20px"
+    }
   }
 }
 ```

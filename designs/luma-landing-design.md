@@ -55,6 +55,82 @@ Copie entière dans la section « Advertorial — article complet » (10 section
     "accent": "#ffffff",
     "bouton": "#e8a33d",
     "bouton-texte": "#14181a"
+  },
+  "styles": {
+    "entete": {
+      "police": "Poppins",
+      "taille": 15,
+      "graisse": 600,
+      "interligne": 1,
+      "couleur": "#14181a",
+      "casse": null,
+      "espacement": null,
+      "exemple": "All Products"
+    },
+    "h1": {
+      "police": "Poppins",
+      "taille": 46,
+      "graisse": 700,
+      "interligne": 1.05,
+      "couleur": "#14181a",
+      "casse": null,
+      "espacement": "-1.38px",
+      "exemple": "Steady Your Blood Sugar with Berberine (1,200mg)"
+    },
+    "h2": {
+      "police": "Poppins",
+      "taille": 40,
+      "graisse": 600,
+      "interligne": 1.12,
+      "couleur": "#14181a",
+      "casse": null,
+      "espacement": "-0.8px",
+      "exemple": "Start feeling these benefits in 90 days or less."
+    },
+    "h3": {
+      "police": "Poppins",
+      "taille": 15,
+      "graisse": 700,
+      "interligne": 1.6,
+      "couleur": "#161d19",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "FAT"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 20,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#14181a",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Steadier Energy, Fewer Crashes & Metabolic Support"
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.55,
+      "couleur": "#4a5350",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Supports steadier blood sugar after meals, so the spike-and-crash cycle flattens out."
+    },
+    "bouton": {
+      "police": "Poppins",
+      "taille": 15,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#14181a",
+      "casse": "uppercase",
+      "espacement": "0.75px",
+      "exemple": "SHOP THIS FORMULA",
+      "fond": "#e8a33d",
+      "rayon": "12px",
+      "hauteur": 49,
+      "marges": "17px 30px"
+    }
   }
 }
 ```

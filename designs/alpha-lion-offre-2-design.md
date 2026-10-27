@@ -55,6 +55,48 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "accent": "#ffd300",
     "bouton": "#000000",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Tungsten",
+      "taille": 80,
+      "graisse": 700,
+      "interligne": 0.9,
+      "couleur": "#000000",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "SUPERCHARGE YOUR FAT-LOSS"
+    },
+    "h2": {
+      "police": "Tungsten",
+      "taille": 80,
+      "graisse": 700,
+      "interligne": 0.9,
+      "couleur": "#000000",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "SUPERCHARGE YOUR FAT-LOSS"
+    },
+    "h3": {
+      "police": "Bebasneue",
+      "taille": 15,
+      "graisse": 700,
+      "interligne": 1.6,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "The review I gave is because I like the product."
+    },
+    "texte": {
+      "police": "Open Sans",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 1.43,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "everything came super quick can’t wait to try it out at the gym later. thanks alpha lion a"
+    }
   }
 }
 ```

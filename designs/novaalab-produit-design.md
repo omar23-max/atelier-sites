@@ -55,6 +55,58 @@ Copie entière dans la section « Advertorial — article complet » (16 section
     "accent": "#ffffff",
     "bouton": "#ffffff",
     "bouton-texte": "#a4a4a4"
+  },
+  "styles": {
+    "h1": {
+      "police": "Urbanist",
+      "taille": 36,
+      "graisse": 700,
+      "interligne": 1.28,
+      "couleur": "#181818",
+      "casse": null,
+      "espacement": "0.72px",
+      "exemple": "NOVAA LIGHT PAD - The Deep Healing Therapy"
+    },
+    "h2": {
+      "police": "Lato",
+      "taille": 36,
+      "graisse": 700,
+      "interligne": 1.39,
+      "couleur": "#222323",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Scientific Breakthrough for Temporary Pain Relief"
+    },
+    "h3": {
+      "police": "Montserrat",
+      "taille": 20,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#2e2e2e",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Enhance your therapy"
+    },
+    "sousTitre": {
+      "police": "Urbanist",
+      "taille": 24,
+      "graisse": 700,
+      "interligne": 1.92,
+      "couleur": "#181818",
+      "casse": null,
+      "espacement": "0.48px",
+      "exemple": "Clinically proven to naturally relieve nerve, joint and muscle pain — or your money back."
+    },
+    "texte": {
+      "police": "Montserrat",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.63,
+      "couleur": "#222323",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Research shows that Novaa Light Pad can provide relief from minor back pain and stiffness "
+    }
   }
 }
 ```

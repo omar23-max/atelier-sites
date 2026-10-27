@@ -55,6 +55,83 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "accent": "#000000",
     "bouton": "#00ac47",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "Effra",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Overview"
+    },
+    "h1": {
+      "police": "Effra",
+      "taille": 35.2,
+      "graisse": 700,
+      "interligne": 1.22,
+      "couleur": "#192f23",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Balance Your Glucose, Relieve Nerve Discomfort, & Experience More Energy & Stamina in Week"
+    },
+    "h2": {
+      "police": "Nunito",
+      "taille": 40,
+      "graisse": 800,
+      "interligne": 1.25,
+      "couleur": "#1c2b2a",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Claim Your Discounted Package - While Supplies Last"
+    },
+    "h3": {
+      "police": "Nunito",
+      "taille": 28,
+      "graisse": 800,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Getting Started",
+      "fond": "#a1a1a1"
+    },
+    "sousTitre": {
+      "police": "Effra",
+      "taille": 21,
+      "graisse": 700,
+      "interligne": 1.9,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Thousands of Satisfied Customers Experience:†"
+    },
+    "texte": {
+      "police": "Effra",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#262626",
+      "casse": null,
+      "espacement": null,
+      "exemple": "It’s not your imagination, your body’s declining for a reason. It’s our food. It’s dead. O"
+    },
+    "bouton": {
+      "police": "Effra",
+      "taille": 18,
+      "graisse": 500,
+      "interligne": 2.44,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Order Now & Save",
+      "fond": "#01c653",
+      "rayon": "6px",
+      "hauteur": 43,
+      "marges": "0px 0px"
+    }
   }
 }
 ```

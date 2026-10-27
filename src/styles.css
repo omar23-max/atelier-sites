@@ -3625,3 +3625,12 @@ html:not([data-atl-edit]) [class*="Sidebar--right"] {
 html[data-atl-edit] .atl-tool-panel {
   display: none;
 }
+
+/* Outil ouvert dans la colonne de gauche (Palette, Ajouter…) : même largeur
+   que l'éditeur de section, pour que noms et boutons « Appliquer » restent visibles. */
+body:not(.atl-rail-only) [class*="PuckLayout"] {
+  --puck-sidebar-left-width: 408px !important;
+  --puck-user-sidebar-left-width: 408px !important;
+}
+.atl-palettes { grid-template-columns: minmax(0, 1fr); }
+.atl-palettes li { min-width: 0; }

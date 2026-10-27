@@ -53,6 +53,50 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "texte-sur-sombre": "#ffffff",
     "bouton": "#5cb85c",
     "bouton-texte": "#053e14"
+  },
+  "styles": {
+    "h1": {
+      "police": "sans-serif",
+      "taille": 40,
+      "graisse": 700,
+      "interligne": 1.58,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Why Americans Are Replacing Their ACs With This Portable Alternative To Slash Hundreds On "
+    },
+    "h2": {
+      "police": "sans-serif",
+      "taille": 34,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "What is Sherum Cooling Ace?"
+    },
+    "sousTitre": {
+      "police": "sans-serif",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 2,
+      "couleur": "#262626",
+      "casse": null,
+      "espacement": null,
+      "exemple": "SUMMARY: Did you know there's a new portable AC device that can cool your room in MINUTES!",
+      "fond": "#c3f1ff"
+    },
+    "texte": {
+      "police": "sans-serif",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 2,
+      "couleur": "#262626",
+      "casse": null,
+      "espacement": null,
+      "exemple": "SUMMARY: Did you know there's a new portable AC device that can cool your room in MINUTES!",
+      "fond": "#c3f1ff"
+    }
   }
 }
 ```

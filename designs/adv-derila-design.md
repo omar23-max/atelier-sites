@@ -55,6 +55,28 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "accent": "#ffffff",
     "bouton": "#29d54f",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Montserrat",
+      "taille": 48,
+      "graisse": 800,
+      "interligne": 1.2,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Why Millions Of People Sleep With Pain - And A Surprising New Solution"
+    },
+    "texte": {
+      "police": "Montserrat",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.33,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Claire was in a car accident a few years ago."
+    }
   }
 }
 ```

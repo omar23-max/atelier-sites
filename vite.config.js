@@ -95,7 +95,8 @@ function sectionsBundle() {
     async load(id) {
       if (id !== RESOLVED) return null;
       cache ??= await build();
-      return cache;
+      // Sans carte de source : Vite en joindrait une de 200 Mo en base64.
+      return { code: cache, map: { mappings: "" } };
     },
     configureServer(server) {
       let timer = null;

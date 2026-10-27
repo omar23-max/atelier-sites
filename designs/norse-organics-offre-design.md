@@ -55,6 +55,83 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "accent": "#121212",
     "bouton": "#e16203",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "Mori",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1px",
+      "exemple": "Skip to content",
+      "fond": "#121212"
+    },
+    "h1": {
+      "police": "Migra",
+      "taille": 50,
+      "graisse": 800,
+      "interligne": 1.1,
+      "couleur": "#111213",
+      "casse": null,
+      "espacement": "0.6px",
+      "exemple": "Stop embarrassing acne in DAYS"
+    },
+    "h2": {
+      "police": "PP Mori",
+      "taille": 24,
+      "graisse": 600,
+      "interligne": 1.3,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Shop"
+    },
+    "h3": {
+      "police": "Mori",
+      "taille": 25,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#121212",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "LEVEL 1 - CONVENTIONAL FARMING"
+    },
+    "sousTitre": {
+      "police": "Mori",
+      "taille": 23,
+      "graisse": 400,
+      "interligne": 1.4,
+      "couleur": "#1f1f1f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Finally, a solution that works. We use medical-grade Arctic plants to clear stubborn acne,"
+    },
+    "texte": {
+      "police": "Mori",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#1f1f1f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "You're not alone. Acne is a serious skin disease affecting 80% of young adults. 42.5% cont"
+    },
+    "bouton": {
+      "police": "Mori",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "1px",
+      "exemple": "Skip to content",
+      "fond": "#121212",
+      "rayon": "7px",
+      "hauteur": 47,
+      "marges": "0px 30px"
+    }
   }
 }
 ```

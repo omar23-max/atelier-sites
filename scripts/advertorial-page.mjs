@@ -13,6 +13,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { buildCopy } from "./lib/copie.mjs";
+import { measureStyles } from "./lib/typo.mjs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -214,6 +215,8 @@ const boxes = [...new Set(blocks.map((b) => b.bg).filter(Boolean))].slice(0, 4);
 // Couleurs : les rôles relevés par la copie (valeurs d'origine) priment.
 const tokens = {
   polices: fonts,
+  // Styles réels (en-tête, titres, sous-titre, texte, bouton) : vue « Inspecter » du catalogue.
+  styles: measureStyles(snap),
   couleurs: Object.keys(copy.roles).length ? copy.roles : {
     fond: sectionSettings.color_bg,
     surface: boxes[0] ?? "#f4f4f4",

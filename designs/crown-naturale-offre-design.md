@@ -54,6 +54,58 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "accent": "#000000",
     "bouton": "#ff9900",
     "bouton-texte": "#000000"
+  },
+  "styles": {
+    "h1": {
+      "police": "Poppins",
+      "taille": 30,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#303030",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Herbal Greens Powder"
+    },
+    "h2": {
+      "police": "Roboto",
+      "taille": 22,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Beginner"
+    },
+    "h3": {
+      "police": "Roboto",
+      "taille": 26,
+      "graisse": 700,
+      "interligne": 1.5,
+      "couleur": "#303030",
+      "casse": null,
+      "espacement": null,
+      "exemple": "1 Month Supply"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 20,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#303030",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Eliminate Fatigue & Boost Energy Naturally"
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1,
+      "couleur": "#303030",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Noticed Improved Energy Levels Within 14 Days"
+    }
   }
 }
 ```

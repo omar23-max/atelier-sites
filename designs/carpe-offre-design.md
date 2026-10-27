@@ -54,6 +54,72 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "accent": "#2c3e50",
     "bouton": "#ffffff",
     "bouton-texte": "#000000"
+  },
+  "styles": {
+    "h1": {
+      "police": "Oswald",
+      "taille": 40,
+      "graisse": 500,
+      "interligne": 1,
+      "couleur": "#353535",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Save Up To 56% Off w/ 4 Bonus Items"
+    },
+    "h2": {
+      "police": "Montserrat",
+      "taille": 15,
+      "graisse": 400,
+      "interligne": 1,
+      "couleur": "#353535",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Savings Auto-Applied to First Membership Order*"
+    },
+    "h3": {
+      "police": "Montserrat",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 2.14,
+      "couleur": "#353535",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Hear what our subscribers think"
+    },
+    "sousTitre": {
+      "police": "Montserrat",
+      "taille": 12,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#353535",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Order within 6min for next-day free shipping"
+    },
+    "texte": {
+      "police": "Montserrat",
+      "taille": 10.4,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#353535",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "EARLY BLACK FRIDAY! BONUS ITEMS WITH YOUR FIRST MEMBERSHIP ORDER*"
+    },
+    "bouton": {
+      "police": "Montserrat",
+      "taille": 11,
+      "graisse": 700,
+      "interligne": 1,
+      "couleur": "#000000",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "HOW DOES CARPE STOP SWEAT AND ODOR?",
+      "fond": "#ffffff",
+      "rayon": "0px",
+      "hauteur": 46,
+      "marges": "16px 0px"
+    }
   }
 }
 ```

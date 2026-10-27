@@ -55,6 +55,72 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "accent": "#ffffff",
     "bouton": "#0f3388",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "ABC Oracle",
+      "taille": 56,
+      "graisse": 500,
+      "interligne": 1.12,
+      "couleur": "#171717",
+      "casse": null,
+      "espacement": "-0.56px",
+      "exemple": "Your Prostate Is Changing. Most Men Just Suffer Through It."
+    },
+    "h2": {
+      "police": "ABC Oracle",
+      "taille": 48,
+      "graisse": 500,
+      "interligne": 1.12,
+      "couleur": "#171717",
+      "casse": "capitalize",
+      "espacement": "-0.48px",
+      "exemple": "The Ingredients That Restore What You've Lost"
+    },
+    "h3": {
+      "police": "ABC Oracle",
+      "taille": 16,
+      "graisse": 500,
+      "interligne": 1.24,
+      "couleur": "#171717",
+      "casse": null,
+      "espacement": "0.16px",
+      "exemple": "Your Body Responds"
+    },
+    "sousTitre": {
+      "police": "ABC Oracle",
+      "taille": 16,
+      "graisse": 350,
+      "interligne": 1.5,
+      "couleur": "#171717",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Waking up twice a night. Stopping and starting. Never quite empty. These are not just sign"
+    },
+    "texte": {
+      "police": "ABC Oracle",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#171717",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Trusted by 90,000+ Men for Complete Wellness"
+    },
+    "bouton": {
+      "police": "ABC Oracle",
+      "taille": 15,
+      "graisse": 350,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Ignorer et passer au contenu",
+      "fond": "#171717",
+      "rayon": "7px",
+      "hauteur": 47,
+      "marges": "0px 30px"
+    }
   }
 }
 ```

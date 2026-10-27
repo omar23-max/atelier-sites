@@ -55,6 +55,62 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "accent": "#ffffff",
     "bouton": "#ffffff",
     "bouton-texte": "#000000"
+  },
+  "styles": {
+    "h1": {
+      "police": "-apple-system",
+      "taille": 52,
+      "graisse": 900,
+      "interligne": 1.08,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "-1.3px",
+      "exemple": "Your Mouth is Holding You Hostage. Stop Snoring Tonight"
+    },
+    "h2": {
+      "police": "-apple-system",
+      "taille": 34,
+      "graisse": 800,
+      "interligne": 1.22,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "-1.02px",
+      "exemple": "1. Nothing Else Actually Fixed It"
+    },
+    "h3": {
+      "police": "Franchise",
+      "taille": 20,
+      "graisse": 800,
+      "interligne": 1,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": "1px",
+      "exemple": "SUBSCRIBE & GET WEEKLY UPDATES"
+    },
+    "texte": {
+      "police": "-apple-system",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.6,
+      "couleur": "#333333",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Your mouth stays open all night. That dries you out, cuts deep sleep, and leaves you foggy"
+    },
+    "bouton": {
+      "police": "-apple-system",
+      "taille": 20,
+      "graisse": 800,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Try Risk Free Tonight →",
+      "fond": "#0b61cd",
+      "rayon": "8px",
+      "hauteur": 59,
+      "marges": "16px 24px"
+    }
   }
 }
 ```

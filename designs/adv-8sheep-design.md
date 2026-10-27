@@ -51,6 +51,38 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "texte": "#423f3f",
     "bouton": "#423f3f",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Nunito Sans",
+      "taille": 48,
+      "graisse": 900,
+      "interligne": 1.21,
+      "couleur": "#423f3f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "If You're a Parent Struggling With A “Difficult” Child, Continue Reading..."
+    },
+    "sousTitre": {
+      "police": "Nunito Sans",
+      "taille": 18,
+      "graisse": 300,
+      "interligne": 1.22,
+      "couleur": "#423f3f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "If your kid is anxious, does not sleep well, has frequent mood swings, or trouble focusing"
+    },
+    "texte": {
+      "police": "Nunito Sans",
+      "taille": 18,
+      "graisse": 300,
+      "interligne": 1.61,
+      "couleur": "#423f3f",
+      "casse": null,
+      "espacement": null,
+      "exemple": "It is the #1 organic magnesium lotion specially formulated for babies and kids to reverse "
+    }
   }
 }
 ```

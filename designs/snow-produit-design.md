@@ -54,6 +54,62 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "texte-sur-sombre": "#ffffff",
     "bouton": "#eeefed",
     "bouton-texte": "#000000"
+  },
+  "styles": {
+    "h1": {
+      "police": "freight-text-pro",
+      "taille": 43.2,
+      "graisse": 300,
+      "interligne": 1.1,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Your smile is your most worn accessory."
+    },
+    "h2": {
+      "police": "freight-text-pro",
+      "taille": 43.2,
+      "graisse": 300,
+      "interligne": 1.1,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Sensitive teeth?"
+    },
+    "sousTitre": {
+      "police": "freight-text-pro",
+      "taille": 21.6,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Whitening that fits your life, not a dentist chair."
+    },
+    "texte": {
+      "police": "freight-text-pro",
+      "taille": 16.2,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "“It works. I've been using SNOW for years!”"
+    },
+    "bouton": {
+      "police": "neue-haas-unica",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#000000",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "ADD TO CART",
+      "fond": "#eeefed",
+      "rayon": "9999px",
+      "hauteur": 43,
+      "marges": "12px 14px"
+    }
   }
 }
 ```

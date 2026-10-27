@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { catalogueSections as allSections } from "../engine/sections.js";
+import { catalogueSections as allSections, sections as everySection } from "../engine/sections.js";
 import { FAMILIES, familyOf } from "../engine/families.js";
-import { renderSectionHtml } from "../engine/render.js";
+import { defaultPropsFor, renderSectionHtml } from "../engine/render.js";
+import { applyDesign } from "../engine/design.js";
 import { Enrichir, METHODS } from "./Enrichir.jsx";
 import { DesignsView } from "./Designs.jsx";
-import { designs } from "../engine/designs.js";
+import { designById, designs } from "../engine/designs.js";
 import { HoverPreviewProvider, SourceLink, useHoverPreview } from "./hover.jsx";
 import { TemplatesView } from "./Templates.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
@@ -25,7 +26,8 @@ const stampDate = (s) => {
 const BIN_KINDS = { pages: "Page", projets: "Projet", templates: "Template", designs: "Design", demandes: "Demande" };
 
 // Ouvert depuis l'atelier avec ?page=<nom> : la page à laquelle appliquer un design.
-const targetPage = new URLSearchParams(location.search).get("page");
+// Page courante : celle d'où l'on vient (?page=), sinon la dernière ouverte dans l'atelier.
+const targetPage = new URLSearchParams(location.search).get("page") ?? (() => { try { return localStorage.getItem("atl-last-page"); } catch { return null; } })();
 
 const IMPORT = /@import\s+(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g;
 
@@ -59,7 +61,46 @@ async function api(method, url, body) {
   return data;
 }
 
-function Preview({ section, onClose }) {
+// Ajoute une section à la fin de la page courante (copie de sécurité avant),
+// aux couleurs de son design.md comme le bouton « + » de l'atelier.
+export async function addToCurrentPage(section) {
+  const url = `/api/pages/${targetPage}`;
+  const page = await api("GET", url);
+  let item = { type: section.id, props: { ...defaultPropsFor(section), id: `${section.id}-${Date.now().toString(36)}` } };
+  const design = designById[page.root?.props?.design];
+  if (design) item = applyDesign({ root: {}, content: [item] }, design, Object.fromEntries(everySection.map((x) => [x.id, x]))).page.content[0];
+  await api("POST", `${url}/snapshot`).catch(() => {});
+  await api("PUT", url, { ...page, content: [...(page.content ?? []), item] });
+  return page.content?.length ?? 0;
+}
+
+function AddToPageButton({ section, onMessage, short }) {
+  const [busy, setBusy] = useState(false);
+  if (!targetPage) return null;
+  return (
+    <button
+      type="button"
+      className="cat-btn"
+      disabled={busy}
+      title={`Ajouter à la fin de « ${targetPage} »`}
+      onClick={async () => {
+        setBusy(true);
+        try {
+          await addToCurrentPage(section);
+          onMessage?.({ text: `« ${section.meta.label ?? section.id} » ajoutée à la fin de « ${targetPage} ». Ouvre l'atelier pour la voir.` });
+        } catch (e) {
+          onMessage?.({ error: true, text: `Échec : ${e.message}` });
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      {busy ? "Ajout…" : short ? "+ Ajouter" : "+ Ajouter dans la page actuelle"}
+    </button>
+  );
+}
+
+function Preview({ section, onClose, onMessage }) {
   const [device, setDevice] = useState("desktop");
   const width = device === "desktop" ? 1440 : 390;
   const scale = device === "desktop" ? 0.62 : 1;
@@ -84,6 +125,7 @@ function Preview({ section, onClose }) {
               Mobile
             </button>
           </div>
+          <AddToPageButton section={section} onMessage={(m) => (onMessage?.(m), m.error || onClose())} />
           <button type="button" className="cat-close" onClick={onClose} aria-label="Fermer">
             ×
           </button>
@@ -104,7 +146,7 @@ function Preview({ section, onClose }) {
   );
 }
 
-function SectionCard({ section, onPreview, onStatus, onTrash }) {
+function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
   const hidden = statusOf(section) === "masquee";
   const hover = useHoverPreview("section", section);
   return (
@@ -148,6 +190,7 @@ function SectionCard({ section, onPreview, onStatus, onTrash }) {
         <button type="button" className="cat-btn cat-btn--ghost" onClick={() => onPreview(section)}>
           Aperçu
         </button>
+        <AddToPageButton section={section} onMessage={onMessage} short />
         <button type="button" className="cat-btn cat-btn--ghost" onClick={() => onStatus(section, hidden ? "visible" : "masquee")}>
           {hidden ? "Afficher" : "Masquer"}
         </button>
@@ -160,7 +203,7 @@ function SectionCard({ section, onPreview, onStatus, onTrash }) {
 }
 
 export default function Catalogue() {
-  const [view, setView] = useState(() => location.hash.slice(1) || (targetPage ? "designs" : "tout"));
+  const [view, setView] = useState(() => location.hash.slice(1) || (location.search.includes("page=") ? "designs" : "tout"));
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState(null);
   const [statusOverride, setStatusOverride] = useState({});
@@ -269,7 +312,7 @@ export default function Catalogue() {
     }
   }
 
-  const cardProps = { onPreview: setPreview, onStatus: changeStatus, onTrash: trashSection };
+  const cardProps = { onPreview: setPreview, onStatus: changeStatus, onTrash: trashSection, onMessage: setMessage };
   const currentFamily = FAMILIES.find((f) => f.id === view);
 
   function FamilyBlock({ family }) {
@@ -380,6 +423,7 @@ export default function Catalogue() {
 
           {view === "tout" && (
             <>
+              <div className="cat-intro">
               <h1>Sections</h1>
               <p className="cat-lead">
                 Toutes tes sections, rangées par famille. Ce qui est visible ici est proposé dans l'atelier (« + Ajouter »). Les
@@ -426,6 +470,7 @@ export default function Catalogue() {
                   ))}
                 </div>
               </section>
+              </div>
               <input className="cat-search" placeholder="Rechercher une section (nom, famille, site d'origine)…" value={query} onChange={(e) => setQuery(e.target.value)} />
               {FAMILIES.filter((f) => grouped[f.id]?.length || !q).map((f) => (
                 <FamilyBlock key={f.id} family={f} />
@@ -564,7 +609,7 @@ export default function Catalogue() {
         </main>
       </div>
 
-      {preview && <Preview section={preview} onClose={() => setPreview(null)} />}
+      {preview && <Preview section={preview} onClose={() => setPreview(null)} onMessage={setMessage} />}
     </div>
     </HoverPreviewProvider>
   );

@@ -55,6 +55,73 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "accent": "#121212",
     "bouton": "#233a36",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "proxima-nova",
+      "taille": 14,
+      "graisse": 700,
+      "interligne": 1.71,
+      "couleur": "#000000",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "SHOP NOW",
+      "fond": "#ffffff"
+    },
+    "h1": {
+      "police": "Albra",
+      "taille": 40,
+      "graisse": 300,
+      "interligne": 1.1,
+      "couleur": "#000000",
+      "casse": "capitalize",
+      "espacement": null,
+      "exemple": "Luminous Eye Corrector® SPF 41 - Your Multitasking Eye Cream"
+    },
+    "h3": {
+      "police": "proxima-nova",
+      "taille": 18,
+      "graisse": 500,
+      "interligne": 1.56,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "DOWNLOAD OUR MOBILE APP"
+    },
+    "sousTitre": {
+      "police": "Albra",
+      "taille": 20,
+      "graisse": 300,
+      "interligne": 1.2,
+      "couleur": "#000000",
+      "casse": "capitalize",
+      "espacement": null,
+      "exemple": "Color Correct Dark Circles And Protect Against UV Damage In One Simple Step"
+    },
+    "texte": {
+      "police": "Albra",
+      "taille": 40,
+      "graisse": 300,
+      "interligne": 1.1,
+      "couleur": "#000000",
+      "casse": "capitalize",
+      "espacement": null,
+      "exemple": "Luminous Eye Corrector® SPF 41 - Your Multitasking Eye Cream"
+    },
+    "bouton": {
+      "police": "proxima-nova",
+      "taille": 14,
+      "graisse": 700,
+      "interligne": 1.71,
+      "couleur": "#000000",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "SHOP NOW",
+      "fond": "#ffffff",
+      "rayon": "2px",
+      "hauteur": 32,
+      "marges": "6.4px 19.2px"
+    }
   }
 }
 ```

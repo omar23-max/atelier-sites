@@ -53,6 +53,48 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
     "accent": "#707070",
     "bouton": "#233a36",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Albra",
+      "taille": 48,
+      "graisse": 300,
+      "interligne": 1.21,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "This NEW Tinted Matte SPF Will Have You OBSESSED 😍"
+    },
+    "h2": {
+      "police": "Albra",
+      "taille": 56,
+      "graisse": 300,
+      "interligne": 1.14,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "-1px",
+      "exemple": "94%"
+    },
+    "h3": {
+      "police": "proxima-nova",
+      "taille": 24,
+      "graisse": 400,
+      "interligne": 1.33,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Oil-absorbing, breathable, tinted broad spectrum protection without shine!"
+    },
+    "texte": {
+      "police": "proxima-nova",
+      "taille": 18,
+      "graisse": 400,
+      "interligne": 1.33,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Are you one of the many who avoid sunscreen because of its shiny, greasy finish? We unders"
+    }
   }
 }
 ```

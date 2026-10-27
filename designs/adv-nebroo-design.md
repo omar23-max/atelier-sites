@@ -53,6 +53,42 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "accent": "#0025ff",
     "bouton": "#4782b4",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "Montserrat",
+      "taille": 35,
+      "graisse": 700,
+      "interligne": 1.09,
+      "couleur": "#202529",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Struggling To Hear Conversations, And Tired Of Asking People To Repeat Themselves? Instant"
+    },
+    "sousTitre": {
+      "police": "Montserrat",
+      "taille": 18,
+      "graisse": 700,
+      "interligne": 1.28,
+      "couleur": "#4782b4",
+      "casse": null,
+      "espacement": null,
+      "exemple": "For Americans with mild to moderate hearing loss: without a prescription, costly audiologi"
+    },
+    "bouton": {
+      "police": "Montserrat",
+      "taille": 20,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#ffffff",
+      "casse": null,
+      "espacement": "0.4px",
+      "exemple": "GET 70% OFF TODAY! 👉",
+      "fond": "#4782b4",
+      "rayon": "4px",
+      "hauteur": 64,
+      "marges": "20px 30px"
+    }
   }
 }
 ```

@@ -54,6 +54,72 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "accent": "#1266ba",
     "bouton": "#1266ba",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "h1": {
+      "police": "sofia-pro",
+      "taille": 51.3,
+      "graisse": 600,
+      "interligne": 1.25,
+      "couleur": "#2e6eb0",
+      "casse": null,
+      "espacement": null,
+      "exemple": "What is collagen?"
+    },
+    "h2": {
+      "police": "sofia-pro",
+      "taille": 37.6,
+      "graisse": 400,
+      "interligne": 1.38,
+      "couleur": "#2e6eb0",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Collagen keeps your skin dewy, bones and nails strong, and joints creak-free… until it doe"
+    },
+    "h3": {
+      "police": "sofia-pro",
+      "taille": 18.8,
+      "graisse": 500,
+      "interligne": 1.25,
+      "couleur": "#2e6eb0",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Passionfruit Mango"
+    },
+    "sousTitre": {
+      "police": "sofia-pro",
+      "taille": 13.7,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#2e6eb0",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Derived from the Greek word \"kólla”, which means glue, collagen is the main structural pro"
+    },
+    "texte": {
+      "police": "sofia-pro",
+      "taille": 13.7,
+      "graisse": 400,
+      "interligne": 1.5,
+      "couleur": "#1266ba",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Remember what we said about the structure of a single collagen protein? That's right: it's"
+    },
+    "bouton": {
+      "police": "sofia-pro",
+      "taille": 13.7,
+      "graisse": 600,
+      "interligne": 1.5,
+      "couleur": "#2e6eb0",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "START GLOWING NOW",
+      "fond": "#ffffff",
+      "rayon": "24px",
+      "hauteur": 36,
+      "marges": "6.84px 20.52px"
+    }
   }
 }
 ```

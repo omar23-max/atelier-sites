@@ -65,6 +65,9 @@ export default function App() {
 
   useEffect(() => {
     if (!pageName) return; // redirection en cours (voir plus haut)
+    try {
+      localStorage.setItem("atl-last-page", pageName); // « page courante » du catalogue
+    } catch {}
     loadPage()
       .then((d) => setData(withDefaults(d)))
       .catch((e) => setStatus({ error: true, text: `Chargement impossible : ${e.message}` }));

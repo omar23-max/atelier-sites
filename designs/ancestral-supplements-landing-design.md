@@ -54,6 +54,38 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "accent": "#1f0a00",
     "bouton": "#fcf8ed",
     "bouton-texte": "#1f0a00"
+  },
+  "styles": {
+    "h1": {
+      "police": "Cera Pro",
+      "taille": 32,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#1f0a00",
+      "casse": null,
+      "espacement": "0.48px",
+      "exemple": "Regular Periods, Boundless Energy & Clear Skin: The 5 Essential Organs Modern Women Need"
+    },
+    "sousTitre": {
+      "police": "Cera Pro",
+      "taille": 18,
+      "graisse": 500,
+      "interligne": 1.45,
+      "couleur": "#261c16",
+      "casse": null,
+      "espacement": "0.18px",
+      "exemple": "Introducing FEM: 5 freeze-dried, grass-fed organs (ovary, uterus, fallopian tube, liver & "
+    },
+    "texte": {
+      "police": "Cera Pro",
+      "taille": 16,
+      "graisse": 400,
+      "interligne": 1.35,
+      "couleur": "#261c16",
+      "casse": null,
+      "espacement": "0.12px",
+      "exemple": "Blend of 5 freeze-dried, 3rd party tested essential organs in capsule form"
+    }
   }
 }
 ```

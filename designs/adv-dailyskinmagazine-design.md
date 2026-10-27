@@ -53,6 +53,48 @@ Copie entière dans la section « Advertorial — article complet » (19 section
     "texte-sur-sombre": "#ffffff",
     "bouton": "#47901a",
     "bouton-texte": "#f6f9fe"
+  },
+  "styles": {
+    "h1": {
+      "police": "Bitter",
+      "taille": 34,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "\"BANNED BY SURGEONS\" - New \"FACE LIFT SERUM\" fills and tightens almost 99.7% of wrinkles i"
+    },
+    "h3": {
+      "police": "helvetica",
+      "taille": 14,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#3b5998",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Wilma Becker"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 12,
+      "graisse": 400,
+      "interligne": 1,
+      "couleur": "#457584",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Fri. June 27th, 2025 | 11:11 am EST - 251.328 👁"
+    },
+    "texte": {
+      "police": "Bitter",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.4,
+      "couleur": "#303030",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Margaret's story will leave you speechless..."
+    }
   }
 }
 ```

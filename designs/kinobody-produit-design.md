@@ -54,6 +54,72 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "accent": "#2c3e50",
     "bouton": "#000000",
     "bouton-texte": "#ffffff"
+  },
+  "styles": {
+    "entete": {
+      "police": "neue-haas-grotesk-display",
+      "taille": 18,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Account"
+    },
+    "h1": {
+      "police": "neue-haas-grotesk-display",
+      "taille": 18,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Account"
+    },
+    "h2": {
+      "police": "neue-haas-grotesk-display",
+      "taille": 44,
+      "graisse": 600,
+      "interligne": 1.1,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": "-0.44px",
+      "exemple": "Real results based on more than 21,274+ customers"
+    },
+    "h3": {
+      "police": "neue-haas-grotesk-display",
+      "taille": 44,
+      "graisse": 600,
+      "interligne": 1.1,
+      "couleur": "oklch(1 0 0)",
+      "casse": null,
+      "espacement": "-0.44px",
+      "exemple": "Tongkat Ali supports testosterone and male vitality"
+    },
+    "texte": {
+      "police": "neue-haas-grotesk-display",
+      "taille": 14,
+      "graisse": 400,
+      "interligne": 1.8,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Kino body was recommended from a trusted source so I decided to give it a shot. I noticed "
+    },
+    "bouton": {
+      "police": "neue-haas-grotesk-display",
+      "taille": 18,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "oklch(1 0 0)",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Learn More",
+      "fond": "oklch(0 0 0)",
+      "rayon": "24px",
+      "hauteur": 48,
+      "marges": "12px 37px"
+    }
   }
 }
 ```

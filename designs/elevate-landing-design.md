@@ -53,6 +53,73 @@ Copie entière dans la section « Advertorial — article complet » (15 section
     "texte-sur-sombre": "#ffffff",
     "bouton": "#ffffff",
     "bouton-texte": "#2e2a39"
+  },
+  "styles": {
+    "h1": {
+      "police": "Poppins",
+      "taille": 35,
+      "graisse": 600,
+      "interligne": 1.14,
+      "couleur": "#2e2a39",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "CLINICALLY STUDIED COLLAGEN SUPERBLEND FOR WOMEN"
+    },
+    "h2": {
+      "police": "Poppins",
+      "taille": 35,
+      "graisse": 600,
+      "interligne": 1.37,
+      "couleur": "#2e2a39",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Starting to Feel Stiffer, Weaker and Noticing More Fine Lines As You Age?"
+    },
+    "h3": {
+      "police": "Poppins",
+      "taille": 20,
+      "graisse": 600,
+      "interligne": 1.2,
+      "couleur": "#2e2a39",
+      "casse": null,
+      "espacement": null,
+      "exemple": "How To Take Collagen?"
+    },
+    "sousTitre": {
+      "police": "Poppins",
+      "taille": 22,
+      "graisse": 700,
+      "interligne": 1.3,
+      "couleur": "#ffffff",
+      "casse": "uppercase",
+      "espacement": null,
+      "exemple": "WHILE OTHERS TALK, WE TESTED...",
+      "fond": "#007dc0"
+    },
+    "texte": {
+      "police": "Poppins",
+      "taille": 20,
+      "graisse": 400,
+      "interligne": 1.2,
+      "couleur": "#2e2a39",
+      "casse": null,
+      "espacement": null,
+      "exemple": "If you don't see visible improvements, we'll give you a FULL REFUND. You don't even need t"
+    },
+    "bouton": {
+      "police": "Poppins",
+      "taille": 18,
+      "graisse": 700,
+      "interligne": 1.2,
+      "couleur": "#fdfbf7",
+      "casse": "uppercase",
+      "espacement": "0.9px",
+      "exemple": "START YOUR TRANSFORMATION",
+      "fond": "#00ad21",
+      "rayon": "5px",
+      "hauteur": 57,
+      "marges": "15px 50px"
+    }
   }
 }
 ```
