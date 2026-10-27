@@ -131,9 +131,11 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
                 const inst = r.instable;
                 alert(
                   [
-                    `Vérification du miroir (3 passes : Edge, Chrome, HTML brut) — score ${r.score} / 100`,
+                    `Vérification du miroir (capture enregistrée, Edge, Chrome, HTML brut) — score ${r.score} / 100 contre la ${r.reference ?? "capture"}`,
                     "",
-                    `Hauteur : original ${r.hauteur.edge ?? r.hauteur.chromium} px · copie ${r.hauteur.copie} px (${r.hauteur.ecart})`,
+                    r.siteChange ? `Site d'origine : ${r.siteChange.verdict} (${r.siteChange.score} / 100)` : "",
+                    r.visuel ? `Visuel : ${r.visuel.ecart} % de pixels différents — planche imports/${importSource}/compare-copie.png` : "",
+                    `Hauteur : capture ${r.hauteur.capture ?? r.hauteur.edge} px · copie ${r.hauteur.copie} px (${r.hauteur.ecart})`,
                     `Images : ${r.images.retrouvees} / ${r.images.original} retrouvées`,
                     `Titres : ${r.titres.original - r.titres.manquants.length} / ${r.titres.original}${r.titres.manquants.length ? ` — manquants : ${r.titres.manquants.slice(0, 4).join(" · ")}` : ""}`,
                     `Textes : ${r.textes.couverture} des phrases retrouvées`,

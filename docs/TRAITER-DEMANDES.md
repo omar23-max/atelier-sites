@@ -224,6 +224,29 @@ rôle a changé : sans nouvelle palette, la copie reste identique au pixel près
 Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
 (`src/engine/render.js`). Sections anciennes : `node scripts/couleurs-proches.mjs`.
 
+## Outils de miroir : REA, Copycat, vérificateur maison
+
+Pour tout import ou miroir de page, en plus de la capture maison (`advertorial.mjs`) :
+
+- **Copycat** (skill installé dans `.claude/skills/copycat`, code d'origine de
+  minosdevs, copie cnkolongo/copycat-skill) — deuxième capture indépendante et
+  comparaison visuelle détaillée. Toujours avec Edge (`--channel msedge`, pas de
+  Chromium à télécharger) :
+  - capture : `node .claude/skills/copycat/scripts/capture.mjs <url> --out copycat/<slug> --channel msedge`
+    → plis d'écran (folds) sur 3 largeurs, crops par section, survols, polices,
+    palette, `REPORT.md`. Voit aussi les images chargées tard (photo produit
+    du haut de Luma, absente de notre capture).
+  - comparaison : `node .claude/skills/copycat/scripts/compare.mjs --original copycat/<slug> --clone http://localhost:5180/partage/<page> --channel msedge`
+    → `copycat/<slug>/compare/REPORT.md` : % de pixels par largeur, zones les
+    pires reliées aux sections, écarts de typo par balise, animations, meta,
+    images, console. On ne s'en sert pas pour reconstruire en HTML statique :
+    la copie reste faite par `copie.mjs` (sections Liquid de l'atelier).
+  - `copycat/` est dans `.gitignore` (contenu des sites d'inspiration).
+- **REA** — quand une capture échoue ou qu'un comportement est caché dans le
+  JavaScript du site (packs, carrousels, contenu chargé après clic).
+- **Vérificateur maison** (ci-dessous) — score / 100, référence = capture
+  enregistrée, détection « le site a changé ».
+
 ## Vérifier un miroir en 3 passes
 
 `node scripts/verifier-miroir.mjs <slug> [page]` (ou ⋯ → « Vérifier le miroir »
@@ -234,6 +257,18 @@ images réellement visibles : diapositives et vignettes cachées ignorées), tit
 et phrases ; ce qui diffère entre Edge et Chrome est instable sur le site.
 Rapport : `imports/<slug>/verification.json` (score / 100). Toute la liste :
 `node imports/_verifier-liste.mjs`.
+
+- **Référence = la capture enregistrée** (`snapshot.json` + `desktop.png`) : le
+  score mesure les défauts de la copie. Le site en ligne est comparé à la
+  capture à part (`siteChange`) : sous 80, le site a changé depuis l'import
+  (langue selon le pays, page refaite, test A/B) — ce n'est pas un défaut de copie.
+- **Comparaison visuelle** : capture d'écran pleine page de la copie contre
+  `desktop.png`, diff de pixels dans un canvas (pas de dépendance), % global,
+  bandes de 200 px les plus différentes, planche original | copie | différences
+  dans `imports/<slug>/compare-copie.png`. Elle voit ce que les mesures de
+  texte ne voient pas (ex. : pied de page placé en haut sur Luma — corrigé dans
+  `copie.mjs` : un lien « Skip to content » hors écran faisait prendre le body
+  pour des colonnes).
 
 ## Template : à créer pour chaque import
 
