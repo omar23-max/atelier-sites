@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
-import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
+import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, mirrorIntoPage, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
 import { SourceLink, useHoverPreview } from "./hover.jsx";
 
 const sameSource = (a, b) => {
@@ -19,7 +19,28 @@ const sameSource = (a, b) => {
 export const sectionsFromTemplate = (t) =>
   sections.filter((s) => (t.sections ?? []).includes?.(s.id) || sameSource(s.meta.source?.url, t.url));
 
-function TemplateCard({ template, onUse, onDelete }) {
+// Page ouverte en dernier dans l'atelier (ou ?page=) : cible du miroring.
+const currentPage = new URLSearchParams(location.search).get("page") ?? (() => {
+  try {
+    return localStorage.getItem("atl-last-page");
+  } catch {
+    return null;
+  }
+})();
+
+async function mirrorHere(template, onMessage) {
+  const question = `Miroring de « ${template.nom} » dans la page « ${currentPage} » ?\n\nToutes les sections de la page sont remplacées par celles du template (copie de sécurité dans l'Historique). La page garde son projet, son titre et son produit.`;
+  if (!confirm(question)) return;
+  try {
+    const n = await mirrorIntoPage(currentPage, template.page);
+    onMessage?.({ text: `${n} section(s) copiées dans « ${currentPage} ». Ouverture…` });
+    location.href = `/?page=${encodeURIComponent(currentPage)}`;
+  } catch (e) {
+    onMessage?.({ error: true, text: `Échec : ${e.message}` });
+  }
+}
+
+function TemplateCard({ template, onUse, onDelete, onMessage }) {
   // Aperçu : la capture pleine page (nette), la vignette en secours.
   const hover = useHoverPreview("template", { thumbnail: template.vignette, full: template.vignette?.replace(/vignette.png$/, "desktop.png") });
   const type = pageTypeById[template.pageType];
@@ -66,6 +87,11 @@ function TemplateCard({ template, onUse, onDelete }) {
         <button type="button" className="cat-btn" disabled={!template.page} onClick={() => onUse(template)}>
           Utiliser dans un projet
         </button>
+        {currentPage && template.page && currentPage !== template.page && (
+          <button type="button" className="cat-btn" title={`Remplace les sections de « ${currentPage} » par celles de ce template`} onClick={() => mirrorHere(template, onMessage)}>
+            Miroring dans la page actuelle
+          </button>
+        )}
         <button type="button" className="cat-btn cat-btn--danger" onClick={() => onDelete(template)}>
           Supprimer
         </button>
@@ -243,7 +269,7 @@ export function TemplatesView({ onMessage, initialType = "tous" }) {
         {templates.some((t) => type === "tous" || t.pageType === type) ? (
           <div className="cat-grid">
             {templates.filter((t) => type === "tous" || t.pageType === type).map((t) => (
-              <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} />
+              <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} onMessage={onMessage} />
             ))}
           </div>
         ) : (

@@ -118,6 +118,39 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
           >
             🔗 Lien de partage (lecture seule)
           </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={async () => {
+              setOpen(null);
+              setBusy(true);
+              try {
+                const res = await fetch(`/api/verifier/${importSource}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: pageName }) });
+                const r = await res.json();
+                if (!res.ok) throw new Error(r.error);
+                const inst = r.instable;
+                alert(
+                  [
+                    `Vérification du miroir (3 passes : Edge, Chrome, HTML brut) — score ${r.score} / 100`,
+                    "",
+                    `Hauteur : original ${r.hauteur.edge ?? r.hauteur.chromium} px · copie ${r.hauteur.copie} px (${r.hauteur.ecart})`,
+                    `Images : ${r.images.retrouvees} / ${r.images.original} retrouvées`,
+                    `Titres : ${r.titres.original - r.titres.manquants.length} / ${r.titres.original}${r.titres.manquants.length ? ` — manquants : ${r.titres.manquants.slice(0, 4).join(" · ")}` : ""}`,
+                    `Textes : ${r.textes.couverture} des phrases retrouvées`,
+                    inst ? `Edge et Chrome ${inst.hauteur || inst.images || inst.titres ? "diffèrent (contenu instable sur le site d'origine)" : "donnent le même résultat"}` : "",
+                    "",
+                    `Détail : imports/${importSource}/verification.json`,
+                  ].join("\n"),
+                );
+              } catch (e) {
+                alert(`Vérification impossible : ${e.message}`);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            🔍 Vérifier le miroir (3 passes, ~1 min)
+          </button>
           {original ? (
             <>
               <p className="atl-pagemenu__note">C'est la page d'origine du catalogue : elle ne se supprime pas d'ici. Pour la modifier, utilise-la dans un projet.</p>
@@ -129,6 +162,9 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
             <>
               <button type="button" role="menuitem" onClick={reset}>
                 ↺ Repartir de l'original
+              </button>
+              <button type="button" role="menuitem" onClick={() => location.assign(`/catalogue.html?page=${encodeURIComponent(pageName)}#templates`)}>
+                🪞 Miroring d'un autre template…
               </button>
               <button type="button" role="menuitem" className="is-danger" onClick={remove}>
                 🗑 Supprimer cette page

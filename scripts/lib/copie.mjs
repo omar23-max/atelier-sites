@@ -16,6 +16,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { INHERITED, PROPS } from "./snapshot.mjs";
 import { fonctionOf } from "../../src/engine/fonctions.js";
+import { withNearRoles } from "./proche.mjs";
 
 const MAX_SLOTS = 45;
 const HEADING_TAG = /^h[1-6]$/;
@@ -750,7 +751,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       arbre: tree,
       designRoles: Object.fromEntries(Object.keys(roles).map((r) => [`role_${r.replace(/-/g, "_")}`, r])),
     };
-    return { id, schema, template: liquid, css, meta, blocks };
+    // Nuances proches d'un rôle : suivent aussi une nouvelle palette (lib/proche.mjs).
+    const near = withNearRoles({ css, template: liquid, roles: Object.fromEntries(Object.entries(roles).map(([r, c]) => [r, hexOf(c)])) });
+    return { id, schema, template: near.template, css: near.css, meta, blocks };
   });
   const firstName = (stack) => (stack ?? "").split(",")[0].replace(/["']/g, "").trim();
   return {

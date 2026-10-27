@@ -148,6 +148,19 @@ function atelierApi() {
           // ---- Page d'origine d'un import (vue « Original ») ----
           // Le HTML capturé, tel quel : textes, design et images d'origine.
           // Scripts retirés et bloqués ; <base> pointe vers le site pour ses CSS et images.
+          // ---- Vérifier un miroir en 3 passes (Edge, Chrome, HTML brut) ----
+          // GET : dernier rapport ; POST { page } : lance scripts/verifier-miroir.mjs.
+          if (parts[0] === "verifier" && /^[a-z0-9-]+$/.test(parts[1] ?? "")) {
+            const file = join(importsDir, parts[1], "verification.json");
+            if (req.method === "GET") return existsSync(file) ? json(res, 200, JSON.parse(await readFile(file, "utf8"))) : json(res, 404, { error: "Pas encore vérifié." });
+            if (req.method === "POST") {
+              const { page } = await readBody(req);
+              const args = [join(root, "scripts", "verifier-miroir.mjs"), parts[1], ...(page && /^[a-z0-9-]+$/.test(page) ? [page] : [])];
+              const code = await new Promise((done) => spawn(process.execPath, args, { cwd: root, stdio: "ignore", windowsHide: true }).on("close", done).on("error", () => done(1)));
+              if (!existsSync(file)) return json(res, 500, { error: `Vérification impossible (code ${code}).` });
+              return json(res, 200, JSON.parse(await readFile(file, "utf8")));
+            }
+          }
           if (parts[0] === "original" && parts[1] && req.method === "GET") {
             const base = join(importsDir, parts[1]);
             const file = join(base, "page.html");

@@ -61,6 +61,24 @@ export async function createPage({ name, projet = "", produit = "", pageType, pr
   return name;
 }
 
+// « Miroring dans la page actuelle » : la page reprend toutes les sections, le
+// design et l'import d'origine du template, et garde son projet, son titre,
+// son produit et son type. Copie de sécurité avant (Historique).
+export async function mirrorIntoPage(name, source) {
+  const [page, tpl] = await Promise.all([getPage(name), getPage(source)]);
+  const own = page.root?.props ?? {};
+  await api("POST", `/api/pages/${name}/snapshot`).catch(() => {});
+  const next = {
+    ...tpl,
+    root: {
+      ...tpl.root,
+      props: { ...tpl.root?.props, ...Object.fromEntries(["title", "projet", "produit", "profil", "pageType", "pageAchat", "langue"].filter((k) => own[k]).map((k) => [k, own[k]])) },
+    },
+  };
+  await api("PUT", `/api/pages/${name}`, next);
+  return next.content?.length ?? 0;
+}
+
 // Nom de fichier proposé pour une page de projet.
 export const pageNameFor = (projet, pageType, profil) => slug([projet, pageType, profil].filter(Boolean).join(" "));
 

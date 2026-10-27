@@ -10,6 +10,7 @@ import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
 import { BoardButton } from "./board-ui.jsx";
 import { DeviceSwitch } from "./device-ui.jsx";
+import { LanguageSwitch } from "./lang-ui.jsx";
 import { DesignSelect } from "./design-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
@@ -161,6 +162,7 @@ export default function App() {
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
                 <DeviceSwitch />
+                <LanguageSwitch />
                 <FullscreenButton />
                 <span className="atl-publish">
                   <DownloadHtmlButton />

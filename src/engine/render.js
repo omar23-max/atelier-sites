@@ -1,7 +1,19 @@
 import { INFO_SETTING_TYPES } from "./shopify.js";
 import { renderLiquid } from "./liquid.js";
+import { nearRolesInHtml } from "../../scripts/lib/proche.mjs";
 
 // Partagé par l'atelier (Puck) et les scripts Node (export HTML, comparaison).
+
+// Couleurs d'origine des rôles d'une section copiée ({ texte: "#262626", … }).
+const rolesCache = new WeakMap();
+function rolesOf(section) {
+  if (!section.meta?.designRoles) return null;
+  if (!rolesCache.has(section)) {
+    const defaults = Object.fromEntries((section.schema.settings ?? []).filter((s) => s.id?.startsWith("role_")).map((s) => [s.id, s.default]));
+    rolesCache.set(section, Object.fromEntries(Object.entries(section.meta.designRoles).filter(([k]) => defaults[k]).map(([k, r]) => [r, defaults[k]])));
+  }
+  return rolesCache.get(section);
+}
 
 export const blocksKey = (type) => `blocks_${type}`;
 
@@ -76,13 +88,30 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
   for (const s of editableSettings(section.schema.settings)) settings[s.id] = merged[s.id];
   settings = withOriginalPhotos(section.schema.settings, settings, originals.settings ?? {});
 
+  const roles = rolesOf(section);
   const blocks = [];
   for (const block of section.schema.blocks ?? []) {
     merged[blocksKey(block.type)].forEach((item, i) => {
       const values = withOriginalPhotos(block.settings, item, originals.blocks?.[block.type]?.[i] ?? {});
+      // Couleurs écrites dans le texte (lien bleu, mot en couleur) : suivent la palette.
+      if (roles && typeof values.text === "string") values.text = nearRolesInHtml(values.text, roles);
       blocks.push({ id: `${block.type}-${i}`, type: block.type, settings: values, shopify_attributes: "" });
     });
   }
 
-  return renderLiquid(section.template, { section: { id: instanceId, settings, blocks } });
+  const html = renderLiquid(section.template, { section: { id: instanceId, settings, blocks } });
+  return withSectionFrame(section, merged, instanceId, html);
+}
+
+// Fond et marges choisis dans l'éditeur (fond_section, marge_haut, marge_bas)
+// pour les sections dont le template ne les gère pas lui-même.
+function withSectionFrame(section, props, instanceId, html) {
+  if (section.template.includes("fond_section")) return html;
+  const rules = [];
+  if (props.fond_section) rules.push(`background-color:${props.fond_section}!important`, "background-image:none!important");
+  if (props.marge_haut !== undefined && props.marge_haut !== "") rules.push(`padding-top:${Number(props.marge_haut)}px!important`);
+  if (props.marge_bas !== undefined && props.marge_bas !== "") rules.push(`padding-bottom:${Number(props.marge_bas)}px!important`);
+  if (!rules.length) return html;
+  const cls = `atl-cadre-${String(instanceId).replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  return `<div class="${cls}">${html}<style>.${cls}>:not(style){${rules.join(";")}}</style></div>`;
 }

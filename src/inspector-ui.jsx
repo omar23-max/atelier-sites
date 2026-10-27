@@ -7,6 +7,7 @@ import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js"
 import { familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
+import { consigneLangue, langueOf } from "./engine/langue.js";
 
 // Panneau de droite, façon éditeur de thème Shopify :
 //   - en haut, l'arbre de la page : sections, sous-sections (groupes,
@@ -283,18 +284,12 @@ export function adaptInstructionFor(data, sectionId, { produit = null } = {}) {
   const css = neighbours[0] ? byId[neighbours[0].type].css.replace(/@font-face\s*{[^}]*}/g, "").slice(0, 6000) : "";
   const colors = design?.tokens?.couleurs ? Object.entries(design.tokens.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
   const fonts = [root.font_heading || design?.tokens?.polices?.titres, root.font_body || design?.tokens?.polices?.texte].filter(Boolean).join(" / ");
-  // Un texte d'une section voisine : la langue dans laquelle écrire.
-  const sample = plain(
-    (neighbours[0]?.props.blocks_element ?? data.content[0]?.props.blocks_element ?? [])
-      .map((b) => b.text ?? "")
-      .find((t) => plain(t).split(" ").length > 6) ?? "",
-  ).slice(0, 160);
   return [
     "Adapte cette section au style du reste de la page, pour qu'elle s'y fonde : mêmes couleurs, polices, tailles de texte, espacements, coins arrondis, ombres et style de boutons.",
     colors && `Palette de la page (rôle couleur) : ${colors}.`,
     fonts && `Polices de la page (titres / texte) : ${fonts}.`,
     css && `Extrait du CSS d'une section voisine, à prendre comme modèle de style (pas de structure) :\n${css}`,
-    produit && sample && `Langue : écris dans la même langue que le reste de la page, par exemple : « ${sample} ».`,
+    consigneLangue(root),
     produit
       ? `Réécris aussi tous les textes pour le produit « ${produit} »${root.profil ? `, pour ce profil de client : ${root.profil}` : ""} : même longueur, même rôle (titre, liste, avis…), pas de chiffres inventés. Garde les images et l'ordre du contenu.`
       : "Garde tous les textes, toutes les images et l'ordre du contenu.",
@@ -317,7 +312,8 @@ export async function rebuildSectionWith(getPuck, sectionId, instruction, refere
   const res = await fetch("/api/ia/section", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ html, css: section.css, prompt: instruction, reference, rootClass: "ROOT" }),
+    body: JSON.stringify({ html, css: section.css, prompt: `${instruction}
+${consigneLangue(data.root?.props)}`, reference, rootClass: "ROOT" }),
   });
   const body = await res.json();
   if (!res.ok) throw new Error(body.error);
@@ -681,7 +677,15 @@ export function Inspector({ children }) {
           <div className="atl-insp__panel">
             <PanelHead onBack={close} title="Réglages de la page" sub="Titre, type, produit, polices" />
             <RewritePage content={content} root={getPuck().appState.data.root?.props ?? {}} onApply={(id, values) => updateValues(id, values)} />
-            <TranslatePage content={content} root={getPuck().appState.data.root?.props ?? {}} onApply={(id, values) => updateValues(id, values)} />
+            <TranslatePage
+              content={content}
+              root={getPuck().appState.data.root?.props ?? {}}
+              onApply={(id, values) => updateValues(id, values)}
+              onLangue={(code) => {
+                const { appState, dispatch } = getPuck();
+                dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, langue: code } } });
+              }}
+            />
             <div className="atl-insp__puck">{children}</div>
           </div>
         )}
@@ -1011,6 +1015,36 @@ function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild }) {
       <div className="atl-insp__thumbbox">
         <Thumb section={section} />
       </div>
+      {/* Fond et marges : pour toute section (rendu dans engine/render.js). */}
+      <div className="atl-style">
+        <p className="atl-style__title">Fond de la section</p>
+        <div className="atl-style__row">
+          <span>Couleur</span>
+          <span className="atl-style__color">
+            <input type="color" value={props.fond_section || "#ffffff"} onChange={(e) => onChange({ ...props, fond_section: e.target.value })} />
+            <code>{props.fond_section || "d'origine"}</code>
+            {props.fond_section && (
+              <button type="button" onClick={() => onChange({ ...props, fond_section: "" })}>
+                ↺
+              </button>
+            )}
+          </span>
+        </div>
+        <div className="atl-style__two">
+          {[
+            ["marge_haut", "Marge haut"],
+            ["marge_bas", "Marge bas"],
+          ].map(([id, label]) => (
+            <label key={id}>
+              <span>{label}</span>
+              <span className="atl-style__px">
+                <input type="number" min="0" max="400" value={props[id] ?? ""} placeholder="—" onChange={(e) => onChange({ ...props, [id]: e.target.value })} />
+                px
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
       {hasSettings ? (
         <FieldList settings={section.schema.settings} meta={section.meta} values={props} onChange={onChange} />
       ) : (
@@ -1232,7 +1266,8 @@ function AiDialog({ target, item, onClose, onApply, root }) {
         const res = await fetch("/api/ia/textes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items: texts, prompt, contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" } }),
+          body: JSON.stringify({ items: texts, prompt: /tradui|translat/i.test(prompt) ? prompt : `${prompt}
+${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" } }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error);
@@ -1969,7 +2004,7 @@ function RewritePage({ content, root, onApply }) {
             body: JSON.stringify({
               items: batch,
               prompt:
-                "Réécris chaque texte pour MON produit et MA marque (voir contexte), en gardant le rôle du texte dans la page (titre, accroche, liste, avis, bouton…), sa longueur et ses balises de mise en forme. Remplace tout nom de marque, de produit, prix ou chiffre de la page d'origine par les miens ; si une information manque, reste général plutôt que d'inventer.",
+                "Réécris chaque texte pour MON produit et MA marque (voir contexte), en gardant le rôle du texte dans la page (titre, accroche, liste, avis, bouton…), sa longueur et ses balises de mise en forme. Remplace tout nom de marque, de produit, prix ou chiffre de la page d'origine par les miens ; si une information manque, reste général plutôt que d'inventer. " + consigneLangue(root),
               contexte: { marque: form.marque || "", produit: root.produit ?? "", profilClient: root.profil ?? "", infosProduit: form.infos.slice(0, 8000), typeDePage: root.pageType ?? "" },
             }),
           });
@@ -2000,8 +2035,9 @@ function RewritePage({ content, root, onApply }) {
   );
 }
 
-function TranslatePage({ content, root, onApply }) {
-  const [langue, setLangue] = useState(LANGUES[0].value);
+function TranslatePage({ content, root, onApply, onLangue }) {
+  // Par défaut : l'autre langue que celle de la page.
+  const [langue, setLangue] = useState(langueOf(root).code === "en" ? "français du Québec" : "anglais américain");
   const [state, setState] = useState(null);
   async function run() {
     const jobs = content.map((item) => ({ id: item.props.id, texts: byId[item.type] ? aiTargets(item).texts : [] })).filter((j) => j.texts.length);
@@ -2029,6 +2065,7 @@ function TranslatePage({ content, root, onApply }) {
           done += batch.length;
         }
       }
+      if (/^(anglais|français)/.test(langue)) onLangue?.(langue.startsWith("anglais") ? "en" : "fr");
       setState({ done: `${done} textes traduits en ${langue}. Ctrl+Z pour annuler, Publish pour enregistrer.` });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà traduits)` });

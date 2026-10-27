@@ -42,31 +42,47 @@ function roleFor(c, roles) {
 
 const key = (r) => `role_${r.replace(/-/g, "_")}`;
 
-// roles : { fond: "#ffffff", texte: "#262626", … } (valeurs d'origine).
-export function withNearRoles({ css, template, roles }) {
-  const parsed = Object.fromEntries(Object.entries(roles).map(([r, v]) => [r, rgbOf(v)]).filter(([, v]) => v));
-  if (!Object.keys(parsed).length || /--atl-[a-z-]+-p:/.test(template)) return { css, template, count: 0 };
-  const used = new Set();
-  let count = 0;
-  // Les couleurs déjà reliées à un rôle (dans var(…)) ne bougent pas.
+const parseRoles = (roles) => Object.fromEntries(Object.entries(roles).map(([r, v]) => [r, rgbOf(v)]).filter(([, v]) => v));
+
+// Remplace les couleurs proches d'un rôle hors des var(--atl-…) existants.
+function mapColors(text, parsed, onRole = () => {}) {
   const kept = [];
-  const masked = css.replace(VAR, (m) => `\u0000${kept.push(m) - 1}\u0000`);
+  const masked = text.replace(VAR, (m) => `\u0000${kept.push(m) - 1}\u0000`);
   const out = masked.replace(COLOR, (m) => {
     const c = rgbOf(m);
     if (!c || c.a < 1) return m;
     const role = roleFor(c, parsed);
     if (!role) return m;
-    used.add(role);
-    count++;
+    onRole(role);
     return `var(--atl-${role}-p, ${m})`;
   });
-  const css2 = out.replace(/\u0000(\d+)\u0000/g, (_, i) => kept[+i]);
-  if (!used.size) return { css, template, count: 0 };
-  // Variables définies seulement quand le rôle a changé de couleur.
-  const defs = [...used]
+  return out.replace(/\u0000(\d+)\u0000/g, (_, i) => kept[+i]);
+}
+
+const DEFS = / ?--atl-[a-z-]+-p: \{%- if [^;]*?\{%- endif -%\};/g;
+
+// roles : { fond: "#ffffff", texte: "#262626", … } (valeurs d'origine).
+export function withNearRoles({ css, template, roles }) {
+  const parsed = parseRoles(roles);
+  const anchor = /(style="[^"]*?--atl-[a-z-]+: \{\{ section\.settings\.role_[a-z_]+ \}\};)/;
+  if (!Object.keys(parsed).length || !anchor.test(template)) return { css, template, count: 0 };
+  let count = 0;
+  const css2 = mapColors(css, parsed, () => count++);
+  // Une variable par rôle (les textes aussi peuvent en porter), définie
+  // seulement quand le rôle a changé de couleur.
+  const defs = Object.keys(parsed)
     .map((r) => `--atl-${r}-p: {%- if section.settings.${key(r)} == blank or section.settings.${key(r)} == '${roles[r]}' -%}initial{%- else -%}{{ section.settings.${key(r)} }}{%- endif -%};`)
     .join(" ");
-  const anchor = /(style="[^"]*?--atl-[a-z-]+: \{\{ section\.settings\.role_[a-z_]+ \}\};)/;
-  if (!anchor.test(template)) return { css, template, count: 0 };
-  return { css: css2, template: template.replace(anchor, `$1 ${defs}`), count };
+  const template2 = template.replace(DEFS, "").replace(anchor, `$1 ${defs}`);
+  return { css: css2, template: template2, count: count || (template2 !== template ? 1 : 0) };
+}
+
+// Couleurs écrites dans les textes eux-mêmes (style="color:…" d'un lien, d'un
+// mot en couleur) : même correspondance, au rendu.
+const cache = new WeakMap();
+export function nearRolesInHtml(html, roles) {
+  if (!html || !html.includes("style=")) return html;
+  let parsed = cache.get(roles);
+  if (!parsed) cache.set(roles, (parsed = parseRoles(roles)));
+  return html.replace(/style="([^"]*)"/g, (m, st) => (/rgb|#[0-9a-f]{3}/i.test(st) ? `style="${mapColors(st, parsed)}"` : m));
 }
