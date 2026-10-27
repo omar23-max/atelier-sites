@@ -407,9 +407,19 @@ function PaletteTool() {
     for (let n = 2; designById[id]; n++) id = `${base}-${suffix}-${n}`;
     const couleurs = brandRoles(colors, currentDesign?.tokens.couleurs ?? {}, level);
     const markdown = designMarkdown({ title: `${project?.nom ?? base} — palette ${suffix === "logo" ? "du logo" : "personnalisée"} (intensité ${level})`, origine: `${origine}, intensité ${level}/4`, polices, couleurs });
-    const res = await fetch(`/api/designs/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markdown }) });
-    if (!res.ok) return setState({ error: (await res.json()).error });
-    await apply(parseDesign(id, markdown));
+    // La page d'abord, le design.md ensuite : créer le fichier recharge
+    // l'atelier, ce qui couperait l'application en cours.
+    setState({ busy: true });
+    try {
+      const save = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPuck().appState.data) });
+      if (!save.ok) throw new Error((await save.json()).error);
+      await applyDesignToPage(pageName, parseDesign(id, markdown));
+      const res = await fetch(`/api/designs/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markdown }) });
+      if (!res.ok) throw new Error((await res.json()).error);
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      setState({ error: e.message });
+    }
   }
 
   async function onLogo(file) {

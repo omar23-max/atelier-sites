@@ -179,10 +179,10 @@ export function ScorePanel() {
                 Chaque section est placée où elle doit aller, puis l'IA la redessine au style de la page et écrit ses textes pour
                 {result.type && " ton produit"} (≈ 1 min par section).
               </p>
-              {ai?.step && <p className="atl-aidlg__step">{ai.step}</p>}
-              {ai?.error && <p className="atl-topbar__error">{ai.error}</p>}
             </>
           )}
+          {ai?.step && <p className="atl-aidlg__step">{ai.step}</p>}
+          {ai?.error && <p className="atl-topbar__error">{ai.error}</p>}
           {addable.length > 1 && (
             <button type="button" className="atl-score__all" onClick={addAll}>
               Ajouter les {addable.length} sections conseillées (sans IA)

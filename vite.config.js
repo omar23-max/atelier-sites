@@ -186,7 +186,17 @@ function atelierApi() {
               const data = await readBody(req);
               if (!Array.isArray(data?.content)) return json(res, 400, { error: "Contenu de page invalide." });
               await mkdir(pagesDir, { recursive: true });
-              await writeFile(file, JSON.stringify(data, null, 2) + "\n", "utf8");
+              // Sous Windows, le fichier peut être lu au même moment (vignette) :
+              // quelques essais avant d'abandonner.
+              for (let attempt = 0; ; attempt++) {
+                try {
+                  await writeFile(file, JSON.stringify(data, null, 2) + "\n", "utf8");
+                  break;
+                } catch (e) {
+                  if (attempt >= 5 || !/EBUSY|EPERM|UNKNOWN/.test(e.code ?? e.message)) throw e;
+                  await new Promise((r) => setTimeout(r, 300));
+                }
+              }
               refreshPageThumb(name);
               return json(res, 200, { ok: true, file: `pages/${name}.json` });
             }

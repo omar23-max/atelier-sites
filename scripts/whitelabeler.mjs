@@ -77,8 +77,16 @@ const NATURES = {
 };
 
 let html = await readFile(source, "utf8");
+// Aperçu sans repère de section (barres d'achat fixes, certains articles) : la
+// première <section>, sinon le premier bloc du body, devient la section.
+if (!/\sdata-wld-section="/.test(html)) {
+  const nature = optType ?? "section";
+  html = /<section\b/.test(html)
+    ? html.replace(/<section\b/, `<section data-wld-section="${nature}"`)
+    : html.replace(/(<body[^>]*>\s*<)(\w+)/, `$1$2 data-wld-section="${nature}"`);
+}
 // Une section = une balise ouvrante portant data-wld-section.
-const opens = [...html.matchAll(/<(\w+)([^>]*?)\sdata-wld-section="([a-z_]+)"([^>]*)>/g)];
+const opens = [...html.matchAll(/<(\w+)([^>]*?)\sdata-wld-section="([a-z0-9_]+)"([^>]*)>/g)];
 console.log(`${opens.length} section(s) dans ${source}`);
 const HIDE = "<style>[data-wld-section]:not([data-atl-garder]){display:none!important}</style>";
 

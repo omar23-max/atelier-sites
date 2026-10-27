@@ -283,11 +283,18 @@ export function adaptInstructionFor(data, sectionId, { produit = null } = {}) {
   const css = neighbours[0] ? byId[neighbours[0].type].css.replace(/@font-face\s*{[^}]*}/g, "").slice(0, 6000) : "";
   const colors = design?.tokens?.couleurs ? Object.entries(design.tokens.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
   const fonts = [root.font_heading || design?.tokens?.polices?.titres, root.font_body || design?.tokens?.polices?.texte].filter(Boolean).join(" / ");
+  // Un texte d'une section voisine : la langue dans laquelle écrire.
+  const sample = plain(
+    (neighbours[0]?.props.blocks_element ?? data.content[0]?.props.blocks_element ?? [])
+      .map((b) => b.text ?? "")
+      .find((t) => plain(t).split(" ").length > 6) ?? "",
+  ).slice(0, 160);
   return [
     "Adapte cette section au style du reste de la page, pour qu'elle s'y fonde : mêmes couleurs, polices, tailles de texte, espacements, coins arrondis, ombres et style de boutons.",
     colors && `Palette de la page (rôle couleur) : ${colors}.`,
     fonts && `Polices de la page (titres / texte) : ${fonts}.`,
     css && `Extrait du CSS d'une section voisine, à prendre comme modèle de style (pas de structure) :\n${css}`,
+    produit && sample && `Langue : écris dans la même langue que le reste de la page, par exemple : « ${sample} ».`,
     produit
       ? `Réécris aussi tous les textes pour le produit « ${produit} »${root.profil ? `, pour ce profil de client : ${root.profil}` : ""} : même longueur, même rôle (titre, liste, avis…), pas de chiffres inventés. Garde les images et l'ordre du contenu.`
       : "Garde tous les textes, toutes les images et l'ordre du contenu.",
@@ -434,6 +441,15 @@ export function Inspector({ children }) {
       return { sectionId: sec.dataset.atlId, key: el?.dataset.atlSlot ?? undefined, group: el?.dataset.atlGroup ?? undefined };
     };
     const onClick = (e) => {
+      // Un clic lancé par un script de la page (défilement automatique d'un
+      // bandeau, d'un carrousel) n'est pas un clic de l'utilisateur : le
+      // bouton le reçoit, mais il s'arrête à la section (Puck ne doit pas
+      // sélectionner la section pour autant).
+      if (!e.isTrusted) {
+        const sec = e.target?.closest?.("[data-atl-id]");
+        sec?.addEventListener("click", (ev) => ev.stopPropagation(), { once: true });
+        return;
+      }
       if (!visible() || editRef.current) return;
       const t = target(e);
       if (t) setTimeout(() => choose(t, { scroll: false }), 0);
