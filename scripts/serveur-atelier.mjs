@@ -24,7 +24,17 @@ if (await portBusy()) {
 }
 
 let restarts = 0;
-function start() {
+let waiting = false;
+async function start() {
+  // Un autre serveur répond déjà sur 5180 (lancé à la main ou par Claude) :
+  // l'atelier marche, on attend sans relancer en boucle.
+  if (await portBusy()) {
+    if (!waiting) log("un autre serveur répond sur 5180 : en attente");
+    waiting = true;
+    restarts = 0;
+    return setTimeout(start, 60000);
+  }
+  waiting = false;
   log(`démarrage du serveur${restarts ? ` (relance n° ${restarts})` : ""}`);
   const child = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js")], { cwd: root, stdio: "ignore", windowsHide: true });
   const began = Date.now();

@@ -224,6 +224,25 @@ rôle a changé : sans nouvelle palette, la copie reste identique au pixel près
 Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
 (`src/engine/render.js`). Sections anciennes : `node scripts/couleurs-proches.mjs`.
 
+## Contrôle automatique de chaque import (une seule fois)
+
+`advertorial-page.mjs` lance à la fin `scripts/verifier-import.mjs <slug>` :
+1. vérificateur maison (score / 100 contre la capture, diff visuel) ;
+2. **Copycat seulement si** score < 95 ou plus de 25 % de pixels différents
+   (`--copycat` pour forcer) → `imports/<slug>/copycat/compare/REPORT.md` ;
+3. résumé dans `template.json` → `verification` (badge « Copie N / 100 » sur la
+   carte du template).
+L'atelier doit tourner (sinon le contrôle est sauté, avec la commande à relancer).
+`ATL_SANS_VERIF=1` pour sauter (reconstructions en lot : `_templates-liste.mjs`).
+
+**Pas de re-vérification des pages déjà copiées.** `_verifier-liste.mjs` ne
+traite que les pages sans `verification.json` (`--tout` pour forcer). Sur chaque
+template, le bouton **« Vérifier si la page originale a changé »** compare
+seulement le site en ligne à la capture (~40 s, `verifier-miroir.mjs <slug>
+--site` → `controle-site.json`, `template.json` → `controleSite`, badge
+« Original inchangé / Petits changements / Original modifié »). Si l'original
+a changé et qu'on veut la nouvelle version : réimporter la page.
+
 ## Outils de miroir : REA, Copycat, vérificateur maison
 
 Pour tout import ou miroir de page, en plus de la capture maison (`advertorial.mjs`) :

@@ -115,6 +115,11 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
           {type && <span className={`cat-badge ${type.achat ? "cat-badge--green" : "cat-badge--blue"}`}>{type.label}</span>}
           {template.niche && <span className="cat-badge cat-badge--grey">{template.niche}</span>}
           {template.design && <span className="cat-badge cat-badge--grey">{template.design}.md</span>}
+          {template.verification?.score != null && (
+            <span className={`cat-badge ${template.verification.score >= 95 ? "cat-badge--green" : "cat-badge--grey"}`} title={`Vérifiée à l'import le ${String(template.verification.date).slice(0, 10)}${template.verification.copycat?.note ? ` · Copycat : ${template.verification.copycat.note}` : ""}`}>
+              Copie {template.verification.score} / 100
+            </span>
+          )}
         </div>
       </div>
       <div className="cat-card__actions">
