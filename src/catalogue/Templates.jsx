@@ -40,6 +40,48 @@ async function mirrorHere(template, onMessage) {
   }
 }
 
+// « La page originale a-t-elle changé ? » : site en ligne contre la capture
+// enregistrée (~40 s). Pas de re-vérification de la copie elle-même.
+function SiteCheck({ template, onMessage }) {
+  const [busy, setBusy] = useState(false);
+  const [last, setLast] = useState(template.controleSite ?? null);
+  if (!template.url) return null;
+  return (
+    <>
+      <button
+        type="button"
+        className="cat-btn cat-btn--ghost"
+        disabled={busy}
+        title="Compare la page en ligne à la capture faite à l'import"
+        onClick={async () => {
+          setBusy(true);
+          try {
+            const res = await fetch(`/api/verifier/${template.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ site: true }) });
+            const r = await res.json();
+            if (!res.ok || r.erreur) throw new Error(r.error ?? r.erreur);
+            setLast({ date: r.date, score: r.score, change: r.change, verdict: r.verdict });
+            onMessage?.({
+              text: `${template.nom} : ${r.verdict} (${r.score} / 100). ${r.textes}, ${r.images}, hauteur ${r.hauteur.ecart}.${r.change ? " Pour reprendre la nouvelle version : réimporter la page." : ""}`,
+              error: r.change,
+            });
+          } catch (e) {
+            onMessage?.({ error: true, text: `Contrôle impossible : ${e.message}` });
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {busy ? "Contrôle en cours (~40 s)…" : "Vérifier si la page originale a changé"}
+      </button>
+      {last && (
+        <span className={`cat-badge ${last.change ? "cat-badge--red" : last.score < 95 ? "cat-badge--grey" : "cat-badge--green"}`} title={`Contrôlé le ${String(last.date).slice(0, 10)}`}>
+          {last.change ? "Original modifié" : last.score < 95 ? "Petits changements" : "Original inchangé"} · {String(last.date).slice(0, 10)}
+        </span>
+      )}
+    </>
+  );
+}
+
 function TemplateCard({ template, onUse, onDelete, onMessage }) {
   // Aperçu : la capture pleine page (nette), la vignette en secours.
   const hover = useHoverPreview("template", { thumbnail: template.vignette, full: template.vignette?.replace(/vignette.png$/, "desktop.png") });
@@ -92,6 +134,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
             Miroring dans la page actuelle
           </button>
         )}
+        <SiteCheck template={template} onMessage={onMessage} />
         <button type="button" className="cat-btn cat-btn--danger" onClick={() => onDelete(template)}>
           Supprimer
         </button>

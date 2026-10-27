@@ -154,7 +154,22 @@ function atelierApi() {
             const file = join(importsDir, parts[1], "verification.json");
             if (req.method === "GET") return existsSync(file) ? json(res, 200, JSON.parse(await readFile(file, "utf8"))) : json(res, 404, { error: "Pas encore vérifié." });
             if (req.method === "POST") {
-              const { page } = await readBody(req);
+              const { page, site } = await readBody(req);
+              // { site: true } : seulement « la page originale a-t-elle changé ? » (~40 s).
+              if (site) {
+                const out = join(importsDir, parts[1], "controle-site.json");
+                await new Promise((done) => spawn(process.execPath, [join(root, "scripts", "verifier-miroir.mjs"), parts[1], "--site"], { cwd: root, stdio: "ignore", windowsHide: true }).on("close", done).on("error", done));
+                if (!existsSync(out)) return json(res, 500, { error: "Contrôle impossible." });
+                const r = JSON.parse(await readFile(out, "utf8"));
+                // Le dernier contrôle est noté dans le template (affiché sur sa carte).
+                const tplFile = join(importsDir, parts[1], "template.json");
+                if (existsSync(tplFile)) {
+                  const tpl = JSON.parse(await readFile(tplFile, "utf8"));
+                  tpl.controleSite = { date: r.date, score: r.score ?? null, change: r.change ?? null, verdict: r.verdict ?? r.erreur };
+                  await writeFile(tplFile, JSON.stringify(tpl, null, 2), "utf8");
+                }
+                return json(res, 200, r);
+              }
               const args = [join(root, "scripts", "verifier-miroir.mjs"), parts[1], ...(page && /^[a-z0-9-]+$/.test(page) ? [page] : [])];
               const code = await new Promise((done) => spawn(process.execPath, args, { cwd: root, stdio: "ignore", windowsHide: true }).on("close", done).on("error", () => done(1)));
               if (!existsSync(file)) return json(res, 500, { error: `Vérification impossible (code ${code}).` });

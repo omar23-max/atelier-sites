@@ -109,8 +109,9 @@ async function capturePass() {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const kids = new Map();
   for (const n of nodes) kids.set(n.parent, [...(kids.get(n.parent) ?? []), n]);
-  const textOf = (n) => [n.text ?? "", ...(kids.get(n.id) ?? []).map(textOf)].join(" ");
   const hidden = (n) => !n.box || n.box.x < -1000 || n.box.w <= 2 || n.box.h <= 2 || n.style?.display === "none" || n.style?.visibility === "hidden" || Number(n.style?.opacity ?? 1) <= 0.05;
+  // Texte visible seulement (un titre a souvent une variante mobile cachée).
+  const textOf = (n) => [n.text ?? "", ...(kids.get(n.id) ?? []).filter((k) => !hidden(k)).map(textOf)].join(" ");
   // Partie visible : coupée par les parents en overflow (carrousels).
   const shown = (n) => {
     let [l, t, r, b] = [n.box.x, n.box.y, n.box.x + n.box.w, n.box.y + n.box.h];
@@ -130,9 +131,11 @@ async function capturePass() {
     });
   const headings = nodes.filter((n) => /^h[1-3]$/.test(n.tag) && !hidden(n)).map((n) => textOf(n).replace(/\s+/g, " ").trim()).filter(Boolean);
   const text = nodes.filter((n) => n.text && !hidden(n)).map((n) => n.text).join(" ").replace(/\s+/g, " ");
-  // Hauteur : celle de la capture d'écran enregistrée (en-tête PNG).
+  // Hauteur : celle de la page relevée (la capture d'écran desktop.png est
+  // coupée à 15 000 px sur les pages très longues).
   const png = join(dir, "desktop.png");
-  const height = existsSync(png) ? (await readFile(png)).readUInt32BE(20) : Math.max(...nodes.filter((n) => n.box).map((n) => n.box.y + n.box.h));
+  const extent = Math.round(Math.max(...nodes.filter((n) => n.box && !hidden(n)).map((n) => n.box.y + n.box.h)));
+  const height = Math.max(extent, existsSync(png) ? (await readFile(png)).readUInt32BE(20) : 0);
   return { height, images, headings, text, words: text.split(" ").length };
 }
 
@@ -148,7 +151,8 @@ async function compareScreens(copyPng, originalUrl) {
         const load = (src) => new Promise((ok, ko) => Object.assign(new Image(), { onload() { ok(this); }, onerror: () => ko(new Error(`image illisible : ${src.slice(0, 60)}`)), src }));
         const [a, b] = await Promise.all([load(originalUrl), load(copyData)]);
         const W = 480;
-        const H = Math.min(Math.round((Math.max(a.height, b.height) * W) / a.width), 12000);
+        // Partie commune seulement (desktop.png s'arrête à 15 000 px).
+        const H = Math.round((Math.min(a.height, b.height) * W) / a.width);
         const draw = (img) => {
           const c = Object.assign(document.createElement("canvas"), { width: W, height: H });
           const x = c.getContext("2d");
@@ -221,14 +225,20 @@ const run = async (name, fn) => {
     console.log(`  ✗ ${name} : ${errors[name]}`);
   }
 };
+// --site : seulement « la page originale a-t-elle changé ? » (site en ligne
+// contre capture enregistrée, sans mesurer la copie) — bouton des templates.
+const siteOnly = process.argv.includes("--site");
 await run("edge", () => withBrowser({ channel: "msedge" }, (p) => measure(p, url)));
 const CHROMIUM = join(process.env.LOCALAPPDATA ?? "", "ms-playwright", "chromium-1217", "chrome-win64", "chrome.exe");
-await run("chromium", () => withBrowser({ channel: "chrome" }, (p) => measure(p, url)).catch(() => withBrowser({ executablePath: CHROMIUM }, (p) => measure(p, url))));
-await run("brut", rawPass);
-await run("copie", () =>
+if (!siteOnly) await run("chromium", () => withBrowser({ channel: "chrome" }, (p) => measure(p, url)).catch(() => withBrowser({ executablePath: CHROMIUM }, (p) => measure(p, url))));
+if (!siteOnly) await run("brut", rawPass);
+if (!siteOnly) await run("copie", () =>
   withBrowser({ channel: "msedge" }, async (p) => {
     const m = await measure(p, `${ORIGIN}/partage/${encodeURIComponent(page)}`);
-    m.screenshot = await p.screenshot({ fullPage: true, animations: "disabled", timeout: 120000 });
+    // Au-delà de ~16 000 px, Chromium répète le haut de la page dans la
+    // capture : on s'arrête à 15 000 px, comme desktop.png.
+    const h = Math.min(m.height, 15000);
+    m.screenshot = await p.screenshot({ fullPage: true, clip: { x: 0, y: 0, width: 1440, height: h }, animations: "disabled", timeout: 120000 });
     return m;
   }),
 );
@@ -240,13 +250,34 @@ const copy = passes.copie;
 // Référence de fidélité : la capture enregistrée (ce que la copie devait
 // reproduire) ; à défaut, le site en ligne.
 const orig = passes.capture ?? live;
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : 100);
+
+if (siteOnly) {
+  let result;
+  if (!passes.capture || !live) result = { date: new Date().toISOString(), url, erreur: errors.edge ?? errors.capture ?? "mesure impossible" };
+  else {
+    const ch = compare(passes.capture, live);
+    result = {
+      date: new Date().toISOString(),
+      url,
+      score: ch.score,
+      change: ch.score < 80,
+      verdict: ch.score < 80 ? "La page originale a changé depuis la capture" : ch.score < 95 ? "Petits changements sur la page originale" : "La page originale n'a pas changé",
+      hauteur: { capture: passes.capture.height, enLigne: live.height, ecart: `${ch.h} %` },
+      textes: `${pct(ch.found, ch.sentences)} % des phrases de la capture encore en ligne`,
+      titresDisparus: ch.headingsMissing.slice(0, 10),
+      images: `${ch.images.matched} / ${ch.images.total} images de la capture encore en ligne`,
+    };
+  }
+  await writeFile(join(dir, "controle-site.json"), JSON.stringify(result, null, 2), "utf8");
+  console.log(result.verdict ?? result.erreur, result.score != null ? `(${result.score} / 100)` : "");
+  process.exit(0);
+}
 if (!orig || !copy) {
   console.log("Comparaison impossible : il manque l'original ou la copie.");
   await writeFile(join(dir, "verification.json"), JSON.stringify({ page, url, date: new Date().toISOString(), errors }, null, 2), "utf8");
   process.exit(1);
 }
-
-const pct = (a, b) => (b ? Math.round((a / b) * 100) : 100);
 
 // Compare deux mesures (référence → autre) : hauteur, images (même taille
 // ±15 %, position comparable), titres et phrases retrouvés, score / 100.

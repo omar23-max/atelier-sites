@@ -275,3 +275,14 @@ ${JSON.stringify(tokens, null, 2)}
 `;
 await writeFile(join(root, "designs", `${designId}.md`), md, "utf8");
 console.log(`✓ ${slug} : page ${content.length} section(s), ${blocks.length} éléments, ${photos} photos · template · ${designId}.md`);
+
+// Contrôle de l'import, une seule fois : vérificateur maison, puis Copycat si
+// le score est bas (scripts/verifier-import.mjs). ATL_SANS_VERIF=1 pour sauter.
+if (!process.env.ATL_SANS_VERIF) {
+  const { execFileSync } = await import("node:child_process");
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "verifier-import.mjs"), slug], { cwd: root, stdio: "inherit", timeout: 2400000 });
+  } catch {
+    console.log(`  ⚠ Vérification interrompue. Plus tard : node scripts/verifier-import.mjs ${slug}`);
+  }
+}
