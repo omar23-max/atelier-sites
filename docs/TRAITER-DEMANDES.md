@@ -208,6 +208,32 @@ Chaque import de site (type **site**, ou **design** seul) produit aussi
   (`color-mix(...)` sur une variable de la section) pour suivre le design.
 - Miniature : `npm run thumbs -- <nom>-design`. La page importée reçoit
   `root.props.design = "<nom>-design"`.
+- Jetons `styles` (vue « Inspecter » du catalogue) : en-tête, h1, sous-titre,
+  h2, h3, texte, bouton — police, taille, graisse, interligne, couleur, casse,
+  fond et rayon du bouton, relevés sur `snapshot.json` (`scripts/lib/typo.mjs`,
+  automatique dans `advertorial-page.mjs`). Pour les anciens design.md :
+  `node scripts/designs-styles.mjs [id…]`.
+
+## Couleurs proches d'un rôle (palette qui s'applique vraiment)
+
+Une copie ne relie à un rôle que les couleurs identiques ; les nuances voisines
+(gris de texte, bleu des liens, fond d'encadré) deviennent
+`var(--atl-<rôle>-p, couleur d'origine)` (`scripts/lib/proche.mjs`, appelé par
+`buildCopy`). La section définit `--atl-<rôle>-p` seulement quand la couleur du
+rôle a changé : sans nouvelle palette, la copie reste identique au pixel près.
+Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
+(`src/engine/render.js`). Sections anciennes : `node scripts/couleurs-proches.mjs`.
+
+## Vérifier un miroir en 3 passes
+
+`node scripts/verifier-miroir.mjs <slug> [page]` (ou ⋯ → « Vérifier le miroir »
+dans l'atelier) : l'original rendu dans **Edge**, puis dans **Google Chrome**,
+puis le **HTML brut** du serveur (sans JavaScript) ; la copie (`/partage/<page>`)
+mesurée comme les deux premiers. Compare hauteur, images (par taille, seules les
+images réellement visibles : diapositives et vignettes cachées ignorées), titres
+et phrases ; ce qui diffère entre Edge et Chrome est instable sur le site.
+Rapport : `imports/<slug>/verification.json` (score / 100). Toute la liste :
+`node imports/_verifier-liste.mjs`.
 
 ## Template : à créer pour chaque import
 
