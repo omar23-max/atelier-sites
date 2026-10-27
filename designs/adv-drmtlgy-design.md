@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
     "titres": "proxima-nova",
     "texte": "proxima-nova"
   },
-  "couleurs": {
-    "fond": "#f9f8f6",
-    "surface": "#ffffff",
-    "fond-sombre": "#000000",
-    "texte": "#000000",
-    "accent": "#707070",
-    "bouton": "#233a36",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Albra",
@@ -95,6 +86,15 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
       "espacement": null,
       "exemple": "Are you one of the many who avoid sunscreen because of its shiny, greasy finish? We unders"
     }
+  },
+  "couleurs": {
+    "fond": "#f9f8f6",
+    "surface": "#ffffff",
+    "fond-sombre": "#000000",
+    "texte": "#000000",
+    "accent": "#707070",
+    "bouton": "#233a36",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

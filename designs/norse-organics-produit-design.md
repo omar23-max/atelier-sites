@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "titres": "PP Mori",
     "texte": "PP Mori"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#daece3",
-    "fond-sombre": "#2e3a44",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#121212",
-    "bouton": "#e16203",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Mori",
@@ -131,6 +121,16 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "hauteur": 66,
       "marges": "20px 55px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#daece3",
+    "fond-sombre": "#2e3a44",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#121212",
+    "bouton": "#e16203",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

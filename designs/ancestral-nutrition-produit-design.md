@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (12 section
     "titres": "Lato",
     "texte": "Lato"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#fbf9f5",
-    "fond-sombre": "#3a3a3a",
-    "texte": "#3a3a3a",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#fbf9f5",
-    "bouton-texte": "#3a3a3a"
-  },
   "styles": {
     "entete": {
       "police": "Lato",
@@ -121,6 +111,16 @@ Copie entière dans la section « Advertorial — article complet » (12 section
       "hauteur": 40,
       "marges": "10px 20px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#fbf9f5",
+    "fond-sombre": "#3a3a3a",
+    "texte": "#3a3a3a",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#fbf9f5",
+    "bouton-texte": "#3a3a3a"
   }
 }
 ```

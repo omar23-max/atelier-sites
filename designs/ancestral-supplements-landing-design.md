@@ -12,7 +12,7 @@ Landing longue pour femmes : règles, énergie, peau ; packs et nombreux prix.
 
 140 éléments dans l'ordre : 8 grands titres, 3 intertitres,
 129 paragraphes, 0 listes, 95 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (9 sections).
+Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie
 
@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "titres": "Cera Pro",
     "texte": "Cera Pro"
   },
-  "couleurs": {
-    "fond": "#fbfbf8",
-    "surface": "#ffffff",
-    "fond-sombre": "#261c16",
-    "texte": "#261c16",
-    "texte-sur-sombre": "#f9f1e7",
-    "accent": "#1f0a00",
-    "bouton": "#fcf8ed",
-    "bouton-texte": "#1f0a00"
-  },
   "styles": {
     "h1": {
       "police": "Cera Pro",
@@ -86,6 +76,16 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "espacement": "0.12px",
       "exemple": "Blend of 5 freeze-dried, 3rd party tested essential organs in capsule form"
     }
+  },
+  "couleurs": {
+    "fond": "#fbfbf8",
+    "surface": "#ffffff",
+    "fond-sombre": "#261c16",
+    "texte": "#261c16",
+    "texte-sur-sombre": "#f9f1e7",
+    "accent": "#1f0a00",
+    "bouton": "#fcf8ed",
+    "bouton-texte": "#1f0a00"
   }
 }
 ```

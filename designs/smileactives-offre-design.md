@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "titres": "quasimoda",
     "texte": "quasimoda"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#02a4b4",
-    "fond-sombre": "#0048ff",
-    "texte": "#000000",
-    "accent": "#ffffff",
-    "bouton": "#e05652",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "quasimoda",
@@ -129,6 +120,15 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
       "hauteur": 30,
       "marges": "2.88px 0px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#02a4b4",
+    "fond-sombre": "#0048ff",
+    "texte": "#000000",
+    "accent": "#ffffff",
+    "bouton": "#e05652",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

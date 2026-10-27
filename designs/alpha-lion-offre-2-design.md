@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "titres": "Tungsten",
     "texte": "Inter"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f7f7f7",
-    "fond-sombre": "#000000",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffd300",
-    "bouton": "#000000",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Tungsten",
@@ -97,6 +87,16 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
       "espacement": null,
       "exemple": "everything came super quick can’t wait to try it out at the gym later. thanks alpha lion a"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f7f7f7",
+    "fond-sombre": "#000000",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffd300",
+    "bouton": "#000000",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "titres": "ABC Oracle",
     "texte": "ABC Oracle"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f8f8f8",
-    "fond-sombre": "#001f69",
-    "texte": "#171717",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#0f3388",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "ABC Oracle",
@@ -121,6 +111,16 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
       "hauteur": 47,
       "marges": "0px 30px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f8f8f8",
+    "fond-sombre": "#001f69",
+    "texte": "#171717",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#0f3388",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

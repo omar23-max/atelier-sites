@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (12 section
     "titres": "Montserrat",
     "texte": "Montserrat"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f5f5f5",
-    "fond-sombre": "#191e2f",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#f5f5f5",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "entete": {
       "police": "Poppins",
@@ -132,6 +122,16 @@ Copie entière dans la section « Advertorial — article complet » (12 section
       "hauteur": 46,
       "marges": "14px 20px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f5f5f5",
+    "fond-sombre": "#191e2f",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#f5f5f5",
+    "bouton-texte": "#000000"
   }
 }
 ```

@@ -288,6 +288,13 @@ Rapport : `imports/<slug>/verification.json` (score / 100). Toute la liste :
   texte ne voient pas (ex. : pied de page placé en haut sur Luma — corrigé dans
   `copie.mjs` : un lien « Skip to content » hors écran faisait prendre le body
   pour des colonnes).
+- **Limites connues** : `desktop.png` s'arrête à 15 000 px et Chromium répète le
+  haut de la page dans une capture plus longue : hauteur de référence = page
+  relevée, diff visuel limité aux 15 000 premiers px. Le vérificateur ne
+  contrôle que l'ordinateur (1440) : la tablette et le mobile, c'est Copycat
+  (Norse : copie à 198 312 px en tablette, la racine `body` prenait la hauteur
+  de toute la page dans chaque section — corrigé dans `copie.mjs`, avec la
+  colonne unique en pixels de la racine passée en `minmax(0, 1fr)`).
 
 ## Template : à créer pour chaque import
 

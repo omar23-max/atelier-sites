@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (28 section
     "titres": "Practical Grotesk",
     "texte": "Practical Grotesk"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f7f5f2",
-    "fond-sombre": "#000000",
-    "texte": "#212121",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#000000",
-    "bouton": "#ffffff",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "h1": {
       "police": "Practical Grotesk",
@@ -121,6 +111,16 @@ Copie entière dans la section « Advertorial — article complet » (28 section
       "hauteur": 40,
       "marges": "12px 20px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f7f5f2",
+    "fond-sombre": "#000000",
+    "texte": "#212121",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#000000",
+    "bouton": "#ffffff",
+    "bouton-texte": "#000000"
   }
 }
 ```

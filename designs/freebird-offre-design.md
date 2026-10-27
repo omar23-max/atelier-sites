@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "titres": "Inter",
     "texte": "Inter"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f5f7fc",
-    "fond-sombre": "#14103b",
-    "texte": "#14103b",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#ea2c00",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Garnett",
@@ -107,6 +97,16 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
       "espacement": "0.4px",
       "exemple": "See why guys are using Freebird to stay clean-shaven with less prep, less mess, and an eas"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f5f7fc",
+    "fond-sombre": "#14103b",
+    "texte": "#14103b",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#ea2c00",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

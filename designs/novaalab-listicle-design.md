@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
     "titres": "Urbanist",
     "texte": "Urbanist"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#feffe7",
-    "fond-sombre": "#082c6c",
-    "texte": "#222323",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#3d4852",
-    "bouton": "#000000",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Urbanist",
@@ -86,6 +76,16 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
       "espacement": null,
       "exemple": "Summary: Finally, a pain solution that actually works! Novaa Light Pad uses clinically pro"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#feffe7",
+    "fond-sombre": "#082c6c",
+    "texte": "#222323",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#3d4852",
+    "bouton": "#000000",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

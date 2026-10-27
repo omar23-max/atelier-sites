@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
     "titres": "proxima-nova",
     "texte": "proxima-nova"
   },
-  "couleurs": {
-    "fond": "#f9f8f6",
-    "surface": "#ffffff",
-    "fond-sombre": "#231f20",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#121212",
-    "bouton": "#233a36",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "proxima-nova",
@@ -122,6 +112,16 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
       "hauteur": 32,
       "marges": "6.4px 19.2px"
     }
+  },
+  "couleurs": {
+    "fond": "#f9f8f6",
+    "surface": "#ffffff",
+    "fond-sombre": "#231f20",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#121212",
+    "bouton": "#233a36",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

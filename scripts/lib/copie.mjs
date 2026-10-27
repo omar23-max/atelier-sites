@@ -64,7 +64,11 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const parentOf = (n) => (n.parent == null ? null : byId[n.parent]);
   const mStyle = (n) => mobile[n.id] ?? n.style;
   // Tablette (750-1199 px), si la capture l'a relevée ; sinon le style ordinateur.
-  const tablet = snap.tablet ?? {};
+  // Capture tablette incomplète (le site change de structure à cette largeur :
+  // 60 éléments sur 2 740 chez Ancestral Supplements) : ignorée, sinon ses
+  // quelques styles cachent tout le contenu. La tablette prend le style ordinateur.
+  const hasTablet = Boolean(snap.tablet) && Object.keys(snap.tablet).length >= nodes.length * 0.5;
+  const tablet = hasTablet ? snap.tablet : {};
   const tStyle = (n) => tablet[n.id] ?? n.style;
   const styleIn = (n, mode) => (mode === "d" ? n.style : mode === "t" ? tStyle(n) : mStyle(n));
   const boxIn = (n, mode) => (mode === "d" ? n.box : (mode === "t" ? tablet : mobile)[n.id]?.__box ?? n.box);
@@ -246,7 +250,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (!it || it.text != null) return;
       if ((it.cutTop || it.cutBottom) && !["absolute", "fixed"].includes(it.n.style.position) && allAbsoluteKids(it.n)) {
         it.shifted = true;
-        piece.slices.push({ n: it.n, d: sliceOf(it, (n) => n.box), t: snap.tablet ? sliceOf(it, (n) => tablet[n.id]?.__box) : null, m: sliceOf(it, mBox) });
+        piece.slices.push({ n: it.n, d: sliceOf(it, (n) => n.box), t: hasTablet ? sliceOf(it, (n) => tablet[n.id]?.__box) : null, m: sliceOf(it, mBox) });
       }
       for (const k of it.kids ?? []) walk(k);
     };
@@ -391,7 +395,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (abs || noContent || (n.bgImage && st["overflow-y"] === "hidden")) out.height = `${box.h}px`;
       // Bloc qui coupe son contenu (réponse de FAQ fermée, texte replié,
       // panneau d'onglet caché) : sa hauteur réelle le garde fermé.
-      const clips = /hidden|clip/.test(st["overflow-y"] ?? st.overflow ?? "");
+      // Pas pour la racine (body) : chaque section en est une copie, elle
+      // prendrait la hauteur de toute la page (Norse en tablette : 8 × 24 789 px).
+      const clips = n.tag !== "body" && /hidden|clip/.test(st["overflow-y"] ?? st.overflow ?? "");
       if (clips && !out.height) {
         const kidsBottom = Math.max(
           -Infinity,
@@ -419,7 +425,10 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     if (st.position === "absolute" && box.w <= 1 && box.h <= 1) out.display = "none";
     // Grilles en pixels → proportions (s'adaptent à la largeur).
     const cols = out["grid-template-columns"];
-    if (cols && /^[\d.]+px( [\d.]+px)+$/.test(cols)) {
+    // Une seule colonne en pixels sur la racine (body en grille) : toute la
+    // largeur, quelle que soit celle de l'écran.
+    if (cols && n.tag === "body" && /^[\d.]+px$/.test(cols)) out["grid-template-columns"] = "minmax(0, 1fr)";
+    else if (cols && /^[\d.]+px( [\d.]+px)+$/.test(cols)) {
       out["grid-template-columns"] = cols
         .split(" ")
         .map((t) => `minmax(0, ${Math.round(px(t))}fr)`)
@@ -493,7 +502,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       return out;
     };
     const diff = diffOf(m);
-    const tdiff = snap.tablet && tablet[n.id] ? diffOf(themed(n, declOf(n, "t"))) : {};
+    const tdiff = hasTablet && tablet[n.id] ? diffOf(themed(n, declOf(n, "t"))) : {};
     const key = `${declText(d)}|${declText(diff)}|${declText(tdiff)}`;
     let cls = classes.get(key);
     if (!cls) {

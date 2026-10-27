@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "titres": "Migra",
     "texte": "Mori"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f3f2ee",
-    "fond-sombre": "#2e3a44",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#121212",
-    "bouton": "#e16203",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Mori",
@@ -132,6 +122,16 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
       "hauteur": 47,
       "marges": "0px 30px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f3f2ee",
+    "fond-sombre": "#2e3a44",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#121212",
+    "bouton": "#e16203",
+    "bouton-texte": "#ffffff"
   }
 }
 ```
