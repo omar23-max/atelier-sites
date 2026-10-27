@@ -295,6 +295,11 @@ Rapport : `imports/<slug>/verification.json` (score / 100). Toute la liste :
   (Norse : copie à 198 312 px en tablette, la racine `body` prenait la hauteur
   de toute la page dans chaque section — corrigé dans `copie.mjs`, avec la
   colonne unique en pixels de la racine passée en `minmax(0, 1fr)`).
+  Capture tablette incomplète (< 50 % des éléments : le site change de
+  structure à cette largeur) → ignorée, la tablette prend le style ordinateur
+  (Ancestral Supplements : page vide en tablette avant la correction).
+  Reconstruire une copie (`advertorial-page.mjs`) garde `verification` et
+  `controleSite` du template.
 
 ## Template : à créer pour chaque import
 

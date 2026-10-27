@@ -206,6 +206,11 @@ const template = {
   sections: ["advertorial-article"],
   capturedAt: report.capturedAt,
 };
+// Une reconstruction garde la dernière vérification et le dernier contrôle du site.
+if (existsSync(join(dir, "template.json"))) {
+  const previous = JSON.parse(await readFile(join(dir, "template.json"), "utf8"));
+  for (const k of ["verification", "controleSite"]) if (previous[k]) template[k] = previous[k];
+}
 await writeFile(join(dir, "template.json"), JSON.stringify(template, null, 2), "utf8");
 
 // design.md : relevé des styles réels de la page.
