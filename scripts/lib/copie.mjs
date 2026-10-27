@@ -110,7 +110,13 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const sideBySide = (n) => {
     // Des éléments posés en coordonnées fixes ne sont pas des colonnes.
     if (allAbsoluteKids(n)) return false;
-    const kids = aliveKids(n).filter((k) => k.text == null).map((k) => byId[k.n]).filter((k) => k.box.w > 0 && k.box.h > 0);
+    // Ni les éléments hors écran (lien « Skip to content » à x = −9999) ni ceux
+    // en position absolue ou fixe ne forment une colonne : sinon toute la page
+    // est découpée en « colonnes » et le pied de page reste dans la 1re section.
+    const kids = aliveKids(n)
+      .filter((k) => k.text == null)
+      .map((k) => byId[k.n])
+      .filter((k) => k.box.w > 0 && k.box.h > 0 && k.box.x + k.box.w > 0 && !["absolute", "fixed"].includes(k.style.position));
     for (let i = 0; i < kids.length; i++)
       for (let j = i + 1; j < kids.length; j++) {
         const a = kids[i].box;

@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (10 section
     "titres": "Poppins",
     "texte": "Poppins"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#fbfbfa",
-    "fond-sombre": "#0e1113",
-    "texte": "#14181a",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#e8a33d",
-    "bouton-texte": "#14181a"
-  },
   "styles": {
     "entete": {
       "police": "Poppins",
@@ -131,6 +121,16 @@ Copie entière dans la section « Advertorial — article complet » (10 section
       "hauteur": 49,
       "marges": "17px 30px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#fbfbfa",
+    "fond-sombre": "#0e1113",
+    "texte": "#14181a",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#e8a33d",
+    "bouton-texte": "#14181a"
   }
 }
 ```
