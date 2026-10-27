@@ -723,6 +723,7 @@ export function Inspector({ children }) {
           onUp={() => (selNode ? step(sel.sectionId, selNode, -1) : moveSection(sel.sectionId, content[indexOf(sel.sectionId) - 1]?.props.id, false))}
           onDown={() => (selNode ? step(sel.sectionId, selNode, 1) : moveSection(sel.sectionId, content[indexOf(sel.sectionId) + 1]?.props.id, true))}
           onEdit={() => startEdit(sel)}
+          onMoveSection={moveSection}
           onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null })}
           onHide={() => {
             const block = (normalizeProps(byId[itemOf(sel.sectionId).type], itemOf(sel.sectionId).props).blocks_element ?? []).find((b) => b.slot === sel.key);
@@ -1755,7 +1756,61 @@ function htmlToSection(html, css, id, rootClass, label, page) {
 }
 
 // ---- Barre flottante sur l'élément choisi (comme Whitelabeler) ----
-function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat }) {
+// Glisser une section dans l'aperçu : on suit la souris sur toute la fenêtre
+// (l'aperçu de Puck ne reçoit pas la souris), une ligne montre où elle ira,
+// l'aperçu défile près des bords ; au relâchement, la section est déplacée.
+function startSectionDrag(e, sectionId, onMoveSection) {
+  e.preventDefault();
+  const frame = canvasFrame();
+  if (!frame) return;
+  const doc = frame.contentDocument;
+  const shield = document.createElement("div");
+  shield.className = "atl-dragshield";
+  const line = document.createElement("div");
+  line.className = "atl-dropline";
+  document.body.append(shield, line);
+  let target = null;
+  let timer = null;
+  const where = (clientY) => {
+    const fr = frame.getBoundingClientRect();
+    const scale = fr.width / frame.offsetWidth || 1;
+    const y = (clientY - fr.top) / scale;
+    const secs = [...doc.querySelectorAll("[data-atl-id]")].filter((el) => !el.parentElement.closest("[data-atl-id]"));
+    let best = null;
+    for (const el of secs) {
+      const r = el.getBoundingClientRect();
+      if (!r.height) continue;
+      const after = y > r.top + r.height / 2;
+      const edge = after ? r.bottom : r.top;
+      const d = Math.abs(y - edge);
+      if (!best || d < best.d) best = { d, id: el.dataset.atlId, after, edge };
+    }
+    if (!best) return null;
+    line.style.top = `${fr.top + best.edge * scale - 2}px`;
+    line.style.left = `${fr.left}px`;
+    line.style.width = `${fr.width}px`;
+    return best;
+  };
+  const onMove = (ev) => {
+    target = where(ev.clientY);
+    const fr = frame.getBoundingClientRect();
+    clearInterval(timer);
+    const dir = ev.clientY < fr.top + 60 ? -1 : ev.clientY > fr.bottom - 60 ? 1 : 0;
+    if (dir) timer = setInterval(() => (doc.defaultView.scrollBy(0, dir * 40), (target = where(ev.clientY))), 30);
+  };
+  const onUp = () => {
+    clearInterval(timer);
+    shield.remove();
+    line.remove();
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseup", onUp);
+    if (target && target.id !== sectionId) onMoveSection(sectionId, target.id, target.after);
+  };
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+}
+
+function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection }) {
   const [pos, setPos] = useState(null);
   useEffect(() => {
     let raf;
@@ -1805,6 +1860,11 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
           {node && (
             <button type="button" onClick={onParent} title="Sélectionner le parent">
               ⬆
+            </button>
+          )}
+          {!node && (
+            <button type="button" className="atl-float__grip" onMouseDown={(e) => startSectionDrag(e, sel.sectionId, onMoveSection)} title="Glisser pour déplacer la section">
+              ⋮⋮
             </button>
           )}
           <button type="button" onClick={onUp} title="Monter">
