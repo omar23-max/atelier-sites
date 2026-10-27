@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "titres": "Oswald",
     "texte": "Helvetica"
   },
-  "couleurs": {
-    "fond": "#5f7b87",
-    "surface": "#ffffff",
-    "fond-sombre": "#1c1c1c",
-    "texte": "#ffffff",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#f4f4f4",
-    "bouton": "#5f7b87",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Helvetica",
@@ -130,6 +120,16 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
       "hauteur": 50,
       "marges": "8px 15px"
     }
+  },
+  "couleurs": {
+    "fond": "#5f7b87",
+    "surface": "#ffffff",
+    "fond-sombre": "#1c1c1c",
+    "texte": "#ffffff",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#f4f4f4",
+    "bouton": "#5f7b87",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

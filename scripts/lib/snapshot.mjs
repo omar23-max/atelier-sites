@@ -146,6 +146,8 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
     if (tag === "a") node.href = Boolean(el.getAttribute("href"));
     // Accordéon ouvert sur la page d'origine : il reste ouvert dans la copie.
     if (tag === "details" && el.open) node.open = true;
+    // Accordéon marqué par advertorial.mjs (openAccordions) : la copie le referme.
+    if (el.hasAttribute("data-atl-acc")) node.acc = el.getAttribute("data-atl-acc");
     if (["input", "select", "textarea", "button"].includes(tag)) node.type = el.getAttribute("type") ?? "";
     const visible = cs.display !== "none" && node.box.w > 0 && node.box.h > 0;
 

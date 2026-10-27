@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "titres": "-apple-system",
     "texte": "-apple-system"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f5f5f5",
-    "fond-sombre": "#111111",
-    "texte": "#555555",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#ffffff",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "h1": {
       "police": "-apple-system",
@@ -111,6 +101,16 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
       "hauteur": 59,
       "marges": "16px 24px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f5f5f5",
+    "fond-sombre": "#111111",
+    "texte": "#555555",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#ffffff",
+    "bouton-texte": "#000000"
   }
 }
 ```

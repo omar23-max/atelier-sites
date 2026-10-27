@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "titres": "Montserrat",
     "texte": "Montserrat"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#e0f0f6",
-    "fond-sombre": "#174bd2",
-    "texte": "#212529",
-    "accent": "#0025ff",
-    "bouton": "#4782b4",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Montserrat",
@@ -89,6 +80,15 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
       "hauteur": 64,
       "marges": "20px 30px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#e0f0f6",
+    "fond-sombre": "#174bd2",
+    "texte": "#212529",
+    "accent": "#0025ff",
+    "bouton": "#4782b4",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

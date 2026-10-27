@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "titres": "ABC Diatype",
     "texte": "ABC Diatype"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#fbfbf7",
-    "fond-sombre": "#0c2016",
-    "texte": "#0c2016",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#d0d0d0",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "entete": {
       "police": "ABC Diatype",
@@ -123,6 +113,16 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "hauteur": 47,
       "marges": "0px 30px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#fbfbf7",
+    "fond-sombre": "#0c2016",
+    "texte": "#0c2016",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#d0d0d0",
+    "bouton-texte": "#000000"
   }
 }
 ```

@@ -281,6 +281,26 @@ ${JSON.stringify(tokens, null, 2)}
 await writeFile(join(root, "designs", `${designId}.md`), md, "utf8");
 console.log(`✓ ${slug} : page ${content.length} section(s), ${blocks.length} éléments, ${photos} photos · template · ${designId}.md`);
 
+// Sections manquantes proposées juste après l'import (Page Score de la page) :
+// dans template.json (« propositions ») et sur la page (bandeau à l'ouverture).
+{
+  const { proposeSections } = await import("./lib/propositions.mjs");
+  const props = await proposeSections(root, page).catch(() => null);
+  if (props) {
+    const tplFile = join(dir, "template.json");
+    const tpl = JSON.parse(await readFile(tplFile, "utf8"));
+    tpl.propositions = props;
+    await writeFile(tplFile, JSON.stringify(tpl, null, 2), "utf8");
+    page.root.props.propositionsImport = { date: props.date, score: props.score, sections: props.manquantes.map((m) => m.section) };
+    await writeFile(join(root, "pages", `${slug}.json`), JSON.stringify(page, null, 2), "utf8");
+    console.log(
+      props.manquantes.length
+        ? `  Page Score ${props.score} / 100 · ${props.manquantes.length} section(s) proposée(s) : ${props.manquantes.map((m) => `${m.section} (${m.ou})`).join(" · ")}`
+        : `  Page Score ${props.score} / 100 · rien à ajouter`,
+    );
+  }
+}
+
 // Contrôle de l'import, une seule fois : vérificateur maison, puis Copycat si
 // le score est bas (scripts/verifier-import.mjs). ATL_SANS_VERIF=1 pour sauter.
 if (!process.env.ATL_SANS_VERIF) {

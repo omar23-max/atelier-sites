@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (23 section
     "titres": "Sofia Pro",
     "texte": "Sofia Pro"
   },
-  "couleurs": {
-    "fond": "#eff4ec",
-    "surface": "#f5f0ec",
-    "fond-sombre": "#405236",
-    "texte": "#533a2d",
-    "texte-sur-sombre": "#fcfbf3",
-    "accent": "#000000",
-    "bouton": "#fcfbf3",
-    "bouton-texte": "#4d1c1a"
-  },
   "styles": {
     "h1": {
       "police": "Sofia Pro",
@@ -111,6 +101,16 @@ Copie entière dans la section « Advertorial — article complet » (23 section
       "hauteur": 38,
       "marges": "7px 14px"
     }
+  },
+  "couleurs": {
+    "fond": "#eff4ec",
+    "surface": "#f5f0ec",
+    "fond-sombre": "#405236",
+    "texte": "#533a2d",
+    "texte-sur-sombre": "#fcfbf3",
+    "accent": "#000000",
+    "bouton": "#fcfbf3",
+    "bouton-texte": "#4d1c1a"
   }
 }
 ```

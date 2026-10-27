@@ -57,6 +57,20 @@ const hexOf = (c) => {
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const px = (v) => parseFloat(v) || 0;
 
+// Accordéons de la copie (FAQ, détails produit). Le template les garde ouverts :
+// dans l'atelier (où ce script ne s'exécute pas) les réponses restent visibles
+// et modifiables. Sur la page publiée (partage, export, Shopify), le script
+// referme les <details> fermés sur le site d'origine, cache les réponses des
+// accordéons en JavaScript ([data-atl-r]) et les ouvre au clic sur leur question.
+const ACCORDEONS =
+  "<script>(function(s){var r=s&&s.parentElement;if(!r)return;r.setAttribute('data-atl-acc-on','');" +
+  "r.querySelectorAll('details[data-atl-acc=ferme]').forEach(function(d){d.open=false});" +
+  "r.querySelectorAll('[data-atl-q]').forEach(function(q){q.setAttribute('aria-expanded','false')});" +
+  "r.addEventListener('click',function(e){var q=e.target.closest&&e.target.closest('[data-atl-q]');if(!q||!r.contains(q))return;" +
+  "var a=r.querySelector('[data-atl-r=\"'+q.getAttribute('data-atl-q')+'\"]');if(!a)return;e.preventDefault();" +
+  "var o=a.hasAttribute('data-atl-open');if(o)a.removeAttribute('data-atl-open');else a.setAttribute('data-atl-open','');" +
+  "q.setAttribute('aria-expanded',o?'false':'true')});})(document.currentScript);</script>";
+
 export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const nodes = snap.nodes;
   const mobile = snap.mobile;
@@ -572,7 +586,10 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         return `<${tag} class="${classAttr}" disabled></${tag}>`;
       }
       let open = `<${tag} class="${classAttr}"`;
-      if (n.open) open += " open";
+      // Accordéons : ouverts dans le template (réponses visibles et modifiables
+      // dans l'atelier) ; le script ACCORDEONS les referme sur la page publiée.
+      if (tag === "details") open += ` open data-atl-acc="${n.acc ?? (n.open ? "ouvert" : "ferme")}"`;
+      else if (/^[qr]:\d+$/.test(n.acc ?? "")) open += ` data-atl-${n.acc[0]}="${n.acc.slice(2)}"`;
       if (n.text != null) open += ` data-atl-slot="s${n.id}"`;
       if (gids.has(`g${n.id}`)) open += ` data-atl-group="g${n.id}"`;
       else if (n.bgImage) open += ` data-atl-slot="b${n.id}"`;
@@ -614,6 +631,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         const parts = (it.kids ?? []).map((k, i) => (k.text != null ? html({ ...k, pid: n.id, k: i }, tag) : html(k, tag)));
         inner = gids.has(`g${n.id}`) && parts.length > 1 ? ordered(`g${n.id}`, parts) : parts.join("");
       }
+      if (n.tag === "body" && /data-atl-(acc|q)=/.test(inner)) inner += ACCORDEONS;
       return `${open}${inner}</${tag}>`;
     }
     // Conteneurs dont on peut changer l'ordre des enfants (groupes de l'arbre).
@@ -705,6 +723,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       `${scope}{display:block;background:${opaque(snap.htmlBackground) ? themeColor({ tag: "div" }, "background-color", snap.htmlBackground) : "transparent"}}`,
       `${scope} :where(*:not(svg, svg *)){all:revert}`,
       `${scope} img{display:inline-block}`,
+      // Accordéons refermés par le script ACCORDEONS (page publiée seulement).
+      `${scope}[data-atl-acc-on] [data-atl-r]:not([data-atl-open]){display:none!important}`,
+      `${scope}[data-atl-acc-on] [data-atl-q], ${scope}[data-atl-acc-on] summary{cursor:pointer}`,
       `${scope} .atl-vide{background:repeating-linear-gradient(45deg,#eee 0 10px,#f7f7f7 10px 20px)}`,
       ...rules,
       trules.length ? `@media (min-width: 750px) and (max-width: 1199px){\n${trules.join("\n")}\n}` : "",

@@ -12,7 +12,7 @@ Page d'offre « réassort limité » jusqu'à -40 %, presse, bénéfices.
 
 61 éléments dans l'ordre : 0 grands titres, 17 intertitres,
 43 paragraphes, 0 listes, 61 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (8 sections).
+Copie entière dans la section « Advertorial — article complet » (7 sections).
 
 ## Typographie
 
@@ -44,16 +44,6 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
   "polices": {
     "titres": "sofia-pro",
     "texte": "Adlinnaka Condensed"
-  },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f7ece1",
-    "fond-sombre": "#1e1427",
-    "texte": "#757575",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#44c8e9",
-    "bouton-texte": "#ffffff"
   },
   "styles": {
     "h1": {
@@ -120,6 +110,16 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
       "hauteur": 40,
       "marges": "12px 20px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f7ece1",
+    "fond-sombre": "#1e1427",
+    "texte": "#757575",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#44c8e9",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

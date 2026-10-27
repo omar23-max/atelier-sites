@@ -53,6 +53,56 @@ async function dismissOverlays(page) {
   });
 }
 
+// Accordéons (FAQ, détails produit) ouverts avant le relevé, pour que les
+// réponses soient mesurées, et marqués pour que la copie les referme :
+// - <details> : data-atl-acc="ouvert" ou "ferme" (état sur le site) ;
+// - accordéon en JavaScript (bouton aria-expanded="false" qui commande un
+//   panneau caché) : data-atl-acc="q:<n>" sur la question, "r:<n>" sur la réponse.
+async function openAccordions(page) {
+  return page.evaluate(async () => {
+    const outside = (el) => el.closest("header, nav, [role=dialog], [aria-modal=true]");
+    let n = 0;
+    for (const d of document.querySelectorAll("details")) {
+      if (outside(d) || d.hasAttribute("data-atl-acc")) continue;
+      d.setAttribute("data-atl-acc", d.open ? "ouvert" : "ferme");
+      d.open = true;
+      n++;
+    }
+    const pairs = [];
+    for (const q of document.querySelectorAll('[aria-expanded="false"]')) {
+      if (outside(q) || q.getAttribute("aria-haspopup") || q.closest("details")) continue;
+      // Un lien vers une autre page n'est pas une question.
+      const href = q.tagName === "A" ? q.getAttribute("href") ?? "" : "#";
+      if (href && !href.startsWith("#") && !href.startsWith("javascript")) continue;
+      const text = (q.textContent ?? "").replace(/\s+/g, " ").trim();
+      if (text.length < 3 || text.length > 240) continue;
+      const id = q.getAttribute("aria-controls");
+      const panel = (id && document.getElementById(id)) || q.nextElementSibling;
+      if (!panel || panel.contains(q) || panel.hasAttribute("data-atl-acc")) continue;
+      const shown = () => panel.getBoundingClientRect().height > 4 && getComputedStyle(panel).display !== "none";
+      if (shown()) continue;
+      pairs.push([q, panel]);
+    }
+    for (const [k, [q, panel]] of pairs.entries()) {
+      q.setAttribute("data-atl-acc", `q:${k}`);
+      panel.setAttribute("data-atl-acc", `r:${k}`);
+      try {
+        q.click();
+      } catch {}
+      await new Promise((r) => setTimeout(r, 80));
+    }
+    // Accordéons exclusifs (un seul ouvert à la fois) ou animés : on force
+    // l'ouverture des réponses encore fermées.
+    await new Promise((r) => setTimeout(r, 400));
+    for (const [, panel] of pairs) {
+      if (panel.getBoundingClientRect().height > 4 && getComputedStyle(panel).display !== "none") continue;
+      panel.hidden = false;
+      for (const [p, v] of [["display", "block"], ["height", "auto"], ["max-height", "none"], ["overflow", "visible"], ["opacity", "1"], ["visibility", "visible"]]) panel.style.setProperty(p, v, "important");
+    }
+    return n + pairs.length;
+  });
+}
+
 async function scrollThrough(page) {
   await page.evaluate(async () => {
     const step = Math.max(200, Math.floor(innerHeight * 0.7));
@@ -349,6 +399,8 @@ try {
   await scrollThrough(page);
   await loadLazyImages(page);
   await dismissOverlays(page);
+  report.accordeons = await openAccordions(page).catch(() => 0);
+  await page.waitForTimeout(500);
 
   Object.assign(report, await page.evaluate(extract));
   const gone = (report.status && report.status >= 400) || report.textLength < 400 || /404|not found|page introuvable/i.test(report.title ?? "");
@@ -405,6 +457,10 @@ try {
   await dismissOverlays(m);
   await scrollThrough(m);
   await dismissOverlays(m);
+  // Mêmes accordéons ouverts qu'en ordinateur, sinon les réponses seraient
+  // relevées cachées en mobile.
+  await openAccordions(m).catch(() => 0);
+  await m.waitForTimeout(400);
   // Styles mobile relevés sur la page chargée en mobile (certains sites,
   // comme Unbounce, choisissent leur mise en page mobile au chargement) :
   // chaque élément est retrouvé par sa place dans la page. À défaut, on garde
@@ -427,6 +483,8 @@ try {
   await dismissOverlays(tp);
   await scrollThrough(tp);
   await dismissOverlays(tp);
+  await openAccordions(tp).catch(() => 0);
+  await tp.waitForTimeout(400);
   snap.tablet = await tp.evaluate(snapshotMobileByPath, { props: PROPS, textProps: TEXT_PROPS, targets });
   report.tabletteRetrouves = `${Object.keys(snap.tablet).length}/${snap.nodes.length}`;
   await tctx.close();

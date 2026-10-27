@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "titres": "QuincyCF-Bold",
     "texte": "Poppins"
   },
-  "couleurs": {
-    "fond": "#fcf5e3",
-    "surface": "#ffffff",
-    "fond-sombre": "#2e4740",
-    "texte": "#2e4740",
-    "texte-sur-sombre": "#fcf5e3",
-    "accent": "#ffffff",
-    "bouton": "#91dae0",
-    "bouton-texte": "#2e4740"
-  },
   "styles": {
     "entete": {
       "police": "Poppins",
@@ -132,6 +122,16 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
       "hauteur": 51,
       "marges": "12px 22px"
     }
+  },
+  "couleurs": {
+    "fond": "#fcf5e3",
+    "surface": "#ffffff",
+    "fond-sombre": "#2e4740",
+    "texte": "#2e4740",
+    "texte-sur-sombre": "#fcf5e3",
+    "accent": "#ffffff",
+    "bouton": "#91dae0",
+    "bouton-texte": "#2e4740"
   }
 }
 ```

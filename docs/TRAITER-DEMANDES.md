@@ -224,6 +224,31 @@ rôle a changé : sans nouvelle palette, la copie reste identique au pixel près
 Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
 (`src/engine/render.js`). Sections anciennes : `node scripts/couleurs-proches.mjs`.
 
+## Accordéons (FAQ, détails produit) dans les copies
+
+- Capture (`advertorial.mjs` → `openAccordions`, en ordinateur, tablette et
+  mobile) : les `<details>` sont ouverts et marqués `data-atl-acc="ouvert|ferme"`
+  (état sur le site) ; les accordéons en JavaScript (bouton
+  `aria-expanded="false"` qui commande un panneau caché, hors en-tête/menu) sont
+  cliqués (ouverture forcée au besoin) et marqués `q:<n>` / `r:<n>`.
+- Copie (`copie.mjs`) : tout reste **ouvert dans le template** → dans l'atelier
+  les réponses sont visibles et modifiables. Un petit script (`ACCORDEONS`, à la
+  fin de la section) referme sur la page publiée (partage, HTML, Shopify) les
+  `<details>` fermés sur le site, cache les réponses `[data-atl-r]` et les ouvre
+  au clic sur leur question `[data-atl-q]`. Sans script (atelier), tout reste visible.
+- Les accordéons en JavaScript ne sont repris qu'aux **nouveaux imports**
+  (capture nécessaire) ; les `<details>` des copies existantes ont été refaits.
+
+## Sections proposées juste après l'import
+
+`advertorial-page.mjs` calcule le Page Score de la page importée
+(`scripts/lib/propositions.mjs` → `src/engine/page-score.js`) : familles de
+sections manquantes pour son type de page, pourquoi, où les placer, et 3 modèles
+du catalogue par famille. Enregistré dans `template.json` (`propositions`, badge
+« Page Score N · K section(s) proposée(s) » sur la carte) et sur la page
+(`root.props.propositionsImport`) : bandeau violet à la première ouverture,
+« Voir et ajouter » ouvre l'outil Score (ajout un par un, tous, ou avec l'IA).
+
 ## Contrôle automatique de chaque import (une seule fois)
 
 `advertorial-page.mjs` lance à la fin `scripts/verifier-import.mjs <slug>` :

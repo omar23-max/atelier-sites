@@ -11,6 +11,7 @@ import { StudioButton } from "./studio-ui.jsx";
 import { BoardButton } from "./board-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
 import { DesignSelect, NewDesignButton } from "./design-ui.jsx";
+import { ProposalsBanner } from "./proposals-ui.jsx";
 import { PreviewBarLanguage, TopbarTools, UndoRedo } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
@@ -123,6 +124,7 @@ export default function App() {
         <div id="atl-topbar-tools" />
         {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
       </div>
+      {data && <ProposalsBanner pageName={pageName} proposals={data.root?.props?.propositionsImport} />}
       {data && pages.length > 0 && (
         <OrphanBanner pageName={pageName} info={pages.find((p) => p.name === pageName)} projects={projects} getData={() => latest.current ?? data} />
       )}
