@@ -10,7 +10,8 @@
 // sites importés ne partent jamais.
 // Connexion : .env.local (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY), jamais sur GitHub.
 import { readdir, readFile, stat } from "node:fs/promises";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
@@ -45,13 +46,26 @@ const stampToIso = (s) => {
 };
 const now = new Date().toISOString();
 
+// Synchro incrémentale : l'empreinte de chaque ligne déjà envoyée est gardée
+// sur le PC (.git/supabase-etat.json, jamais envoyé) ; seules les lignes
+// nouvelles ou modifiées partent (avant : tout, toutes les 15 min).
+// --tout : tout renvoyer.
+const stateFile = join(root, ".git", "supabase-etat.json");
+const state = !process.argv.includes("--tout") && existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, "utf8")) : {};
+const fingerprint = (row) => createHash("sha1").update(JSON.stringify({ ...row, maj_le: undefined })).digest("hex");
+const saveState = () => writeFileSync(stateFile, JSON.stringify(state));
+
 async function upsert(table, rows, key = "id") {
-  if (!rows.length) return 0;
-  for (let i = 0; i < rows.length; i += 200) {
-    const { error } = await db.from(table).upsert(rows.slice(i, i + 200), { onConflict: key });
+  const known = (state[table] ??= {});
+  const changed = rows.filter((r) => known[r[key]] !== fingerprint(r));
+  for (let i = 0; i < changed.length; i += 200) {
+    const batch = changed.slice(i, i + 200);
+    const { error } = await db.from(table).upsert(batch, { onConflict: key });
     if (error) throw new Error(`${table} : ${error.message}`);
+    for (const r of batch) known[r[key]] = fingerprint(r);
+    saveState();
   }
-  return rows.length;
+  return changed.length;
 }
 
 // Ce qui n'existe plus dans les fichiers : marqué supprimé dans la base.

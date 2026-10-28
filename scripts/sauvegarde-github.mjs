@@ -1,5 +1,5 @@
 // Sauvegarde automatique sur GitHub (dépôt privé omar23-max/atelier-sites).
-// Lancé toutes les 15 minutes par une tâche Windows (« Atelier — sauvegarde
+// Lancé toutes les heures par une tâche Windows (« Atelier — sauvegarde
 // GitHub ») ; à la main : npm run sauvegarde
 //
 // S'il y a des changements, crée une version (« Sauvegarde automatique — date »)
@@ -14,11 +14,13 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const log = (msg) => appendFileSync(join(root, ".git", "sauvegarde.log"), `${new Date().toISOString()}  ${msg}\n`);
-const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+// Délai maximal par commande : hors ligne, un envoi ne bloque plus 5 minutes.
+const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: args[0] === "push" ? 90000 : 120000 }).trim();
 
-// Un seul passage à la fois (un verrou de plus de 10 minutes est considéré mort).
+// Un seul passage à la fois, synchro Supabase comprise (un verrou de plus de
+// 45 minutes est considéré mort).
 const lock = join(root, ".git", "sauvegarde.lock");
-if (existsSync(lock) && Date.now() - statSync(lock).mtimeMs < 10 * 60 * 1000) process.exit(0);
+if (existsSync(lock) && Date.now() - statSync(lock).mtimeMs < 45 * 60 * 1000) process.exit(0);
 writeFileSync(lock, String(process.pid));
 
 try {
@@ -43,14 +45,15 @@ try {
   log(`ÉCHEC : ${String(e.stderr || e.message).trim().split("\n")[0]}`);
   console.error(`✗ Sauvegarde impossible : ${String(e.stderr || e.message).trim()}`);
   process.exitCode = 1;
-} finally {
-  rmSync(lock, { force: true });
 }
 
 // Puis la base Supabase (sans effet tant qu'elle n'est pas reliée).
 try {
-  const out = execFileSync(process.execPath, [join(root, "scripts", "sync-supabase.mjs")], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  const out = execFileSync(process.execPath, [join(root, "scripts", "sync-supabase.mjs")], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 20 * 60 * 1000 }).trim();
   if (!out.startsWith("Supabase n'est pas encore relié")) log(out);
 } catch (e) {
   log(`ÉCHEC Supabase : ${String(e.stdout || e.stderr || e.message).trim().split("\n")[0]}`);
+} finally {
+  // Verrou retiré à la toute fin : la synchro Supabase en fait partie.
+  rmSync(lock, { force: true });
 }
