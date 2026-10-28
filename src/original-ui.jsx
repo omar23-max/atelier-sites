@@ -131,7 +131,7 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
                 const inst = r.instable;
                 alert(
                   [
-                    `Vérification du miroir (capture enregistrée, Edge, Chrome, HTML brut) — score ${r.score} / 100 contre la ${r.reference ?? "capture"}`,
+                    `Vérification du miroir (capture enregistrée, Edge, Chrome, HTML brut) — fidélité ${r.score} / 100 contre la ${r.reference ?? "capture"}`,
                     "",
                     r.siteChange ? `Site d'origine : ${r.siteChange.verdict} (${r.siteChange.score} / 100)` : "",
                     r.visuel ? `Visuel : ${r.visuel.ecart} % de pixels différents — planche imports/${importSource}/compare-copie.png` : "",

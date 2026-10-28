@@ -23,7 +23,7 @@ export function ProposalsBanner({ pageName, proposals }) {
   const list = proposals.sections ?? [];
   return (
     <div className="atl-proposals" role="status">
-      <b>Import terminé · Page Score {proposals.score} / 100.</b>
+      <b>Import terminé · Score de vente {proposals.score} / 100.</b>
       {list.length ? (
         <span>
           {list.length} section{list.length > 1 ? "s" : ""} proposée{list.length > 1 ? "s" : ""} : {list.join(" · ")}

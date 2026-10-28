@@ -245,7 +245,7 @@ Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
 (`scripts/lib/propositions.mjs` → `src/engine/page-score.js`) : familles de
 sections manquantes pour son type de page, pourquoi, où les placer, et 3 modèles
 du catalogue par famille. Enregistré dans `template.json` (`propositions`, badge
-« Page Score N · K section(s) proposée(s) » sur la carte) et sur la page
+« Score de vente N · K à ajouter » sur la carte) et sur la page
 (`root.props.propositionsImport`) : bandeau violet à la première ouverture,
 « Voir et ajouter » ouvre l'outil Score (ajout un par un, tous, ou avec l'IA).
 
@@ -255,7 +255,7 @@ du catalogue par famille. Enregistré dans `template.json` (`propositions`, badg
 1. vérificateur maison (score / 100 contre la capture, diff visuel) ;
 2. **Copycat seulement si** score < 95 ou plus de 25 % de pixels différents
    (`--copycat` pour forcer) → `imports/<slug>/copycat/compare/REPORT.md` ;
-3. résumé dans `template.json` → `verification` (badge « Copie N / 100 » sur la
+3. résumé dans `template.json` → `verification` (badge « Fidélité N / 100 » sur la
    carte du template).
 L'atelier doit tourner (sinon le contrôle est sauté, avec la commande à relancer).
 `ATL_SANS_VERIF=1` pour sauter (reconstructions en lot : `_templates-liste.mjs`).

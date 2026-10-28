@@ -154,8 +154,10 @@ export function ProjectDetail({ id, onBack, onMessage }) {
           // Textes d'origine : ce que la capture du site importé a relevé.
           let origin = null;
           if (info.importSource) {
+            // Les copies au design identique n'ont pas de capture.json : le
+            // serveur renvoie alors la page HTML de l'atelier, pas du JSON.
             const res = await fetch(`/imports/${info.importSource}/capture.json`);
-            if (res.ok) origin = (await res.json()).views?.desktop?.sections ?? null;
+            if (res.ok && /json/.test(res.headers.get("content-type") ?? "")) origin = (await res.json()).views?.desktop?.sections ?? null;
           }
           return { info, data, score: scorePage(data, byId), medias, origin };
         }),
@@ -272,7 +274,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage })
               <th>Page</th>
               <th>Profil client</th>
               <th>Achat</th>
-              <th>Score</th>
+              <th>Score de vente</th>
               <th>Textes</th>
               <th />
             </tr>

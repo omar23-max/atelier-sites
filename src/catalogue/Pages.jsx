@@ -172,7 +172,7 @@ export function PagesView({ onOpenProject, onMessage }) {
                         ) : (
                           <span className="cat-badge cat-badge--amber">Type à définir</span>
                         )}
-                        {score?.type && <span className="cat-badge cat-badge--grey">Score {score.score} / 100</span>}
+                        {score?.type && <span className="cat-badge cat-badge--grey">Score de vente {score.score} / 100</span>}
                       </div>
                     </div>
                     <div className="cat-card__actions">

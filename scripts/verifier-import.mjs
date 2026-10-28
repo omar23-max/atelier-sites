@@ -50,7 +50,7 @@ const summary = {
   visuel: report.visuel?.ecart ?? null,
   siteChange: report.siteChange?.score ?? null,
 };
-console.log(`  Score ${summary.score ?? "—"} / 100 · visuel ${summary.visuel ?? "—"} % de pixels différents`);
+console.log(`  Fidélité ${summary.score ?? "—"} / 100 · visuel ${summary.visuel ?? "—"} % de pixels différents`);
 
 // Copycat seulement quand il y a quelque chose à diagnostiquer.
 const needed = force || summary.score == null || summary.score < 95 || (summary.visuel ?? 0) > 25;

@@ -116,13 +116,13 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
         </span>
         <div className="cat-tpl__badges">
           {score != null && (
-            <span className={`cat-tpl__badge ${score >= 95 ? "is-ok" : "is-warn"}`} title={`Copie vérifiée à l'import le ${String(template.verification.date).slice(0, 10)}${template.verification.copycat?.note ? ` · Copycat : ${template.verification.copycat.note}` : ""}`}>
-              Copie {score}/100
+            <span className={`cat-tpl__badge ${score >= 95 ? "is-ok" : "is-warn"}`} title={`Fidélité de la copie à l'original, mesurée à l'import le ${String(template.verification.date).slice(0, 10)}${template.verification.copycat?.note ? ` · Copycat : ${template.verification.copycat.note}` : ""}`}>
+              Fidélité {score}/100
             </span>
           )}
           {props && (
             <span className="cat-tpl__badge is-info" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
-              Score {props.score} · {props.manquantes.length ? `${props.manquantes.length} à ajouter` : "complet"}
+              Score de vente {props.score} · {props.manquantes.length ? `${props.manquantes.length} à ajouter` : "complet"}
             </span>
           )}
           {check && (

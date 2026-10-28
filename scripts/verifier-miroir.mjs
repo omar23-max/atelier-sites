@@ -345,7 +345,7 @@ report.score = score;
 await writeFile(join(dir, "verification.json"), JSON.stringify(report, null, 2), "utf8");
 
 console.log(`
-Score de fidélité : ${score} / 100 (contre la ${report.reference})
+Fidélité : ${score} / 100 (contre la ${report.reference})
   Site      : ${report.siteChange ? `${report.siteChange.verdict} (${report.siteChange.score} / 100)` : "—"} · copie contre le site en ligne : ${report.copieContreSiteEnLigne ?? "—"} / 100
   Visuel    : ${visuel ? `${visuel.ecart} % de pixels différents · zones les plus différentes : ${visuel.zones.map((z) => `${z.y} px (${z.ecart} %)`).join(", ")} · imports/${slug}/compare-copie.png` : errors.visuel ?? "—"}
   Hauteur   : capture ${passes.capture?.height ?? "—"} px (en ligne : Edge ${passes.edge?.height ?? "—"}, Chrome ${passes.chromium?.height ?? "—"}) · copie ${copy.height} px (${report.hauteur.ecart})

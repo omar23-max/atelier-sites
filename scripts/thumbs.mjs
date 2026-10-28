@@ -103,6 +103,12 @@ try {
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(300);
       const height = Math.min(MAX_HEIGHT, await page.evaluate(() => document.body.scrollHeight));
+      // Partie sans hauteur (bloc caché sur le site) : pas de miniature, et la
+      // suite continue au lieu de s'arrêter.
+      if (height < 2) {
+        console.log(`– section ${id} : vide à l'affichage, pas de miniature`);
+        continue;
+      }
       await page.screenshot({ path: join(sectionsDir, id, "thumbnail.png"), fullPage: true, clip: { x: 0, y: 0, width: WIDTH, height } });
       console.log(`✓ section ${id}  (${height}px)`);
     }

@@ -281,6 +281,20 @@ ${JSON.stringify(tokens, null, 2)}
 await writeFile(join(root, "designs", `${designId}.md`), md, "utf8");
 console.log(`✓ ${slug} : page ${content.length} section(s), ${blocks.length} éléments, ${photos} photos · template · ${designId}.md`);
 
+// Miniatures : le template (vignette du catalogue) et son design.md,
+// sinon leurs cartes restent vides dans le catalogue.
+{
+  const { execFileSync } = await import("node:child_process");
+  // Les parties copiées (<slug>-pN) ne sont pas montrées dans le catalogue.
+  const ids = [slug, designId];
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "thumbs.mjs"), ...new Set(ids)], { cwd: root, stdio: "ignore", timeout: 900000 });
+    console.log("  Miniatures : template et design");
+  } catch {
+    console.log(`  ⚠ Miniatures incomplètes. Plus tard : npm run thumbs -- ${slug} ${designId}`);
+  }
+}
+
 // Sections manquantes proposées juste après l'import (Page Score de la page) :
 // dans template.json (« propositions ») et sur la page (bandeau à l'ouverture).
 {
@@ -295,8 +309,8 @@ console.log(`✓ ${slug} : page ${content.length} section(s), ${blocks.length} �
     await writeFile(join(root, "pages", `${slug}.json`), JSON.stringify(page, null, 2), "utf8");
     console.log(
       props.manquantes.length
-        ? `  Page Score ${props.score} / 100 · ${props.manquantes.length} section(s) proposée(s) : ${props.manquantes.map((m) => `${m.section} (${m.ou})`).join(" · ")}`
-        : `  Page Score ${props.score} / 100 · rien à ajouter`,
+        ? `  Score de vente ${props.score} / 100 · ${props.manquantes.length} section(s) proposée(s) : ${props.manquantes.map((m) => `${m.section} (${m.ou})`).join(" · ")}`
+        : `  Score de vente ${props.score} / 100 · rien à ajouter`,
     );
   }
 }

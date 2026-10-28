@@ -24,7 +24,7 @@ const TOOLS = [
   { id: "palette", label: "Palette", icon: IconPalette },
   { id: "regenerer", label: "Régénérer", icon: IconSparkles },
   { id: "rebrand", label: "Rebrand", icon: IconSwap },
-  { id: "score", label: "Score", icon: IconGauge },
+  { id: "score", label: "Score de vente", icon: IconGauge },
 ];
 
 // Un clic sur un outil déroule son panneau ; un second clic le referme et il
