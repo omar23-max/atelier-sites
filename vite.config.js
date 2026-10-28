@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import react from "@vitejs/plugin-react";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
+import { gzipSync } from "node:zlib";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -59,60 +60,99 @@ function supabaseClient() {
   return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 }
 
-// Toutes les sections en UN module (au lieu de 5 fichiers par section, soit
-// plus de 3 000 requêtes au chargement) : virtual:atelier-sections. Refait à
-// chaque changement dans sections/ ; l'atelier se recharge alors.
+// Toutes les sections, servies en JSON compressé par /api/sections-data (et
+// non plus en module JavaScript : Vite mettait jusqu'à 2 min à traiter 50 Mo
+// de code après chaque changement). Gardées en mémoire, section par section :
+// un changement dans sections/<id>/ ne relit que ce dossier.
+//   /api/sections-data             toutes (catalogue)
+//   /api/sections-data?page=<nom>  sections du catalogue + parties copiées
+//                                  utilisées par cette page (atelier)
 function sectionsBundle() {
-  const ID = "virtual:atelier-sections";
-  const RESOLVED = "\0" + ID;
   const dir = join(root, "sections");
-  let cache = null;
-  async function build() {
-    const out = [];
-    for (const id of (await readdir(dir)).sort()) {
-      const d = join(dir, id);
-      if (!existsSync(join(d, "schema.json"))) continue;
-      try {
-        const read = (f) => (existsSync(join(d, f)) ? readFile(join(d, f), "utf8") : Promise.resolve(""));
-        const [schema, meta, template, css] = await Promise.all([read("schema.json"), read("meta.json"), read("template.liquid"), read("style.css")]);
-        out.push({
-          id,
-          schema: JSON.parse(schema),
-          meta: meta ? JSON.parse(meta) : {},
-          template,
-          css,
-          thumbnail: existsSync(join(d, "thumbnail.png")) ? `/sections/${id}/thumbnail.png` : null,
-        });
-      } catch (e) {
-        out.push({ id, schema: { name: id, settings: [] }, meta: { label: `${id} (illisible : ${e.message})` }, template: "", css: "", thumbnail: null });
-      }
+  const slash = (p) => p.split(String.fromCharCode(92)).join("/");
+  const prefix = `${slash(dir)}/`;
+  const cache = new Map(); // id → { json, pageSpecific }
+  const gz = new Map(); // réponses compressées, vidées à chaque changement
+  let ready = null;
+
+  async function readOne(id) {
+    const d = join(dir, id);
+    if (!existsSync(join(d, "schema.json"))) return void cache.delete(id);
+    let section;
+    try {
+      const read = (f) => (existsSync(join(d, f)) ? readFile(join(d, f), "utf8") : Promise.resolve(""));
+      const [schema, meta, template, css] = await Promise.all([read("schema.json"), read("meta.json"), read("template.liquid"), read("style.css")]);
+      section = {
+        id,
+        schema: JSON.parse(schema),
+        meta: meta ? JSON.parse(meta) : {},
+        template,
+        css,
+        thumbnail: existsSync(join(d, "thumbnail.png")) ? `/sections/${id}/thumbnail.png` : null,
+      };
+    } catch (e) {
+      // Fichier en cours d'écriture ou illisible : visible comme tel.
+      section = { id, schema: { name: id, settings: [] }, meta: { label: `${id} (illisible : ${e.message})` }, template: "", css: "", thumbnail: null };
     }
-    return `export default ${JSON.stringify(out)};`;
+    cache.set(id, { json: JSON.stringify(section), pageSpecific: Boolean(section.meta?.pageSpecific) });
   }
+  async function loadAll() {
+    const ids = await readdir(dir);
+    for (let i = 0; i < ids.length; i += 32) await Promise.all(ids.slice(i, i + 32).map(readOne));
+  }
+  const ensure = () => (ready ??= loadAll());
+
   return {
     name: "atelier-sections",
-    resolveId: (id) => (id === ID ? RESOLVED : null),
-    async load(id) {
-      if (id !== RESOLVED) return null;
-      cache ??= await build();
-      // Sans carte de source : Vite en joindrait une de 200 Mo en base64.
-      return { code: cache, map: { mappings: "" } };
-    },
     configureServer(server) {
+      ensure();
+      server.middlewares.use("/api/sections-data", async (req, res) => {
+        await ensure();
+        const page = new URL(req.url ?? "/", "http://atelier").searchParams.get("page");
+        let used = null;
+        if (page && /^[a-z0-9-]+$/.test(page) && existsSync(join(root, "pages", `${page}.json`))) {
+          try {
+            used = new Set((JSON.parse(await readFile(join(root, "pages", `${page}.json`), "utf8")).content ?? []).map((c) => c.type));
+          } catch {
+            used = new Set();
+          }
+        }
+        const key = used ? `${page}:${[...used].sort().join(",")}` : "*";
+        let body = gz.get(key);
+        if (!body) {
+          const parts = [...cache.entries()]
+            .filter(([id, s]) => !used || !s.pageSpecific || used.has(id))
+            .sort(([a], [b]) => (a < b ? -1 : 1))
+            .map(([, s]) => s.json);
+          body = gzipSync(`[${parts.join(",")}]`, { level: 1 });
+          if (gz.size > 30) gz.clear();
+          gz.set(key, body);
+        }
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.setHeader("Content-Encoding", "gzip");
+        res.setHeader("Cache-Control", "no-store");
+        res.end(body);
+      });
+
+      // Changement dans sections/<id>/ : ce dossier seulement est relu, puis
+      // l'atelier et le catalogue se rechargent.
+      const changed = new Set();
       let timer = null;
       const onChange = (file) => {
-        if (!file.split(String.fromCharCode(92)).join("/").includes("/sections/")) return;
-        cache = null;
+        const f = slash(file);
+        if (!f.startsWith(prefix)) return;
+        changed.add(f.slice(prefix.length).split("/")[0]);
         clearTimeout(timer);
-        timer = setTimeout(() => {
-          const mod = server.moduleGraph.getModuleById(RESOLVED);
-          if (mod) server.moduleGraph.invalidateModule(mod);
+        timer = setTimeout(async () => {
+          const ids = [...changed];
+          changed.clear();
+          await ensure();
+          for (const id of ids) await readOne(id);
+          gz.clear();
           server.ws.send({ type: "full-reload" });
         }, 400);
       };
-      server.watcher.on("add", onChange);
-      server.watcher.on("change", onChange);
-      server.watcher.on("unlink", onChange);
+      for (const ev of ["add", "change", "unlink", "addDir", "unlinkDir"]) server.watcher.on(ev, onChange);
     },
   };
 }
@@ -741,7 +781,8 @@ function atelierApi() {
 }
 
 export default defineConfig({
-  plugins: [react(), atelierApi(), sectionsBundle()],
+  // sectionsBundle avant atelierApi : sa route /api/sections-data passe en premier.
+  plugins: [react(), sectionsBundle(), atelierApi()],
   build: {
     rollupOptions: {
       input: { atelier: join(root, "index.html"), catalogue: join(root, "catalogue.html") },
