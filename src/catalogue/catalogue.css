@@ -1388,3 +1388,35 @@ textarea {
   margin-right: 12px;
   color: var(--cat-line);
 }
+
+/* Menu de gauche : Sections et Templates se déplient en sous-menu */
+.cat-nav button.cat-nav__group > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cat-nav__group i {
+  display: inline-block;
+  width: 10px;
+  color: var(--cat-muted);
+  font-style: normal;
+  transition: transform 0.15s;
+}
+.cat-nav__group.is-open i {
+  transform: rotate(90deg);
+}
+.cat-nav button.cat-nav__group.is-active {
+  font-weight: 600;
+}
+.cat-nav__sub {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 2px 0 6px 14px;
+  padding-left: 8px;
+  border-left: 1px solid var(--cat-line);
+}
+.cat-nav__sub button {
+  padding: 6px 10px;
+  font-size: 13.5px;
+}

@@ -146,6 +146,21 @@ function Preview({ section, onClose, onMessage }) {
   );
 }
 
+// Entrée du menu de gauche qui se déplie (Sections, Templates).
+function NavGroup({ label, count, active, open, onToggle, children }) {
+  return (
+    <>
+      <button type="button" className={`cat-nav__group${active ? " is-active" : ""}${open ? " is-open" : ""}`} aria-expanded={open} onClick={onToggle}>
+        <span>
+          <i aria-hidden="true">›</i> {label}
+        </span>
+        <em>{count}</em>
+      </button>
+      {open && <div className="cat-nav__sub">{children}</div>}
+    </>
+  );
+}
+
 function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
   const hidden = statusOf(section) === "masquee";
   const hover = useHoverPreview("section", section);
@@ -314,6 +329,19 @@ export default function Catalogue() {
 
   const cardProps = { onPreview: setPreview, onStatus: changeStatus, onTrash: trashSection, onMessage: setMessage };
   const currentFamily = FAMILIES.find((f) => f.id === view);
+  // Menu de gauche : un seul sous-menu ouvert, celui de la vue affichée.
+  const inSections = view === "tout" || Boolean(currentFamily);
+  const [openGroup, setOpenGroup] = useState(() => (inSections ? "sections" : view.startsWith("templates") ? "templates" : null));
+  useEffect(() => {
+    if (inSections) setOpenGroup("sections");
+    else if (view.startsWith("templates")) setOpenGroup("templates");
+  }, [view, inSections]);
+  // Clic sur le titre : ouvre le sous-menu (et sa vue « tout »), ou le referme.
+  const toggleGroup = (group, allView) => {
+    if (openGroup === group) return setOpenGroup(null);
+    setOpenGroup(group);
+    setView(allView);
+  };
 
   function FamilyBlock({ family }) {
     const list = (grouped[family.id] ?? []).filter(matches);
@@ -368,46 +396,62 @@ export default function Catalogue() {
           <button type="button" className={view === "pages" ? "is-on" : ""} onClick={() => setView("pages")}>
             Pages <em>{counts.pages ?? "…"}</em>
           </button>
-          <button type="button" className={view === "tout" ? "is-on" : ""} onClick={() => setView("tout")}>
-            Sections <em>{sections.length}</em>
-          </button>
+          {/* Sections : sous-menu « Toutes les sections » puis chaque famille. */}
+          <NavGroup
+            label="Sections"
+            count={sections.length}
+            active={inSections}
+            open={openGroup === "sections"}
+            onToggle={() => toggleGroup("sections", "tout")}
+          >
+            <button type="button" className={view === "tout" ? "is-on" : ""} onClick={() => setView("tout")}>
+              Toutes les sections <em>{sections.length}</em>
+            </button>
+            {FAMILIES.map((f) => (
+              <button
+                type="button"
+                key={f.id}
+                className={`${view === f.id ? "is-on" : ""}${grouped[f.id]?.length ? "" : " is-empty"}`}
+                onClick={() => setView(f.id)}
+              >
+                {f.label} <em>{grouped[f.id]?.length ?? 0}</em>
+              </button>
+            ))}
+          </NavGroup>
           <button type="button" className={view === "designs" ? "is-on" : ""} onClick={() => setView("designs")}>
             Designs (design.md) <em>{designs.length}</em>
           </button>
-          <button type="button" className={view === "templates" ? "is-on" : ""} onClick={() => setView("templates")}>
-            Templates <em>{counts.templates ?? "…"}</em>
-          </button>
+          {/* Templates : sous-menu « Tous les templates » puis chaque type de page. */}
+          <NavGroup
+            label="Templates"
+            count={counts.templates ?? "…"}
+            active={view.startsWith("templates")}
+            open={openGroup === "templates"}
+            onToggle={() => toggleGroup("templates", "templates")}
+          >
+            <button type="button" className={view === "templates" ? "is-on" : ""} onClick={() => setView("templates")}>
+              Tous les templates <em>{counts.templates ?? "…"}</em>
+            </button>
+            {PAGE_TYPES.map((t) => {
+              const n = counts.parType?.[t.id] ?? 0;
+              return (
+                <button
+                  type="button"
+                  key={t.id}
+                  className={`${view === `templates-${t.id}` ? "is-on" : ""}${n ? "" : " is-empty"}`}
+                  onClick={() => setView(`templates-${t.id}`)}
+                >
+                  {TYPE_MENU[t.id] ?? t.label} <em>{n}</em>
+                </button>
+              );
+            })}
+          </NavGroup>
           <button type="button" className={view === "enrichir" ? "is-on" : ""} onClick={() => setView("enrichir")}>
             Enrichir le catalogue
           </button>
           <button type="button" className={view === "demandes" ? "is-on" : ""} onClick={() => setView("demandes")}>
             Demandes {pending > 0 && <em className="cat-dot">{pending}</em>}
           </button>
-          <p className="cat-nav__title">Templates par type</p>
-          {PAGE_TYPES.map((t) => {
-            const n = counts.parType?.[t.id] ?? 0;
-            return (
-              <button
-                type="button"
-                key={t.id}
-                className={`${view === `templates-${t.id}` ? "is-on" : ""}${n ? "" : " is-empty"}`}
-                onClick={() => setView(`templates-${t.id}`)}
-              >
-                {TYPE_MENU[t.id] ?? t.label} <em>{n}</em>
-              </button>
-            );
-          })}
-          <p className="cat-nav__title">Section library</p>
-          {FAMILIES.map((f) => (
-            <button
-              type="button"
-              key={f.id}
-              className={`${view === f.id ? "is-on" : ""}${grouped[f.id]?.length ? "" : " is-empty"}`}
-              onClick={() => setView(f.id)}
-            >
-              {f.label} <em>{grouped[f.id]?.length ?? 0}</em>
-            </button>
-          ))}
           <p className="cat-nav__title">Gestion</p>
           <button type="button" className={view === "corbeille" ? "is-on" : ""} onClick={() => setView("corbeille")}>
             Corbeille <em>{trash.length + bin.length}</em>
