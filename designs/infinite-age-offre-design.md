@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "titres": "Nunito",
     "texte": "Effra"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#eef1fd",
-    "fond-sombre": "#de2424",
-    "texte": "#141414",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#000000",
-    "bouton": "#00ac47",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Effra",
@@ -132,6 +122,16 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
       "hauteur": 43,
       "marges": "0px 0px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#eef1fd",
+    "fond-sombre": "#de2424",
+    "texte": "#141414",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#000000",
+    "bouton": "#00ac47",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

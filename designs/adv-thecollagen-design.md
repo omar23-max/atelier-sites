@@ -46,15 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "titres": "sofia-pro",
     "texte": "sofia-pro"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f4faff",
-    "fond-sombre": "#004e96",
-    "texte": "#2e6eb0",
-    "accent": "#1266ba",
-    "bouton": "#1266ba",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "sofia-pro",
@@ -120,6 +111,15 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
       "hauteur": 36,
       "marges": "6.84px 20.52px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f4faff",
+    "fond-sombre": "#004e96",
+    "texte": "#2e6eb0",
+    "accent": "#1266ba",
+    "bouton": "#1266ba",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

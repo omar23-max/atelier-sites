@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "titres": "Montserrat",
     "texte": "Gotham-Medium"
   },
-  "couleurs": {
-    "fond": "#ffefef",
-    "surface": "#ffffff",
-    "fond-sombre": "#d93255",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#000000",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Montserrat",
@@ -122,6 +112,16 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
       "hauteur": 28,
       "marges": "4px 4px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffefef",
+    "surface": "#ffffff",
+    "fond-sombre": "#d93255",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#000000",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

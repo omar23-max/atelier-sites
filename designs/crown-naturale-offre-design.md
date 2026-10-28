@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "titres": "Poppins",
     "texte": "Poppins"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#d3dfd1",
-    "fond-sombre": "#000000",
-    "texte": "#303030",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#000000",
-    "bouton": "#ff9900",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "h1": {
       "police": "Poppins",
@@ -106,6 +96,16 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
       "espacement": null,
       "exemple": "Noticed Improved Energy Levels Within 14 Days"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#d3dfd1",
+    "fond-sombre": "#000000",
+    "texte": "#303030",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#000000",
+    "bouton": "#ff9900",
+    "bouton-texte": "#000000"
   }
 }
 ```

@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
     "titres": "Outfit",
     "texte": "DM Sans"
   },
-  "couleurs": {
-    "fond": "#edeceb",
-    "surface": "#ffffff",
-    "fond-sombre": "#171a3e",
-    "texte": "#6b6e74",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#1a1b1e",
-    "bouton": "#ffffff",
-    "bouton-texte": "#6b6e74"
-  },
   "styles": {
     "h1": {
       "police": "Outfit",
@@ -120,6 +110,16 @@ Copie entière dans la section « Advertorial — article complet » (2 sections
       "hauteur": 57,
       "marges": "16px 24px"
     }
+  },
+  "couleurs": {
+    "fond": "#edeceb",
+    "surface": "#ffffff",
+    "fond-sombre": "#171a3e",
+    "texte": "#6b6e74",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#1a1b1e",
+    "bouton": "#ffffff",
+    "bouton-texte": "#6b6e74"
   }
 }
 ```

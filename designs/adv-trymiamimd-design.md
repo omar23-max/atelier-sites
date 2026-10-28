@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (15 section
     "titres": "Outfit",
     "texte": "Outfit"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f2f9ff",
-    "fond-sombre": "#10416b",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#3cc918",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Outfit",
@@ -99,6 +90,15 @@ Copie entière dans la section « Advertorial — article complet » (15 section
       "hauteur": 70,
       "marges": "0px 0px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f2f9ff",
+    "fond-sombre": "#10416b",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#3cc918",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

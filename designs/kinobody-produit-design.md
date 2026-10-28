@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     "titres": "neue-haas-grotesk-display",
     "texte": "corsario-variable"
   },
-  "couleurs": {
-    "fond": "#f1f2ea",
-    "surface": "#ffffff",
-    "fond-sombre": "#000000",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#2c3e50",
-    "bouton": "#000000",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "neue-haas-grotesk-display",
@@ -120,6 +110,16 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "hauteur": 48,
       "marges": "12px 37px"
     }
+  },
+  "couleurs": {
+    "fond": "#f1f2ea",
+    "surface": "#ffffff",
+    "fond-sombre": "#000000",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#2c3e50",
+    "bouton": "#000000",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

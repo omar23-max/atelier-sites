@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
     "titres": "Oswald",
     "texte": "Montserrat"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f7f7f8",
-    "fond-sombre": "#353535",
-    "texte": "#353535",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#2c3e50",
-    "bouton": "#ffffff",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "h1": {
       "police": "Oswald",
@@ -120,6 +110,16 @@ Copie entière dans la section « Advertorial — article complet » (5 sections
       "hauteur": 46,
       "marges": "16px 0px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f7f7f8",
+    "fond-sombre": "#353535",
+    "texte": "#353535",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#2c3e50",
+    "bouton": "#ffffff",
+    "bouton-texte": "#000000"
   }
 }
 ```

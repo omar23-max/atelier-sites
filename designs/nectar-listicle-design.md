@@ -46,15 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "titres": "Values Sans",
     "texte": "Values Sans"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#eef7ff",
-    "fond-sombre": "#0d3063",
-    "texte": "#0d3063",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#0d3063",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Values Sans",
@@ -131,6 +122,15 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
       "hauteur": 43,
       "marges": "12px 18px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#eef7ff",
+    "fond-sombre": "#0d3063",
+    "texte": "#0d3063",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#0d3063",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

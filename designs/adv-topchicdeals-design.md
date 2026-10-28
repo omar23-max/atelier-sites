@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "titres": "Poppins",
     "texte": "Poppins"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#d9dfec",
-    "fond-sombre": "#000000",
-    "texte": "#262626",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#00c148",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Poppins",
@@ -97,6 +88,15 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
       "exemple": "Fun fact: Only pregnant female mosquitoes bite. The SafeBuzz™ Band emits ultrasonic waves ",
       "fond": "#d1edef"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#d9dfec",
+    "fond-sombre": "#000000",
+    "texte": "#262626",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#00c148",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

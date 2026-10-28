@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "titres": "sans-serif",
     "texte": "sans-serif"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#feffa1",
-    "fond-sombre": "#000000",
-    "texte": "#262626",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#5cb85c",
-    "bouton-texte": "#053e14"
-  },
   "styles": {
     "h1": {
       "police": "sans-serif",
@@ -97,6 +88,15 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
       "exemple": "SUMMARY: Did you know there's a new portable AC device that can cool your room in MINUTES!",
       "fond": "#c3f1ff"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#feffa1",
+    "fond-sombre": "#000000",
+    "texte": "#262626",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#5cb85c",
+    "bouton-texte": "#053e14"
   }
 }
 ```

@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "titres": "Tungsten",
     "texte": "Inter"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#fff4eb",
-    "fond-sombre": "#000000",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffd300",
-    "bouton": "#000000",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Tungsten",
@@ -120,6 +110,16 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
       "hauteur": 45,
       "marges": "12px 22px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#fff4eb",
+    "fond-sombre": "#000000",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffd300",
+    "bouton": "#000000",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

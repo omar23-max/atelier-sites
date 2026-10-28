@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (14 section
     "titres": "helvetica",
     "texte": "Open Sans"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#e2f4f9",
-    "fond-sombre": "#333333",
-    "texte": "#2f2f2f",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#149312",
-    "bouton-texte": "#f6f9fe"
-  },
   "styles": {
     "h1": {
       "police": "Montserrat",
@@ -95,6 +86,15 @@ Copie entière dans la section « Advertorial — article complet » (14 section
       "espacement": null,
       "exemple": "The massager helps my feet and ankles with my edema. I walk a lot for my job and getting h"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#e2f4f9",
+    "fond-sombre": "#333333",
+    "texte": "#2f2f2f",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#149312",
+    "bouton-texte": "#f6f9fe"
   }
 }
 ```

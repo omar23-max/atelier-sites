@@ -46,15 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "titres": "freight-text-pro",
     "texte": "freight-text-pro"
   },
-  "couleurs": {
-    "fond": "#ededec",
-    "surface": "#ffffff",
-    "fond-sombre": "#5a31f4",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#eeefed",
-    "bouton-texte": "#000000"
-  },
   "styles": {
     "h1": {
       "police": "freight-text-pro",
@@ -110,6 +101,15 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
       "hauteur": 43,
       "marges": "12px 14px"
     }
+  },
+  "couleurs": {
+    "fond": "#ededec",
+    "surface": "#ffffff",
+    "fond-sombre": "#5a31f4",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#eeefed",
+    "bouton-texte": "#000000"
   }
 }
 ```

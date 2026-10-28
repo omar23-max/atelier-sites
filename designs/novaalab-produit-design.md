@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (16 section
     "titres": "Urbanist",
     "texte": "Montserrat"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f5f5ff",
-    "fond-sombre": "#000000",
-    "texte": "#222323",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#ffffff",
-    "bouton-texte": "#a4a4a4"
-  },
   "styles": {
     "h1": {
       "police": "Urbanist",
@@ -107,6 +97,16 @@ Copie entière dans la section « Advertorial — article complet » (16 section
       "espacement": null,
       "exemple": "Research shows that Novaa Light Pad can provide relief from minor back pain and stiffness "
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f5f5ff",
+    "fond-sombre": "#000000",
+    "texte": "#222323",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#ffffff",
+    "bouton-texte": "#a4a4a4"
   }
 }
 ```

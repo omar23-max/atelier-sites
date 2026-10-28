@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (11 section
     "titres": "Moret",
     "texte": "Circular"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f9f9f7",
-    "fond-sombre": "#212121",
-    "texte": "#000000",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#3a3a3c",
-    "bouton": "#ffffff",
-    "bouton-texte": "#3a3a3c"
-  },
   "styles": {
     "entete": {
       "police": "nitti",
@@ -130,6 +120,16 @@ Copie entière dans la section « Advertorial — article complet » (11 section
       "hauteur": 45,
       "marges": "12px 24px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f9f9f7",
+    "fond-sombre": "#212121",
+    "texte": "#000000",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#3a3a3c",
+    "bouton": "#ffffff",
+    "bouton-texte": "#3a3a3c"
   }
 }
 ```

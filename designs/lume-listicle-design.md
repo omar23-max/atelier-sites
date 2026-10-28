@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
     "titres": "Poppins",
     "texte": "Poppins"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#fff4f7",
-    "fond-sombre": "#ad0da6",
-    "texte": "#565458",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#c8166b",
-    "bouton": "#2196f3",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "entete": {
       "police": "Lato",
@@ -111,6 +101,16 @@ Copie entière dans la section « Advertorial — article complet » (4 sections
       "hauteur": 44,
       "marges": "0px 0px"
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#fff4f7",
+    "fond-sombre": "#ad0da6",
+    "texte": "#565458",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#c8166b",
+    "bouton": "#2196f3",
+    "bouton-texte": "#ffffff"
   }
 }
 ```
