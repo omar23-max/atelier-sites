@@ -45,13 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "titres": "Nunito Sans",
     "texte": "Nunito Sans"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#eeeeee",
-    "texte": "#423f3f",
-    "bouton": "#423f3f",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Nunito Sans",
@@ -83,6 +76,13 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
       "espacement": null,
       "exemple": "It is the #1 organic magnesium lotion specially formulated for babies and kids to reverse "
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#eeeeee",
+    "texte": "#423f3f",
+    "bouton": "#423f3f",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

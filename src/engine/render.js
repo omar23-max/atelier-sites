@@ -83,7 +83,9 @@ function withOriginalPhotos(settingsDef, values, originals) {
 // Props Puck → contexte Liquid identique à celui de Shopify.
 export function renderSectionHtml(section, props, instanceId = "apercu") {
   const merged = normalizeProps(section, props);
-  const originals = section.meta.photosOrigine ?? {};
+  // Version wireframe d'une page (props.wireframe) : emplacements d'image vides,
+  // sans les photos d'origine.
+  const originals = merged.wireframe ? {} : section.meta.photosOrigine ?? {};
   let settings = {};
   for (const s of editableSettings(section.schema.settings)) settings[s.id] = merged[s.id];
   settings = withOriginalPhotos(section.schema.settings, settings, originals.settings ?? {});

@@ -46,16 +46,6 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
     "titres": "Montserrat",
     "texte": "Montserrat"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f9f9f9",
-    "fond-sombre": "#151515",
-    "texte": "#333333",
-    "texte-sur-sombre": "#ffffff",
-    "accent": "#ffffff",
-    "bouton": "#29d54f",
-    "bouton-texte": "#ffffff"
-  },
   "styles": {
     "h1": {
       "police": "Montserrat",
@@ -77,6 +67,16 @@ Copie entière dans la section « Advertorial — article complet » (3 sections
       "espacement": null,
       "exemple": "Claire was in a car accident a few years ago."
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f9f9f9",
+    "fond-sombre": "#151515",
+    "texte": "#333333",
+    "texte-sur-sombre": "#ffffff",
+    "accent": "#ffffff",
+    "bouton": "#29d54f",
+    "bouton-texte": "#ffffff"
   }
 }
 ```

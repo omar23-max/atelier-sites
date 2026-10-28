@@ -95,6 +95,8 @@ function treeForItem(item) {
         k: n.k,
         parent,
         type: n.type,
+        // Nom de l'élément (Titre H2, Paragraphe, Lien, Bouton (CTA), Question…), relevé par copie.mjs.
+        name: n.name ?? TYPE[n.type]?.label,
         text: b.text,
         image: b.image,
         size: n.size,
@@ -698,6 +700,9 @@ export function Inspector({ children }) {
               onChange={(props) => updateProps(sel.sectionId, props)}
               onAiTexts={() => setAi({ sectionId: sel.sectionId, keys: null })}
               onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
+              onValues={(values) => updateValues(sel.sectionId, values)}
+              onOpen={(key) => setSel({ sectionId: sel.sectionId, key })}
+              onMoveNode={(child, dir) => step(sel.sectionId, child, dir)}
             />
           ) : (
             <SectionSettings
@@ -745,6 +750,12 @@ export function Inspector({ children }) {
                 ↓ Descendre
               </button>
             </div>
+            <GroupContents
+              node={selNode}
+              onChange={(values) => updateValues(sel.sectionId, values)}
+              onOpen={(key) => setSel({ sectionId: sel.sectionId, key })}
+              onMove={(child, dir) => step(sel.sectionId, child, dir)}
+            />
             <p className="atl-insp__hint">Glisse les lignes de l'arbre pour changer l'ordre. Clic droit pour l'IA sur tout le groupe.</p>
           </div>
         )}
@@ -754,7 +765,7 @@ export function Inspector({ children }) {
         <CanvasToolbar
           sel={sel}
           node={selNode}
-          label={selNode ? (selNode.run ? "Texte" : selNode.group ? selNode.label : (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
+          label={selNode ? (selNode.run ? "Paragraphes" : selNode.group ? selNode.label : selNode.name ?? (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
           editing={editing}
           onFormat={format}
           onParent={() => {
@@ -960,7 +971,8 @@ function Nodes({ nodes, sectionId, depth, sel, openGroups, setOpenGroups, onChoo
         onContextMenu={(e) => (e.preventDefault(), onMenu({ x: e.clientX, y: e.clientY, sectionId, key: n.key }))}
       >
         {n.image && isImageType(n.type) ? <img className="atl-insp__thumb" src={n.image} alt="" /> : <span className={`atl-insp__ico atl-insp__ico--${n.type}`}>{t.icon}</span>}
-        <button type="button" className="atl-insp__name" onClick={() => onChoose({ sectionId, key: n.key })} title={n.label}>
+        <button type="button" className="atl-insp__name" onClick={() => onChoose({ sectionId, key: n.key })} title={`${n.name ?? t.label} : ${n.label}`}>
+          <small className="atl-insp__kind">{n.name ?? t.label}</small>
           {n.label || t.label}
         </button>
         {movable(n) && <span className="atl-insp__grip">⋮⋮</span>}
@@ -1079,6 +1091,76 @@ function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild }) {
   );
 }
 
+// Contenu d'un groupe, modifiable sur place (comme la liste « Blocks » de
+// Whitelabeler) : une FAQ montre une carte par question (question + réponse,
+// ↑ ↓) ; tout autre groupe, ses éléments avec leur nom. Le texte est modifié
+// en texte simple ; la mise en forme se règle dans l'éditeur de l'élément.
+function GroupContents({ node, onChange, onOpen, onMove }) {
+  const setText = (leaf, value) => onChange({ [leaf.key]: { text: value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\n/g, "<br>") } });
+  const Field = ({ leaf, rows }) =>
+    isImageType(leaf.type) ? (
+      <button type="button" className="atl-gc__img" onClick={() => onOpen(leaf.key)} title="Ouvrir l'image">
+        {leaf.image ? <img src={leaf.image} alt="" /> : <span>{leaf.name}</span>}
+      </button>
+    ) : rows > 1 ? (
+      <textarea rows={rows} defaultValue={plain(leaf.text)} onBlur={(e) => e.target.value !== plain(leaf.text) && setText(leaf, e.target.value)} />
+    ) : (
+      <input defaultValue={plain(leaf.text)} onBlur={(e) => e.target.value !== plain(leaf.text) && setText(leaf, e.target.value)} />
+    );
+  const Label = ({ leaf }) => (
+    <button type="button" className="atl-gc__label" onClick={() => onOpen(leaf.key)} title="Ouvrir l'élément (style, IA…)">
+      {leaf.name ?? TYPE[leaf.type]?.label}
+    </button>
+  );
+
+  if (node.kind === "faq") {
+    const items = node.children.filter((c) => c.group);
+    return (
+      <div className="atl-gc">
+        <p className="atl-gc__title">Questions ({items.length})</p>
+        {items.map((q, i) => {
+          const leaves = leavesOf(q.children);
+          const question = leaves.find((l) => l.name === "Question") ?? leaves[0];
+          const answers = leaves.filter((l) => l !== question);
+          return (
+            <div key={q.id ?? i} className="atl-gc__card">
+              <div className="atl-gc__head">
+                <b>{q.label}</b>
+                <span>
+                  <button type="button" disabled={i === 0} onClick={() => onMove(q, -1)} title="Monter">
+                    ↑
+                  </button>
+                  <button type="button" disabled={i === items.length - 1} onClick={() => onMove(q, 1)} title="Descendre">
+                    ↓
+                  </button>
+                </span>
+              </div>
+              {question && <Field leaf={question} rows={1} />}
+              {answers.map((a) => (
+                <Field key={a.key} leaf={a} rows={3} />
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  const leaves = leavesOf(node.children);
+  return (
+    <div className="atl-gc">
+      <p className="atl-gc__title">Contenu ({leaves.length})</p>
+      {leaves.slice(0, 40).map((leaf) => (
+        <div key={leaf.key} className="atl-gc__row">
+          <Label leaf={leaf} />
+          <Field leaf={leaf} rows={plain(leaf.text).length > 70 ? 3 : 1} />
+        </div>
+      ))}
+      {leaves.length > 40 && <p className="atl-insp__hint">… et {leaves.length - 40} autres : ouvre les sous-groupes dans l'arbre.</p>}
+    </div>
+  );
+}
+
 function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangeProps }) {
   if (!item) return null;
   const section = byId[item.type];
@@ -1103,7 +1185,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
     };
     return (
       <div className="atl-insp__panel">
-        <PanelHead onBack={onBack} title={`${t.icon} ${t.label}${leaf.size ? ` ${leaf.size}` : ""}`} sub={sectionName} onAi={onAi} />
+        <PanelHead onBack={onBack} title={`${t.icon} ${leaf.name ?? t.label}${leaf.size ? ` ${leaf.size}` : ""}`} sub={sectionName} onAi={onAi} />
         {isImageType(leaf.type) ? (
           <>
             {F("image", "image")}
@@ -1590,7 +1672,7 @@ function StylePanel({ sectionId, leaf, block, onChange }) {
 }
 
 // ---- Réglages d'une partie copiée : Design · Layout · Couleurs, et l'IA ----
-function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild }) {
+function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onValues, onOpen, onMoveNode }) {
   const [tab, setTab] = useState("design");
   const [prompt, setPrompt] = useState("");
   const [ref, setRef] = useState(null);
@@ -1619,6 +1701,8 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild }) {
   return (
     <div className="atl-insp__panel">
       <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} />
+      {/* Section qui est une FAQ (sa racine) : ses questions, modifiables ici. */}
+      {section.meta.arbre?.kind === "faq" && <GroupContents node={{ kind: "faq", children: treeForItem(item) }} onChange={onValues} onOpen={onOpen} onMove={onMoveNode} />}
       <div className="atl-tabs2">
         {[
           ["design", "Design"],

@@ -45,16 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
     "titres": "Source Sans Pro",
     "texte": "sans-serif"
   },
-  "couleurs": {
-    "fond": "#f5e7d4",
-    "surface": "#f9ebdc",
-    "fond-sombre": "#271d16",
-    "texte": "#2e221a",
-    "texte-sur-sombre": "#d0aa8c",
-    "accent": "#f7ecde",
-    "bouton": "#a65316",
-    "bouton-texte": "#f5e7d4"
-  },
   "styles": {
     "h1": {
       "police": "Burford Base",
@@ -120,6 +110,16 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
       "hauteur": 70,
       "marges": "0px 16px"
     }
+  },
+  "couleurs": {
+    "fond": "#f5e7d4",
+    "surface": "#f9ebdc",
+    "fond-sombre": "#271d16",
+    "texte": "#2e221a",
+    "texte-sur-sombre": "#d0aa8c",
+    "accent": "#f7ecde",
+    "bouton": "#a65316",
+    "bouton-texte": "#f5e7d4"
   }
 }
 ```

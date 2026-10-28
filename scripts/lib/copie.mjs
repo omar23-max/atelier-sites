@@ -669,12 +669,58 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     if (HEADING_TAG.test(n.tag) || px(n.style["font-size"]) >= 21) return "titre";
     return "texte";
   }
+  // Nom affiché de chaque élément, comme dans l'éditeur de Whitelabeler :
+  // Titre H2, Paragraphe, Lien, Bouton (CTA), Prix, Question, Réponse…
+  const ancestors = (n) => {
+    const out = [];
+    for (let p = parentOf(n); p; p = parentOf(p)) out.push(p);
+    return out;
+  };
+  const inQuestion = (n) => n.tag === "summary" || /^q:/.test(n.acc ?? "") || ancestors(n).some((p) => p.tag === "summary" || /^q:/.test(p.acc ?? ""));
+  const inAnswer = (n) => /^r:/.test(n.acc ?? "") || ancestors(n).some((p) => /^r:/.test(p.acc ?? "")) || (ancestors(n).some((p) => p.tag === "details") && !inQuestion(n));
+  function leafName(n, text) {
+    const t = leafType(n);
+    if (t === "image") return "Image";
+    if (t === "video") return "Vidéo";
+    if (inQuestion(n)) return "Question";
+    if (inAnswer(n)) return "Réponse";
+    const h = /^h([1-6])$/.exec(n.tag) ?? ancestors(n).slice(0, 2).map((p) => /^h([1-6])$/.exec(p.tag)).find(Boolean);
+    if (t === "bouton") return "Bouton (CTA)";
+    if (t === "lien") return "Lien";
+    if (h) return `Titre H${h[1]}`;
+    if (t === "titre") return "Titre";
+    const words = (text ?? "").trim().split(/\s+/).filter(Boolean).length;
+    if (/^\s*(?:[$€£]\s?\d|\d[\d.,\s]*\s?[$€£])/.test(text ?? "") && words <= 4) return "Prix";
+    if (n.tag === "li" || ancestors(n).slice(0, 2).some((p) => p.tag === "li")) return "Point de liste";
+    if (["td", "th"].includes(n.tag)) return "Cellule";
+    if (words && words <= 4) return "Étiquette";
+    return "Paragraphe";
+  }
+  // Nom d'un conteneur : FAQ, Question / réponse, Tableau, Liste, Grille…
+  function groupName(n, children) {
+    if (/^q:/.test(n.acc ?? "")) return { label: "Question", kind: "groupe" };
+    if (/^r:/.test(n.acc ?? "")) return { label: "Réponse", kind: "groupe" };
+    const names = children.map((c) => c.name ?? c.label);
+    if (n.tag === "details" || (names.includes("Question") && names.includes("Réponse"))) return { label: "Question / réponse", kind: "question" };
+    const qa = children.filter((c) => c.kind === "question").length;
+    if (qa >= 2 && qa >= children.length * 0.6) return { label: `FAQ (${qa} questions)`, kind: "faq" };
+    if (n.tag === "table") return { label: "Tableau", kind: "groupe" };
+    if (n.tag === "tr") return { label: "Ligne du tableau", kind: "groupe" };
+    if (n.tag === "ul" || n.tag === "ol") return { label: `Liste (${children.length})`, kind: "groupe" };
+    if (n.tag === "header" || n.tag === "nav") return { label: n.tag === "nav" ? "Menu" : "En-tête", kind: "groupe" };
+    if (n.tag === "footer") return { label: "Pied de page", kind: "groupe" };
+    if (n.tag === "form") return { label: "Formulaire", kind: "groupe" };
+    // Au moins 3 blocs de même forme : une grille de cartes.
+    const shapes = children.filter((c) => c.group).map((c) => c.children?.length ?? 0);
+    if (shapes.length >= 3 && shapes.length === children.length && new Set(shapes).size === 1) return { label: `Grille (${shapes.length} cartes)`, kind: "grille" };
+    return { label: GROUP_LABELS[n.tag] ?? "Bloc", kind: "groupe" };
+  }
   function treeOf(it, pid, k) {
-    if (it.text != null) return { slot: `t${pid}_${k}`, type: "texte" };
+    if (it.text != null) return { slot: `t${pid}_${k}`, type: "texte", name: leafName(byId[pid] ?? it, it.text) };
     const n = it.n;
     if (n.svg || it.empty) return null;
-    if (n.image && !n.bgImage) return tinyImage(n) ? null : { slot: `i${n.id}`, type: leafType(n), size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` };
-    if (n.text != null) return { slot: `s${n.id}`, type: leafType(n) };
+    if (n.image && !n.bgImage) return tinyImage(n) ? null : { slot: `i${n.id}`, type: leafType(n), name: leafName(n), size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` };
+    if (n.text != null) return { slot: `s${n.id}`, type: leafType(n), name: leafName(n, n.text) };
     // k : rang de l'enfant dans son conteneur (sert à changer l'ordre).
     let children = (it.kids ?? [])
       .map((kid, i) => {
@@ -682,7 +728,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         return t && { ...t, k: i };
       })
       .filter(Boolean);
-    if (n.bgImage) children.unshift({ slot: `b${n.id}`, type: "image-fond", size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` });
+    if (n.bgImage) children.unshift({ slot: `b${n.id}`, type: "image-fond", name: "Image de fond", size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` });
     if (!children.length) return null;
     if (children.length === 1) return children[0];
     // gid : le conteneur, dont l'ordre des enfants peut changer ; size : nombre d'enfants.
@@ -691,7 +737,14 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       children = children.map((c, i) => (c.group ? { ...c, label: `Colonne ${i + 1}`, kind: "colonne" } : { group: true, kind: "colonne", label: `Colonne ${i + 1}`, children: [c], k: c.k }));
       return { group: true, kind: "colonnes", label: `Colonnes (${children.length})`, children, ...own };
     }
-    return { group: true, kind: "groupe", label: GROUP_LABELS[n.tag] ?? "Bloc", children, ...own };
+    const named = groupName(n, children);
+    // Cartes d'une grille, questions d'une FAQ : numérotées.
+    if (named.kind === "grille") children = children.map((c, i) => ({ ...c, label: `Carte ${i + 1}`, kind: "carte" }));
+    if (named.kind === "faq") {
+      let q = 0;
+      children = children.map((c) => (c.kind === "question" ? { ...c, label: `Question ${++q}` } : c));
+    }
+    return { group: true, ...named, children, ...own };
   }
 
   // Polices : seulement celles que la page utilise, jeu latin.

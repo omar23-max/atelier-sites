@@ -282,8 +282,9 @@ await writeFile(join(root, "designs", `${designId}.md`), md, "utf8");
 console.log(`✓ ${slug} : page ${content.length} section(s), ${blocks.length} éléments, ${photos} photos · template · ${designId}.md`);
 
 // Miniatures : le template (vignette du catalogue) et son design.md,
-// sinon leurs cartes restent vides dans le catalogue.
-{
+// sinon leurs cartes restent vides dans le catalogue. ATL_SANS_MINIATURES=1 :
+// sautées (reconstruction d'une copie dont l'aspect ne change pas).
+if (!process.env.ATL_SANS_MINIATURES) {
   const { execFileSync } = await import("node:child_process");
   // Les parties copiées (<slug>-pN) ne sont pas montrées dans le catalogue.
   const ids = [slug, designId];

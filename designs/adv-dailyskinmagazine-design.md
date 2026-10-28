@@ -45,15 +45,6 @@ Copie entière dans la section « Advertorial — article complet » (19 section
     "titres": "helvetica",
     "texte": "Bitter"
   },
-  "couleurs": {
-    "fond": "#ffffff",
-    "surface": "#f3f4f6",
-    "fond-sombre": "#00465a",
-    "texte": "#303030",
-    "texte-sur-sombre": "#ffffff",
-    "bouton": "#47901a",
-    "bouton-texte": "#f6f9fe"
-  },
   "styles": {
     "h1": {
       "police": "Bitter",
@@ -95,6 +86,15 @@ Copie entière dans la section « Advertorial — article complet » (19 section
       "espacement": null,
       "exemple": "Margaret's story will leave you speechless..."
     }
+  },
+  "couleurs": {
+    "fond": "#ffffff",
+    "surface": "#f3f4f6",
+    "fond-sombre": "#00465a",
+    "texte": "#303030",
+    "texte-sur-sombre": "#ffffff",
+    "bouton": "#47901a",
+    "bouton-texte": "#f6f9fe"
   }
 }
 ```

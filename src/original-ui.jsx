@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { sections } from "./engine/sections.js";
+
+const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
 
 // Bascule « Original / Modifiable » d'une page issue d'un import
 // (root.props.importSource), dans la barre de l'aperçu, à gauche des tailles
@@ -73,6 +76,67 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
       setBusy(false);
       alert(e.message);
     }
+  }
+
+  // Version wireframe (comme le rendu de Whitelabeler) : nouvelle page du même
+  // projet, même mise en page et même design, textes remplacés par des briefs
+  // « [ Titre H2 — 7 mots ] » et emplacements d'image vides. La page d'origine
+  // ne change pas.
+  async function wireframe() {
+    setOpen(null);
+    const data = getData();
+    let name = `${pageName}-wireframe`;
+    for (let n = 2; pages.some((p) => p.name === name); n++) name = `${pageName}-wireframe-${n}`;
+    const plainText = (html) => String(html ?? "").replace(/<br\s*\/?>/g, " ").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+    const brief = (html, label) => {
+      const t = plainText(html);
+      if (!t) return html;
+      if (/^[\d\s$€£.,:%/+×x*-]+$/i.test(t)) return t.replace(/\d/g, "0");
+      const w = t.split(" ").length;
+      return `[ ${label} — ${w} mot${w > 1 ? "s" : ""} ]`;
+    };
+    const content = (data.content ?? []).map((item) => {
+      const section = byId[item.type];
+      const props = { ...item.props, wireframe: true };
+      // Noms des éléments d'une copie (meta.arbre) : Titre H2, Paragraphe…
+      const names = {};
+      (function walk(t) {
+        if (!t) return;
+        if (t.group) return (t.children ?? []).forEach(walk);
+        names[t.slot] = t.name;
+      })(section?.meta?.arbre);
+      for (const [key, value] of Object.entries(props)) {
+        if (!Array.isArray(value)) continue;
+        const blockType = key.replace(/^blocks_/, "");
+        const defs = section?.schema.blocks?.find((b) => b.type === blockType)?.settings ?? [];
+        props[key] = value.map((b) => {
+          const out = { ...b };
+          if ("slot" in out) {
+            if (out.text) out.text = brief(out.text, names[out.slot] ?? "Texte");
+            if (out.image) out.image = "";
+            return out;
+          }
+          for (const s of defs) {
+            if (s.type === "image_picker") out[s.id] = "";
+            else if (["text", "textarea", "richtext", "inline_richtext"].includes(s.type) && out[s.id]) out[s.id] = brief(out[s.id], s.label ?? "Texte");
+          }
+          return out;
+        });
+      }
+      for (const s of section && !section.meta.pageSpecific ? section.schema.settings ?? [] : []) {
+        if (s.type === "image_picker") props[s.id] = "";
+        else if (["text", "textarea", "richtext", "inline_richtext"].includes(s.type) && props[s.id]) props[s.id] = brief(props[s.id], s.label ?? "Texte");
+      }
+      return { ...item, props };
+    });
+    const page = { ...data, root: { ...data.root, props: { ...data.root.props, title: `${data.root.props.title ?? pageName} (wireframe)` } }, content };
+    setBusy(true);
+    const res = await fetch(`/api/pages/${name}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(page) });
+    if (!res.ok) {
+      setBusy(false);
+      return alert((await res.json()).error);
+    }
+    location.assign(`/?page=${name}`);
   }
 
   async function remove() {
@@ -167,6 +231,9 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
               </button>
               <button type="button" role="menuitem" onClick={() => location.assign(`/catalogue.html?page=${encodeURIComponent(pageName)}#templates`)}>
                 🪞 Miroring d'un autre template…
+              </button>
+              <button type="button" role="menuitem" onClick={wireframe} title="Nouvelle page du projet : même mise en page, textes remplacés par des briefs, images vides">
+                ▭ Créer une version wireframe
               </button>
               <button type="button" role="menuitem" className="is-danger" onClick={remove}>
                 🗑 Supprimer cette page
