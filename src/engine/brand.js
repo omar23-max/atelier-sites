@@ -21,6 +21,8 @@ export function brandCss(root = {}) {
     families.length ? `@import url("${fontUrl(families)}");` : "",
     "body { margin: 0; }",
     vars.length ? `:root { ${vars.join(" ")} }` : "",
+    // Fond de la page (Réglages de la page) : visible derrière les sections transparentes.
+    /^#[0-9a-f]{3,8}$/i.test(root.fond_page ?? "") ? `body { background-color: ${root.fond_page}; }` : "",
   ].join("\n");
 }
 

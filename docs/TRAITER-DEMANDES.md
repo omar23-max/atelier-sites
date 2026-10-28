@@ -239,6 +239,39 @@ Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
 - Les accordéons en JavaScript ne sont repris qu'aux **nouveaux imports**
   (capture nécessaire) ; les `<details>` des copies existantes ont été refaits.
 
+## Carrousels, sliders et vidéos dans les copies
+
+- Capture (`lib/snapshot.mjs` → `mediaOf`, installée dans la page avant le
+  relevé) : chaque élément reçoit `video` (`{ src, autoplay, loop, controls }`,
+  ou `embed: true` pour YouTube/Vimeo/Wistia/Loom…) et `car` (`track` = piste
+  slick/swiper/splide/flickity/glide/embla/owl…, `clone` = copie d'une diapo,
+  `prev`/`next` = flèches, `dots` = points).
+- Anciennes captures : `node scripts/medias-carrousels.mjs <dossier>|--tous`
+  relit `page.html` hors ligne (scripts coupés, rien téléchargé) et retrouve
+  chaque élément par sa place, avec un décalage par parent (balises de `<head>`
+  repoussées dans `<body>` par l'analyseur, 263 rangs chez Elevate).
+- Copie (`copie.mjs`) : les diapos `clone` sont retirées ; la piste (marquée,
+  ou reconnue à sa forme : ≥ 3 enfants alignés qui débordent d'un cadre à
+  overflow caché) devient `display:flex; overflow-x:auto; scroll-snap`, sans le
+  `transform` du script d'origine ; ses diapos gardent leur largeur. Les flèches
+  portent `data-atl-car="prev|next"` et le script `CARROUSELS` (page publiée)
+  fait défiler la piste la plus proche. Dans l'atelier, la piste défile à la
+  molette / au doigt.
+- Vidéo : l'image relevée devient l'affiche ; le champ **Lien** de l'élément
+  « Vidéo » prend une vidéo (fichier .mp4 → `<video>`, YouTube/Vimeo →
+  `<iframe>` en lien embed). La vidéo d'origine est dans `meta.videosOrigine`
+  et ne joue **que dans l'aperçu** (`render.js`), comme les photos d'origine :
+  jamais écrite dans la page ni exportée.
+- Limite : carrousels en fondu dont les diapos inactives sont en
+  `display:none` dans les deux formats → seule la diapo visible est reprise.
+
+## Zones de grille nommées
+
+`grid-template-areas` n'est pas relevé : un `grid-area: banner` ne désigne
+rien dans la copie et crée une colonne fantôme (hero d'Elevate hors écran).
+`copie.mjs` remplace ces noms par la colonne et la ligne réelles de l'élément
+parmi ses voisins.
+
 ## Sections proposées juste après l'import
 
 `advertorial-page.mjs` calcule le Page Score de la page importée
@@ -430,3 +463,21 @@ Créée par le bouton « Publier sur Shopify » de l'atelier (`page`, `details` 
 Le bouton propose aussi « Télécharger le code Liquid (.zip) » : sections, modèle
 et `LISEZ-MOI.txt` pour les ajouter soi-même (un zip importé comme thème
 remplacerait tout le thème : ne pas le faire).
+
+## Espaces et fonds (section, colonne, bloc, page)
+
+- Section **« Espace »** (`sections/espace`, famille *Spacer*) : hauteur
+  ordinateur / mobile (0-400 px) et couleur facultative. S'ajoute comme toute
+  section (« Ajouter une section » ou catalogue).
+- **Fond de la page** : *Réglages de la page* → « Fond de la page »
+  (`root.props.fond_page`, `brandCss`). Visible derrière les sections
+  transparentes.
+- **Fond d'une colonne ou d'une carte** : panneau du groupe → « Fond »
+  (`props.fonds_groupes` de la section, « g12=#hex;… »). **Fond d'un bloc**
+  (texte, bouton) : son panneau Style → « Fond » (`background-color` dans le
+  style du bloc).
+- `src/engine/frame.js` produit ces règles (et fond/marges des sections dont
+  le template ne les gère pas) pour l'aperçu (`render.js`) et pour Shopify :
+  chaque section exportée reçoit un réglage caché `atl_style`, rempli par
+  `buildShopifyTemplate` (le fond de page est porté par la 1re section).
+- Aucune reconstruction des copies nécessaire.

@@ -33,6 +33,38 @@ export const INHERITED = new Set([
   "text-align", "text-transform", "text-indent", "white-space", "visibility", "list-style-type", "list-style-position", "text-shadow",
 ]);
 
+// Dans la page : vidéo (fichier ou lecteur YouTube/Vimeo…) et rôle dans un
+// carrousel (piste qui défile, copie d'une diapo, flèche, points). Installée
+// dans la page avant le relevé (window.__atlMediaOf) ; sert aussi à enrichir
+// les anciennes captures depuis page.html (scripts/medias-carrousels.mjs).
+export function mediaOf(el) {
+  const cls = el.getAttribute("class") ?? "";
+  const tag = el.tagName.toLowerCase();
+  const abs = (u) => {
+    try {
+      return u ? new URL(u, document.baseURI).href : "";
+    } catch {
+      return "";
+    }
+  };
+  const out = {};
+  if (tag === "video") {
+    const source = el.querySelector("source");
+    const src = el.currentSrc || el.getAttribute("src") || el.getAttribute("data-src") || source?.getAttribute("src") || source?.getAttribute("data-src") || "";
+    if (src && !src.startsWith("blob:"))
+      out.video = { src: abs(src), autoplay: el.hasAttribute("autoplay") || el.autoplay, loop: el.hasAttribute("loop"), controls: el.hasAttribute("controls") };
+  } else if (tag === "iframe") {
+    const src = el.getAttribute("src") || el.getAttribute("data-src") || "";
+    if (/youtube(-nocookie)?\.com|youtu\.be|vimeo\.com|wistia|loom\.com|vidyard|streamable|cloudflarestream|videodelivery|tiktok\.com\/embed/i.test(src))
+      out.video = { src: abs(src), embed: true };
+  }
+  if (/\b(slick-cloned|swiper-slide-duplicate|splide__slide--clone|is-clone|cloned)\b/.test(cls)) out.car = "clone";
+  else if (/\b(slick-track|swiper-wrapper|splide__list|flickity-slider|glide__slides|embla__container|keen-slider|owl-stage|carousel-inner|f-carousel__track|slider__track)\b/.test(cls)) out.car = "track";
+  else if (/\b(slick-dots|swiper-pagination|splide__pagination|flickity-page-dots|glide__bullets|owl-dots|carousel-indicators)\b/.test(cls)) out.car = "dots";
+  else if (/prev|next/i.test(cls) && /slick|swiper|splide|flickity|glide|embla|owl|carousel|slider|arrow/i.test(cls)) out.car = /prev/i.test(cls) ? "prev" : "next";
+  return Object.keys(out).length ? out : null;
+}
+
 // Dans la page, à 1440 px : arbre des éléments, emplacements de texte et
 // d'image, styles calculés et styles par défaut de chaque balise.
 export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }) {
@@ -150,6 +182,8 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
     if (el.hasAttribute("data-atl-acc")) node.acc = el.getAttribute("data-atl-acc");
     if (["input", "select", "textarea", "button"].includes(tag)) node.type = el.getAttribute("type") ?? "";
     const visible = cs.display !== "none" && node.box.w > 0 && node.box.h > 0;
+    const media = window.__atlMediaOf?.(el);
+    if (media) Object.assign(node, media);
 
     if (tag === "svg") {
       const html = el.outerHTML;

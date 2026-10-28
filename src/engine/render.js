@@ -1,5 +1,6 @@
 import { INFO_SETTING_TYPES } from "./shopify.js";
 import { renderLiquid } from "./liquid.js";
+import { frameCss } from "./frame.js";
 import { nearRolesInHtml } from "../../scripts/lib/proche.mjs";
 
 // Partagé par l'atelier (Puck) et les scripts Node (export HTML, comparaison).
@@ -95,6 +96,10 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
   for (const block of section.schema.blocks ?? []) {
     merged[blocksKey(block.type)].forEach((item, i) => {
       const values = withOriginalPhotos(block.settings, item, originals.blocks?.[block.type]?.[i] ?? {});
+      // Vidéo d'origine : jouée dans l'aperçu tant qu'aucune vidéo n'est choisie
+      // (comme les photos d'origine, jamais écrite dans la page ni exportée).
+      const videoOrigine = merged.wireframe ? null : section.meta.videosOrigine?.[values.slot];
+      if (videoOrigine && !values.link) values.link = videoOrigine;
       // Couleurs écrites dans le texte (lien bleu, mot en couleur) : suivent la palette.
       if (roles && typeof values.text === "string") values.text = nearRolesInHtml(values.text, roles);
       blocks.push({ id: `${block.type}-${i}`, type: block.type, settings: values, shopify_attributes: "" });
@@ -107,13 +112,10 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
 
 // Fond et marges choisis dans l'éditeur (fond_section, marge_haut, marge_bas)
 // pour les sections dont le template ne les gère pas lui-même.
+// Fonds des colonnes et cartes (fonds_groupes) : pour toutes (engine/frame.js).
 function withSectionFrame(section, props, instanceId, html) {
-  if (section.template.includes("fond_section")) return html;
-  const rules = [];
-  if (props.fond_section) rules.push(`background-color:${props.fond_section}!important`, "background-image:none!important");
-  if (props.marge_haut !== undefined && props.marge_haut !== "") rules.push(`padding-top:${Number(props.marge_haut)}px!important`);
-  if (props.marge_bas !== undefined && props.marge_bas !== "") rules.push(`padding-bottom:${Number(props.marge_bas)}px!important`);
-  if (!rules.length) return html;
   const cls = `atl-cadre-${String(instanceId).replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  return `<div class="${cls}">${html}<style>.${cls}>:not(style){${rules.join(";")}}</style></div>`;
+  const css = frameCss(section, props, `.${cls}`);
+  if (!css) return html;
+  return `<div class="${cls}">${html}<style>${css}</style></div>`;
 }

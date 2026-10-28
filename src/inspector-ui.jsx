@@ -5,6 +5,7 @@ import { sections } from "./engine/sections.js";
 import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
+import { parseGroupFills, writeGroupFills } from "./engine/frame.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
@@ -750,6 +751,12 @@ export function Inspector({ children }) {
                 ↓ Descendre
               </button>
             </div>
+            <GroupFill
+              item={content[indexOf(sel.sectionId)]}
+              node={selNode}
+              sectionId={sel.sectionId}
+              onChangeProps={(props) => updateProps(sel.sectionId, props)}
+            />
             <GroupContents
               node={selNode}
               onChange={(values) => updateValues(sel.sectionId, values)}
@@ -1554,6 +1561,34 @@ function Seg({ value, options, onChange }) {
   );
 }
 
+// Fond d'une colonne, d'une carte ou d'un bloc de la copie (engine/frame.js :
+// réglage fonds_groupes de la section, appliqué aussi sur Shopify).
+function GroupFill({ item, node, sectionId, onChangeProps }) {
+  if (!node.gid) return <p className="atl-insp__hint">Cette colonne n'a pas de conteneur propre : colore ses éléments un par un, ou la section entière.</p>;
+  const fills = parseGroupFills(item.props.fonds_groupes);
+  const value = fills[node.gid] ?? "";
+  const el = domOf(sectionId, node);
+  const cs = el ? el.ownerDocument.defaultView.getComputedStyle(el) : null;
+  const set = (c) => onChangeProps({ ...item.props, fonds_groupes: writeGroupFills({ ...fills, [node.gid]: c }) });
+  return (
+    <div className="atl-style">
+      <p className="atl-style__title">Fond</p>
+      <div className="atl-style__row">
+        <span>Couleur</span>
+        <span className="atl-style__color">
+          <input type="color" value={value || toHex(cs?.backgroundColor)} onChange={(e) => set(e.target.value)} />
+          <code>{value || "d'origine"}</code>
+          {value && (
+            <button type="button" onClick={() => set("")} title="Couleur d'origine">
+              ↺
+            </button>
+          )}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function StylePanel({ sectionId, leaf, block, onChange }) {
   const d = parseStyle(block.style);
   const el = domOf(sectionId, leaf);
@@ -1619,6 +1654,18 @@ function StylePanel({ sectionId, leaf, block, onChange }) {
               <code>{d.color ?? "d'origine"}</code>
               {d.color && (
                 <button type="button" onClick={() => set({ color: "" })} title="Couleur d'origine">
+                  ↺
+                </button>
+              )}
+            </span>
+          </div>
+          <div className="atl-style__row">
+            <span>Fond</span>
+            <span className="atl-style__color">
+              <input type="color" value={d["background-color"] ?? toHex(cs?.backgroundColor)} onChange={(e) => set({ "background-color": e.target.value })} />
+              <code>{d["background-color"] ?? "d'origine"}</code>
+              {d["background-color"] && (
+                <button type="button" onClick={() => set({ "background-color": "" })} title="Fond d'origine">
                   ↺
                 </button>
               )}

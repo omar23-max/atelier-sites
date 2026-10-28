@@ -12,7 +12,7 @@ Landing longue de vente.
 
 168 éléments dans l'ordre : 2 grands titres, 31 intertitres,
 123 paragraphes, 12 listes, 62 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (15 sections).
+Copie entière dans la section « Advertorial — article complet » (14 sections).
 
 ## Typographie
 

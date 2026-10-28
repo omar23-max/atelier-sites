@@ -15,7 +15,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
-import { PROPS, TEXT_PROPS, snapshotDesktop, snapshotMobile, snapshotMobileByPath } from "./lib/snapshot.mjs";
+import { PROPS, TEXT_PROPS, mediaOf, snapshotDesktop, snapshotMobile, snapshotMobileByPath } from "./lib/snapshot.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const [url, slug] = process.argv.slice(2);
@@ -420,6 +420,7 @@ try {
   // La copie reprend toute la page, en-tête, bandeau d'annonce et pied de page
   // de la boutique compris (un template doit être identique à l'original).
   // ATL_SANS_THEME=1 : on les laisse de côté (article qui garde ceux de la boutique).
+  await page.evaluate(`window.__atlMediaOf = ${mediaOf}`);
   const snap = await page.evaluate(snapshotDesktop, { props: PROPS, chromeSelector: process.env.ATL_SANS_THEME ? chromeSelector : "atl-aucun", textProps: TEXT_PROPS });
   snap.fonts = await fontFaces(page);
   await page.setViewportSize({ width: 390, height: 844 });

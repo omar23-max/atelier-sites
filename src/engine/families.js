@@ -42,6 +42,7 @@ export const FAMILIES = [
   { id: "livraison", label: "Shipping & returns", hint: "Délais, expédition rapide" },
   { id: "bonus", label: "Free bonuses", hint: "Cadeaux inclus, ce que contient la commande" },
   { id: "pied-de-page", label: "Footer", hint: "Liens, mentions, paiements" },
+  { id: "espace", label: "Spacer", hint: "Espace vide entre deux sections, hauteur réglable" },
 ];
 
 export const familyById = Object.fromEntries(FAMILIES.map((f) => [f.id, f]));

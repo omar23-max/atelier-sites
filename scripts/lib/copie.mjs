@@ -71,6 +71,14 @@ const ACCORDEONS =
   "var o=a.hasAttribute('data-atl-open');if(o)a.removeAttribute('data-atl-open');else a.setAttribute('data-atl-open','');" +
   "q.setAttribute('aria-expanded',o?'false':'true')});})(document.currentScript);</script>";
 
+// Flèches d'un carrousel : font défiler la piste la plus proche (page publiée ;
+// dans l'atelier, la piste défile à la molette ou au doigt).
+const CARROUSELS =
+  "<script>(function(s){var r=s&&s.parentElement;if(!r)return;" +
+  "r.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-atl-car=prev],[data-atl-car=next]');if(!b||!r.contains(b))return;" +
+  "var p=b,t=null;for(var i=0;i<6&&p&&p!==r&&!t;i++){p=p.parentElement;t=p&&p.querySelector('[data-atl-car=track]')}if(!t)return;e.preventDefault();" +
+  "t.scrollBy({left:(b.getAttribute('data-atl-car')==='prev'?-1:1)*t.clientWidth*0.8,behavior:'smooth'})});})(document.currentScript);</script>";
+
 // Ligne de grille nommée (« banner », « main-start »…), pas un nombre, auto ou span N.
 const isNamedLine = (v) => v != null && v !== "" && !/^(auto|-?\d+|span \d+)$/.test(v);
 
@@ -89,7 +97,32 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const tStyle = (n) => tablet[n.id] ?? n.style;
   const styleIn = (n, mode) => (mode === "d" ? n.style : mode === "t" ? tStyle(n) : mStyle(n));
   const boxIn = (n, mode) => (mode === "d" ? n.box : (mode === "t" ? tablet : mobile)[n.id]?.__box ?? n.box);
-  const dead = (n) => n.style.display === "none" && mStyle(n).display === "none";
+  // Copie d'une diapo ajoutée par le script du carrousel (boucle infinie) : la
+  // copie garde chaque diapo une seule fois.
+  const dead = (n) => n.car === "clone" || (n.style.display === "none" && mStyle(n).display === "none");
+
+  // ---- Carrousels ----
+  // Piste qui défile : marquée à la capture (slick-track, swiper-wrapper…), ou
+  // reconnue à sa forme (au moins 3 enfants alignés, de largeurs proches, qui
+  // débordent largement d'un cadre à overflow caché). Dans la copie, elle défile
+  // à la main (doigt, molette) et les flèches d'origine la font avancer (CARROUSELS).
+  const trackMemo = new Map();
+  const isTrack = (n) => {
+    if (trackMemo.has(n.id)) return trackMemo.get(n.id);
+    let yes = n.car === "track";
+    if (!yes && n.tag !== "body") {
+      const kids = n.kids.filter((k) => k.text == null).map((k) => byId[k.n]).filter((k) => !dead(k) && k.box.w > 0 && k.box.h > 0);
+      if (kids.length >= 3 && kids.every((k) => Math.abs(k.box.y - kids[0].box.y) < 4)) {
+        const ws = kids.map((k) => k.box.w);
+        let clip = null;
+        for (let a = n, i = 0; a && i < 4 && !clip; a = parentOf(a), i++) if (/hidden|clip/.test(a.style["overflow-x"] ?? "") && a.box.w > 100) clip = a;
+        const right = Math.max(...kids.map((k) => k.box.x + k.box.w));
+        yes = Boolean(clip) && Math.max(...ws) / Math.min(...ws) < 1.6 && right > clip.box.x + clip.box.w * 1.3;
+      }
+    }
+    trackMemo.set(n.id, yes);
+    return yes;
+  };
 
   // ---- Emplacements ----
   const roleOf = (n) => {
@@ -469,6 +502,17 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       out["grid-column-start"] = String(xs.indexOf(Math.round(box.x)) + 1);
       out["grid-row-start"] = String(ys.indexOf(Math.round(box.y)) + 1);
     }
+    // Carrousel : la piste défile au lieu d'être décalée par le script d'origine
+    // (transform), et chaque diapo reste visible à sa largeur.
+    if (isTrack(n)) {
+      Object.assign(out, {
+        display: "flex", "flex-wrap": "nowrap", "overflow-x": "auto", "overflow-y": "hidden", "scroll-snap-type": "x mandatory",
+        "scrollbar-width": "none", width: "100%", "max-width": "100%", transform: "none", left: "auto",
+      });
+    } else if (p && isTrack(p)) {
+      Object.assign(out, { "flex-grow": "0", "flex-shrink": "0", "scroll-snap-align": "start", opacity: "1", visibility: "visible", transform: "none" });
+      if (["absolute", "fixed"].includes(out.position ?? st.position)) Object.assign(out, { position: "relative", left: "auto", top: "auto", right: "auto", bottom: "auto" });
+    }
     return out;
   }
 
@@ -554,6 +598,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   function renderSection(piece, sectionId) {
     const blocks = [];
     const used = new Set();
+    const videos = {};
     let textN = 0;
     const addText = (slot, text, words, role, link, html) => {
       textN += 1;
@@ -595,10 +640,27 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
           return data ? `<img class="${classAttr}" src="${data}" alt="">` : `<span class="${classAttr}"></span>`;
         }
         const slot = `i${n.id}`;
-        blocks.push({ slot, repere: `Image ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
+        // Vidéo : l'image relevée sert d'affiche ; le lien de la vidéo (fichier
+        // ou YouTube/Vimeo) la fait jouer. La vidéo d'origine n'est montrée que
+        // dans l'atelier (meta.videosOrigine), jamais écrite dans la page.
+        const video = n.video
+          ? (() => {
+              videos[slot] = n.video.src;
+              const play = n.video.autoplay ? " autoplay muted loop playsinline" : ` controls playsinline${n.video.loop ? " loop" : ""}`;
+              const embed = "{{ b.settings.link | replace: 'watch?v=', 'embed/' | replace: 'youtu.be/', 'www.youtube.com/embed/' | replace: '//vimeo.com/', '//player.vimeo.com/video/' }}";
+              return (
+                `{%- if b.settings.link != blank -%}` +
+                `{%- if b.settings.link contains 'youtu' or b.settings.link contains 'vimeo.com' or b.settings.link contains 'wistia' or b.settings.link contains 'loom.com' -%}` +
+                `<iframe data-atl-slot="${slot}" class="${classAttr}" src="${embed}" allow="autoplay; fullscreen; picture-in-picture" frameborder="0" style="${edge}{{ b.settings.style }}"></iframe>` +
+                `{%- else -%}<video data-atl-slot="${slot}" class="${classAttr}" src="{{ b.settings.link }}"{% if b.settings.image != blank %} poster="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}"{% endif %}${play} style="${edge}{{ b.settings.style }}"></video>{%- endif -%}` +
+                `{%- elsif b.settings.image != blank -%}`
+              );
+            })()
+          : "{%- if b.settings.image != blank -%}";
+        blocks.push({ slot, repere: `${n.video ? "Vidéo" : "Image"} ${n.box.w}×${n.box.h}`, text: "", image: fileOf(n) ?? "", link: "" });
         return slotLoop(
           slot,
-          `{%- if b.settings.image != blank -%}<img data-atl-slot="${slot}" class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}" style="${edge}{{ b.settings.style }}">{%- else -%}<div data-atl-slot="${slot}" class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
+          `${video}<img data-atl-slot="${slot}" class="${classAttr}" src="{{ b.settings.image | image_url: width: ${Math.min(2000, Math.max(200, n.box.w * 2))} }}" alt="{{ b.settings.text | escape }}" style="${edge}{{ b.settings.style }}">{%- else -%}<div data-atl-slot="${slot}" class="${classAttr} atl-vide"${styleAttr}></div>{%- endif -%}`,
         );
       }
       if (["input", "select", "textarea"].includes(tag)) {
@@ -610,6 +672,8 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       // dans l'atelier) ; le script ACCORDEONS les referme sur la page publiée.
       if (tag === "details") open += ` open data-atl-acc="${n.acc ?? (n.open ? "ouvert" : "ferme")}"`;
       else if (/^[qr]:\d+$/.test(n.acc ?? "")) open += ` data-atl-${n.acc[0]}="${n.acc.slice(2)}"`;
+      if (isTrack(n)) open += ` data-atl-car="track"`;
+      else if (n.car === "prev" || n.car === "next") open += ` data-atl-car="${n.car}"`;
       if (n.text != null) open += ` data-atl-slot="s${n.id}"`;
       if (gids.has(`g${n.id}`)) open += ` data-atl-group="g${n.id}"`;
       else if (n.bgImage) open += ` data-atl-slot="b${n.id}"`;
@@ -652,6 +716,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         inner = gids.has(`g${n.id}`) && parts.length > 1 ? ordered(`g${n.id}`, parts) : parts.join("");
       }
       if (n.tag === "body" && /data-atl-(acc|q)=/.test(inner)) inner += ACCORDEONS;
+      if (n.tag === "body" && /data-atl-car="(prev|next)"/.test(inner)) inner += CARROUSELS;
       return `${open}${inner}</${tag}>`;
     }
     // Conteneurs dont on peut changer l'ordre des enfants (groupes de l'arbre).
@@ -671,7 +736,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       `{%- else -%}{%- assign ord = '${parts.map((_, i) => i).join(",")}' | split: ',' -%}{%- endif -%}` +
       `{%- for x in ord -%}{%- case x -%}${parts.map((_, i) => `{%- when '${i}' -%}{{ ${gid}_${i} }}`).join("")}{%- endcase -%}{%- endfor -%}`;
     const liquid = html(piece);
-    return { liquid, blocks, used, tree };
+    return { liquid, blocks, used, tree, videos };
   }
 
   // Arbre affiché dans le panneau de droite (comme Shopify) : les conteneurs
@@ -779,7 +844,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
 
   const sections = pieces.map((piece, i) => {
     const id = `${slug}-p${i + 1}`;
-    const { liquid, blocks, used, tree } = renderSection(piece, id);
+    const { liquid, blocks, used, tree, videos } = renderSection(piece, id);
     const scope = `.atl-${id}`;
     const rules = [...used].map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.d)}}`);
     const mrules = [...used].filter((c) => Object.keys(c.m).length).map((c) => `${scope} .${c.name}${c.name === classOf(body).name ? `, ${scope}.${c.name}` : ""}{${declText(c.m)}}`);
@@ -801,6 +866,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       // Accordéons refermés par le script ACCORDEONS (page publiée seulement).
       `${scope}[data-atl-acc-on] [data-atl-r]:not([data-atl-open]){display:none!important}`,
       `${scope}[data-atl-acc-on] [data-atl-q], ${scope}[data-atl-acc-on] summary{cursor:pointer}`,
+      `${scope} [data-atl-car=track]::-webkit-scrollbar{display:none}`,
       `${scope} .atl-vide{background:repeating-linear-gradient(45deg,#eee 0 10px,#f7f7f7 10px 20px)}`,
       ...rules,
       trules.length ? `@media (min-width: 750px) and (max-width: 1199px){\n${trules.join("\n")}\n}` : "",
@@ -862,6 +928,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       arbre: tree,
       designRoles: Object.fromEntries(Object.keys(roles).map((r) => [`role_${r.replace(/-/g, "_")}`, r])),
     };
+    if (Object.keys(videos).length) meta.videosOrigine = videos;
     // Nuances proches d'un rôle : suivent aussi une nouvelle palette (lib/proche.mjs).
     const near = withNearRoles({ css, template: liquid, roles: Object.fromEntries(Object.entries(roles).map(([r, c]) => [r, hexOf(c)])) });
     return { id, schema, template: near.template, css: near.css, meta, blocks };
