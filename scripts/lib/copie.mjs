@@ -71,6 +71,9 @@ const ACCORDEONS =
   "var o=a.hasAttribute('data-atl-open');if(o)a.removeAttribute('data-atl-open');else a.setAttribute('data-atl-open','');" +
   "q.setAttribute('aria-expanded',o?'false':'true')});})(document.currentScript);</script>";
 
+// Ligne de grille nommée (« banner », « main-start »…), pas un nombre, auto ou span N.
+const isNamedLine = (v) => v != null && v !== "" && !/^(auto|-?\d+|span \d+)$/.test(v);
+
 export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   const nodes = snap.nodes;
   const mobile = snap.mobile;
@@ -453,6 +456,19 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         .join(" ");
     }
     if (out["grid-template-rows"] && /px/.test(out["grid-template-rows"])) delete out["grid-template-rows"];
+    // Zone de grille nommée (grid-area: banner) : grid-template-areas n'est pas
+    // relevé, le nom ne désigne donc rien et le navigateur crée une colonne
+    // fantôme (hero d'Elevate poussé hors de l'écran). Remplacée par la
+    // colonne et la ligne où l'élément se trouve parmi ses voisins.
+    const gridProps = ["grid-column-start", "grid-column-end", "grid-row-start", "grid-row-end"];
+    if (p && gridProps.some((g) => isNamedLine(out[g]))) {
+      const sibs = p.kids.filter((k) => k.text == null).map((k) => boxIn(byId[k.n], mode)).filter(Boolean);
+      const xs = [...new Set(sibs.map((b) => Math.round(b.x)))].sort((a, b) => a - b);
+      const ys = [...new Set(sibs.map((b) => Math.round(b.y)))].sort((a, b) => a - b);
+      for (const g of gridProps) delete out[g];
+      out["grid-column-start"] = String(xs.indexOf(Math.round(box.x)) + 1);
+      out["grid-row-start"] = String(ys.indexOf(Math.round(box.y)) + 1);
+    }
     return out;
   }
 
