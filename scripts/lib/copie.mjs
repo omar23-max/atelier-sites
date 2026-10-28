@@ -676,8 +676,10 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     for (let p = parentOf(n); p; p = parentOf(p)) out.push(p);
     return out;
   };
-  const inQuestion = (n) => n.tag === "summary" || /^q:/.test(n.acc ?? "") || ancestors(n).some((p) => p.tag === "summary" || /^q:/.test(p.acc ?? ""));
-  const inAnswer = (n) => /^r:/.test(n.acc ?? "") || ancestors(n).some((p) => /^r:/.test(p.acc ?? "")) || (ancestors(n).some((p) => p.tag === "details") && !inQuestion(n));
+  // Menus déroulants de l'en-tête (souvent des <details>) : ni questions ni réponses.
+  const inMenu = (n) => [n, ...ancestors(n)].some((p) => p.tag === "header" || p.tag === "nav");
+  const inQuestion = (n) => !inMenu(n) && (n.tag === "summary" || /^q:/.test(n.acc ?? "") || ancestors(n).some((p) => p.tag === "summary" || /^q:/.test(p.acc ?? "")));
+  const inAnswer = (n) => !inMenu(n) && (/^r:/.test(n.acc ?? "") || ancestors(n).some((p) => /^r:/.test(p.acc ?? "")) || (ancestors(n).some((p) => p.tag === "details") && !inQuestion(n)));
   function leafName(n, text) {
     const t = leafType(n);
     if (t === "image") return "Image";
@@ -701,7 +703,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     if (/^q:/.test(n.acc ?? "")) return { label: "Question", kind: "groupe" };
     if (/^r:/.test(n.acc ?? "")) return { label: "Réponse", kind: "groupe" };
     const names = children.map((c) => c.name ?? c.label);
-    if (n.tag === "details" || (names.includes("Question") && names.includes("Réponse"))) return { label: "Question / réponse", kind: "question" };
+    if ((n.tag === "details" && !inMenu(n)) || (names.includes("Question") && names.includes("Réponse"))) return { label: "Question / réponse", kind: "question" };
     const qa = children.filter((c) => c.kind === "question").length;
     if (qa >= 2 && qa >= children.length * 0.6) return { label: `FAQ (${qa} questions)`, kind: "faq" };
     if (n.tag === "table") return { label: "Tableau", kind: "groupe" };
