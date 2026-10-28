@@ -355,8 +355,12 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (v == null || v === "") continue;
       // Propriété héritée : comparée au parent, sauf si le navigateur la fixe
       // pour cette balise (taille d'un h1, couleur d'un lien…) : alors toujours écrite.
-      const uaSets = (defaults.div ?? {})[prop] !== def[prop];
-      const base = INHERITED.has(prop) && pst && !uaSets ? pst[prop] : INHERITED.has(prop) && uaSets ? null : def[prop];
+      // Un lien de la copie a toujours un href (donc bleu souligné par défaut),
+      // alors que les styles par défaut ont été relevés sur un <a> sans href :
+      // sa couleur et son soulignement sont toujours écrits.
+      const linkProp = n.tag === "a" && (prop === "color" || prop === "text-decoration-line" || prop === "text-decoration-color");
+      const uaSets = linkProp || (defaults.div ?? {})[prop] !== def[prop];
+      const base = linkProp ? null : INHERITED.has(prop) && pst && !uaSets ? pst[prop] : INHERITED.has(prop) && uaSets ? null : def[prop];
       if (v !== base) out[prop] = v;
     }
     // Bordures sans style : rien à écrire.
