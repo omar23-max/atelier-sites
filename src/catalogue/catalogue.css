@@ -1420,3 +1420,64 @@ textarea {
   padding: 6px 10px;
   font-size: 13.5px;
 }
+
+/* Flèche des sous-menus dans la marge : « Templates », « Sections » et
+   « Designs » (et les autres entrées) commencent tous au même endroit. */
+.cat-nav button.cat-nav__group {
+  position: relative;
+}
+.cat-nav button.cat-nav__group > span {
+  gap: 0;
+}
+.cat-nav__group i {
+  position: absolute;
+  left: 1px;
+  width: 10px;
+  text-align: center;
+}
+
+/* Corbeille : cases à cocher et suppression définitive */
+.cat-binbar {
+  position: sticky;
+  top: 70px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--cat-line);
+  border-radius: 12px;
+  background: #fff;
+}
+.cat-binbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cat-binbar .cat-btn {
+  margin-left: auto;
+}
+.cat-binbar input,
+.cat-bincheck {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--cat-red);
+  cursor: pointer;
+}
+.cat-bincheck {
+  flex: none;
+  margin-right: 4px;
+}
+.cat-request.is-checked {
+  border-color: #f0b4b0;
+  background: #fff7f6;
+}
+.cat-request > .cat-bincheck + div {
+  flex: 1;
+}
+.cat-request:has(> .cat-bincheck) {
+  align-items: center;
+}

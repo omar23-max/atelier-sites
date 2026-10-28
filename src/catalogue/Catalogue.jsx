@@ -294,6 +294,38 @@ export default function Catalogue() {
     }
   }
 
+  // Corbeille : éléments cochés pour la suppression définitive
+  // (« kind/entry » ; « sections/<nom> » pour la corbeille des sections).
+  const [checked, setChecked] = useState(() => new Set());
+  const allKeys = [...bin.map((b) => `${b.kind}/${b.entry}`), ...trash.map((t) => `sections/${t.trash}`)];
+  const toggleChecked = (key) =>
+    setChecked((s) => {
+      const next = new Set(s);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  async function purge() {
+    const keys = [...checked].filter((k) => allKeys.includes(k));
+    if (!keys.length) return;
+    const names = keys.map((k) => {
+      const b = bin.find((x) => `${x.kind}/${x.entry}` === k);
+      const t = trash.find((x) => `sections/${x.trash}` === k);
+      return `• ${b ? `${BIN_KINDS[b.kind]} — ${b.label}` : `Section — ${t?.label ?? k}`}`;
+    });
+    const shown = names.length > 15 ? [...names.slice(0, 15), `… et ${names.length - 15} autre(s)`] : names;
+    if (!confirm(`Supprimer définitivement ${keys.length} élément(s) ?\n\n${shown.join("\n")}\n\nIls ne pourront plus être restaurés.`)) return;
+    try {
+      const items = keys.map((k) => ({ kind: k.split("/")[0], entry: k.slice(k.indexOf("/") + 1) }));
+      const r = await api("POST", "/api/corbeille/purge", { items });
+      setChecked(new Set());
+      setMessage({ text: `${r.supprimes} élément(s) supprimé(s) définitivement.` });
+      refresh();
+    } catch (e) {
+      setMessage({ error: true, text: `Échec : ${e.message}` });
+    }
+  }
+
   // Corbeille commune (pages, projets, templates, designs, demandes).
   async function binRemove(kind, id, what, details) {
     if (!confirmDelete(what, details)) return;
@@ -396,31 +428,6 @@ export default function Catalogue() {
           <button type="button" className={view === "pages" ? "is-on" : ""} onClick={() => setView("pages")}>
             Pages <em>{counts.pages ?? "…"}</em>
           </button>
-          {/* Sections : sous-menu « Toutes les sections » puis chaque famille. */}
-          <NavGroup
-            label="Sections"
-            count={sections.length}
-            active={inSections}
-            open={openGroup === "sections"}
-            onToggle={() => toggleGroup("sections", "tout")}
-          >
-            <button type="button" className={view === "tout" ? "is-on" : ""} onClick={() => setView("tout")}>
-              Toutes les sections <em>{sections.length}</em>
-            </button>
-            {FAMILIES.map((f) => (
-              <button
-                type="button"
-                key={f.id}
-                className={`${view === f.id ? "is-on" : ""}${grouped[f.id]?.length ? "" : " is-empty"}`}
-                onClick={() => setView(f.id)}
-              >
-                {f.label} <em>{grouped[f.id]?.length ?? 0}</em>
-              </button>
-            ))}
-          </NavGroup>
-          <button type="button" className={view === "designs" ? "is-on" : ""} onClick={() => setView("designs")}>
-            Designs (design.md) <em>{designs.length}</em>
-          </button>
           {/* Templates : sous-menu « Tous les templates » puis chaque type de page. */}
           <NavGroup
             label="Templates"
@@ -446,6 +453,31 @@ export default function Catalogue() {
               );
             })}
           </NavGroup>
+          {/* Sections : sous-menu « Toutes les sections » puis chaque famille. */}
+          <NavGroup
+            label="Sections"
+            count={sections.length}
+            active={inSections}
+            open={openGroup === "sections"}
+            onToggle={() => toggleGroup("sections", "tout")}
+          >
+            <button type="button" className={view === "tout" ? "is-on" : ""} onClick={() => setView("tout")}>
+              Toutes les sections <em>{sections.length}</em>
+            </button>
+            {FAMILIES.map((f) => (
+              <button
+                type="button"
+                key={f.id}
+                className={`${view === f.id ? "is-on" : ""}${grouped[f.id]?.length ? "" : " is-empty"}`}
+                onClick={() => setView(f.id)}
+              >
+                {f.label} <em>{grouped[f.id]?.length ?? 0}</em>
+              </button>
+            ))}
+          </NavGroup>
+          <button type="button" className={view === "designs" ? "is-on" : ""} onClick={() => setView("designs")}>
+            Designs (design.md) <em>{designs.length}</em>
+          </button>
           <button type="button" className={view === "enrichir" ? "is-on" : ""} onClick={() => setView("enrichir")}>
             Enrichir le catalogue
           </button>
@@ -607,13 +639,31 @@ export default function Catalogue() {
             <>
               <h1>Corbeille</h1>
               <p className="cat-lead">
-                Tout ce qui a été supprimé du catalogue : projets (avec leurs pages), pages, templates, designs, demandes et sections. Rien n'est
-                effacé : restaure ce que tu veux.
+                Tout ce qui a été supprimé du catalogue : projets (avec leurs pages), pages, templates, designs, demandes et sections. Restaure ce
+                que tu veux, ou coche des éléments pour les supprimer définitivement.
               </p>
+              {(bin.length > 0 || trash.length > 0) && (
+                <div className="cat-binbar">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={allKeys.length > 0 && checked.size === allKeys.length}
+                      ref={(el) => el && (el.indeterminate = checked.size > 0 && checked.size < allKeys.length)}
+                      onChange={(e) => setChecked(new Set(e.target.checked ? allKeys : []))}
+                    />
+                    Tout cocher
+                  </label>
+                  <span className="cat-muted">{checked.size ? `${checked.size} élément(s) coché(s)` : `${allKeys.length} élément(s)`}</span>
+                  <button type="button" className="cat-btn cat-btn--danger" disabled={!checked.size} onClick={purge}>
+                    Supprimer définitivement{checked.size ? ` (${checked.size})` : ""}
+                  </button>
+                </div>
+              )}
               {bin.length > 0 && (
                 <div className="cat-list" style={{ marginBottom: 18 }}>
                   {bin.map((b) => (
-                    <article key={`${b.kind}/${b.entry}`} className="cat-request">
+                    <article key={`${b.kind}/${b.entry}`} className={`cat-request${checked.has(`${b.kind}/${b.entry}`) ? " is-checked" : ""}`}>
+                      <input type="checkbox" className="cat-bincheck" aria-label={`Cocher « ${b.label} »`} checked={checked.has(`${b.kind}/${b.entry}`)} onChange={() => toggleChecked(`${b.kind}/${b.entry}`)} />
                       <div>
                         <strong>
                           <span className="cat-badge cat-badge--grey">{BIN_KINDS[b.kind]}</span> {b.label}
@@ -636,7 +686,8 @@ export default function Catalogue() {
               ) : trash.length === 0 ? null : (
                 <div className="cat-list">
                   {trash.map((t) => (
-                    <article key={t.trash} className="cat-request">
+                    <article key={t.trash} className={`cat-request${checked.has(`sections/${t.trash}`) ? " is-checked" : ""}`}>
+                      <input type="checkbox" className="cat-bincheck" aria-label={`Cocher « ${t.label} »`} checked={checked.has(`sections/${t.trash}`)} onChange={() => toggleChecked(`sections/${t.trash}`)} />
                       <div>
                         <strong>{t.label}</strong>
                         <span className="cat-muted">Supprimée le {stampDate(t.trash.split("__")[1])}</span>

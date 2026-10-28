@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import react from "@vitejs/plugin-react";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -407,6 +407,31 @@ function atelierApi() {
                 }
               }
               return json(res, 200, out.sort((a, b) => String(b.when).localeCompare(String(a.when))));
+            }
+
+            // Suppression définitive (bouton de la corbeille, éléments cochés) :
+            // seulement ce qui est déjà dans la corbeille. items : [{ kind, entry }],
+            // kind = un type ci-dessus ou « sections » (corbeille des sections).
+            if (parts[1] === "purge" && req.method === "POST") {
+              const { items } = await readBody(req);
+              const ENTRY = /^[a-z0-9_-]+__[0-9-]+$/i;
+              let done = 0;
+              for (const { kind: k, entry } of Array.isArray(items) ? items : []) {
+                if (!ENTRY.test(entry ?? "")) continue;
+                if (k === "sections") {
+                  const p = join(trashDir, entry);
+                  if (existsSync(p)) await rm(p, { recursive: true, force: true }), done++;
+                  continue;
+                }
+                const def = KINDS[k];
+                if (!def) continue;
+                const p = join(BIN, k, entry + def.ext);
+                if (!existsSync(p)) continue;
+                await rm(p, { recursive: true, force: true });
+                for (const ext of def.extra ?? []) await rm(join(BIN, k, entry + ext), { force: true });
+                done++;
+              }
+              return json(res, 200, { ok: true, supprimes: done });
             }
 
             const kind = parts[1];
