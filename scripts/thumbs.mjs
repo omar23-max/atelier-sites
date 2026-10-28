@@ -83,11 +83,13 @@ p { margin: 0 0 18px; font-size: 15px; opacity: .8; }
 </div></body></html>`;
 }
 
-const only = process.argv[2];
-const onlyPage = only?.startsWith("page:") ? only.slice(5) : null;
-const sectionIds = onlyPage ? [] : (await listSectionIds()).filter((id) => (only ? id === only : !/-p\d+$/.test(id)));
+// Plusieurs noms possibles : npm run thumbs -- <id> <id>… (sections, designs, templates).
+const onlyList = process.argv.slice(2);
+const only = onlyList.length ? new Set(onlyList) : null;
+const onlyPage = onlyList.length === 1 && onlyList[0].startsWith("page:") ? onlyList[0].slice(5) : null;
+const sectionIds = onlyPage ? [] : (await listSectionIds()).filter((id) => (only ? only.has(id) : !/-p\d+$/.test(id)));
 const designIds = existsSync(designsDir)
-  ? (await readdir(designsDir)).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)).filter((id) => !onlyPage && (!only || id === only))
+  ? (await readdir(designsDir)).filter((f) => f.endsWith(".md")).map((f) => f.slice(0, -3)).filter((id) => !onlyPage && (!only || only.has(id)))
   : [];
 
 const browser = await chromium.launch({ channel: "msedge", headless: true });
@@ -159,7 +161,7 @@ try {
     ? (await readdir(importsDir, { withFileTypes: true }))
         .filter((d) => d.isDirectory() && existsSync(join(importsDir, d.name, "desktop.png")))
         .map((d) => d.name)
-        .filter((id) => !onlyPage && (!only || id === only))
+        .filter((id) => !onlyPage && (!only || only.has(id)))
     : [];
   if (templateIds.length) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1600 }, deviceScaleFactor: SCALE });
