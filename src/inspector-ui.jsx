@@ -1468,8 +1468,11 @@ function ContextMenu({ x, y, items, onClose }) {
       window.removeEventListener("keydown", esc);
     };
   }, []);
-  const left = Math.min(x, innerWidth - 240);
-  const top = Math.min(y, innerHeight - 40 * items.length - 20);
+  // zoom: sur .atl-ctx dilate aussi les coordonnées inline : on divise par la
+  // compensation de zoom (voir App.jsx) pour que le menu reste sous la souris.
+  const uiZoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--atl-ui-zoom")) || 1;
+  const left = Math.min(x / uiZoom, innerWidth / uiZoom - 240);
+  const top = Math.min(y / uiZoom, innerHeight / uiZoom - 40 * items.length - 20);
   return createPortal(
     <div className="atl-ctx" ref={ref} style={{ left, top }} role="menu">
       {items.map((it, i) =>
@@ -2088,8 +2091,11 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
   }, [sel?.sectionId, sel?.key, sel?.group, node]);
   if (!pos) return null;
   const isText = node && !node.group && !isImageType(node.type);
+  // Le zoom CSS dilate aussi les coordonnées inline : on divise par la
+  // compensation de zoom pour rester ancrée à la section (voir App.jsx).
+  const uiZoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--atl-ui-zoom")) || 1;
   return createPortal(
-    <div ref={barRef} className="atl-float" style={{ top: pos.top, left: pos.left }} onMouseDown={(e) => e.preventDefault()}>
+    <div ref={barRef} className="atl-float" style={{ top: pos.top / uiZoom, left: pos.left / uiZoom }} onMouseDown={(e) => e.preventDefault()}>
       <b>{label}</b>
       {editing ? (
         <>

@@ -138,17 +138,18 @@ const EDITOR_CSS = `
 .atl-hl { outline: 2px solid #2c6ecb !important; outline-offset: 2px; }
 .atl-hl-on { outline: 3px solid #2c6ecb !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(44, 110, 203, 0.18) !important; }
 [data-atl-slot] { cursor: pointer; }
-/* Au survol, un texte ou une image lève légèrement : effet « vivant ».
-   La classe .atl-hover est posée par l'Atelier (géométrie, comme les clics),
-   car des calques invisibles peuvent empêcher le :hover CSS d'atteindre
-   le slot. */
+/* Au survol, un texte ou une image gonfle à peine et s'éclaircit : effet
+   « vivant » discret. La classe .atl-hover est posée par l'Atelier
+   (géométrie, comme les clics), car des calques invisibles peuvent
+   empêcher le :hover CSS d'atteindre le slot. */
 [data-atl-slot],
 [data-atl-group] {
-  transition: transform 0.16s ease;
+  transition: transform 0.18s ease, filter 0.18s ease;
 }
 [data-atl-slot].atl-hover,
 [data-atl-group].atl-hover {
-  transform: translateY(-2px) !important;
+  transform: scale(1.02) !important;
+  filter: brightness(1.07);
 }
 /* Écriture directe dans la page : le texte reçoit la souris et le clavier. */
 html[data-atl-editing] [class*="DraggableComponent-overlay"] { pointer-events: none !important; }
