@@ -183,6 +183,16 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   };
 
   // `first` : place restante dans la section en cours pour la première partie.
+  // L'élément est (ou n'enveloppe qu'à lui seul) une rangée de colonnes côte à côte.
+  const rowInside = (n) => {
+    for (let x = n, i = 0; x && i < 8; i++) {
+      if (sideBySide(x)) return true;
+      const el = aliveKids(x).filter((k) => k.text == null);
+      if (el.length !== 1) return false;
+      x = byId[el[0].n];
+    }
+    return false;
+  };
   function split(n, max = MAX_SLOTS, first = max) {
     if (count(n) <= first || n.text != null) return [full(n)];
     const kids = aliveKids(n);
@@ -231,7 +241,9 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       }
       // Élément trop grand pour la place restante : s'il tient dans une section,
       // il passe à la suivante ; sinon il est coupé et remplit d'abord la place restante.
-      if (c <= max || max - curCount < 6) flush();
+      // Rangée de colonnes (galerie produit + colonne d'achat) : elle démarre une
+      // nouvelle section, pour que ses colonnes aient toute la place dès le début.
+      if (c <= max || max - curCount < 6 || (curCount > 0 && rowInside(byId[k.n]))) flush();
       if (c <= max) {
         cur.push(full(byId[k.n]));
         curCount = c;

@@ -41,7 +41,12 @@ async function dismissOverlays(page) {
       const looksLikePopup = /klaviyo|popup|modal|cookie|consent|newsletter|chat|intercom|gorgias|tidio|privy|justuno|exit-?intent/i.test(
         `${el.id} ${typeof el.className === "string" ? el.className : ""}`,
       );
-      if (cs.position === "fixed" || cs.position === "sticky") {
+      // Un bloc « sticky » reste dans la page (galerie produit qui suit le
+      // défilement, colonne d'achat) : on ne le cache que s'il a un nom de pop-up.
+      // Sinon la galerie de Magic Mind disparaissait de la capture.
+      if (cs.position === "sticky") {
+        if (looksLikePopup) el.style.setProperty("display", "none", "important");
+      } else if (cs.position === "fixed") {
         const covers = r.width * r.height > vw * vh * 0.25;
         if (covers || looksLikePopup || r.top > vh * 0.5) el.style.setProperty("display", "none", "important");
       } else if (looksLikePopup && cs.position === "absolute" && r.width * r.height > vw * vh * 0.25) {

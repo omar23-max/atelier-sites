@@ -165,6 +165,13 @@ export function snapshotDesktop({ props, chromeSelector, textProps: TEXT_PROPS }
   function visit(el, parent) {
     if (SKIP.has(el.tagName)) return;
     if (chromeSelector && el !== document.body && el.matches(chromeSelector)) return;
+    // Image-leurre transparente posée sur tout l'écran (astuce de certains
+    // thèmes pour les tests de vitesse) : invisible, mais découpée dans la
+    // capture elle deviendrait une photo opaque par-dessus la page.
+    if (el.tagName === "IMG" && /^data:image\/svg/.test(el.getAttribute("src") ?? "")) {
+      const s = getComputedStyle(el);
+      if (s.pointerEvents === "none" && (s.position === "absolute" || s.position === "fixed")) return;
+    }
     const id = nodes.length;
     el.setAttribute("data-atl-n", String(id));
     const tag = el.tagName.toLowerCase();
