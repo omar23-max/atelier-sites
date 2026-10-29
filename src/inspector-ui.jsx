@@ -1554,7 +1554,7 @@ function AiDialog({ target, item, onClose, onApply, root }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: texts, prompt: /tradui|translat/i.test(prompt) ? prompt : `${prompt}
-${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" } }),
+${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" }, references: refs }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error);
@@ -1619,9 +1619,9 @@ ${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.
               <input type="checkbox" checked={doImages} disabled={!images.length} onChange={(e) => setDoImages(e.target.checked)} /> Refaire les images ({images.length}) — gpt-image-2, ~30 s et quelques cents par image
             </label>
           </div>
-          {doImages && (
+          {(
             <div className="atl-aidlg__refs" onDragOver={(e) => e.preventDefault()} onDrop={(e) => (e.preventDefault(), addFiles(e.dataTransfer.files))}>
-              <span>Photos de ton produit (références, facultatif) — glisse-les ici</span>
+              <span>Photos de référence (facultatif) — l'IA s'en inspire pour les textes et les images : glisse-les ici ou clique sur +</span>
               <div>
                 {refs.map((r, i) => (
                   <button key={i} type="button" title="Retirer" onClick={() => setRefs(refs.filter((_, j) => j !== i))}>

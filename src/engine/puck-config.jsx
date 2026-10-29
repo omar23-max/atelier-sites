@@ -144,12 +144,13 @@ const EDITOR_CSS = `
    empêcher le :hover CSS d'atteindre le slot. */
 [data-atl-slot],
 [data-atl-group] {
-  transition: transform 0.18s ease, filter 0.18s ease;
+  /* !important : le CSS importé des pages impose transition: revert partout. */
+  transition: transform 0.45s ease-out, filter 0.45s ease-out !important;
 }
 [data-atl-slot].atl-hover,
 [data-atl-group].atl-hover {
-  transform: scale(1.02) !important;
-  filter: brightness(1.07);
+  transform: scale(1.015) !important;
+  filter: brightness(1.04);
 }
 /* Écriture directe dans la page : le texte reçoit la souris et le clavier. */
 html[data-atl-editing] [class*="DraggableComponent-overlay"] { pointer-events: none !important; }

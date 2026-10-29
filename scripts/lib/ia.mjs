@@ -21,7 +21,9 @@ async function openaiError(res) {
 }
 
 // items : [{ id, text }] — le texte peut contenir des <span style> et <br>.
-export async function rewriteTexts({ key, items, prompt, contexte = {} }) {
+// references : data URLs d'images (le produit, la cible…) que le modèle voit
+// pour mieux coller aux textes (ton, vocabulaire, promesses réalistes).
+export async function rewriteTexts({ key, items, prompt, contexte = {}, references = [] }) {
   if (!items?.length) return [];
   const system = [
     "Tu es rédacteur publicitaire (direct response) pour des pages de vente et des advertorials.",
@@ -33,9 +35,18 @@ export async function rewriteTexts({ key, items, prompt, contexte = {} }) {
     "- n'invente pas de chiffres, d'études ni d'avis clients qui ne sont pas dans les textes ou le contexte ;",
     "- un texte très court (bouton, étiquette, date, nom) reste très court ;",
     "- les textes forment une même page : reste cohérent d'un texte à l'autre.",
+    references.length
+      ? "- des photos de référence accompagnent la consigne : le produit, la cible ou l'univers. Décris-les fidèlement (nom du produit, usage, bénéfices visibles) sans inventer de chiffres."
+      : "",
     'Réponds uniquement en JSON : {"items":[{"id":"…","text":"…"}]} avec tous les identifiants reçus.',
-  ].join("\n");
-  const user = JSON.stringify({ consigne: prompt, contexte, textes: items.map(({ id, text }) => ({ id, text })) });
+  ].filter(Boolean).join("\n");
+  const userText = JSON.stringify({ consigne: prompt, contexte, textes: items.map(({ id, text }) => ({ id, text })) });
+  const user = references.length
+    ? [
+        { type: "text", text: userText },
+        ...references.slice(0, 6).map((url) => ({ type: "image_url", image_url: { url } })),
+      ]
+    : userText;
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { ...headers(key), "Content-Type": "application/json" },

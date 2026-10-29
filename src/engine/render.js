@@ -65,10 +65,19 @@ export function normalizeProps(section, props = {}) {
 export const isOriginalPhoto = (value) => typeof value === "string" && value.startsWith("/imports/");
 
 let resolvePhoto = (path) => path;
+// Médias d'origine (photos ET vidéos) montrés ? Les exports (HTML, Mirror,
+// partage sans photos) passent un résolveur qui rend "" : les vidéos d'origine
+// sont alors retirées elles aussi.
+let originalsShown = true;
 // Les scripts Node (miniatures, comparaison) n'ont pas de serveur : ils
 // remplacent le chemin par le contenu du fichier.
 export function setPhotoResolver(fn) {
   resolvePhoto = fn;
+  try {
+    originalsShown = fn("/imports/_essai.png") !== "";
+  } catch {
+    originalsShown = true;
+  }
 }
 
 function withOriginalPhotos(settingsDef, values, originals) {
@@ -98,7 +107,7 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
       const values = withOriginalPhotos(block.settings, item, originals.blocks?.[block.type]?.[i] ?? {});
       // Vidéo d'origine : jouée dans l'aperçu tant qu'aucune vidéo n'est choisie
       // (comme les photos d'origine, jamais écrite dans la page ni exportée).
-      const videoOrigine = merged.wireframe ? null : section.meta.videosOrigine?.[values.slot];
+      const videoOrigine = merged.wireframe || !originalsShown ? null : section.meta.videosOrigine?.[values.slot];
       if (videoOrigine && !values.link) values.link = videoOrigine;
       // Couleurs écrites dans le texte (lien bleu, mot en couleur) : suivent la palette.
       if (roles && typeof values.text === "string") values.text = nearRolesInHtml(values.text, roles);

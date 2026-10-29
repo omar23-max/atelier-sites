@@ -646,7 +646,7 @@ function atelierApi() {
             const b = await readBody(req);
             try {
               if (parts[1] === "textes") {
-                const items = await rewriteTexts({ key: env.OPENAI_API_KEY, items: b.items, prompt: b.prompt, contexte: b.contexte });
+                const items = await rewriteTexts({ key: env.OPENAI_API_KEY, items: b.items, prompt: b.prompt, contexte: b.contexte, references: b.references ?? [] });
                 return json(res, 200, { items });
               }
               if (parts[1] === "image" && NAME.test(b.page ?? "")) {
