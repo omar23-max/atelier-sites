@@ -481,3 +481,28 @@ remplacerait tout le thème : ne pas le faire).
   chaque section exportée reçoit un réglage caché `atl_style`, rempli par
   `buildShopifyTemplate` (le fond de page est porté par la 1re section).
 - Aucune reconstruction des copies nécessaire.
+
+## Panneau de style par écran (`src/style-editor-ui.jsx`)
+
+- Un seul panneau pour texte, bouton/lien, image/vidéo, colonne/carte et
+  section, avec 3 écrans : **Tous**, **Ordinateur** (≥ 750 px), **Mobile**.
+- Rangé dans `props.atl_styles` de la section :
+  `{ cible: { all|d|m: { base|hover|before|after|kids: { prop: valeur } } } }`.
+  Cibles : `section`, `g12` (groupe), `s40`/`t12_0`/`i7` (emplacements),
+  `l12` (lien qui contient le texte, `data-atl-link`). Rendu par
+  `engine/frame.js` (valeurs filtrées : pas de `{ } ; < >`), en `!important`,
+  dans l'aperçu et dans `atl_style` sur Shopify.
+- Réglages : typo complète (police, taille, graisse, interligne, lettres,
+  I/U/S/AA, couleur, fond, alignement, largeur max, puce •✓→★), bouton (fond et
+  texte au survol, pleine largeur, flèche), image (format 1:1/4:3/3:4/16:9,
+  cadrage, point à garder), colonnes (empiler/inverser en mobile, largeurs
+  50/50…, alignement, espace), section (couleur, dégradé, image de fond
+  `atl_fond_image` → `atl_bg` + `file_url` sur Shopify, plein écran,
+  séparateur vague/diagonale/courbe, apparition `atl_animation`, ancre
+  `atl_ancre`), marges extérieures/intérieures 4 côtés, largeur, largeur max,
+  hauteur min, coins, bordure, ombre, opacité, masquer par écran, copier /
+  coller le style, rétablir l'origine.
+- Lien d'un bouton : adresse, `#ancre`, ou « 🛒 Ajouter au panier » (variantes
+  de /api/shopify/products → `/cart/add?id=…&quantity=1`).
+- Pas encore : dupliquer une carte / ajouter une question (demande un
+  changement de copie.mjs), image différente en mobile.

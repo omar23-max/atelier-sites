@@ -682,7 +682,14 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         if (n.text != null) {
           slotLink = `s${n.id}`;
           open += ` href="${"{%- for b in section.blocks -%}{%- if b.settings.slot == '" + slotLink + "' -%}{{ b.settings.link | default: '#' }}{%- endif -%}{%- endfor -%}"}"`;
-        } else open += ` href="#"`;
+        } else {
+          // Lien dont le texte est dans ses enfants : son adresse et son style
+          // ont leur propre emplacement (« l12 »), réglé depuis le texte qu'il contient.
+          slotLink = `l${n.id}`;
+          blocks.push({ slot: slotLink, repere: "Lien", text: "", image: "", link: "" });
+          open += ` data-atl-link="${slotLink}" href="${"{%- for b in section.blocks -%}{%- if b.settings.slot == '" + slotLink + "' -%}{{ b.settings.link | default: '#' }}{%- endif -%}{%- endfor -%}"}"`;
+          slotLink = null;
+        }
       }
       if (n.tag === "body") {
         // Racine de la section : les couleurs des rôles viennent de ses réglages.
@@ -798,12 +805,17 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     if (shapes.length >= 3 && shapes.length === children.length && new Set(shapes).size === 1) return { label: `Grille (${shapes.length} cartes)`, kind: "grille" };
     return { label: GROUP_LABELS[n.tag] ?? "Bloc", kind: "groupe" };
   }
+  // Lien qui contient l'élément sans porter lui-même le texte : son emplacement « l12 ».
+  const linkOf = (n) => {
+    const a = [n, ...ancestors(n)].find((p) => p.tag === "a");
+    return a && a.text == null ? { lien: `l${a.id}` } : {};
+  };
   function treeOf(it, pid, k) {
-    if (it.text != null) return { slot: `t${pid}_${k}`, type: "texte", name: leafName(byId[pid] ?? it, it.text) };
+    if (it.text != null) return { slot: `t${pid}_${k}`, type: "texte", name: leafName(byId[pid] ?? it, it.text), ...(byId[pid] ? linkOf(byId[pid]) : {}) };
     const n = it.n;
     if (n.svg || it.empty) return null;
-    if (n.image && !n.bgImage) return tinyImage(n) ? null : { slot: `i${n.id}`, type: leafType(n), name: leafName(n), size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}` };
-    if (n.text != null) return { slot: `s${n.id}`, type: leafType(n), name: leafName(n, n.text) };
+    if (n.image && !n.bgImage) return tinyImage(n) ? null : { slot: `i${n.id}`, type: leafType(n), name: leafName(n), size: `${Math.round(n.box.w)}×${Math.round(n.box.h)}`, ...linkOf(n) };
+    if (n.text != null) return { slot: `s${n.id}`, type: leafType(n), name: leafName(n, n.text), ...(n.tag === "a" ? {} : linkOf(n)) };
     // k : rang de l'enfant dans son conteneur (sert à changer l'ordre).
     let children = (it.kids ?? [])
       .map((kid, i) => {

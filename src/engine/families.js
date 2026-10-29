@@ -5,6 +5,8 @@
 // Chaque section déclare sa famille dans meta.json ("family": "<id>").
 // Une famille vide reste visible : elle montre ce qu'on peut encore importer.
 export const FAMILIES = [
+  // En tête de toutes les listes : l'outil qu'on ajoute le plus souvent.
+  { id: "espace", label: "Spacer", hint: "Espace vide entre deux sections, hauteur réglable" },
   // ---- Section library (Whitelabeler) ----
   { id: "listicle", wl: true, label: "Reasons to buy", hint: "« 5 raisons… », « Pourquoi les gens… » : une liste numérotée de raisons, chacune avec image" },
   { id: "temoignages", wl: true, label: "Customer reviews", hint: "Avis clients, UGC, notes" },
@@ -42,7 +44,6 @@ export const FAMILIES = [
   { id: "livraison", label: "Shipping & returns", hint: "Délais, expédition rapide" },
   { id: "bonus", label: "Free bonuses", hint: "Cadeaux inclus, ce que contient la commande" },
   { id: "pied-de-page", label: "Footer", hint: "Liens, mentions, paiements" },
-  { id: "espace", label: "Spacer", hint: "Espace vide entre deux sections, hauteur réglable" },
 ];
 
 export const familyById = Object.fromEntries(FAMILIES.map((f) => [f.id, f]));

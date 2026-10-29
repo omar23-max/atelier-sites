@@ -8,7 +8,7 @@ import { brandRoles, designMarkdown, extractPalette } from "./engine/palette.js"
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
-import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSparkles, IconSwap } from "./icons.jsx";
+import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles, IconSwap } from "./icons.jsx";
 
 // Colonne de gauche : un rail d'icônes et l'outil choisi.
 //   Structure · Ajouter une section · Palette · Régénérer · Rebrand · Score
@@ -55,8 +55,8 @@ export function LeftPanel() {
             <Icon />
           </button>
         ))}
-        <button type="button" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
-          ⚙
+        <button type="button" className="atl-rail__settings" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
+          <IconSettings />
         </button>
         {/* En bas : le catalogue et l'historique de la page. */}
         <span className="atl-rail__sep" />

@@ -1,6 +1,6 @@
 import { INFO_SETTING_TYPES } from "./shopify.js";
 import { renderLiquid } from "./liquid.js";
-import { frameCss } from "./frame.js";
+import { frameCss, safeAnchor } from "./frame.js";
 import { nearRolesInHtml } from "../../scripts/lib/proche.mjs";
 
 // Partagé par l'atelier (Puck) et les scripts Node (export HTML, comparaison).
@@ -115,7 +115,8 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
 // Fonds des colonnes et cartes (fonds_groupes) : pour toutes (engine/frame.js).
 function withSectionFrame(section, props, instanceId, html) {
   const cls = `atl-cadre-${String(instanceId).replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const css = frameCss(section, props, `.${cls}`);
-  if (!css) return html;
-  return `<div class="${cls}">${html}<style>${css}</style></div>`;
+  const css = frameCss(section, props, `.${cls}`, { imageUrl: props.atl_fond_image ? resolvePhoto(props.atl_fond_image) : null });
+  const anchor = safeAnchor(props.atl_ancre);
+  if (!css && !anchor) return html;
+  return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}>${html}${css ? `<style>${css}</style>` : ""}</div>`;
 }

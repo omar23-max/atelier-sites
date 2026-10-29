@@ -5,7 +5,7 @@ import { sections } from "./engine/sections.js";
 import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
-import { parseGroupFills, writeGroupFills } from "./engine/frame.js";
+import { StyleEditor } from "./style-editor-ui.jsx";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
@@ -98,6 +98,8 @@ function treeForItem(item) {
         type: n.type,
         // Nom de l'élément (Titre H2, Paragraphe, Lien, Bouton (CTA), Question…), relevé par copie.mjs.
         name: n.name ?? TYPE[n.type]?.label,
+        // Lien qui contient cet élément (copies récentes) : son adresse et son style.
+        lien: n.lien ?? null,
         text: b.text,
         image: b.image,
         size: n.size,
@@ -733,6 +735,7 @@ export function Inspector({ children }) {
             onBack={close}
             onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode.children.map((l) => l.key), label: "Texte" })}
             onChange={(values) => updateValues(sel.sectionId, values)}
+            onChangeProps={(props) => updateProps(sel.sectionId, props)}
           />
         )}
         {sel?.group && selNode && !selNode.run && (
@@ -751,12 +754,18 @@ export function Inspector({ children }) {
                 ↓ Descendre
               </button>
             </div>
-            <GroupFill
-              item={content[indexOf(sel.sectionId)]}
-              node={selNode}
-              sectionId={sel.sectionId}
-              onChangeProps={(props) => updateProps(sel.sectionId, props)}
-            />
+            {selNode.gid ? (
+              <StyleEditor
+                key={selNode.gid}
+                kind="groupe"
+                targets={[selNode.gid]}
+                props={content[indexOf(sel.sectionId)].props}
+                onChangeProps={(props) => updateProps(sel.sectionId, props)}
+                el={domOf(sel.sectionId, selNode)}
+              />
+            ) : (
+              <p className="atl-insp__hint">Cette colonne n'a pas de conteneur propre : règle ses éléments un par un, ou la section entière.</p>
+            )}
             <GroupContents
               node={selNode}
               onChange={(values) => updateValues(sel.sectionId, values)}
@@ -1064,6 +1073,14 @@ function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild }) {
           ))}
         </div>
       </div>
+      <StyleEditor
+        key={item.props.id}
+        kind="section"
+        targets={["section"]}
+        props={props}
+        onChangeProps={onChange}
+        el={canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(item.props.id)}"] [class^="atl-"]`)}
+      />
       {hasSettings ? (
         <FieldList settings={section.schema.settings} meta={section.meta} values={props} onChange={onChange} />
       ) : (
@@ -1179,6 +1196,11 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
     if (!leaf || !block) return <PanelHead onBack={onBack} title="Élément introuvable" onAi={onAi} />;
     const t = TYPE[leaf.type] ?? TYPE.texte;
     const set = (patch) => onChange({ [elementKey]: patch });
+    // Lien ou bouton : son propre emplacement de lien si la copie en a un (« l12 »),
+    // sinon l'élément lui-même quand c'est le lien.
+    const linkSlot = leaf.lien ?? (leaf.type === "bouton" || leaf.type === "lien" ? elementKey : null);
+    const linkBlock = linkSlot ? (props.blocks_element ?? []).find((b) => b.slot === linkSlot) : null;
+    const isButton = Boolean(leaf.lien) || leaf.type === "bouton" || leaf.type === "lien" || /Lien|Bouton|CTA/.test(leaf.name ?? "");
     const blockDefs = section.schema.blocks[0].settings;
     const fields = fieldsFor(blockDefs, { meta: section.meta, blockType: "element" });
     const F = (id, patchKey = id) => {
@@ -1204,11 +1226,20 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
               <span className="atl-rte__label">{t.label}</span>
               <RichText value={block.text} onChange={(v) => set({ text: v })} />
             </div>
-            {(leaf.type === "bouton" || leaf.type === "lien") && <LinkField block={block} onChange={(link) => onChangeLink(onChangeProps, props, elementKey, link)} />}
+            {linkBlock && <LinkField block={linkBlock} onChange={(link) => onChangeLink(onChangeProps, props, linkBlock.slot, link)} />}
             <p className="atl-insp__hint">Double-clic sur le texte dans la page pour l'écrire directement.</p>
           </>
         )}
-        <StylePanel sectionId={item.props.id} leaf={leaf} block={block} onChange={(style) => onChange({ [elementKey]: { style } })} />
+        <StyleEditor
+          key={elementKey}
+          kind={isImageType(leaf.type) ? "image" : isButton ? "bouton" : "texte"}
+          targets={[!isImageType(leaf.type) && leaf.lien ? leaf.lien : elementKey]}
+          props={props}
+          onChangeProps={onChangeProps}
+          el={domOf(item.props.id, leaf)}
+          legacy={block.style}
+          onResetLegacy={() => onChange({ [elementKey]: { style: "" } })}
+        />
         <p className="atl-insp__hint">Clic droit sur un élément (ici ou dans l'aperçu) pour le retravailler avec l'IA.</p>
       </div>
     );
@@ -1242,7 +1273,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
 
 // Texte de plusieurs paragraphes : une seule zone (une ligne vide sépare les
 // paragraphes) ; le style choisi s'applique à tous.
-function TextRunSettings({ item, node, onBack, onAi, onChange }) {
+function TextRunSettings({ item, node, onBack, onAi, onChange, onChangeProps }) {
   if (!item) return null;
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
@@ -1257,7 +1288,18 @@ function TextRunSettings({ item, node, onBack, onAi, onChange }) {
         <RichText value={runHtml(leaves)} onChange={(v) => onChange(splitRun(v, leaves))} />
         <p className="atl-insp__hint">Une ligne vide sépare deux paragraphes. Double-clic dans la page pour écrire directement.</p>
       </div>
-      {first && <StylePanel sectionId={item.props.id} leaf={leaves[0]} block={first} onChange={(style) => onChange(Object.fromEntries(leaves.map((l) => [l.key, { style }])))} />}
+      {first && (
+        <StyleEditor
+          key={node.id}
+          kind="texte"
+          targets={leaves.map((l) => l.key)}
+          props={props}
+          onChangeProps={onChangeProps}
+          el={domOf(item.props.id, leaves[0])}
+          legacy={first.style}
+          onResetLegacy={() => onChange(Object.fromEntries(leaves.map((l) => [l.key, { style: "" }])))}
+        />
+      )}
     </div>
   );
 }
@@ -1266,12 +1308,34 @@ function onChangeLink(onChangeProps, props, slot, link) {
   onChangeProps({ ...props, blocks_element: (props.blocks_element ?? []).map((b) => (b.slot === slot ? { ...b, link } : b)) });
 }
 
+// Lien d'un bouton : adresse libre, ancre d'une section (#offre), ou ajout
+// direct au panier d'une variante de la boutique (/cart/add?id=…).
 function LinkField({ block, onChange }) {
+  const [products, setProducts] = useState(null);
+  const load = () =>
+    products ??
+    fetch("/api/shopify/products")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((c) => setProducts(c.produits ?? []))
+      .catch(() => setProducts([]));
+  const variants = (products ?? []).flatMap((p) => (p.variants ?? []).map((v) => ({ id: String(v.id).split("/").pop(), label: p.variants.length > 1 ? `${p.title} — ${v.title}` : p.title })));
   return (
-    <label className="atl-insp__field atl-insp__link">
-      <span>Lien</span>
-      <input value={block.link ?? ""} onChange={(e) => onChange(e.target.value)} placeholder="https://… ou /products/…" />
-    </label>
+    <div className="atl-insp__field atl-insp__link">
+      <label>
+        <span>Lien</span>
+        <input value={block.link ?? ""} onChange={(e) => onChange(e.target.value)} placeholder="https://…, /products/… ou #ancre" />
+      </label>
+      <select value="" onFocus={load} onMouseDown={load} onChange={(e) => e.target.value && onChange(`/cart/add?id=${e.target.value}&quantity=1`)}>
+        <option value="">🛒 Ajouter au panier…</option>
+        {products === null && <option disabled>Chargement des produits…</option>}
+        {products?.length === 0 && <option disabled>Aucun produit (synchronise la boutique)</option>}
+        {variants.map((v) => (
+          <option key={v.id} value={v.id}>
+            {v.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
@@ -1561,163 +1625,6 @@ function Seg({ value, options, onChange }) {
   );
 }
 
-// Fond d'une colonne, d'une carte ou d'un bloc de la copie (engine/frame.js :
-// réglage fonds_groupes de la section, appliqué aussi sur Shopify).
-function GroupFill({ item, node, sectionId, onChangeProps }) {
-  if (!node.gid) return <p className="atl-insp__hint">Cette colonne n'a pas de conteneur propre : colore ses éléments un par un, ou la section entière.</p>;
-  const fills = parseGroupFills(item.props.fonds_groupes);
-  const value = fills[node.gid] ?? "";
-  const el = domOf(sectionId, node);
-  const cs = el ? el.ownerDocument.defaultView.getComputedStyle(el) : null;
-  const set = (c) => onChangeProps({ ...item.props, fonds_groupes: writeGroupFills({ ...fills, [node.gid]: c }) });
-  return (
-    <div className="atl-style">
-      <p className="atl-style__title">Fond</p>
-      <div className="atl-style__row">
-        <span>Couleur</span>
-        <span className="atl-style__color">
-          <input type="color" value={value || toHex(cs?.backgroundColor)} onChange={(e) => set(e.target.value)} />
-          <code>{value || "d'origine"}</code>
-          {value && (
-            <button type="button" onClick={() => set("")} title="Couleur d'origine">
-              ↺
-            </button>
-          )}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function StylePanel({ sectionId, leaf, block, onChange }) {
-  const d = parseStyle(block.style);
-  const el = domOf(sectionId, leaf);
-  const cs = el ? el.ownerDocument.defaultView.getComputedStyle(el) : null;
-  const set = (patch) => {
-    const next = { ...d };
-    for (const [k, v] of Object.entries(patch)) {
-      if (v === "" || v == null) delete next[k];
-      else next[k] = v;
-    }
-    onChange(writeStyle(next));
-  };
-  const px = (k) => (d[k] ? parseFloat(d[k]) : "");
-  const hidden = /none/.test(d.display ?? "");
-  const image = isImageType(leaf.type);
-  return (
-    <div className="atl-style">
-      {!image && (
-        <>
-          <p className="atl-style__title">Typographie</p>
-          <label className="atl-style__row">
-            <span>Police</span>
-            <select value={d["font-family"] ?? ""} onChange={(e) => set({ "font-family": e.target.value })}>
-              {FONT_CHOICES.map((f) => (
-                <option key={f.value} value={f.value}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="atl-style__row">
-            <span>Taille</span>
-            <span className="atl-style__px">
-              <input type="number" min="6" max="160" value={px("font-size")} placeholder={cs ? Math.round(parseFloat(cs.fontSize)) : ""} onChange={(e) => set({ "font-size": e.target.value ? `${e.target.value}px` : "" })} />
-              px
-            </span>
-          </label>
-          <div className="atl-style__row">
-            <span>Graisse</span>
-            <Seg
-              value={d["font-weight"] ?? ""}
-              options={["400", "500", "600", "700"].map((w) => ({ value: w, label: w }))}
-              onChange={(v) => set({ "font-weight": v })}
-            />
-          </div>
-          <label className="atl-style__row">
-            <span>Interligne</span>
-            <input
-              type="number"
-              step="0.05"
-              min="0.8"
-              max="3"
-              value={d["line-height"] ?? ""}
-              placeholder={cs && cs.lineHeight !== "normal" ? (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)).toFixed(2) : "auto"}
-              onChange={(e) => set({ "line-height": e.target.value })}
-            />
-          </label>
-          <p className="atl-style__title">Couleur</p>
-          <div className="atl-style__row">
-            <span>Texte</span>
-            <span className="atl-style__color">
-              <input type="color" value={d.color && d.color.startsWith("#") ? d.color : toHex(cs?.color)} onChange={(e) => set({ color: e.target.value })} />
-              <code>{d.color ?? "d'origine"}</code>
-              {d.color && (
-                <button type="button" onClick={() => set({ color: "" })} title="Couleur d'origine">
-                  ↺
-                </button>
-              )}
-            </span>
-          </div>
-          <div className="atl-style__row">
-            <span>Fond</span>
-            <span className="atl-style__color">
-              <input type="color" value={d["background-color"] ?? toHex(cs?.backgroundColor)} onChange={(e) => set({ "background-color": e.target.value })} />
-              <code>{d["background-color"] ?? "d'origine"}</code>
-              {d["background-color"] && (
-                <button type="button" onClick={() => set({ "background-color": "" })} title="Fond d'origine">
-                  ↺
-                </button>
-              )}
-            </span>
-          </div>
-          <p className="atl-style__title">Alignement</p>
-          <Seg
-            value={d["text-align"] ?? ""}
-            options={[
-              { value: "left", label: "⯇", title: "À gauche" },
-              { value: "center", label: "≡", title: "Centré" },
-              { value: "right", label: "⯈", title: "À droite" },
-            ]}
-            onChange={(v) => set({ "text-align": v })}
-          />
-        </>
-      )}
-      {image && (
-        <>
-          <p className="atl-style__title">Image</p>
-          <label className="atl-style__row">
-            <span>Coins arrondis</span>
-            <span className="atl-style__px">
-              <input type="number" min="0" max="200" value={px("border-radius")} placeholder={cs ? Math.round(parseFloat(cs.borderTopLeftRadius)) : ""} onChange={(e) => set({ "border-radius": e.target.value ? `${e.target.value}px` : "" })} />
-              px
-            </span>
-          </label>
-          <div className="atl-style__row">
-            <span>Cadrage</span>
-            <Seg
-              value={d["object-fit"] ?? ""}
-              options={[
-                { value: "cover", label: "Remplir" },
-                { value: "contain", label: "Entière" },
-              ]}
-              onChange={(v) => set({ "object-fit": v })}
-            />
-          </div>
-        </>
-      )}
-      <label className="atl-style__toggle">
-        <input type="checkbox" checked={hidden} onChange={(e) => set({ display: e.target.checked ? "none" : "" })} /> Masquer cet élément
-      </label>
-      {block.style && (
-        <button type="button" className="atl-style__reset" onClick={() => onChange("")}>
-          Rétablir le style d'origine
-        </button>
-      )}
-    </div>
-  );
-}
-
 // ---- Réglages d'une partie copiée : Design · Layout · Couleurs, et l'IA ----
 function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onValues, onOpen, onMoveNode }) {
   const [tab, setTab] = useState("design");
@@ -1795,6 +1702,7 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onV
           </div>
         </div>
       )}
+      {tab === "design" && <StyleEditor key={item.props.id} kind="section" targets={["section"]} props={props} onChangeProps={onChange} el={root} />}
       {tab === "layout" && (
         <div className="atl-style">
           <p className="atl-style__title">Largeur du contenu</p>

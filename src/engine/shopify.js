@@ -1,6 +1,6 @@
 // Règles communes à l'atelier (navigateur) et au script d'export (Node).
 // Aucune dépendance à Vite ici.
-import { frameCss } from "./frame.js";
+import { frameCss, safeAnchor } from "./frame.js";
 
 export const SUPPORTED_SETTING_TYPES = [
   "text",
@@ -132,8 +132,12 @@ export function buildShopifyTemplate(page, sectionsById) {
     const key = `atl_${String(i).padStart(2, "0")}_${item.type.replace(/-/g, "_")}`.slice(0, 50);
     const entry = { type: `atl-${item.type}`, settings: settingsDiff(section.schema.settings, item.props) };
     // Fond de la page : porté par la 1re section.
-    const frame = frameCss(section, item.props ?? {}, FRAME_SCOPE, { pageBackground: i === 0 ? page.root?.props?.fond_page : null });
+    const props = item.props ?? {};
+    const frame = frameCss(section, props, FRAME_SCOPE, { pageBackground: i === 0 ? page.root?.props?.fond_page : null, imageUrl: "@@IMG@@" });
     if (frame) entry.settings[FRAME_SETTING] = frame;
+    // Image de fond : seulement une image créée dans l'atelier (envoyée dans Fichiers).
+    if (isAtelierImage(props.atl_fond_image)) entry.settings.atl_bg = shopifyImageName(props.atl_fond_image);
+    if (safeAnchor(props.atl_ancre)) entry.settings.atl_ancre = safeAnchor(props.atl_ancre);
 
     const blockTypes = section.schema.blocks ?? [];
     if (blockTypes.length > 0) {
@@ -163,7 +167,12 @@ export function buildShopifySectionFile({ id, schema, meta, template, css }) {
   const source = meta?.source?.url ? ` — structure inspirée de ${meta.source.url}` : "";
   const withFrame = {
     ...schema,
-    settings: [...(schema.settings ?? []), { type: "textarea", id: FRAME_SETTING, label: "Style ajouté par l'atelier (ne pas modifier)" }],
+    settings: [
+      ...(schema.settings ?? []),
+      { type: "textarea", id: FRAME_SETTING, label: "Style ajouté par l'atelier (ne pas modifier)" },
+      { type: "text", id: "atl_bg", label: "Image de fond (fichier de Contenu → Fichiers)" },
+      { type: "text", id: "atl_ancre", label: "Ancre (lien #nom vers cette section)" },
+    ],
   };
   return [
     `{%- comment -%}`,
@@ -173,7 +182,8 @@ export function buildShopifySectionFile({ id, schema, meta, template, css }) {
     `<style>`,
     css.trim(),
     `</style>`,
-    `{%- if section.settings.${FRAME_SETTING} != blank -%}{%- capture atl_scope -%}#shopify-section-{{ section.id }}{%- endcapture -%}<style>{{ section.settings.${FRAME_SETTING} | replace: '${FRAME_SCOPE}', atl_scope }}</style>{%- endif -%}`,
+    `{%- if section.settings.${FRAME_SETTING} != blank -%}{%- capture atl_scope -%}#shopify-section-{{ section.id }}{%- endcapture -%}{%- capture atl_img -%}{%- if section.settings.atl_bg != blank -%}{{ section.settings.atl_bg | file_url }}{%- endif -%}{%- endcapture -%}<style>{{ section.settings.${FRAME_SETTING} | replace: '${FRAME_SCOPE}', atl_scope | replace: '@@IMG@@', atl_img }}</style>{%- endif -%}`,
+    `{%- if section.settings.atl_ancre != blank -%}<span id="{{ section.settings.atl_ancre | handleize }}" style="display:block;position:relative;top:-80px;height:0"></span>{%- endif -%}`,
     template.trim(),
     ``,
     `{% schema %}`,
