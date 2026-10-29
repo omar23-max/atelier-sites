@@ -12,8 +12,8 @@ Page produit premium, abonnement, preuves cliniques et ingrédients détaillés.
 ## Structure relevée
 
 100 éléments dans l'ordre : 5 grands titres, 21 intertitres,
-70 paragraphes, 1 listes, 98 images, 3 boutons.
-Copie entière dans la section « Advertorial — article complet » (9 sections).
+70 paragraphes, 1 listes, 94 images, 3 boutons.
+Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie
 
