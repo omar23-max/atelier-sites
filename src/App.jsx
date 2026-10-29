@@ -12,7 +12,7 @@ import { BoardButton } from "./board-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
 import { DesignSelect, NewDesignButton } from "./design-ui.jsx";
 import { ProposalsBanner } from "./proposals-ui.jsx";
-import { PreviewBarLanguage, TopbarTools, UndoRedo } from "./topbar-ui.jsx";
+import { PreviewBarLanguage, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { ShopifyButton } from "./shopify-ui.jsx";
@@ -170,6 +170,8 @@ export default function App() {
                 <FullscreenButton />
                 {/* Annuler / Rétablir : dans la barre de l'aperçu. */}
                 <UndoRedo />
+                {/* Barre de l'aperçu → pilule flottante en bas (plein écran). */}
+                <FloatingViewportBar />
                 {/* Une seule barre en haut : ces outils s'affichent à côté de Projet / Page / Design. */}
                 {/* EN / FR : dans la barre de l'aperçu, avant les écrans (ceux de Puck). */}
                 <PreviewBarLanguage>

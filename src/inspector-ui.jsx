@@ -6,7 +6,7 @@ import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
 import { StyleEditor } from "./style-editor-ui.jsx";
-import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
+import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
 
@@ -358,8 +358,6 @@ export function Inspector({ children }) {
   const [openGroups, setOpenGroups] = useState({});
   const [menu, setMenu] = useState(null);
   const [ai, setAi] = useState(null);
-  // Action IA rapide (clic droit) : petit indicateur flottant pendant / après.
-  const [quick, setQuick] = useState(null);
   const treeRef = useRef(null);
   const editRef = useRef(null);
   const [editing, setEditing] = useState(false);
@@ -559,38 +557,6 @@ export function Inspector({ children }) {
     if (other) moveNode(sectionId, sibs[i], other, dir > 0);
   }
 
-  // Action IA en un clic depuis le menu contextuel : même pipeline que la
-  // fenêtre (gpt-5.4-mini via /api/ia/textes), avec une consigne prête à l'emploi.
-  async function quickAi(sectionId, keys, prompt, label) {
-    const item = content[indexOf(sectionId)];
-    if (!item) return;
-    const { texts } = aiTargets(item, keys);
-    if (!texts.length) {
-      setQuick({ error: "Pas de texte à retravailler ici." });
-      return setTimeout(() => setQuick(null), 2600);
-    }
-    setQuick({ label });
-    try {
-      const root = getPuck().appState.data.root?.props ?? {};
-      const res = await fetch("/api/ia/textes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: texts,
-          prompt: `${prompt}\n${consigneLangue(root)}`,
-          contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" },
-        }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error);
-      updateValues(sectionId, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
-      setQuick({ done: label });
-    } catch (e) {
-      setQuick({ error: e.message });
-    }
-    setTimeout(() => setQuick(null), 2600);
-  }
-
   const menuItems = (m) => {
     const index = indexOf(m.sectionId);
     const item = content[index];
@@ -599,13 +565,6 @@ export function Inspector({ children }) {
     const node = nodeOf(m);
     const keys = node ? (node.group ? leavesOf(node.children).map((l) => l.key) : [node.key]) : null;
     const items = [{ label: "✨ Retravailler avec l'IA…", action: () => setAi({ sectionId: m.sectionId, keys, label: node?.group ? node.label : null }) }];
-    // Actions rapides : appliquées directement, sans fenêtre.
-    if (aiTargets(item, keys).texts.length) {
-      items.push(
-        { sep: true },
-        ...QUICK_ACTIONS.map((q) => ({ label: `✨ ${q.label}`, action: () => quickAi(m.sectionId, keys, q.prompt, q.label) })),
-      );
-    }
     if (node) {
       const sibs = siblingsOf(m.sectionId, node);
       const i = sibs.findIndex((n) => (node.key ? n.key === node.key : n.id === node.id));
@@ -832,6 +791,7 @@ export function Inspector({ children }) {
           }}
           onUp={() => (selNode ? step(sel.sectionId, selNode, -1) : moveSection(sel.sectionId, content[indexOf(sel.sectionId) - 1]?.props.id, false))}
           onDown={() => (selNode ? step(sel.sectionId, selNode, 1) : moveSection(sel.sectionId, content[indexOf(sel.sectionId) + 1]?.props.id, true))}
+          onAddSection={() => window.dispatchEvent(new CustomEvent("atl-add-section", { detail: { index: indexOf(sel.sectionId) + 1 } }))}
           onEdit={() => startEdit(sel)}
           onMoveSection={moveSection}
           onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null })}
@@ -844,15 +804,75 @@ export function Inspector({ children }) {
         />
       )}
       {menu && <ContextMenu x={menu.x} y={menu.y} items={menuItems(menu)} onClose={() => setMenu(null)} />}
-      {quick && (
-        <div className="atl-quick" role="status">
-          {quick.error ? `⚠ ${quick.error}` : quick.done ? `✓ ${quick.done} — fait. Ctrl+Z pour annuler.` : `✨ ${quick.label}…`}
-        </div>
-      )}
       {ai && content[indexOf(ai.sectionId)] && (
         <AiDialog target={ai} item={content[indexOf(ai.sectionId)]} onClose={() => setAi(null)} onApply={(values) => updateValues(ai.sectionId, values)} root={getPuck().appState.data.root?.props ?? {}} />
       )}
+      {/* « + Ajouter une section » entre les sections de l'aperçu. */}
+      {isMain() && <CanvasInsertChips content={content} />}
+      {/* Modale d'ajout, ouverte par la barre flottante ou un espace entre sections. */}
+      {isMain() && <AddSectionButton variant="hidden" />}
     </div>
+  );
+}
+
+// ---- « + Ajouter une section » entre les sections (comme les éditeurs visuels) ----
+// Un sillon discret sur chaque joint entre sections : au survol, une pastille
+// « + » ; un clic ouvre la modale d'ajout, qui insère à cet emplacement exact.
+function CanvasInsertChips({ content }) {
+  const [chips, setChips] = useState([]);
+  useEffect(() => {
+    let raf;
+    const tick = () => {
+      const frame = canvasFrame();
+      const next = [];
+      const doc = frame?.contentDocument;
+      if (frame && doc) {
+        const fr = frame.getBoundingClientRect();
+        const scale = fr.width / frame.offsetWidth || 1;
+        // Joint au-dessus de chaque section (sauf la première) + un en fin de page.
+        content.forEach((item, i) => {
+          if (i === 0) return;
+          const el = doc.querySelector(`[data-atl-id="${CSS.escape(item.props.id)}"]`);
+          if (!el) return;
+          const r = el.getBoundingClientRect();
+          const top = fr.top + r.top * scale;
+          if (top > fr.top + 40 && top < fr.bottom - 8) {
+            next.push({ key: `j${item.props.id}`, index: i, top: Math.round(top), left: Math.round(fr.left + r.left * scale), width: Math.max(120, Math.round(r.width * scale)) });
+          }
+        });
+        const last = content[content.length - 1];
+        const lastEl = last && doc.querySelector(`[data-atl-id="${CSS.escape(last.props.id)}"]`);
+        if (lastEl) {
+          const r = lastEl.getBoundingClientRect();
+          const top = fr.top + r.bottom * scale;
+          if (top > fr.top + 40 && top < fr.bottom - 8) {
+            next.push({ key: "j-fin", index: content.length, top: Math.round(top), left: Math.round(fr.left + r.left * scale), width: Math.max(120, Math.round(r.width * scale)) });
+          }
+        }
+      }
+      setChips((c) => (JSON.stringify(c) === JSON.stringify(next) ? c : next));
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [content]);
+  return createPortal(
+    <>
+      {chips.map((c) => (
+        <div
+          key={c.key}
+          className="atl-chip"
+          style={{ top: c.top, left: c.left, width: c.width }}
+          onClick={() => window.dispatchEvent(new CustomEvent("atl-add-section", { detail: { index: c.index } }))}
+        >
+          <span className="atl-chip__line" />
+          <span className="atl-chip__btn" title="Ajouter une section ici">
+            ＋<em>Ajouter une section</em>
+          </span>
+        </div>
+      ))}
+    </>,
+    document.body,
   );
 }
 
@@ -1418,13 +1438,6 @@ function ContextMenu({ x, y, items, onClose }) {
 
 // ---- Retravailler avec l'IA ----
 const QUICK = ["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Traduire en français", "Traduire en anglais"];
-// Actions rapides du clic droit : consigne prête à l'emploi, appliquée sans fenêtre.
-const QUICK_ACTIONS = [
-  { label: "Raccourcir", prompt: "Rends ce texte nettement plus court, sans perdre son sens ni son argument principal." },
-  { label: "Étendre", prompt: "Développe ce texte avec plus de détails et de bénéfices concrets, sans répéter ce qui est dit." },
-  { label: "Plus percutant", prompt: "Rends ce texte plus percutant, direct et concret, sans exagération ni promesse invérifiable." },
-  { label: "Plus émotionnel", prompt: "Rends ce texte plus émotionnel et empathique, en gardant la même longueur approximative." },
-];
 const REFS_KEY = "atl-ia-references";
 
 function AiDialog({ target, item, onClose, onApply, root }) {
@@ -1975,8 +1988,9 @@ function startSectionDrag(e, sectionId, onMoveSection) {
   window.addEventListener("mouseup", onUp);
 }
 
-function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection }) {
+function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection }) {
   const [pos, setPos] = useState(null);
+  const barRef = useRef(null);
   useEffect(() => {
     let raf;
     const tick = () => {
@@ -1986,9 +2000,19 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
         const fr = frame.getBoundingClientRect();
         const scale = fr.width / frame.offsetWidth || 1;
         const r = el.getBoundingClientRect();
+        const bw = (barRef.current?.offsetWidth ?? 320) + 16;
         const top = fr.top + r.top * scale;
         const visible = top > fr.top - 10 && top < fr.bottom;
-        const next = visible ? { top: Math.round(Math.max(fr.top + 4, top - 34)), left: Math.round(Math.min(fr.right - 300, fr.left + (r.left + r.width) * scale - 290)) } : null;
+        // Ancrée en haut à droite de la section, toujours dans le canvas.
+        // Panneau de droite visible en édition : la barre ne doit pas passer dessous.
+        const sb = document.querySelector('[class*="Sidebar--right"]');
+        const sbLeft = sb && document.documentElement.hasAttribute("data-atl-edit") ? sb.getBoundingClientRect().left : fr.right;
+        const next = visible
+          ? {
+              top: Math.round(Math.min(fr.bottom - 48, Math.max(fr.top + 8, top - 44))),
+              left: Math.round(Math.min(Math.min(fr.right, sbLeft) - bw, Math.max(fr.left + 8, fr.left + (r.left + r.width) * scale - bw))),
+            }
+          : null;
         // Seulement si la barre a bougé : sinon on redessinerait à chaque image.
         setPos((p) => (p?.top === next?.top && p?.left === next?.left ? p : next));
       } else setPos((p) => (p ? null : p));
@@ -2000,7 +2024,7 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
   if (!pos) return null;
   const isText = node && !node.group && !isImageType(node.type);
   return createPortal(
-    <div className="atl-float" style={{ top: pos.top, left: Math.max(8, pos.left) }} onMouseDown={(e) => e.preventDefault()}>
+    <div ref={barRef} className="atl-float" style={{ top: pos.top, left: pos.left }} onMouseDown={(e) => e.preventDefault()}>
       <b>{label}</b>
       {editing ? (
         <>
@@ -2022,6 +2046,9 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
         </>
       ) : (
         <>
+          <button type="button" className="atl-float__add" onClick={onAddSection} title="Ajouter une section après celle-ci">
+            ＋ Section
+          </button>
           {node && (
             <button type="button" onClick={onParent} title="Sélectionner le parent">
               ⬆

@@ -4568,3 +4568,330 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 [class*="PuckHeader-inner"] {
   min-height: 56px;
 }
+
+/* ==========================================================================
+   REFONTE PLEIN ÉCRAN (2026) — le site miroré occupe tout l'écran.
+   Barre du haut, rail de gauche et panneau de droite disparaissent : une
+   petite languette sur chaque bord les fait glisser au survol (comme le
+   site de démo Huel). Barre d'aperçu = pilule flottante en bas. « + Ajouter
+   une section » entre chaque section. Sans cadres pointillés sur les images.
+   ========================================================================== */
+
+/* ---- Grille Puck : tout l'espace pour le canvas (les panneaux flottent) ---- */
+[class*="PuckLayout-inner"],
+html[data-atl-edit] [class*="PuckLayout-inner"] {
+  grid-template-columns: 0 0 0 minmax(0, 1fr) !important;
+}
+
+/* ---- Barre du haut : dissimulée, languette ▾ en haut au centre ---- */
+.atl-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 980;
+  transform: translateY(-100%);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: var(--atl-shadow-md);
+}
+.atl-topbar::after {
+  content: "▾";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 76px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--atl-bg);
+  border: 1px solid var(--atl-line);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  color: var(--atl-ink-3);
+  font-size: 11px;
+  box-shadow: var(--atl-shadow-md);
+  cursor: pointer;
+}
+.atl-topbar:hover {
+  transform: translateY(0);
+}
+
+/* Bandeau des propositions : glisse avec la barre du haut. */
+.atl-proposals {
+  position: fixed;
+  top: 52px;
+  left: 0;
+  right: 0;
+  z-index: 975;
+  transform: translateY(calc(-100% - 52px));
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: var(--atl-shadow-md);
+}
+.atl-topbar:hover ~ .atl-proposals,
+.atl-proposals:hover {
+  transform: translateY(0);
+}
+
+/* ---- Rail de gauche : dissimulé, languette ▸ au milieu de la bordure ---- */
+.atl-left {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 970;
+  width: max-content;
+  max-width: min(440px, 92vw);
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: var(--atl-bg);
+  border-right: 1px solid var(--atl-line);
+  box-shadow: var(--atl-shadow-lg);
+}
+.atl-left:hover {
+  transform: translateX(0);
+}
+.atl-left::after {
+  content: "▸";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--atl-bg);
+  border: 1px solid var(--atl-line);
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+  color: var(--atl-ink-3);
+  font-size: 11px;
+  box-shadow: var(--atl-shadow-md);
+  cursor: pointer;
+}
+.atl-left .atl-rail {
+  height: 100vh;
+  border-right: 1px solid var(--atl-line);
+}
+
+/* ---- Panneau de droite : dissimulé, languette ◂ au milieu de la bordure ---- */
+/* (toujours visible tant qu'un élément est sélectionné : data-atl-edit) */
+[class*="Sidebar--right"] {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  width: 280px !important;
+  z-index: 960;
+  visibility: visible !important;
+  overflow: hidden !important;
+  transform: translateX(calc(100% - 20px));
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: var(--atl-bg);
+  border-left: 1px solid var(--atl-line);
+  border-right: 0 !important;
+  box-shadow: none;
+}
+html:not([data-atl-edit]) [class*="Sidebar--right"] {
+  visibility: visible !important;
+  overflow: hidden !important;
+}
+[class*="Sidebar--right"]:hover,
+html[data-atl-edit] [class*="Sidebar--right"] {
+  transform: translateX(0);
+  box-shadow: var(--atl-shadow-lg);
+}
+[class*="Sidebar--right"]::after {
+  content: "◂";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--atl-ink-3);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+/* ---- Barre de l'aperçu (écrans, zoom, EN/FR, annuler) : pilule en bas ---- */
+.atl-vpbar {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 14px !important;
+  left: 50% !important;
+  right: auto !important;
+  width: auto !important;
+  max-width: calc(100vw - 32px);
+  z-index: 940;
+  transform: translate(-50%, calc(100% + 14px));
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid var(--atl-line);
+  border-radius: 999px;
+  box-shadow: var(--atl-shadow-lg);
+  padding: 6px 10px;
+}
+/* Zone sensible : un survol du bas de l'écran fait remonter la pilule. */
+.atl-vpbar::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: -40px;
+  right: -40px;
+  height: 30px;
+}
+.atl-vpbar:hover {
+  transform: translate(-50%, 0);
+}
+/* La piste qu'occupait la barre au-dessus du canvas disparaît. */
+[class*="PuckCanvas-controls"] {
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* ---- « + Ajouter une section » entre les sections ---- */
+.atl-chip {
+  position: fixed;
+  z-index: 800;
+  height: 22px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.atl-chip::after {
+  content: "+";
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--atl-bg);
+  border: 1px solid var(--atl-line-strong);
+  color: var(--atl-ink-3);
+  font: 600 14px/19px "Inter", system-ui, sans-serif;
+  text-align: center;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+  box-shadow: var(--atl-shadow-sm);
+}
+.atl-chip:hover::after {
+  opacity: 0;
+}
+.atl-chip__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px dashed var(--atl-accent-border);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.atl-chip:hover .atl-chip__line {
+  opacity: 1;
+}
+.atl-chip__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--atl-bg);
+  border: 1px solid var(--atl-line);
+  box-shadow: var(--atl-shadow-md);
+  color: var(--atl-accent);
+  font: 600 12px "Inter", system-ui, sans-serif;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+.atl-chip:hover .atl-chip__btn {
+  opacity: 1;
+  transform: none;
+}
+.atl-chip__btn em {
+  font-style: normal;
+  color: var(--atl-ink-2);
+}
+
+/* ---- Barre flottante de la sélection : pilule façon Huel ---- */
+.atl-float {
+  padding: 4px 6px 4px 14px;
+  gap: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--atl-line);
+  box-shadow: var(--atl-shadow-lg);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(6px);
+}
+.atl-float b {
+  margin-right: 8px;
+  color: var(--atl-ink);
+  font: 600 12px "Inter", system-ui, sans-serif;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-float button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 999px;
+  color: var(--atl-ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.atl-float button:hover {
+  background: var(--atl-accent-soft);
+  color: var(--atl-accent);
+}
+.atl-float__add {
+  width: auto !important;
+  padding: 0 12px !important;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  color: var(--atl-accent) !important;
+  background: var(--atl-accent-soft) !important;
+}
+.atl-float__add:hover {
+  background: var(--atl-accent-border) !important;
+}
+
+/* ---- Panneau de droite : tête d'édition collante, aération ---- */
+.atl-insp__bar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: var(--atl-bg);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--atl-line);
+}
+.atl-insp__bartitle b {
+  font: 600 13.5px "Inter", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+.atl-insp__bartitle small {
+  color: var(--atl-ink-3);
+  font-weight: 500;
+}
+
+/* Le petit bouton « ＋ Section » du rail de gauche garde le style SaaS. */
+.atl-add-btn {
+  border: 1px solid var(--atl-line-strong);
+  border-radius: var(--atl-radius);
+  background: var(--atl-bg);
+  font: 600 13px "Inter", system-ui, sans-serif;
+  box-shadow: var(--atl-shadow-sm);
+}

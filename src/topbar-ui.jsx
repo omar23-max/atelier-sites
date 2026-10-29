@@ -42,6 +42,23 @@ export function PreviewBarLanguage({ children }) {
   return slot ? createPortal(children, slot) : null;
 }
 
+// La barre de l'aperçu (Original / Modifiable, EN / FR, écrans, zoom, annuler)
+// devient une pilule flottante en bas de l'écran : elle est cachée, une
+// languette en bas au centre la fait apparaître au survol (plein écran).
+export function FloatingViewportBar() {
+  useEffect(() => {
+    const add = () => {
+      const bar = document.querySelector('[class^="_ViewportControls_"]');
+      if (bar && !bar.classList.contains("atl-vpbar")) bar.classList.add("atl-vpbar");
+    };
+    add();
+    const obs = new MutationObserver(add);
+    obs.observe(document.body, { childList: true, subtree: true });
+    return () => obs.disconnect();
+  }, []);
+  return null;
+}
+
 // Annuler / Rétablir (remplace ceux de l'en-tête de Puck, masqué), placés
 // dans la barre de l'aperçu (Original / Modifiable, zoom) pour libérer la
 // barre du haut.

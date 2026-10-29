@@ -280,7 +280,7 @@ export function AddSectionButton({ variant = "header" }) {
   const getPuck = useGetPuck();
   const [open, setOpen] = useState(false);
   const [family, setFamily] = useState(null);
-  const [where, setWhere] = useState({ index: 0, afterSelected: false });
+  const [where, setWhere] = useState({ index: 0, afterSelected: false, custom: false });
 
   const grouped = Object.fromEntries(FAMILIES.map((f) => [f.id, []]));
   // Les sections masquées dans le catalogue ne sont pas proposées.
@@ -290,9 +290,22 @@ export function AddSectionButton({ variant = "header" }) {
     const { appState, selectedItem, getSelectorForId } = getPuck();
     const selector = selectedItem ? getSelectorForId(selectedItem.props.id) : null;
     const afterSelected = !!selector && selector.zone === ROOT_ZONE;
-    setWhere({ index: afterSelected ? selector.index + 1 : appState.data.content.length, afterSelected });
+    setWhere({ index: afterSelected ? selector.index + 1 : appState.data.content.length, afterSelected, custom: false });
     setOpen(true);
   }
+
+  // Ouverture depuis l'aperçu : la barre flottante « ＋ Section » et les
+  // sillons entre sections envoient atl-add-section avec { index }.
+  useEffect(() => {
+    const on = (e) => {
+      const index = Number(e.detail?.index);
+      const { appState } = getPuck();
+      setWhere({ index: Number.isFinite(index) ? Math.max(0, Math.min(index, appState.data.content.length)) : appState.data.content.length, afterSelected: false, custom: true });
+      setOpen(true);
+    };
+    window.addEventListener("atl-add-section", on);
+    return () => window.removeEventListener("atl-add-section", on);
+  }, []);
 
   function close() {
     setOpen(false);
@@ -314,9 +327,11 @@ export function AddSectionButton({ variant = "header" }) {
 
   return (
     <>
-      <button type="button" className={variant === "block" ? "atl-add-btn atl-add-btn--block" : "atl-add-btn"} onClick={openDialog}>
-        + Ajouter une section
-      </button>
+      {variant !== "hidden" && (
+        <button type="button" className={variant === "block" ? "atl-add-btn atl-add-btn--block" : "atl-add-btn"} onClick={openDialog}>
+          + Ajouter une section
+        </button>
+      )}
       {open &&
         createPortal(
           <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && close()}>
@@ -329,7 +344,7 @@ export function AddSectionButton({ variant = "header" }) {
                 ) : null}
                 <h2>{current ? current.label : "Ajouter une section"}</h2>
                 <span className="atl-modal__where">
-                  {where.afterSelected ? "Sera ajoutée après la section sélectionnée" : "Sera ajoutée à la fin de la page"}
+                  {where.custom ? "Sera ajoutée à cet emplacement" : where.afterSelected ? "Sera ajoutée après la section sélectionnée" : "Sera ajoutée à la fin de la page"}
                 </span>
                 <button type="button" className="atl-modal__close" onClick={close} aria-label="Fermer">
                   ×

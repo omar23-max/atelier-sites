@@ -134,9 +134,6 @@ const EDITOR_CSS = `
   box-shadow: 0 0 28px 6px rgba(91, 124, 255, 0.55), inset 0 0 26px rgba(91, 124, 255, 0.35);
   animation: atl-glow 1.4s ease-out 1;
 }
-/* Photo d'origine du site d'inspiration : repère orange tant qu'elle n'est pas remplacée. */
-.atl-shopify-section img[src^="/imports/"] { outline: 3px dashed #f59e0b; outline-offset: -3px; }
-.atl-shopify-section [style*="/imports/"] { box-shadow: inset 0 0 0 3px #f59e0b; }
 /* Élément survolé ou choisi dans le panneau de droite. */
 .atl-hl { outline: 2px solid #2c6ecb !important; outline-offset: 2px; }
 .atl-hl-on { outline: 3px solid #2c6ecb !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(44, 110, 203, 0.18) !important; }
