@@ -4895,3 +4895,55 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   font: 600 13px "Inter", system-ui, sans-serif;
   box-shadow: var(--atl-shadow-sm);
 }
+
+/* ---- Correctifs 2026-10-30 ---- */
+/* Flèche « ranger le panneau » dans l'en-tête de l'inspecteur. */
+.atl-insp__collapse {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--atl-line);
+  border-radius: 8px;
+  background: var(--atl-bg);
+  color: var(--atl-ink-3);
+  font: 600 13px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.atl-insp__collapse:hover {
+  background: var(--atl-accent-soft, #efecff);
+  border-color: var(--atl-accent-border, #c9bdfb);
+  color: var(--atl-accent, #5b3fd6);
+}
+/* Ligne qui s'illumine entre les sections au survol du « + ». */
+.atl-chip__line {
+  border-top: 2px dashed var(--atl-accent-border, #c9bdfb);
+  filter: drop-shadow(0 0 4px rgba(109, 74, 255, 0.35));
+}
+.atl-chip:hover .atl-chip__line {
+  border-top-style: solid;
+  border-top-color: var(--atl-accent, #5b3fd6);
+  filter: drop-shadow(0 0 7px rgba(109, 74, 255, 0.65));
+}
+/* Petit cercle « + » toujours visible, plus discret qu'avant. */
+.atl-chip::after {
+  opacity: 0.4;
+}
+.atl-chip:hover::after {
+  opacity: 1;
+  border-color: var(--atl-accent, #5b3fd6);
+  color: var(--atl-accent, #5b3fd6);
+}
+/* Pilule du bas : zone de survol fixe (créée en JS) — ne bouge pas avec
+   la pilule, donc plus d'alternance affichage/masquage. */
+.atl-vpbar.is-up {
+  transform: translate(-50%, 0);
+}
+.atl-vpzone {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  z-index: 939;
+}

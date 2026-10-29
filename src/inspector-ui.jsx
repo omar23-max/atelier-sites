@@ -172,6 +172,7 @@ const sameNode = (sel) => (n) => (sel.key ? n.key === sel.key : sel.group ? n.gr
 // Textes et images retravaillables d'une section (ou d'une partie : `keys`).
 export function aiTargets(item, keys = null) {
   const section = byId[item.type];
+  if (!section) return { texts: [], images: [] };
   const props = normalizeProps(section, item.props);
   const texts = [];
   const images = [];
@@ -207,6 +208,7 @@ export function aiTargets(item, keys = null) {
 // Écrit des valeurs (clé → { text } ou { image }) dans les props d'une section.
 export function applyValues(item, values) {
   const section = byId[item.type];
+  if (!section) return item;
   const props = normalizeProps(section, item.props);
   if (section.meta.arbre) {
     const blocks = (props.blocks_element ?? []).map((b) => {
@@ -498,16 +500,54 @@ export function Inspector({ children }) {
       setMenu({ x: r.left + e.clientX * scale, y: r.top + e.clientY * scale, ...t });
     };
     // Pas d'éclairage au survol : seul l'élément choisi s'éclaire.
+    // Léger soulèvement de l'élément (texte/image) survolé : la géométrie
+    // décide (comme les clics), car des calques peuvent recouvrir le slot.
+    let hovered = null;
+    let rafPending = false;
+    let lastMove = null;
+    const applyHover = () => {
+      rafPending = false;
+      const e = lastMove;
+      if (!e || !doc) return;
+      if (editRef.current) {
+        hovered?.classList.remove("atl-hover");
+        hovered = null;
+        return;
+      }
+      const sec = under(e, "[data-atl-id]");
+      const el = sec ? under(e, `[data-atl-id="${CSS.escape(sec.dataset.atlId)}"] [data-atl-slot], [data-atl-id="${CSS.escape(sec.dataset.atlId)}"] [data-atl-group]`) : null;
+      if (el === hovered) return;
+      hovered?.classList.remove("atl-hover");
+      hovered = el;
+      hovered?.classList.add("atl-hover");
+    };
+    const onMove = (e) => {
+      lastMove = e;
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(applyHover);
+      }
+    };
+    const onLeaveDoc = () => {
+      lastMove = null;
+      hovered?.classList.remove("atl-hover");
+      hovered = null;
+    };
     const attach = () => {
       const next = canvasFrame()?.contentDocument ?? null;
       if (next === doc) return;
       doc?.removeEventListener("click", onClick, true);
       doc?.removeEventListener("contextmenu", onMenu, true);
       doc?.removeEventListener("dblclick", onDouble, true);
+      doc?.removeEventListener("mousemove", onMove, true);
+      doc?.removeEventListener("mouseleave", onLeaveDoc, true);
+      onLeaveDoc();
       doc = next;
       doc?.addEventListener("click", onClick, true);
       doc?.addEventListener("contextmenu", onMenu, true);
       doc?.addEventListener("dblclick", onDouble, true);
+      doc?.addEventListener("mousemove", onMove, true);
+      doc?.addEventListener("mouseleave", onLeaveDoc, true);
     };
     attach();
     const timer = setInterval(attach, 1000);
@@ -516,6 +556,8 @@ export function Inspector({ children }) {
       doc?.removeEventListener("click", onClick, true);
       doc?.removeEventListener("contextmenu", onMenu, true);
       doc?.removeEventListener("dblclick", onDouble, true);
+      doc?.removeEventListener("mousemove", onMove, true);
+      doc?.removeEventListener("mouseleave", onLeaveDoc, true);
     };
   }, [content]);
 
@@ -1092,6 +1134,14 @@ function PanelHead({ onBack, title, sub, onAi }) {
           ✨ IA
         </button>
       )}
+      <button
+        type="button"
+        className="atl-insp__collapse"
+        title="Ranger le panneau (Échap)"
+        onClick={() => window.dispatchEvent(new CustomEvent("atl-close-editor"))}
+      >
+        →
+      </button>
     </div>
   );
 }
@@ -1426,7 +1476,21 @@ function ContextMenu({ x, y, items, onClose }) {
         it.sep ? (
           <hr key={i} />
         ) : (
-          <button key={i} type="button" role="menuitem" disabled={it.disabled} className={it.danger ? "is-danger" : ""} onClick={() => (onClose(), it.action())}>
+          <button
+            key={i}
+            type="button"
+            role="menuitem"
+            disabled={it.disabled}
+            className={it.danger ? "is-danger" : ""}
+            onClick={() => {
+              onClose();
+              try {
+                it.action();
+              } catch (err) {
+                console.error("Action du menu contextuel:", err);
+              }
+            }}
+          >
             {it.label}
           </button>
         ),
@@ -1454,6 +1518,7 @@ function AiDialog({ target, item, onClose, onApply, root }) {
   });
   const [state, setState] = useState(null);
   const section = byId[item.type];
+  if (!section) return null;
   const [sectionName] = (section.meta.label ?? section.id).split(" — ");
   const what = target.keys?.length === 1 ? "cet élément" : target.label ? `« ${target.label} »` : `la section « ${sectionName} »`;
 

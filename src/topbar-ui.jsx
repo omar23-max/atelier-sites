@@ -47,14 +47,35 @@ export function PreviewBarLanguage({ children }) {
 // languette en bas au centre la fait apparaître au survol (plein écran).
 export function FloatingViewportBar() {
   useEffect(() => {
+    const bar = () => document.querySelector('[class^="_ViewportControls_"]');
     const add = () => {
-      const bar = document.querySelector('[class^="_ViewportControls_"]');
-      if (bar && !bar.classList.contains("atl-vpbar")) bar.classList.add("atl-vpbar");
+      const b = bar();
+      if (b && !b.classList.contains("atl-vpbar")) b.classList.add("atl-vpbar");
     };
     add();
     const obs = new MutationObserver(add);
     obs.observe(document.body, { childList: true, subtree: true });
-    return () => obs.disconnect();
+    // Zone de survol FIXE au bas de l'écran : contrairement à la languette
+    // CSS, elle ne bouge pas quand la pilule monte, donc plus de vibration.
+    const zone = document.createElement("div");
+    zone.className = "atl-vpzone";
+    let timer = null;
+    zone.addEventListener("mouseenter", () => {
+      clearTimeout(timer);
+      bar()?.classList.add("is-up");
+    });
+    zone.addEventListener("mouseleave", () => {
+      timer = setTimeout(() => {
+        const b = bar();
+        // Ne pas replier si la souris est passée sur la pilule elle-même.
+        if (b && !b.matches(":hover")) b.classList.remove("is-up");
+      }, 150);
+    });
+    document.body.append(zone);
+    return () => {
+      obs.disconnect();
+      zone.remove();
+    };
   }, []);
   return null;
 }
