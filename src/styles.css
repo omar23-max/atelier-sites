@@ -4947,3 +4947,20 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   height: 26px;
   z-index: 939;
 }
+
+/* ---- Zoom navigateur : les menus gardent leur taille (2026-10-30) ----
+   --atl-ui-zoom est calculé dans App.jsx (compensation du zoom Ctrl +/-).
+   Seuls les menus ancrés aux bords ou centrés sont listés : le zoom CSS
+   dilate aussi les coordonnées inline ; les menus positionnés par JS
+   (barre flottante .atl-float, clic droit .atl-ctx) divisent leurs
+   coordonnées par cette même variable dans leur code. */
+.atl-topbar,
+.atl-proposals,
+.atl-left,
+[class*="Sidebar--right"],
+.atl-vpbar,
+.atl-modal,
+.atl-float,
+.atl-ctx {
+  zoom: var(--atl-ui-zoom, 1);
+}

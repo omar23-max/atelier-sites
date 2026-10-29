@@ -313,8 +313,16 @@ export function AddSectionButton({ variant = "header" }) {
   }
 
   function insert(id) {
-    const { dispatch } = getPuck();
+    const { appState, dispatch } = getPuck();
     dispatch({ type: "insert", componentType: id, destinationIndex: where.index, destinationZone: ROOT_ZONE });
+    // Même règle que insertSection : la section ajoutée adopte le design de la
+    // page (code couleur via les rôles ; les polices viennent déjà de la page).
+    const design = designById[appState.data.root?.props?.design];
+    const added = getPuck().appState.data.content[where.index];
+    if (design && added) {
+      const { page } = applyDesign({ root: {}, content: [added] }, design, sectionsById);
+      dispatch({ type: "replace", destinationIndex: where.index, destinationZone: ROOT_ZONE, data: page.content[0] });
+    }
     dispatch({ type: "setUi", ui: { itemSelector: { index: where.index, zone: ROOT_ZONE } } });
     close();
     setTimeout(() => {

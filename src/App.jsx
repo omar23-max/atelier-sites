@@ -67,6 +67,22 @@ export default function App() {
   const invalid = sections.filter((s) => s.errors.length > 0);
 
   useEffect(() => {
+    // Zoom du navigateur (Ctrl + / Ctrl -) : les menus gardent leur taille.
+    // devicePixelRatio suit le zoom ; on compense avec la variable --atl-ui-zoom,
+    // appliquée en CSS (zoom:) aux menus ancrés aux bords, et en division des
+    // coordonnées pour les menus positionnés par JS (barre flottante, clic droit).
+    const baseRatio = window.devicePixelRatio || 1;
+    const syncUiZoom = () => {
+      const z = (window.devicePixelRatio || 1) / baseRatio;
+      const comp = Math.abs(1 - 1 / z) < 0.03 ? 1 : 1 / z;
+      document.documentElement.style.setProperty("--atl-ui-zoom", String(comp));
+    };
+    syncUiZoom();
+    window.addEventListener("resize", syncUiZoom);
+    return () => window.removeEventListener("resize", syncUiZoom);
+  }, []);
+
+  useEffect(() => {
     if (!pageName) return; // redirection en cours (voir plus haut)
     try {
       localStorage.setItem("atl-last-page", pageName); // « page courante » du catalogue
