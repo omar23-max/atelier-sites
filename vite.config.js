@@ -682,6 +682,14 @@ function atelierApi() {
             return json(res, 200, files.filter((f) => /\.(png|jpe?g|webp|gif)$/i.test(f)).map((f) => `/medias/${parts[1]}/${f}`));
           }
 
+          // ---- Images du site d'origine : imports/<slug>/images/ ----
+          // Source d'inspiration du sélecteur de médias (onglet « Site d'origine »).
+          if (parts[0] === "medias-origin" && NAME.test(parts[1] ?? "") && req.method === "GET") {
+            const dir = join(importsDir, parts[1], "images");
+            const files = existsSync(dir) ? await readdir(dir) : [];
+            return json(res, 200, files.filter((f) => /\.(png|jpe?g|webp|gif)$/i.test(f)).map((f) => `/imports/${parts[1]}/images/${f}`));
+          }
+
           // ---- Sections du catalogue ----
           if (parts[0] === "sections" && NAME.test(parts[1] ?? "")) {
             const dir = join(sectionsDir, parts[1]);

@@ -358,6 +358,8 @@ export function Inspector({ children }) {
   const [openGroups, setOpenGroups] = useState({});
   const [menu, setMenu] = useState(null);
   const [ai, setAi] = useState(null);
+  // Action IA rapide (clic droit) : petit indicateur flottant pendant / après.
+  const [quick, setQuick] = useState(null);
   const treeRef = useRef(null);
   const editRef = useRef(null);
   const [editing, setEditing] = useState(false);
@@ -557,6 +559,38 @@ export function Inspector({ children }) {
     if (other) moveNode(sectionId, sibs[i], other, dir > 0);
   }
 
+  // Action IA en un clic depuis le menu contextuel : même pipeline que la
+  // fenêtre (gpt-5.4-mini via /api/ia/textes), avec une consigne prête à l'emploi.
+  async function quickAi(sectionId, keys, prompt, label) {
+    const item = content[indexOf(sectionId)];
+    if (!item) return;
+    const { texts } = aiTargets(item, keys);
+    if (!texts.length) {
+      setQuick({ error: "Pas de texte à retravailler ici." });
+      return setTimeout(() => setQuick(null), 2600);
+    }
+    setQuick({ label });
+    try {
+      const root = getPuck().appState.data.root?.props ?? {};
+      const res = await fetch("/api/ia/textes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: texts,
+          prompt: `${prompt}\n${consigneLangue(root)}`,
+          contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" },
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error);
+      updateValues(sectionId, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
+      setQuick({ done: label });
+    } catch (e) {
+      setQuick({ error: e.message });
+    }
+    setTimeout(() => setQuick(null), 2600);
+  }
+
   const menuItems = (m) => {
     const index = indexOf(m.sectionId);
     const item = content[index];
@@ -565,6 +599,13 @@ export function Inspector({ children }) {
     const node = nodeOf(m);
     const keys = node ? (node.group ? leavesOf(node.children).map((l) => l.key) : [node.key]) : null;
     const items = [{ label: "✨ Retravailler avec l'IA…", action: () => setAi({ sectionId: m.sectionId, keys, label: node?.group ? node.label : null }) }];
+    // Actions rapides : appliquées directement, sans fenêtre.
+    if (aiTargets(item, keys).texts.length) {
+      items.push(
+        { sep: true },
+        ...QUICK_ACTIONS.map((q) => ({ label: `✨ ${q.label}`, action: () => quickAi(m.sectionId, keys, q.prompt, q.label) })),
+      );
+    }
     if (node) {
       const sibs = siblingsOf(m.sectionId, node);
       const i = sibs.findIndex((n) => (node.key ? n.key === node.key : n.id === node.id));
@@ -803,6 +844,11 @@ export function Inspector({ children }) {
         />
       )}
       {menu && <ContextMenu x={menu.x} y={menu.y} items={menuItems(menu)} onClose={() => setMenu(null)} />}
+      {quick && (
+        <div className="atl-quick" role="status">
+          {quick.error ? `⚠ ${quick.error}` : quick.done ? `✓ ${quick.done} — fait. Ctrl+Z pour annuler.` : `✨ ${quick.label}…`}
+        </div>
+      )}
       {ai && content[indexOf(ai.sectionId)] && (
         <AiDialog target={ai} item={content[indexOf(ai.sectionId)]} onClose={() => setAi(null)} onApply={(values) => updateValues(ai.sectionId, values)} root={getPuck().appState.data.root?.props ?? {}} />
       )}
@@ -1372,6 +1418,13 @@ function ContextMenu({ x, y, items, onClose }) {
 
 // ---- Retravailler avec l'IA ----
 const QUICK = ["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Traduire en français", "Traduire en anglais"];
+// Actions rapides du clic droit : consigne prête à l'emploi, appliquée sans fenêtre.
+const QUICK_ACTIONS = [
+  { label: "Raccourcir", prompt: "Rends ce texte nettement plus court, sans perdre son sens ni son argument principal." },
+  { label: "Étendre", prompt: "Développe ce texte avec plus de détails et de bénéfices concrets, sans répéter ce qui est dit." },
+  { label: "Plus percutant", prompt: "Rends ce texte plus percutant, direct et concret, sans exagération ni promesse invérifiable." },
+  { label: "Plus émotionnel", prompt: "Rends ce texte plus émotionnel et empathique, en gardant la même longueur approximative." },
+];
 const REFS_KEY = "atl-ia-references";
 
 function AiDialog({ target, item, onClose, onApply, root }) {

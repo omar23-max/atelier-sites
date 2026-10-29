@@ -161,30 +161,55 @@ async function upload(file) {
 }
 
 function MediaPicker({ onPick, onClose }) {
+  // Deux sources : tes images (medias/<page>/) et les captures du site
+  // d'origine (imports/<slug>/images/) quand la page vient d'un import.
+  const [tab, setTab] = useState("mes");
   const [medias, setMedias] = useState(null);
+  const [origin, setOrigin] = useState(null);
   useEffect(() => {
     fetch(`/api/medias/${pageName()}`)
       .then((r) => r.json())
       .then(setMedias)
       .catch(() => setMedias([]));
+    fetch(`/api/pages/${pageName()}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((page) => page?.root?.props?.importSource ?? null)
+      .then((slug) => (slug ? fetch(`/api/medias-origin/${slug}`).then((r) => r.json()) : []))
+      .then((list) => setOrigin(list.filter((u) => u.startsWith("/imports/"))))
+      .catch(() => setOrigin([]));
   }, []);
+  const hasOrigin = (origin?.length ?? 0) > 0;
+  const shown = tab === "origine" ? origin : medias;
   return createPortal(
     <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="atl-modal__panel atl-newpage">
         <header className="atl-modal__head">
-          <h2>Mes images</h2>
+          <h2>Choisir une image</h2>
           <button type="button" className="atl-modal__close" onClick={onClose} aria-label="Fermer">
             ×
           </button>
         </header>
         <div className="atl-newpage__body">
-          {!medias ? (
+          {hasOrigin && (
+            <div className="atl-mediatabs" role="tablist">
+              <button type="button" role="tab" aria-selected={tab === "mes"} className={tab === "mes" ? "is-on" : ""} onClick={() => setTab("mes")}>
+                Mes images ({medias?.length ?? 0})
+              </button>
+              <button type="button" role="tab" aria-selected={tab === "origine"} className={tab === "origine" ? "is-on" : ""} onClick={() => setTab("origine")}>
+                Site d'origine ({origin.length})
+              </button>
+            </div>
+          )}
+          {tab === "origine" && <p className="atl-newpage__hint">Photos de l'inspiration importée : à reprendre, jamais à publier telles quelles.</p>}
+          {shown == null ? (
             <p>Chargement…</p>
-          ) : medias.length === 0 ? (
-            <p className="atl-newpage__hint">Aucune image pour cette page. Téléverse-en une, ou crée-les avec le Studio d'images.</p>
+          ) : shown.length === 0 ? (
+            <p className="atl-newpage__hint">
+              {tab === "origine" ? "Aucune capture d'origine pour cette page." : "Aucune image pour cette page. Téléverse-en une, ou crée-les avec le Studio d'images."}
+            </p>
           ) : (
             <div className="atl-media-grid">
-              {medias.map((m) => (
+              {shown.map((m) => (
                 <button type="button" key={m} onClick={() => onPick(m)}>
                   <img src={m} alt="" loading="lazy" />
                   <small>{m.split("/").pop()}</small>
