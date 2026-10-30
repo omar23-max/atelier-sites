@@ -197,6 +197,8 @@ const EDITOR_CSS = `
 /* Élément survolé ou choisi dans le panneau de droite. */
 .atl-hl { outline: 2px solid #2c6ecb !important; outline-offset: 2px; }
 .atl-hl-on { outline: 3px solid #2c6ecb !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(44, 110, 203, 0.18) !important; }
+/* Surface de l'élément choisi, éclairée en bleu (calque posé par inspector-ui). */
+#atl-hl-box { position: fixed; z-index: 2147483000; pointer-events: none; display: none; background: rgba(44, 110, 203, 0.16); outline: 2px solid #2c6ecb; outline-offset: 2px; border-radius: 2px; }
 /* Groupes parents de l'élément choisi : contour léger qui reste affiché. */
 .atl-hl-parent:not(.atl-hl-on) { outline: 2px dashed rgba(44, 110, 203, 0.55) !important; outline-offset: 4px; }
 [data-atl-slot] { cursor: pointer; }

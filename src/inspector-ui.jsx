@@ -428,6 +428,44 @@ export function Inspector({ children }) {
     if (el && sel.fromTree) el.scrollIntoView({ block: "center", behavior: "smooth" });
     const row = treeRef.current?.querySelector(".is-chosen");
     row?.scrollIntoView({ block: "nearest" });
+
+    // Toute la surface de l'élément choisi s'éclaire en bleu (calque posé
+    // par-dessus, sans toucher à la page) : on voit où commence et où finit un
+    // grand groupe. Il suit le défilement et les changements de taille.
+    const win = doc?.defaultView;
+    if (!doc || !win) return;
+    let box = doc.getElementById("atl-hl-box");
+    if (!el) {
+      box?.remove();
+      return;
+    }
+    if (!box) {
+      box = doc.createElement("div");
+      box.id = "atl-hl-box";
+      doc.body.appendChild(box);
+    }
+    const targets = node?.run ? node.children.map((c) => domOf(sel.sectionId, c)).filter(Boolean) : [el];
+    const place = () => {
+      const rects = targets.filter((t) => t.isConnected).map((t) => t.getBoundingClientRect());
+      if (!rects.length) return void (box.style.display = "none");
+      const top = Math.min(...rects.map((r) => r.top));
+      const left = Math.min(...rects.map((r) => r.left));
+      box.style.display = "block";
+      box.style.top = `${top}px`;
+      box.style.left = `${left}px`;
+      box.style.width = `${Math.max(...rects.map((r) => r.right)) - left}px`;
+      box.style.height = `${Math.max(...rects.map((r) => r.bottom)) - top}px`;
+    };
+    place();
+    win.addEventListener("scroll", place, { capture: true, passive: true });
+    win.addEventListener("resize", place);
+    const ro = new win.ResizeObserver(place);
+    targets.forEach((t) => ro.observe(t));
+    return () => {
+      win.removeEventListener("scroll", place, { capture: true });
+      win.removeEventListener("resize", place);
+      ro.disconnect();
+    };
   }, [sel, content]);
 
   // Comme Whitelabeler : l'éditeur s'ouvre à gauche (à côté du rail) quand

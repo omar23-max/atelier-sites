@@ -646,7 +646,9 @@ gardée dans `imports/<nom>/page-avant-import-<date>.json`.
 
 ### Éclairage des parents
 
-L'élément choisi est entouré en bleu plein (`.atl-hl-on`). Ses groupes parents
+L'élément choisi est entouré en bleu plein (`.atl-hl-on`), et toute sa surface est
+éclairée en bleu par un calque posé par-dessus (`#atl-hl-box`, qui suit le
+défilement et les changements de taille) : on voit les deux bords d'un grand groupe. Ses groupes parents
 restent entourés en pointillés (`.atl-hl-parent`, `puck-config.jsx`), et leurs
 lignes de l'arbre sont éclairées en plus clair (`.is-on-path`). Un groupe sans
 conteneur propre (`data-atl-group`) éclaire le plus petit bloc qui contient tous
