@@ -546,6 +546,9 @@ const built = await page.evaluate(
       else if (partOfEl.get(el)?.size >= 2 && !p_isChain(el)) extra["data-atl-col"] = `c${k}`;
       if (el.hasAttribute("data-atl-h")) extra["data-atl-h"] = "";
       if (recipe && recipe.t !== "vide") extra["data-atl-btn"] = k;
+      // Bloc collant (galerie) : l'aperçu de l'atelier imite son défilement
+      // à travers les sections d'une rangée coupée (engine/puck-config.jsx).
+      if (getComputedStyle(el).position === "sticky") extra["data-atl-sticky"] = "";
       const sub = ctx;
       // Image : élément modifiable (une même photo répétée = un seul élément).
       if (tag === "img") {
@@ -596,7 +599,16 @@ const built = await page.evaluate(
       if (VOID.has(el.tagName)) return `<${tag}${a}>`;
       // Groupe : un bloc de l'arbre du panneau (cartes, colonnes…).
       const tree = [];
-      const inner = [...el.childNodes].map((c) => ser(c, { ...sub, tree })).join("");
+      // Rangée de colonnes coupée (grille, ou flex en ligne de 4 enfants au
+      // plus) : une colonne absente de cette partie reste en place, vide
+      // (data-atl-vide), pour que les autres ne glissent pas dans l'atelier.
+      // Sur la page publiée, le script de recollage l'ignore.
+      const cs = getComputedStyle(el);
+      const columns = partOfEl.get(el)?.size >= 2 && el.children.length <= 4 && (cs.display.includes("grid") || (cs.display.includes("flex") && !cs.flexDirection.startsWith("column")));
+      const shell = (c) => `<${c.tagName.toLowerCase()}${attrs(c, { "data-atl-vide": "" }).replace(/ data-atl-(k|car)="[^"]*"/g, "")}></${c.tagName.toLowerCase()}>`;
+      const inner = [...el.childNodes]
+        .map((c) => (columns && c.nodeType === 1 && ctx.part && !ctx.part.has(c) && c.tagName !== "svg" ? shell(c) : ser(c, { ...sub, tree })))
+        .join("");
       if (tree.length > 1) ctx.tree.push({ group: true, kind: "groupe", label: (el.className?.baseVal ?? el.className ?? "").split(/\s+/)[0] || "Bloc", children: tree });
       else ctx.tree.push(...tree);
       return `<${tag}${a}>${inner}</${tag}>`;
@@ -723,7 +735,7 @@ const RUNTIME =
   "else{var c=tr.firstElementChild,s=c&&c.children[m.index];if(s)tr.scrollTo({left:s.offsetLeft-c.offsetLeft,behavior:'smooth'})}})});" +
   // Parties d'un bloc coupé entre sections (data-atl-suite) : recollées dans
   // la première, à tous les niveaux (data-atl-col), puis sections vidées masquées.
-  "function merge(dst,src){[].slice.call(src.childNodes).forEach(function(c){var id=c.nodeType===1&&c.getAttribute('data-atl-col');" +
+  "function merge(dst,src){[].slice.call(src.childNodes).forEach(function(c){if(c.nodeType===1&&c.hasAttribute('data-atl-vide'))return;var id=c.nodeType===1&&c.getAttribute('data-atl-col');" +
   "var t=id&&[].filter.call(dst.children,function(e){return e.getAttribute('data-atl-col')===id})[0];if(t)merge(t,c);else dst.appendChild(c)})}" +
   "function run(){var seen={};d.querySelectorAll('[data-atl-suite]').forEach(function(x){var id=x.getAttribute('data-atl-suite');if(seen[id])return;seen[id]=1;" +
   "var rows=d.querySelectorAll('[data-atl-suite=\"'+id+'\"]'),top=rows[0].closest('[data-atl-root]');" +

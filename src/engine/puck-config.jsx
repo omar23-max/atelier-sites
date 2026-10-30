@@ -94,6 +94,12 @@ function StickySuites() {
         const end = rows[rows.length - 1].getBoundingClientRect().bottom;
         for (const el of rows[0].querySelectorAll("[data-atl-sticky]")) {
           el.style.transform = "";
+          // Puck enveloppe chaque section dans un calque (z-index 0) : celui de
+          // la section suivante passerait par-dessus le bloc décalé.
+          let layer = el.parentElement;
+          while (layer && layer !== doc.body && win.getComputedStyle(layer).zIndex === "auto") layer = layer.parentElement;
+          if (layer === doc.body) layer = null;
+          if (layer) layer.style.zIndex = "";
           const cs = win.getComputedStyle(el);
           if (cs.position !== "sticky") continue;
           const r = el.getBoundingClientRect();
@@ -101,6 +107,12 @@ function StickySuites() {
           if (shift > 0) {
             el.style.transform = `translateY(${shift}px)`;
             el.style.zIndex = "3";
+            if (layer) layer.style.zIndex = "1";
+            // Un parent qui coupe ce qui dépasse (overflow: clip, page Kimi)
+            // cacherait le bloc décalé hors de sa section : il laisse dépasser en hauteur.
+            for (let x = el.parentElement; x && x !== layer; x = x.parentElement) {
+              if (win.getComputedStyle(x).overflowY !== "visible") x.style.overflowY = "visible";
+            }
           }
         }
       }
