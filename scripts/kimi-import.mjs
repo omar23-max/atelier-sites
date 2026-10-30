@@ -19,7 +19,7 @@
 //    réduit, pour chaque section, aux règles qui y servent.
 // Un petit script remplace React sur la page publiée (boutons appris,
 // carrousels) ; les blocs coupés entre sections y sont recollés (data-atl-suite / data-atl-col).
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { dirname, extname, join, resolve } from "node:path";
@@ -761,15 +761,23 @@ const recipeData = (keys) => {
 };
 
 // ---- 5. Sections de l'atelier et page ----
-await mkdir(join(root, "imports", slug), { recursive: true });
-await rm(join(root, "imports", slug, "assets"), { recursive: true, force: true });
+// Seuls les fichiers qui changent sont réécrits : l'atelier (Vite) recharge à
+// chaque fichier touché, et un import relancé sans changement ne doit pas le
+// faire recharger.
+const writeIfChanged = async (file, text) => {
+  if (existsSync(file) && (await readFile(file, "utf8")) === text) return false;
+  await writeFile(file, text, "utf8");
+  return true;
+};
+let changed = 0;
 await mkdir(join(root, "imports", slug, "assets"), { recursive: true });
 for (const f of await readdir(join(dist, "assets"))) {
   if (/\.(js|css|map)$/.test(f)) continue;
-  await cp(join(dist, "assets", f), join(root, "imports", slug, "assets", f));
-}
-for (const old of await readdir(join(root, "sections"))) {
-  if (old.startsWith(`${slug}-p`)) await rm(join(root, "sections", old), { recursive: true, force: true });
+  const from = join(dist, "assets", f);
+  const to = join(root, "imports", slug, "assets", f);
+  if (existsSync(to) && statSync(to).size === statSync(from).size) continue;
+  await cp(from, to);
+  changed++;
 }
 const label = labelArg || slug;
 const content = [];
@@ -805,28 +813,50 @@ built.parts.forEach((p, i) => {
     families: [],
     family: "article",
     pageSpecific: slug,
-    source: { url: null, capturedAt: new Date().toISOString(), note: `Page Kimi gardée telle quelle (scripts/kimi-import.mjs, ${appArg}).` },
+    source: { url: null, capturedAt: null, note: `Page Kimi gardée telle quelle (scripts/kimi-import.mjs, ${appArg}).` },
     preview: {},
     previewBlocks: {},
     arbre: { group: true, kind: "groupe", label: name, children: p.tree },
   };
   content.push({ id, schema, template, css: cssFor(p.keys, `atl-${id}`), meta, blocks: p.blocks });
 });
+// Parties d'une ancienne copie qui n'existent plus (page devenue plus courte).
+for (const old of await readdir(join(root, "sections"))) {
+  if (old.startsWith(`${slug}-p`) && !content.some((s) => s.id === old)) {
+    await rm(join(root, "sections", old), { recursive: true, force: true });
+    changed++;
+  }
+}
 for (const s of content) {
   const sdir = join(root, "sections", s.id);
   await mkdir(sdir, { recursive: true });
-  await writeFile(join(sdir, "schema.json"), JSON.stringify(s.schema, null, 2) + "\n", "utf8");
-  await writeFile(join(sdir, "template.liquid"), s.template + "\n", "utf8");
-  await writeFile(join(sdir, "style.css"), s.css, "utf8");
-  await writeFile(join(sdir, "meta.json"), JSON.stringify(s.meta, null, 2) + "\n", "utf8");
+  if (await writeIfChanged(join(sdir, "schema.json"), JSON.stringify(s.schema, null, 2) + "\n")) changed++;
+  if (await writeIfChanged(join(sdir, "template.liquid"), s.template + "\n")) changed++;
+  if (await writeIfChanged(join(sdir, "style.css"), s.css)) changed++;
+  if (await writeIfChanged(join(sdir, "meta.json"), JSON.stringify(s.meta, null, 2) + "\n")) changed++;
 }
 const pageJson = {
   root: { props: { title: `Kimi — ${label}`, pageType: "produit", produit: "", profil: "", importSource: slug, design: "" } },
   content: content.map((s) => ({ type: s.id, props: { id: s.id, blocks_element: s.blocks } })),
   zones: {},
 };
-await writeFile(join(root, "pages", `${slug}.json`), JSON.stringify(pageJson, null, 2), "utf8");
-await writeFile(join(root, "imports", slug, "kimi.json"), JSON.stringify({ app, importedAt: new Date().toISOString(), buttons: buttons.length, recipes, inserts: inserts.length }, null, 2), "utf8");
+// La page : si elle a été modifiée dans l'atelier depuis le dernier import,
+// cette version est d'abord mise de côté (imports/<nom>/page-avant-import-…).
+const pageFile = join(root, "pages", `${slug}.json`);
+const pageText = JSON.stringify(pageJson, null, 2);
+const infoFile = join(root, "imports", slug, "kimi.json");
+const lastWritten = existsSync(infoFile) ? JSON.parse(await readFile(infoFile, "utf8")).pageEcrite : null;
+if (existsSync(pageFile)) {
+  const current = await readFile(pageFile, "utf8");
+  if (current !== pageText && current !== lastWritten) {
+    const backup = join(root, "imports", slug, `page-avant-import-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
+    await writeFile(backup, current, "utf8");
+    console.log(`  ⚠ La page avait été modifiée dans l'atelier : sa version est gardée dans ${backup}`);
+  }
+}
+if (await writeIfChanged(pageFile, pageText)) changed++;
+await writeFile(infoFile, JSON.stringify({ app, importedAt: new Date().toISOString(), buttons: buttons.length, recipes, inserts: inserts.length, pageEcrite: pageText }, null, 2), "utf8");
+console.log(`  Fichiers réécrits : ${changed}${changed ? "" : " (rien n'a changé : l'atelier ne recharge pas)"}`);
 
 const kinds = Object.values(recipes).reduce((a, r) => ((a[r.t] = (a[r.t] ?? 0) + 1), a), {});
 console.log(`✓ ${slug} : ${content.length} section(s), ${content.reduce((n, s) => n + s.blocks.length, 0)} éléments`);

@@ -614,3 +614,24 @@ Essai Magic Mind du 2026-10-30, page `claude-magicmind` :
 - les carrousels doivent glisser par `transform` (piste dans une fenêtre
   `overflow: hidden`), et les états passer par des classes : c'est ce que
   l'import sait apprendre.
+
+## Supprimer (clic droit et panneau de droite)
+
+Toute suppression demande d'abord une confirmation.
+- **Section** : clic droit → « Supprimer la section », ou 🗑 en haut du panneau
+  de droite. Elle est retirée de la page ; Annuler (↶) ou Historique la ramène.
+- **Élément ou groupe d'une copie** (texte, image, colonne) : clic droit →
+  « Supprimer l'élément » / « Supprimer le groupe », ou 🗑 du panneau. Il est
+  masqué sur tous les écrans (`display: none` dans `atl_styles`) mais reste
+  dans la page : décocher « Masquer partout » du panneau de style le fait
+  revenir.
+- **Bloc d'une section du catalogue** : 🗑 du panneau, ou le bouton « Supprimer
+  le bloc ».
+
+Pages importées de Kimi ou refaites par Claude : « Monter » et « Descendre »
+sont grisés pour leurs éléments, car leur HTML n'a pas de réglage d'ordre.
+
+`kimi-import.mjs` ne réécrit plus que les fichiers qui changent : un import
+relancé sans changement ne fait pas recharger l'atelier. Si la page a été
+modifiée dans l'atelier depuis le dernier import, sa version est d'abord
+gardée dans `imports/<nom>/page-avant-import-<date>.json`.

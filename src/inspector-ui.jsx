@@ -599,11 +599,39 @@ export function Inspector({ children }) {
     if (other) moveNode(sectionId, sibs[i], other, dir > 0);
   }
 
+  // Suppressions, toujours après confirmation.
+  // Section : retirée de la page (Annuler / Historique pour revenir).
+  const removeSection = (sectionId) => {
+    const index = indexOf(sectionId);
+    const item = content[index];
+    if (!item) return;
+    if (!confirm(`Supprimer la section « ${byId[item.type]?.meta.label ?? item.type} » de la page ?`)) return;
+    run({ type: "remove", index, zone: ROOT_ZONE }, null);
+    setSel(null);
+  };
+  // Élément ou groupe d'une copie : masqué partout (display: none dans
+  // atl_styles), comme « Masquer partout » du panneau de style, qui le fait
+  // revenir. Le texte et l'image restent dans la page, au cas où.
+  const removeNode = (sectionId, node) => {
+    const item = itemOf(sectionId);
+    if (!item || !node) return;
+    const targets = node.group ? (node.gid ? [node.gid] : leavesOf(node.children).map((l) => l.key)) : [node.key];
+    const what = node.group ? `le groupe « ${node.label} »` : `l'élément « ${(node.label ?? node.name ?? "").slice(0, 50)} »`;
+    if (!confirm(`Supprimer ${what} ?\n\nIl est masqué sur tous les écrans ; pour le faire revenir : panneau de style, « Masquer partout ».`)) return;
+    const styles = structuredClone(item.props.atl_styles ?? {});
+    for (const t of targets) {
+      styles[t] ??= {};
+      styles[t].all ??= {};
+      styles[t].all.base = { ...styles[t].all.base, display: "none" };
+    }
+    updateProps(sectionId, { ...item.props, atl_styles: styles });
+    close();
+  };
+
   const menuItems = (m) => {
     const index = indexOf(m.sectionId);
     const item = content[index];
     if (!item) return [];
-    const section = byId[item.type];
     const node = nodeOf(m);
     const keys = node ? (node.group ? leavesOf(node.children).map((l) => l.key) : [node.key]) : null;
     const items = [{ label: "✨ Retravailler avec l'IA…", action: () => setAi({ sectionId: m.sectionId, keys, label: node?.group ? node.label : null }) }];
@@ -615,6 +643,8 @@ export function Inspector({ children }) {
         { sep: true },
         { label: "Monter", disabled: i <= 0, action: () => step(m.sectionId, node, -1) },
         { label: "Descendre", disabled: i < 0 || i >= sibs.length - 1, action: () => step(m.sectionId, node, 1) },
+        { sep: true },
+        { label: node.group ? "Supprimer le groupe" : "Supprimer l'élément", danger: true, action: () => removeNode(m.sectionId, node) },
       );
     } else {
       items.push(
@@ -623,11 +653,7 @@ export function Inspector({ children }) {
         { label: "Monter", disabled: index === 0, action: () => run({ type: "reorder", sourceIndex: index, destinationIndex: index - 1, destinationZone: ROOT_ZONE }, index - 1) },
         { label: "Descendre", disabled: index === content.length - 1, action: () => run({ type: "reorder", sourceIndex: index, destinationIndex: index + 1, destinationZone: ROOT_ZONE }, index + 1) },
         { label: "Dupliquer", action: () => run({ type: "duplicate", sourceIndex: index, sourceZone: ROOT_ZONE }, index + 1) },
-        {
-          label: "Supprimer la section",
-          danger: true,
-          action: () => confirm(`Supprimer la section « ${section?.meta.label ?? item.type} » de la page ?`) && (run({ type: "remove", index, zone: ROOT_ZONE }, null), setSel(null)),
-        },
+        { label: "Supprimer la section", danger: true, action: () => removeSection(m.sectionId) },
       );
     }
     return items;
@@ -748,6 +774,7 @@ export function Inspector({ children }) {
               onValues={(values) => updateValues(sel.sectionId, values)}
               onOpen={(key) => setSel({ sectionId: sel.sectionId, key })}
               onMoveNode={(child, dir) => step(sel.sectionId, child, dir)}
+              onDelete={() => removeSection(sel.sectionId)}
             />
           ) : (
             <SectionSettings
@@ -757,6 +784,7 @@ export function Inspector({ children }) {
               onChange={(props) => updateProps(sel.sectionId, props)}
               onAdapt={content.some((c) => byId[c.type]?.meta.pageSpecific) || getPuck().appState.data.root?.props?.design ? () => adaptToPage(sel.sectionId) : null}
               onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
+              onDelete={() => removeSection(sel.sectionId)}
             />
           ))}
         {sel?.key && content[indexOf(sel.sectionId)] && (
@@ -767,6 +795,7 @@ export function Inspector({ children }) {
             onAi={() => setAi({ sectionId: sel.sectionId, keys: [sel.key] })}
             onChange={(values) => updateValues(sel.sectionId, values)}
             onChangeProps={(props) => updateProps(sel.sectionId, props)}
+            onDelete={() => removeNode(sel.sectionId, selNode)}
           />
         )}
         {sel?.group && selNode?.run && (
@@ -778,6 +807,7 @@ export function Inspector({ children }) {
             onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode.children.map((l) => l.key), label: "Texte" })}
             onChange={(values) => updateValues(sel.sectionId, values)}
             onChangeProps={(props) => updateProps(sel.sectionId, props)}
+            onDelete={() => removeNode(sel.sectionId, selNode)}
           />
         )}
         {sel?.group && selNode && !selNode.run && (
@@ -787,6 +817,7 @@ export function Inspector({ children }) {
               title={`${GROUP_ICON[selNode.kind] ?? "▤"} ${selNode.label}`}
               sub={`${leavesOf(selNode.children).length} élément(s)`}
               onAi={() => setAi({ sectionId: sel.sectionId, keys: leavesOf(selNode.children).map((l) => l.key), label: selNode.label })}
+              onDelete={() => removeNode(sel.sectionId, selNode)}
             />
             <div className="atl-insp__moves">
               <button type="button" onClick={() => step(sel.sectionId, selNode, -1)}>
@@ -1119,7 +1150,9 @@ function FieldList({ settings, meta, blockType, values, onChange, namePrefix = "
   });
 }
 
-function PanelHead({ onBack, title, sub, onAi }) {
+// onDelete : bouton 🗑 (section, élément, groupe) ; la confirmation est
+// demandée par l'action elle-même.
+function PanelHead({ onBack, title, sub, onAi, onDelete }) {
   return (
     <div className="atl-insp__bar">
       <button type="button" className="atl-insp__back" onClick={onBack} title="Revenir à la page">
@@ -1134,6 +1167,11 @@ function PanelHead({ onBack, title, sub, onAi }) {
           ✨ IA
         </button>
       )}
+      {onDelete && (
+        <button type="button" className="atl-insp__delete" onClick={onDelete} title="Supprimer">
+          🗑
+        </button>
+      )}
       <button
         type="button"
         className="atl-insp__collapse"
@@ -1146,7 +1184,7 @@ function PanelHead({ onBack, title, sub, onAi }) {
   );
 }
 
-function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild }) {
+function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild, onDelete }) {
   const [busy, setBusy] = useState(false);
   if (!item) return null;
   const section = byId[item.type];
@@ -1155,7 +1193,7 @@ function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild }) {
   const hasSettings = editableSettings(section.schema.settings).length > 0;
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={name} sub={variant ?? familyOf(section).label} onAi={onAi} />
+      <PanelHead onBack={onBack} title={name} sub={variant ?? familyOf(section).label} onAi={onAi} onDelete={onDelete} />
       <div className="atl-insp__thumbbox">
         <Thumb section={section} />
       </div>
@@ -1301,7 +1339,7 @@ function GroupContents({ node, onChange, onOpen, onMove }) {
   );
 }
 
-function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangeProps }) {
+function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangeProps, onDelete }) {
   if (!item) return null;
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
@@ -1330,7 +1368,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
     };
     return (
       <div className="atl-insp__panel">
-        <PanelHead onBack={onBack} title={`${t.icon} ${leaf.name ?? t.label}${leaf.size ? ` ${leaf.size}` : ""}`} sub={sectionName} onAi={onAi} />
+        <PanelHead onBack={onBack} title={`${t.icon} ${leaf.name ?? t.label}${leaf.size ? ` ${leaf.size}` : ""}`} sub={sectionName} onAi={onAi} onDelete={onDelete} />
         {isImageType(leaf.type) ? (
           <>
             {F("image", "image")}
@@ -1365,9 +1403,10 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
   const block = section.schema.blocks.find((b) => b.type === type);
   const list = props[blocksKey(type)] ?? [];
   const values = list[Number(i)] ?? {};
+  const removeBlock = () => confirm("Supprimer ce bloc ?") && (onChangeProps({ ...props, [blocksKey(type)]: list.filter((_, j) => j !== Number(i)) }), onBack());
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={`${block?.name ?? "Bloc"} ${Number(i) + 1}`} sub={sectionName} onAi={onAi} />
+      <PanelHead onBack={onBack} title={`${block?.name ?? "Bloc"} ${Number(i) + 1}`} sub={sectionName} onAi={onAi} onDelete={removeBlock} />
       <FieldList
         settings={block?.settings}
         meta={section.meta}
@@ -1379,7 +1418,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
       <button
         type="button"
         className="atl-insp__remove"
-        onClick={() => confirm("Supprimer ce bloc ?") && (onChangeProps({ ...props, [blocksKey(type)]: list.filter((_, j) => j !== Number(i)) }), onBack())}
+        onClick={removeBlock}
       >
         Supprimer le bloc
       </button>
@@ -1389,7 +1428,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
 
 // Texte de plusieurs paragraphes : une seule zone (une ligne vide sépare les
 // paragraphes) ; le style choisi s'applique à tous.
-function TextRunSettings({ item, node, onBack, onAi, onChange, onChangeProps }) {
+function TextRunSettings({ item, node, onBack, onAi, onChange, onChangeProps, onDelete }) {
   if (!item) return null;
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
@@ -1398,7 +1437,7 @@ function TextRunSettings({ item, node, onBack, onAi, onChange, onChangeProps }) 
   const first = (props.blocks_element ?? []).find((b) => b.slot === leaves[0].key);
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title="¶ Texte" sub={`${sectionName} · ${leaves.length} paragraphes`} onAi={onAi} />
+      <PanelHead onBack={onBack} title="¶ Texte" sub={`${sectionName} · ${leaves.length} paragraphes`} onAi={onAi} onDelete={onDelete} />
       <div className="atl-insp__field">
         <span className="atl-rte__label">Texte</span>
         <RichText value={runHtml(leaves)} onChange={(v) => onChange(splitRun(v, leaves))} />
@@ -1760,7 +1799,7 @@ function Seg({ value, options, onChange }) {
 }
 
 // ---- Réglages d'une partie copiée : Design · Layout · Couleurs, et l'IA ----
-function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onValues, onOpen, onMoveNode }) {
+function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onValues, onOpen, onMoveNode, onDelete }) {
   const [tab, setTab] = useState("design");
   const [prompt, setPrompt] = useState("");
   const [ref, setRef] = useState(null);
@@ -1788,7 +1827,7 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onV
   };
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} />
+      <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} onDelete={onDelete} />
       {/* Section qui est une FAQ (sa racine) : ses questions, modifiables ici. */}
       {section.meta.arbre?.kind === "faq" && <GroupContents node={{ kind: "faq", children: treeForItem(item) }} onChange={onValues} onOpen={onOpen} onMove={onMoveNode} />}
       <div className="atl-tabs2">
