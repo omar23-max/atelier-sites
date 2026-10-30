@@ -532,3 +532,60 @@ remplacerait tout le thème : ne pas le faire).
   jusqu'au bas de la dernière partie.
 - Limite : styles réglés dans l'atelier sur une partie 2…n d'une rangée (fond,
   marges…) : sur Shopify ils restent rangés sous leur propre section.
+
+## Importer une page faite par Kimi (`scripts/kimi-import.mjs`)
+
+Quand Kimi (Kimi Agent) a déjà reproduit la page, on garde SES fichiers : son
+HTML, ses classes et son CSS, sans recopie ni mesure. Kimi livre un zip
+contenant une application React + Vite (`app/`).
+
+1. Décompresser le zip dans `C:\Users\HP\Desktop\kimi-pages\<nom>\`, hors de
+   l'atelier.
+2. Le lockfile de Kimi pointe vers son miroir npm privé, injoignable. Il faut
+   remplacer `https://npm.mirrors.msh.team/` par `https://registry.npmjs.org/`
+   dans `package-lock.json` (les empreintes restent les mêmes).
+3. `npm install --ignore-scripts` (aucun script d'installation lancé), puis
+   `npx vite build`.
+4. `node scripts/kimi-import.mjs <dossier>/app <nom> --label "Marque"` (environ
+   7 min).
+
+Le script ouvre la page compilée dans Edge, en local (aucune requête ne sort).
+Il clique chaque bouton une fois pour apprendre ce qu'il fait :
+- **bascule** : ouvre ou ferme un accordéon, une FAQ, des faits nutritionnels ;
+- **choix** : variante, pack, miniature active ;
+- **carrousel** : une flèche fait défiler la plus grande piste de sa section,
+  une miniature ou un point mène à sa diapo ;
+- **lien** : une ancre (`#reviews`), ou le panier pour les boutons qui
+  ouvraient le panier de démonstration de Kimi. Ce lien est modifiable dans
+  l'atelier.
+
+Ensuite il écrit :
+- `sections/<nom>-pN`, une section par `<section>` de Kimi, découpée à
+  45 éléments (limite Shopify). Les textes, images et liens y sont des
+  éléments modifiables, au même format que les copies. Une même photo répétée
+  (galerie + miniature) est un seul élément ;
+- un `style.css` par section : le CSS de Kimi rangé sous `.atl-<section>`
+  (`html`, `body` et `:root` deviennent la section), réduit aux règles qui
+  touchent cette section. Les états ouverts ou choisis sont inclus ;
+- `pages/<nom>.json` et `imports/<nom>/assets/`, qui contient les images et
+  polices de Kimi. Ce sont des photos d'origine : vues dans l'atelier, jamais
+  exportées ;
+- `imports/<nom>/kimi.json`, avec ce qui a été appris de chaque bouton.
+
+Sur la page publiée, un petit script remplace React. Il applique les états
+appris, fait défiler les carrousels et suit les liens des boutons. Il recolle
+aussi un bloc coupé entre deux sections, à tous les niveaux (`data-atl-suite`
+/ `data-atl-col`), puis masque les sections vidées.
+
+Contrôle Magic Mind (2026-10-30), page Kimi comparée à `/partage/kimi-magicmind` :
+- 1440 px : 11 478 px contre 11 463 px, titres à 2-15 px près ;
+- 390 px : 16 171 px contre 16 172 px, titres identiques.
+
+La galerie collante, les accordéons, les choix, les flèches, les miniatures et
+les points fonctionnent.
+
+Limites :
+- le panier, la fenêtre « HSA/FSA » et le menu mobile de Kimi ne sont pas
+  repris : leurs boutons deviennent des liens ;
+- la newsletter n'envoie rien ;
+- une FAQ qui referme la question précédente laisse ici les deux ouvertes.

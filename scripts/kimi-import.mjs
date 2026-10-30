@@ -160,7 +160,20 @@ const diffOf = (a, b) => {
   return changed;
 };
 
+// Attend que la page ne bouge plus (un carrousel encore en mouvement après le
+// clic précédent serait pris pour l'effet du clic suivant).
+async function settle() {
+  let prev = "";
+  for (let i = 0; i < 20; i++) {
+    const now = await page.evaluate(() => JSON.stringify(window.__atlState().els));
+    if (now === prev) return;
+    prev = now;
+    await page.waitForTimeout(250);
+  }
+}
+
 async function clickAndWatch(k) {
+  await settle();
   const before = await page.evaluate(() => window.__atlState());
   // Éléments ajoutés par le clic : numérotés (le même ajout garde son numéro).
   await page.evaluate(() => {
@@ -214,6 +227,31 @@ const transformOf = (s, k) => (s.els[k]?.style ?? "").match(/transform:\s*([^;]+
 for (const b of buttons) {
   const exists = await page.evaluate((k) => Boolean(document.querySelector(`[data-atl-k="${k}"]`)?.getClientRects().length), b.k);
   if (!exists) continue;
+  // Flèche « précédent / suivant » : liée sans clic à la piste la plus proche
+  // (un carrousel déjà au bout ne bougerait pas). Piste = bloc qui cache ce
+  // qui dépasse, dont l'unique enfant aligne des diapos plus larges que lui.
+  const arrow = /prev|précédent|next|suivant/i.exec(`${b.label} ${b.text}`);
+  if (arrow) {
+    const track = await page.evaluate((k) => {
+      // Recherche limitée à la section de la flèche ; la plus grande piste
+      // d'abord (galerie principale plutôt que ses miniatures).
+      const isTrack = (e) => {
+        // Un badge posé par-dessus (position absolue) ne compte pas.
+        const kids = [...e.children].filter((x) => !/absolute|fixed/.test(getComputedStyle(x).position));
+        const c = kids[0];
+        return c && kids.length === 1 && getComputedStyle(c).display.includes("flex") && c.children.length > 1 && e.clientWidth > 0;
+      };
+      const btn = document.querySelector(`[data-atl-k="${k}"]`);
+      const limit = btn.closest("main > *, section, footer, header") ?? document.body;
+      const ts = [...limit.querySelectorAll("[data-atl-k]")].filter(isTrack);
+      ts.sort((a, b) => b.clientWidth * b.clientHeight - a.clientWidth * a.clientHeight);
+      return ts[0]?.getAttribute("data-atl-k") ?? null;
+    }, b.k);
+    if (track) {
+      recipes[b.k] = { t: "car", car: [{ track, dir: /prev|précédent/i.test(arrow[0]) ? -1 : 1, index: null }], aff: [] };
+      continue;
+    }
+  }
   const { before, after, dialog } = await clickAndWatch(b.k);
   if (dialog) {
     // Fenêtre (panier, menu, information) : fermée, le bouton devient un lien.
@@ -224,7 +262,17 @@ for (const b of buttons) {
   }
   const d = diffOf(before, after);
   // Carrousel : la piste (Embla) se déplace par transform.
-  const moved = Object.keys(d).filter((k) => transformOf(before, k) !== transformOf(after, k));
+  // Seules comptent les pistes proches du bouton (même bloc, 6 niveaux au plus).
+  const moved = await page.evaluate(
+    ({ keys, btn }) => {
+      const b = document.querySelector(`[data-atl-k="${btn}"]`);
+      let zone = b;
+      for (let i = 0; i < 6 && zone?.parentElement; i++) zone = zone.parentElement;
+      return keys.filter((k) => zone?.contains(document.querySelector(`[data-atl-k="${k}"]`)));
+    },
+    { keys: Object.keys(d).filter((k) => transformOf(before, k) !== transformOf(after, k)), btn: b.k },
+  );
+  for (const k of Object.keys(d)) if (transformOf(before, k) !== transformOf(after, k) && !moved.includes(k)) delete d[k];
   if (moved.length) {
     const lab = `${b.label} ${b.text}`;
     const dir = /prev|précédent|gauche|left/i.test(lab) ? -1 : /next|suivant|droite|right/i.test(lab) ? 1 : 0;
@@ -342,7 +390,10 @@ for (const [k, r] of Object.entries(recipes)) {
   if (r.t === "vide") continue;
   keep.add(k);
   for (const st of r.st ?? []) Object.keys(st).forEach((x) => keep.add(x));
-  for (const c of r.car ?? []) tracks.add(c.track);
+  for (const c of r.car ?? []) {
+    tracks.add(c.track);
+    keep.add(c.track);
+  }
 }
 for (const ins of inserts) keep.add(ins.k);
 
@@ -600,14 +651,14 @@ const built = await page.evaluate(
 await browser.close();
 server.close();
 
-// ---- 3. CSS de chaque partie, rangé sous la classe de la page ----
-const scopeSel = (sel) =>
+// ---- 3. CSS de chaque partie, rangé sous la classe de sa section ----
+// html, body et :root deviennent la section elle-même.
+const scopeSel = (sel, scope) =>
   sel
     .split(",")
     .map((s) => {
       s = s.trim();
       if (/^(html|:root|body)\b/.test(s)) return s.replace(/^(html\s*body|html|:root|body)/, `.${scope}`);
-      if (s.startsWith("*")) return `.${scope} ${s}`;
       return `.${scope} ${s}`;
     })
     .join(", ");
@@ -622,7 +673,9 @@ const urlFix = (text) =>
       return m;
     }
   });
-const cssFor = (keys) => {
+// Rangé sous la classe de la section (exigé par l'export Shopify) ; une partie
+// recollée dans une autre lui apporte sa classe (script de la page).
+const cssFor = (keys, scope) => {
   const set = new Set(keys);
   let out = "";
   for (const r of built.css) {
@@ -638,7 +691,7 @@ const cssFor = (keys) => {
       let body = r.body;
       if (/^(html|body|:root)$/.test(r.sel.trim())) body = body.replace(/(^|;)\s*(min-height|min-width|scroll-behavior)\s*:[^;]+;?/g, "$1");
       if (!body.trim()) continue;
-      text = `${scopeSel(r.sel)} { ${body} }`;
+      text = `${scopeSel(r.sel, scope)} { ${body} }`;
     }
     for (const w of [...r.wrap].reverse()) text = `${w} { ${text} }`;
     out += urlFix(text) + "\n";
@@ -738,7 +791,7 @@ built.parts.forEach((p, i) => {
     previewBlocks: {},
     arbre: { group: true, kind: "groupe", label: name, children: p.tree },
   };
-  content.push({ id, schema, template, css: cssFor(p.keys), meta, blocks: p.blocks });
+  content.push({ id, schema, template, css: cssFor(p.keys, `atl-${id}`), meta, blocks: p.blocks });
 });
 for (const s of content) {
   const sdir = join(root, "sections", s.id);
