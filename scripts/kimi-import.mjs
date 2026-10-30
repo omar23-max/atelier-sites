@@ -700,7 +700,11 @@ const cssFor = (keys, scope) => {
       else continue;
     } else {
       const use = ruleUse[r.i];
-      if (use !== "all" && !(use ?? []).some((k) => set.has(k))) continue;
+      // Règles de la page entière (html, body, :root : police, couleur, variables) :
+      // gardées partout, la section en tient lieu ; ces balises ne sont pas
+      // numérotées et ne seraient jamais « utilisées ».
+      const pageRule = r.sel.split(",").every((s) => /^(html|body|:root)\b/.test(s.trim()));
+      if (!pageRule && use !== "all" && !(use ?? []).some((k) => set.has(k))) continue;
       // La page entière (html, body) : sans hauteur ni largeur mini (une section
       // n'est pas un écran).
       let body = r.body;

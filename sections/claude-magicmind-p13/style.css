@@ -1,31 +1,34 @@
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
 @font-face { font-family: Akkurat; src: url("/imports/claude-magicmind/assets/Akkurat-Mono-_1.woff") format("woff"); font-weight: 400 500; font-style: normal; font-display: swap; }
-.atl-claude-magicmind-p13 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: 1220px; }
+.atl-claude-magicmind-p13 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: min(1220px, calc(100% - 40px)); }
 .atl-claude-magicmind-p13 * { box-sizing: border-box; }
+.atl-claude-magicmind-p13 { text-size-adjust: 100%; }
+.atl-claude-magicmind-p13 { margin: 0px; color: var(--ink); font: 500 16px / 23px MMCircular, Arial, sans-serif; background: url("/imports/claude-magicmind/assets/Background.jpg") rgb(245, 245, 243); }
 .atl-claude-magicmind-p13 img { display: block; max-width: 100%; }
 .atl-claude-magicmind-p13 a { color: inherit; }
 .atl-claude-magicmind-p13 button { font: inherit; color: inherit; background: none; border: 0px; padding: 0px; cursor: pointer; text-align: inherit; }
 .atl-claude-magicmind-p13 h1, .atl-claude-magicmind-p13 h2, .atl-claude-magicmind-p13 h3, .atl-claude-magicmind-p13 p, .atl-claude-magicmind-p13 ul { margin: 0px; padding: 0px; }
+.atl-claude-magicmind-p13 h1, .atl-claude-magicmind-p13 h2, .atl-claude-magicmind-p13 h3 { font: inherit; letter-spacing: inherit; text-transform: none; }
 .atl-claude-magicmind-p13 .footer { padding: 100px calc((100% - var(--wrap)) / 2) 24px; background: rgb(0, 0, 0); color: var(--paper); }
-.atl-claude-magicmind-p13 .footer-top { display: grid; grid-template-columns: 1fr 560px; gap: 40px; padding-bottom: 56px; border-bottom: 1px solid rgb(255, 255, 255); }
+.atl-claude-magicmind-p13 .footer-top { display: grid; grid-template-columns: 1fr minmax(0px, 560px); gap: 40px; padding-bottom: 56px; border-bottom: 1px solid rgb(255, 255, 255); }
 .atl-claude-magicmind-p13 .footer-logo { width: 247px; height: 36px; filter: invert(1) brightness(1.1); }
 .atl-claude-magicmind-p13 .footer-claim { margin-top: 24px; max-width: 512px; font-size: 38px; line-height: 41.8px; font-weight: 700; }
 .atl-claude-magicmind-p13 .newsletter h2 { font-size: 28px; line-height: 30.8px; font-weight: 700; }
 .atl-claude-magicmind-p13 .newsletter p { margin-top: 16px; font-size: 18px; line-height: 21.6px; }
 .atl-claude-magicmind-p13 .newsletter form { margin-top: 39px; display: flex; gap: 16px; }
-.atl-claude-magicmind-p13 .newsletter input { flex: 1 1 0%; height: 50px; padding: 0px 16px; border: 1px solid var(--paper); border-radius: 5px; background: transparent; color: var(--paper); font: 400 18px / 21.6px Circular, sans-serif; }
+.atl-claude-magicmind-p13 .newsletter input { flex: 1 1 0%; height: 50px; padding: 0px 16px; border: 1px solid var(--paper); border-radius: 5px; background: transparent; color: var(--paper); font: 400 18px / 21.6px MMCircular, sans-serif; }
 .atl-claude-magicmind-p13 .newsletter input::placeholder { color: var(--paper); }
 .atl-claude-magicmind-p13 .subscribe { width: 140px; height: 50px; border-radius: 999px; background: var(--paper); color: var(--ink); text-align: center; font-size: 14px; line-height: 15.4px; font-weight: 700; letter-spacing: 0.7px; }
-.atl-claude-magicmind-p13 .footer-cols { margin-top: 56px; display: grid; grid-template-columns: repeat(4, 281px); gap: 32px; }
+.atl-claude-magicmind-p13 .footer-cols { margin-top: 56px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
 .atl-claude-magicmind-p13 .footer-cols p { font-size: 18px; line-height: 21.6px; font-weight: 700; margin-bottom: 8px; }
 .atl-claude-magicmind-p13 .footer-cols a { display: block; font-size: 14px; line-height: 19.6px; font-weight: 400; text-decoration: none; margin-bottom: 8px; }
 .atl-claude-magicmind-p13 .footer-cols small { font-size: 10px; margin-left: 6px; }
-.atl-claude-magicmind-p13 .footer-bottom { margin-top: 56px; display: grid; grid-template-columns: 281px 281px 1fr; gap: 32px; align-items: start; }
+.atl-claude-magicmind-p13 .footer-bottom { margin-top: 56px; display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 32px; align-items: start; }
 .atl-claude-magicmind-p13 .socials { display: flex; gap: 24px; }
 .atl-claude-magicmind-p13 .socials a { width: 22px; height: 22px; display: grid; place-items: center; font-size: 18px; text-decoration: none; }
 .atl-claude-magicmind-p13 .address { font-size: 13px; line-height: 16px; font-weight: 700; }

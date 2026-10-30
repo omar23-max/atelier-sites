@@ -589,3 +589,28 @@ Limites :
   repris : leurs boutons deviennent des liens ;
 - la newsletter n'envoie rien ;
 - une FAQ qui referme la question précédente laisse ici les deux ouvertes.
+
+### Page refaite à la main, sans coupure (`--sans-coupe`)
+
+Le même import accepte une page HTML simple (`<dossier>/dist/index.html`, sans
+React). Ajouter `--sans-coupe` garde chaque section du site en une seule
+section de l'atelier : il n'y a plus de limite de 50 éléments. C'est le mode
+prévu pour un site headless, où la page n'est plus un thème Shopify.
+
+Essai Magic Mind du 2026-10-30, page `claude-magicmind` :
+- page écrite par Claude d'après le vrai site, dans
+  `C:\Users\HP\Desktop\kimi-pages\claude-magicmind\app` : `build.mjs` produit
+  `dist/index.html`, plus `dist/style.css` et `dist/app.js` ;
+- le relevé du site (captures, mesures, textes) a été fait en local avec Edge,
+  et les images et polices du site ont été téléchargées dans `dist/assets` ;
+- 13 sections, 364 éléments, le bloc produit en une seule section (113
+  éléments), 3 à 15 ko de CSS par section.
+
+À savoir pour ces pages :
+- une page qui va dans l'atelier doit remettre à zéro la police des `h1-h3`
+  (`h1, h2, h3 { font: inherit }`), sinon le style de l'éditeur s'y applique ;
+- donner à la police un nom propre à la page (ici `MMCircular`), car deux pages
+  qui déclarent « Circular » avec des fichiers différents se gênent ;
+- les carrousels doivent glisser par `transform` (piste dans une fenêtre
+  `overflow: hidden`), et les états passer par des classes : c'est ce que
+  l'import sait apprendre.

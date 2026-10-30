@@ -1,19 +1,22 @@
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
-@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: MMCircular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
 @font-face { font-family: Akkurat; src: url("/imports/claude-magicmind/assets/Akkurat-Mono-_1.woff") format("woff"); font-weight: 400 500; font-style: normal; font-display: swap; }
-.atl-claude-magicmind-p2 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: 1220px; }
+.atl-claude-magicmind-p2 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: min(1220px, calc(100% - 40px)); }
 .atl-claude-magicmind-p2 * { box-sizing: border-box; }
+.atl-claude-magicmind-p2 { text-size-adjust: 100%; }
+.atl-claude-magicmind-p2 { margin: 0px; color: var(--ink); font: 500 16px / 23px MMCircular, Arial, sans-serif; background: url("/imports/claude-magicmind/assets/Background.jpg") rgb(245, 245, 243); }
 .atl-claude-magicmind-p2 img { display: block; max-width: 100%; }
 .atl-claude-magicmind-p2 a { color: inherit; }
 .atl-claude-magicmind-p2 button { font: inherit; color: inherit; background: none; border: 0px; padding: 0px; cursor: pointer; text-align: inherit; }
 .atl-claude-magicmind-p2 h1, .atl-claude-magicmind-p2 h2, .atl-claude-magicmind-p2 h3, .atl-claude-magicmind-p2 p, .atl-claude-magicmind-p2 ul { margin: 0px; padding: 0px; }
+.atl-claude-magicmind-p2 h1, .atl-claude-magicmind-p2 h2, .atl-claude-magicmind-p2 h3 { font: inherit; letter-spacing: inherit; text-transform: none; }
 .atl-claude-magicmind-p2 ul { list-style: none; }
 .atl-claude-magicmind-p2 .chev { flex: 0 0 auto; }
-.atl-claude-magicmind-p2 .product { width: var(--wrap); margin: 0px auto; padding: 48px 0px; display: grid; grid-template-columns: 828px 360px; gap: 32px; align-items: start; }
+.atl-claude-magicmind-p2 .product { width: var(--wrap); margin: 0px auto; padding: 48px 0px; display: grid; grid-template-columns: minmax(0px, 828fr) minmax(300px, 360fr); gap: 32px; align-items: start; }
 .atl-claude-magicmind-p2 .product-media { min-width: 0px; align-self: stretch; }
 .atl-claude-magicmind-p2 .media-sticky { position: sticky; top: 20px; }
 .atl-claude-magicmind-p2 .gallery { position: relative; }
@@ -26,8 +29,8 @@
 .atl-claude-magicmind-p2 .clinician-close { position: absolute; right: 6px; top: 2px; font-size: 14px; line-height: 14px; color: rgb(85, 85, 85); }
 .atl-claude-magicmind-p2 .clinician-logo { margin-bottom: 4px; font: 400 8px / 10px Georgia, serif; color: rgb(51, 51, 51); }
 .atl-claude-magicmind-p2 .clinician strong { font-size: 13px; line-height: 15px; font-weight: 400; margin-bottom: 10px; }
-.atl-claude-magicmind-p2 .clinician span { font: 500 9.5px / 14px Circular, sans-serif; color: rgb(68, 68, 68); }
-.atl-claude-magicmind-p2 .clinician a { font: 500 9px / 13px Circular, sans-serif; color: rgb(68, 68, 68); }
+.atl-claude-magicmind-p2 .clinician span { font: 500 9.5px / 14px MMCircular, sans-serif; color: rgb(68, 68, 68); }
+.atl-claude-magicmind-p2 .clinician a { font: 500 9px / 13px MMCircular, sans-serif; color: rgb(68, 68, 68); }
 .atl-claude-magicmind-p2 .clinician a:first-of-type { text-decoration: underline; margin-bottom: 14px; }
 .atl-claude-magicmind-p2 .clinician-reviews { text-decoration: none; }
 .atl-claude-magicmind-p2 .thumbs-row { margin-top: 16px; display: grid; grid-template-columns: 49px 1fr 49px; align-items: center; }
@@ -39,13 +42,13 @@
 .atl-claude-magicmind-p2 .thumb { flex: 0 0 133px; height: 95px; overflow: hidden; border: 1px solid var(--grey); border-radius: 10px; }
 .atl-claude-magicmind-p2 .thumb.is-active { border-color: var(--ink); }
 .atl-claude-magicmind-p2 .thumb img { width: 100%; height: 100%; object-fit: cover; }
-.atl-claude-magicmind-p2 .facts { margin-top: 32px; display: grid; grid-template-columns: 394px 394px; gap: 40px; }
+.atl-claude-magicmind-p2 .facts { margin-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
 .atl-claude-magicmind-p2 .facts-toggle { width: 100%; display: flex; justify-content: space-between; align-items: baseline; padding: 0px 0px 16px; border-bottom: 1px solid var(--ink); font-size: 18px; line-height: 21.6px; font-weight: 700; }
 .atl-claude-magicmind-p2 .facts-toggle span { font-size: 14px; line-height: 16.8px; }
 .atl-claude-magicmind-p2 .facts-toggle .chev { display: none; }
 .atl-claude-magicmind-p2 .facts-col.is-closed .facts-body { display: none; }
 .atl-claude-magicmind-p2 .facts-body > p { margin-top: 12px; font-size: 11px; line-height: 15.4px; }
-.atl-claude-magicmind-p2 .facts-head, .atl-claude-magicmind-p2 .facts-row { display: grid; grid-template-columns: 214px 70px 70px; gap: 20px; font-size: 11px; line-height: 13.2px; }
+.atl-claude-magicmind-p2 .facts-head, .atl-claude-magicmind-p2 .facts-row { display: grid; grid-template-columns: minmax(0px, 214px) 70px 70px; gap: 20px; justify-content: space-between; font-size: 11px; line-height: 13.2px; }
 .atl-claude-magicmind-p2 .facts-head { margin-top: 12px; font-weight: 700; text-align: center; }
 .atl-claude-magicmind-p2 .facts-row { margin-top: 8px; }
 .atl-claude-magicmind-p2 .facts-head + .facts-row { margin-top: 8px; }
@@ -55,13 +58,14 @@
 .atl-claude-magicmind-p2 .product-info { min-width: 0px; }
 .atl-claude-magicmind-p2 .viewing { display: flex; align-items: center; gap: 8px; height: 18px; font: 400 11px / 13.2px Akkurat, monospace; }
 .atl-claude-magicmind-p2 .product-title { margin-top: 20px; font-size: 51px; line-height: 51px; font-style: italic; }
-.atl-claude-magicmind-p2 .rating { margin-top: 32px; display: flex; align-items: center; gap: 0px; height: 26px; font: 400 13.3px / 16px Circular, sans-serif; text-decoration: none; color: rgb(0, 0, 0); }
+.atl-claude-magicmind-p2 .rating { margin-top: 32px; display: flex; align-items: center; gap: 0px; height: 26px; font: 400 13.3px / 16px MMCircular, sans-serif; text-decoration: none; color: rgb(0, 0, 0); }
 .atl-claude-magicmind-p2 .rating > span:first-child { margin-right: 10px; }
 .atl-claude-magicmind-p2 .stars { display: flex; }
 .atl-claude-magicmind-p2 .stars svg { width: 26.6px; height: 26.6px; }
 .atl-claude-magicmind-p2 .rating u { margin-left: 18px; }
 .atl-claude-magicmind-p2 .headline { margin-top: 32px; font-size: 40px; line-height: 44px; font-weight: 700; }
 .atl-claude-magicmind-p2 .headline em { font-weight: 500; }
+.atl-claude-magicmind-p2 .headline strong { font-weight: 700; }
 .atl-claude-magicmind-p2 .intro { margin-top: 38px; font-size: 18px; line-height: 25.2px; }
 .atl-claude-magicmind-p2 .benefits { margin-top: 25px; columns: 2; column-gap: 16px; }
 .atl-claude-magicmind-p2 .benefits li { break-inside: avoid; display: flex; gap: 9px; margin-bottom: 15px; font-size: 14px; line-height: 16.8px; }
@@ -86,7 +90,7 @@
 .atl-claude-magicmind-p2 .popular { position: absolute; left: 50%; top: -11px; transform: translateX(-50%); padding: 4px 20px; border-radius: 10px; background: linear-gradient(105.74deg, rgb(240, 240, 162) 30.68%, rgb(73, 169, 154) 149.44%); font-size: 11px; line-height: 13.2px; font-weight: 700; white-space: nowrap; }
 .atl-claude-magicmind-p2 .offer-meta { width: 100%; margin-top: 9px; display: grid; grid-template-columns: 1fr 1fr; row-gap: 8px; font-size: 11px; line-height: 13.2px; }
 .atl-claude-magicmind-p2 .offer-meta span:nth-child(2n) { text-align: right; }
-.atl-claude-magicmind-p2 .offer-meta i { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border: 1px solid rgb(147, 150, 154); border-radius: 50%; font: 900 9px / 9px Circular, sans-serif; color: rgb(147, 150, 154); }
+.atl-claude-magicmind-p2 .offer-meta i { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border: 1px solid rgb(147, 150, 154); border-radius: 50%; font: 900 9px / 9px MMCircular, sans-serif; color: rgb(147, 150, 154); }
 .atl-claude-magicmind-p2 .atc { margin-top: 16px; display: block; height: 51px; padding: 18px 40px; border-radius: 90px; background: var(--ink); color: var(--paper); text-align: center; font-size: 14px; line-height: 15.4px; font-weight: 700; letter-spacing: 0.7px; text-decoration: none; }
 .atl-claude-magicmind-p2 .one-time { margin-top: 16px; display: block; text-align: center; font-size: 14px; line-height: 16.8px; text-decoration: none; }
 .atl-claude-magicmind-p2 .sub-box { margin-top: 16px; padding: 24px 16px; border: 1px solid var(--line); border-radius: 10px; }
@@ -117,6 +121,11 @@
 .atl-claude-magicmind-p2 .text-block p { margin-top: 16px; font-size: 18px; line-height: 25.2px; font-weight: 450; }
 .atl-claude-magicmind-p2 .text-block p + p { margin-top: 12px; }
 .atl-claude-magicmind-p2 .text-block .tip { margin-top: 16px; font-size: 14px; line-height: 19.6px; font-weight: 500; }
+@media (max-width: 1100px) { .atl-claude-magicmind-p2 .facts { grid-template-columns: 1fr; gap: 32px; } }
+@media (max-width: 1100px) { .atl-claude-magicmind-p2 .badge { margin-left: 12px; } }
+@media (max-width: 1100px) { .atl-claude-magicmind-p2 .offer { flex-wrap: nowrap; } }
+@media (max-width: 1100px) { .atl-claude-magicmind-p2 .offer-meta { flex: 0 0 100%; } }
+@media (max-width: 1100px) { .atl-claude-magicmind-p2 .offer.is-selected { flex-wrap: wrap; } }
 @media (max-width: 767px) { .atl-claude-magicmind-p2 { --wrap: calc(100% - 28px); } }
 @media (max-width: 767px) { .atl-claude-magicmind-p2 .product { display: flex; flex-direction: column; gap: 0px; padding-top: 0px; } }
 @media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info, .atl-claude-magicmind-p2 .product-media { display: contents; } }
