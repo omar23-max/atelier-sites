@@ -653,3 +653,24 @@ restent entourés en pointillés (`.atl-hl-parent`, `puck-config.jsx`), et leurs
 lignes de l'arbre sont éclairées en plus clair (`.is-on-path`). Un groupe sans
 conteneur propre (`data-atl-group`) éclaire le plus petit bloc qui contient tous
 ses éléments (`domOf`), et non plus seulement son premier élément.
+
+## Zip de Kimi → atelier + catalogue (une commande)
+
+`node scripts/kimi-zip.mjs "<zip>"` traite un lot : un dossier par page, nommé
+comme la page de l'atelier (liste et consigne dans `docs/templates-pour-kimi.md`).
+`node scripts/kimi-zip.mjs "<zip>" <nom>` traite une seule page.
+
+Pour chaque page, la commande :
+1. décompresse le zip dans `kimi-pages/_lot-…` ;
+2. corrige le lien vers le miroir npm privé de Kimi ;
+3. installe avec `--ignore-scripts`, puis compile ;
+4. lance `kimi-import.mjs --sans-coupe` (headless), puis `kimi-catalogue.mjs`.
+
+`kimi-catalogue.mjs` crée les sections du catalogue (`<nom>-sec-N`), sauf
+l'en-tête et le pied (hors de `<main>`). Chacune reçoit un nom et une famille
+(une section avec « Add to cart » et des prix devient « Fiche produit »), son
+contenu d'origine comme contenu par défaut, et sa miniature. Les anciennes
+`<nom>-sec-*` qui n'existent plus sont retirées.
+
+Une page en échec n'arrête pas le lot. Le bilan donne la commande pour la
+reprendre (`--seulement nom`).
