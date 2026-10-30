@@ -1,0 +1,153 @@
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: Akkurat; src: url("/imports/claude-magicmind/assets/Akkurat-Mono-_1.woff") format("woff"); font-weight: 400 500; font-style: normal; font-display: swap; }
+.atl-claude-magicmind-p2 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: 1220px; }
+.atl-claude-magicmind-p2 * { box-sizing: border-box; }
+.atl-claude-magicmind-p2 img { display: block; max-width: 100%; }
+.atl-claude-magicmind-p2 a { color: inherit; }
+.atl-claude-magicmind-p2 button { font: inherit; color: inherit; background: none; border: 0px; padding: 0px; cursor: pointer; text-align: inherit; }
+.atl-claude-magicmind-p2 h1, .atl-claude-magicmind-p2 h2, .atl-claude-magicmind-p2 h3, .atl-claude-magicmind-p2 p, .atl-claude-magicmind-p2 ul { margin: 0px; padding: 0px; }
+.atl-claude-magicmind-p2 ul { list-style: none; }
+.atl-claude-magicmind-p2 .chev { flex: 0 0 auto; }
+.atl-claude-magicmind-p2 .product { width: var(--wrap); margin: 0px auto; padding: 48px 0px; display: grid; grid-template-columns: 828px 360px; gap: 32px; align-items: start; }
+.atl-claude-magicmind-p2 .product-media { min-width: 0px; align-self: stretch; }
+.atl-claude-magicmind-p2 .media-sticky { position: sticky; top: 20px; }
+.atl-claude-magicmind-p2 .gallery { position: relative; }
+.atl-claude-magicmind-p2 .gallery-viewport { overflow: hidden; border-radius: 10px; aspect-ratio: 361 / 257; background: rgb(238, 238, 238); }
+.atl-claude-magicmind-p2 .gallery-track { display: flex; height: 100%; transition: transform 0.45s; }
+.atl-claude-magicmind-p2 .gallery-slide { flex: 0 0 100%; height: 100%; }
+.atl-claude-magicmind-p2 .gallery-slide img { width: 100%; height: 100%; object-fit: cover; }
+.atl-claude-magicmind-p2 .clinician { position: absolute; left: 12px; top: 0px; width: 99px; padding: 14px 8px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; background: rgb(255, 255, 255); clip-path: polygon(0px 0px, 100% 0px, 100% 100%, 50% calc(100% - 14px), 0px 100%); font-family: Georgia, serif; color: rgb(34, 34, 34); }
+.atl-claude-magicmind-p2 .clinician.is-hidden { display: none; }
+.atl-claude-magicmind-p2 .clinician-close { position: absolute; right: 6px; top: 2px; font-size: 14px; line-height: 14px; color: rgb(85, 85, 85); }
+.atl-claude-magicmind-p2 .clinician-logo { margin-bottom: 4px; font: 400 8px / 10px Georgia, serif; color: rgb(51, 51, 51); }
+.atl-claude-magicmind-p2 .clinician strong { font-size: 13px; line-height: 15px; font-weight: 400; margin-bottom: 10px; }
+.atl-claude-magicmind-p2 .clinician span { font: 500 9.5px / 14px Circular, sans-serif; color: rgb(68, 68, 68); }
+.atl-claude-magicmind-p2 .clinician a { font: 500 9px / 13px Circular, sans-serif; color: rgb(68, 68, 68); }
+.atl-claude-magicmind-p2 .clinician a:first-of-type { text-decoration: underline; margin-bottom: 14px; }
+.atl-claude-magicmind-p2 .clinician-reviews { text-decoration: none; }
+.atl-claude-magicmind-p2 .thumbs-row { margin-top: 16px; display: grid; grid-template-columns: 49px 1fr 49px; align-items: center; }
+.atl-claude-magicmind-p2 .thumbs-arrow { width: 30px; height: 30px; margin: auto; display: grid; place-items: center; border-radius: 50%; color: rgb(147, 150, 154); }
+.atl-claude-magicmind-p2 .thumbs-arrow:not(.is-next) .arr { transform: scaleX(-1); }
+.atl-claude-magicmind-p2 .thumbs-arrow.is-next { background: rgb(255, 255, 255); color: var(--ink); }
+.atl-claude-magicmind-p2 .thumbs-viewport { overflow: hidden; }
+.atl-claude-magicmind-p2 .thumbs-track { display: flex; gap: 16px; transition: transform 0.45s; }
+.atl-claude-magicmind-p2 .thumb { flex: 0 0 133px; height: 95px; overflow: hidden; border: 1px solid var(--grey); border-radius: 10px; }
+.atl-claude-magicmind-p2 .thumb.is-active { border-color: var(--ink); }
+.atl-claude-magicmind-p2 .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.atl-claude-magicmind-p2 .facts { margin-top: 32px; display: grid; grid-template-columns: 394px 394px; gap: 40px; }
+.atl-claude-magicmind-p2 .facts-toggle { width: 100%; display: flex; justify-content: space-between; align-items: baseline; padding: 0px 0px 16px; border-bottom: 1px solid var(--ink); font-size: 18px; line-height: 21.6px; font-weight: 700; }
+.atl-claude-magicmind-p2 .facts-toggle span { font-size: 14px; line-height: 16.8px; }
+.atl-claude-magicmind-p2 .facts-toggle .chev { display: none; }
+.atl-claude-magicmind-p2 .facts-col.is-closed .facts-body { display: none; }
+.atl-claude-magicmind-p2 .facts-body > p { margin-top: 12px; font-size: 11px; line-height: 15.4px; }
+.atl-claude-magicmind-p2 .facts-head, .atl-claude-magicmind-p2 .facts-row { display: grid; grid-template-columns: 214px 70px 70px; gap: 20px; font-size: 11px; line-height: 13.2px; }
+.atl-claude-magicmind-p2 .facts-head { margin-top: 12px; font-weight: 700; text-align: center; }
+.atl-claude-magicmind-p2 .facts-row { margin-top: 8px; }
+.atl-claude-magicmind-p2 .facts-head + .facts-row { margin-top: 8px; }
+.atl-claude-magicmind-p2 .facts-row span { text-align: center; }
+.atl-claude-magicmind-p2 .facts-row span:first-child { text-align: left; font-weight: 700; }
+.atl-claude-magicmind-p2 .facts-row.is-sub span:first-child { padding-left: 14px; }
+.atl-claude-magicmind-p2 .product-info { min-width: 0px; }
+.atl-claude-magicmind-p2 .viewing { display: flex; align-items: center; gap: 8px; height: 18px; font: 400 11px / 13.2px Akkurat, monospace; }
+.atl-claude-magicmind-p2 .product-title { margin-top: 20px; font-size: 51px; line-height: 51px; font-style: italic; }
+.atl-claude-magicmind-p2 .rating { margin-top: 32px; display: flex; align-items: center; gap: 0px; height: 26px; font: 400 13.3px / 16px Circular, sans-serif; text-decoration: none; color: rgb(0, 0, 0); }
+.atl-claude-magicmind-p2 .rating > span:first-child { margin-right: 10px; }
+.atl-claude-magicmind-p2 .stars { display: flex; }
+.atl-claude-magicmind-p2 .stars svg { width: 26.6px; height: 26.6px; }
+.atl-claude-magicmind-p2 .rating u { margin-left: 18px; }
+.atl-claude-magicmind-p2 .headline { margin-top: 32px; font-size: 40px; line-height: 44px; font-weight: 700; }
+.atl-claude-magicmind-p2 .headline em { font-weight: 500; }
+.atl-claude-magicmind-p2 .intro { margin-top: 38px; font-size: 18px; line-height: 25.2px; }
+.atl-claude-magicmind-p2 .benefits { margin-top: 25px; columns: 2; column-gap: 16px; }
+.atl-claude-magicmind-p2 .benefits li { break-inside: avoid; display: flex; gap: 9px; margin-bottom: 15px; font-size: 14px; line-height: 16.8px; }
+.atl-claude-magicmind-p2 .benefits .chk { flex: 0 0 auto; margin-top: 1px; }
+.atl-claude-magicmind-p2 .field-label { margin-top: 18px; font-size: 16px; line-height: 23px; }
+.atl-claude-magicmind-p2 .caffeine { margin-top: 12px; height: 48px; padding: 0px 20px; display: flex; align-items: center; justify-content: space-between; background: rgb(255, 255, 255); border: 1px solid var(--line); border-radius: 5px; font-size: 14px; color: rgb(85, 85, 85); }
+.atl-claude-magicmind-p2 .caffeine b { font-weight: 500; color: var(--ink); }
+.atl-claude-magicmind-p2 .caffeine + .field-label { margin-top: 26px; }
+.atl-claude-magicmind-p2 .offers { margin-top: 33px; display: grid; gap: 16px; }
+.atl-claude-magicmind-p2 .offer { position: relative; width: 100%; min-height: 75px; padding: 24px 16px; display: flex; flex-wrap: wrap; align-items: center; background: var(--grey); border: 2px solid transparent; border-radius: 10px; }
+.atl-claude-magicmind-p2 .offer.is-selected { background: linear-gradient(rgb(244, 246, 239), rgb(244, 246, 239)) padding-box padding-box, linear-gradient(93deg, rgb(240, 240, 162) -30.68%, rgb(73, 169, 154) 149.44%) border-box border-box; }
+.atl-claude-magicmind-p2 .radio { width: 22px; height: 22px; border: 2px solid var(--ink); border-radius: 50%; }
+.atl-claude-magicmind-p2 .offer.is-selected .radio { border: 5px solid rgb(228, 240, 232); background: rgb(73, 169, 154); box-shadow: 0 0 0 2px var(--ink); }
+.atl-claude-magicmind-p2 .offer-qty { margin-left: 8px; font-size: 18px; line-height: 21.6px; }
+.atl-claude-magicmind-p2 .badge { margin-left: 28px; padding: 4px 12px; border-radius: 10px; font-size: 11px; line-height: 13.2px; font-weight: 700; }
+.atl-claude-magicmind-p2 .b-yellow { background: rgb(253, 215, 110); }
+.atl-claude-magicmind-p2 .b-blue { background: rgb(74, 95, 150); color: rgb(255, 255, 255); }
+.atl-claude-magicmind-p2 .b-red { background: rgb(245, 142, 132); }
+.atl-claude-magicmind-p2 .offer s { margin-left: auto; font-size: 11px; line-height: 23px; color: rgb(89, 92, 99); }
+.atl-claude-magicmind-p2 .price { margin-left: 8px; font-size: 18px; line-height: 23px; }
+.atl-claude-magicmind-p2 .offer .badge + .price { margin-left: auto; }
+.atl-claude-magicmind-p2 .popular { position: absolute; left: 50%; top: -11px; transform: translateX(-50%); padding: 4px 20px; border-radius: 10px; background: linear-gradient(105.74deg, rgb(240, 240, 162) 30.68%, rgb(73, 169, 154) 149.44%); font-size: 11px; line-height: 13.2px; font-weight: 700; white-space: nowrap; }
+.atl-claude-magicmind-p2 .offer-meta { width: 100%; margin-top: 9px; display: grid; grid-template-columns: 1fr 1fr; row-gap: 8px; font-size: 11px; line-height: 13.2px; }
+.atl-claude-magicmind-p2 .offer-meta span:nth-child(2n) { text-align: right; }
+.atl-claude-magicmind-p2 .offer-meta i { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 4px; border: 1px solid rgb(147, 150, 154); border-radius: 50%; font: 900 9px / 9px Circular, sans-serif; color: rgb(147, 150, 154); }
+.atl-claude-magicmind-p2 .atc { margin-top: 16px; display: block; height: 51px; padding: 18px 40px; border-radius: 90px; background: var(--ink); color: var(--paper); text-align: center; font-size: 14px; line-height: 15.4px; font-weight: 700; letter-spacing: 0.7px; text-decoration: none; }
+.atl-claude-magicmind-p2 .one-time { margin-top: 16px; display: block; text-align: center; font-size: 14px; line-height: 16.8px; text-decoration: none; }
+.atl-claude-magicmind-p2 .sub-box { margin-top: 16px; padding: 24px 16px; border: 1px solid var(--line); border-radius: 10px; }
+.atl-claude-magicmind-p2 .sub-title { font-size: 18px; line-height: 21.6px; }
+.atl-claude-magicmind-p2 .sub-box ul { margin-top: 16px; }
+.atl-claude-magicmind-p2 .sub-box li { position: relative; padding-left: 17px; margin-bottom: 15.5px; font-size: 14px; line-height: 16.8px; }
+.atl-claude-magicmind-p2 .sub-box li:last-child { margin-bottom: 0px; }
+.atl-claude-magicmind-p2 .sub-box li::before { content: ""; position: absolute; left: 1px; top: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.atl-claude-magicmind-p2 .hsa { margin-top: 16px; padding: 24px 16px; display: flex; align-items: center; gap: 16px; border: 1px solid var(--ink); border-radius: 10px; font-size: 11px; line-height: 13.2px; }
+.atl-claude-magicmind-p2 .hsa a { margin-left: auto; }
+.atl-claude-magicmind-p2 .group { margin-top: 143px; }
+.atl-claude-magicmind-p2 .group + .group { margin-top: 40px; }
+.atl-claude-magicmind-p2 .group h2 { font-size: 35px; line-height: 38.5px; font-weight: 450; }
+.atl-claude-magicmind-p2 .group > p { margin-top: 15px; font-size: 18px; line-height: 21.6px; font-weight: 450; }
+.atl-claude-magicmind-p2 .ing-list { margin-top: 24px; display: grid; gap: 16px; }
+.atl-claude-magicmind-p2 .ing { background: rgb(255, 255, 255); border: 1px solid rgb(147, 150, 154); border-radius: 10px; overflow: hidden; }
+.atl-claude-magicmind-p2 .ing-q { width: 100%; height: 58px; padding: 0px 24px; display: flex; align-items: center; gap: 16px; }
+.atl-claude-magicmind-p2 .ing-q img { width: 26px; height: 26px; object-fit: contain; }
+.atl-claude-magicmind-p2 .ing-q strong { flex: 1 1 0%; font-size: 18px; line-height: 25.2px; font-weight: 450; }
+.atl-claude-magicmind-p2 .ing-q .chev { transition: transform 0.3s; }
+.atl-claude-magicmind-p2 .ing.is-open .ing-q .chev { transform: rotate(180deg); }
+.atl-claude-magicmind-p2 .ing-a { max-height: 0px; overflow: hidden; transition: max-height 0.35s; }
+.atl-claude-magicmind-p2 .ing.is-open .ing-a { max-height: 400px; }
+.atl-claude-magicmind-p2 .ing-a p { padding: 0px 24px 20px; font-size: 14px; line-height: 19.6px; }
+.atl-claude-magicmind-p2 .text-block { margin-top: 23px; }
+.atl-claude-magicmind-p2 .text-block + .text-block { margin-top: 39px; }
+.atl-claude-magicmind-p2 .text-block h2 { font-size: 23px; line-height: 28.75px; font-weight: 700; }
+.atl-claude-magicmind-p2 .text-block p { margin-top: 16px; font-size: 18px; line-height: 25.2px; font-weight: 450; }
+.atl-claude-magicmind-p2 .text-block p + p { margin-top: 12px; }
+.atl-claude-magicmind-p2 .text-block .tip { margin-top: 16px; font-size: 14px; line-height: 19.6px; font-weight: 500; }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 { --wrap: calc(100% - 28px); } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product { display: flex; flex-direction: column; gap: 0px; padding-top: 0px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info, .atl-claude-magicmind-p2 .product-media { display: contents; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .viewing { order: 1; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-title { order: 2; margin-top: 8px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .rating { order: 3; margin-top: 16px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .media-sticky { order: 4; margin-top: 24px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info > * { order: 5; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info > .viewing { order: 1; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info > .product-title { order: 2; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info > .rating { order: 3; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts { order: 6; margin-top: 64px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-info > .group, .atl-claude-magicmind-p2 .product-info > .text-block { order: 7; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts-toggle { padding: 16px 0px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts-toggle .chev { display: block; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts-col .facts-body { display: none; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts-col.is-closed .facts-body { display: block; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts { gap: 0px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .caffeine, .atl-claude-magicmind-p2 .offers, .atl-claude-magicmind-p2 .atc, .atl-claude-magicmind-p2 .sub-box, .atl-claude-magicmind-p2 .hsa { width: 100%; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .clinician { transform: scale(0.85); transform-origin: left top; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .media-sticky { position: relative; top: auto; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .thumbs-row { grid-template-columns: 34px 1fr 34px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .thumb { flex-basis: 74px; height: 53px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts { grid-template-columns: 1fr; gap: 24px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .facts-head, .atl-claude-magicmind-p2 .facts-row { grid-template-columns: 1fr 60px 60px; gap: 10px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .product-title { font-size: 40px; line-height: 40px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .headline { font-size: 30px; line-height: 34px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p2 .group { margin-top: 56px; } }
+.atl-claude-magicmind-p2 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-claude-magicmind-p2 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-claude-magicmind-p2 [data-atl-car="track"] > * { transform: none !important; }
+.atl-claude-magicmind-p2 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-claude-magicmind-p2 [data-atl-h] { display: none !important; }
+.atl-claude-magicmind-p2 [data-atl-href] { cursor: pointer; }

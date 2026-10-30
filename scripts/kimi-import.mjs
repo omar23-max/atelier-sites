@@ -1,6 +1,7 @@
 // Import d'une page déjà reproduite par Kimi (application React + Vite) : on
 // garde SON HTML, SES classes et SON CSS, sans rien mesurer ni recopier.
-// Usage : node scripts/kimi-import.mjs <dossier app Kimi> <nom> [--label "Marque"]
+// Usage : node scripts/kimi-import.mjs <dossier app> <nom> [--label "Marque"] [--sans-coupe]
+// (<dossier app>/dist/index.html : page React de Kimi compilée, ou page HTML simple)
 //
 // Le dossier doit être compilé (dist/) : npm install --ignore-scripts puis
 // npx vite build (le lockfile de Kimi pointe parfois vers leur miroir npm
@@ -38,7 +39,9 @@ if (!existsSync(join(dist, "index.html"))) {
   console.error(`✗ ${dist}\\index.html introuvable : compile d'abord le projet Kimi (npx vite build).`);
   process.exit(1);
 }
-const MAX_SLOTS = 45; // Shopify : 50 blocs au plus par section
+// Shopify : 50 blocs au plus par section. --sans-coupe : pas de limite (site
+// headless, la page reste en une section par section du site).
+const MAX_SLOTS = process.argv.includes("--sans-coupe") ? Infinity : 45;
 const scope = `atl-${slug}`;
 const assetBase = `/imports/${slug}/assets/`;
 

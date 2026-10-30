@@ -1,0 +1,58 @@
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: Akkurat; src: url("/imports/claude-magicmind/assets/Akkurat-Mono-_1.woff") format("woff"); font-weight: 400 500; font-style: normal; font-display: swap; }
+.atl-claude-magicmind-p4 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: 1220px; }
+.atl-claude-magicmind-p4 * { box-sizing: border-box; }
+.atl-claude-magicmind-p4 img { display: block; max-width: 100%; }
+.atl-claude-magicmind-p4 a { color: inherit; }
+.atl-claude-magicmind-p4 button { font: inherit; color: inherit; background: none; border: 0px; padding: 0px; cursor: pointer; text-align: inherit; }
+.atl-claude-magicmind-p4 h1, .atl-claude-magicmind-p4 h2, .atl-claude-magicmind-p4 h3, .atl-claude-magicmind-p4 p, .atl-claude-magicmind-p4 ul { margin: 0px; padding: 0px; }
+.atl-claude-magicmind-p4 .chev { flex: 0 0 auto; }
+.atl-claude-magicmind-p4 .btn { white-space: nowrap; display: inline-flex; align-items: center; gap: 10px; height: 55px; padding: 18px 30px 18px 40px; border: 2px solid var(--ink); border-radius: 90px; font-size: 14px; line-height: 15.4px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; text-decoration: none; }
+.atl-claude-magicmind-p4 .btn-dark { background: var(--ink); color: var(--paper); }
+.atl-claude-magicmind-p4 .research { padding: 130px 0px 60px; background: var(--grey); }
+.atl-claude-magicmind-p4 .research-head { width: var(--wrap); margin: 0px auto; display: grid; grid-template-columns: 594px 594px; gap: 32px; }
+.atl-claude-magicmind-p4 .research-head h2 { font-size: 55px; line-height: 55px; font-weight: 500; color: rgb(0, 0, 0); max-width: 440px; }
+.atl-claude-magicmind-p4 .research-head p { font-size: 18px; line-height: 25.2px; color: rgb(0, 0, 0); }
+.atl-claude-magicmind-p4 .research-head .btn { margin-top: 31px; }
+.atl-claude-magicmind-p4 .cards-viewport { margin: 151px 0 0 calc((100% - var(--wrap)) / 2); overflow: hidden; }
+.atl-claude-magicmind-p4 .cards-track { display: flex; gap: 24px; transition: transform 0.45s; }
+.atl-claude-magicmind-p4 .card { position: relative; flex: 0 0 393px; height: 600px; padding: 32px; background: rgb(255, 255, 255); border-radius: 10px; color: rgb(0, 0, 0); }
+.atl-claude-magicmind-p4 .card.is-open { height: auto; min-height: 600px; }
+.atl-claude-magicmind-p4 .card > img { width: 329px; height: 329px; object-fit: contain; }
+.atl-claude-magicmind-p4 .card h3 { margin-top: 33px; font-size: 28px; line-height: 30.8px; font-weight: 700; }
+.atl-claude-magicmind-p4 .card-sub { margin-top: 18px; font: 400 12px / 16.8px Akkurat, monospace; }
+.atl-claude-magicmind-p4 .card-short { margin-top: 31px; font-size: 14px; line-height: 19.6px; }
+.atl-claude-magicmind-p4 .card-more { display: none; font-size: 14px; line-height: 19.6px; }
+.atl-claude-magicmind-p4 .card-more a { text-decoration: underline; }
+.atl-claude-magicmind-p4 .card.is-open .card-more { display: block; }
+.atl-claude-magicmind-p4 .card-toggle { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); width: 30px; height: 20px; display: grid; place-items: center; }
+.atl-claude-magicmind-p4 .card.is-open .card-toggle { position: static; transform: none; margin: 16px auto 0px; }
+.atl-claude-magicmind-p4 .card.is-open .card-toggle .chev { transform: rotate(180deg); }
+.atl-claude-magicmind-p4 .dots { display: flex; justify-content: center; align-items: center; gap: 16px; }
+.atl-claude-magicmind-p4 .cards-dots { margin-top: 32px; }
+.atl-claude-magicmind-p4 .dot { width: 8px; height: 8px; border: 1.5px solid rgb(0, 0, 0); border-radius: 50%; }
+.atl-claude-magicmind-p4 .dot.is-active { width: 12px; height: 12px; background: rgb(0, 0, 0); }
+.atl-claude-magicmind-p4 .badges { margin-top: 80px; display: flex; justify-content: center; gap: 120px; }
+.atl-claude-magicmind-p4 .badges img { width: 100px; height: 100px; object-fit: contain; }
+.atl-claude-magicmind-p4 .badges-text { margin-top: 70px; text-align: center; font-size: 26px; line-height: 31px; font-weight: 500; color: rgb(0, 0, 0); }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 { --wrap: calc(100% - 28px); } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .research { padding: 40px 0px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .research-head { grid-template-columns: 1fr; gap: 20px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .research-head h2 { font-size: 38px; line-height: 40px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .cards-viewport { margin: 40px 0px 0px 20px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .card { flex-basis: 300px; height: 520px; padding: 24px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .card > img { width: 252px; height: 252px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .badges { gap: 20px; flex-wrap: wrap; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .badges img { width: 70px; height: 70px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p4 .badges-text { margin: 30px 20px 0px; font-size: 18px; line-height: 24px; } }
+.atl-claude-magicmind-p4 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-claude-magicmind-p4 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-claude-magicmind-p4 [data-atl-car="track"] > * { transform: none !important; }
+.atl-claude-magicmind-p4 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-claude-magicmind-p4 [data-atl-h] { display: none !important; }
+.atl-claude-magicmind-p4 [data-atl-href] { cursor: pointer; }

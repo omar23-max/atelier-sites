@@ -1,0 +1,36 @@
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Book.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Book-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-MediumItalic.otf") format("opentype"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/CircularStd-BoldItalic.otf") format("opentype"); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/claude-magicmind/assets/Circular-Std-Black.ttf") format("truetype"); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: Akkurat; src: url("/imports/claude-magicmind/assets/Akkurat-Mono-_1.woff") format("woff"); font-weight: 400 500; font-style: normal; font-display: swap; }
+.atl-claude-magicmind-p5 { --ink: #05060a; --grey: #efefef; --paper: #f0f0eb; --line: #b2b4b5; --green: #049e88; --wrap: 1220px; }
+.atl-claude-magicmind-p5 * { box-sizing: border-box; }
+.atl-claude-magicmind-p5 img { display: block; max-width: 100%; }
+.atl-claude-magicmind-p5 h1, .atl-claude-magicmind-p5 h2, .atl-claude-magicmind-p5 h3, .atl-claude-magicmind-p5 p, .atl-claude-magicmind-p5 ul { margin: 0px; padding: 0px; }
+.atl-claude-magicmind-p5 ul { list-style: none; }
+.atl-claude-magicmind-p5 .brain { position: relative; height: 741px; overflow: hidden; }
+.atl-claude-magicmind-p5 .brain-bg { position: absolute; inset: 0px; width: 100%; height: 100%; object-fit: cover; }
+.atl-claude-magicmind-p5 .brain::after { content: ""; position: absolute; inset: 0px; background: rgba(0, 0, 0, 0.29); }
+.atl-claude-magicmind-p5 .brain-inner { position: relative; z-index: 1; width: var(--wrap); margin: 0px auto; padding-top: 130px; }
+.atl-claude-magicmind-p5 .brain h2 { width: 600px; font-size: 90px; line-height: 90px; font-weight: 450; color: rgb(255, 255, 255); }
+.atl-claude-magicmind-p5 .brain h2 span { display: block; }
+.atl-claude-magicmind-p5 .brain h2 .it { padding-left: 66px; font-style: italic; }
+.atl-claude-magicmind-p5 .brain-cards { margin-top: 40px; display: grid; grid-template-columns: repeat(3, 380px); gap: 40px; }
+.atl-claude-magicmind-p5 .brain-cards li { min-height: 261px; padding: 32px; background: rgba(255, 255, 255, 0.94); border-radius: 10px; color: rgb(0, 0, 0); }
+.atl-claude-magicmind-p5 .day { font: 400 14px / 16.8px Akkurat, monospace; }
+.atl-claude-magicmind-p5 .brain-cards h3 { margin-top: 16px; font-size: 35px; line-height: 38.5px; font-weight: 450; }
+.atl-claude-magicmind-p5 .brain-cards h3 + p { margin-top: 17px; font-size: 18px; line-height: 21.6px; font-weight: 450; letter-spacing: -0.16px; }
+@media (max-width: 767px) { .atl-claude-magicmind-p5 { --wrap: calc(100% - 28px); } }
+@media (max-width: 767px) { .atl-claude-magicmind-p5 .brain { height: auto; padding-bottom: 40px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p5 .brain-inner { padding-top: 60px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p5 .brain h2 { width: auto; font-size: 50px; line-height: 52px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p5 .brain h2 .it { padding-left: 36px; } }
+@media (max-width: 767px) { .atl-claude-magicmind-p5 .brain-cards { grid-template-columns: 1fr; gap: 16px; } }
+.atl-claude-magicmind-p5 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-claude-magicmind-p5 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-claude-magicmind-p5 [data-atl-car="track"] > * { transform: none !important; }
+.atl-claude-magicmind-p5 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-claude-magicmind-p5 [data-atl-h] { display: none !important; }
+.atl-claude-magicmind-p5 [data-atl-href] { cursor: pointer; }
