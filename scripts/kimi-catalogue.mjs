@@ -50,7 +50,7 @@ for (const [i, item] of parts.entries()) {
     console.log(`  – ${item.type} : ${blocks.length} élément(s), ignoré`);
     continue;
   }
-  const prices = (text.match(/[$€£]\s?\d/g) ?? []).length;
+  const prices = (text.match(/[$€£¥]\s?\d/g) ?? []).length;
   const buys = (text.match(/add to (cart|bag)|shop now|try (free|original|maxx|sleep)|ajouter au panier|view product/gi) ?? []).length;
   const grid = prices >= 6 && buys >= 4;
   // Bouton panier et prix : la fiche produit (galerie + colonne d'achat).
