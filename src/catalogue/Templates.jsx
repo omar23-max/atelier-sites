@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, mirrorIntoPage, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
@@ -42,40 +42,80 @@ async function mirrorHere(template, onMessage) {
 
 // « La page originale a-t-elle changé ? » : site en ligne contre la capture
 // enregistrée (~40 s). Pas de re-vérification de la copie elle-même.
-function SiteCheck({ template, onMessage, onChecked }) {
-  const [busy, setBusy] = useState(false);
-  if (!template.url) return null;
+async function checkSite(template, onMessage, onChecked) {
+  onMessage?.({ text: `Contrôle de ${template.url} en cours (~40 s)…` });
+  try {
+    const res = await fetch(`/api/verifier/${template.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ site: true }) });
+    const r = await res.json();
+    if (!res.ok || r.erreur) throw new Error(r.error ?? r.erreur);
+    onChecked({ date: r.date, score: r.score, change: r.change, verdict: r.verdict });
+    onMessage?.({
+      text: `${template.nom} : ${r.verdict} (${r.score} / 100). ${r.textes}, ${r.images}, hauteur ${r.hauteur.ecart}.${r.change ? " Pour reprendre la nouvelle version : réimporter la page." : ""}`,
+      error: r.change,
+    });
+  } catch (e) {
+    onMessage?.({ error: true, text: `Contrôle impossible : ${e.message}` });
+  }
+}
+
+// Petit menu (⋯ de l'aperçu, ▾ du bouton) : se ferme au clic ailleurs ou sur Échap.
+function Menu({ className, label, icon, items }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => !ref.current?.contains(e.target) && setOpen(false);
+    const esc = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", esc);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
   return (
-    <>
+    <div className={`cat-menu ${className ?? ""}`} ref={ref}>
       <button
         type="button"
-        className="cat-tpl__link"
-        disabled={busy}
-        title="Compare la page en ligne à la capture faite à l'import (~40 s)"
-        onClick={async () => {
-          setBusy(true);
-          try {
-            const res = await fetch(`/api/verifier/${template.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ site: true }) });
-            const r = await res.json();
-            if (!res.ok || r.erreur) throw new Error(r.error ?? r.erreur);
-            onChecked({ date: r.date, score: r.score, change: r.change, verdict: r.verdict });
-            onMessage?.({
-              text: `${template.nom} : ${r.verdict} (${r.score} / 100). ${r.textes}, ${r.images}, hauteur ${r.hauteur.ecart}.${r.change ? " Pour reprendre la nouvelle version : réimporter la page." : ""}`,
-              error: r.change,
-            });
-          } catch (e) {
-            onMessage?.({ error: true, text: `Contrôle impossible : ${e.message}` });
-          } finally {
-            setBusy(false);
-          }
-        }}
+        className="cat-menu__trigger"
+        aria-label={label}
+        aria-expanded={open}
+        title={label}
+        onClick={(e) => (e.preventDefault(), e.stopPropagation(), setOpen(!open))}
       >
-        {busy ? "Contrôle… (~40 s)" : "Vérifier l'original"}
+        {icon}
       </button>
-    </>
+      {open && (
+        <div className="cat-menu__list" role="menu">
+          {items.filter(Boolean).map((it) =>
+            it.href ? (
+              <a key={it.label} role="menuitem" href={it.href} target="_blank" rel="noreferrer" onClick={() => setOpen(false)}>
+                {it.label}
+              </a>
+            ) : (
+              <button key={it.label} type="button" role="menuitem" className={it.danger ? "is-danger" : ""} onClick={() => (setOpen(false), it.action())}>
+                {it.label}
+              </button>
+            ),
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
+// Titre court : le produit (« Burn2O (shot liquide) » → « Burn2O — shot
+// liquide »), sinon le nom du template.
+const shortTitle = (t) => {
+  const p = String(t.produit ?? "").trim();
+  if (!p) return t.nom;
+  const m = /^(.*?)\s*\((.+)\)\s*$/.exec(p);
+  return m ? `${m[1]} — ${m[2]}` : p;
+};
+
+// Carte d'un template : un aperçu (clic = ouvrir la page modifiable), un titre
+// court, des pastilles, une seule action principale (avec ▾ pour remplacer la
+// page ouverte) et un menu ⋯ pour les actions rares.
 function TemplateCard({ template, onUse, onDelete, onMessage }) {
   // Aperçu : la capture pleine page (nette), la vignette en secours.
   const hover = useHoverPreview("template", { thumbnail: template.vignette, full: template.vignette?.replace(/vignette.png$/, "desktop.png") });
@@ -89,71 +129,71 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
       return null;
     }
   })();
-  const score = template.verification?.score;
   const props = template.propositions;
+  const niche = String(template.niche ?? "").split(/\s+[—-]\s+/)[0];
+  const canReplace = currentPage && template.page && currentPage !== template.page;
   return (
     <article className="cat-card cat-tpl">
-      <a className="cat-tpl__thumb" href={template.page ? `/?page=${template.page}` : undefined} title="Ouvrir la version modifiable" {...(template.vignette ? hover : {})}>
-        {template.vignette ? <img src={template.vignette} alt="" loading="lazy" /> : <span>Pas de vignette</span>}
-        {type && <span className={`cat-tpl__type${type.achat ? " is-achat" : ""}`}>{type.label}</span>}
-      </a>
+      <div className="cat-tpl__media">
+        <a className="cat-tpl__thumb" href={template.page ? `/?page=${template.page}` : undefined} title="Ouvrir la page modifiable" {...(template.vignette ? hover : {})}>
+          {template.vignette ? <img src={template.vignette} alt="" loading="lazy" /> : <span>Pas de vignette</span>}
+        </a>
+        {type && <span className="cat-tpl__type">{type.label}</span>}
+        <Menu
+          className="cat-tpl__more"
+          label="Plus d'actions"
+          icon="⋯"
+          items={[
+            template.url && { label: "Voir l'original", href: `/api/original/${template.id}` },
+            template.url && { label: "Vérifier si le site a changé", action: () => checkSite(template, onMessage, setCheck) },
+            { label: "Supprimer", danger: true, action: () => onDelete(template) },
+          ]}
+        />
+      </div>
       <div className="cat-tpl__body">
         <strong className="cat-tpl__title" title={template.nom}>
-          {template.nom}
+          {shortTitle(template)}
         </strong>
         <span className="cat-tpl__meta">
+          {template.marque}
+          {template.marque && host && " · "}
           {host && (
-            <a href={template.url} target="_blank" rel="noreferrer noopener">
+            <a href={template.url} target="_blank" rel="noreferrer noopener" title={template.url}>
               {host} ↗
             </a>
           )}
-          {template.marque && <> · {template.marque}</>}
         </span>
-        <span className="cat-tpl__meta cat-tpl__meta--muted">
-          {template.copieEntiere ? `${template.elements} éléments` : template.sectionsSite != null ? `${template.sectionsSite} sections · ${extracted} au catalogue` : `Captures · ${extracted} au catalogue`}
-          {` · ${template.photos} photos`}
-          {template.niche ? ` · ${template.niche}` : ""}
-        </span>
-        <div className="cat-tpl__badges">
-          {score != null && (
-            <span className={`cat-tpl__badge ${score >= 95 ? "is-ok" : "is-warn"}`} title={`Fidélité de la copie à l'original, mesurée à l'import le ${String(template.verification.date).slice(0, 10)}${template.verification.copycat?.note ? ` · Copycat : ${template.verification.copycat.note}` : ""}`}>
-              Fidélité {score}/100
-            </span>
-          )}
+        <div className="cat-tpl__pills">
+          {niche && <span className="cat-tpl__pill">{niche}</span>}
+          {extracted > 0 && <span className="cat-tpl__pill">{extracted} sections</span>}
           {props && (
-            <span className="cat-tpl__badge is-info" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
-              Score de vente {props.score} · {props.manquantes.length ? `${props.manquantes.length} à ajouter` : "complet"}
+            <span className="cat-tpl__pill is-info" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
+              Vente {props.score}
             </span>
           )}
-          {check && (
-            <span className={`cat-tpl__badge ${check.change ? "is-bad" : check.score < 95 ? "is-warn" : "is-ok"}`} title={`${check.verdict} — contrôlé le ${String(check.date).slice(0, 10)}`}>
-              {check.change ? "Original modifié" : check.score < 95 ? "Original retouché" : "Original inchangé"}
+          {check?.change && (
+            <span className="cat-tpl__pill is-bad" title={`${check.verdict} — contrôlé le ${String(check.date).slice(0, 10)}`}>
+              Site modifié
             </span>
           )}
         </div>
       </div>
       <div className="cat-tpl__actions">
-        <button type="button" className="cat-tpl__primary" disabled={!template.page} onClick={() => onUse(template)}>
-          Utiliser dans un projet
-        </button>
-        {currentPage && template.page && currentPage !== template.page && (
-          <button type="button" className="cat-tpl__secondary" title={`Remplace les sections de « ${currentPage} » par celles de ce template`} onClick={() => mirrorHere(template, onMessage)}>
-            Miroring dans la page actuelle
+        <div className={`cat-tpl__use${canReplace ? " has-more" : ""}`}>
+          <button type="button" className="cat-tpl__primary" disabled={!template.page} onClick={() => onUse(template)} title="Créer une page avec ce template, dans un projet">
+            Utiliser ce template
           </button>
-        )}
-        <div className="cat-tpl__links">
-          <a className="cat-tpl__link" href={`/api/original/${template.id}`} target="_blank" rel="noreferrer" title="La page d'origine : textes, design et images">
-            Original
-          </a>
-          {template.page && (
-            <a className="cat-tpl__link" href={`/?page=${template.page}`} title="Ouvrir la copie modifiable dans l'atelier">
-              Modifiable
-            </a>
+          {canReplace && (
+            <Menu
+              className="cat-tpl__usemore"
+              label="Autres façons de l'utiliser"
+              icon="▾"
+              items={[
+                { label: "Nouvelle page dans un projet", action: () => onUse(template) },
+                { label: `Remplacer la page « ${currentPage} »`, action: () => mirrorHere(template, onMessage) },
+              ]}
+            />
           )}
-          <SiteCheck template={template} onMessage={onMessage} onChecked={setCheck} />
-          <button type="button" className="cat-tpl__link cat-tpl__delete" onClick={() => onDelete(template)} title="Supprimer ce template (corbeille)" aria-label="Supprimer ce template">
-            🗑
-          </button>
         </div>
       </div>
     </article>

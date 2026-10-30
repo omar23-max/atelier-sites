@@ -1212,21 +1212,29 @@ textarea {
 @media (max-width: 700px) { .cat-inspect__blocks { grid-template-columns: 1fr; } .cat-typo th { width: 120px; } }
 
 /* ---- Carte de template ----
-   Image 4:3 avec le type de page, titre sur 2 lignes, infos compactes,
-   deux actions principales, puis une rangée de petits liens. */
+   Style SaaS : aperçu 4:3 (clic = ouvrir), type en étiquette, menu ⋯ ;
+   titre court, marque et site discrets, pastilles grises ; une seule action
+   principale (▾ pour remplacer la page ouverte). */
 .cat-tpl {
-  transition: box-shadow 0.15s, border-color 0.15s;
+  overflow: visible;
+  border-radius: 14px;
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
 }
 .cat-tpl:hover {
   border-color: #d6d3cc;
-  box-shadow: 0 6px 18px rgba(20, 20, 20, 0.08);
+  box-shadow: 0 10px 28px rgba(20, 20, 20, 0.08);
+  transform: translateY(-1px);
+}
+.cat-tpl__media {
+  position: relative;
+  padding: 8px 8px 0;
 }
 .cat-tpl__thumb {
-  position: relative;
   display: block;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  border-bottom: 1px solid var(--cat-line);
+  border: 1px solid var(--cat-line);
+  border-radius: 10px;
   background: #f1efea;
 }
 .cat-tpl__thumb img {
@@ -1235,8 +1243,12 @@ textarea {
   height: 100%;
   object-fit: cover;
   object-position: top center;
+  transition: transform 0.3s ease;
 }
-.cat-tpl__thumb > span:not(.cat-tpl__type) {
+.cat-tpl:hover .cat-tpl__thumb img {
+  transform: scale(1.02);
+}
+.cat-tpl__thumb > span {
   display: grid;
   height: 100%;
   place-items: center;
@@ -1245,129 +1257,175 @@ textarea {
 }
 .cat-tpl__type {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 3px 8px;
+  top: 16px;
+  left: 16px;
+  padding: 3px 9px;
+  border: 1px solid var(--cat-line);
   border-radius: 999px;
-  background: rgba(20, 20, 20, 0.78);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--cat-text);
   font-size: 11px;
   font-weight: 600;
-  backdrop-filter: blur(4px);
+  pointer-events: none;
 }
-.cat-tpl__type.is-achat {
-  background: rgba(31, 122, 58, 0.9);
+.cat-tpl__more {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+.cat-tpl__more .cat-menu__trigger {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--cat-text);
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.cat-tpl:hover .cat-tpl__more .cat-menu__trigger,
+.cat-tpl__more .cat-menu__trigger[aria-expanded="true"] {
+  opacity: 1;
 }
 .cat-tpl__body {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 12px 8px;
+  padding: 12px 14px 4px;
 }
 .cat-tpl__title {
   display: -webkit-box;
   overflow: hidden;
   color: var(--cat-text);
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
   line-height: 1.3;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 .cat-tpl__meta {
   overflow: hidden;
-  color: var(--cat-text);
+  color: var(--cat-muted);
   font-size: 12px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .cat-tpl__meta a {
-  color: var(--cat-blue);
+  color: var(--cat-muted);
   text-decoration: none;
 }
-.cat-tpl__meta--muted {
-  color: var(--cat-muted);
+.cat-tpl__meta a:hover {
+  color: var(--cat-blue);
 }
-.cat-tpl__badges {
+.cat-tpl__pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 4px;
+  gap: 5px;
+  margin-top: 6px;
 }
-.cat-tpl__badge {
-  padding: 2px 7px;
-  border-radius: 6px;
+.cat-tpl__pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1efea;
+  color: #55534e;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
 }
-.cat-tpl__badge.is-ok { background: var(--cat-green-bg); color: var(--cat-green); }
-.cat-tpl__badge.is-warn { background: var(--cat-amber-bg); color: var(--cat-amber); }
-.cat-tpl__badge.is-bad { background: #fde8e7; color: var(--cat-red); }
-.cat-tpl__badge.is-info { background: var(--cat-blue-bg); color: var(--cat-blue); }
+.cat-tpl__pill.is-info { background: var(--cat-blue-bg); color: var(--cat-blue); }
+.cat-tpl__pill.is-bad { background: #fde8e7; color: var(--cat-red); }
 .cat-tpl__actions {
-  display: grid;
-  gap: 6px;
-  padding: 0 12px 10px;
+  padding: 10px 14px 14px;
 }
-.cat-tpl__primary,
-.cat-tpl__secondary {
-  height: 34px;
-  border-radius: 8px;
+.cat-tpl__use {
+  display: flex;
+  overflow: visible;
+  border-radius: 9px;
+  background: var(--cat-black);
+}
+.cat-tpl__primary {
+  flex: 1;
+  height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #fff;
   font: 600 13px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
-.cat-tpl__primary {
-  border: 0;
-  background: var(--cat-black);
-  color: #fff;
+.cat-tpl__use.has-more .cat-tpl__primary {
+  border-radius: 9px 0 0 9px;
 }
-.cat-tpl__primary:hover:not(:disabled) {
+.cat-tpl__use:hover {
   background: #333;
 }
 .cat-tpl__primary:disabled {
   opacity: 0.4;
   cursor: default;
 }
-.cat-tpl__secondary {
-  border: 1px solid var(--cat-black);
-  background: #fff;
-  color: var(--cat-black);
-}
-.cat-tpl__secondary:hover {
-  background: #f4f3ef;
-}
-.cat-tpl__links {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding-top: 4px;
-  border-top: 1px solid var(--cat-line);
-}
-.cat-tpl__link {
-  padding: 4px 6px;
+.cat-tpl__usemore .cat-menu__trigger {
+  width: 36px;
+  height: 36px;
   border: 0;
-  border-radius: 6px;
-  background: none;
-  color: var(--cat-muted);
-  font: 500 12px "Inter", system-ui, sans-serif;
-  text-decoration: none;
-  white-space: nowrap;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0 9px 9px 0;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+}
+.cat-tpl__usemore .cat-menu__list {
+  right: 0;
+  bottom: calc(100% + 6px);
+  top: auto;
+}
+
+/* Petit menu (⋯, ▾) des cartes. */
+.cat-menu {
+  position: relative;
+}
+.cat-menu__trigger {
+  display: grid;
+  place-items: center;
   cursor: pointer;
 }
-.cat-tpl__link:hover:not(:disabled) {
-  background: #f1efea;
+.cat-menu__list {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 210px;
+  padding: 5px;
+  border: 1px solid var(--cat-line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(20, 20, 20, 0.14);
+}
+.cat-menu__list a,
+.cat-menu__list button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
   color: var(--cat-text);
+  font: 500 13px "Inter", system-ui, sans-serif;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
 }
-.cat-tpl__link:disabled {
-  cursor: progress;
+.cat-menu__list a:hover,
+.cat-menu__list button:hover {
+  background: #f4f3ef;
 }
-.cat-tpl__delete {
-  margin-left: auto;
-  font-size: 13px;
+.cat-menu__list .is-danger {
+  color: var(--cat-red);
 }
-.cat-tpl__delete:hover {
-  background: #fde8e7 !important;
+.cat-menu__list .is-danger:hover {
+  background: #fde8e7;
 }
 
 /* « Templates » suivi du type affiché (Pages produit, Landing pages…) */
