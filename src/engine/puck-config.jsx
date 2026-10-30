@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { createUsePuck } from "@puckeditor/core";
 import { brandCss, rootFields } from "./brand.js";
 import { FAMILIES, familyOf } from "./families.js";
@@ -73,6 +73,54 @@ function settingToField(setting, ctx) {
 
 // Les titres de groupe (« header ») restent dans le panneau, à leur place.
 // Exporté : le panneau de droite (inspector-ui) affiche aussi ces champs.
+// Rangée coupée entre plusieurs sections (data-atl-suite) avec une colonne
+// collante (data-atl-sticky, galerie produit) : sur la page publiée, le script
+// STICKY de copie.mjs recolle la rangée. Dans l'aperçu de l'atelier, chaque
+// section reste à part (pour la modifier) : la colonne collante est alors
+// décalée pendant le défilement, jusqu'au bas de la dernière partie.
+function StickySuites() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const doc = ref.current?.ownerDocument;
+    const win = doc?.defaultView;
+    if (!win) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const groups = {};
+      for (const row of doc.querySelectorAll("[data-atl-suite]")) (groups[row.dataset.atlSuite] ??= []).push(row);
+      for (const rows of Object.values(groups)) {
+        if (rows.length < 2) continue;
+        const end = rows[rows.length - 1].getBoundingClientRect().bottom;
+        for (const el of rows[0].querySelectorAll("[data-atl-sticky]")) {
+          el.style.transform = "";
+          const cs = win.getComputedStyle(el);
+          if (cs.position !== "sticky") continue;
+          const r = el.getBoundingClientRect();
+          const shift = Math.max(0, Math.min((parseFloat(cs.top) || 0) - r.top, end - r.bottom));
+          if (shift > 0) {
+            el.style.transform = `translateY(${shift}px)`;
+            el.style.zIndex = "3";
+          }
+        }
+      }
+    };
+    const schedule = () => (frame ||= win.setTimeout(update, 16));
+    win.addEventListener("scroll", schedule, { passive: true });
+    win.addEventListener("resize", schedule);
+    const observer = new win.MutationObserver(schedule);
+    observer.observe(doc.body, { childList: true, subtree: true });
+    schedule();
+    return () => {
+      win.removeEventListener("scroll", schedule);
+      win.removeEventListener("resize", schedule);
+      observer.disconnect();
+      if (frame) win.clearTimeout(frame);
+    };
+  }, []);
+  return <span ref={ref} hidden />;
+}
+
 export function fieldsFor(settings, ctx) {
   const fields = {};
   (settings ?? []).forEach((s, i) => {
@@ -195,6 +243,7 @@ export function buildPuckConfig(sections) {
       render: ({ children, font_heading, font_body, fond_page }) => (
         <>
           <style>{brandCss({ font_heading, font_body, fond_page }) + EDITOR_CSS}</style>
+          <StickySuites />
           {children}
         </>
       ),

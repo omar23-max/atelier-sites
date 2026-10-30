@@ -506,3 +506,29 @@ remplacerait tout le thème : ne pas le faire).
   de /api/shopify/products → `/cart/add?id=…&quantity=1`).
 - Pas encore : dupliquer une carte / ajouter une question (demande un
   changement de copie.mjs), image différente en mobile.
+
+## Comportements copiés : blocs collants (sticky) et rangées coupées
+
+- REA (`capture_browser_scenario`) sert à confirmer les comportements du site
+  en ligne (galerie `position: sticky`, sliders Swiper…) ; la capture relève
+  les styles calculés, la copie les reproduit.
+- Capture (`advertorial.mjs` → `dismissOverlays`) : un bloc `sticky` n'est
+  plus pris pour un pop-up (avant, les galeries produit disparaissaient).
+  Image-leurre transparente (`data:image/svg`, pointer-events none, plein
+  écran) ignorée (`snapshot.mjs`).
+- Copie (`copie.mjs`) : `position: sticky` gardée (avec `top`) ; au-dessus,
+  les `overflow: hidden/auto` deviennent `clip` (sinon le collant ne marche
+  pas, surtout sur l'ancien `<body>`). Une rangée de colonnes démarre une
+  nouvelle section (`rowInside`) ; la colonne collante reste entière si elle
+  tient.
+- Rangée trop grande pour une section (limite Shopify : 50 blocs) : coupée en
+  parties marquées `data-atl-suite="r<id>"`, colonnes `data-atl-col`. Page
+  publiée (partage, HTML, Shopify) : le script `STICKY` remet tout dans la
+  première partie et masque les sections vidées ; la section qui reçoit prend
+  les classes des parties (leurs styles) et leur état d'accordéon. Les scripts
+  ACCORDEONS et CARROUSELS écoutent au niveau de la page.
+- Atelier (édition) : les sections restent séparées ; `StickySuites`
+  (`engine/puck-config.jsx`) décale la colonne collante pendant le défilement
+  jusqu'au bas de la dernière partie.
+- Limite : styles réglés dans l'atelier sur une partie 2…n d'une rangée (fond,
+  marges…) : sur Shopify ils restent rangés sous leur propre section.

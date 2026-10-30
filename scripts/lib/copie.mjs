@@ -66,18 +66,46 @@ const ACCORDEONS =
   "<script>(function(s){var r=s&&s.parentElement;if(!r)return;r.setAttribute('data-atl-acc-on','');" +
   "r.querySelectorAll('details[data-atl-acc=ferme]').forEach(function(d){d.open=false});" +
   "r.querySelectorAll('[data-atl-q]').forEach(function(q){q.setAttribute('aria-expanded','false')});" +
-  "r.addEventListener('click',function(e){var q=e.target.closest&&e.target.closest('[data-atl-q]');if(!q||!r.contains(q))return;" +
+  // Écoute au niveau de la page (une fois) : une question déplacée par STICKY
+  // dans une autre section s'ouvre toujours.
+  "if(window.__atlAcc)return;window.__atlAcc=1;" +
+  "document.addEventListener('click',function(e){var q=e.target.closest&&e.target.closest('[data-atl-q]');if(!q)return;" +
+  "var r=q.closest('[data-atl-acc-on]');if(!r)return;" +
   "var a=r.querySelector('[data-atl-r=\"'+q.getAttribute('data-atl-q')+'\"]');if(!a)return;e.preventDefault();" +
   "var o=a.hasAttribute('data-atl-open');if(o)a.removeAttribute('data-atl-open');else a.setAttribute('data-atl-open','');" +
   "q.setAttribute('aria-expanded',o?'false':'true')});})(document.currentScript);</script>";
 
 // Flèches d'un carrousel : font défiler la piste la plus proche (page publiée ;
-// dans l'atelier, la piste défile à la molette ou au doigt).
+// dans l'atelier, la piste défile à la molette ou au doigt). Écoute au niveau de
+// la page, une seule fois (flèches déplacées par STICKY comprises).
 const CARROUSELS =
-  "<script>(function(s){var r=s&&s.parentElement;if(!r)return;" +
-  "r.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-atl-car=prev],[data-atl-car=next]');if(!b||!r.contains(b))return;" +
-  "var p=b,t=null;for(var i=0;i<6&&p&&p!==r&&!t;i++){p=p.parentElement;t=p&&p.querySelector('[data-atl-car=track]')}if(!t)return;e.preventDefault();" +
-  "t.scrollBy({left:(b.getAttribute('data-atl-car')==='prev'?-1:1)*t.clientWidth*0.8,behavior:'smooth'})});})(document.currentScript);</script>";
+  "<script>(function(){if(window.__atlCar)return;window.__atlCar=1;" +
+  "document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-atl-car=prev],[data-atl-car=next]');if(!b)return;" +
+  "var p=b,t=null;for(var i=0;i<6&&p&&!t;i++){p=p.parentElement;t=p&&p.querySelector('[data-atl-car=track]')}if(!t)return;e.preventDefault();" +
+  "t.scrollBy({left:(b.getAttribute('data-atl-car')==='prev'?-1:1)*t.clientWidth*0.8,behavior:'smooth'})});})();</script>";
+
+// Rangée de colonnes coupée entre plusieurs sections (galerie collante + longue
+// colonne d'achat, trop d'éléments pour une seule section Shopify) : sur la
+// page publiée, le contenu des parties suivantes est remis dans les colonnes
+// de la première, puis leurs sections vidées sont masquées. La rangée redevient
+// une seule rangée et la galerie reste collée comme sur le site. La section qui
+// reçoit prend aussi les classes des parties (leurs styles sont rangés sous la
+// classe de leur section) et leur état d'accordéon.
+// (Dans l'atelier, l'aperçu imite ce comportement : engine/puck-config.jsx.)
+const STICKY =
+  "<script>(function(){var d=document;function run(){var seen={};" +
+  "d.querySelectorAll('[data-atl-suite]').forEach(function(x){var id=x.getAttribute('data-atl-suite');if(seen[id])return;seen[id]=1;" +
+  "var rows=d.querySelectorAll('[data-atl-suite=\"'+id+'\"]');var top=rows[0].closest('[data-atl-root]');" +
+  "var topFrame=top&&top.parentElement&&/atl-cadre-/.test(top.parentElement.className)?top.parentElement:null;" +
+  "for(var i=1;i<rows.length;i++){var row=rows[i];var root=row.closest('[data-atl-root]');" +
+  "if(root&&top&&root!==top){[].forEach.call(root.classList,function(c){if(/^atl-/.test(c))top.classList.add(c)});" +
+  "if(root.hasAttribute('data-atl-acc-on'))top.setAttribute('data-atl-acc-on','');" +
+  "var fr=root.parentElement;if(topFrame&&fr&&/atl-cadre-/.test(fr.className))[].forEach.call(fr.classList,function(c){topFrame.classList.add(c)})}" +
+  "[].forEach.call(row.children,function(col){var c=col.getAttribute('data-atl-col');if(!c)return;" +
+  "var dst=[].filter.call(rows[0].children,function(e){return e.getAttribute('data-atl-col')===c})[0];if(!dst)return;" +
+  "while(col.firstChild)dst.appendChild(col.firstChild)});" +
+  "if(root&&!root.querySelector('[data-atl-slot],img,video,iframe'))(root.closest('.shopify-section')||root).style.display='none'}})}" +
+  "if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',run);else run()})();</script>";
 
 // Ligne de grille nommée (« banner », « main-start »…), pas un nombre, auto ou span N.
 const isNamedLine = (v) => v != null && v !== "" && !/^(auto|-?\d+|span \d+)$/.test(v);
@@ -100,6 +128,10 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
   // Copie d'une diapo ajoutée par le script du carrousel (boucle infinie) : la
   // copie garde chaque diapo une seule fois.
   const dead = (n) => n.car === "clone" || (n.style.display === "none" && mStyle(n).display === "none");
+
+  // Ancêtres des blocs collants (galerie produit) : sans overflow qui les bloque.
+  const aboveSticky = new Set();
+  for (const n of nodes) if (n.style.position === "sticky") for (let p = parentOf(n); p; p = parentOf(p)) aboveSticky.add(p.id);
 
   // ---- Carrousels ----
   // Piste qui défile : marquée à la capture (slick-track, swiper-wrapper…), ou
@@ -207,6 +239,8 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       const others = total - count(byId[big.n]);
       const parts = new Map(
         elems.map((k) => {
+          // Colonne collante (galerie) : entière dans la première partie si elle y tient.
+          if (k !== big && byId[k.n].style.position === "sticky" && count(byId[k.n]) <= first) return [k, [full(byId[k.n])]];
           if (k !== big && others <= first / 2) return [k, [full(byId[k.n])]];
           if (k === big && others <= first / 2) return [k, split(byId[k.n], max - others, first - others)];
           const share = count(byId[k.n]) / total;
@@ -214,10 +248,14 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
         }),
       );
       const rounds = Math.max(...[...parts.values()].map((p) => p.length));
+      // Rangée coupée en plusieurs sections : chaque partie porte le même
+      // repère (suite) et chaque colonne le sien (col), pour que le script
+      // STICKY recolle la rangée sur la page publiée.
       return Array.from({ length: rounds }, (_, i) => ({
         n,
+        suite: rounds > 1 ? n.id : null,
         kids: kids
-          .map((k) => (k.text != null ? (i === 0 ? k : null) : parts.get(k)[i] ?? { n: byId[k.n], kids: [], empty: true }))
+          .map((k) => (k.text != null ? (i === 0 ? k : null) : { ...(parts.get(k)[i] ?? { n: byId[k.n], kids: [], empty: true }), col: rounds > 1 }))
           .filter(Boolean),
       }));
     }
@@ -424,10 +462,23 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       }
     }
     if (st["text-decoration-line"] === "none") delete out["text-decoration-color"];
-    // Positions fixes ou collantes : à leur place dans le flux.
-    if (["fixed", "sticky"].includes(st.position)) {
+    // Au-dessus d'un bloc collant (et sur la racine, ancien <body>) : un
+    // overflow « hidden » crée une zone de défilement qui empêche le bloc de
+    // rester collé. « clip » coupe pareil sans ce défaut.
+    if (n.tag === "body" || aboveSticky.has(n.id)) {
+      for (const p of ["overflow-x", "overflow-y"]) if (out[p] === "hidden" || out[p] === "auto") out[p] = "clip";
+    }
+    // Position fixe : à sa place dans le flux. Position collante (galerie
+    // produit qui reste à l'écran pendant qu'on fait défiler la colonne
+    // d'achat) : gardée, avec son décalage du haut (script STICKY plus bas).
+    if (st.position === "fixed") {
       out.position = "relative";
       for (const s of ["top", "right", "bottom", "left"]) out[s] = "auto";
+    } else if (st.position === "sticky") {
+      out.position = "sticky";
+      out.top = /px$/.test(st.top ?? "") ? st.top : "0px";
+      for (const s of ["right", "bottom", "left"]) out[s] = "auto";
+      out["align-self"] = "flex-start";
     }
     if (st["background-image"]?.includes("url(")) delete out["background-image"];
     // Largeur et hauteur : seulement quand elles comptent.
@@ -684,6 +735,10 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       // dans l'atelier) ; le script ACCORDEONS les referme sur la page publiée.
       if (tag === "details") open += ` open data-atl-acc="${n.acc ?? (n.open ? "ouvert" : "ferme")}"`;
       else if (/^[qr]:\d+$/.test(n.acc ?? "")) open += ` data-atl-${n.acc[0]}="${n.acc.slice(2)}"`;
+      if (it.suite != null) open += ` data-atl-suite="r${it.suite}"`;
+      if (it.col) open += ` data-atl-col="c${n.id}"`;
+      if (n.style.position === "sticky") open += " data-atl-sticky";
+      if (n.tag === "body") open += " data-atl-root";
       if (isTrack(n)) open += ` data-atl-car="track"`;
       else if (n.car === "prev" || n.car === "next") open += ` data-atl-car="${n.car}"`;
       if (n.text != null) open += ` data-atl-slot="s${n.id}"`;
@@ -736,6 +791,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       }
       if (n.tag === "body" && /data-atl-(acc|q)=/.test(inner)) inner += ACCORDEONS;
       if (n.tag === "body" && /data-atl-car="(prev|next)"/.test(inner)) inner += CARROUSELS;
+      if (n.tag === "body" && /data-atl-suite=/.test(inner)) inner += STICKY;
       return `${open}${inner}</${tag}>`;
     }
     // Conteneurs dont on peut changer l'ordre des enfants (groupes de l'arbre).
@@ -880,7 +936,7 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
       if (s.t) trules.push(`${scope} .${classOf(s.n).name}{${slice(s.t)}}`);
       if (s.m) mrules.push(`${scope} .${classOf(s.n).name}{${slice(s.m)}}`);
     }
-    if (piece.slices.length) rules.push(`${scope}{overflow:hidden}`);
+    if (piece.slices.length) rules.push(`${scope}{overflow:clip}`);
     const css = [
       fonts,
       `/* Copie de ${label} — partie ${i + 1}. Styles relevés sur la page d'origine (ordinateur, puis mobile). */`,
