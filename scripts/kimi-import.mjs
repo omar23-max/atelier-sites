@@ -1,6 +1,6 @@
 // Import d'une page déjà reproduite par Kimi (application React + Vite) : on
 // garde SON HTML, SES classes et SON CSS, sans rien mesurer ni recopier.
-// Usage : node scripts/kimi-import.mjs <dossier app> <nom> [--label "Marque"] [--sans-coupe]
+// Usage : node scripts/kimi-import.mjs <dossier app> <nom> [--label "Marque"] [--url https://…] [--sans-coupe] [--sans-catalogue]
 // (<dossier app>/dist/index.html : page React de Kimi compilée, ou page HTML simple)
 //
 // Le dossier doit être compilé (dist/) : npm install --ignore-scripts puis
@@ -897,3 +897,16 @@ const kinds = Object.values(recipes).reduce((a, r) => ((a[r.t] = (a[r.t] ?? 0) +
 console.log(`✓ ${slug} : ${content.length} section(s), ${content.reduce((n, s) => n + s.blocks.length, 0)} éléments`);
 console.log(`  Boutons appris : ${Object.entries(kinds).map(([k, n]) => `${k} ${n}`).join(" · ")} · éléments ajoutés ${inserts.length}`);
 for (const s of content) console.log(`  ${s.id.padEnd(22)} ${String(s.blocks.length).padStart(3)} éléments · CSS ${Math.round(s.css.length / 1024)} ko · ${s.meta.fonction}`);
+
+// Sections du catalogue tirées de la page (kimi-catalogue.mjs), sauf
+// --sans-catalogue. --url : adresse du site d'origine, notée dans chaque section.
+if (!process.argv.includes("--sans-catalogue")) {
+  const { execFileSync } = await import("node:child_process");
+  const urlArg = process.argv.includes("--url") ? process.argv[process.argv.indexOf("--url") + 1] : null;
+  const extra = [...(labelArg ? ["--marque", labelArg] : []), ...(urlArg ? ["--url", urlArg] : [])];
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "kimi-catalogue.mjs"), slug, ...extra], { cwd: root, stdio: "inherit", timeout: 1200000 });
+  } catch {
+    console.log(`  ⚠ Catalogue non fait. Plus tard : node scripts/kimi-catalogue.mjs ${slug}`);
+  }
+}
