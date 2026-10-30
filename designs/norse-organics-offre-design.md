@@ -1,7 +1,7 @@
 # Norse Organics — offre
 
 Source : https://norseorganics.co/pages/stop-acne
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : Traitement anti-acné · Secteur : Beauté — acné
 Page d'achat d'origine : https://norseorganics.co/pages/stop-acne#killAcneSection
 
@@ -12,8 +12,8 @@ Page d'offre « Acne Day Sale -40 % », avant/après, packs.
 ## Structure relevée
 
 115 éléments dans l'ordre : 3 grands titres, 34 intertitres,
-68 paragraphes, 0 listes, 71 images, 10 boutons.
-Copie entière dans la section « Advertorial — article complet » (8 sections).
+68 paragraphes, 0 listes, 99 images, 10 boutons.
+Copie entière dans la section « Advertorial — article complet » (10 sections).
 
 ## Typographie
 
@@ -26,7 +26,7 @@ Copie entière dans la section « Advertorial — article complet » (8 sections
 | Rôle | Couleur |
 |---|---|
 | Fond de page | #ffffff |
-| Texte | #121212 |
+| Texte | #000000 |
 | Titres | #ff0000 |
 | Liens | #1f1f1f |
 | Bouton | #e16203 |

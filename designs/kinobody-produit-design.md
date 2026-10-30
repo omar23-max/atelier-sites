@@ -1,7 +1,7 @@
 # Kinobody — produit
 
 Source : https://kinobody.com/products/kino-mojo
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : Kino Mojo · Secteur : Sport — testostérone
 
 ## Ambiance
@@ -10,8 +10,8 @@ Fiche produit : galerie, choix, accordéons.
 
 ## Structure relevée
 
-139 éléments dans l'ordre : 3 grands titres, 21 intertitres,
-108 paragraphes, 0 listes, 86 images, 7 boutons.
+159 éléments dans l'ordre : 4 grands titres, 23 intertitres,
+123 paragraphes, 1 listes, 92 images, 8 boutons.
 Copie entière dans la section « Advertorial — article complet » (9 sections).
 
 ## Typographie
@@ -58,13 +58,13 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     },
     "h1": {
       "police": "neue-haas-grotesk-display",
-      "taille": 18,
-      "graisse": 600,
-      "interligne": 1.2,
+      "taille": 40,
+      "graisse": 400,
+      "interligne": 1.1,
       "couleur": "#000000",
       "casse": null,
       "espacement": null,
-      "exemple": "Account"
+      "exemple": "Kinobody Mojo"
     },
     "h2": {
       "police": "neue-haas-grotesk-display",
@@ -86,6 +86,16 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "espacement": "-0.44px",
       "exemple": "Tongkat Ali supports testosterone and male vitality"
     },
+    "sousTitre": {
+      "police": "corsario-variable",
+      "taille": 16,
+      "graisse": 300,
+      "interligne": 1.3,
+      "couleur": "oklch(0 0 0 / 0.6)",
+      "casse": null,
+      "espacement": "-0.32px",
+      "exemple": "Get Your Mojo Back. The most complete natural testosterone formula on the market. More tes"
+    },
     "texte": {
       "police": "neue-haas-grotesk-display",
       "taille": 14,
@@ -104,16 +114,16 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "couleur": "oklch(1 0 0)",
       "casse": null,
       "espacement": null,
-      "exemple": "Learn More",
-      "fond": "oklch(0 0 0)",
-      "rayon": "24px",
+      "exemple": "Add to cart",
+      "fond": "#000000",
+      "rayon": "32px",
       "hauteur": 48,
-      "marges": "12px 37px"
+      "marges": "6px 6px"
     }
   },
   "couleurs": {
-    "fond": "#f1f2ea",
-    "surface": "#ffffff",
+    "fond": "#ffffff",
+    "surface": "#f1f2ea",
     "fond-sombre": "#000000",
     "texte": "#000000",
     "texte-sur-sombre": "#ffffff",

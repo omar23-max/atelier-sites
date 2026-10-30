@@ -1,7 +1,7 @@
 # Alpha Lion — offre
 
 Source : https://try.alphalion.com/offers/shb-lp01
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : SuperHuman Burn · Secteur : Sport — brûleur de graisse
 
 ## Ambiance
@@ -10,15 +10,15 @@ Page d'offre avec compte à rebours (Fall Sale), ton sportif.
 
 ## Structure relevée
 
-174 éléments dans l'ordre : 21 grands titres, 34 intertitres,
-115 paragraphes, 3 listes, 31 images, 1 boutons.
-Copie entière dans la section « Advertorial — article complet » (7 sections).
+231 éléments dans l'ordre : 10 grands titres, 44 intertitres,
+171 paragraphes, 5 listes, 48 images, 1 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
 
 ## Typographie
 
 - **Titres : Tungsten, Arial, sans-serif** (équivalent Google Fonts : Tungsten).
   Grand titre 96 px ; intertitres 80 px.
-- **Texte : "Open Sans", Verdana, sans-serif** (équivalent : Inter), 14 px, interligne d'origine conservé à 1,6.
+- **Texte : "Open Sans", Verdana, sans-serif** (équivalent : Inter), 16 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -27,14 +27,14 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
 | Fond de page | #ffffff |
 | Texte | #000000 |
 | Titres | #000000 |
-| Liens | #ffffff |
+| Liens | #0b57d0 |
 | Bouton | #e8542e |
 | Texte des boutons | #ffffff |
 
 
 ## Formes
 
-- Colonne de lecture : 788 px à 1440 px.
+- Colonne de lecture : 272 px à 1440 px.
 - Rayon des boutons : 999px.
 
 ## Jetons (utilisés par l'atelier)
@@ -48,13 +48,13 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
   "styles": {
     "h1": {
       "police": "Tungsten",
-      "taille": 80,
+      "taille": 52,
       "graisse": 700,
       "interligne": 0.9,
       "couleur": "#000000",
-      "casse": "uppercase",
+      "casse": null,
       "espacement": null,
-      "exemple": "THE FORMULA EVERYONE’S USING TO TORCH FAT & UNLEASH LIMITLESS ENERGY"
+      "exemple": "SUPERHUMAN® BURN"
     },
     "h2": {
       "police": "Tungsten",
@@ -78,23 +78,23 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     },
     "sousTitre": {
       "police": "Inter",
+      "taille": 14,
+      "graisse": 500,
+      "interligne": 1.5,
+      "couleur": "#000000",
+      "casse": null,
+      "espacement": null,
+      "exemple": "Fully dosed pre-workout. Fully dosed fat burner. No trade offs."
+    },
+    "texte": {
+      "police": "Inter",
       "taille": 16,
       "graisse": 400,
       "interligne": 1.5,
       "couleur": "#000000",
       "casse": null,
       "espacement": null,
-      "exemple": "See how people are burning stubborn fat, boosting energy, and transforming their fitness f"
-    },
-    "texte": {
-      "police": "Open Sans",
-      "taille": 14,
-      "graisse": 400,
-      "interligne": 1.43,
-      "couleur": "#000000",
-      "casse": null,
-      "espacement": null,
-      "exemple": "Copped on limited deal. Love this flavor and wished for extra from my usual sub flavor."
+      "exemple": "1 Scoop = Complete Fat-Burning & Training Power"
     },
     "bouton": {
       "police": "Inter",
@@ -117,7 +117,7 @@ Copie entière dans la section « Advertorial — article complet » (7 sections
     "fond-sombre": "#000000",
     "texte": "#000000",
     "texte-sur-sombre": "#ffffff",
-    "accent": "#ffd300",
+    "accent": "#ffffff",
     "bouton": "#000000",
     "bouton-texte": "#ffffff"
   }

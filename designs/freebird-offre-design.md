@@ -1,9 +1,9 @@
 # Freebird — listicle
 
 Source : https://www.myfreebird.com/pages/lp1
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : FlexSeries Head Shaving Kit · Secteur : Soin — rasage du crâne
-Page d'achat d'origine : https://www.myfreebird.com/pages/lp1-listicle-v1#
+Page d'achat d'origine : https://www.myfreebird.com/pages/lp1#
 
 ## Ambiance
 
@@ -11,14 +11,14 @@ Page d'achat d'origine : https://www.myfreebird.com/pages/lp1-listicle-v1#
 
 ## Structure relevée
 
-102 éléments dans l'ordre : 1 grands titres, 34 intertitres,
-59 paragraphes, 1 listes, 54 images, 7 boutons.
-Copie entière dans la section « Advertorial — article complet » (6 sections).
+179 éléments dans l'ordre : 4 grands titres, 24 intertitres,
+149 paragraphes, 0 listes, 103 images, 2 boutons.
+Copie entière dans la section « Advertorial — article complet » (10 sections).
 
 ## Typographie
 
-- **Titres : Inter, sans-serif** (équivalent Google Fonts : Inter).
-  Grand titre 26 px ; intertitres 36 px.
+- **Titres : Garnett, Arial, sans-serif** (équivalent Google Fonts : Garnett).
+  Grand titre 40 px ; intertitres 34 px.
 - **Texte : Inter, sans-serif** (équivalent : Inter), 16 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
@@ -26,16 +26,16 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
 | Rôle | Couleur |
 |---|---|
 | Fond de page | #ffffff |
-| Texte | #333333 |
-| Titres | #333333 |
+| Texte | #14103b |
+| Titres | #14103b |
 | Liens | #14103b |
-| Bouton | #e4572e |
-| Texte des boutons | #ffffff |
+| Bouton | #ea2c00 |
+| Texte des boutons | #14103b |
 
 
 ## Formes
 
-- Colonne de lecture : 398 px à 1440 px.
+- Colonne de lecture : 416 px à 1440 px.
 - Rayon des boutons : 40px.
 
 ## Jetons (utilisés par l'atelier)
@@ -43,10 +43,20 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
 ```json
 {
   "polices": {
-    "titres": "Inter",
+    "titres": "Garnett",
     "texte": "Inter"
   },
   "styles": {
+    "entete": {
+      "police": "Garnett",
+      "taille": 16,
+      "graisse": 500,
+      "interligne": 1.25,
+      "couleur": "#14103b",
+      "casse": null,
+      "espacement": "0.25px",
+      "exemple": "What’s Included"
+    },
     "h1": {
       "police": "Garnett",
       "taille": 26,
@@ -55,27 +65,27 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
       "couleur": "#14103b",
       "casse": "uppercase",
       "espacement": null,
-      "exemple": "A BETTER WAY TO KEEP YOUR HEAD SMOOTH & BALD"
+      "exemple": "THE ELECTRIC SCALP SHAVER MADE FOR FAST, EASY HEAD SHAVES"
     },
     "h2": {
       "police": "Garnett",
-      "taille": 48,
-      "graisse": 750,
-      "interligne": 1.1,
+      "taille": 34,
+      "graisse": 800,
+      "interligne": 1.2,
       "couleur": "#14103b",
       "casse": "uppercase",
       "espacement": null,
-      "exemple": "REAL CUSTOMER REVIEWS"
+      "exemple": "EVERYTHING INSIDE YOUR 5-IN-1 HEAD SHAVING KIT"
     },
     "h3": {
       "police": "Inter",
-      "taille": 36,
+      "taille": 26,
       "graisse": 600,
-      "interligne": 1.13,
-      "couleur": "#333333",
+      "interligne": 1.2,
+      "couleur": "#ffffff",
       "casse": null,
       "espacement": null,
-      "exemple": "1. Get the Smooth, Clean-Bald Look You Actually Want"
+      "exemple": "Shave Faster & Save Time"
     },
     "sousTitre": {
       "police": "Garnett",
@@ -85,28 +95,42 @@ Copie entière dans la section « Advertorial — article complet » (6 sections
       "couleur": "#14103b",
       "casse": null,
       "espacement": null,
-      "exemple": "Top, Sides or Back"
+      "exemple": "Zero nicks or burn"
     },
     "texte": {
       "police": "Inter",
       "taille": 16,
       "graisse": 400,
-      "interligne": 1.38,
-      "couleur": "#333333",
+      "interligne": 1.4,
+      "couleur": "#ffffff",
       "casse": null,
-      "espacement": "0.4px",
-      "exemple": "See why guys are using Freebird to stay clean-shaven with less prep, less mess, and an eas"
+      "espacement": null,
+      "exemple": "Trim or shave anywhere - fast, smooth, and irritation-free. No cuts, no hassle, just effor"
+    },
+    "bouton": {
+      "police": "Garnett",
+      "taille": 12,
+      "graisse": 800,
+      "interligne": 1.5,
+      "couleur": "#14103b",
+      "casse": "uppercase",
+      "espacement": "0.042px",
+      "exemple": "WRITE A REVIEW",
+      "fond": "#ffffff",
+      "rayon": "0px",
+      "hauteur": 48,
+      "marges": "14px 14px"
     }
   },
   "couleurs": {
     "fond": "#ffffff",
-    "surface": "#f5f7fc",
+    "surface": "#f5f0ec",
     "fond-sombre": "#14103b",
     "texte": "#14103b",
     "texte-sur-sombre": "#ffffff",
     "accent": "#ffffff",
-    "bouton": "#ea2c00",
-    "bouton-texte": "#ffffff"
+    "bouton": "#ffffff",
+    "bouton-texte": "#14103b"
   }
 }
 ```

@@ -1,7 +1,7 @@
 # Superior Mane — produit
 
 Source : https://thesuperiormane.com/products/root-activator-shampoo-sale
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : Root Activator Shampoo · Secteur : Soin — cheveux hommes
 
 ## Ambiance
@@ -11,7 +11,7 @@ Fiche produit sombre : packs, avant/après, témoignages.
 ## Structure relevée
 
 128 éléments dans l'ordre : 5 grands titres, 24 intertitres,
-87 paragraphes, 11 listes, 59 images, 1 boutons.
+87 paragraphes, 11 listes, 77 images, 1 boutons.
 Copie entière dans la section « Advertorial — article complet » (8 sections).
 
 ## Typographie

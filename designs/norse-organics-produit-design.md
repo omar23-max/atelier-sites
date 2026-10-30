@@ -1,7 +1,7 @@
 # Norse Organics — produit
 
 Source : https://norseorganics.co/products/kill-acne-redness-ritual
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : Kill Acne + Redness Ritual · Secteur : Beauté — acné
 
 ## Ambiance
@@ -10,15 +10,15 @@ Fiche produit de boutique : avis, médecins, routine en étapes.
 
 ## Structure relevée
 
-192 éléments dans l'ordre : 0 grands titres, 33 intertitres,
-158 paragraphes, 1 listes, 56 images, 0 boutons.
-Copie entière dans la section « Advertorial — article complet » (9 sections).
+193 éléments dans l'ordre : 0 grands titres, 33 intertitres,
+159 paragraphes, 1 listes, 85 images, 0 boutons.
+Copie entière dans la section « Advertorial — article complet » (14 sections).
 
 ## Typographie
 
 - **Titres : Migra, serif** (équivalent Google Fonts : PP Mori).
   Grand titre ? px ; intertitres 40 px.
-- **Texte : "PP Mori", Mori, sans-serif** (équivalent : PP Mori), 16 px, interligne d'origine conservé à 1,6.
+- **Texte : Mori, "Instrument Sans", sans-serif, sans-serif** (équivalent : PP Mori), 16 px, interligne d'origine conservé à 1,6.
 
 ## Couleurs
 
@@ -63,9 +63,9 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "graisse": 600,
       "interligne": 1.3,
       "couleur": "#000000",
-      "casse": "capitalize",
-      "espacement": "2px",
-      "exemple": "As Seen In"
+      "casse": null,
+      "espacement": null,
+      "exemple": "The Complete System for Acne-Prone Skin"
     },
     "h2": {
       "police": "Migra",
@@ -89,13 +89,13 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
     },
     "sousTitre": {
       "police": "PP Mori",
-      "taille": 14,
+      "taille": 18,
       "graisse": 400,
       "interligne": 1.3,
       "couleur": "#000000",
       "casse": null,
       "espacement": null,
-      "exemple": "\"Trust the reviews, this product works\""
+      "exemple": "Gentle Arctic plants for calmer, clearer looking skin."
     },
     "texte": {
       "police": "PP Mori",
@@ -105,7 +105,7 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "couleur": "#000000",
       "casse": null,
       "espacement": null,
-      "exemple": "“I hated my skin which made me hate myself. Acne completely destroyed me and my confidence"
+      "exemple": "I hated my skin which made me hate myself... This product has changed my life. My skin is "
     },
     "bouton": {
       "police": "Apercu Mono Pro",
@@ -115,7 +115,7 @@ Copie entière dans la section « Advertorial — article complet » (9 sections
       "couleur": "#ffffff",
       "casse": "uppercase",
       "espacement": null,
-      "exemple": "TRY IT RISK-FREE & SAVE 46%",
+      "exemple": "TRY IT RISK-FREE & SAVE 42%",
       "fond": "#e16203",
       "rayon": "5px",
       "hauteur": 66,

@@ -1,7 +1,7 @@
 # Luma Nutrition — landing
 
 Source : https://lumanutrition.com/pages/berberine
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : Berberine 1 200 mg · Secteur : Santé — glycémie
 Page d'achat d'origine : https://lumanutrition.com/products/berberine#main
 
@@ -11,9 +11,9 @@ Landing longue : bloc d'achat en haut (abonnement), bénéfices, science, FAQ.
 
 ## Structure relevée
 
-139 éléments dans l'ordre : 1 grands titres, 16 intertitres,
-118 paragraphes, 2 listes, 25 images, 2 boutons.
-Copie entière dans la section « Advertorial — article complet » (10 sections).
+145 éléments dans l'ordre : 1 grands titres, 20 intertitres,
+120 paragraphes, 2 listes, 46 images, 2 boutons.
+Copie entière dans la section « Advertorial — article complet » (11 sections).
 
 ## Typographie
 
@@ -25,9 +25,9 @@ Copie entière dans la section « Advertorial — article complet » (10 section
 
 | Rôle | Couleur |
 |---|---|
-| Fond de page | #faf7f2 |
+| Fond de page | #ffffff |
 | Texte | #14181a |
-| Titres | #14181a |
+| Titres | #5a6360 |
 | Liens | #0a6b59 |
 | Bouton | #ffffff |
 | Texte des boutons | #14181a |
@@ -85,11 +85,11 @@ Copie entière dans la section « Advertorial — article complet » (10 section
       "couleur": "#161d19",
       "casse": "uppercase",
       "espacement": null,
-      "exemple": "FAT"
+      "exemple": "BERBINE 1200 SPACE USAGE"
     },
     "sousTitre": {
       "police": "Poppins",
-      "taille": 20,
+      "taille": 18.5,
       "graisse": 700,
       "interligne": 1.3,
       "couleur": "#14181a",
@@ -99,13 +99,13 @@ Copie entière dans la section « Advertorial — article complet » (10 section
     },
     "texte": {
       "police": "Poppins",
-      "taille": 15,
+      "taille": 16.5,
       "graisse": 400,
-      "interligne": 1.55,
-      "couleur": "#4a5350",
+      "interligne": 1.6,
+      "couleur": "#2a302e",
       "casse": null,
       "espacement": null,
-      "exemple": "Supports steadier blood sugar after meals, so the spike-and-crash cycle flattens out."
+      "exemple": "We offer a 90-day money-back guarantee."
     },
     "bouton": {
       "police": "Poppins",

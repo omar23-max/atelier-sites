@@ -1,7 +1,7 @@
 # Nood — produit
 
 Source : https://trynood.com/products/the-flasher-pro
-Capturé le : 2026-10-26 (desktop 1440 px et mobile 390 px)
+Capturé le : 2026-10-30 (desktop 1440 px et mobile 390 px)
 Produit : The Flasher Pro (épilation lumière pulsée) · Secteur : Beauté — épilation
 
 ## Ambiance
@@ -10,9 +10,9 @@ Fiche produit de boutique.
 
 ## Structure relevée
 
-135 éléments dans l'ordre : 5 grands titres, 14 intertitres,
-110 paragraphes, 2 listes, 84 images, 2 boutons.
-Copie entière dans la section « Advertorial — article complet » (11 sections).
+156 éléments dans l'ordre : 5 grands titres, 14 intertitres,
+126 paragraphes, 6 listes, 92 images, 3 boutons.
+Copie entière dans la section « Advertorial — article complet » (13 sections).
 
 ## Typographie
 
