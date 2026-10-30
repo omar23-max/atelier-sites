@@ -1510,6 +1510,18 @@ function ContextMenu({ x, y, items, onClose }) {
   // zoom: sur .atl-ctx dilate aussi les coordonnées inline : on divise par la
   // compensation de zoom (voir App.jsx) pour que le menu reste sous la souris.
   const uiZoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--atl-ui-zoom")) || 1;
+  // Une action ne part qu'une fois (appui, puis « click » éventuel).
+  const fired = useRef(false);
+  const fire = (it) => {
+    if (fired.current || it.disabled) return;
+    fired.current = true;
+    onClose();
+    try {
+      it.action();
+    } catch (err) {
+      console.error("Action du menu contextuel:", err);
+    }
+  };
   const left = Math.min(x / uiZoom, innerWidth / uiZoom - 240);
   const top = Math.min(y / uiZoom, innerHeight / uiZoom - 40 * items.length - 20);
   return createPortal(
@@ -1524,14 +1536,17 @@ function ContextMenu({ x, y, items, onClose }) {
             role="menuitem"
             disabled={it.disabled}
             className={it.danger ? "is-danger" : ""}
-            onClick={() => {
-              onClose();
-              try {
-                it.action();
-              } catch (err) {
-                console.error("Action du menu contextuel:", err);
-              }
+            // L'action part dès l'appui (bouton gauche) : entre l'appui et le
+            // relâchement, l'éditeur peut redessiner le menu (la page perd le
+            // focus, la sélection change) et le navigateur annule alors le
+            // « click ». onClick reste pour le clavier (Entrée).
+            onMouseDown={(e) => {
+              if (e.button !== 0) return;
+              e.preventDefault();
+              e.stopPropagation();
+              fire(it);
             }}
+            onClick={() => fire(it)}
           >
             {it.label}
           </button>

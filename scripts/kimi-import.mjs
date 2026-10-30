@@ -609,12 +609,44 @@ const built = await page.evaluate(
       const cs = getComputedStyle(el);
       const columns = partOfEl.get(el)?.size >= 2 && el.children.length <= 4 && (cs.display.includes("grid") || (cs.display.includes("flex") && !cs.flexDirection.startsWith("column")));
       const shell = (c) => `<${c.tagName.toLowerCase()}${attrs(c, { "data-atl-vide": "" }).replace(/ data-atl-(k|car)="[^"]*"/g, "")}></${c.tagName.toLowerCase()}>`;
-      const inner = [...el.childNodes]
-        .map((c) => (columns && c.nodeType === 1 && ctx.part && !ctx.part.has(c) && c.tagName !== "svg" ? shell(c) : ser(c, { ...sub, tree })))
-        .join("");
-      if (tree.length > 1) ctx.tree.push({ group: true, kind: "groupe", label: (el.className?.baseVal ?? el.className ?? "").split(/\s+/)[0] || "Bloc", children: tree });
-      else ctx.tree.push(...tree);
-      return `<${tag}${a}>${inner}</${tag}>`;
+      // Chaque enfant donne un morceau de HTML et, au plus, un nœud de l'arbre
+      // (un enfant à plusieurs éléments devient lui-même un groupe).
+      const parts = [];
+      let loose = false;
+      for (const c of el.childNodes) {
+        if (c.nodeType === 3) {
+          if (c.textContent.trim()) loose = true;
+          parts.push({ html: ser(c, sub), el: false });
+          continue;
+        }
+        const before = tree.length;
+        const html = columns && c.nodeType === 1 && ctx.part && !ctx.part.has(c) && c.tagName !== "svg" ? shell(c) : ser(c, { ...sub, tree });
+        parts.push({ html, el: c.nodeType === 1 && html !== "", node: tree.length > before ? tree[tree.length - 1] : null });
+      }
+      const groupLabel = (el.className?.baseVal ?? el.className ?? "").split(/\s+/)[0] || "Bloc";
+      if (tree.length > 1) {
+        // Groupe dont on peut changer l'ordre des enfants (« Monter »,
+        // « Descendre », glisser dans l'arbre) : comme les copies, réglage
+        // « ordres » (« g12=2,0,1 ») lu par le template. Seulement si ses
+        // enfants sont tous des éléments (pas de texte libre entre eux).
+        const kids = parts.filter((p) => p.el);
+        const gid = /^\d+$/.test(k ?? "") ? `g${k}` : null;
+        if (gid && !loose && kids.length > 1 && !columns) {
+          kids.forEach((p, i) => {
+            if (p.node) p.node.k = i;
+          });
+          ctx.tree.push({ group: true, kind: "groupe", label: groupLabel, gid, size: kids.length, children: tree });
+          const caps = kids.map((p, i) => `{%- capture ${gid}_${i} -%}${p.html}{%- endcapture -%}`).join("");
+          const ordered =
+            `{%- assign o = section.settings.ordres | default: '' | prepend: ';' -%}` +
+            `{%- if o contains ';${gid}=' -%}{%- assign ord = o | split: ';${gid}=' | last | split: ';' | first | split: ',' -%}` +
+            `{%- else -%}{%- assign ord = '${kids.map((_, i) => i).join(",")}' | split: ',' -%}{%- endif -%}` +
+            `{%- for x in ord -%}{%- case x -%}${kids.map((_, i) => `{%- when '${i}' -%}{{ ${gid}_${i} }}`).join("")}{%- endcase -%}{%- endfor -%}`;
+          return `${caps}<${tag}${a} data-atl-group="${gid}">${ordered}</${tag}>`;
+        }
+        ctx.tree.push({ group: true, kind: "groupe", label: groupLabel, children: tree });
+      } else ctx.tree.push(...tree);
+      return `<${tag}${a}>${parts.map((p) => p.html).join("")}</${tag}>`;
     };
 
     const out = [];
@@ -790,7 +822,10 @@ built.parts.forEach((p, i) => {
   const schema = {
     name: `Kimi · ${slug.slice(0, 12)} ${i + 1}`,
     tag: "section",
-    settings: [{ type: "paragraph", content: "Page reproduite par Kimi, gardée telle quelle. Chaque bloc est un emplacement de la page : modifie son texte, son image ou son lien." }],
+    settings: [
+      { type: "paragraph", content: "Page importée, gardée telle quelle. Chaque bloc est un emplacement de la page : modifie son texte, son image ou son lien." },
+      { type: "text", id: "ordres", label: "Ordre (réglé par l'atelier en déplaçant les éléments)" },
+    ],
     blocks: [
       {
         type: "element",

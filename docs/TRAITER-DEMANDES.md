@@ -628,8 +628,15 @@ Toute suppression demande d'abord une confirmation.
 - **Bloc d'une section du catalogue** : 🗑 du panneau, ou le bouton « Supprimer
   le bloc ».
 
-Pages importées de Kimi ou refaites par Claude : « Monter » et « Descendre »
-sont grisés pour leurs éléments, car leur HTML n'a pas de réglage d'ordre.
+Pages importées de Kimi ou refaites par Claude : « Monter », « Descendre » et le
+glisser-déposer de l'arbre marchent pour les éléments d'un groupe (liste,
+cartes, colonnes…). Comme les copies, l'import écrit chaque groupe avec
+, et le template suit le réglage « ordres »
+(« g12=2,0,1 »). Ils sont grisés pour le premier ou le dernier élément, et
+pour un groupe qui mêle du texte libre à ses éléments.
+
+Les actions du clic droit partent dès l'appui du bouton () : la
+souris relâchée après que l'éditeur a redessiné le menu annulait le « click ».
 
 `kimi-import.mjs` ne réécrit plus que les fichiers qui changent : un import
 relancé sans changement ne fait pas recharger l'atelier. Si la page a été
