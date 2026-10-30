@@ -643,3 +643,11 @@ quand la souris était relâchée après que l'éditeur avait redessiné le menu
 relancé sans changement ne fait pas recharger l'atelier. Si la page a été
 modifiée dans l'atelier depuis le dernier import, sa version est d'abord
 gardée dans `imports/<nom>/page-avant-import-<date>.json`.
+
+### Éclairage des parents
+
+L'élément choisi est entouré en bleu plein (`.atl-hl-on`). Ses groupes parents
+restent entourés en pointillés (`.atl-hl-parent`, `puck-config.jsx`), et leurs
+lignes de l'arbre sont éclairées en plus clair (`.is-on-path`). Un groupe sans
+conteneur propre (`data-atl-group`) éclaire le plus petit bloc qui contient tous
+ses éléments (`domOf`), et non plus seulement son premier élément.

@@ -197,6 +197,8 @@ const EDITOR_CSS = `
 /* Élément survolé ou choisi dans le panneau de droite. */
 .atl-hl { outline: 2px solid #2c6ecb !important; outline-offset: 2px; }
 .atl-hl-on { outline: 3px solid #2c6ecb !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(44, 110, 203, 0.18) !important; }
+/* Groupes parents de l'élément choisi : contour léger qui reste affiché. */
+.atl-hl-parent:not(.atl-hl-on) { outline: 2px dashed rgba(44, 110, 203, 0.55) !important; outline-offset: 4px; }
 [data-atl-slot] { cursor: pointer; }
 /* Au survol, un texte ou une image gonfle à peine et s'éclaircit : effet
    « vivant » discret. La classe .atl-hover est posée par l'Atelier

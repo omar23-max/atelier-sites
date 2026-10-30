@@ -270,7 +270,17 @@ function domOf(sectionId, node) {
   if (!root || !node) return null;
   if (node.key) return root.querySelector(`[data-atl-slot="${CSS.escape(node.key)}"]`);
   if (node.gid) return root.querySelector(`[data-atl-group="${CSS.escape(node.gid)}"]`);
-  if (node.group) return domOf(sectionId, node.children[0]);
+  if (node.group) {
+    // Groupe sans conteneur marqué : le plus petit bloc qui contient tous ses
+    // éléments (le groupe entier s'éclaire, pas seulement le premier élément).
+    const els = leavesOf(node.children)
+      .map((l) => domOf(sectionId, l))
+      .filter(Boolean);
+    if (!els.length) return null;
+    let common = els[0];
+    while (common && common !== root && !els.every((e) => common.contains(e))) common = common.parentElement;
+    return common && common !== root ? common : els[0];
+  }
   return null;
 }
 function mark(el, cls) {
@@ -408,6 +418,13 @@ export function Inspector({ children }) {
     const el = node ? domOf(sel.sectionId, node) : null;
     mark(el, "atl-hl-on");
     if (node?.run) node.children.forEach((c) => domOf(sel.sectionId, c)?.classList.add("atl-hl-on"));
+    // Groupes parents (dossiers de l'arbre) : contour léger, tant que l'élément
+    // reste choisi. Seuls ceux qui ont un conteneur propre (data-atl-group).
+    doc?.querySelectorAll(".atl-hl-parent").forEach((e) => e.classList.remove("atl-hl-parent"));
+    if (node) {
+      const path = pathTo(treeForItem(content[indexOf(sel.sectionId)]), sameNode(sel)) ?? [];
+      for (const p of path.slice(0, -1)) if (p.gid) domOf(sel.sectionId, p)?.classList.add("atl-hl-parent");
+    }
     if (el && sel.fromTree) el.scrollIntoView({ block: "center", behavior: "smooth" });
     const row = treeRef.current?.querySelector(".is-chosen");
     row?.scrollIntoView({ block: "nearest" });
@@ -1078,10 +1095,12 @@ function Nodes({ nodes, sectionId, depth, sel, openGroups, setOpenGroups, onChoo
       const keys = leavesOf(n.children).map((l) => l.key);
       const rowId = `g:${gkey}`;
       const chosen = sel?.sectionId === sectionId && sel.group === n.id;
+      // Dossier parent de l'élément choisi : il reste éclairé (plus clair).
+      const onPath = !chosen && sel?.sectionId === sectionId && Boolean(pathTo(n.children, sameNode(sel)));
       return (
         <div key={n.id}>
           <div
-            className={`atl-insp__row${chosen ? " is-chosen" : ""}${hint?.id === rowId ? ` is-drop-${hint.side}` : ""}`}
+            className={`atl-insp__row${chosen ? " is-chosen" : ""}${onPath ? " is-on-path" : ""}${hint?.id === rowId ? ` is-drop-${hint.side}` : ""}`}
             style={{ paddingLeft: 8 + depth * 14 }}
             {...dragProps(n, rowId)}
             onContextMenu={(e) => (e.preventDefault(), onMenu({ x: e.clientX, y: e.clientY, sectionId, group: n.id }))}
