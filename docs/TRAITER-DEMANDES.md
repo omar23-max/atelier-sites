@@ -658,3 +658,17 @@ contenu d'origine comme contenu par défaut, et sa miniature. Les anciennes
 
 Une page en échec n'arrête pas le lot. Le bilan donne la commande pour la
 reprendre (`--seulement nom`).
+
+## Enregistrement d'une page (atelier)
+
+La page s'enregistre seule, 2 s après la dernière modification. Ctrl + S (aussi
+dans l'aperçu) et le bouton « Enregistrer » le font tout de suite. Le bouton
+remplace « Publish » de Puck et affiche « Enregistré ✓ » (vert),
+« Enregistrer » (modifications en attente), « Enregistrement… » ou
+« Réessayer » (échec). Le navigateur avertit si on quitte la page avec des
+modifications pas encore enregistrées.
+
+L'état du bouton vit dans `saveStore` (`App.jsx`), hors du composant App :
+redessiner App redessine tout l'éditeur Puck, ce qui prenait environ 4 s par
+modification sur une grande page. `pages/` n'est pas surveillé par Vite, donc
+enregistrer ne recharge pas l'atelier.

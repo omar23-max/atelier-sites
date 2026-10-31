@@ -2388,6 +2388,37 @@ select.is-missing {
 .atl-publish .atl-tool {
   height: 34px;
 }
+/* Enregistrer : vert quand tout est enregistré, noir quand il reste des
+   modifications, rouge en cas d'échec. */
+.atl-save {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.atl-save.is-saved {
+  border-color: #cfe5d6;
+  background: #eef8f1;
+  color: #1f7a3a;
+}
+.atl-save.is-dirty,
+.atl-save.is-saving {
+  background: #141414;
+  color: #fff;
+}
+.atl-save.is-saving {
+  opacity: 0.75;
+  cursor: progress;
+}
+.atl-save.is-error {
+  border-color: #f3c2bf;
+  background: #fde8e7;
+  color: #b3261e;
+}
 .atl-rail__sep {
   width: 24px;
   height: 1px;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Puck } from "@puckeditor/core";
 import "@puckeditor/core/puck.css";
 import { sections } from "./engine/sections.js";
@@ -20,7 +20,7 @@ import { Inspector } from "./inspector-ui.jsx";
 import { NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
-// « Publish » enregistre dans ce fichier : c'est lui que lisent les exports.
+// « Enregistrer » (automatique, ou Ctrl + S) écrit dans ce fichier : c'est lui que lisent les exports.
 const pageName = new URLSearchParams(location.search).get("page");
 
 // Sans page demandée : on ouvre la dernière page d'un projet, sinon le
@@ -53,6 +53,36 @@ async function loadPage() {
   if (res.status === 404) return EMPTY_PAGE;
   if (!res.ok) throw new Error((await res.json()).error);
   return res.json();
+}
+
+// État de l'enregistrement, partagé avec le bouton seul (voir App).
+const saveStore = {
+  state: "saved", // saved | dirty | saving | error
+  subs: new Set(),
+  set(next) {
+    if (next === this.state) return;
+    this.state = next;
+    this.subs.forEach((f) => f());
+  },
+};
+
+function SaveButton({ onSave }) {
+  const [, redraw] = useReducer((x) => x + 1, 0);
+  useEffect(() => {
+    saveStore.subs.add(redraw);
+    return () => saveStore.subs.delete(redraw);
+  }, []);
+  const st = saveStore.state;
+  return (
+    <button
+      type="button"
+      className={`atl-save is-${st}`}
+      onClick={() => onSave()}
+      title="Enregistrement automatique après chaque modification · Ctrl + S pour enregistrer tout de suite"
+    >
+      {st === "saving" ? "Enregistrement…" : st === "dirty" ? "Enregistrer" : st === "error" ? "Réessayer" : "Enregistré ✓"}
+    </button>
+  );
 }
 
 export default function App() {
@@ -95,21 +125,89 @@ export default function App() {
       .catch(() => {});
   }, []);
 
-  async function savePage(next) {
-    setStatus({ text: "Enregistrement…" });
+  // ---- Enregistrement ----
+  // Automatique 2 s après la dernière modification, tout de suite avec
+  // Ctrl + S ou le bouton « Enregistrer ». Avertissement si on quitte la page
+  // avant. (Le dossier pages/ n'est pas surveillé par Vite : enregistrer ne
+  // recharge pas l'atelier ; l'Historique garde les versions précédentes.)
+  // L'état du bouton vit hors de ce composant (saveStore) : redessiner App
+  // redessine tout l'éditeur Puck (plusieurs secondes sur une grande page).
+  const dataRef = useRef(null);
+  dataRef.current = data;
+  const savedJson = useRef(null);
+  const saveTimer = useRef(null);
+  const saving = useRef(false);
+  const isDirty = () => Boolean(latest.current) && JSON.stringify(latest.current) !== savedJson.current;
+
+  const savePage = useCallback(async function savePage(next = latest.current ?? dataRef.current) {
+    clearTimeout(saveTimer.current);
+    if (!next) return;
+    const json = JSON.stringify(next);
+    if (json === savedJson.current && saveStore.state !== "error") return saveStore.set("saved");
+    if (saving.current) {
+      // Un enregistrement en cours : on refera le point juste après.
+      saveTimer.current = setTimeout(() => savePage(), 500);
+      return;
+    }
+    saving.current = true;
+    saveStore.set("saving");
     try {
-      const res = await fetch(`/api/pages/${pageName}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
-      });
+      const res = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: json });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
-      setStatus({ text: `Enregistré dans ${body.file}` });
+      savedJson.current = json;
+      saveStore.set(isDirty() ? "dirty" : "saved");
+      setStatus((st) => (st?.error ? null : st));
+      if (isDirty()) saveTimer.current = setTimeout(() => savePage(), 2000);
     } catch (e) {
+      saveStore.set("error");
       setStatus({ error: true, text: `Échec de l'enregistrement : ${e.message}` });
+    } finally {
+      saving.current = false;
     }
-  }
+  }, []);
+
+  const onPageChange = useCallback((d) => {
+    latest.current = d;
+    if (savedJson.current == null) savedJson.current = JSON.stringify(dataRef.current);
+    if (!isDirty()) return;
+    saveStore.set("dirty");
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => savePage(), 2000);
+  }, []);
+
+  // Ctrl + S (aussi dans l'aperçu, qui est un autre document) et
+  // avertissement avant de quitter avec des modifications non enregistrées.
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        savePage();
+      }
+    };
+    const onLeave = (e) => {
+      if (!isDirty() && !saving.current) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("keydown", onKey, true);
+    window.addEventListener("beforeunload", onLeave);
+    let frameWin = null;
+    const attach = () => {
+      const w = [...document.querySelectorAll("iframe")].find((f) => f.contentDocument?.querySelector("[data-atl-id]"))?.contentWindow ?? null;
+      if (w === frameWin) return;
+      frameWin?.removeEventListener("keydown", onKey, true);
+      frameWin = w;
+      frameWin?.addEventListener("keydown", onKey, true);
+    };
+    const timer = setInterval(attach, 1000);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("beforeunload", onLeave);
+      frameWin?.removeEventListener("keydown", onKey, true);
+    };
+  }, []);
 
   return (
     <>
@@ -136,7 +234,7 @@ export default function App() {
             getData={() => latest.current ?? data}
           />
         </div>
-        {/* Écrans, langue, HTML, Shopify, Publish : rendus par Puck (topbar-ui). */}
+        {/* Écrans, langue, HTML, Mirror, Enregistrer : rendus par Puck (topbar-ui). */}
         <div id="atl-topbar-tools" />
         {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
       </div>
@@ -158,7 +256,7 @@ export default function App() {
           config={config}
           data={data}
           onPublish={savePage}
-          onChange={(d) => (latest.current = d)}
+          onChange={onPageChange}
           viewports={[
             { width: 390, height: "auto", label: "Mobile", icon: "Smartphone" },
             { width: 768, height: "auto", label: "Tablette", icon: "Tablet" },
@@ -172,7 +270,7 @@ export default function App() {
           ]}
           overrides={{
             fields: Inspector,
-            headerActions: ({ children }) => (
+            headerActions: () => (
               <>
                 {/* Contenu de la page, puis outils de la page. */}
                 {/* Rebrand, Réécrire et Studio s'ouvrent depuis le rail de gauche. */}
@@ -196,7 +294,8 @@ export default function App() {
                   <span className="atl-publish">
                     <DownloadHtmlButton />
                     <MirrorButton />
-                    {children}
+                    {/* Remplace « Publish » de Puck : il n'enregistrait que la page. */}
+                    <SaveButton onSave={savePage} />
                   </span>
                 </TopbarTools>
               </>
