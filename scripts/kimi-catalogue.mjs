@@ -10,7 +10,7 @@
 // contenu d'origine comme contenu par défaut. L'en-tête et le pied de page de
 // la page sont laissés de côté (le catalogue en a déjà).
 // Les photos d'origine restent des repères (/imports/…) : jamais exportées.
-import { existsSync } from "node:fs";
+import { existsSync , readFileSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +32,14 @@ const url = opt("--url");
 const parts = page.content.filter((c) => c.type.startsWith(`${slug}-p`));
 let mainIndex = 0;
 
+// Page sans <main> (certaines pages de Kimi) : toutes les parties comptent,
+// sauf celles qui ressemblent à un menu ou à un pied de page.
+const anyMain = parts.some((item) => {
+  const t = join(root, "sections", item.type, "template.liquid");
+  return existsSync(t) && readFileSync(t, "utf8").includes("<main");
+});
+const NAV_LIKE = /^<(?:[a-z]+[^>]*>)*?<(?:header|footer|nav)|^(?:<[^>]+>)*<[a-z]+[^>]*class="[^"]*(?:header|footer|navbar|site-nav)/i;
+
 const prefix = `${slug}-sec-`;
 const kept = new Set();
 for (const [i, item] of parts.entries()) {
@@ -40,7 +48,7 @@ for (const [i, item] of parts.entries()) {
   const template = await readFile(join(dir, "template.liquid"), "utf8");
   const blocks = item.props.blocks_element ?? [];
   // En-tête et pied : hors de <main> dans la page importée.
-  if (!template.includes("<main")) {
+  if (anyMain ? !template.includes("<main") : NAV_LIKE.test(template.replace(/{%-?[sS]*?-?%}/g, ""))) {
     console.log(`  – ${item.type} : en-tête ou pied de page, ignoré`);
     continue;
   }

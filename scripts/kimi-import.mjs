@@ -71,6 +71,11 @@ async function open() {
   await page.waitForTimeout(800);
   // Chaque élément reçoit un numéro stable (ordre du document).
   await page.evaluate(() => {
+    // Enveloppes invisibles de Kimi (display: contents) : retirées, leurs
+    // enfants deviennent les sections.
+    for (const w of document.querySelectorAll(".atelier-source-block")) {
+      if (getComputedStyle(w).display === "contents") w.replaceWith(...w.childNodes);
+    }
     let k = 0;
     for (const el of document.querySelectorAll("body *")) el.setAttribute("data-atl-k", String(k++));
     window.__atlNext = k;
@@ -450,19 +455,47 @@ const built = await page.evaluate(
     };
 
     // Unités : ce qui précède <main>, chaque enfant de <main>, ce qui suit.
-    const shell = document.querySelector("#root")?.firstElementChild ?? document.body;
-    const main = shell.querySelector(":scope > main");
+    let shell = document.querySelector("#root")?.firstElementChild ?? document.body;
+    // Enveloppes d'un seul enfant (sans <main>) : on descend jusqu'au niveau
+    // où la page se divise ; elles restent autour de chaque section.
+    const above = [];
+    while (!shell.querySelector(":scope > main") && shell.children.length === 1 && shell.firstElementChild.children.length > 1) {
+      above.push(shell);
+      shell = shell.firstElementChild;
+    }
+    // <main>, même enveloppé (pages de Kimi : <main> dans un bloc du site).
+    const main = shell.querySelector(":scope > main") ?? [...shell.querySelectorAll("main")].find((m) => m.children.length > 1 && !m.parentElement.closest("main")) ?? null;
+    const between = [];
+    if (main) for (let x = main.parentElement; x !== shell; x = x.parentElement) between.unshift(x);
     const units = [];
     let pre = [];
     let post = [];
-    for (const c of shell.children) {
-      if (c === main) continue;
-      if (c.matches("[role=dialog], .skip-link, .sr-only") || c.getClientRects().length === 0) continue;
-      (main && c.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING ? pre : post).push(c);
+    for (const box of [shell, ...between]) {
+      for (const c of box.children) {
+        if (c === main || c.contains(main)) continue;
+        if (c.matches("[role=dialog], .skip-link, .sr-only") || c.getClientRects().length === 0) continue;
+        (main && c.compareDocumentPosition(main) & Node.DOCUMENT_POSITION_FOLLOWING ? pre : post).push(c);
+      }
     }
-    if (pre.length) units.push({ chain: [shell], els: pre });
-    if (main) for (const c of main.children) units.push({ chain: [shell, main], els: [c] });
-    if (post.length) units.push({ chain: [shell], els: post });
+    // Un bloc par section ; les blocs presque vides (barre de chargement,
+    // voile, balises <style>…) rejoignent le suivant.
+    const oneEach = (list, chain) => {
+      let wait = [];
+      const start = units.length;
+      for (const c of list) {
+        wait.push(c);
+        if (slotsOf(c) > 2) {
+          units.push({ chain, els: wait });
+          wait = [];
+        }
+      }
+      if (wait.length) (units.length > start ? units[units.length - 1].els.push(...wait) : units.push({ chain, els: wait }));
+    };
+    // Sans <main> (pages de Kimi) : chaque bloc de la page est une section.
+    if (!main) oneEach(post.splice(0), [...above, shell]);
+    if (pre.length) units.push({ chain: [...above, shell], els: pre });
+    if (main) oneEach([...main.children], [...above, shell, ...between, main]);
+    if (post.length) units.push({ chain: [...above, shell], els: post });
 
     // Découpe d'une unité en parties de MAX_SLOTS éléments au plus : un élément
     // trop grand est ouvert et ses enfants répartis (recollés par le script de la page).
@@ -660,9 +693,12 @@ const built = await page.evaluate(
         el.querySelectorAll("*").forEach((c) => set.add(c));
       }
       const tree = [];
-      const body = p.els.length && p.els[0].parentElement === shell
-        ? p.els.map((el) => ser(el, { part: set, tree })).join("")
-        : ser(p.chain.length > 1 ? main : p.els[0].closest("main > *, #root > * > *"), { part: set, tree });
+      // Hors de <main> : chaque enfant de la coque qui contient un élément de
+      // la partie (celui-ci, ou l'enveloppe d'un en-tête plus profond).
+      const tops = [...new Set(p.els.map((el) => [...shell.children].find((c) => c.contains(el))))];
+      const body = p.chain.includes(main)
+        ? ser(main, { part: set, tree })
+        : tops.map((el) => ser(el, { part: set, tree })).join("");
       // Ancêtres (coque de la page, <main>) : gardés pour le CSS, sans hauteur mini.
       let html = body;
       for (const c of [...p.chain].reverse()) {
