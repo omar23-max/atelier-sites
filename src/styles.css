@@ -5113,15 +5113,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   cursor: pointer;
 }
 
-/* Barre du bas (écrans, zoom, langue) : toujours visible. Le bas de la
-   fenêtre peut être caché par la barre des tâches de Windows : une barre
-   qui n'apparaît qu'au survol du bord serait inaccessible. */
-.atl-vpbar,
-.atl-vpbar.is-up {
+/* Barre du bas : reste levée tant qu'un de ses menus est ouvert. */
+.atl-vpbar.is-menu {
   transform: translate(-50%, 0) !important;
-  bottom: 40px !important;
-}
-.atl-vpbar::before,
-.atl-vpzone {
-  display: none !important;
 }

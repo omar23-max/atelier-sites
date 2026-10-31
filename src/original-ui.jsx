@@ -62,7 +62,13 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
     if (!open) return;
     const close = (e) => !e.target.closest?.(".atl-pagemenu, .atl-pagemenu__list") && setOpen(null);
     document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    // La barre du bas (au survol) reste levée tant que le menu est ouvert.
+    const bar = document.querySelector(".atl-vpbar");
+    bar?.classList.add("is-menu");
+    return () => {
+      document.removeEventListener("mousedown", close);
+      bar?.classList.remove("is-menu");
+    };
   }, [open]);
 
   async function reset() {
@@ -160,7 +166,10 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
         disabled={busy}
         onClick={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
-          setOpen((o) => (o ? null : { top: r.bottom + 6, left: r.left }));
+          // Bouton dans le bas de l'écran (barre du bas) : le menu s'ouvre
+          // vers le haut, sinon il sortirait de la fenêtre.
+          const up = r.top > innerHeight / 2;
+          setOpen((o) => (o ? null : up ? { bottom: innerHeight - r.top + 6, left: r.left } : { top: r.bottom + 6, left: r.left }));
         }}
         title="Repartir de l'original, supprimer la page"
       >
