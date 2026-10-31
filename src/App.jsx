@@ -15,7 +15,6 @@ import { ProposalsBanner } from "./proposals-ui.jsx";
 import { PreviewBarLanguage, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
-import { ShopifyButton } from "./shopify-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { Inspector } from "./inspector-ui.jsx";
 import { NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
@@ -197,7 +196,6 @@ export default function App() {
                   <span className="atl-publish">
                     <DownloadHtmlButton />
                     <MirrorButton />
-                    <ShopifyButton />
                     {children}
                   </span>
                 </TopbarTools>

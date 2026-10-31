@@ -4,7 +4,7 @@ Chaque section est écrite **une seule fois**, dans un dossier `sections/<id>/`.
 Ce même dossier sert à la fois :
 
 - à l'**aperçu et l'édition dans Puck** (rendu avec LiquidJS et des données d'exemple) ;
-- à l'**export Shopify** (`npm run export:shopify` → `export/shopify/sections/atl-<id>.liquid`).
+- aux exports de la page (HTML, partage). L'envoi vers un thème Shopify a été retiré (site headless).
 
 Le gabarit est écrit directement en **Liquid Shopify** : il n'y a donc rien à
 traduire à l'export, et ce qui s'affiche dans Puck est ce que Shopify affichera.

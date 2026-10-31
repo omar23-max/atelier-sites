@@ -95,23 +95,12 @@ npm run render -- exemple-home
 
 Crée `export/html/exemple-home.html`, une page autonome.
 
-## Exporter vers Shopify
-
-```bash
-npm run export:shopify
-```
-
-Crée un fichier `export/shopify/sections/atl-<id>.liquid` par section, prêt
-pour le dossier `sections/` d'un thème. L'export vérifie chaque section
-(limites Shopify) et signale les erreurs.
-
 ## Où sont les choses
 
 | Dossier | Contenu |
 |---|---|
 | `sections/<id>/` | Une section : `schema.json`, `template.liquid`, `style.css`, `meta.json`. Voir [docs/FORMAT-SECTION.md](docs/FORMAT-SECTION.md). |
 | `src/engine/` | Le moteur : chargement des sections, aperçu Liquid, traduction en champs Puck, règles Shopify. |
-| `scripts/export-shopify.mjs` | Le compilateur vers Shopify. |
 
 ## Feuille de route
 

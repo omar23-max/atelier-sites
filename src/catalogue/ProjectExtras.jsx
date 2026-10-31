@@ -351,21 +351,14 @@ export function OfferTab({ project, onSave, onMessage }) {
   );
 }
 
-// ---- Publication : export HTML et envoi Shopify, page par page ----
-export function PublicationTab({ project, pages, onSave }) {
+// ---- Publication : export HTML, page par page ----
+export function PublicationTab({ project, pages }) {
   const pub = project.publication ?? {};
-
-  function markShopify(name) {
-    const theme = prompt("Envoyée sur quel thème Shopify ? (ex. « Atelier — test sections »)", "Copie non publiée");
-    if (theme === null) return;
-    onSave({ publication: { ...pub, [name]: { ...(pub[name] ?? {}), shopify: { le: new Date().toISOString(), theme } } } });
-  }
 
   return (
     <div className="cat-extra">
       <p className="cat-muted">
-        L'export HTML est noté automatiquement (bouton « HTML » de l'atelier). Pour Shopify : dis à Claude « publie la page … du projet sur
-        Shopify » (toujours dans une copie non publiée du thème), ou note-le toi-même ici.
+        L'export HTML est noté automatiquement (bouton « HTML » de l'atelier).
       </p>
       {pages.length === 0 ? (
         <div className="cat-empty">Ce projet n'a pas encore de page.</div>
@@ -375,8 +368,6 @@ export function PublicationTab({ project, pages, onSave }) {
             <tr>
               <th>Page</th>
               <th>HTML téléchargé</th>
-              <th>Envoyée à Shopify</th>
-              <th />
             </tr>
           </thead>
           <tbody>
@@ -389,21 +380,6 @@ export function PublicationTab({ project, pages, onSave }) {
                     <small className="cat-muted">{info.name}</small>
                   </td>
                   <td>{p.html ? fmtDate(p.html.le) : <span className="cat-muted">jamais</span>}</td>
-                  <td>
-                    {p.shopify ? (
-                      <>
-                        {fmtDate(p.shopify.le)}
-                        {p.shopify.theme && <small className="cat-muted">{p.shopify.theme}</small>}
-                      </>
-                    ) : (
-                      <span className="cat-badge cat-badge--amber">pas encore</span>
-                    )}
-                  </td>
-                  <td className="cat-table__actions">
-                    <button type="button" className="cat-btn cat-btn--ghost" onClick={() => markShopify(info.name)}>
-                      Noter l'envoi Shopify
-                    </button>
-                  </td>
                 </tr>
               );
             })}

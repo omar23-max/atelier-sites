@@ -162,8 +162,8 @@ demande « en attente » (de la plus ancienne à la plus récente) :
    `template.liquid`, `style.css`, `meta.json` avec `family` (voir
    `src/engine/families.js`), `source` (url, date, note) et `label`. Textes en
    consignes entre crochets (« [ Titre — 3-4 mots ] »), jamais le texte d'origine.
-4. Vérifier : `npm run export:shopify` (0 erreur) et, pour un site, une planche
-   `npm run compare`. Générer la miniature : `npm run thumbs -- <id>`.
+4. Vérifier, pour un site, avec une planche `npm run compare`. Générer la
+   miniature : `npm run thumbs -- <id>`.
 5. Passer `statut` à « traitée » et remplir `resultat` (sections créées, écarts
    connus).
 
@@ -438,31 +438,15 @@ Demandes liées à la fiche :
   `pricing-strategy`, `offer-angles`, `objection-destroyer`) à partir de la
   fiche, puis remplir `offre`.
 
-## « Publier sur Shopify » (demande `shopify`)
+## Publier sur Shopify : retiré (2026-10-30)
 
-Créée par le bouton « Publier sur Shopify » de l'atelier (`page`, `details` :
-`projet`, `template`, `sections`). Pour la traiter, via la connexion Shopify :
-
-1. `npm run export:shopify -- --page <page>` (0 erreur) ; pour une page produit,
-   le modèle s'appelle `templates/product.atelier-<page>.json`, sinon
-   `templates/page.atelier-<page>.json` (le bouton l'indique dans `details.template`).
-2. Toujours une **copie non publiée** du thème (`themeDuplicate` si besoin) :
-   **jamais** le thème en ligne.
-3. **Images de l'atelier** (`details.images` : `[{ src, name }]`, seulement les
-   images créées dans l'atelier, `medias/…` — jamais les photos d'origine) :
-   les téléverser dans les Fichiers de la boutique **sous ce nom exact**
-   (`stagedUploadsCreate` puis `fileCreate` avec `filename: name`, attendre
-   `fileStatus: READY`). Le modèle les appelle `shopify://shop_images/<name>`.
-4. `themeFilesUpsert`, un fichier par appel (limite de 16 384 caractères) :
-   chaque `sections/atl-<id>.liquid`, puis le modèle.
-5. Page produit : assigner le modèle au produit ; sinon créer/mettre à jour la
-   page (`pageCreate`) avec ce modèle.
-6. Noter l'envoi : `POST /api/projects/<projet>/publication` avec
-   `{ page, canal: "shopify", theme }`, puis passer la demande à « traitée ».
-
-Le bouton propose aussi « Télécharger le code Liquid (.zip) » : sections, modèle
-et `LISEZ-MOI.txt` pour les ajouter soi-même (un zip importé comme thème
-remplacerait tout le thème : ne pas le faire).
+Le bouton « Publier sur Shopify », la demande `shopify`, le script
+`export-shopify.mjs` et la colonne « Envoyée à Shopify » de l'onglet Publication
+ont été retirés. Le site est maintenant headless : la page vient de l'atelier, et
+Shopify ne sert plus qu'aux produits, au panier et au paiement. Restent la liste
+des produits (`/api/shopify/products`, liens « Ajouter au panier ») et le moteur
+de sections (`src/engine/shopify.js`), dont l'atelier a besoin pour afficher
+les pages.
 
 ## Espaces et fonds (section, colonne, bloc, page)
 

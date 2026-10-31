@@ -535,11 +535,11 @@ function atelierApi() {
             }
             if (!NAME.test(parts[1] ?? "")) return json(res, 400, { error: "Identifiant de projet invalide." });
             const file = join(projectsDir, `${parts[1]}.json`);
-            // Publication d'une page du projet : { page, canal: "html" | "shopify", ... }.
+            // Publication d'une page du projet : { page, canal: "html", ... }.
             if (parts[2] === "publication" && req.method === "POST") {
               if (!existsSync(file)) return json(res, 404, { error: "Projet introuvable." });
               const { page, canal, ...rest } = await readBody(req);
-              if (!NAME.test(page ?? "") || !["html", "shopify"].includes(canal)) return json(res, 400, { error: "Publication invalide." });
+              if (!NAME.test(page ?? "") || canal !== "html") return json(res, 400, { error: "Publication invalide." });
               const p = JSON.parse(await readFile(file, "utf8"));
               p.publication ??= {};
               p.publication[page] = { ...(p.publication[page] ?? {}), [canal]: { le: new Date().toISOString(), ...rest } };
@@ -748,7 +748,7 @@ function atelierApi() {
             if (req.method === "POST") {
               const body = await readBody(req);
               // textes : réécrire les textes d'une page ; images : refaire ses photos d'origine.
-              const types = ["capture", "site", "bibliotheque", "design", "ia", "textes", "images", "creatives", "offre", "shopify"];
+              const types = ["capture", "site", "bibliotheque", "design", "ia", "textes", "images", "creatives", "offre"];
               if (!types.includes(body.type)) return json(res, 400, { error: "Type de demande inconnu." });
               // Plusieurs demandes dans la même seconde (envoi d'un lot) : -2, -3…
               let folder = `${stamp()}-${body.type}`;
