@@ -545,9 +545,21 @@ export function Inspector({ children }) {
     };
     const onMenu = (e) => {
       if (!isMain()) return;
-      const t = target(e);
+      let t = target(e);
       if (!t) return;
       e.preventDefault();
+      // Clic droit dans ce qui est déjà choisi (la section entière, un
+      // groupe) : le menu porte sur tout le choix, pas sur l'élément pointé.
+      const cur = selRef.current;
+      if (cur?.sectionId === t.sectionId && (t.key || t.group)) {
+        const sec = doc.querySelector(`[data-atl-id="${CSS.escape(t.sectionId)}"]`);
+        const box = cur.group ? sec?.querySelector(`[data-atl-group="${CSS.escape(cur.group)}"]`) : null;
+        const pointed = e.target?.nodeType === 1 ? e.target : null;
+        const r = box?.getBoundingClientRect();
+        const inBox = r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        if (!cur.key && !cur.group) t = { sectionId: t.sectionId };
+        else if (cur.group && (inBox || box?.contains(pointed))) t = { sectionId: t.sectionId, group: cur.group };
+      }
       const frame = canvasFrame();
       const r = frame.getBoundingClientRect();
       const scale = r.width / frame.offsetWidth || 1;

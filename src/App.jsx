@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { Component, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Puck } from "@puckeditor/core";
 import "@puckeditor/core/puck.css";
 import { sections } from "./engine/sections.js";
@@ -82,6 +82,37 @@ function SaveButton({ onSave }) {
     >
       {st === "saving" ? "Enregistrement…" : st === "dirty" ? "Enregistrer" : st === "error" ? "Réessayer" : "Enregistré ✓"}
     </button>
+  );
+}
+
+// Panneau de droite : une erreur s'affiche (avec « Réessayer ») au lieu
+// d'un panneau blanc et figé.
+class PanelGuard extends Component {
+  state = { error: null };
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    console.error("[atelier] panneau de droite :", error, info?.componentStack);
+  }
+  render() {
+    const { error } = this.state;
+    if (!error) return this.props.children;
+    return (
+      <div className="atl-panel-error">
+        <b>Le panneau a rencontré une erreur.</b>
+        <code>{String(error?.message ?? error).slice(0, 300)}</code>
+        <button type="button" onClick={() => this.setState({ error: null })}>Réessayer</button>
+        <button type="button" onClick={() => location.reload()}>Recharger la page</button>
+      </div>
+    );
+  }
+}
+function SafeInspector(props) {
+  return (
+    <PanelGuard>
+      <Inspector {...props} />
+    </PanelGuard>
   );
 }
 
@@ -269,7 +300,7 @@ export default function App() {
             { name: "outline", label: "Outils", icon: <span className="atl-plugin-icon">▤</span>, render: LeftPanel },
           ]}
           overrides={{
-            fields: Inspector,
+            fields: SafeInspector,
             headerActions: () => (
               <>
                 {/* Contenu de la page, puis outils de la page. */}
