@@ -1,5 +1,7 @@
 # Templates à faire reproduire par Kimi
 
+> Consignes complètes à donner à Kimi pour tout clonage : [prompt-kimi-clonage.md](prompt-kimi-clonage.md).
+
 Liste de tous les templates miroirs de l'atelier (44 avec une adresse), au 2026-10-30.
 
 **Comment faire :** donne à Kimi la consigne ci-dessous avec ce fichier (ou la liste). Il reproduit chaque page dans un dossier qui porte son **nom pour l'atelier**, puis met tous les dossiers dans **un seul zip**. Ce zip est celui à donner à Claude : chaque dossier remplacera l'ancien template du même nom et ses sections du catalogue.
