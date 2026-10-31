@@ -5029,3 +5029,44 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   background: #fff;
   cursor: pointer;
 }
+
+/* ---- Panneau de droite compact (plus étroit) et qui défile jusqu'en bas ---- */
+[class*="Sidebar--right"] {
+  width: 248px !important;
+}
+[class*="Sidebar--right"] > [class*="SidebarSection"] {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+[class*="Sidebar--right"] .atl-insp {
+  font-size: 12px;
+}
+[class*="Sidebar--right"] .atl-insp h3,
+[class*="Sidebar--right"] .atl-insp h4,
+[class*="Sidebar--right"] .atl-insp b {
+  font-size: 12.5px;
+}
+[class*="Sidebar--right"] .atl-insp input,
+[class*="Sidebar--right"] .atl-insp select,
+[class*="Sidebar--right"] .atl-insp textarea,
+[class*="Sidebar--right"] .atl-insp button {
+  font-size: 12px;
+}
+[class*="Sidebar--right"] .atl-insp input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+[class*="Sidebar--right"] .atl-insp select {
+  min-height: 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+[class*="Sidebar--right"] .atl-seg2 {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+[class*="Sidebar--right"] .atl-seg2 button {
+  min-width: 0;
+  padding: 4px 7px;
+  font-size: 11.5px;
+}
