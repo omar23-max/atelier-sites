@@ -159,7 +159,14 @@ export function ProjectDetail({ id, onBack, onMessage }) {
             const res = await fetch(`/imports/${info.importSource}/capture.json`);
             if (res.ok && /json/.test(res.headers.get("content-type") ?? "")) origin = (await res.json()).views?.desktop?.sections ?? null;
           }
-          return { info, data, score: scorePage(data, byId), medias, origin };
+          // Copies au design identique : les textes d'origine sont ceux de la
+          // page du template (pages/<template>.json), jamais modifiée.
+          let originData = null;
+          if (!origin && info.importSource && info.importSource !== info.name) {
+            const tplPage = await getPage(info.importSource).catch(() => null);
+            if (tplPage?.content) originData = withDefaults(tplPage);
+          }
+          return { info, data, score: scorePage(data, byId), medias, origin, originData };
         }),
       );
       setPages(full);
@@ -440,15 +447,52 @@ function EditedImagesTab({ pages }) {
   );
 }
 
+// Textes d'une page rangés par section ({ clé: [textes] }).
+function textsBySection(data) {
+  const bySection = new Map();
+  for (const t of pageTexts(data)) {
+    const key = t.path.split(".")[0];
+    if (!bySection.has(key)) bySection.set(key, []);
+    bySection.get(key).push(t);
+  }
+  return bySection;
+}
+const sectionName = (key) => {
+  const [type] = key.split("#");
+  return byId[type]?.meta.label?.split(" — ")[0] ?? type;
+};
+
 function OriginalTextsTab({ pages }) {
   const withOrigin = pages.filter((p) => p.origin);
+  const withTemplate = pages.filter((p) => !p.origin && p.originData);
   return (
     <>
       <p className="cat-muted">
-        Les textes relevés sur le site d'inspiration au moment de l'import, section par section. Référence seulement : ils ne sont jamais
-        repris tels quels.
+        Les textes du site d'inspiration, tels qu'ils ont été copiés à l'import, section par section. Référence seulement : à réécrire pour ton
+        produit.
       </p>
-      {withOrigin.length === 0 && <div className="cat-empty">Aucune page de ce projet ne vient d'un template importé.</div>}
+      {withOrigin.length === 0 && withTemplate.length === 0 && <div className="cat-empty">Aucune page de ce projet ne vient d'un template importé.</div>}
+      {withTemplate.map(({ info, originData }) => (
+        <section key={info.name} className="cat-panel">
+          <div className="cat-panel__head">
+            <strong>{info.title}</strong>
+            <span className="cat-muted">depuis le template {info.importSource}</span>
+          </div>
+          {[...textsBySection(originData).entries()].map(([key, texts]) => (
+            <details key={key} className="cat-texts">
+              <summary>
+                {sectionName(key)}
+                <span className="cat-muted"> · {texts.length} texte(s)</span>
+              </summary>
+              <ul>
+                {texts.map((t) => (
+                  <li key={t.path}>{t.text}</li>
+                ))}
+              </ul>
+            </details>
+          ))}
+        </section>
+      ))}
       {withOrigin.map(({ info, origin }) => (
         <section key={info.name} className="cat-panel">
           <div className="cat-panel__head">
@@ -487,15 +531,16 @@ function EditedTextsTab({ pages }) {
   return (
     <>
       <p className="cat-muted">
-        Les textes de tes pages. En orange, les consignes entre crochets pas encore remplies (bouton « Réécrire les textes » de l'atelier).
+        Les textes actuels de tes pages. En gris, ceux qui sont encore ceux du site d'origine ; en orange, les consignes entre crochets pas
+        encore remplies. Pour les réécrire : bouton « Réécrire les textes » de l'atelier.
       </p>
-      {pages.map(({ info, data }) => {
-        const bySection = new Map();
-        for (const t of pageTexts(data)) {
-          const key = t.path.split(".")[0];
-          if (!bySection.has(key)) bySection.set(key, []);
-          bySection.get(key).push(t);
-        }
+      {pages.map(({ info, data, originData }) => {
+        const bySection = textsBySection(data);
+        // Textes encore identiques à ceux du template d'origine.
+        const originSet = new Set(originData ? pageTexts(originData).map((t) => t.text.trim()) : []);
+        const isOrigin = (t) => originSet.has(t.text.trim());
+        const all = [...bySection.values()].flat();
+        const left = all.filter(isOrigin).length;
         return (
           <section key={info.name} className="cat-panel">
             <div className="cat-panel__head">
@@ -504,18 +549,31 @@ function EditedTextsTab({ pages }) {
                 Ouvrir la page
               </a>
             </div>
+            {originData && (
+              <p className={left ? "cat-texts__note is-todo" : "cat-texts__note is-done"}>
+                {left === all.length
+                  ? "Pas encore réécrite : tous les textes sont encore ceux du site d'origine."
+                  : left
+                    ? `${all.length - left} texte(s) réécrit(s), ${left} encore d'origine.`
+                    : "Tous les textes ont été réécrits."}
+              </p>
+            )}
             {[...bySection.entries()].map(([key, texts]) => {
-              const [type] = key.split("#");
               const briefs = texts.filter((t) => isBrief(t.text)).length;
+              const origin = texts.filter(isOrigin).length;
               return (
                 <details key={key} className="cat-texts">
                   <summary>
-                    {byId[type]?.meta.label?.split(" — ")[0] ?? type}
-                    <span className="cat-muted"> · {briefs ? `${briefs} consigne(s) / ${texts.length}` : `${texts.length} texte(s)`}</span>
+                    {sectionName(key)}
+                    <span className="cat-muted">
+                      {" "}
+                      · {briefs ? `${briefs} consigne(s) / ${texts.length}` : `${texts.length} texte(s)`}
+                      {origin ? ` · ${origin} encore d'origine` : ""}
+                    </span>
                   </summary>
                   <ul>
                     {texts.map((t) => (
-                      <li key={t.path} className={isBrief(t.text) ? "is-brief" : ""}>
+                      <li key={t.path} className={isBrief(t.text) ? "is-brief" : isOrigin(t) ? "is-origin" : ""}>
                         {t.text}
                       </li>
                     ))}
