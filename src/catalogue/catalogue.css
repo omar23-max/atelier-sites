@@ -1569,3 +1569,100 @@ textarea {
 .cat-request:has(> .cat-bincheck) {
   align-items: center;
 }
+
+/* ---- Designs : 4 cartes par ligne, échantillon vivant qui défile ---- */
+.cat-grid--designs {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1300px) { .cat-grid--designs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 950px) { .cat-grid--designs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cat-dcard .cat-card__body strong {
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-dcard .cat-card__actions .cat-btn:nth-child(2) {
+  flex: 1;
+}
+.cat-btn--icon {
+  padding-inline: 8px !important;
+}
+.cat-spec {
+  height: 230px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--cat-line);
+  scrollbar-width: thin;
+}
+.cat-spec__hero {
+  display: block;
+  width: 100%;
+  padding: 16px 14px 14px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cat-spec__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.cat-spec__typo {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.12);
+}
+.cat-spec__typo small,
+.cat-spec__colors small {
+  display: block;
+  color: #8a8a8a;
+  font: 500 9.5px/1.3 "Inter", system-ui, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.cat-spec__typo div > div {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.cat-spec__blocks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 14px 10px;
+}
+.cat-spec__blocks > div {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 10px;
+}
+.cat-spec__colors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+  padding: 4px 14px 14px;
+}
+.cat-spec__colors > div {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  column-gap: 6px;
+  align-items: center;
+}
+.cat-spec__colors span {
+  grid-row: span 2;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
+}
+.cat-spec__colors code {
+  color: #6f6f6f;
+  font-size: 9.5px;
+}

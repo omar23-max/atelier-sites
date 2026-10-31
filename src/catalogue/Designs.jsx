@@ -3,7 +3,7 @@ import { designs, designById } from "../engine/designs.js";
 import { ROLES, applyDesign } from "../engine/design.js";
 import { sections } from "../engine/sections.js";
 import { normalizeProps } from "../engine/render.js";
-import { SourceLink, useHoverPreview } from "./hover.jsx";
+import { SourceLink } from "./hover.jsx";
 import { confirmDelete } from "../projects.js";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
@@ -46,24 +46,83 @@ function Swatches({ design }) {
   );
 }
 
-// Carte de design : miniature (grand aperçu au survol) + contenu.
+// Carte de design : un échantillon vivant du design.md (qui défile), puis le
+// contenu. Clic sur le titre de l'échantillon : la fiche complète.
 function DesignCard({ design, isCurrent, onDetails, children }) {
-  const hover = useHoverPreview("design", design);
   return (
-    <article className={`cat-card${isCurrent ? " is-current" : ""}`}>
-      <button
-        type="button"
-        className="cat-card__thumb cat-card__thumb--design"
-        onClick={() => {
-          hover.onMouseLeave();
-          onDetails();
-        }}
-        {...(design.thumbnail ? hover : {})}
-      >
-        {design.thumbnail ? <img src={design.thumbnail} alt="" loading="lazy" /> : <span>Pas de miniature</span>}
-      </button>
+    <article className={`cat-card cat-dcard${isCurrent ? " is-current" : ""}`}>
+      <DesignSpecimen design={design} onOpen={onDetails} />
       {children}
     </article>
+  );
+}
+
+// Échantillon d'un design, lu dans ses jetons : hero (titre, sous-titre,
+// boutons), titres H1-H3 et texte avec leur police et leur taille, sections
+// claire et sombre, couleurs. Tailles réduites de moitié pour tenir dans la
+// carte ; on fait défiler l'échantillon pour tout voir.
+function DesignSpecimen({ design, onOpen }) {
+  const c = design.tokens.couleurs ?? {};
+  const r = roleStyles(design);
+  useDesignFonts([r.h1.police, r.sousTitre.police, r.h2.police, r.h3.police, r.texte.police, r.bouton.police]);
+  const small = (role, max) => ({ ...css(role), fontSize: Math.max(10, Math.min((role.taille ?? 16) * 0.5, max)) });
+  const button = {
+    ...small(r.bouton, 12),
+    background: r.bouton.fond ?? c.bouton ?? "#111",
+    color: r.bouton.couleur ?? c["bouton-texte"] ?? "#fff",
+    borderRadius: r.bouton.rayon ?? 6,
+    padding: "6px 12px",
+    display: "inline-block",
+  };
+  const ghost = { ...button, background: "transparent", color: r.bouton.fond ?? c.bouton ?? "#111", border: `1px solid ${r.bouton.fond ?? c.bouton ?? "#111"}` };
+  const rows = [
+    ["H1", r.h1, r.h1.exemple || "Grand titre"],
+    ["H2", r.h2, r.h2.exemple || "Titre de section"],
+    ["H3", r.h3, r.h3.exemple || "Petit titre"],
+    ["Sous-titre", r.sousTitre, r.sousTitre.exemple || "Une phrase qui précise la promesse"],
+    ["Texte", r.texte, r.texte.exemple || "Le texte des paragraphes de la page."],
+  ];
+  const label = (role) => [role.police, role.taille && `${Math.round(role.taille)} px`, role.graisse].filter(Boolean).join(" · ");
+  return (
+    <div className="cat-spec" style={{ background: c.fond ?? "#fff", color: c.texte ?? "#111" }} title="Fais défiler pour tout voir">
+      <button type="button" className="cat-spec__hero" onClick={onOpen} title="Ouvrir la fiche du design">
+        <span style={{ ...small(r.h1, 26), display: "block" }}>{r.h1.exemple || "Grand titre"}</span>
+        <span style={{ ...small(r.sousTitre, 12), display: "block", marginTop: 6 }}>{r.sousTitre.exemple || "Une phrase qui précise la promesse"}</span>
+        <span className="cat-spec__btns">
+          <span style={button}>{r.bouton.exemple || "Acheter"}</span>
+          <span style={ghost}>En savoir plus</span>
+        </span>
+      </button>
+      <div className="cat-spec__typo">
+        {rows.map(([name, role, sample]) => (
+          <div key={name}>
+            <small>
+              {name} · {label(role)}
+            </small>
+            <div style={small(role, name === "Texte" || name === "Sous-titre" ? 12 : 20)}>{sample}</div>
+          </div>
+        ))}
+      </div>
+      <div className="cat-spec__blocks">
+        <div style={{ background: c.surface ?? "#f6f6f6" }}>
+          <span style={{ color: c.etoiles ?? "#f5b301" }}>★★★★★</span>
+          <b style={{ ...small(r.h3, 12), color: c.texte }}>Carte claire</b>
+        </div>
+        <div style={{ background: c["fond-sombre"] ?? "#222", color: c["texte-sur-sombre"] ?? "#fff" }}>
+          <b style={{ ...small(r.h3, 12), color: c["texte-sur-sombre"] ?? "#fff" }}>Section sombre</b>
+          <span style={{ fontSize: 10, color: c["accent-clair"] ?? c.accent }}>accent</span>
+        </div>
+      </div>
+      <div className="cat-spec__colors">
+        {ROLES.filter((x) => c[x.id]).map((x) => (
+          <div key={x.id} title={x.label}>
+            <span style={{ background: c[x.id] }} />
+            <small>{x.label}</small>
+            <code>{c[x.id]}</code>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -363,7 +422,7 @@ export function DesignsView({ targetPage, onMessage }) {
       {designs.length === 0 ? (
         <div className="cat-empty">Aucun design pour l'instant. Chaque import de site en ajoute un.</div>
       ) : (
-        <div className="cat-grid">
+        <div className="cat-grid cat-grid--designs">
           {designs.map((d) => (
             <DesignCard key={d.id} design={d} isCurrent={d.id === currentDesign} onDetails={() => setPreview(d)}>
               <div className="cat-card__body">
@@ -384,11 +443,17 @@ export function DesignsView({ targetPage, onMessage }) {
                 <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setPreview(d)}>
                   Inspecter
                 </button>
-                <button type="button" className="cat-btn" disabled={!!busy || !!d.error} onClick={() => apply(d)}>
-                  {busy === d.id ? "Application…" : chosenPage ? "Appliquer dans la page courante" : "Appliquer à une page"}
+                <button
+                  type="button"
+                  className="cat-btn"
+                  disabled={!!busy || !!d.error}
+                  onClick={() => apply(d)}
+                  title={chosenPage ? `Appliquer ce design à « ${chosenPage} »` : "Appliquer ce design à une page"}
+                >
+                  {busy === d.id ? "Application…" : "Appliquer"}
                 </button>
-                <button type="button" className="cat-btn cat-btn--danger" disabled={!!busy} onClick={() => remove(d)}>
-                  Supprimer
+                <button type="button" className="cat-btn cat-btn--danger cat-btn--icon" disabled={!!busy} onClick={() => remove(d)} title="Supprimer ce design" aria-label="Supprimer ce design">
+                  🗑
                 </button>
               </div>
             </DesignCard>
