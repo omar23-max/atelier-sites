@@ -543,7 +543,7 @@ function ProjectSummary({ project, pages }) {
     ["Marque", project.marque?.logos?.length ? `${project.marque.logos.length} logo(s), ${project.marque.palette?.length ?? 0} couleur(s)` : "à faire"],
     ["Créatives", creatives.length ? `${creatives.length} (${creatives.filter((c) => c.statut === "en ligne").length} en ligne)` : "aucune"],
     ["Offre", offre.promesse ? "rédigée" : "à faire"],
-    ["Publication", `${pub.filter((p) => p.shopify).length} / ${pages.length} page(s) sur Shopify`],
+    ["Publication", `${pub.filter((p) => p.html).length} / ${pages.length} page(s) exportée(s)`],
   ];
   return (
     <div className="cat-summary">
