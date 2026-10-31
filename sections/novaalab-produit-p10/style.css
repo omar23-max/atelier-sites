@@ -1,219 +1,269 @@
-@font-face { font-family: Montserrat; font-weight: 400; font-style: normal; font-display: swap; src: url("https://novaalab.com/cdn/fonts/montserrat/montserrat_n4.81949fa0ac9fd2021e16436151e8eaa539321637.woff2") format("woff2"), url("https://novaalab.com/cdn/fonts/montserrat/montserrat_n4.a6c632ca7b62da89c3594789ba828388aac693fe.woff") format("woff"); }
-@font-face { font-family: Lato; font-weight: 400; font-style: normal; font-display: swap; src: url("https://novaalab.com/cdn/fonts/lato/lato_n4.c3b93d431f0091c8be23185e15c9d1fee1e971c5.woff2") format("woff2"), url("https://novaalab.com/cdn/fonts/lato/lato_n4.d5c00c781efb195594fd2fd4ad04f7882949e327.woff") format("woff"); }
-@font-face { font-family: Montserrat; font-weight: 700; font-style: normal; font-display: swap; src: url("https://novaalab.com/cdn/fonts/montserrat/montserrat_n7.3c434e22befd5c18a6b4afadb1e3d77c128c7939.woff2") format("woff2"), url("https://novaalab.com/cdn/fonts/montserrat/montserrat_n7.5d9fa6e2cae713c8fb539a9876489d86207fe957.woff") format("woff"); }
-@font-face { font-display: swap; font-family: Urbanist; font-style: normal; font-weight: 400; src: url("https://novaalab.com/cdn/shop/t/223/assets/urbanist-v15-latin-400.woff2?v=142929418351107298391785450554") format("woff2"); }
-@font-face { font-display: swap; font-family: Urbanist; font-style: normal; font-weight: 700; src: url("https://novaalab.com/cdn/shop/t/223/assets/urbanist-v15-latin-700.woff2?v=23538838924419295341785450555") format("woff2"); }
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@font-face { font-display: swap; font-family: Urbanist; font-style: normal; font-weight: 400; src: url("/imports/novaalab-produit/assets/13cf074e075c-urbanist-v15-latin-400.woff2") format("woff2"); }
+@font-face { font-display: swap; font-family: Urbanist; font-style: normal; font-weight: 700; src: url("/imports/novaalab-produit/assets/2c572f8a880c-urbanist-v15-latin-700.woff2") format("woff2"); }
+.atl-novaalab-produit-p10 .template-product .main-content { padding-top: 0px !important; }
+@media screen and (min-width: 769px) { .atl-novaalab-produit-p10 .template-product .main-content { padding-top: 20px !important; } }
+@keyframes hxo-slide-up { 
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0px); }
 }
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes folder-item-hide { 
+  0% { opacity: 1; transform: translateY(0px); }
+  100% { opacity: 0; transform: translateY(-20px); }
 }
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes folder-item-show { 
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0px); }
 }
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes folder-height-show { 
+  0% { opacity: 0; }
+  100% { height: 0px; }
+  100% { height: max-content; opacity: 1; }
 }
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yw.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes folder-height-hide { 
+  0% { height: max-content; opacity: 1; }
+  100% { max-height: 0px; opacity: 0; }
 }
-@font-face {
-  font-family: 'Urbanist';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@font-face { font-family: oke-widget-icons; src: url("/imports/novaalab-produit/assets/70a8d8c990a7-oke-widget-icons.ttf") format("truetype"), url("/imports/novaalab-produit/assets/2f5b7c956ff9-oke-widget-icons.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: opw-icons; src: url("/imports/novaalab-produit/assets/3c35178c5177-opinew-snoci.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: opw-snoci; src: url("/imports/novaalab-produit/assets/3c35178c5177-opinew-snoci.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: opw-2snoci; src: url("/imports/novaalab-produit/assets/cb52890bcccf-opw-2snoci.woff2") format("woff2"), url("/imports/novaalab-produit/assets/009e5cc9416d-opw-2snoci.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: Montserrat; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/523bd4ae3661-montserrat_n4.81949fa0ac9fd2021e16436151.woff2") format("woff2"), url("/imports/novaalab-produit/assets/df7d5d061356-montserrat_n4.a6c632ca7b62da89c3594789ba.woff") format("woff"); }
+@font-face { font-family: Montserrat; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/523bd4ae3661-montserrat_n4.81949fa0ac9fd2021e16436151.woff2") format("woff2"), url("/imports/novaalab-produit/assets/df7d5d061356-montserrat_n4.a6c632ca7b62da89c3594789ba.woff") format("woff"); }
+@font-face { font-family: Lato; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/ab34cb4d21d8-lato_n4.c3b93d431f0091c8be23185e15c9d1fe.woff2") format("woff2"), url("/imports/novaalab-produit/assets/95260286c733-lato_n4.d5c00c781efb195594fd2fd4ad04f788.woff") format("woff"); }
+@font-face { font-family: Montserrat; font-weight: 700; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/138688485502-montserrat_n7.3c434e22befd5c18a6b4afadb1.woff2") format("woff2"), url("/imports/novaalab-produit/assets/0757dcca007d-montserrat_n7.5d9fa6e2cae713c8fb539a9876.woff") format("woff"); }
+@font-face { font-family: Montserrat; font-weight: 700; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/138688485502-montserrat_n7.3c434e22befd5c18a6b4afadb1.woff2") format("woff2"), url("/imports/novaalab-produit/assets/0757dcca007d-montserrat_n7.5d9fa6e2cae713c8fb539a9876.woff") format("woff"); }
+@font-face { font-family: icons; src: url("/imports/novaalab-produit/assets/c95f62e6040b-icons.ttf") format("woff"), url("/imports/novaalab-produit/assets/c95f62e6040b-icons.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+.atl-novaalab-produit-p10 *, .atl-novaalab-produit-p10 input, .atl-novaalab-produit-p10 ::before, .atl-novaalab-produit-p10 ::after { box-sizing: border-box; }
+.atl-novaalab-produit-p10, .atl-novaalab-produit-p10 { padding: 0px; margin: 0px; }
+.atl-novaalab-produit-p10 article, .atl-novaalab-produit-p10 aside, .atl-novaalab-produit-p10 details, .atl-novaalab-produit-p10 figcaption, .atl-novaalab-produit-p10 figure, .atl-novaalab-produit-p10 :is(footer, .atl-novaalab-produit-p10 .atelier-section-footer), .atl-novaalab-produit-p10 :is(header, .atl-novaalab-produit-p10 .atelier-section-header), .atl-novaalab-produit-p10 hgroup, .atl-novaalab-produit-p10 main, .atl-novaalab-produit-p10 nav, .atl-novaalab-produit-p10 section, .atl-novaalab-produit-p10 summary { display: block; }
+.atl-novaalab-produit-p10, .atl-novaalab-produit-p10 { background-color: rgb(255, 255, 255); }
+.atl-novaalab-produit-p10 .main-content { display: block; }
+.atl-novaalab-produit-p10:not(.template-index) .main-content { padding-top: 30px; }
+@media screen and (min-width: 769px) { .atl-novaalab-produit-p10:not(.template-index) .main-content { padding-top: 80px; } }
+@media screen and (min-width: 591px) { .atl-novaalab-produit-p10 .main-content { padding-bottom: 40px; } }
+.atl-novaalab-produit-p10 p { margin: 0px 0px 15px; text-rendering: optimizelegibility; }
+.atl-novaalab-produit-p10 b, .atl-novaalab-produit-p10 strong { font-weight: 700; }
+.atl-novaalab-produit-p10 img { border: 0px; height: auto; }
+.atl-novaalab-produit-p10 svg:not(:root) { overflow: hidden; }
+.atl-novaalab-produit-p10 img, .atl-novaalab-produit-p10 iframe { max-width: 100%; }
+@font-face { font-family: icons; src: url("/imports/novaalab-produit/assets/c95f62e6040b-icons.ttf") format("woff"), url("/imports/novaalab-produit/assets/c95f62e6040b-icons.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: swiper-icons; font-weight: 400; font-style: normal; }
+.atl-novaalab-produit-p10 { --swiper-theme-color: #007aff; }
+.atl-novaalab-produit-p10 :host { position: relative; display: block; margin-left: auto; margin-right: auto; z-index: 1; }
+.atl-novaalab-produit-p10 .swiper { margin-left: auto; margin-right: auto; position: relative; overflow: clip; list-style: none; padding: 0px; z-index: 1; display: block; }
+.atl-novaalab-produit-p10 .swiper-wrapper { position: relative; width: 100%; height: 100%; z-index: 1; display: flex; transition-property: transform; transition-timing-function: var(--swiper-wrapper-transition-timing-function,initial); box-sizing: content-box; }
+.atl-novaalab-produit-p10 .swiper-android .swiper-slide, .atl-novaalab-produit-p10 .swiper-ios .swiper-slide, .atl-novaalab-produit-p10 .swiper-wrapper { transform: translateZ(0px); }
+.atl-novaalab-produit-p10 .swiper-slide { flex-shrink: 0; width: 100%; height: 100%; position: relative; transition-property: transform; display: block; }
+@keyframes swiper-preloader-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
-@font-face {
-  font-family: 'Urbanist';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+.atl-novaalab-produit-p10 { --swiper-navigation-size: 44px; }
+@keyframes fadeIn { 
+  0%, 35% { opacity: 0; }
+  100% { opacity: 1; }
 }
-@font-face {
-  font-family: 'Urbanist';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes heroContentIn { 
+  0%, 35% { opacity: 0; transform: translateY(8px); }
+  60% { opacity: 1; }
+  100% { transform: translateY(0px); }
 }
-@font-face {
-  font-family: 'Urbanist';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@font-face { font-family: Montserrat; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/523bd4ae3661-montserrat_n4.81949fa0ac9fd2021e16436151.woff2") format("woff2"), url("/imports/novaalab-produit/assets/df7d5d061356-montserrat_n4.a6c632ca7b62da89c3594789ba.woff") format("woff"); }
+@font-face { font-family: Montserrat; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/523bd4ae3661-montserrat_n4.81949fa0ac9fd2021e16436151.woff2") format("woff2"), url("/imports/novaalab-produit/assets/df7d5d061356-montserrat_n4.a6c632ca7b62da89c3594789ba.woff") format("woff"); }
+@font-face { font-family: Lato; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/ab34cb4d21d8-lato_n4.c3b93d431f0091c8be23185e15c9d1fe.woff2") format("woff2"), url("/imports/novaalab-produit/assets/95260286c733-lato_n4.d5c00c781efb195594fd2fd4ad04f788.woff") format("woff"); }
+@font-face { font-family: Montserrat; font-weight: 700; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/138688485502-montserrat_n7.3c434e22befd5c18a6b4afadb1.woff2") format("woff2"), url("/imports/novaalab-produit/assets/0757dcca007d-montserrat_n7.5d9fa6e2cae713c8fb539a9876.woff") format("woff"); }
+@font-face { font-family: Montserrat; font-weight: 700; font-style: normal; font-display: swap; src: url("/imports/novaalab-produit/assets/138688485502-montserrat_n7.3c434e22befd5c18a6b4afadb1.woff2") format("woff2"), url("/imports/novaalab-produit/assets/0757dcca007d-montserrat_n7.5d9fa6e2cae713c8fb539a9876.woff") format("woff"); }
+@font-face { font-family: icons; src: url("/imports/novaalab-produit/assets/c95f62e6040b-icons.ttf") format("woff"), url("/imports/novaalab-produit/assets/c95f62e6040b-icons.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+.atl-novaalab-produit-p10 ::-webkit-input-placeholder { color: rgb(34, 35, 35); opacity: 0.6; }
+@keyframes placeholder-background-loading { 
+  0% { opacity: 0.02; }
+  50% { opacity: 0.05; }
+  100% { opacity: 0.02; }
 }
-@font-face {
-  font-family: 'Urbanist';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/urbanist/v18/L0x-DF02iFML4hGCyMqlbS0.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@font-face { font-family: "GT Walsheim Pro"; src: url("/imports/novaalab-produit/assets/cc51a2a37c8e-GTWalsheimPro-Regular.woff2") format("woff2"), url("/imports/novaalab-produit/assets/cea9df00a67f-GTWalsheimPro-Regular.woff") format("woff"); }
+.atl-novaalab-produit-p10 .page-width { width: 100%; max-width: 1320px; margin: auto; padding: 0px 20px; }
+@media screen and (max-width: 768px) { .atl-novaalab-produit-p10 .page-width { padding: 0px 10px; } }
+@keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
 }
-/* Copie de NovaaLab — partie 10. Styles relevés sur la page d'origine (ordinateur, puis mobile). */
-.atl-novaalab-produit-p10{display:block;background:var(--atl-fond, rgb(255, 255, 255))}
-.atl-novaalab-produit-p10 :where(*:not(svg, svg *)){all:revert}
-.atl-novaalab-produit-p10 img{display:inline-block}
-.atl-novaalab-produit-p10[data-atl-acc-on] [data-atl-r]:not([data-atl-open]){display:none!important}
-.atl-novaalab-produit-p10[data-atl-acc-on] [data-atl-q], .atl-novaalab-produit-p10[data-atl-acc-on] summary{cursor:pointer}
-.atl-novaalab-produit-p10 [data-atl-car=track]::-webkit-scrollbar{display:none}
-.atl-novaalab-produit-p10 .atl-vide{background:repeating-linear-gradient(45deg,var(--atl-surface-p, #eee) 0 10px,var(--atl-surface-p, #f7f7f7) 10px 20px)}
-.atl-novaalab-produit-p10 .cnovaalabproduit0, .atl-novaalab-produit-p10.cnovaalabproduit0{box-sizing:border-box;margin-top:0px;margin-right:0px;margin-bottom:0px;margin-left:0px;background-color:var(--atl-fond, rgb(255, 255, 255));color:var(--atl-texte, rgb(34, 35, 35));font-family:var(--atl-font-body, Montserrat, sans-serif);line-height:25.6px}
-.atl-novaalab-produit-p10 .cnovaalabproduit5{box-sizing:border-box}
-.atl-novaalab-produit-p10 .cnovaalabproduit72{box-sizing:border-box;padding-top:20px;padding-bottom:40px}
-.atl-novaalab-produit-p10 .cnovaalabproduit434{box-sizing:border-box;max-width:1300px;margin-right:auto;margin-left:auto;padding-top:35px;padding-right:10px;padding-bottom:25px;padding-left:10px;border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-right-radius:5px;border-bottom-left-radius:5px;background-color:var(--atl-surface-p, rgb(245, 245, 253))}
-.atl-novaalab-produit-p10 .cnovaalabproduit435{box-sizing:border-box;margin-bottom:35px;color:var(--atl-texte-p, rgb(24, 24, 24));font-family:Urbanist;font-size:42px;font-weight:700;line-height:60px;text-align:center}
-.atl-novaalab-produit-p10 .cnovaalabproduit436{display:flex;box-sizing:border-box;padding-right:80px;padding-left:80px;color:var(--atl-texte-p, rgb(24, 24, 24));justify-content:space-between;row-gap:20px;column-gap:20px}
-.atl-novaalab-produit-p10 .cnovaalabproduit437{box-sizing:border-box;min-width:auto;min-height:auto;flex-basis:49.9%;width:558.88px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit122{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box}
-.atl-novaalab-produit-p10 .cnovaalabproduit438{box-sizing:border-box;max-width:100%;aspect-ratio:auto 1080 / 1159;width:558.88px;height:599.75px;object-fit:cover}
-.atl-novaalab-produit-p10 .cnovaalabproduit439{display:block;position:absolute;top:474.406px;right:0px;bottom:11px;left:0px;z-index:1;box-sizing:border-box;max-width:100%;background-color:var(--atl-surface-p, rgb(239, 239, 239));object-position:49.902% 49.121%;aspect-ratio:auto 1077 / 235;width:558.88px;height:121.94px;object-fit:cover}
-.atl-novaalab-produit-p10 .cnovaalabproduit380{box-sizing:border-box;height:0px}
-.atl-novaalab-produit-p10 .cnovaalabproduit440{display:grid;box-sizing:border-box;max-width:100%;padding-top:22px;padding-bottom:22px;grid-template-columns:558.875px}
-.atl-novaalab-produit-p10 .cnovaalabproduit441{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;min-width:auto;min-height:auto;width:558.88px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit442{position:relative;top:0px;right:0px;bottom:0px;left:0px;z-index:0;box-sizing:border-box;overflow-x:hidden;overflow-y:hidden}
-.atl-novaalab-produit-p10 .cnovaalabproduit293{display:flex;box-sizing:border-box;margin-top:0px;margin-bottom:0px;padding-left:0px;transform:none;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;width:100%;max-width:100%;left:auto}
-.atl-novaalab-produit-p10 .cnovaalabproduit443{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:20px;flex-shrink:0;list-style-type:none;width:558.88px;max-width:100%;flex-grow:0;scroll-snap-align:start;opacity:1;visibility:visible;transform:none}
-.atl-novaalab-produit-p10 .cnovaalabproduit444{display:flex;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;border-top-left-radius:24px;border-top-right-radius:24px;border-bottom-right-radius:24px;border-bottom-left-radius:24px;background-color:rgb(204, 204, 204);overflow-x:hidden;overflow-y:hidden}
-.atl-novaalab-produit-p10 .cnovaalabproduit445{position:absolute;top:0px;right:498.875px;bottom:139.438px;left:0px;z-index:1;box-sizing:border-box;background-image:linear-gradient(to right, rgba(0, 0, 0, 0), var(--atl-accent-p, rgb(0, 171, 132)));width:60px;height:30px}
-.atl-novaalab-produit-p10 .cnovaalabproduit446{position:relative;top:0px;right:0px;bottom:0px;left:0px;z-index:2;box-sizing:border-box;min-width:auto;min-height:auto;margin-top:2px;margin-right:auto;margin-bottom:2px;margin-left:auto;padding-top:10px;padding-right:13px;padding-bottom:10px;padding-left:13px;border-top-left-radius:22px;border-top-right-radius:22px;border-bottom-right-radius:22px;border-bottom-left-radius:22px;background-color:var(--atl-fond, rgb(255, 255, 255));text-align:left;width:554.88px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit447{display:flex;box-sizing:border-box;margin-bottom:10px;align-items:center;row-gap:15px;column-gap:15px}
-.atl-novaalab-produit-p10 .cnovaalabproduit448{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:var(--atl-surface-p, rgb(245, 245, 245));color:var(--atl-texte-p, rgb(51, 51, 51));font-family:Urbanist;font-size:18px;font-weight:800;line-height:28.8px;justify-content:center;align-items:center;width:50px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit449{box-sizing:border-box;min-width:auto;min-height:auto;width:280.05px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit450{box-sizing:border-box;margin-top:0px;margin-bottom:0px;color:var(--atl-texte-p, rgb(31, 30, 30));font-family:var(--atl-font-heading, Urbanist, sans-serif);font-size:18px;font-weight:600;line-height:25.2px}
-.atl-novaalab-produit-p10 .cnovaalabproduit451{box-sizing:border-box;margin-top:0px;margin-bottom:0px;color:var(--atl-texte-p, rgb(31, 30, 30));font-family:var(--atl-font-heading, Urbanist, sans-serif);font-size:14px;font-style:italic;line-height:22.4px}
-.atl-novaalab-produit-p10 .cnovaalabproduit452{display:flex;box-sizing:border-box;margin-bottom:10px;align-items:center}
-.atl-novaalab-produit-p10 .cnovaalabproduit453{display:block;box-sizing:border-box;min-width:auto;min-height:auto;max-width:100%;vertical-align:bottom;aspect-ratio:auto 100 / 20;width:100px;height:20.77px;object-fit:cover}
-.atl-novaalab-produit-p10 .cnovaalabproduit454{display:block;box-sizing:border-box;min-width:auto;min-height:auto;padding-left:6px;color:var(--atl-accent-p, rgb(3, 103, 61));width:17.99px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit455{display:block;box-sizing:border-box;min-width:auto;min-height:auto;color:var(--atl-accent-p, rgb(3, 103, 61));font-family:Urbanist;width:53.63px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit456{box-sizing:border-box;margin-top:0px;margin-right:0px;margin-bottom:0px;margin-left:0px;color:var(--atl-fond-sombre-p, rgb(0, 0, 0));font-family:Urbanist;font-size:18px;line-height:24.93px}
-.atl-novaalab-produit-p10 .cnovaalabproduit457{display:flex;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;border-top-left-radius:24px;border-top-right-radius:24px;border-bottom-right-radius:24px;border-bottom-left-radius:24px;background-color:rgb(204, 204, 204);overflow-x:hidden;overflow-y:hidden}
-.atl-novaalab-produit-p10 .cnovaalabproduit458{position:absolute;top:0px;right:498.875px;bottom:164.359px;left:0px;z-index:1;box-sizing:border-box;background-image:linear-gradient(to right, rgba(0, 0, 0, 0), var(--atl-accent-p, rgb(0, 171, 132)));width:60px;height:30px}
-.atl-novaalab-produit-p10 .cnovaalabproduit459{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:var(--atl-accent-p, rgb(254, 243, 199));color:var(--atl-texte-p, rgb(51, 51, 51));font-family:Urbanist;font-size:18px;font-weight:800;line-height:28.8px;justify-content:center;align-items:center;width:50px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit460{box-sizing:border-box;min-width:auto;min-height:auto;width:117.08px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit461{display:flex;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;border-top-left-radius:24px;border-top-right-radius:24px;border-bottom-right-radius:24px;border-bottom-left-radius:24px;background-color:rgb(204, 204, 204);overflow-x:hidden;overflow-y:hidden}
-.atl-novaalab-produit-p10 .cnovaalabproduit462{position:absolute;top:0px;right:498.875px;bottom:139.438px;left:0px;z-index:1;box-sizing:border-box;background-image:linear-gradient(to right, rgba(0, 0, 0, 0), var(--atl-accent-p, rgb(0, 171, 132)));width:60px;height:30px}
-.atl-novaalab-produit-p10 .cnovaalabproduit463{box-sizing:border-box;min-width:auto;min-height:auto;width:123.96px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit464{display:flex;position:absolute;top:201.359px;right:0px;bottom:-40px;left:0px;z-index:1;box-sizing:border-box;margin-top:0px;padding-right:16px;padding-left:16px;flex-wrap:wrap;justify-content:center;align-items:center;width:558.88px;height:17px}
-.atl-novaalab-produit-p10 .cnovaalabproduit465{display:block;box-sizing:border-box;min-width:auto;min-height:auto;line-height:16px;list-style-type:none;width:16px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit466{position:relative;top:0px;right:0px;bottom:0px;left:0px;z-index:1;margin-top:3px;margin-right:3px;margin-bottom:3px;margin-left:3px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:var(--atl-accent-p, rgb(0, 171, 132));border-right-color:var(--atl-accent-p, rgb(0, 171, 132));border-bottom-color:var(--atl-accent-p, rgb(0, 171, 132));border-left-color:var(--atl-accent-p, rgb(0, 171, 132));border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:var(--atl-accent-p, rgb(0, 171, 132));font-family:var(--atl-font-body, Montserrat, sans-serif);font-size:16px;line-height:25.008px;text-align:center;transform:matrix(1, 0, 0, 1, 0, 0);width:10px;max-width:100%;height:10px}
-.atl-novaalab-produit-p10 .cnovaalabproduit467{position:relative;top:0px;right:0px;bottom:0px;left:0px;margin-top:3px;margin-right:3px;margin-bottom:3px;margin-left:3px;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:var(--atl-accent-p, rgb(0, 171, 132));border-right-color:var(--atl-accent-p, rgb(0, 171, 132));border-bottom-color:var(--atl-accent-p, rgb(0, 171, 132));border-left-color:var(--atl-accent-p, rgb(0, 171, 132));border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Montserrat, sans-serif);font-size:16px;line-height:25.008px;text-align:center;width:10px;max-width:100%;height:10px}
-.atl-novaalab-produit-p10 .cnovaalabproduit468{box-sizing:border-box;min-width:auto;min-height:auto;flex-basis:45.9%;width:514.08px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit469{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;margin-bottom:25px;padding-top:18px;padding-right:18px;padding-bottom:18px;padding-left:18px;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:var(--atl-accent-p, rgb(130, 36, 227));border-right-color:var(--atl-accent-p, rgb(130, 36, 227));border-bottom-color:var(--atl-accent-p, rgb(130, 36, 227));border-left-color:var(--atl-accent-p, rgb(130, 36, 227));border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-right-radius:5px;border-bottom-left-radius:5px;background-color:var(--atl-fond, rgb(255, 255, 255))}
-.atl-novaalab-produit-p10 .cnovaalabproduit470{display:flex;box-sizing:border-box;font-style:italic;justify-content:space-between;align-items:center;row-gap:0px;column-gap:10px}
-.atl-novaalab-produit-p10 .cnovaalabproduit471{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:18px;width:199.6px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit472{display:flex;box-sizing:border-box;font-family:Montserrat;font-size:18px;font-weight:600;font-style:normal;line-height:normal;row-gap:0px;column-gap:9px}
-.atl-novaalab-produit-p10 .cnovaalabproduit473{position:relative;top:4px;right:0px;bottom:-4px;left:0px;box-sizing:border-box;min-width:auto;min-height:auto;padding-top:2px;padding-right:2px;padding-bottom:2px;padding-left:2px;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:var(--atl-accent-p, rgb(130, 36, 227));border-right-color:var(--atl-accent-p, rgb(130, 36, 227));border-bottom-color:var(--atl-accent-p, rgb(130, 36, 227));border-left-color:var(--atl-accent-p, rgb(130, 36, 227));border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;aspect-ratio:1 / 1;width:13px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit474{box-sizing:border-box;border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:var(--atl-accent-p, rgb(130, 36, 227));height:7px}
-.atl-novaalab-produit-p10 .cnovaalabproduit475{display:flex;box-sizing:border-box;padding-left:22px;font-family:Urbanist;font-size:13px;font-weight:600;font-style:normal;line-height:27px;letter-spacing:0.39px;opacity:0.66;row-gap:0px;column-gap:7px}
-.atl-novaalab-produit-p10 .cnovaalabproduit476{box-sizing:border-box;min-width:auto;min-height:auto;font-weight:400;text-decoration-line:line-through;text-decoration-color:var(--atl-texte-p, rgb(24, 24, 24));width:85.75px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit477{box-sizing:border-box;min-width:auto;min-height:auto;width:156.88px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit478{box-sizing:border-box;padding-top:2px;padding-bottom:5px;padding-left:18px;font-family:Montserrat;font-size:24px;font-weight:600;font-style:normal;line-height:28.799999999999997px}
-.atl-novaalab-produit-p10 .cnovaalabproduit479{display:flex;position:relative;top:0px;right:-18px;bottom:0px;left:18px;box-sizing:border-box;color:var(--atl-accent-p, rgb(237, 48, 36));font-family:Montserrat;font-size:12px;font-weight:500;font-style:normal;line-height:14.399999999999999px;letter-spacing:0.24px;text-align:center;justify-content:center;align-items:center;width:146px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit480{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;margin-bottom:20px;padding-top:18px;padding-right:18px;padding-bottom:18px;padding-left:18px;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:var(--atl-accent-p, rgb(130, 36, 227));border-right-color:var(--atl-accent-p, rgb(130, 36, 227));border-bottom-color:var(--atl-accent-p, rgb(130, 36, 227));border-left-color:var(--atl-accent-p, rgb(130, 36, 227));border-top-left-radius:5px;border-top-right-radius:5px;border-bottom-right-radius:5px;border-bottom-left-radius:5px;background-color:var(--atl-fond, rgb(255, 255, 255))}
-.atl-novaalab-produit-p10 .cnovaalabproduit481{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:18px;width:228.05px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit482{position:relative;top:4px;right:0px;bottom:-4px;left:0px;box-sizing:border-box;min-width:auto;min-height:auto;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:rgba(24, 24, 24, 0.25);border-right-color:rgba(24, 24, 24, 0.25);border-bottom-color:rgba(24, 24, 24, 0.25);border-left-color:rgba(24, 24, 24, 0.25);border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;aspect-ratio:1 / 1;width:13px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit483{box-sizing:border-box;min-width:auto;min-height:auto;font-weight:400;text-decoration-line:line-through;text-decoration-color:var(--atl-texte-p, rgb(24, 24, 24));width:85.41px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit484{box-sizing:border-box;min-width:auto;min-height:auto;width:154.35px;max-width:100%}
-.atl-novaalab-produit-p10 .cnovaalabproduit485{display:flex;position:relative;top:0px;right:-18px;bottom:0px;left:18px;box-sizing:border-box;color:var(--atl-accent-p, rgb(237, 48, 36));font-family:Montserrat;font-size:12px;font-weight:500;font-style:normal;line-height:14.399999999999999px;letter-spacing:0.24px;text-align:center;justify-content:center;align-items:center;width:146px;max-width:100%}
-@media (min-width: 750px) and (max-width: 1199px){
-.atl-novaalab-produit-p10 .cnovaalabproduit434{margin-right:0px;margin-left:0px}
-.atl-novaalab-produit-p10 .cnovaalabproduit437{width:421.15px}
-.atl-novaalab-produit-p10 .cnovaalabproduit438{width:421.15px;height:451.94px}
-.atl-novaalab-produit-p10 .cnovaalabproduit439{top:356.641px;width:421.15px;height:91.9px}
-.atl-novaalab-produit-p10 .cnovaalabproduit440{grid-template-columns:421.141px}
-.atl-novaalab-produit-p10 .cnovaalabproduit441{width:421.15px}
-.atl-novaalab-produit-p10 .cnovaalabproduit443{width:421.15px}
-.atl-novaalab-produit-p10 .cnovaalabproduit444{height:194.36px}
-.atl-novaalab-produit-p10 .cnovaalabproduit445{right:361.141px;bottom:164.359px}
-.atl-novaalab-produit-p10 .cnovaalabproduit446{width:417.15px}
-.atl-novaalab-produit-p10 .cnovaalabproduit448{background-color:var(--atl-surface-p, rgb(254, 226, 226))}
-.atl-novaalab-produit-p10 .cnovaalabproduit457{height:194.36px}
-.atl-novaalab-produit-p10 .cnovaalabproduit458{right:361.141px}
-.atl-novaalab-produit-p10 .cnovaalabproduit459{background-color:var(--atl-surface-p, rgb(219, 234, 254))}
-.atl-novaalab-produit-p10 .cnovaalabproduit461{height:169.44px}
-.atl-novaalab-produit-p10 .cnovaalabproduit462{right:361.141px}
-.atl-novaalab-produit-p10 .cnovaalabproduit464{width:421.15px}
-.atl-novaalab-produit-p10 .cnovaalabproduit468{width:387.4px}
-.atl-novaalab-produit-p10 .cnovaalabproduit471{width:190.04px}
-.atl-novaalab-produit-p10 .cnovaalabproduit477{width:149.36px}
-.atl-novaalab-produit-p10 .cnovaalabproduit481{width:193.4px}
-.atl-novaalab-produit-p10 .cnovaalabproduit484{width:146px}
-.atl-novaalab-produit-p10 .cnovaalabproduit485{width:auto;max-width:none}
+@keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
 }
-@media (max-width: 749px){
-.atl-novaalab-produit-p10 .cnovaalabproduit72{padding-top:0px;padding-bottom:0px}
-.atl-novaalab-produit-p10 .cnovaalabproduit434{margin-right:0px;margin-left:0px;padding-top:20px;padding-right:20px;padding-left:20px}
-.atl-novaalab-produit-p10 .cnovaalabproduit435{margin-bottom:12px;font-family:Montserrat;font-size:24px;line-height:32px;padding-top:12px}
-.atl-novaalab-produit-p10 .cnovaalabproduit436{padding-right:0px;padding-left:0px;font-family:Montserrat;flex-direction:column}
-.atl-novaalab-produit-p10 .cnovaalabproduit437{flex-basis:100%;width:350px}
-.atl-novaalab-produit-p10 .cnovaalabproduit438{width:350px;height:375.6px}
-.atl-novaalab-produit-p10 .cnovaalabproduit439{top:295.828px;width:350px;height:76.36px}
-.atl-novaalab-produit-p10 .cnovaalabproduit440{grid-template-columns:350px}
-.atl-novaalab-produit-p10 .cnovaalabproduit441{width:350px}
-.atl-novaalab-produit-p10 .cnovaalabproduit443{width:350px}
-.atl-novaalab-produit-p10 .cnovaalabproduit444{height:186.07px}
-.atl-novaalab-produit-p10 .cnovaalabproduit445{right:290px;bottom:156.062px}
-.atl-novaalab-produit-p10 .cnovaalabproduit446{width:346px}
-.atl-novaalab-produit-p10 .cnovaalabproduit449{width:240.04px}
-.atl-novaalab-produit-p10 .cnovaalabproduit450{font-size:inherit;line-height:22.4px}
-.atl-novaalab-produit-p10 .cnovaalabproduit451{font-size:12px;line-height:19.2px}
-.atl-novaalab-produit-p10 .cnovaalabproduit455{width:46.93px;font-size:14px;line-height:22.4px}
-.atl-novaalab-produit-p10 .cnovaalabproduit456{font-size:inherit;line-height:22.16px}
-.atl-novaalab-produit-p10 .cnovaalabproduit457{height:208.22px}
-.atl-novaalab-produit-p10 .cnovaalabproduit458{right:290px;bottom:178.219px}
-.atl-novaalab-produit-p10 .cnovaalabproduit460{width:104.07px}
-.atl-novaalab-produit-p10 .cnovaalabproduit461{height:186.07px}
-.atl-novaalab-produit-p10 .cnovaalabproduit462{right:290px;bottom:156.062px}
-.atl-novaalab-produit-p10 .cnovaalabproduit463{width:110.19px}
-.atl-novaalab-produit-p10 .cnovaalabproduit464{top:215.219px;width:350px}
-.atl-novaalab-produit-p10 .cnovaalabproduit466{font-family:Montserrat}
-.atl-novaalab-produit-p10 .cnovaalabproduit467{font-family:Montserrat}
-.atl-novaalab-produit-p10 .cnovaalabproduit468{flex-basis:100%;width:350px}
-.atl-novaalab-produit-p10 .cnovaalabproduit469{margin-bottom:16px;padding-top:16px;padding-right:6px;padding-bottom:16px;padding-left:6px}
-.atl-novaalab-produit-p10 .cnovaalabproduit471{width:166.96px}
-.atl-novaalab-produit-p10 .cnovaalabproduit472{font-family:inherit;font-size:inherit}
-.atl-novaalab-produit-p10 .cnovaalabproduit475{font-family:inherit}
-.atl-novaalab-produit-p10 .cnovaalabproduit476{width:82.41px}
-.atl-novaalab-produit-p10 .cnovaalabproduit477{width:159.05px;text-align:right}
-.atl-novaalab-produit-p10 .cnovaalabproduit478{font-family:inherit;line-height:normal;white-space:nowrap}
-.atl-novaalab-produit-p10 .cnovaalabproduit479{right:-6px;left:6px;font-family:inherit;line-height:normal;text-align:inherit;justify-content:flex-end;width:136px;padding-right:6px}
-.atl-novaalab-produit-p10 .cnovaalabproduit480{padding-top:16px;padding-right:6px;padding-bottom:16px;padding-left:6px}
-.atl-novaalab-produit-p10 .cnovaalabproduit481{width:169.49px}
-.atl-novaalab-produit-p10 .cnovaalabproduit483{width:86.32px}
-.atl-novaalab-produit-p10 .cnovaalabproduit484{width:156.52px;text-align:right}
-.atl-novaalab-produit-p10 .cnovaalabproduit485{right:-6px;left:6px;font-family:inherit;line-height:normal;text-align:inherit;justify-content:flex-end;width:136px;padding-right:6px}
+@keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
 }
+.atl-novaalab-produit-p10 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) { flex-direction: column; justify-content: flex-start; margin: 0px; }
+.atl-novaalab-produit-p10 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; }
+.atl-novaalab-produit-p10 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; }
+.atl-novaalab-produit-p10 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); }
+@media screen and (max-width: 750px) { .atl-novaalab-produit-p10 .wallet-cart-grid { justify-content: stretch; } }
+@media screen and (max-width: 750px) { .atl-novaalab-produit-p10 .wallet-cart-button-container, .atl-novaalab-produit-p10 .wallet-cart-button { min-width: 0px; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-novaalab-produit-p10 .wallet-cart-grid { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-novaalab-produit-p10 .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-novaalab-produit-p10 .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-novaalab-produit-p10 .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-novaalab-produit-p10 .screen-reader-text { clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; width: 1px; height: 1px; margin: -1px; padding: 0px; position: absolute; overflow: hidden; }
+.atl-novaalab-produit-p10 .testimonial-section { padding: 22px 0px; max-width: 100%; margin: 0px auto; display: grid; grid-template-columns: minmax(0px, 1fr); }
+.atl-novaalab-produit-p10 .testimonial-card { position: relative; width: 100%; border-radius: 24px; background: rgb(204, 204, 204); overflow: hidden; display: flex; mask-image: -webkit-radial-gradient(center, white, black); }
+.atl-novaalab-produit-p10 .trail { position: absolute; width: 60px; height: 30px; background: linear-gradient(to right, transparent, rgb(0, 171, 132)); offset-path: border-box; offset-anchor: 100% 50%; offset-rotate: auto; animation: 6s linear 0s infinite normal none running journey; will-change: transform, offset-distance; z-index: 1; }
+@keyframes journey { 
+  0% { offset-distance: 0%; }
+  100% { offset-distance: 100%; }
+}
+.atl-novaalab-produit-p10 .testimonial-content { position: relative; z-index: 2; margin: 2px; padding: 10px 13px; background-image: initial; background-position: initial; background-size: initial; background-repeat: initial; background-attachment: initial; background-origin: initial; background-clip: initial; border-radius: 22px; width: 100%; text-align: left; background-color: var(--testimonial-bg, #ffffff); }
+.atl-novaalab-produit-p10 .author-row { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+.atl-novaalab-produit-p10 .avatar-circle { width: 50px; height: 50px; background: rgb(237, 248, 247); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.125rem; color: rgb(51, 51, 51); font-weight: 800; font-family: Urbanist !important; }
+.atl-novaalab-produit-p10 .author-name { margin: 0px; font-size: 1rem; font-weight: 600; text-transform: none; letter-spacing: normal; color: rgb(31, 30, 30) !important; font-family: Urbanist, sans-serif !important; }
+.atl-novaalab-produit-p10 .author-title { margin: 0px; font-size: 0.75rem; font-style: italic; color: rgb(31, 30, 30) !important; font-family: Urbanist, sans-serif !important; }
+.atl-novaalab-produit-p10 .rating-stars { margin-bottom: 10px; display: flex; align-items: center; }
+@keyframes mmfadeIn { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes mmfadeOut { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes mmslideIn { 
+  0% { transform: translate(var(--rivo-aw-desktop-slidein-translate-x, -100%)); }
+  100% { transform: translate(0px); }
+}
+@keyframes mmslideOut { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(var(--rivo-aw-desktop-slideout-translate-x, -100%)); }
+}
+@media screen and (max-width: 450px) { @keyframes mmslideIn { 
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0px); }
+} }
+@media screen and (max-width: 450px) { @keyframes mmslideOut { 
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(100%); }
+} }
+.atl-novaalab-produit-p10 .rivo-slideout-page-content { display: flex; flex-direction: column; gap: 25px; }
+@keyframes skeleton-animation { 
+  0% { background-position: -100% 0px, 0px 0px, 0px 0px; }
+  100% { background-position: 100% 0px, 0px 0px, 0px 0px; }
+}
+@keyframes spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes rivo-spinner { 
+  100% { transform: rotate(360deg); }
+}
+@keyframes poweredFadeIn { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes rivo-gift-card-lookup-shine { 
+  0% { left: -100%; }
+  20%, 100% { left: 100%; }
+}
+@media (max-width: 989px) { .atl-novaalab-produit-p10 .--main-product-section.--main-product-ab-new-offer-REDESIGN .product-info .product-content__list-item { font-size: 18px; } }
+.atl-novaalab-produit-p10 .hooper-pagination { position: absolute; bottom: 0px; right: 50%; transform: translate(50%); display: flex; padding: 5px 10px; }
+@keyframes shimmer-data-v-d8d7994a { 
+  0% { background-position: 0px center; }
+  100% { background-position: 750px center; }
+}
+.atl-novaalab-produit-p10 .oke-w-reviewReply-body { width: 100%; margin-bottom: 4px; overflow: hidden; }
+@keyframes splide-loading { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+.atl-novaalab-produit-p10 .nc-submit-btn { border-radius: 4px; background: var(--Purple-background, #F5F5FD); box-sizing: border-box; padding: 12px 0px; width: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.atl-novaalab-produit-p10 .okeReviews[data-oke-container] button, .atl-novaalab-produit-p10 div.okeReviews button { border-radius: 0px; border: 0px; box-shadow: none; margin: 0px; width: auto; min-width: auto; padding: 0px; background-color: transparent; min-height: auto; }
+.atl-novaalab-produit-p10 .okeReviews[data-oke-container] table tr:hover td, .atl-novaalab-produit-p10 .okeReviews[data-oke-container] table tr:hover th, .atl-novaalab-produit-p10 div.okeReviews table tr:hover td, .atl-novaalab-produit-p10 div.okeReviews table tr:hover th { background: transparent; }
+@font-face { font-family: oke-widget-icons; src: url("/imports/novaalab-produit/assets/70a8d8c990a7-oke-widget-icons.ttf") format("truetype"), url("/imports/novaalab-produit/assets/2f5b7c956ff9-oke-widget-icons.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@keyframes oke-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes oke-fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.atl-novaalab-produit-p10 { --oke-widget-spaceAbove: 20px; --oke-widget-spaceBelow: 20px; --oke-starRating-spaceAbove: 0; --oke-starRating-spaceBelow: 0; --oke-button-backgroundColor: #222323; --oke-button-backgroundColorHover: #222323; --oke-button-backgroundColorActive: #222323; --oke-button-textColor: #fff; --oke-button-textColorHover: #fff; --oke-button-textColorActive: #fff; --oke-button-borderColor: #dbdde4; --oke-button-borderColorHover: #dbdde4; --oke-button-borderColorActive: #676986; --oke-button-borderRadius: 5px; --oke-button-borderWidth: 0; --oke-button-fontWeight: 700; --oke-button-fontSize: var(--oke-text-regular,14px); --oke-button-fontFamily: inherit; --oke-border-color: #222323; --oke-border-width: 1px; --oke-text-primaryColor: #222323; --oke-text-secondaryColor: #222323; --oke-text-small: 13px; --oke-text-regular: 16px; --oke-text-large: 20px; --oke-text-fontFamily: inherit; --oke-avatar-size: 48px; --oke-avatar-backgroundColor: #222323; --oke-avatar-placeholderTextColor: #fff; --oke-highlightColor: #222323; --oke-shadingColor: #f7f7f8; --oke-productImageSize: 48px; --oke-attributeBar-shadingColor: #9a9db1; --oke-attributeBar-borderColor: undefined; --oke-attributeBar-backgroundColor: #d3d4dd; --oke-attributeBar-markerColor: #00caaa; --oke-filter-backgroundColor: #fff; --oke-filter-backgroundColorActive: #222323; --oke-filter-borderColor: #222323; --oke-filter-borderColorActive: #222323; --oke-filter-textColor: #222323; --oke-filter-textColorActive: #fff; --oke-filter-borderRadius: 100px; --oke-filter-searchHighlightColor: #b2f9e9; --oke-mediaGrid-chevronColor: #676986; --oke-stars-foregroundColor: #ffcf2a; --oke-stars-backgroundColor: #e5e5e5; --oke-stars-borderWidth: 0; }
+.atl-novaalab-produit-p10 .header-header-new { position: sticky; top: 0px; z-index: 60; background: rgb(255, 255, 255); }
+@keyframes nvh-ld-hat { 
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(3deg); }
+  65% { transform: rotate(-1.5deg); }
+}
+@keyframes nvh-ld-bweb { 
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes nvh-ld-bob { 
+  0%, 100% { transform: translateY(2px); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes nvh-ld-flap { 
+  0%, 100% { transform: rotate(-30deg) scaleY(0.95); }
+  50% { transform: rotate(14deg) scaleY(0.7); }
+}
+@keyframes nvh-ld-flapL { 
+  0%, 100% { transform: rotate(30deg) scaleY(0.95); }
+  50% { transform: rotate(-25deg) scaleY(0.7); }
+}
+@keyframes nvh-sdb-dia { 
+  0%, 100% { opacity: 0.6; }
+  7% { opacity: 1; }
+  16% { opacity: 0.6; }
+}
+@keyframes nvh-sdb-glint { 
+  0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+  6% { transform: scale(1.15) rotate(30deg); opacity: 1; }
+  15% { transform: scale(0) rotate(70deg); opacity: 0; }
+}
+@keyframes nvh-sdb-swing { 
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+@media (max-width: 768px) { .atl-novaalab-produit-p10 .timer-container.black-timer.timer-template--31076632068441__main-product .countdown-timer { max-width: fit-content; } }
+.atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--summery-title img { max-width: 100px; height: auto; display: block; }
+.atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--customer-mentions-wrapper { display: flex; flex-wrap: wrap; row-gap: 10px; margin-block: 10px; }
+.atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--single-mention { display: flex; gap: 10px; max-width: max-content; box-sizing: border-box; padding-inline: 15px; }
+@media (max-width: 768px) { .atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--single-mention { padding-inline: 7px; } }
+.atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--single-mention:not(:last-child) { border-right: 1px solid rgb(0, 0, 0); }
+.atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--single-mention svg { display: block; }
+.atl-novaalab-produit-p10 .section-container--template--31076632068441__maze_amazon_review_summery_yNVk9D .--mention-title { color: rgb(46, 46, 46); font-family: Montserrat; font-size: 18px; font-style: normal; font-weight: 400; line-height: 140%; }
+@media (max-width: 768px) { .atl-novaalab-produit-p10 #shopify-section-template--31076632068441__maze_icon_list_FrArrH { margin-top: 24px; margin-bottom: 0px; padding-top: 0px; padding-bottom: 0px; } }
+.atl-novaalab-produit-p10 .wrapper-template--31076632068441__maze_icon_list_FrArrH * { font-family: Urbanist; }
+.atl-novaalab-produit-p10 .item-template--31076632068441__maze_icon_list_FrArrH { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.atl-novaalab-produit-p10 .item-template--31076632068441__maze_icon_list_FrArrH img { max-width: 150px; height: auto; display: block; width: 100%; }
+.atl-novaalab-produit-p10 svg.--placeholder-image { display: block; width: 100%; }
+.atl-novaalab-produit-p10 svg.--placeholder-image path { fill: rgb(255, 255, 255); }
+.atl-novaalab-produit-p10 .item-template--31076632068441__maze_icon_list_FrArrH h4 { color: rgb(255, 255, 255); text-align: center; font-family: Urbanist; font-size: 20px; font-style: normal; font-weight: 700; line-height: 123.2%; letter-spacing: -0.627px; margin-block: 0px; }
+.atl-novaalab-produit-p10 .review-stars-template--31076632068441__maze_icon_list_FrArrH { display: flex; align-items: center; justify-content: center; gap: 0px; }
+.atl-novaalab-produit-p10 .review-stars-template--31076632068441__maze_icon_list_FrArrH svg { max-width: 110px; }
+@media screen and (max-width: 768px) { .atl-novaalab-produit-p10 .wrapper-template--31076632068441__maze_icon_list_FrArrH { gap: 16px; padding-block: 20px; display: grid; grid-template-columns: 1fr 1fr; margin-inline: auto; max-width: 100%; } }
+@media screen and (max-width: 768px) { .atl-novaalab-produit-p10 .item-template--31076632068441__maze_icon_list_FrArrH img { max-width: 80px; } }
+@media screen and (max-width: 768px) { .atl-novaalab-produit-p10 .item-template--31076632068441__maze_icon_list_FrArrH h4 { font-size: 16px; line-height: 20px; margin-block: 0px; } }
+@media screen and (max-width: 768px) { .atl-novaalab-produit-p10 .review-stars-template--31076632068441__maze_icon_list_FrArrH svg { max-width: 60px; } }
+@media (max-width: 768px) { .atl-novaalab-produit-p10 .choose-kit.wrapper.section--template--31076632068441__maze_choose_your_set_comparison_v2_QErgBP { padding: 20px 20px 40px !important; } }
+.atl-novaalab-produit-p10 .choose-kit.wrapper.section--template--31076632068441__maze_choose_your_set_comparison_v2_QErgBP .choose-kit__container { gap: 20px; }
+.atl-novaalab-produit-p10 .shopify-installments__learn-more, .atl-novaalab-produit-p10 button#shopify-installments-cta { color: purple !important; }
+.atl-novaalab-produit-p10 .new-text { cursor: pointer; }
+.atl-novaalab-produit-p10 .new-text h2 { background: rgb(128, 38, 227); color: rgb(255, 255, 255); text-align: center; border-radius: 5px; margin: 0px; padding: 9px 0px; text-transform: uppercase; font-size: 20px; font-weight: 900; }
+@media (min-width: 998px) { .atl-novaalab-produit-p10 .redesign-ab-icon-set img { display: block; } }
+.atl-novaalab-produit-p10 { line-height: 1.6; }
+.atl-novaalab-produit-p10 { --rivo-aw-background-color: #ffffff; --rivo-aw-desktop-sidebar-left: 0px; --rivo-aw-desktop-sidebar-right: auto; --rivo-aw-desktop-slidein-translate-x: -100%; --rivo-aw-desktop-slideout-translate-x: -100%; --rivo-aw-heading-font-color: #212121; --rivo-aw-body-primary-font-color: #212121; --rivo-aw-body-secondary-font-color: #3d4852; --rivo-aw-border-color: #773bd9; --rivo-aw-subdued-color: #f7f7f7; --rivo-aw-icon-color: #773bd9; --rivo-aw-primary-color: #212121; --rivo-aw-favorite-button-active-color: #773bd9; --rivo-aw-toast-offset-left: 15px; --rivo-aw-toast-offset-right: auto; --rivo-aw-default-font-size: 16px; --rivo-aw-input-font-size: 16px; --rivo-aw-section-title-font-size: 18px; --rivo-aw-logged-out-title-font-size: 24px; --rivo-aw-mini-block-title-font-size: 14px; --rivo-aw-mini-block-subtitle-font-size: 14px; --rivo-aw-login-footer-font-size: 12px; --rivo-aw-footer-font-size: 14px; --rivo-aw-toast-background-color: #1a1a1a; --rivo-aw-toast-font-color: #ffffff; --rivo-aw-home-featured-content-image-position: center center; --rivo-aw-compare-at-price-color: #c70000; }
+.atl-novaalab-produit-p10 { --rivo-main-color: #5f497b; --rivo-accent-color: #aea2bc; --rivo-text-color: #333333; --rivo-background-grey: #f5f5f5; }
+.atl-novaalab-produit-p10 .rivo-aw-button-points-balance-container { padding: 0px; }
+.atl-novaalab-produit-p10 .rivo-checkbox-container input[type="checkbox"] { appearance: auto; }
+@keyframes siv4UiGrowPulseSoft { 
+  0%, 100% { transform: scale(0.2); opacity: 0.3; box-shadow: rgba(198, 197, 197, 0.3) 0px 0px 3px; }
+  50% { transform: scale(1); opacity: 0.8; box-shadow: rgba(198, 197, 197, 0.8) 0px 0px 13px; }
+}
+.atl-novaalab-produit-p10 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-novaalab-produit-p10 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-novaalab-produit-p10 [data-atl-car="track"] > * { transform: none !important; }
+.atl-novaalab-produit-p10 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-novaalab-produit-p10 [data-atl-h] { display: none !important; }
+.atl-novaalab-produit-p10 [data-atl-href] { cursor: pointer; }
