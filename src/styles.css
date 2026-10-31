@@ -5112,3 +5112,16 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   font-size: 11.5px;
   cursor: pointer;
 }
+
+/* Barre du bas (écrans, zoom, langue) : toujours visible. Le bas de la
+   fenêtre peut être caché par la barre des tâches de Windows : une barre
+   qui n'apparaît qu'au survol du bord serait inaccessible. */
+.atl-vpbar,
+.atl-vpbar.is-up {
+  transform: translate(-50%, 0) !important;
+  bottom: 18px !important;
+}
+.atl-vpbar::before,
+.atl-vpzone {
+  display: none !important;
+}
