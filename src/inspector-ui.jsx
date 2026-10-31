@@ -1569,11 +1569,30 @@ function ContextMenu({ x, y, items, onClose }) {
   useEffect(() => {
     const close = (e) => !ref.current?.contains(e.target) && onClose();
     const esc = (e) => e.key === "Escape" && onClose();
-    setTimeout(() => window.addEventListener("mousedown", close), 0);
+    const shut = () => onClose();
+    // L'aperçu est un autre document : un clic, un défilement ou une touche
+    // dedans ferment aussi le menu.
+    const frames = [...document.querySelectorAll("iframe")].map((f) => f.contentWindow).filter(Boolean);
+    const timer = setTimeout(() => {
+      window.addEventListener("mousedown", close);
+      frames.forEach((w) => {
+        w.addEventListener("mousedown", shut);
+        w.addEventListener("wheel", shut, { passive: true });
+        w.addEventListener("keydown", esc);
+      });
+    }, 0);
     window.addEventListener("keydown", esc);
+    window.addEventListener("blur", shut);
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("mousedown", close);
       window.removeEventListener("keydown", esc);
+      window.removeEventListener("blur", shut);
+      frames.forEach((w) => {
+        w.removeEventListener("mousedown", shut);
+        w.removeEventListener("wheel", shut);
+        w.removeEventListener("keydown", esc);
+      });
     };
   }, []);
   // zoom: sur .atl-ctx dilate aussi les coordonnées inline : on divise par la
