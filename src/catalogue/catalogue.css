@@ -958,8 +958,20 @@ textarea {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* Onglets du projet : une seule ligne ; sur un écran étroit, la barre défile
+   (sans barre de défilement visible) au lieu de passer à la ligne. */
 .cat-tabs {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cat-tabs::-webkit-scrollbar {
+  display: none;
+}
+.cat-tabs button {
+  flex: none;
+  padding: 5px 10px;
+  white-space: nowrap;
 }
 .cat-extra {
   display: grid;
