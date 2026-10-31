@@ -2,8 +2,10 @@
 // colonne / carte ou une section entière. Chaque réglage est rangé dans
 // props.atl_styles de la section (engine/frame.js), par écran : « Tous »,
 // « Ordinateur » ou « Mobile ». Rendu identique dans l'aperçu et sur Shopify.
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useGetPuck } from "@puckeditor/core";
 import { ImageSetting } from "./fields-ui.jsx";
+import { designById } from "./engine/designs.js";
 
 const DEVICE_LABELS = [
   { value: "all", label: "Tous les écrans" },
@@ -107,6 +109,62 @@ function Sides({ label, prefix, get, set, cs }) {
           </label>
         ))}
       </div>
+    </div>
+  );
+}
+
+// Couleurs du style déjà appliqué : la palette du design.md de la page, puis
+// les couleurs présentes dans la section (fonds et textes), les plus
+// fréquentes d'abord.
+function styleColors(designId, el) {
+  const out = [];
+  const add = (c) => {
+    const hex = c && c.startsWith("#") ? c.toLowerCase() : c ? toHex(c) : null;
+    if (hex && !out.includes(hex)) out.push(hex);
+  };
+  for (const c of Object.values(designById[designId]?.tokens?.couleurs ?? {})) if (typeof c === "string" && /^#[0-9a-f]{6}$/i.test(c.trim())) add(c.trim());
+  const root = el?.closest?.("[data-atl-id]") ?? el;
+  if (root) {
+    const win = root.ownerDocument.defaultView;
+    const count = new Map();
+    const seen = [root, ...root.querySelectorAll("*")].slice(0, 600);
+    for (const x of seen) {
+      const cs = win.getComputedStyle(x);
+      for (const c of [cs.backgroundColor, cs.color]) {
+        const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/.exec(c);
+        if (!m || (m[4] !== undefined && parseFloat(m[4]) < 0.5)) continue;
+        const hex = toHex(c);
+        count.set(hex, (count.get(hex) ?? 0) + 1);
+      }
+    }
+    [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).forEach(([c]) => add(c));
+  }
+  return out.slice(0, 12);
+}
+
+// Fond d'une section ou d'un élément : une couleur du style en un clic, une
+// autre couleur, ou une image téléversée (sections, cartes, colonnes).
+function Background({ value, fallback, onColor, image, onImage, el }) {
+  const getPuck = useGetPuck();
+  const designId = getPuck().appState.data.root?.props?.design;
+  const colors = useMemo(() => styleColors(designId, el), [designId, el]);
+  const current = value ? toHex(value) : "";
+  return (
+    <div className="atl-bg">
+      <span className="atl-bg__label">Couleurs du style</span>
+      <div className="atl-bg__swatches">
+        {colors.map((c) => (
+          <button key={c} type="button" className={current === c ? "is-on" : ""} style={{ background: c }} title={c} onClick={() => onColor(current === c ? "" : c)} />
+        ))}
+        {!colors.length && <em>Aucune couleur trouvée</em>}
+      </div>
+      <Color label="Autre couleur" value={value} fallback={fallback} onChange={onColor} />
+      {onImage && <ImageSetting field={{ label: "Image de fond" }} value={image ?? ""} onChange={onImage} />}
+      {onImage && image && (
+        <button type="button" className="atl-bg__remove" onClick={() => onImage("")}>
+          Retirer l'image de fond
+        </button>
+      )}
     </div>
   );
 }
@@ -236,7 +294,8 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
             </div>
           </div>
           <Color label="Couleur" value={get("color")} fallback={cs?.color} onChange={(v) => set({ color: v })} />
-          <Color label="Fond" value={get("background-color")} fallback={cs?.backgroundColor} onChange={(v) => set({ "background-color": v })} />
+          <p className="atl-style__title">Fond</p>
+          <Background value={get("background-color")} fallback={cs?.backgroundColor} onColor={(v) => set({ "background-color": v })} el={el} />
           <div className="atl-style__row">
             <span>Alignement</span>
             <Seg
@@ -391,13 +450,21 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
             />
           </div>
           <Px label="Espace entre éléments" value={get("gap")} placeholder={cs ? parseFloat(cs.columnGap) || 0 : ""} onChange={(v) => set({ gap: v })} />
-          <Color label="Fond" value={get("background-color")} fallback={cs?.backgroundColor} onChange={(v) => set({ "background-color": v })} />
+          <p className="atl-style__title">Fond</p>
+          <Background
+            value={get("background-color")}
+            fallback={cs?.backgroundColor}
+            onColor={(v) => set({ "background-color": v })}
+            image={/^url\("(.+)"\)$/.exec(get("background-image"))?.[1] ?? ""}
+            onImage={(v) => set(v ? { "background-image": `url("${v.replace(/"/g, "%22")}")`, "background-size": "cover", "background-position": "center" } : { "background-image": "", "background-size": "", "background-position": "" })}
+            el={el}
+          />
         </Part>
       )}
 
       {kind === "section" && (
         <Part title="Fond de la section" open>
-          <Color label="Couleur" value={get("background-color")} fallback={cs?.backgroundColor} onChange={(v) => set({ "background-color": v })} />
+          <Background value={get("background-color")} fallback={cs?.backgroundColor} onColor={(v) => set({ "background-color": v })} el={el} />
           <div className="atl-style__row">
             <span>Dégradé</span>
             <span className="atl-sx__grad">
