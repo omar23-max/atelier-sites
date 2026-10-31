@@ -67,9 +67,10 @@ textarea {
 
 .cat-layout {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  gap: 28px;
-  max-width: 1320px;
+  /* Menu de gauche étroit : la place va aux cartes. */
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 22px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -1572,10 +1573,11 @@ textarea {
 
 /* ---- Designs : 4 cartes par ligne, échantillon vivant qui défile ---- */
 .cat-grid--designs {
+  /* 4 par ligne sur un écran d'ordinateur ; moins sur une petite fenêtre. */
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-@media (max-width: 1300px) { .cat-grid--designs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (max-width: 950px) { .cat-grid--designs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1150px) { .cat-grid--designs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 850px) { .cat-grid--designs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .cat-dcard .cat-card__body strong {
   overflow: hidden;
   font-size: 13px;
