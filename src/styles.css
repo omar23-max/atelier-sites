@@ -4710,6 +4710,13 @@ html[data-atl-edit] [class*="PuckLayout-inner"] {
   height: 100vh;
   border-right: 1px solid var(--atl-line);
 }
+/* Le panneau de l'outil défile seul (galerie de sections plus haute que l'écran). */
+.atl-left .atl-tool-panel {
+  height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
 
 /* ---- Panneau de droite : dissimulé, languette ◂ au milieu de la bordure ---- */
 /* (toujours visible tant qu'un élément est sélectionné : data-atl-edit) */
