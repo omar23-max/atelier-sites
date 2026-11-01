@@ -43,14 +43,14 @@ for (const t of TEMPLATES) {
     continue;
   }
   const nom = `${t.title} - Whitelabeler`;
-  const advertorial = t.name.startsWith("wl-advertorial");
+  const advertorial = t.name.startsWith("wl-advertorial"); // « Numbered Reasons » : des listicles
   const [, , , niche] = /^(.*?) — (.*?) · (.*)$/.exec(t.title) ?? [];
   await writeFile(
     join(imp, "template.json"),
     JSON.stringify(
       {
         nom,
-        pageType: advertorial ? "advertorial" : "produit",
+        pageType: advertorial ? "listicle" : "produit",
         niche: niche ?? "",
         produit: "",
         marque: "Whitelabeler",
@@ -80,7 +80,7 @@ for (const t of TEMPLATES) {
   // Titre de la page dans l'atelier.
   const data = JSON.parse(await readFile(pageFile, "utf8"));
   data.root.props.title = nom;
-  data.root.props.pageType = advertorial ? "advertorial" : "produit";
+  data.root.props.pageType = advertorial ? "listicle" : "produit";
   await writeFile(pageFile, JSON.stringify(data, null, 2) + "\n");
   console.log(`  ✓ ${t.name} : « ${nom} »`);
 }
