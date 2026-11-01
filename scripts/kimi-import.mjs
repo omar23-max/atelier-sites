@@ -484,8 +484,8 @@ const built = await page.evaluate(
       const start = units.length;
       for (const c of list) {
         wait.push(c);
-        // Section nommée par Kimi (data-atelier-section) : toujours gardée seule.
-        if (slotsOf(c) > 2 || (c.dataset?.atelierSection && slotsOf(c) > 0)) {
+        // Section nommée (Kimi : data-atelier-section, Whitelabeler : data-wld-section) : toujours gardée seule.
+        if (slotsOf(c) > 2 || ((c.dataset?.atelierSection || c.dataset?.wldSection) && slotsOf(c) > 0)) {
           units.push({ chain, els: wait });
           wait = [];
         }
