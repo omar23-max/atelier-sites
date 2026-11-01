@@ -1,138 +1,474 @@
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/eaf5ad/00000000000000007735cc75/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n3&v=3") format("woff2"),url("https://use.typekit.net/af/eaf5ad/00000000000000007735cc75/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n3&v=3") format("woff"),url("https://use.typekit.net/af/eaf5ad/00000000000000007735cc75/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n3&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:300;font-stretch:normal;
+@font-face { font-family: Circular; src: url("/imports/nood-produit/assets/ac54326c4209-subset-CircularStd-Book.woff2") format("woff2"), url("/imports/nood-produit/assets/219e8a659e9d-subset-CircularStd-Book.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/nood-produit/assets/c382a6d633e9-subset-CircularStd-Medium.woff") format("woff2"), url("/imports/nood-produit/assets/c382a6d633e9-subset-CircularStd-Medium.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Circular; src: url("/imports/nood-produit/assets/9c80cd6fe221-subset-CircularStd-Bold.woff") format("woff2"), url("/imports/nood-produit/assets/9c80cd6fe221-subset-CircularStd-Bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: oke-widget-icons; src: url("/imports/nood-produit/assets/37250cc5a3d3-oke-widget-icons.ttf") format("truetype"), url("/imports/nood-produit/assets/6042106367e5-oke-widget-icons.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+@keyframes oke-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/7768be/00000000000000007735cc77/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i3&v=3") format("woff2"),url("https://use.typekit.net/af/7768be/00000000000000007735cc77/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i3&v=3") format("woff"),url("https://use.typekit.net/af/7768be/00000000000000007735cc77/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i3&v=3") format("opentype");
-font-display:auto;font-style:italic;font-weight:300;font-stretch:normal;
+@keyframes oke-fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/4874f9/00000000000000007735cc79/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n4&v=3") format("woff2"),url("https://use.typekit.net/af/4874f9/00000000000000007735cc79/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n4&v=3") format("woff"),url("https://use.typekit.net/af/4874f9/00000000000000007735cc79/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n4&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:400;font-stretch:normal;
+.atl-nood-produit-sec-15 { --oke-widget-spaceAbove: 20px; --oke-widget-spaceBelow: 20px; --oke-starRating-spaceAbove: 0; --oke-starRating-spaceBelow: 0; --oke-button-backgroundColor: #f90; --oke-button-backgroundColorHover: #f90; --oke-button-backgroundColorActive: #f90; --oke-button-textColor: #3a3a3c; --oke-button-textColorHover: #3a3a3c; --oke-button-textColorActive: #3a3a3c; --oke-button-borderColor: #f90; --oke-button-borderColorHover: #f90; --oke-button-borderColorActive: #f90; --oke-button-borderRadius: 50px; --oke-button-borderWidth: 1px; --oke-button-fontWeight: 700; --oke-button-fontSize: var(--oke-text-regular,14px); --oke-button-fontFamily: inherit; --oke-border-color: #d9d9d8; --oke-border-width: 1px; --oke-text-primaryColor: #3a3a3c; --oke-text-secondaryColor: #3a3a3c; --oke-text-small: 13px; --oke-text-regular: 16px; --oke-text-large: 20px; --oke-text-fontFamily: inherit; --oke-avatar-size: 48px; --oke-avatar-backgroundColor: #f90; --oke-avatar-placeholderTextColor: #fff; --oke-highlightColor: #f90; --oke-shadingColor: #fff; --oke-productImageSize: 48px; --oke-attributeBar-shadingColor: #9a9db1; --oke-attributeBar-borderColor: undefined; --oke-attributeBar-backgroundColor: #d3d4dd; --oke-attributeBar-markerColor: #00caaa; --oke-filter-backgroundColor: #fff; --oke-filter-backgroundColorActive: #f90; --oke-filter-borderColor: #f90; --oke-filter-borderColorActive: #f90; --oke-filter-textColor: #f90; --oke-filter-textColorActive: #fff; --oke-filter-borderRadius: 100px; --oke-filter-searchHighlightColor: #b2f9e9; --oke-mediaGrid-chevronColor: #676986; --oke-stars-foregroundColor: #f90; --oke-stars-backgroundColor: #e5e5e5; --oke-stars-borderWidth: 0; }
+@keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/9ea3c1/00000000000000007735cc7b/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i4&v=3") format("woff2"),url("https://use.typekit.net/af/9ea3c1/00000000000000007735cc7b/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i4&v=3") format("woff"),url("https://use.typekit.net/af/9ea3c1/00000000000000007735cc7b/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i4&v=3") format("opentype");
-font-display:auto;font-style:italic;font-weight:400;font-stretch:normal;
+@keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/1bb177/00000000000000007735cc7c/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n6&v=3") format("woff2"),url("https://use.typekit.net/af/1bb177/00000000000000007735cc7c/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n6&v=3") format("woff"),url("https://use.typekit.net/af/1bb177/00000000000000007735cc7c/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n6&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:600;font-stretch:normal;
+@keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/006c2b/00000000000000007735cc7f/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i6&v=3") format("woff2"),url("https://use.typekit.net/af/006c2b/00000000000000007735cc7f/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i6&v=3") format("woff"),url("https://use.typekit.net/af/006c2b/00000000000000007735cc7f/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i6&v=3") format("opentype");
-font-display:auto;font-style:italic;font-weight:600;font-stretch:normal;
+.atl-nood-produit-sec-15 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) { flex-direction: column; justify-content: flex-start; margin: 0px; }
+.atl-nood-produit-sec-15 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; }
+.atl-nood-produit-sec-15 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; }
+.atl-nood-produit-sec-15 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); }
+@media screen and (max-width: 750px) { .atl-nood-produit-sec-15 .wallet-cart-grid { justify-content: stretch; } }
+@media screen and (max-width: 750px) { .atl-nood-produit-sec-15 .wallet-cart-button-container, .atl-nood-produit-sec-15 .wallet-cart-button { min-width: 0px; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-nood-produit-sec-15 .wallet-cart-grid { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-nood-produit-sec-15 .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-nood-produit-sec-15 .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-nood-produit-sec-15 .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-nood-produit-sec-15 .screen-reader-text { clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; width: 1px; height: 1px; margin: -1px; padding: 0px; position: absolute; overflow: hidden; }
+@keyframes splide-loading { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/1d0b2f/00000000000000007735cc81/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n7&v=3") format("woff2"),url("https://use.typekit.net/af/1d0b2f/00000000000000007735cc81/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n7&v=3") format("woff"),url("https://use.typekit.net/af/1d0b2f/00000000000000007735cc81/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n7&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:700;font-stretch:normal;
+.atl-nood-produit-sec-15 .splide__track--draggable { user-select: none; }
+.atl-nood-produit-sec-15 .splide__track--fade > .splide__list > .splide__slide { opacity: 0; z-index: 0; margin: 0px !important; }
+.atl-nood-produit-sec-15 .splide__track--fade > .splide__list > .splide__slide.is-active { opacity: 1; z-index: 1; }
+.atl-nood-produit-sec-15 .splide--rtl { direction: rtl; }
+.atl-nood-produit-sec-15 .splide__track--ttb > .splide__list { display: block; }
+.atl-nood-produit-sec-15 .splide__container { box-sizing: border-box; position: relative; }
+.atl-nood-produit-sec-15 .splide__list { backface-visibility: hidden; display: flex; height: 100%; margin: 0px !important; padding: 0px !important; }
+.atl-nood-produit-sec-15 .splide.is-initialized:not(.is-active) .splide__list { display: block; }
+.atl-nood-produit-sec-15 .splide__pagination { align-items: center; display: flex; flex-wrap: wrap; justify-content: center; margin: 0px; pointer-events: none; }
+.atl-nood-produit-sec-15 { line-height: inherit; margin: 0px; }
+.atl-nood-produit-sec-15 progress { vertical-align: baseline; }
+.atl-nood-produit-sec-15 ::-webkit-inner-spin-button, .atl-nood-produit-sec-15 ::-webkit-outer-spin-button { height: auto; }
+.atl-nood-produit-sec-15 [type="search"] { appearance: textfield; outline-offset: -2px; }
+.atl-nood-produit-sec-15 ::-webkit-search-decoration { appearance: none; }
+.atl-nood-produit-sec-15 ::-webkit-file-upload-button { appearance: button; font: inherit; }
+.atl-nood-produit-sec-15 fieldset, .atl-nood-produit-sec-15 legend { padding: 0px; }
+.atl-nood-produit-sec-15 [hidden]:where(:not([hidden="until-found"])) { display: none; }
+.atl-nood-produit-sec-15 :focus-visible { outline: rgb(58, 58, 60) solid 2px; outline-offset: 2px; }
+.atl-nood-produit-sec-15 { font-feature-settings: "liga" 0; }
+.atl-nood-produit-sec-15 .h1, .atl-nood-produit-sec-15 .h2, .atl-nood-produit-sec-15 .h3, .atl-nood-produit-sec-15 .h4, .atl-nood-produit-sec-15 .h5, .atl-nood-produit-sec-15 .h6, .atl-nood-produit-sec-15 h1, .atl-nood-produit-sec-15 h2, .atl-nood-produit-sec-15 h3, .atl-nood-produit-sec-15 h4, .atl-nood-produit-sec-15 h5, .atl-nood-produit-sec-15 h6 { font-family: Moret; }
+.atl-nood-produit-sec-15 .container { margin-left: auto; margin-right: auto; padding-left: 0.625rem; padding-right: 0.625rem; width: 100%; }
+@media (min-width: 380px) { .atl-nood-produit-sec-15 .\!container { max-width: 380px !important; } }
+@media (min-width: 400px) { .atl-nood-produit-sec-15 .\!container { max-width: 400px !important; } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .container { max-width: 640px; padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .\!container { max-width: 768px !important; padding-left: 1.5rem !important; padding-right: 1.5rem !important; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .container { max-width: 768px; padding-left: 1.5rem; padding-right: 1.5rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .\!container { max-width: 1024px !important; padding-left: 2rem !important; padding-right: 2rem !important; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .\!container { max-width: 1280px !important; padding-left: 4rem !important; padding-right: 4rem !important; } }
+@media (min-width: 1440px) { .atl-nood-produit-sec-15 .container { max-width: 1440px; padding-left: 6rem; padding-right: 6rem; } }
+.atl-nood-produit-sec-15 .prose :where(dt):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-weight: 600; margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .prose :where(hr):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-color: var(--tw-prose-hr); border-top-width: 1px; margin-bottom: 3em; margin-top: 3em; }
+.atl-nood-produit-sec-15 .prose :where(blockquote):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-inline-start-color: var(--tw-prose-quote-borders); border-inline-start-width: 0.25rem; color: var(--tw-prose-quotes); font-style: italic; font-weight: 500; margin-bottom: 1.6em; margin-top: 1.6em; padding-inline-start: 1em; quotes: "вЂњ" "вЂќ" "вЂ" "вЂ™"; }
+.atl-nood-produit-sec-15 .prose :where(blockquote p:first-of-type):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::before { content: open-quote; }
+.atl-nood-produit-sec-15 .prose :where(blockquote p:last-of-type):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::after { content: close-quote; }
+.atl-nood-produit-sec-15 .prose :where(h1):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-size: 2.25em; font-weight: 800; line-height: 1.11111; margin-bottom: 0.888889em; margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(h1 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 900; }
+.atl-nood-produit-sec-15 .prose :where(h2):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-size: 1.5em; font-weight: 700; line-height: 1.33333; margin-bottom: 1em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .prose :where(h2 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 800; }
+.atl-nood-produit-sec-15 .prose :where(h3):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-size: 1.25em; font-weight: 600; line-height: 1.6; margin-bottom: 0.6em; margin-top: 1.6em; }
+.atl-nood-produit-sec-15 .prose :where(h3 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 700; }
+.atl-nood-produit-sec-15 .prose :where(h4):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-weight: 600; line-height: 1.5; margin-bottom: 0.5em; margin-top: 1.5em; }
+.atl-nood-produit-sec-15 .prose :where(h4 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 700; }
+.atl-nood-produit-sec-15 .prose :where(img):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .prose :where(picture):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { display: block; margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .prose :where(video):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .prose :where(kbd):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-radius: 0.3125rem; box-shadow: 0 0 0 1px rgb(var(--tw-prose-kbd-shadows)/10%),0 3px rgb(var(--tw-prose-kbd-shadows)/10%); color: var(--tw-prose-kbd); font-family: inherit; font-size: 0.875em; font-weight: 500; padding-inline: 0.375em; padding-bottom: 0.1875em; padding-top: 0.1875em; }
+.atl-nood-produit-sec-15 .prose :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-code); font-size: 0.875em; font-weight: 600; }
+.atl-nood-produit-sec-15 .prose :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::before { content: "`"; }
+.atl-nood-produit-sec-15 .prose :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::after { content: "`"; }
+.atl-nood-produit-sec-15 .prose :where(a code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .prose :where(h1 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .prose :where(h2 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-size: 0.875em; }
+.atl-nood-produit-sec-15 .prose :where(h3 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-size: 0.9em; }
+.atl-nood-produit-sec-15 .prose :where(h4 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .prose :where(blockquote code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .prose :where(thead th code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .prose :where(pre):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { background-color: var(--tw-prose-pre-bg); border-radius: 0.375rem; color: var(--tw-prose-pre-code); font-size: 0.875em; font-weight: 400; line-height: 1.71429; margin-bottom: 1.71429em; margin-top: 1.71429em; overflow-x: auto; padding-inline: 1.14286em; padding-bottom: 0.857143em; padding-top: 0.857143em; }
+.atl-nood-produit-sec-15 .prose :where(pre code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { background-color: transparent; border-radius: 0px; border-width: 0px; color: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit; padding: 0px; }
+.atl-nood-produit-sec-15 .prose :where(pre code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::before { content: none; }
+.atl-nood-produit-sec-15 .prose :where(pre code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::after { content: none; }
+.atl-nood-produit-sec-15 .prose :where(table):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.875em; line-height: 1.71429; margin-bottom: 2em; margin-top: 2em; table-layout: auto; width: 100%; }
+.atl-nood-produit-sec-15 .prose :where(thead):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-bottom-color: var(--tw-prose-th-borders); border-bottom-width: 1px; }
+.atl-nood-produit-sec-15 .prose :where(thead th):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-weight: 600; padding-inline: 0.571429em; padding-bottom: 0.571429em; vertical-align: bottom; }
+.atl-nood-produit-sec-15 .prose :where(tbody tr):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-bottom-color: var(--tw-prose-td-borders); border-bottom-width: 1px; }
+.atl-nood-produit-sec-15 .prose :where(tbody tr:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-bottom-width: 0px; }
+.atl-nood-produit-sec-15 .prose :where(tbody td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { vertical-align: baseline; }
+.atl-nood-produit-sec-15 .prose :where(tfoot):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-top-color: var(--tw-prose-th-borders); border-top-width: 1px; }
+.atl-nood-produit-sec-15 .prose :where(tfoot td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { vertical-align: top; }
+.atl-nood-produit-sec-15 .prose :where(th, .atl-nood-produit-sec-15 td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { text-align: start; }
+.atl-nood-produit-sec-15 .prose :where(figure > *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(figcaption):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-captions); font-size: 0.875em; line-height: 1.42857; margin-top: 0.857143em; }
+.atl-nood-produit-sec-15 .prose { --tw-prose-body: #374151; --tw-prose-headings: #111827; --tw-prose-lead: #4b5563; --tw-prose-links: #111827; --tw-prose-bold: #111827; --tw-prose-counters: #6b7280; --tw-prose-bullets: #d1d5db; --tw-prose-hr: #e5e7eb; --tw-prose-quotes: #111827; --tw-prose-quote-borders: #e5e7eb; --tw-prose-captions: #6b7280; --tw-prose-kbd: #111827; --tw-prose-kbd-shadows: 17 24 39; --tw-prose-code: #111827; --tw-prose-pre-code: #e5e7eb; --tw-prose-pre-bg: #1f2937; --tw-prose-th-borders: #d1d5db; --tw-prose-td-borders: #e5e7eb; --tw-prose-invert-body: #d1d5db; --tw-prose-invert-headings: #fff; --tw-prose-invert-lead: #9ca3af; --tw-prose-invert-links: #fff; --tw-prose-invert-bold: #fff; --tw-prose-invert-counters: #9ca3af; --tw-prose-invert-bullets: #4b5563; --tw-prose-invert-hr: #374151; --tw-prose-invert-quotes: #f3f4f6; --tw-prose-invert-quote-borders: #374151; --tw-prose-invert-captions: #9ca3af; --tw-prose-invert-kbd: #fff; --tw-prose-invert-kbd-shadows: 255 255 255; --tw-prose-invert-code: #fff; --tw-prose-invert-pre-code: #d1d5db; --tw-prose-invert-pre-bg: rgba(0,0,0,.5); --tw-prose-invert-th-borders: #4b5563; --tw-prose-invert-td-borders: #374151; font-size: 1rem; line-height: 1.75; }
+.atl-nood-produit-sec-15 .prose :where(picture > img):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.5em; margin-top: 0.5em; }
+.atl-nood-produit-sec-15 .prose :where(ol > li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0.375em; }
+.atl-nood-produit-sec-15 .prose :where(ul > li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0.375em; }
+.atl-nood-produit-sec-15 .prose :where(.prose > ul > li p):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.75em; margin-top: 0.75em; }
+.atl-nood-produit-sec-15 .prose :where(.prose > ul > li > p:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .prose :where(.prose > ul > li > p:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.25em; }
+.atl-nood-produit-sec-15 .prose :where(.prose > ol > li > p:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .prose :where(.prose > ol > li > p:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.25em; }
+.atl-nood-produit-sec-15 .prose :where(ul ul, .atl-nood-produit-sec-15 ul ol, .atl-nood-produit-sec-15 ol ul, .atl-nood-produit-sec-15 ol ol):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.75em; margin-top: 0.75em; }
+.atl-nood-produit-sec-15 .prose :where(dl):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.25em; margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .prose :where(dd):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0.5em; padding-inline-start: 1.625em; }
+.atl-nood-produit-sec-15 .prose :where(hr + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(h2 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(h3 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(h4 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(thead th:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0px; }
+.atl-nood-produit-sec-15 .prose :where(thead th:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-end: 0px; }
+.atl-nood-produit-sec-15 .prose :where(tbody td, .atl-nood-produit-sec-15 tfoot td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline: 0.571429em; padding-bottom: 0.571429em; padding-top: 0.571429em; }
+.atl-nood-produit-sec-15 .prose :where(tbody td:last-child, .atl-nood-produit-sec-15 tfoot td:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-end: 0px; }
+.atl-nood-produit-sec-15 .prose :where(figure):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .prose :where(.prose > :first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .prose :where(.prose > :last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; }
+.atl-nood-produit-sec-15 .sr-only { height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; width: 1px; clip: rect(0px, 0px, 0px, 0px); border-width: 0px; white-space: nowrap; }
+.atl-nood-produit-sec-15 .pointer-events-none { pointer-events: none; }
+.atl-nood-produit-sec-15 .pointer-events-auto { pointer-events: auto; }
+.atl-nood-produit-sec-15 .visible { visibility: visible; }
+.atl-nood-produit-sec-15 .invisible { visibility: hidden; }
+.atl-nood-produit-sec-15 .static { position: static; }
+.atl-nood-produit-sec-15 .fixed { position: fixed; }
+.atl-nood-produit-sec-15 .absolute { position: absolute; }
+.atl-nood-produit-sec-15 .relative { position: relative; }
+.atl-nood-produit-sec-15 .sticky { position: sticky; }
+.atl-nood-produit-sec-15 .inset-0 { inset: 0px; }
+.atl-nood-produit-sec-15 .inset-x-0 { left: 0px; right: 0px; }
+.atl-nood-produit-sec-15 .\!top-1\/2 { top: 50% !important; }
+.atl-nood-produit-sec-15 .-bottom-16 { bottom: -4rem; }
+.atl-nood-produit-sec-15 .-bottom-2 { bottom: -0.5rem; }
+.atl-nood-produit-sec-15 .-bottom-4 { bottom: -1rem; }
+.atl-nood-produit-sec-15 .-left-2 { left: -0.5rem; }
+.atl-nood-produit-sec-15 .-left-6 { left: -1.5rem; }
+.atl-nood-produit-sec-15 .-right-0\.5 { right: -0.125rem; }
+.atl-nood-produit-sec-15 .-right-2 { right: -0.5rem; }
+.atl-nood-produit-sec-15 .mt-1 { margin-top: 0.25rem; }
+.atl-nood-produit-sec-15 .size-5 { height: 1.25rem; width: 1.25rem; }
+.atl-nood-produit-sec-15 .size-8 { height: 2rem; width: 2rem; }
+.atl-nood-produit-sec-15 .h-10 { height: 2.5rem; }
+.atl-nood-produit-sec-15 .h-5\.5 { height: 1.375rem; }
+.atl-nood-produit-sec-15 .min-h-7 { min-height: 1.75rem; }
+.atl-nood-produit-sec-15 .max-w-3xl { max-width: 48rem; }
+.atl-nood-produit-sec-15 .rotate-180 { --tw-rotate: 180deg; }
+.atl-nood-produit-sec-15 .gap-10 { gap: 2.5rem; }
+.atl-nood-produit-sec-15 .gap-6 { gap: 1.5rem; }
+.atl-nood-produit-sec-15 .gap-8 { gap: 2rem; }
+.atl-nood-produit-sec-15 .gap-\[0\.175rem\] { gap: 0.175rem; }
+.atl-nood-produit-sec-15 .gap-x-5 { column-gap: 1.25rem; }
+.atl-nood-produit-sec-15 .space-y-3 > :not([hidden]) ~ :not([hidden]) { --tw-space-y-reverse: 0; margin-bottom: calc(.75rem*var(--tw-space-y-reverse)); margin-top: calc(.75rem*(1 - var(--tw-space-y-reverse))); }
+.atl-nood-produit-sec-15 .rounded-xl { border-radius: 0.75rem; }
+.atl-nood-produit-sec-15 .border-b { border-bottom-width: 1px; }
+.atl-nood-produit-sec-15 .border-\[\#CBBFBA\] { --tw-border-opacity: 1; border-color: rgb(203 191 186/var(--tw-border-opacity,1)); }
+.atl-nood-produit-sec-15 .border-white { --tw-border-opacity: 1; border-color: rgb(255 255 255/var(--tw-border-opacity,1)); }
+.atl-nood-produit-sec-15 .border-white\/75 { border-color: rgba(255, 255, 255, 0.75); }
+.atl-nood-produit-sec-15 .bg-\[\#EEE9EA\] { --tw-bg-opacity: 1; background-color: rgb(238 233 234/var(--tw-bg-opacity,1)); }
+.atl-nood-produit-sec-15 .to-white { --tw-gradient-to: #fff var(--tw-gradient-to-position); }
+.atl-nood-produit-sec-15 .py-0\.5 { padding-bottom: 0.125rem; padding-top: 0.125rem; }
+.atl-nood-produit-sec-15 .py-2\.5 { padding-bottom: 0.625rem; padding-top: 0.625rem; }
+.atl-nood-produit-sec-15 .pb-7 { padding-bottom: 1.75rem; }
+.atl-nood-produit-sec-15 .pb-9 { padding-bottom: 2.25rem; }
+.atl-nood-produit-sec-15 .pl-1 { padding-left: 0.25rem; }
+.atl-nood-produit-sec-15 .pt-0 { padding-top: 0px; }
+.atl-nood-produit-sec-15 .text-\[10px\] { font-size: 10px; }
+.atl-nood-produit-sec-15 .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.atl-nood-produit-sec-15 .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.atl-nood-produit-sec-15 .text-xs { font-size: 0.75rem; line-height: 1rem; }
+.atl-nood-produit-sec-15 .text-xxxs { font-size: 0.625rem; }
+.atl-nood-produit-sec-15 .lowercase { text-transform: lowercase; }
+.atl-nood-produit-sec-15 .leading-\[0\.85\] { line-height: 0.85; }
+.atl-nood-produit-sec-15 .leading-\[30px\] { line-height: 30px; }
+.atl-nood-produit-sec-15 .leading-none { line-height: 1; }
+.atl-nood-produit-sec-15 .leading-snug { line-height: 1.375; }
+.atl-nood-produit-sec-15 .tracking-wider { letter-spacing: 0.05em; }
+.atl-nood-produit-sec-15 .text-dark-gray\/50 { color: rgba(58, 58, 60, 0.5); }
+.atl-nood-produit-sec-15 .text-yellow-400 { --tw-text-opacity: 1; color: rgb(250 204 21/var(--tw-text-opacity,1)); }
+.atl-nood-produit-sec-15 .opacity-30 { opacity: 0.3; }
+.atl-nood-produit-sec-15 .shadow, .atl-nood-produit-sec-15 .shadow-\[0_0_10px_rgba\(0\, .atl-nood-produit-sec-15 0\, .atl-nood-produit-sec-15 0\, .atl-nood-produit-sec-15 0\.1\)\] { box-shadow: var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow); }
+@media (min-width: 640px) { @media (min-width: 1440px) { .atl-nood-produit-sec-15 .section-container { max-width: 1440px; padding-left: 6rem; padding-right: 6rem; } } }
+.atl-nood-produit-sec-15 .html-content :where(thead th strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .html-content :where(ol):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: decimal; margin-bottom: 1.25em; margin-top: 1.25em; padding-inline-start: 1.625em; }
+.atl-nood-produit-sec-15 .html-content :where(ol[type="A"]):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: upper-alpha; }
+.atl-nood-produit-sec-15 .html-content :where(ol[type="a"]):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: lower-alpha; }
+.atl-nood-produit-sec-15 .html-content :where():not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: upper-alpha; }
+.atl-nood-produit-sec-15 .html-content :where():not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: lower-alpha; }
+.atl-nood-produit-sec-15 .html-content :where(ol[type="I"]):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: upper-roman; }
+.atl-nood-produit-sec-15 .html-content :where(ol[type="i"]):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: lower-roman; }
+.atl-nood-produit-sec-15 .html-content :where():not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: upper-roman; }
+.atl-nood-produit-sec-15 .html-content :where():not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: lower-roman; }
+.atl-nood-produit-sec-15 .html-content :where(ol[type="1"]):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: decimal; }
+.atl-nood-produit-sec-15 .html-content :where(ul):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { list-style-type: disc; margin-bottom: 1.25em; margin-top: 1.25em; padding-inline-start: 1.625em; }
+.atl-nood-produit-sec-15 .html-content :where(ol > li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::marker { color: var(--tw-prose-counters); font-weight: 400; }
+.atl-nood-produit-sec-15 .html-content :where(dt):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-weight: 600; margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .html-content :where(hr):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-color: var(--tw-prose-hr); border-top-width: 1px; margin-bottom: 3em; margin-top: 3em; }
+.atl-nood-produit-sec-15 .html-content :where(blockquote):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-inline-start-color: var(--tw-prose-quote-borders); border-inline-start-width: 0.25rem; color: var(--tw-prose-quotes); font-style: italic; font-weight: 500; margin-bottom: 1.6em; margin-top: 1.6em; padding-inline-start: 1em; quotes: "вЂњ" "вЂќ" "вЂ" "вЂ™"; }
+.atl-nood-produit-sec-15 .html-content :where(blockquote p:first-of-type):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::before { content: open-quote; }
+.atl-nood-produit-sec-15 .html-content :where(blockquote p:last-of-type):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::after { content: close-quote; }
+.atl-nood-produit-sec-15 .html-content :where(h1):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-size: 2.25em; font-weight: 800; line-height: 1.11111; margin-bottom: 0.888889em; margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(h1 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 900; }
+.atl-nood-produit-sec-15 .html-content :where(h2):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-size: 1.5em; font-weight: 700; line-height: 1.33333; margin-bottom: 1em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .html-content :where(h2 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 800; }
+.atl-nood-produit-sec-15 .html-content :where(h3):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-size: 1.25em; font-weight: 600; line-height: 1.6; margin-bottom: 0.6em; margin-top: 1.6em; }
+.atl-nood-produit-sec-15 .html-content :where(h3 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 700; }
+.atl-nood-produit-sec-15 .html-content :where(h4):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-weight: 600; line-height: 1.5; margin-bottom: 0.5em; margin-top: 1.5em; }
+.atl-nood-produit-sec-15 .html-content :where(h4 strong):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-weight: 700; }
+.atl-nood-produit-sec-15 .html-content :where(img):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .html-content :where(picture):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { display: block; margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .html-content :where(video):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .html-content :where(kbd):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-radius: 0.3125rem; box-shadow: 0 0 0 1px rgb(var(--tw-prose-kbd-shadows)/10%),0 3px rgb(var(--tw-prose-kbd-shadows)/10%); color: var(--tw-prose-kbd); font-family: inherit; font-size: 0.875em; font-weight: 500; padding-inline: 0.375em; padding-bottom: 0.1875em; padding-top: 0.1875em; }
+.atl-nood-produit-sec-15 .html-content :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-code); font-size: 0.875em; font-weight: 600; }
+.atl-nood-produit-sec-15 .html-content :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::before { content: "`"; }
+.atl-nood-produit-sec-15 .html-content :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::after { content: "`"; }
+.atl-nood-produit-sec-15 .html-content :where(a code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .html-content :where(h1 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .html-content :where(h2 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-size: 0.875em; }
+.atl-nood-produit-sec-15 .html-content :where(h3 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; font-size: 0.9em; }
+.atl-nood-produit-sec-15 .html-content :where(h4 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .html-content :where(blockquote code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .html-content :where(thead th code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: inherit; }
+.atl-nood-produit-sec-15 .html-content :where(pre):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { background-color: var(--tw-prose-pre-bg); border-radius: 0.375rem; color: var(--tw-prose-pre-code); font-size: 0.875em; font-weight: 400; line-height: 1.71429; margin-bottom: 1.71429em; margin-top: 1.71429em; overflow-x: auto; padding-inline: 1.14286em; padding-bottom: 0.857143em; padding-top: 0.857143em; }
+.atl-nood-produit-sec-15 .html-content :where(pre code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { background-color: transparent; border-radius: 0px; border-width: 0px; color: inherit; font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit; padding: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(pre code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::before { content: none; }
+.atl-nood-produit-sec-15 .html-content :where(pre code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *))::after { content: none; }
+.atl-nood-produit-sec-15 .html-content :where(table):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.875em; line-height: 1.71429; margin-bottom: 2em; margin-top: 2em; table-layout: auto; width: 100%; }
+.atl-nood-produit-sec-15 .html-content :where(thead):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-bottom-color: var(--tw-prose-th-borders); border-bottom-width: 1px; }
+.atl-nood-produit-sec-15 .html-content :where(thead th):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-headings); font-weight: 600; padding-inline: 0.571429em; padding-bottom: 0.571429em; vertical-align: bottom; }
+.atl-nood-produit-sec-15 .html-content :where(tbody tr):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-bottom-color: var(--tw-prose-td-borders); border-bottom-width: 1px; }
+.atl-nood-produit-sec-15 .html-content :where(tbody tr:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-bottom-width: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(tbody td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { vertical-align: baseline; }
+.atl-nood-produit-sec-15 .html-content :where(tfoot):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-top-color: var(--tw-prose-th-borders); border-top-width: 1px; }
+.atl-nood-produit-sec-15 .html-content :where(tfoot td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { vertical-align: top; }
+.atl-nood-produit-sec-15 .html-content :where(th, .atl-nood-produit-sec-15 td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { text-align: start; }
+.atl-nood-produit-sec-15 .html-content :where(figure > *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(figcaption):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { color: var(--tw-prose-captions); font-size: 0.875em; line-height: 1.42857; margin-top: 0.857143em; }
+.atl-nood-produit-sec-15 .html-content { --tw-prose-body: #374151; --tw-prose-headings: #111827; --tw-prose-lead: #4b5563; --tw-prose-links: #111827; --tw-prose-bold: #111827; --tw-prose-counters: #6b7280; --tw-prose-bullets: #d1d5db; --tw-prose-hr: #e5e7eb; --tw-prose-quotes: #111827; --tw-prose-quote-borders: #e5e7eb; --tw-prose-captions: #6b7280; --tw-prose-kbd: #111827; --tw-prose-kbd-shadows: 17 24 39; --tw-prose-code: #111827; --tw-prose-pre-code: #e5e7eb; --tw-prose-pre-bg: #1f2937; --tw-prose-th-borders: #d1d5db; --tw-prose-td-borders: #e5e7eb; --tw-prose-invert-body: #d1d5db; --tw-prose-invert-headings: #fff; --tw-prose-invert-lead: #9ca3af; --tw-prose-invert-links: #fff; --tw-prose-invert-bold: #fff; --tw-prose-invert-counters: #9ca3af; --tw-prose-invert-bullets: #4b5563; --tw-prose-invert-hr: #374151; --tw-prose-invert-quotes: #f3f4f6; --tw-prose-invert-quote-borders: #374151; --tw-prose-invert-captions: #9ca3af; --tw-prose-invert-kbd: #fff; --tw-prose-invert-kbd-shadows: 255 255 255; --tw-prose-invert-code: #fff; --tw-prose-invert-pre-code: #d1d5db; --tw-prose-invert-pre-bg: rgba(0,0,0,.5); --tw-prose-invert-th-borders: #4b5563; --tw-prose-invert-td-borders: #374151; font-size: 1rem; line-height: 1.75; }
+.atl-nood-produit-sec-15 .html-content :where(picture > img):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.5em; margin-top: 0.5em; }
+.atl-nood-produit-sec-15 .html-content :where(ol > li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0.375em; }
+.atl-nood-produit-sec-15 .html-content :where(ul > li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0.375em; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > ul > li p):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.75em; margin-top: 0.75em; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > ul > li > p:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > ul > li > p:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.25em; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > ol > li > p:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > ol > li > p:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.25em; }
+.atl-nood-produit-sec-15 .html-content :where(ul ul, .atl-nood-produit-sec-15 ul ol, .atl-nood-produit-sec-15 ol ul, .atl-nood-produit-sec-15 ol ol):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.75em; margin-top: 0.75em; }
+.atl-nood-produit-sec-15 .html-content :where(dl):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.25em; margin-top: 1.25em; }
+.atl-nood-produit-sec-15 .html-content :where(dd):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0.5em; padding-inline-start: 1.625em; }
+.atl-nood-produit-sec-15 .html-content :where(hr + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(h2 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(h3 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(h4 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(thead th:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(thead th:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-end: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(tbody td, .atl-nood-produit-sec-15 tfoot td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline: 0.571429em; padding-bottom: 0.571429em; padding-top: 0.571429em; }
+.atl-nood-produit-sec-15 .html-content :where(tbody td:last-child, .atl-nood-produit-sec-15 tfoot td:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-end: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(figure):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 2em; margin-top: 2em; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > :first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; }
+.atl-nood-produit-sec-15 .html-content :where(.prose > :last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; }
+.atl-nood-produit-sec-15 .html-content { max-width: none; }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content { font-size: 1.125rem; line-height: 1.77778; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(p):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.33333em; margin-top: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where([class~="lead"]):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 1.22222em; line-height: 1.45455; margin-bottom: 1.09091em; margin-top: 1.09091em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(blockquote):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.66667em; margin-top: 1.66667em; padding-inline-start: 1em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h1):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 2.66667em; line-height: 1; margin-bottom: 0.833333em; margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h2):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 1.66667em; line-height: 1.33333; margin-bottom: 1.06667em; margin-top: 1.86667em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h3):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 1.33333em; line-height: 1.5; margin-bottom: 0.666667em; margin-top: 1.66667em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h4):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { line-height: 1.55556; margin-bottom: 0.444444em; margin-top: 1.77778em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(img):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.77778em; margin-top: 1.77778em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(picture):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.77778em; margin-top: 1.77778em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(picture > img):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(video):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.77778em; margin-top: 1.77778em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(kbd):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-radius: 0.3125rem; font-size: 0.888889em; padding-inline: 0.444444em; padding-bottom: 0.222222em; padding-top: 0.222222em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.888889em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h2 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.866667em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h3 code):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.875em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(pre):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { border-radius: 0.375rem; font-size: 0.888889em; line-height: 1.75; margin-bottom: 2em; margin-top: 2em; padding-inline: 1.5em; padding-bottom: 1em; padding-top: 1em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(ol):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.33333em; margin-top: 1.33333em; padding-inline-start: 1.55556em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(ul):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.33333em; margin-top: 1.33333em; padding-inline-start: 1.55556em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(ul > li):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0.444444em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > ul > li p):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.888889em; margin-top: 0.888889em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > ul > li > p:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > ul > li > p:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > ol > li > p:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > ol > li > p:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(ul ul, .atl-nood-produit-sec-15 ul ol, .atl-nood-produit-sec-15 ol ul, .atl-nood-produit-sec-15 ol ol):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0.888889em; margin-top: 0.888889em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(dl):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.33333em; margin-top: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(dt):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 1.33333em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(dd):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0.666667em; padding-inline-start: 1.55556em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(hr):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 3.11111em; margin-top: 3.11111em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(hr + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h2 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h3 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(h4 + *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(table):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.888889em; line-height: 1.5; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(thead th):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline: 0.75em; padding-bottom: 0.75em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(thead th:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(thead th:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-end: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(tbody td, .atl-nood-produit-sec-15 tfoot td):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline: 0.75em; padding-bottom: 0.75em; padding-top: 0.75em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(tbody td:first-child, .atl-nood-produit-sec-15 tfoot td:first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-start: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(tbody td:last-child, .atl-nood-produit-sec-15 tfoot td:last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { padding-inline-end: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(figure):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 1.77778em; margin-top: 1.77778em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(figure > *):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(figcaption):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { font-size: 0.888889em; line-height: 1.5; margin-top: 1em; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > :first-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-top: 0px; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .html-content :where(.xl\:prose-lg > :last-child):not(:where([class~="not-prose"], .atl-nood-produit-sec-15 [class~="not-prose"] *)) { margin-bottom: 0px; } }
+.atl-nood-produit-sec-15 .html-content * { --tw-text-opacity: 1; color: rgb(58 58 60/var(--tw-text-opacity,1)); }
+.atl-nood-produit-sec-15 .html-content a { overflow-wrap: break-word; text-decoration-line: underline; }
+.atl-nood-produit-sec-15 .html-content h1 { font-size: 2.25rem; font-weight: 500; line-height: 2.5rem; }
+.atl-nood-produit-sec-15 .html-content h2 { font-size: 1.875rem; font-weight: 500; line-height: 2.25rem; }
+.atl-nood-produit-sec-15 .html-content h3 { font-size: 1.5rem; font-weight: 500; line-height: 2rem; }
+.atl-nood-produit-sec-15 .html-content h4 { font-size: 1.25rem; }
+.atl-nood-produit-sec-15 .html-content h4, .atl-nood-produit-sec-15 .html-content h5 { font-weight: 500; line-height: 1.75rem; }
+.atl-nood-produit-sec-15 .html-content h5 { font-size: 1.125rem; }
+.atl-nood-produit-sec-15 .html-content h6 { font-size: 1rem; font-weight: 500; line-height: 1.5rem; }
+.atl-nood-produit-sec-15 .html-content img { border-radius: 0.75rem; }
+.atl-nood-produit-sec-15 .html-content p { margin-bottom: 1.25rem !important; margin-top: 0px !important; }
+.atl-nood-produit-sec-15 .no-scrollbar::-webkit-scrollbar { display: none; }
+.atl-nood-produit-sec-15 .no-scrollbar { scrollbar-width: none; }
+.atl-nood-produit-sec-15 .\[left\:-4\%\] { left: -4%; }
+.atl-nood-produit-sec-15 .\[top\:65\%\] { top: 65%; }
+.atl-nood-produit-sec-15 .footer__reviewsLogo-container { display: none !important; }
+.atl-nood-produit-sec-15 .product-media-slider-desktop .splide__pagination__page { background-color: rgba(58, 58, 60, 0.3); border-radius: 9999px; height: 0.75rem; opacity: 1; padding: 0px; width: 0.75rem; }
+.atl-nood-produit-sec-15 .product-media-slider-desktop .splide__pagination__page.is-active { --tw-bg-opacity: 1; background-color: rgb(58 58 60/var(--tw-bg-opacity,1)); }
+.atl-nood-produit-sec-15 .special-ul-marks ul { list-style-type: none; margin: 0px; padding: 0px; }
+.atl-nood-produit-sec-15 .special-ul-marks ul li { padding-left: 1.75rem; position: relative; }
+.atl-nood-produit-sec-15 .before\:content-\[\'\\2022\'\]::before { --tw-content: "вЂў"; content: var(--tw-content); }
+.atl-nood-produit-sec-15 .after\:w-0::after { content: var(--tw-content); width: 0px; }
+.atl-nood-produit-sec-15 .after\:-translate-x-1\/2::after { content: var(--tw-content); --tw-translate-x: -50%; transform: translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+.atl-nood-produit-sec-15 .peer:checked ~ .peer-checked\:border-orange { --tw-border-opacity: 1; border-color: rgb(255 153 0/var(--tw-border-opacity,1)); }
+.atl-nood-produit-sec-15 .has-\[\:checked\]\:border-orange:has(:checked) { --tw-border-opacity: 1; border-color: rgb(255 153 0/var(--tw-border-opacity,1)); }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:h-\[500px\] { height: 500px; } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:max-w-md { max-width: 28rem; } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:max-w-xl { max-width: 36rem; } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0px, 1fr)); } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:gap-5 { gap: 1.25rem; } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:rounded-2xl { border-radius: 1rem; } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:rounded-xl { border-radius: 0.75rem; } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:bg-off-white { --tw-bg-opacity: 1; background-color: rgb(249 249 247/var(--tw-bg-opacity,1)); } }
+@media not all and (min-width: 1024px) { .atl-nood-produit-sec-15 .max-lg\:px-8 { padding-left: 2rem; padding-right: 2rem; } }
+@media not all and (min-width: 768px) { .atl-nood-produit-sec-15 .max-md\:mt-auto { margin-top: auto; } }
+@media not all and (min-width: 768px) { .atl-nood-produit-sec-15 .max-md\:pr-\[40\%\] { padding-right: 40%; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:max-h-\[90px\] { max-height: 90px; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:w-24 { width: 6rem; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:max-w-26 { max-width: 6.5rem; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:max-w-72 { max-width: 18rem; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:pl-4 { padding-left: 1rem; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:text-lg { font-size: 1.125rem; line-height: 1.75rem; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:text-sm { font-size: 0.875rem; line-height: 1.25rem; } }
+@media not all and (min-width: 640px) { .atl-nood-produit-sec-15 .max-sm\:leading-none { line-height: 1; } }
+@media (min-width: 420px) { .atl-nood-produit-sec-15 .xs\:text-4\.5xl { font-size: 2.625rem; line-height: 2.75rem; } }
+@media (min-width: 420px) { .atl-nood-produit-sec-15 .xs\:text-4xl { font-size: 2.25rem; line-height: 2.5rem; } }
+@media (min-width: 420px) { .atl-nood-produit-sec-15 .xs\:text-xl { font-size: 1.25rem; line-height: 1.75rem; } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .sm\:w-28 { width: 7rem; } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .sm\:max-w-96 { max-width: 24rem; } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .sm\:max-w-xl { max-width: 36rem; } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0px, 1fr)); } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .sm\:flex-row { flex-direction: row; } }
+@media (min-width: 640px) { .atl-nood-produit-sec-15 .sm\:px-12 { padding-left: 3rem; padding-right: 3rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:mb-5 { margin-bottom: 1.25rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:mb-6 { margin-bottom: 1.5rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:mt-10 { margin-top: 2.5rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:max-w-\[1440px\] { max-width: 1440px; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:max-w-\[180px\] { max-width: 180px; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:max-w-\[200px\] { max-width: 200px; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:grid-cols-\[1\.25fr_2fr\] { grid-template-columns: 1.25fr 2fr; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:gap-10 { gap: 2.5rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:gap-12 { gap: 3rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:gap-16 { gap: 4rem; } }
+@media (min-width: 768px) { .atl-nood-produit-sec-15 .md\:overflow-auto { overflow: auto; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:my-8 { margin-bottom: 2rem; margin-top: 2rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:w-2\/3 { width: 66.6667%; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:min-w-\[177px\] { min-width: 177px; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:max-w-4xl { max-width: 56rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:max-w-5xl { max-width: 64rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:max-w-64 { max-width: 16rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:max-w-\[60\%\] { max-width: 60%; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:max-w-lg { max-width: 32rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:justify-between { justify-content: space-between; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:gap-12 { gap: 3rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:gap-8 { gap: 2rem; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:text-6xl { font-size: 3.75rem; line-height: 1; } }
+@media (min-width: 1024px) { .atl-nood-produit-sec-15 .lg\:leading-tight { line-height: 1.25; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .xl\:max-w-xl { max-width: 36rem; } }
+@media (min-width: 1280px) { .atl-nood-produit-sec-15 .xl\:rounded-tl-3xl { border-top-left-radius: 1.25rem; } }
+.atl-nood-produit-sec-15 .\[\&\:\:-webkit-progress-value\]\:transition-all::-webkit-progress-value { transition-duration: 0.3s; transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+.atl-nood-produit-sec-15 .\[\&\:\:-webkit-progress-value\]\:ease-linear::-webkit-progress-value { transition-timing-function: linear; }
+.atl-nood-produit-sec-15 .\[\&_\.border-light-gray\]\:has-\[\:checked\]\:border-\[\#AC2E31\]:has(:checked) .border-light-gray { --tw-border-opacity: 1; border-color: rgb(172 46 49/var(--tw-border-opacity,1)); }
+.atl-nood-produit-sec-15 .\[\&_\.ruk-rating-snippet-count\]\:\!text-sm .ruk-rating-snippet-count { font-size: 0.875rem !important; line-height: 1.25rem !important; }
+.atl-nood-produit-sec-15 .\[\&_\.slick-track\]\:gap-3 .slick-track { gap: 0.75rem; }
+.atl-nood-produit-sec-15 .group.is-active .group-\[\.is-active\]\:\[\&_\.testimonial-card-bg\]\:opacity-80 .testimonial-card-bg { opacity: 0.8; }
+.atl-nood-produit-sec-15 .\[\&_a\]\:underline a { text-decoration-line: underline; }
+.atl-nood-produit-sec-15 .peer:checked ~ .peer-checked\:\[\&_circle\.opacity-0\]\:opacity-100 circle.opacity-0 { opacity: 1; }
+.atl-nood-produit-sec-15 .\[\&_circle\.opacity-0\]\:has-\[\:checked\]\:opacity-100:has(:checked) circle.opacity-0 { opacity: 1; }
+.atl-nood-produit-sec-15 .\[\&_div\[data-content\]\]\:has-\[\:checked\]\:bg-\[\#fff5f8\]:has(:checked) div[data-content] { --tw-bg-opacity: 1; background-color: rgb(255 245 248/var(--tw-bg-opacity,1)); }
+.atl-nood-produit-sec-15 .\[\&_div\[data-head\]\]\:has-\[\:checked\]\:bg-dark-gray:has(:checked) div[data-head] { --tw-bg-opacity: 1; background-color: rgb(58 58 60/var(--tw-bg-opacity,1)); }
+.atl-nood-produit-sec-15 .\[\&_div\[data-head\]\]\:has-\[\:checked\]\:bg-orange:has(:checked) div[data-head] { --tw-bg-opacity: 1; background-color: rgb(255 153 0/var(--tw-bg-opacity,1)); }
+.atl-nood-produit-sec-15 .\[\&_div\[data-head\]\]\:has-\[\:checked\]\:text-white:has(:checked) div[data-head] { --tw-text-opacity: 1; color: rgb(255 255 255/var(--tw-text-opacity,1)); }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/d3643f2281e6-l.woff2") format("woff2"), url("/imports/nood-produit/assets/6eec3e7d5ca8-d.woff") format("woff"), url("/imports/nood-produit/assets/245c1a2e27c3-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/50fcd9b40a05-l.woff2") format("woff2"), url("/imports/nood-produit/assets/5e817eadaa48-d.woff") format("woff"), url("/imports/nood-produit/assets/e0a4ee5263f2-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/eb9873d6344e-l.woff2") format("woff2"), url("/imports/nood-produit/assets/b7f7cf1b584f-d.woff") format("woff"), url("/imports/nood-produit/assets/b7884e379818-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 300; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/1d31a9004bde-l.woff2") format("woff2"), url("/imports/nood-produit/assets/a390c9a56fca-d.woff") format("woff"), url("/imports/nood-produit/assets/34875b168cf6-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 400; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/36bf2f1eacd5-l.woff2") format("woff2"), url("/imports/nood-produit/assets/60b0ba872814-d.woff") format("woff"), url("/imports/nood-produit/assets/28e37e09cf5f-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 400; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/107aa22df2a1-l.woff2") format("woff2"), url("/imports/nood-produit/assets/b91ea1cb4a60-d.woff") format("woff"), url("/imports/nood-produit/assets/dbf8bae162d9-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 300; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/e2d05d63fd7b-l.woff2") format("woff2"), url("/imports/nood-produit/assets/ea5a84f56bd5-d.woff") format("woff"), url("/imports/nood-produit/assets/9a0ba8139359-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 600; font-stretch: normal; }
+@font-face { font-family: futura-pt; src: url("/imports/nood-produit/assets/d429709a58a0-l.woff2") format("woff2"), url("/imports/nood-produit/assets/04b693144595-d.woff") format("woff"), url("/imports/nood-produit/assets/3b4484fd273d-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 600; font-stretch: normal; }
+@font-face { font-family: futura-pt-bold; src: url("/imports/nood-produit/assets/4b913f25bef2-l.woff2") format("woff2"), url("/imports/nood-produit/assets/b6fbf1caee64-d.woff") format("woff"), url("/imports/nood-produit/assets/93e437d6c212-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: futura-pt-bold; src: url("/imports/nood-produit/assets/2734622ed38e-l.woff2") format("woff2"), url("/imports/nood-produit/assets/cb93056f524a-d.woff") format("woff"), url("/imports/nood-produit/assets/75ffeba56391-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/c6d6de57d205-l.woff2") format("woff2"), url("/imports/nood-produit/assets/f87a7e1e2569-d.woff") format("woff"), url("/imports/nood-produit/assets/838a4c35aacb-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 300; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/9ae1a548f954-l.woff2") format("woff2"), url("/imports/nood-produit/assets/6793221296de-d.woff") format("woff"), url("/imports/nood-produit/assets/a2a1b9995ce6-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 300; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/010f2ec613db-l.woff2") format("woff2"), url("/imports/nood-produit/assets/9edc99cea28a-d.woff") format("woff"), url("/imports/nood-produit/assets/f4f591ae3fea-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 400; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/0dd42688da7e-l.woff2") format("woff2"), url("/imports/nood-produit/assets/7f9f39ab8b76-d.woff") format("woff"), url("/imports/nood-produit/assets/3e3534e4c80b-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 400; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/1774205d8469-l.woff2") format("woff2"), url("/imports/nood-produit/assets/ed4fa78a044c-d.woff") format("woff"), url("/imports/nood-produit/assets/6b258044bd81-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 600; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/10329401584c-l.woff2") format("woff2"), url("/imports/nood-produit/assets/858d7b3183ae-d.woff") format("woff"), url("/imports/nood-produit/assets/a8101e66d7cf-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 600; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/e611910f61e4-l.woff2") format("woff2"), url("/imports/nood-produit/assets/55e1403475f0-d.woff") format("woff"), url("/imports/nood-produit/assets/b0f10c2a78c9-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/2e10cc6f8be4-l.woff2") format("woff2"), url("/imports/nood-produit/assets/69f6f5c43d1c-d.woff") format("woff"), url("/imports/nood-produit/assets/893be5e7a906-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/483818513747-l.woff2") format("woff2"), url("/imports/nood-produit/assets/0c9bddec948f-d.woff") format("woff"), url("/imports/nood-produit/assets/c6a8f054aba9-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 800; font-stretch: normal; }
+@font-face { font-family: moret; src: url("/imports/nood-produit/assets/e10182696abb-l.woff2") format("woff2"), url("/imports/nood-produit/assets/b4e35d8983d9-d.woff") format("woff"), url("/imports/nood-produit/assets/748655e2cb36-a") format("opentype"); font-display: auto; font-style: italic; font-weight: 800; font-stretch: normal; }
+@font-face { font-family: nitti; src: url("/imports/nood-produit/assets/65c416b18bfd-l.woff2") format("woff2"), url("/imports/nood-produit/assets/b685ddbdf143-d.woff") format("woff"), url("/imports/nood-produit/assets/78c9a2d6180b-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 400; font-stretch: normal; }
+@font-face { font-family: nitti; src: url("/imports/nood-produit/assets/5f9ee78a2aa3-l.woff2") format("woff2"), url("/imports/nood-produit/assets/91ccd30bd080-d.woff") format("woff"), url("/imports/nood-produit/assets/40e042d22471-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 700; font-stretch: normal; }
+@font-face { font-family: nitti; src: url("/imports/nood-produit/assets/11cd1be4b8f1-l.woff2") format("woff2"), url("/imports/nood-produit/assets/b6722614640b-d.woff") format("woff"), url("/imports/nood-produit/assets/9f7780d85e0f-a") format("opentype"); font-display: auto; font-style: normal; font-weight: 500; font-stretch: normal; }
+.atl-nood-produit-sec-15 .tk-futura-pt { font-family: futura-pt, sans-serif; }
+.atl-nood-produit-sec-15 .tk-futura-pt-bold { font-family: futura-pt-bold, sans-serif; }
+.atl-nood-produit-sec-15 .tk-moret { font-family: moret, serif; }
+.atl-nood-produit-sec-15 .tk-nitti { font-family: nitti, monospace; }
+.atl-nood-produit-sec-15 .v2-cart-protocol-group { position: relative; display: flex; flex-direction: column; gap: 10px; }
+.atl-nood-produit-sec-15 .v2-cart-protocol-card { display: flex; flex-direction: column; padding: 14px; border: 1.5px solid rgb(36, 35, 35); border-radius: 18px; background: rgb(255, 255, 255); }
+.atl-nood-produit-sec-15 .v2-cart-protocol-card__header { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
+.atl-nood-produit-sec-15 .v2-cart-protocol-thumbs { display: flex; align-items: center; min-width: 0px; max-width: 51%; }
+.atl-nood-produit-sec-15 .v2-cart-protocol-card__title { margin: 0px; font-family: Circular, sans-serif; font-size: 16px; font-weight: 500; line-height: 1.2; color: rgb(36, 35, 35); }
+@keyframes shimmer-data-v-496b46b0 { 
+  0% { background-position: 0px center; }
+  100% { background-position: 750px center; }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/396835/00000000000000007735cc83/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i7&v=3") format("woff2"),url("https://use.typekit.net/af/396835/00000000000000007735cc83/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i7&v=3") format("woff"),url("https://use.typekit.net/af/396835/00000000000000007735cc83/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i7&v=3") format("opentype");
-font-display:auto;font-style:italic;font-weight:700;font-stretch:normal;
+.atl-nood-produit-sec-15 .oke-w-reviewReply-body { width: 100%; margin-bottom: 4px; overflow: hidden; }
+.atl-nood-produit-sec-15 [data-announcement-slider] .splide__arrow svg { display: none; }
+.atl-nood-produit-sec-15 [data-announcement-slider] .splide__arrow::before { content: ""; display: block; width: 8px; height: 8px; border-top: 2px solid white; border-right: 2px solid white; position: absolute; top: 50%; left: 50%; }
+.atl-nood-produit-sec-15 [data-announcement-slider] .splide__arrow--prev::before { transform: translate(-25%, -50%) rotate(-135deg); }
+.atl-nood-produit-sec-15:not(.template-index) .main-content { padding-top: 0px; }
+@media screen and (min-width: 769px) { .atl-nood-produit-sec-15:not(.template-index) .main-content { padding-top: 0px; } }
+.atl-nood-produit-sec-15 [data-flasher-pro-test-content] [data-flasher-pro-test-divider] { content: ""; width: 100%; border: 1px solid rgb(217, 217, 217); display: block; position: absolute; left: 0px; }
+@keyframes spinner_AtaB { 
+  100% { transform: rotate(360deg); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/7127d8/00000000000000007735cc85/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n8&v=3") format("woff2"),url("https://use.typekit.net/af/7127d8/00000000000000007735cc85/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n8&v=3") format("woff"),url("https://use.typekit.net/af/7127d8/00000000000000007735cc85/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n8&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:800;font-stretch:normal;
+@keyframes marquee { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(-50%); }
 }
-@font-face {
-font-family:"moret";
-src:url("https://use.typekit.net/af/9434fa/00000000000000007735cc87/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i8&v=3") format("woff2"),url("https://use.typekit.net/af/9434fa/00000000000000007735cc87/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i8&v=3") format("woff"),url("https://use.typekit.net/af/9434fa/00000000000000007735cc87/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=i8&v=3") format("opentype");
-font-display:auto;font-style:italic;font-weight:800;font-stretch:normal;
-}
-@font-face {
-font-family:"nitti";
-src:url("https://use.typekit.net/af/10d562/00000000000000007735f7d6/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n4&v=3") format("woff2"),url("https://use.typekit.net/af/10d562/00000000000000007735f7d6/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n4&v=3") format("woff"),url("https://use.typekit.net/af/10d562/00000000000000007735f7d6/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n4&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:400;font-stretch:normal;
-}
-@font-face {
-font-family:"nitti";
-src:url("https://use.typekit.net/af/0c63e5/00000000000000007735f7d4/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n7&v=3") format("woff2"),url("https://use.typekit.net/af/0c63e5/00000000000000007735f7d4/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n7&v=3") format("woff"),url("https://use.typekit.net/af/0c63e5/00000000000000007735f7d4/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n7&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:700;font-stretch:normal;
-}
-@font-face {
-font-family:"nitti";
-src:url("https://use.typekit.net/af/12d1e4/00000000000000007735f7d8/30/l?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n5&v=3") format("woff2"),url("https://use.typekit.net/af/12d1e4/00000000000000007735f7d8/30/d?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n5&v=3") format("woff"),url("https://use.typekit.net/af/12d1e4/00000000000000007735f7d8/30/a?primer=388f68b35a7cbf1ee3543172445c23e26935269fadd3b392a13ac7b2903677eb&fvd=n5&v=3") format("opentype");
-font-display:auto;font-style:normal;font-weight:500;font-stretch:normal;
-}
-@font-face { font-family: Circular; src: url("https://trynood.com/cdn/shop/t/377/assets/subset-CircularStd-Book.woff2?v=142859355379749742411769792227") format("woff2"), url("https://trynood.com/cdn/shop/t/377/assets/subset-CircularStd-Book.woff?v=43028704083220309321769792226") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: Circular; src: url("https://trynood.com/cdn/shop/t/377/assets/subset-CircularStd-Medium.woff2?v=116899554430454779831769792228") format("woff2"), url("https://trynood.com/cdn/shop/t/377/assets/subset-CircularStd-Medium.woff?v=183966099757170724711769792228") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: Circular; src: url("https://trynood.com/cdn/shop/t/377/assets/subset-CircularStd-Bold.woff2?v=10276511339896496151769792226") format("woff2"), url("https://trynood.com/cdn/shop/t/377/assets/subset-CircularStd-Bold.woff?v=117764688639669013351769792226") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
-/* Copie de Nood — partie 1. Styles relevés sur la page d'origine (ordinateur, puis mobile). */
-.atl-nood-produit-sec-15{display:block;background:transparent}
-.atl-nood-produit-sec-15 :where(*:not(svg, svg *)){all:revert}
-.atl-nood-produit-sec-15 img{display:inline-block}
-.atl-nood-produit-sec-15 .atl-vide{background:repeating-linear-gradient(45deg,var(--atl-surface-p, #eee) 0 10px,var(--atl-surface-p, #f7f7f7) 10px 20px)}
-.atl-nood-produit-sec-15 .cnoodproduitsec150, .atl-nood-produit-sec-15.cnoodproduitsec150{box-sizing:border-box;margin-top:0px;margin-right:0px;margin-bottom:0px;margin-left:0px;font-family:var(--atl-font-body, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");line-height:24px;overflow-x:hidden;overflow-y:hidden}
-.atl-nood-produit-sec-15 .cnoodproduitsec151{box-sizing:border-box}
-.atl-nood-produit-sec-15 .cnoodproduitsec152{box-sizing:border-box;max-width:1440px;padding-top:48px;padding-right:96px;padding-bottom:48px;padding-left:96px}
-.atl-nood-produit-sec-15 .cnoodproduitsec153{display:grid;box-sizing:border-box;padding-top:80px;padding-right:80px;padding-bottom:80px;padding-left:80px;border-top-left-radius:20px;border-top-right-radius:20px;border-bottom-right-radius:20px;border-bottom-left-radius:20px;background-color:var(--atl-surface, rgb(249, 249, 247));grid-template-columns:minmax(0, 466fr) minmax(0, 622fr)}
-.atl-nood-produit-sec-15 .cnoodproduitsec154{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;margin-top:0px;margin-bottom:0px;color:var(--atl-accent, rgb(58, 58, 60));font-family:var(--atl-font-heading, Moret);font-size:84px;font-weight:300;line-height:84px;text-align:left;justify-content:flex-start;align-items:flex-start;width:466.29px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec155{box-sizing:border-box;min-width:auto;min-height:auto;font-family:var(--atl-font-body, Circular);width:621.72px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec156{box-sizing:border-box;border-top-width:2px;border-top-style:solid;border-top-color:rgba(58, 58, 60, 0.2)}
-.atl-nood-produit-sec-15 .cnoodproduitsec157{display:flex;padding-top:16px;padding-right:0px;padding-bottom:16px;padding-left:0px;background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Circular);font-size:16px;font-weight:500;letter-spacing:0.4px;text-align:left;text-transform:uppercase;justify-content:space-between;align-items:center;row-gap:8px;column-gap:8px}
-.atl-nood-produit-sec-15 .cnoodproduitsec158{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:520px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec159{display:block;box-sizing:border-box;min-width:auto;min-height:auto;color:var(--atl-accent-p, rgb(255, 153, 0));vertical-align:middle;flex-shrink:0;width:14px;height:14px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1510{display:grid;box-sizing:border-box;grid-template-columns:621.719px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1511{box-sizing:border-box;min-width:auto;min-height:auto;overflow-x:hidden;overflow-y:hidden;width:621.72px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1512{box-sizing:border-box;padding-bottom:12px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1513{box-sizing:border-box}
-.atl-nood-produit-sec-15 .cnoodproduitsec1514{box-sizing:border-box;margin-bottom:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1515{display:block;box-sizing:border-box;max-width:100%;margin-bottom:20px;vertical-align:middle;aspect-ratio:auto 900 / 380;width:621.72px;height:262.5px;object-fit:cover}
-.atl-nood-produit-sec-15 .cnoodproduitsec1516{display:none;box-sizing:border-box;max-width:100%;margin-bottom:20px;vertical-align:middle;aspect-ratio:auto 700 / 1154;height:0px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1517{box-sizing:border-box;margin-top:0px;margin-bottom:0px;font-size:15px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1518{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:480px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1519{box-sizing:border-box;min-width:auto;min-height:auto;overflow-x:hidden;overflow-y:hidden;width:621.72px;max-width:100%;height:0px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1520{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:330px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1521{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:400px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1522{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:270px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1523{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:599.72px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1524{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:250px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1525{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:370px;max-width:100%}
-.atl-nood-produit-sec-15 .cnoodproduitsec1526{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-family:nitti;width:580px;max-width:100%}
-@media (min-width: 750px) and (max-width: 1199px){
-.atl-nood-produit-sec-15 .cnoodproduitsec152{max-width:1024px;padding-right:32px;padding-left:32px}
-.atl-nood-produit-sec-15 .cnoodproduitsec153{padding-right:64px;padding-left:64px;border-top-left-radius:16px;border-top-right-radius:16px;border-bottom-right-radius:16px;border-bottom-left-radius:16px;grid-template-columns:minmax(0, 357fr) minmax(0, 475fr)}
-.atl-nood-produit-sec-15 .cnoodproduitsec154{width:356.57px}
-.atl-nood-produit-sec-15 .cnoodproduitsec155{width:475.43px}
-.atl-nood-produit-sec-15 .cnoodproduitsec158{width:453.43px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1510{grid-template-columns:475.422px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1511{width:475.43px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1515{width:475.43px;height:200.72px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1518{width:453.43px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1519{width:475.43px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1523{width:453.43px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1526{width:453.43px}
-}
-@media (max-width: 749px){
-.atl-nood-produit-sec-15 .cnoodproduitsec152{max-width:none;padding-top:20px;padding-right:10px;padding-bottom:20px;padding-left:10px}
-.atl-nood-produit-sec-15 .cnoodproduitsec153{padding-top:32px;padding-right:10px;padding-bottom:32px;padding-left:10px;border-top-left-radius:12px;border-top-right-radius:12px;border-bottom-right-radius:12px;border-bottom-left-radius:12px;grid-template-columns:350px;row-gap:20px;column-gap:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec154{font-size:48px;line-height:52.8px;width:350px}
-.atl-nood-produit-sec-15 .cnoodproduitsec155{width:350px}
-.atl-nood-produit-sec-15 .cnoodproduitsec156{border-top-width:1px}
-.atl-nood-produit-sec-15 .cnoodproduitsec157{padding-top:14px;padding-bottom:14px}
-.atl-nood-produit-sec-15 .cnoodproduitsec158{width:328px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1510{grid-template-columns:350px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1511{width:350px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1513{font-size:14px;line-height:22.75px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1515{display:none;width:0px;height:0px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1516{display:block;height:577px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1517{line-height:24.375px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1518{width:328px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1519{width:350px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1520{width:290.41px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1521{width:328px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1522{width:237.61px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1523{width:328px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1524{width:220px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1525{width:325.61px;font-size:14px;line-height:20px}
-.atl-nood-produit-sec-15 .cnoodproduitsec1526{width:328px;font-size:14px;line-height:20px}
-}
+.atl-nood-produit-sec-15 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-nood-produit-sec-15 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-nood-produit-sec-15 [data-atl-car="track"] > * { transform: none !important; }
+.atl-nood-produit-sec-15 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-nood-produit-sec-15 [data-atl-h] { display: none !important; }
+.atl-nood-produit-sec-15 [data-atl-href] { cursor: pointer; }

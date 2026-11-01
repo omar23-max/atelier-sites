@@ -1,368 +1,618 @@
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 400;
-  src: url("https://fonts.gstatic.com/s/sourcesanspro/v24/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7l.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@font-face { font-family: Poppins; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/5bd70ae70a6d-poppins_n4.0ba78fa5af9b0e1a374041b3ceaad.woff2") format("woff2"), url("/imports/clean-skin-club-offre/assets/8630ad793cc9-poppins_n4.214741a72ff2596839fc9760ee7a7.woff") format("woff"); }
+@font-face { font-family: Poppins; font-weight: 400; font-style: normal; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/5bd70ae70a6d-poppins_n4.0ba78fa5af9b0e1a374041b3ceaad.woff2") format("woff2"), url("/imports/clean-skin-club-offre/assets/8630ad793cc9-poppins_n4.214741a72ff2596839fc9760ee7a7.woff") format("woff"); }
+@font-face { font-family: Poppins; font-weight: 600; font-style: normal; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/818d9cd95b6a-poppins_n6.aa29d4918bc243723d56b59572e18.woff2") format("woff2"), url("/imports/clean-skin-club-offre/assets/ecde5916b9bc-poppins_n6.5f815d845fe073750885d5b7e619e.woff") format("woff"); }
+@font-face { font-family: Poppins; font-weight: 400; font-style: italic; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/8a40786b4828-poppins_i4.846ad1e22474f856bd6b81ba4585a.woff2") format("woff2"), url("/imports/clean-skin-club-offre/assets/7d4e9ee136a6-poppins_i4.56b43284e8b52fc64c1fd271f289a.woff") format("woff"); }
+@font-face { font-family: Poppins; font-weight: 600; font-style: italic; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/e47f34b07d63-poppins_i6.bb8044d6203f492888d626dafda3c.woff2") format("woff2"), url("/imports/clean-skin-club-offre/assets/7b7c70047f4a-poppins_i6.e233dec1a61b1e7dead9f920159ed.woff") format("woff"); }
+.atl-clean-skin-club-offre-p3 { --typeHeaderPrimary: Poppins; --typeHeaderFallback: sans-serif; --typeHeaderSize: 35px; --typeHeaderWeight: 400; --typeHeaderLineHeight: 1; --typeHeaderSpacing: 0em; --typeBasePrimary: Poppins; --typeBaseFallback: sans-serif; --typeBaseSize: 18px; --typeBaseWeight: 400; --typeBaseSpacing: 0em; --typeBaseLineHeight: 1; --typeBaselineHeightMinus01: .9; --typeCollectionTitle: 20px; --iconWeight: 2px; --iconLinecaps: miter; --buttonRadius: 50px; --colorGridOverlayOpacity: .1; }
+.atl-clean-skin-club-offre-p3 .index-section { margin: 45px 0px; }
+.atl-clean-skin-club-offre-p3 .page-width { max-width: 1520px; }
+.atl-clean-skin-club-offre-p3.no-scroll { overflow: hidden; }
+@media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .index-section { margin: 75px 0px; } }
+@-webkit-keyframes fadeInUpCSC { 
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0px); }
 }
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 600;
-  src: url("https://fonts.gstatic.com/s/sourcesanspro/v24/6xKydSBYKcSV-LCoeQqfX1RYOo3i54rwlxdu.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes fadeInUpCSC { 
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0px); }
 }
-@font-face {
-  font-family: 'Source Sans Pro';
-  font-style: normal;
-  font-weight: 700;
-  src: url("https://fonts.gstatic.com/s/sourcesanspro/v24/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdu.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@-webkit-keyframes animatedBackground { 
+  0% { background-position: 0px 0px; }
+  100% { background-position: 1606px 0px; }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 100;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiAyp8kv8JHgFVrJJLmE0tCMPI.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes animatedBackground { 
+  0% { background-position: 0px 0px; }
+  100% { background-position: 1606px 0px; }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 200;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLmv1pVF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@-webkit-keyframes animatedBackgroundTablet { 
+  0% { background-position: 0px 0px; }
+  100% { background-position: 1273px 0px; }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 300;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLm21lVF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes animatedBackgroundTablet { 
+  0% { background-position: 0px 0px; }
+  100% { background-position: 1273px 0px; }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiGyp8kv8JHgFVrJJLucHtA.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+.atl-clean-skin-club-offre-p3 .article-template__social-sharing + :is(header, .atl-clean-skin-club-offre-p3 .atelier-section-header), .atl-clean-skin-club-offre-p3 .article-template__social-sharing + .article-template__content { margin-top: 1.5rem; }
+.atl-clean-skin-club-offre-p3 .article-template :is(header, .atl-clean-skin-club-offre-p3 .atelier-section-header) { margin-top: 44px; margin-bottom: 20px; line-height: 12px; }
+@media screen and (min-width: 750px) { .atl-clean-skin-club-offre-p3 .article-template :is(header, .atl-clean-skin-club-offre-p3 .atelier-section-header) { margin-top: 50px; } }
+@keyframes cart-drawer-spin { 
+  100% { transform: rotate(360deg); }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 500;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLmg1hVF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+.atl-clean-skin-club-offre-p3.js-drawer-open--cart .main-content::after { z-index: 2147483645; }
+.atl-clean-skin-club-offre-p3.js-drawer-open--cart [data-testid="gorgias-chat-messenger-button"], .atl-clean-skin-club-offre-p3.js-drawer-open--cart #gorgias-chat-container { z-index: 29 !important; }
+@keyframes qty-spin { 
+  100% { transform: rotate(360deg); }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 600;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLmr19VF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes cart-upsell-add-spin { 
+  100% { transform: rotate(360deg); }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLmy15VF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container], .atl-clean-skin-club-offre-p3 div.okeReviews { font-size: var(--oke-text-regular); font-weight: 400; font-family: var(--oke-text-fontFamily); line-height: 1.6; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] *, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] ::after, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] ::before, .atl-clean-skin-club-offre-p3 div.okeReviews *, .atl-clean-skin-club-offre-p3 div.okeReviews ::after, .atl-clean-skin-club-offre-p3 div.okeReviews ::before { box-sizing: border-box; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] ul, .atl-clean-skin-club-offre-p3 div.okeReviews ul { padding: 0px; margin: 0px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] li, .atl-clean-skin-club-offre-p3 div.okeReviews li { list-style-type: none; padding: 0px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] p, .atl-clean-skin-club-offre-p3 div.okeReviews p { line-height: 1.8; margin: 0px 0px 4px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] p:last-child, .atl-clean-skin-club-offre-p3 div.okeReviews p:last-child { margin-bottom: 0px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] a, .atl-clean-skin-club-offre-p3 div.okeReviews a { text-decoration: none; color: inherit; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] button, .atl-clean-skin-club-offre-p3 div.okeReviews button { border-radius: 0px; border: 0px; box-shadow: none; margin: 0px; width: auto; min-width: auto; padding: 0px; background-color: transparent; min-height: auto; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] button, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] input, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] select, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] textarea, .atl-clean-skin-club-offre-p3 div.okeReviews button, .atl-clean-skin-club-offre-p3 div.okeReviews input, .atl-clean-skin-club-offre-p3 div.okeReviews select, .atl-clean-skin-club-offre-p3 div.okeReviews textarea { font-family: inherit; font-size: 1em; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] label, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] select, .atl-clean-skin-club-offre-p3 div.okeReviews label, .atl-clean-skin-club-offre-p3 div.okeReviews select { display: inline; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] select, .atl-clean-skin-club-offre-p3 div.okeReviews select { width: auto; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] img, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] svg, .atl-clean-skin-club-offre-p3 div.okeReviews img, .atl-clean-skin-club-offre-p3 div.okeReviews svg { max-width: none; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] div:empty, .atl-clean-skin-club-offre-p3 div.okeReviews div:empty { display: block; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-icon::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-icon::before { font-style: normal; font-weight: 400; font-variant: normal; text-transform: none; line-height: 1; -webkit-font-smoothing: antialiased; color: inherit; font-family: oke-widget-icons !important; }
+@font-face { font-family: oke-widget-icons; src: url("/imports/clean-skin-club-offre/assets/37250cc5a3d3-oke-widget-icons.ttf") format("truetype"), url("/imports/clean-skin-club-offre/assets/6042106367e5-oke-widget-icons.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button { display: inline-block; border-style: solid; border-color: var(--oke-button-borderColor); border-width: var(--oke-button-borderWidth); background-color: var(--oke-button-backgroundColor); line-height: 1; padding: 12px 24px; margin: 0px; border-radius: var(--oke-button-borderRadius); color: var(--oke-button-textColor); text-align: center; position: relative; font-weight: var(--oke-button-fontWeight); font-size: var(--oke-button-fontSize); font-family: var(--oke-button-fontFamily); outline: 0px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button-text, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button .oke-icon, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button-text, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button .oke-icon { line-height: 1; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button:not(.oke-is-loading), .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button:not(.oke-is-loading) { cursor: pointer; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button:not(.oke-is-loading):not(.oke-is-active):hover, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button:not(.oke-is-loading):not(.oke-is-active):hover { background-color: var(--oke-button-backgroundColorHover); color: var(--oke-button-textColorHover); border-color: var(--oke-button-borderColorHover); box-shadow: 0 0 0 2px var(--oke-button-backgroundColorHover); }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button:not(.oke-is-loading):not(.oke-is-active):active, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-button:not(.oke-is-loading):not(.oke-is-active):hover:active, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button:not(.oke-is-loading):not(.oke-is-active):active, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-button:not(.oke-is-loading):not(.oke-is-active):hover:active { background-color: var(--oke-button-backgroundColorActive); color: var(--oke-button-textColorActive); border-color: var(--oke-button-borderColorActive); }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-title, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-title { font-weight: var(--oke-title-fontWeight); font-size: var(--oke-title-fontSize); font-family: var(--oke-title-fontFamily); }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-bodyText, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-bodyText { font-weight: var(--oke-bodyText-fontWeight); font-size: var(--oke-bodyText-fontSize); font-family: var(--oke-bodyText-fontFamily); }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-readMore, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-readMore { cursor: pointer; color: inherit; text-decoration: underline; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-select, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-select { cursor: pointer; background-repeat: no-repeat; background-position: 100% 50%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; padding: 0px 24px 0px 12px; color: inherit; appearance: none; background-color: transparent; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg fill='currentColor' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E"); outline-offset: 4px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-select:disabled, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-select:disabled { background-color: transparent; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg fill='%239a9db1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E"); }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-a11yText, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-a11yText { border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; width: 1px; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tag, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tag { align-items: center; color: rgb(39, 45, 69); display: flex; font-size: var(--oke-text-small); font-weight: 600; text-align: left; position: relative; z-index: 2; background-color: rgb(244, 244, 246); padding: 4px 6px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; border-radius: 4px; gap: 6px; line-height: 1; }
+.atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tag svg, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tag svg { fill: currentcolor; height: 1rem; }
+.atl-clean-skin-club-offre-p3 .okeReviews :not([tabindex="-1"]):focus-visible { outline: -webkit-focus-ring-color auto 5px; }
+@keyframes oke-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 800;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLm111VF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@keyframes oke-fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
-@font-face {
-  font-family: 'Poppins';
-  font-style: italic;
-  font-weight: 900;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiDyp8kv8JHgFVrJJLm81xVF9eO.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 100;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiGyp8kv8JHgFVrLPTucHtA.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 200;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLFj_Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDz8Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLBT5Z1xlFQ.woff2") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face { font-family: Poppins; font-weight: 400; font-style: normal; font-display: swap; src: url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_n4.0ba78fa5af9b0e1a374041b3ceaadf0a43b41362.woff2") format("woff2"), url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_n4.214741a72ff2596839fc9760ee7a770386cf16ca.woff") format("woff"); }
-@font-face { font-family: Poppins; font-weight: 600; font-style: normal; font-display: swap; src: url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_n6.aa29d4918bc243723d56b59572e18228ed0786f6.woff2") format("woff2"), url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_n6.5f815d845fe073750885d5b7e619ee00e8111208.woff") format("woff"); }
-@font-face { font-family: Poppins; font-weight: 400; font-style: italic; font-display: swap; src: url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_i4.846ad1e22474f856bd6b81ba4585a60799a9f5d2.woff2") format("woff2"), url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_i4.56b43284e8b52fc64c1fd271f289a39e8477e9ec.woff") format("woff"); }
-@font-face { font-family: Poppins; font-weight: 600; font-style: italic; font-display: swap; src: url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_i6.bb8044d6203f492888d626dafda3c2999253e8e9.woff2") format("woff2"), url("https://cleanskinclub.com/cdn/fonts/poppins/poppins_i6.e233dec1a61b1e7dead9f920159eda42280a02c3.woff") format("woff"); }
-@font-face { font-family: Poppins-Klaviyo-Hosted; src: url("https://static.klaviyo.com/onsite/hosted-fonts/Poppins/latin/poppins_latin_italic_400.woff2"); font-weight: 400; font-style: italic; font-display: swap; }
-@font-face { font-family: Poppins-Klaviyo-Hosted; src: url("https://static.klaviyo.com/onsite/hosted-fonts/Poppins/latin/poppins_latin_italic_700.woff2"); font-weight: 700; font-style: italic; font-display: swap; }
-@font-face { font-family: Poppins-Klaviyo-Hosted; src: url("https://static.klaviyo.com/onsite/hosted-fonts/Poppins/latin/poppins_latin_regular_400_2.woff2"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: Poppins-Klaviyo-Hosted; src: url("https://static.klaviyo.com/onsite/hosted-fonts/Poppins/latin/poppins_latin_regular_700.woff2"); font-weight: 700; font-style: normal; font-display: swap; }
-/* Copie de Clean Skin Club — partie 3. Styles relevés sur la page d'origine (ordinateur, puis mobile). */
-.atl-clean-skin-club-offre-p3{display:block;background:var(--atl-fond, rgb(255, 255, 255))}
-.atl-clean-skin-club-offre-p3 :where(*:not(svg, svg *)){all:revert}
-.atl-clean-skin-club-offre-p3 img{display:inline-block}
-.atl-clean-skin-club-offre-p3[data-atl-acc-on] [data-atl-r]:not([data-atl-open]){display:none!important}
-.atl-clean-skin-club-offre-p3[data-atl-acc-on] [data-atl-q], .atl-clean-skin-club-offre-p3[data-atl-acc-on] summary{cursor:pointer}
-.atl-clean-skin-club-offre-p3 [data-atl-car=track]::-webkit-scrollbar{display:none}
-.atl-clean-skin-club-offre-p3 .atl-vide{background:repeating-linear-gradient(45deg,var(--atl-surface-p, #eee) 0 10px,var(--atl-fond-p, #f7f7f7) 10px 20px)}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre0, .atl-clean-skin-club-offre-p3.ccleanskincluboffre0{box-sizing:border-box;margin-top:0px;margin-right:0px;margin-bottom:0px;margin-left:0px;background-color:var(--atl-fond, rgb(255, 255, 255));color:var(--atl-fond-sombre-p, rgb(0, 58, 102));font-family:var(--atl-font-body, Poppins);font-size:18px;line-height:27px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre1{box-sizing:border-box}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre2{box-sizing:border-box;min-height:700px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre20{box-sizing:border-box;padding-bottom:75px;background-image:linear-gradient(var(--atl-surface-p, rgb(215, 238, 255)) 0%, var(--atl-fond-p, rgb(255, 255, 255)) 50%)}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre21{box-sizing:border-box;max-width:1500px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre22{display:flex;box-sizing:border-box;margin-left:-22px;justify-content:center;list-style-type:none}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre23{position:sticky;top:20px;float:left;box-sizing:border-box;min-width:auto;min-height:1px;right:auto;bottom:auto;left:auto;align-self:flex-start;width:584.8px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre46{float:left;box-sizing:border-box;min-width:auto;min-height:1px;margin-top:24px;padding-left:22px;width:584.8px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre48{box-sizing:border-box;padding-right:16px;padding-left:16px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre103{box-sizing:border-box;margin-top:-15px;margin-bottom:25px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre97{box-sizing:border-box;border-top-width:1px;border-right-width:1px;border-bottom-width:1px;border-left-width:1px;border-top-style:solid;border-right-style:solid;border-bottom-style:solid;border-left-style:solid;border-top-color:var(--atl-fond-sombre, rgb(0, 58, 102));border-right-color:var(--atl-fond-sombre, rgb(0, 58, 102));border-bottom-color:var(--atl-fond-sombre, rgb(0, 58, 102));border-left-color:var(--atl-fond-sombre, rgb(0, 58, 102));border-top-left-radius:12px;border-top-right-radius:12px;border-bottom-right-radius:12px;border-bottom-left-radius:12px;background-color:var(--atl-surface, rgb(230, 244, 254))}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre98{display:block;position:relative;top:0px;right:0px;bottom:0px;left:0px;padding-top:13.5px;padding-right:24px;padding-bottom:13.5px;padding-left:24px;background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Poppins);font-size:15px;font-weight:600;line-height:normal;text-align:left}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre99{box-sizing:border-box;line-height:18px;width:432.71px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre105{display:block;position:absolute;top:25px;right:24px;bottom:4px;left:490.797px;box-sizing:border-box;transform:matrix(1, 0, 0, 1, 0, -10.5);width:14px;height:21px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre101{box-sizing:border-box;vertical-align:middle;width:14px;height:15px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre25{box-sizing:border-box;overflow-x:hidden;overflow-y:hidden}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre102{box-sizing:border-box;padding-right:20px;padding-bottom:20px;padding-left:20px;font-size:15px;line-height:19.95px;text-align:left;transform:matrix(1, 0, 0, 1, 0, 0)}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre106{box-sizing:border-box;margin-top:0px;margin-bottom:25px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre108{box-sizing:border-box;margin-top:0px;margin-bottom:0px;height:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre100{display:block;position:absolute;top:25px;right:24px;bottom:4px;left:490.797px;box-sizing:border-box;transform:matrix(1, 0, 0, 1, 0, -10.5);width:14px;height:21px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre8{box-sizing:border-box;margin-top:0px;margin-bottom:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre3{box-sizing:border-box;height:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre109{box-sizing:border-box;max-width:1520px;padding-right:40px;padding-left:40px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre110{box-sizing:border-box;max-width:1200px;margin-right:auto;margin-left:auto;padding-top:20px;padding-bottom:20px;color:var(--atl-texte, rgb(1, 54, 96));font-size:14px;line-height:22.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre111{box-sizing:border-box;overflow-x:clip}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre112{display:flex;box-sizing:border-box;margin-right:-48px;flex-wrap:wrap;justify-content:space-between}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre113{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:48px;margin-bottom:24px;flex-direction:column;justify-content:flex-start;width:367.99px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre114{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;margin-bottom:24px;text-align:left;justify-content:flex-start;width:367.99px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre115{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;align-items:center;column-gap:16px;width:295.16px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre116{box-sizing:border-box;min-width:auto;min-height:auto;font-size:20px;font-weight:600;line-height:32px;width:140.8px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre117{display:inline-block;box-sizing:border-box;margin-right:8px;width:30.96px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre118{display:inline-block;box-sizing:border-box;width:101.85px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre119{display:inline-block;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;line-height:20px;width:101.85px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre120{display:block;box-sizing:border-box;vertical-align:middle;overflow-x:visible;overflow-y:visible;width:101.85px;height:18px;max-width:100%;object-fit:cover}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre121{position:absolute;top:0px;right:1.89062px;bottom:0px;left:0px;box-sizing:border-box;overflow-x:hidden;overflow-y:hidden;width:99.96px;height:18px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre122{display:block;box-sizing:border-box;vertical-align:middle;width:101.85px;height:18px;max-width:100%;object-fit:cover}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre123{display:none;position:absolute;top:18px;right:102.844px;bottom:1px;left:0px;box-sizing:border-box;margin-top:-1px;margin-right:-1px;margin-bottom:-1px;margin-left:-1px;overflow-x:hidden;overflow-y:hidden;width:1px;height:1px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre124{box-sizing:border-box;min-width:auto;min-height:auto;color:rgb(64, 94, 117);font-size:12px;line-height:19.2px;width:138.36px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre125{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;text-align:left;justify-content:flex-start;width:367.99px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre126{box-sizing:border-box;min-width:200px;min-height:auto;max-width:350px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre127{display:grid;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;line-height:14px;align-items:center;row-gap:4px;column-gap:12px;grid-template-columns:minmax(0, 24fr) minmax(0, 279fr) minmax(0, 23fr)}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre128{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;font-size:12px;line-height:12px;white-space:nowrap;justify-content:space-between;align-items:center;grid-column-start:1;grid-row-start:1;width:24.07px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre129{display:block;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:4px;width:7.55px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre130{display:block;box-sizing:border-box;min-width:auto;min-height:auto;width:12.5px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre131{display:flex;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;justify-content:center;align-items:center;align-content:center}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre132{display:block;box-sizing:border-box;min-width:auto;min-height:auto;vertical-align:middle;overflow-x:visible;overflow-y:visible;width:12.5px;height:12px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre133{display:none;position:absolute;top:6.5px;right:6.75px;bottom:6.5px;left:6.75px;box-sizing:border-box;margin-top:-1px;margin-right:-1px;margin-bottom:-1px;margin-left:-1px;overflow-x:hidden;overflow-y:hidden;width:1px;height:1px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre134{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;background-color:var(--atl-surface-p, rgb(227, 216, 219));grid-column-start:2;grid-row-start:1;width:279.22px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre135{box-sizing:border-box;min-width:6px;max-width:100%;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;background-color:var(--atl-bouton-p, rgb(221, 161, 180));height:6px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre136{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;color:rgb(64, 94, 117);font-size:12px;line-height:12px;text-align:right;white-space:nowrap;grid-column-start:3;grid-row-start:1;width:22.72px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre137{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:4px;border-top-right-radius:4px;border-bottom-right-radius:4px;border-bottom-left-radius:4px;align-self:stretch;grid-column-start:1;grid-column-end:-1;grid-row-start:1;width:350px;max-width:100%;height:20px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre138{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;font-size:12px;line-height:12px;white-space:nowrap;justify-content:space-between;align-items:center;grid-column-start:1;grid-row-start:2;width:24.07px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre139{display:block;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:4px;width:7.57px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre140{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;background-color:var(--atl-surface-p, rgb(227, 216, 219));grid-column-start:2;grid-row-start:2;width:279.22px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre141{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;color:rgb(64, 94, 117);font-size:12px;line-height:12px;text-align:right;white-space:nowrap;grid-column-start:3;grid-row-start:2;width:22.72px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre142{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:4px;border-top-right-radius:4px;border-bottom-right-radius:4px;border-bottom-left-radius:4px;align-self:stretch;grid-column-start:1;grid-column-end:-1;grid-row-start:2;width:350px;max-width:100%;height:20px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre143{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;font-size:12px;line-height:12px;white-space:nowrap;justify-content:space-between;align-items:center;grid-column-start:1;grid-row-start:3;width:24.07px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre144{display:block;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:4px;width:7.08px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre145{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;background-color:var(--atl-surface-p, rgb(227, 216, 219));grid-column-start:2;grid-row-start:3;width:279.22px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre146{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;color:rgb(64, 94, 117);font-size:12px;line-height:12px;text-align:right;white-space:nowrap;grid-column-start:3;grid-row-start:3;width:22.72px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre147{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:4px;border-top-right-radius:4px;border-bottom-right-radius:4px;border-bottom-left-radius:4px;align-self:stretch;grid-column-start:1;grid-column-end:-1;grid-row-start:3;width:350px;max-width:100%;height:20px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre148{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;font-size:12px;line-height:12px;white-space:nowrap;justify-content:space-between;align-items:center;grid-column-start:1;grid-row-start:4;width:24.07px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre149{display:block;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:4px;width:6.91px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre150{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;background-color:var(--atl-surface-p, rgb(227, 216, 219));grid-column-start:2;grid-row-start:4;width:279.22px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre151{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;color:rgb(64, 94, 117);font-size:12px;line-height:12px;text-align:right;white-space:nowrap;grid-column-start:3;grid-row-start:4;width:22.72px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre152{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:4px;border-top-right-radius:4px;border-bottom-right-radius:4px;border-bottom-left-radius:4px;align-self:stretch;grid-column-start:1;grid-column-end:-1;grid-row-start:4;width:350px;max-width:100%;height:20px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre153{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;font-size:12px;line-height:12px;white-space:nowrap;justify-content:space-between;align-items:center;grid-column-start:1;grid-row-start:5;width:24.07px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre154{display:block;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:4px;width:3.85px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre155{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;background-color:var(--atl-surface-p, rgb(227, 216, 219));grid-column-start:2;grid-row-start:5;width:279.22px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre156{box-sizing:border-box;min-width:auto;min-height:auto;padding-top:4px;padding-bottom:4px;color:rgb(64, 94, 117);font-size:12px;line-height:12px;text-align:right;white-space:nowrap;grid-column-start:3;grid-row-start:5;width:22.72px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre157{box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:4px;border-top-right-radius:4px;border-bottom-right-radius:4px;border-bottom-left-radius:4px;align-self:stretch;grid-column-start:1;grid-column-end:-1;grid-row-start:5;width:350px;max-width:100%;height:20px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre158{display:none;position:absolute;top:2939.38px;right:1321px;bottom:-2038.38px;left:120px;box-sizing:border-box;margin-top:-1px;margin-right:-1px;margin-bottom:-1px;margin-left:-1px;overflow-x:hidden;overflow-y:hidden;width:1px;height:1px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre159{box-sizing:border-box;min-width:auto;min-height:auto;color:rgb(64, 94, 117);line-height:32px;width:300.99px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre160{box-sizing:border-box;min-width:auto;min-height:auto;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre161{display:flex;box-sizing:border-box;flex-direction:column;row-gap:32px;column-gap:32px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre162{box-sizing:border-box;min-width:auto;min-height:auto;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre163{box-sizing:border-box;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre164{box-sizing:border-box;margin-bottom:12px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre165{box-sizing:border-box;width:148.88px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre166{display:none;position:absolute;top:2823.38px;right:756.109px;bottom:-1922.38px;left:684.891px;box-sizing:border-box;margin-top:-1px;margin-right:-1px;margin-bottom:-1px;margin-left:-1px;overflow-x:hidden;overflow-y:hidden;width:1px;height:1px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre167{box-sizing:border-box;margin-top:8px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre168{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre169{position:relative;top:0px;right:0px;bottom:0px;left:0px;z-index:3;box-sizing:border-box;margin-right:auto;margin-left:auto;height:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre170{position:absolute;top:0px;right:14.3906px;bottom:-6px;left:341.594px;z-index:2;box-sizing:border-box;border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:var(--atl-fond, rgb(255, 255, 255));box-shadow:rgb(179, 98, 123) 0px 0px 0px 2px;transform:matrix(1, 0, 0, 1, -3, 0);width:6px;height:6px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre171{display:flex;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;justify-content:space-between}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre172{z-index:2;box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:var(--atl-bouton-p, rgb(221, 161, 180));width:6px;max-width:100%;height:6px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre173{z-index:2;box-sizing:border-box;min-width:auto;min-height:auto;border-top-left-radius:50%;border-top-right-radius:50%;border-bottom-right-radius:50%;border-bottom-left-radius:50%;background-color:rgb(225, 200, 208);width:6px;max-width:100%;height:6px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre174{position:absolute;top:2px;right:0px;bottom:2px;left:0px;box-sizing:border-box;background-color:rgb(225, 200, 208);width:367.99px;height:2px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre175{box-sizing:border-box;background-color:var(--atl-bouton-p, rgb(221, 161, 180));width:347.25px;max-width:100%;height:2px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre176{display:flex;box-sizing:border-box;margin-top:8px;justify-content:space-between}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre177{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-size:10px;line-height:16px;flex-grow:1;flex-basis:50%;width:183.99px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre178{display:block;box-sizing:border-box;min-width:auto;min-height:auto;font-size:10px;line-height:16px;text-align:right;flex-grow:1;flex-basis:50%;width:184px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre179{box-sizing:border-box;min-width:auto;min-height:auto;width:367.99px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre180{display:grid;box-sizing:border-box;margin-top:0px;margin-bottom:0px;padding-left:0px;row-gap:4px;column-gap:4px;grid-template-columns:minmax(0, 70fr) minmax(0, 70fr) minmax(0, 70fr) minmax(0, 70fr) minmax(0, 70fr);list-style-type:none}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre181{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;min-width:auto;min-height:auto;max-width:100%;margin-bottom:3.5px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre182{box-sizing:border-box;line-height:0px;overflow-x:hidden;overflow-y:hidden;aspect-ratio:200 / 200}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre183{padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Poppins);font-size:14px;text-align:center;overflow-x:hidden;overflow-y:hidden;width:70.4px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre184{display:block;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;vertical-align:middle;object-fit:cover;width:70.4px;height:70.4px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre185{padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Poppins);font-size:14px;text-align:center;overflow-x:hidden;overflow-y:hidden;width:70.4px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre186{display:block;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;vertical-align:middle;object-fit:cover;width:70.4px;height:70.4px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre187{padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Poppins);font-size:14px;text-align:center;overflow-x:hidden;overflow-y:hidden;width:70.41px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre188{display:block;position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;vertical-align:middle;object-fit:cover;width:70.41px;height:70.4px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre189{position:relative;top:0px;right:0px;bottom:0px;left:0px;box-sizing:border-box;line-height:0px;overflow-x:hidden;overflow-y:hidden;aspect-ratio:1080 / 1920}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre190{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;margin-right:48px;margin-bottom:24px;flex-direction:column;justify-content:flex-start;width:1200px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre191{box-sizing:border-box;min-width:auto;min-height:auto;text-align:center;justify-content:center;width:1200px;max-width:100%;height:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre192{display:flex;box-sizing:border-box;margin-bottom:16px;border-bottom-width:2px;border-bottom-style:solid;border-bottom-color:var(--atl-bouton-p, rgb(184, 204, 227));justify-content:space-between;align-items:baseline}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre193{display:flex;box-sizing:border-box;min-width:auto;min-height:auto;text-align:left;align-self:flex-end;width:256.83px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre194{display:block;min-width:auto;min-height:auto;margin-right:24px;padding-top:0px;padding-right:0px;padding-bottom:4px;padding-left:0px;border-bottom-width:3px;border-bottom-style:solid;border-bottom-color:var(--atl-bouton-p, rgb(184, 204, 227));background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Poppins);font-size:14px;font-weight:600;text-align:center;width:112.54px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre195{display:block;min-width:auto;min-height:auto;margin-right:24px;padding-top:0px;padding-right:0px;padding-bottom:4px;padding-left:0px;border-bottom-width:3px;border-bottom-style:solid;border-bottom-color:rgba(0, 0, 0, 0);background-color:rgba(0, 0, 0, 0);font-family:var(--atl-font-body, Poppins);font-size:14px;font-weight:600;text-align:center;width:96.3px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre196{display:block;box-sizing:border-box;min-width:auto;min-height:auto;margin-bottom:12px;margin-left:788.172px;color:var(--atl-texte, rgb(1, 54, 96));text-decoration-line:none;opacity:0.8;order:2;width:155px;max-width:100%}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre197{display:block;box-sizing:border-box;vertical-align:middle;aspect-ratio:auto 155 / 16;width:155px;height:20px;max-width:100%;object-fit:cover}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre198{display:none;position:absolute;top:3065.05px;right:276px;bottom:-2164.05px;left:1165px;box-sizing:border-box;margin-top:-1px;margin-right:-1px;margin-bottom:-1px;margin-left:-1px;overflow-x:hidden;overflow-y:hidden;width:1px;height:1px}
-@media (min-width: 750px) and (max-width: 1199px){
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre23{width:418.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre46{width:418.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre99{width:282.94px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre105{top:36.5px;bottom:15.5px;left:324.391px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre100{left:324.391px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre110{margin-right:0px;margin-left:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre112{justify-content:center}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre113{width:448px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre114{width:448px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre125{width:448px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre158{top:3473.88px;right:985px;bottom:-2704.88px;left:40px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre166{top:3357.88px;right:340.125px;bottom:-2588.88px;left:684.875px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre170{right:18.9062px;left:417.094px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre174{width:448px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre175{width:422.77px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre177{width:224px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre178{width:224px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre179{width:448px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre180{grid-template-columns:minmax(0, 86fr) minmax(0, 86fr) minmax(0, 86fr) minmax(0, 86fr) minmax(0, 86fr)}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre183{width:86.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre184{width:86.4px;height:86.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre185{width:86.41px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre186{width:86.41px;height:86.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre187{width:86.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre188{width:86.4px;height:86.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre190{width:944px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre191{width:944px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre196{margin-left:532.172px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre198{top:3843.55px;right:196px;bottom:-3074.55px;left:829px}
-}
-@media (max-width: 749px){
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre0, .atl-clean-skin-club-offre-p3.ccleanskincluboffre0{font-size:16.56px;line-height:24.84px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre2{min-height:300px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre20{padding-bottom:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre22{margin-left:-17px;flex-direction:column}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre23{position:static;top:auto;align-self:auto;width:407px;padding-left:17px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre46{padding-left:17px;width:407px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre98{padding-top:6px;padding-right:15px;padding-bottom:6px;padding-left:15px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre99{width:293.4px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre105{top:29px;right:15px;bottom:8px;left:331px;width:10px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre101{width:10px;height:10px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre106{margin-bottom:15px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre100{top:17.5px;right:15px;bottom:-3.5px;left:331px;width:10px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre109{padding-right:17px;padding-left:17px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre110{margin-right:0px;margin-left:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre112{margin-right:0px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre113{margin-right:0px;width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre114{text-align:center;justify-content:center;width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre123{right:51.9219px;left:50.9219px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre125{text-align:center;justify-content:center;width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre158{top:3809.72px;right:196px;bottom:-2964.72px;left:195px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre159{width:242.54px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre160{text-align:left}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre166{top:3912.11px;right:225.125px;bottom:-3067.11px;left:165.875px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre170{right:13.7188px;left:330.281px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre174{width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre175{width:335.94px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre177{width:178px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre178{width:178px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre179{width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre180{grid-template-columns:minmax(0, 68fr) minmax(0, 68fr) minmax(0, 68fr) minmax(0, 68fr) minmax(0, 68fr)}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre183{width:68px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre184{width:68px;height:68px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre185{width:68px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre186{width:68px;height:68px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre187{width:68px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre188{width:68px;height:68px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre190{margin-right:0px;width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre191{width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre192{flex-wrap:wrap}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre193{width:356px}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre196{margin-left:0px;order:-1}
-.atl-clean-skin-club-offre-p3 .ccleanskincluboffre198{top:4291px;right:374px;bottom:-3446px;left:17px}
-}
+.atl-clean-skin-club-offre-p3 .oke-stars { line-height: 1; position: relative; display: inline-block; }
+.atl-clean-skin-club-offre-p3 .oke-stars-background svg { overflow: visible; }
+.atl-clean-skin-club-offre-p3 .oke-stars-foreground { overflow: hidden; position: absolute; top: 0px; left: 0px; }
+.atl-clean-skin-club-offre-p3 { --oke-widget-spaceAbove: 20px; --oke-widget-spaceBelow: 20px; --oke-starRating-spaceAbove: 0; --oke-starRating-spaceBelow: 0; --oke-button-backgroundColor: #d0e2f0; --oke-button-backgroundColorHover: #dda1b4; --oke-button-backgroundColorActive: #f2f8fd; --oke-button-textColor: #013660; --oke-button-textColorHover: #fff; --oke-button-textColorActive: #013660; --oke-button-borderColor: #b8cce3; --oke-button-borderColorHover: #fff; --oke-button-borderColorActive: #e3edf6; --oke-button-borderRadius: 4px; --oke-button-borderWidth: 2px; --oke-button-fontWeight: 700; --oke-button-fontSize: var(--oke-text-regular,14px); --oke-button-fontFamily: inherit; --oke-border-color: #b8cce3; --oke-border-width: 2px; --oke-text-primaryColor: #013660; --oke-text-secondaryColor: #405e75; --oke-text-small: 12px; --oke-text-regular: 14px; --oke-text-large: 20px; --oke-text-fontFamily: inherit; --oke-avatar-size: 48px; --oke-avatar-backgroundColor: #e5e5eb; --oke-avatar-placeholderTextColor: #013660; --oke-highlightColor: #013660; --oke-shadingColor: #f2f8fd; --oke-productImageSize: 36px; --oke-attributeBar-shadingColor: #dda1b4; --oke-attributeBar-borderColor: undefined; --oke-attributeBar-backgroundColor: #e1c8d0; --oke-attributeBar-markerColor: #b3627b; --oke-filter-backgroundColor: #ebf5fd; --oke-filter-backgroundColorActive: #013660; --oke-filter-borderColor: #dbe8f3; --oke-filter-borderColorActive: #fff; --oke-filter-textColor: #013660; --oke-filter-textColorActive: #fff; --oke-filter-borderRadius: 85px; --oke-filter-searchHighlightColor: #b2f9e9; --oke-mediaGrid-chevronColor: #676986; --oke-stars-foregroundColor: #ffcf2a; --oke-stars-backgroundColor: #e5e5e5; --oke-stars-borderWidth: 0; }
+.atl-clean-skin-club-offre-p3 .oke-w, .atl-clean-skin-club-offre-p3 .oke-modal { --oke-stars-foregroundColor: #ffdf46; --oke-stars-backgroundColor: #ebebeb; --oke-stars-borderWidth: 0; }
+.atl-clean-skin-club-offre-p3 .oke-w, .atl-clean-skin-club-offre-p3 .oke-modal { --oke-title-fontWeight: 600; --oke-title-fontSize: var(--oke-text-regular,14px); --oke-title-fontFamily: inherit; --oke-bodyText-fontWeight: 400; --oke-bodyText-fontSize: var(--oke-text-regular,14px); --oke-bodyText-fontFamily: inherit; }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 100; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/08e0d50cd46a-pxiAyp8kv8JHgFVrJJLmE0tDMPKzSQ.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 100; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/93f11d58d843-pxiAyp8kv8JHgFVrJJLmE0tMMPKzSQ.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 100; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/7d01d9474405-pxiAyp8kv8JHgFVrJJLmE0tCMPI.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 200; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/758f68eab3b7-pxiDyp8kv8JHgFVrJJLmv1pVFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 200; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/360bd262edf3-pxiDyp8kv8JHgFVrJJLmv1pVGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 200; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/39a602a650d5-pxiDyp8kv8JHgFVrJJLmv1pVF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 300; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/6fc19dfc5e56-pxiDyp8kv8JHgFVrJJLm21lVFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 300; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/e88b8c9f8838-pxiDyp8kv8JHgFVrJJLm21lVGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 300; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/311b40f0d82e-pxiDyp8kv8JHgFVrJJLm21lVF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 400; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/2244f05018d8-pxiGyp8kv8JHgFVrJJLucXtAKPY.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 400; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/2dbff68839c5-pxiGyp8kv8JHgFVrJJLufntAKPY.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 400; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/60aca29ce1c4-pxiGyp8kv8JHgFVrJJLucHtA.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 500; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/91200cf0f214-pxiDyp8kv8JHgFVrJJLmg1hVFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 500; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/cb20a6b5754a-pxiDyp8kv8JHgFVrJJLmg1hVGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 500; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/aa83815cc2a3-pxiDyp8kv8JHgFVrJJLmg1hVF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 600; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/ead2e67fce25-pxiDyp8kv8JHgFVrJJLmr19VFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 600; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/2a218d23e538-pxiDyp8kv8JHgFVrJJLmr19VGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 600; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/7b7b057d8fe1-pxiDyp8kv8JHgFVrJJLmr19VF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 700; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/5afe1c414d26-pxiDyp8kv8JHgFVrJJLmy15VFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 700; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/f9a2a21e54a2-pxiDyp8kv8JHgFVrJJLmy15VGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 700; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/638b5d9dc3c6-pxiDyp8kv8JHgFVrJJLmy15VF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 800; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/65f24a297af2-pxiDyp8kv8JHgFVrJJLm111VFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 800; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/cc94d36e3bac-pxiDyp8kv8JHgFVrJJLm111VGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 800; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/2fd9ae31d3b5-pxiDyp8kv8JHgFVrJJLm111VF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 900; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/687c311d2283-pxiDyp8kv8JHgFVrJJLm81xVFteOcEg.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 900; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/f86081bcc567-pxiDyp8kv8JHgFVrJJLm81xVGdeOcEg.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: italic; font-weight: 900; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/f19361b59577-pxiDyp8kv8JHgFVrJJLm81xVF9eO.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 100; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/a7db2864066a-pxiGyp8kv8JHgFVrLPTucXtAKPY.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 100; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/40a4c2852464-pxiGyp8kv8JHgFVrLPTufntAKPY.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 100; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/285e6dee84af-pxiGyp8kv8JHgFVrLPTucHtA.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 200; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/1f81f35a6d3e-pxiByp8kv8JHgFVrLFj_Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 200; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/33caf375e275-pxiByp8kv8JHgFVrLFj_Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 200; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/e45eb333137e-pxiByp8kv8JHgFVrLFj_Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 300; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/dedddbf783d3-pxiByp8kv8JHgFVrLDz8Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 300; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/664d50079a37-pxiByp8kv8JHgFVrLDz8Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 300; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/de4303133045-pxiByp8kv8JHgFVrLDz8Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 400; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/8fe2ec7c823e-pxiEyp8kv8JHgFVrJJbecmNE.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 400; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/c9d614f41715-pxiEyp8kv8JHgFVrJJnecmNE.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 400; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/e6a077c34deb-pxiEyp8kv8JHgFVrJJfecg.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 500; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/42acf8781a24-pxiByp8kv8JHgFVrLGT9Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 500; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/86b12e74a320-pxiByp8kv8JHgFVrLGT9Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 500; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/57e843b6b6fe-pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 600; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/ad3722d3f6b0-pxiByp8kv8JHgFVrLEj6Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 600; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/b1eb82d10325-pxiByp8kv8JHgFVrLEj6Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 600; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/93818c379851-pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 700; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/23090f00efe3-pxiByp8kv8JHgFVrLCz7Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 700; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/7199488410a2-pxiByp8kv8JHgFVrLCz7Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 700; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/742b18be16f6-pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 800; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/61ee1b602544-pxiByp8kv8JHgFVrLDD4Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 800; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/e4a3a357c2bc-pxiByp8kv8JHgFVrLDD4Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 800; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/d0e6a9ae2554-pxiByp8kv8JHgFVrLDD4Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 900; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/c46097590f94-pxiByp8kv8JHgFVrLBT5Z11lFc-K.woff2") format("woff2"); unicode-range: U+900-97F, U+1CD0-1CF4, U+1CF7-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B0A; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 900; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/84c939dca134-pxiByp8kv8JHgFVrLBT5Z1JlFc-K.woff2") format("woff2"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; } }
+@media (max-width: 796px) { @font-face { font-family: Poppins; font-style: normal; font-weight: 900; font-display: swap; src: url("/imports/clean-skin-club-offre/assets/df089f64e2fc-pxiByp8kv8JHgFVrLBT5Z1xlFQ.woff2") format("woff2"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; } }
+@media (max-width: 796px) { @keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+} }
+@media (max-width: 796px) { @keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
+} }
+@media (max-width: 796px) { @keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@media (max-width: 796px) { @media screen and (max-width: 750px) { .atl-clean-skin-club-offre-p3 .wallet-cart-grid { justify-content: stretch; } } }
+@media (max-width: 796px) { @media screen and (max-width: 750px) { .atl-clean-skin-club-offre-p3 .wallet-cart-button-container, .atl-clean-skin-club-offre-p3 .wallet-cart-button { min-width: 0px; } } }
+@media (max-width: 796px) { @supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-clean-skin-club-offre-p3 .wallet-cart-grid { flex-direction: column; justify-content: flex-start; margin: 0px; } } }
+@media (max-width: 796px) { @supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-clean-skin-club-offre-p3 .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } } }
+@media (max-width: 796px) { @supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-clean-skin-club-offre-p3 .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } } }
+@media (max-width: 796px) { @supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-clean-skin-club-offre-p3 .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .screen-reader-text { clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; width: 1px; height: 1px; margin: -1px; padding: 0px; position: absolute; overflow: hidden; } }
+@media (max-width: 796px) { @font-face { font-family: swiper-icons; font-weight: 400; font-style: normal; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { --swiper-theme-color: #007aff; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 :host { position: relative; display: block; margin-left: auto; margin-right: auto; z-index: 1; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper { margin-left: auto; margin-right: auto; position: relative; overflow: hidden; list-style: none; padding: 0px; z-index: 1; display: block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-vertical > .swiper-wrapper { flex-direction: column; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-wrapper { position: relative; width: 100%; height: 100%; z-index: 1; display: flex; transition-property: transform; transition-timing-function: var(--swiper-wrapper-transition-timing-function,initial); box-sizing: content-box; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-android .swiper-slide, .atl-clean-skin-club-offre-p3 .swiper-ios .swiper-slide, .atl-clean-skin-club-offre-p3 .swiper-wrapper { transform: translateZ(0px); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-horizontal { touch-action: pan-y; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-vertical { touch-action: pan-x; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-slide { flex-shrink: 0; width: 100%; height: 100%; position: relative; transition-property: transform; display: block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-css-mode.swiper-horizontal > .swiper-wrapper { scroll-snap-type: x mandatory; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-css-mode.swiper-vertical > .swiper-wrapper { scroll-snap-type: y mandatory; } }
+@media (max-width: 796px) { @keyframes swiper-preloader-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { --swiper-navigation-size: 44px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .swiper-pagination-bullets-dynamic .swiper-pagination-bullet-active-prev { transform: scale(0.66); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { --colorAnnouncement: #003a66; --colorAnnouncementText: #ffffff; --colorBody: #ffffff; --colorBodyAlpha05: rgba(255, 255, 255, .05); --colorBodyDim: #f2f2f2; --colorBodyLightDim: #fafafa; --colorBodyMediumDim: #f5f5f5; --colorBorder: #e8e8e1; --colorBtnPrimary: #003a66; --colorBtnPrimaryLight: #005799; --colorBtnPrimaryDim: #002b4d; --colorBtnPrimaryText: #ffffff; --colorCartDot: #ff4f33; --colorDrawers: #ffffff; --colorDrawersDim: #f2f2f2; --colorDrawerBorder: #003a66; --colorDrawerText: #003a66; --colorDrawerTextDark: #000e1a; --colorDrawerButton: #003a66; --colorDrawerButtonText: #ffffff; --colorFooter: #023963; --colorFooterText: #ffffff; --colorFooterTextAlpha01: #ffffff; --colorGridOverlay: #000000; --colorGridOverlayOpacity: .1; --colorHeaderTextAlpha01: rgba(0, 58, 102, .1); --colorHeroText: #ffffff; --colorSmallImageBg: #ffffff; --colorLargeImageBg: #ffffff; --colorImageOverlay: #000000; --colorImageOverlayOpacity: .1; --colorImageOverlayTextShadow: .2; --colorLink: #003a66; --colorModalBg: rgba(230, 230, 230, .6); --colorNav: #ffffff; --colorNavText: #003a66; --colorPrice: #003a66; --colorSaleTag: #1c1d1d; --colorSaleTagText: #ffffff; --colorTextBody: #003a66; --colorTextBodyAlpha015: rgba(0, 58, 102, .15); --colorTextBodyAlpha005: rgba(0, 58, 102, .05); --colorTextBodyAlpha008: rgba(0, 58, 102, .08); --colorTextSavings: #C20000; --urlIcoSelect: url("/imports/clean-skin-club-offre/assets/a8c3e9a7e9e3-ico-select.svg"); --urlIcoSelectFooter: url("/imports/clean-skin-club-offre/assets/03e705b3ba6c-ico-select-footer.svg"); --urlIcoSelectWhite: url("/imports/clean-skin-club-offre/assets/73b2cab40c6b-ico-select-white.svg"); --grid-gutter: 17px; --drawer-gutter: 20px; --sizeChartMargin: 25px 0; --sizeChartIconMargin: 5px; --newsletterReminderPadding: 40px; --color-body-text: #003a66; --color-body: #ffffff; --color-bg: #ffffff; } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 { --grid-gutter: 22px; --drawer-gutter: 30px; } } }
+@media (max-width: 796px) { @keyframes spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} }
+@media (max-width: 796px) { @keyframes preloading { 
+  0% { opacity: 0; transform: scaleX(0); transform-origin: 0% 50%; }
+  40% { opacity: 1; transform: scaleX(1); transform-origin: 0% 50%; }
+  41% { opacity: 1; transform: scaleX(1); transform-origin: 100% 50%; }
+  100% { opacity: 1; transform: scaleX(0); transform-origin: 100% 50%; }
+} }
+@media (max-width: 796px) { @keyframes slideshowBars { 
+  0% { transform: translate(-100%); }
+  100% { transform: translate(0px); }
+} }
+@media (max-width: 796px) { @keyframes grid-product__loading { 
+  0% { opacity: 1; }
+  60% { opacity: 0; }
+  100% { opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes shine { 
+  100% { left: -200%; }
+} }
+@media (max-width: 796px) { @keyframes overlay-on { 
+  0% { opacity: 0; }
+  100% { opacity: 0.6; }
+} }
+@media (max-width: 796px) { @keyframes overlay-off { 
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+} }
+@media (max-width: 796px) { @keyframes full-overlay-on { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes full-overlay-off { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+} }
+@media (max-width: 796px) { @keyframes modal-open { 
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0px); }
+} }
+@media (max-width: 796px) { @keyframes modal-closing { 
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.9); }
+} }
+@media (max-width: 796px) { @keyframes rise-up { 
+  0% { opacity: 1; transform: translateY(120%); }
+  100% { opacity: 1; transform: translateY(0px); }
+} }
+@media (max-width: 796px) { @keyframes rise-up-out { 
+  0% { opacity: 1; transform: translateY(0px); }
+  100% { opacity: 1; transform: translateY(-120%); }
+} }
+@media (max-width: 796px) { @keyframes fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes fade-out { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+} }
+@media (max-width: 796px) { @keyframes zoom-fade { 
+  0% { opacity: 0; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+} }
+@media (max-width: 796px) { @keyframes placeholder-shimmer { 
+  0% { background-position: -150% 0px; }
+  100% { background-position: 150% 0px; }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .flickity-rtl .flickity-next { left: 10px; right: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .flickity-button-icon { fill: currentcolor; height: 30%; left: 35%; position: absolute; top: 35%; width: 30%; } }
+@media (max-width: 796px) { @keyframes scrolling-text { 
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(-100%); }
+} }
+@media (max-width: 796px) { @keyframes scrolling-text-right { 
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0px); }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3, .atl-clean-skin-club-offre-p3 { margin: 0px; padding: 0px; } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .grid { margin-left: 0px; margin-right: -17px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .grid { margin-left: 0px; margin-right: -22px; } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .grid__item { padding-left: 0px; padding-right: 17px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .grid__item { float: right; padding-left: 0px; padding-right: 22px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .grid--center .grid__item { text-align: right; } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .grid--table-large > .grid__item { display: table-cell; float: none; vertical-align: middle; } } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3 .page-width .small--grid--flush { margin-left: -17px; margin-right: -15px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3:not(.no-js):not(.tab-outline) :focus { outline: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { touch-action: manipulation; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] { direction: rtl; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3, .atl-clean-skin-club-offre-p3 { background-color: var(--colorBody); color: var(--colorTextBody); } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3 .table--small-hide { display: none !important; } } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3 .table__section + .table__section { margin-top: 10px; padding-top: 15px; position: relative; } } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3 .table__section + .table__section::after { border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--colorBorder); content: ""; display: block; left: 15px; position: absolute; right: 15px; top: 0px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { font-weight: var(--typeBaseWeight); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 p[data-spam-detection-disclaimer], .atl-clean-skin-club-offre-p3 small { font-size: 0.85em; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 sub, .atl-clean-skin-club-offre-p3 sup { font-size: 60%; position: relative; vertical-align: baseline; } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .h2, .atl-clean-skin-club-offre-p3 h2 { font-size: calc(var(--typeHeaderSize)*.85); } } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .h3, .atl-clean-skin-club-offre-p3 h3 { font-size: calc(var(--typeHeaderSize)*.65); } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .h5, .atl-clean-skin-club-offre-p3 .h6, .atl-clean-skin-club-offre-p3 h5, .atl-clean-skin-club-offre-p3 h6 { font-size: 0.8em; letter-spacing: 0.3em; margin-bottom: 10px; text-transform: uppercase; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .text-spacing, .atl-clean-skin-club-offre-p3 .text-spacing.rte:last-child { margin-bottom: 15px; } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .table--small-text { font-size: calc(var(--typeBaseSize)*.85); } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .index-section--footer h3 { font-size: 1.5em; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .text-left { text-align: right !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .text-right { text-align: left !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] td, .atl-clean-skin-club-offre-p3[dir="rtl"] th { text-align: right; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn.disabled::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn.disabled::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn[disabled]::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn[disabled]::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn.disabled::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn.disabled::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn[disabled]::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn[disabled]::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .shopify-payment-button .shopify-payment-button__button--unbranded.disabled::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .shopify-payment-button .shopify-payment-button__button--unbranded.disabled::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .shopify-payment-button .shopify-payment-button__button--unbranded[disabled]::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .shopify-payment-button .shopify-payment-button__button--unbranded[disabled]::before { background-color: rgb(246, 246, 246); border-bottom: 1px solid rgb(182, 182, 182); border-top: 1px solid rgb(182, 182, 182); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .shopify-payment-button .shopify-payment-button__button--unbranded::before { left: -6px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .shopify-payment-button .shopify-payment-button__button--unbranded::after { right: -6px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn--secondary::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn--secondary::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn--secondary::after, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn--secondary::before { background-color: transparent; bottom: -1px; top: -1px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .btn--secondary::before, .atl-clean-skin-club-offre-p3 [data-button_style="angled"] .rte .btn--secondary::before { border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--colorBorder); border-left-width: 1px; border-left-style: solid; border-left-color: var(--colorBorder); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .btn--secondary:hover::before, .atl-clean-skin-club-offre-p3 .rte .btn--secondary:hover::before { border-color: var(--colorTextBody); transition: border 0.3s; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 legend { border: 0px; padding: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 input.error, .atl-clean-skin-club-offre-p3 textarea.error { background-color: rgb(255, 246, 246); border-color: rgb(208, 46, 46); color: rgb(208, 46, 46); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 label.error { color: rgb(208, 46, 46); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .selector-wrapper label { margin-right: 10px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .input-group .input-group-btn:first-child .btn, .atl-clean-skin-club-offre-p3 .input-group .input-group-field:first-child, .atl-clean-skin-club-offre-p3 .input-group input[type="hidden"]:first-child + .input-group-field { border-radius: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .input-group .input-group-field:last-child { border-radius: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .no-svg .icon { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 svg.icon circle, .atl-clean-skin-club-offre-p3 svg.icon ellipse, .atl-clean-skin-club-offre-p3 svg.icon g, .atl-clean-skin-club-offre-p3 svg.icon line, .atl-clean-skin-club-offre-p3 svg.icon path, .atl-clean-skin-club-offre-p3 svg.icon polygon, .atl-clean-skin-club-offre-p3 svg.icon polyline, .atl-clean-skin-club-offre-p3 svg.icon rect, .atl-clean-skin-club-offre-p3 symbol.icon circle, .atl-clean-skin-club-offre-p3 symbol.icon ellipse, .atl-clean-skin-club-offre-p3 symbol.icon g, .atl-clean-skin-club-offre-p3 symbol.icon line, .atl-clean-skin-club-offre-p3 symbol.icon path, .atl-clean-skin-club-offre-p3 symbol.icon polygon, .atl-clean-skin-club-offre-p3 symbol.icon polyline, .atl-clean-skin-club-offre-p3 symbol.icon rect { fill: inherit; stroke: inherit; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .js-drawer-open { overflow: hidden; } }
+@media (max-width: 796px) { @media screen and (max-height: 400px) { .atl-clean-skin-club-offre-p3 .drawer .drawer__contents { height: auto; } } }
+@media (max-width: 796px) { @media only screen and (max-width: 768px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .predictive-result__layout [data-type-products] { margin-left: 0px; margin-right: -17px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3.pswp-open-in-ios, .atl-clean-skin-club-offre-p3.pswp-open-in-ios body { background: rgb(68, 68, 68); box-sizing: border-box; height: var(--window-inner-height); overflow: hidden; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .testimonials-section { padding: 25.5px 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .testimonials-section--with-divider { border-top-width: 1px; border-top-style: solid; border-top-color: var(--colorBorder); } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .index-section--small { margin: 30px 0px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .feature-row__item--overlap-images > * { width: 50%; } }
+@media (max-width: 796px) { @media only screen and (min-width: 769px) { .atl-clean-skin-club-offre-p3 .feature-row__text--right { padding-right: 60px; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .hero { background: var(--colorLargeImageBg); overflow: hidden; position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .hero__media-container, .atl-clean-skin-club-offre-p3 .hero__image-wrapper, .atl-clean-skin-club-offre-p3 .hero__media { height: 100%; left: 0px; position: absolute; top: 0px; width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .grid-product__content { text-align: right; } }
+@media (max-width: 796px) { @keyframes inventory-pulse { 
+  0% { opacity: 0.5; }
+  100% { opacity: 0; transform: scale(2.5); }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .background-media-text__text { text-align: right; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3[dir="rtl"] .product-single__meta .rte { text-align: right; } }
+@media (max-width: 796px) { @media print { .atl-clean-skin-club-offre-p3, .atl-clean-skin-club-offre-p3 { background-color: rgb(255, 255, 255); } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .currency-flag.currency-flag--bb { background-position: 0px -800px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { margin: 0px; line-height: inherit; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 fieldset { margin: 0px; padding: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 legend { padding: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 ol, .atl-clean-skin-club-offre-p3 ul, .atl-clean-skin-club-offre-p3 menu { list-style: none; margin: 0px; padding: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 dialog { padding: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 textarea { resize: vertical; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 img, .atl-clean-skin-club-offre-p3 video { max-width: 100%; height: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 [hidden]:where(:not([hidden="until-found"])) { display: none; } }
+@media (max-width: 796px) { @media (min-width: 1024px) { .atl-clean-skin-club-offre-p3 .\!container { max-width: 1024px !important; } } }
+@media (max-width: 796px) { @media (min-width: 1024px) { .atl-clean-skin-club-offre-p3 .container { max-width: 1024px; } } }
+@media (max-width: 796px) { @media (min-width: 1280px) { .atl-clean-skin-club-offre-p3 .\!container { max-width: 1280px !important; } } }
+@media (max-width: 796px) { @media (min-width: 1536px) { .atl-clean-skin-club-offre-p3 .\!container { max-width: 1536px !important; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .visible { visibility: visible; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .sticky { position: sticky; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .inline { display: inline; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .hidden { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .line-through { text-decoration-line: line-through; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .filter { filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .transition { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 0.15s; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-2 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-3p-landing [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-3 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-3-july [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-4 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-5 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-6 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-7 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-8 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-9 [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-landing-offer-prism [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-3p-landing-full [data-add-to-cart-hero] .productPriceCompare, .atl-clean-skin-club-offre-p3 .theme-template_name-3p-landing-hybrid [data-add-to-cart-hero] .productPriceCompare { --tw-text-opacity: 1 !important; color: rgb(255 255 255 / var(--tw-text-opacity, 1)) !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .block-row .gift .gift-overlay { display: flex; } }
+@media (max-width: 796px) { @keyframes pulsate { 
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+} }
+@media (max-width: 796px) { @keyframes primaryGradient { 
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+} }
+@media (max-width: 796px) { @keyframes shimmer { 
+  0% { background-position: -200% 0px; }
+  100% { background-position: 200% 0px; }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponTabIn { 
+  0% { transform: rotate(0deg) translate(-118%) translateY(63%) scale(1.2); border-radius: 30px; opacity: 0; }
+  20%, 80% { opacity: 1; transform: rotate(0deg) translate(0px) translateY(63%) scale(1.2); }
+  95% { transform: rotate(90deg) translate(-50%) translateY(-80%) scale(1); border-radius: 30px; }
+  100% { transform: rotate(90deg) translate(-40%) translateY(-41%) scale(0.8); border-radius: 25px 25px 0px 0px; opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponTabInDesktop { 
+  0% { transform: rotate(0deg) translate(-118%) translateY(63%) scale(1.4); border-radius: 30px; opacity: 0; }
+  20%, 80% { opacity: 1; transform: rotate(0deg) translate(0px) translateY(63%) scale(1.4); }
+  95% { transform: rotate(90deg) translate(-50%) translateY(-80%) scale(1); border-radius: 30px; }
+  100% { transform: rotate(90deg) translate(-50%) translateY(-50%) scale(1); border-radius: 25px 25px 0px 0px; opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponTabTextIn { 
+  0% { opacity: 0; transform: translateY(20px); }
+  90%, 100% { opacity: 1; }
+  100% { transform: translateY(0px); }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponTabBeforeIn { 
+  0%, 80% { transform: translate(0px); opacity: 1; }
+  95%, 100% { transform: translate(100%); opacity: 0; }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponsHideIn { 
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1); }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponBG { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes widgetCouponCardIn { 
+  0% { opacity: 0; transform: translateY(40px); }
+  50% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0px); }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3.no-scroll { overflow: hidden; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 { font-family: Poppins; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 {  font-family: Poppins; } }
+@media (max-width: 796px) { @keyframes spin { 
+  100% { transform: rotate(360deg); }
+} }
+@media (max-width: 796px) { @keyframes slideIn { 
+  0% { transform: translate(100%); opacity: 0; }
+  100% { transform: translate(0px); opacity: 1; }
+} }
+@media (max-width: 796px) { @keyframes slideOut { 
+  0% { transform: translate(0px); opacity: 1; }
+  100% { transform: translate(-100%); opacity: 0; }
+} }
+@media (max-width: 796px) { @keyframes fadeInMessage { 
+  0% { opacity: 0; transform: translateY(-5px); }
+  100% { opacity: 1; transform: translateY(0px); }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-filterToggle, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-filterToggle { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-filters, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-filters { order: 1; width: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-head, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-head { flex-flow: row; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviews .oke-w-reviews-main--nav-divider .oke-alert--top .oke-alert-inner, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviews .oke-w-reviews-main--nav-divider .oke-alert--top .oke-alert-inner { border-top-width: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-small .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-head, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-small .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-head { flex-flow: wrap; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-small .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-writeReview, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-small .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-writeReview { order: 1; margin-bottom: 16px; margin-left: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-small .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-filters, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-small .oke-w-reviews--filtersAlwaysOpen .oke-w-reviews-filters { order: 2; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar { text-align: left; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item { outline: 0px; outline-offset: 4px; margin-right: 24px; padding-bottom: 4px; font-weight: 600; background: none; border-width: 0px 0px 3px; border-style: none none solid; border-color: currentcolor currentcolor transparent; border-image: none; color: inherit; cursor: pointer; display: inline-block; height: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item a, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item a { color: inherit; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item[aria-selected="true"], .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item[aria-selected="true"] { border-color: var(--oke-border-color); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item[aria-selected="true"]:focus-visible, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item[aria-selected="true"]:focus-visible { border-color: var(--oke-button-backgroundColor); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item-count, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item-count { display: inline-block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item-count::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item-count::before { content: "("; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-navBar-item-count::after, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-navBar-item-count::after { content: ")"; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header { overflow-x: clip; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content { display: flex; flex-wrap: wrap; width: calc(100% + 48px); margin-right: -48px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content--verticalAlignTop .oke-w-header-content-block { justify-content: flex-start; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content--verticalAlignCenter .oke-w-header-content-block { justify-content: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block--full { width: calc(100% - 48px); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block .oke-w-header-content-module { display: flex; height: fit-content; margin-bottom: 24px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block .oke-w-header-content-module:last-child { margin-bottom: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block .oke-w-header-content-module--stretch { width: calc(100% - 48px); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block .oke-w-header-content-module--left { text-align: left; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block .oke-w-header-content-module--center { text-align: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-header-content-block .oke-w-header-content-module--right { text-align: right; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content { width: 100%; margin-right: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content-block { margin-right: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content-block--full, .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content-block--half, .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content-block--oneThird, .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content-block--twoThirds { width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-header-content-module { justify-content: center; text-align: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-translateButton .oke-translate-error, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-translateButton .oke-translate-error { color: var(--oke-text-primaryColor); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-translateButton .oke-translate-button, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-translateButton .oke-translate-button { text-decoration: underline; cursor: pointer; color: var(--oke-text-secondaryColor); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-translateButton .oke-translate-button-original, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-translateButton .oke-translate-button-original { margin-left: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-translateButton .oke-skeleton, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-translateButton .oke-skeleton { height: calc(var(--oke-button-fontSize) + 8px); width: 150px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-state-empty .oke-loader, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-state-error .oke-loader, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-state-loading .oke-loader, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-state-empty .oke-loader, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-state-error .oke-loader, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-state-loading .oke-loader { margin-left: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-state--noTopBorder, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-state--noTopBorder { border-top: 0px; padding-top: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-skeleton[data-v-496b46b0] { position: relative; overflow: hidden; } }
+@media (max-width: 796px) { @keyframes shimmer-data-v-496b46b0 { 
+  0% { background-position: 0px center; }
+  100% { background-position: 750px center; }
+} }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-skeleton-background[data-v-496b46b0] { border-radius: 4px; background: rgb(244, 244, 246); height: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-skeleton-background--darker[data-v-496b46b0] { background: rgb(229, 229, 235); } }
+@media (max-width: 796px) { @media (prefers-reduced-motion: reduce) { .atl-clean-skin-club-offre-p3 .oke-alert-inner { transition: none; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-alert--top { top: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule--contain, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule--contain { width: 350px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule--stretch, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule--stretch { width: 100%; max-width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution { display: grid; grid-template-columns: min-content 1fr min-content; gap: 10px 12px; align-items: center; line-height: 1; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-label, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution-label { display: flex; align-items: center; justify-content: space-between; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-label-number, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution-label-number { margin-right: 4px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-count, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-label, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution-count, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution-label { font-size: var(--oke-text-small); white-space: nowrap; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-count, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution-count { color: var(--oke-text-secondaryColor); text-align: right; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-breakdownModule-distribution-bar-fill, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-breakdownModule-distribution-bar-fill { border-radius: 3px; height: 100%; background-color: rgb(154, 157, 177); min-width: 6px; max-width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-breakdownModule { width: 100%; max-width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-recommendsModule-text, .atl-clean-skin-club-offre-p3 .oke-w-recommendsModule-value { display: inline; margin-right: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-recommendsModule-value { font-size: var(--oke-text-large); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-recommendsModule-text { color: var(--oke-text-secondaryColor); font-size: var(--oke-text-regular); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-recommendsModule-text, .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-recommendsModule-value { display: block; margin-right: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-attrModule[data-v-b11d1d38] { text-align: left; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-attrModule--stretch[data-v-b11d1d38] { width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-is-small .oke-w-attrModule[data-v-b11d1d38] { width: 100%; max-width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-mediaGridModule, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-mediaGridModule { display: inline-block; width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-mediaGridModule .oke-mediaStrip-container, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-mediaGridModule .oke-mediaStrip-container { display: block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewsSummaryModule, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewsSummaryModule { flex-grow: 1; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewsSummaryModule .oke-reviewsSummary-readMore-text, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewsSummaryModule .oke-reviewsSummary-summary, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewsSummaryModule .oke-reviewsSummary-readMore-text, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewsSummaryModule .oke-reviewsSummary-summary { font-weight: var(--oke-bodyText-fontWeight); font-size: var(--oke-bodyText-fontSize); font-family: var(--oke-bodyText-fontFamily); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-header-content-module--left .oke-reviewsSummary .oke-translateButton, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-header-content-module--left .oke-reviewsSummary .oke-translateButton { justify-content: flex-start; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-header-content-module--center .oke-reviewsSummary .oke-translateButton, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-header-content-module--center .oke-reviewsSummary .oke-translateButton { justify-content: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-header-content-module--right .oke-reviewsSummary .oke-translateButton, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-header-content-module--right .oke-reviewsSummary .oke-translateButton { justify-content: flex-end; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review { display: flex; flex-flow: column; align-items: stretch; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side { background-color: var(--oke-shadingColor); padding: 12px; border: var(--oke-border-width) solid var(--oke-border-color); margin-bottom: 16px; font-size: var(--oke-text-small); position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side.oke-is-collapsed .oke-w-review-side-expand::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side.oke-is-collapsed .oke-w-review-side-expand::before { content: ""; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side.oke-is-collapsed .oke-w-review-side-expandContent, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side.oke-is-collapsed .oke-w-review-side-expandContent { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side-expand, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side-expand { position: absolute; top: 12px; right: 12px; height: 48px; width: 48px; border-radius: 4px; outline: 0px; transition: background-color 0.1s; cursor: pointer; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side-expand::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side-expand::before { font-style: normal; font-weight: 400; font-variant: normal; text-transform: none; line-height: 1; -webkit-font-smoothing: antialiased; content: ""; color: var(--oke-text-primaryColor); font-size: 24px; display: inline-block; width: 24px; height: 24px; font-family: oke-widget-icons !important; } }
+@media (max-width: 796px) { @media (prefers-reduced-motion: reduce) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side-expand, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side-expand { transition: none; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side-expand:focus, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side-expand:hover, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side-expand:focus, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side-expand:hover { background-color: rgba(0, 0, 0, 0.05); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-side-expandContent, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-side-expandContent { display: block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-main .oke-mediaStrip--maxImages-1 .oke-media:not(.oke-media--video) .oke-media-link, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-main .oke-mediaStrip--maxImages-1 .oke-media:not(.oke-media--video) .oke-media-link { width: inherit !important; } }
+@media (max-width: 796px) { @media only screen and (min-width: 1024px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-main .oke-mediaStrip--maxImages-1 .oke-media:not(.oke-media--video) .oke-media-link, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-main .oke-mediaStrip--maxImages-1 .oke-media:not(.oke-media--video) .oke-media-link { width: 100%; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-main .oke-mediaStrip--maxImages-1 .oke-media:not(.oke-media--video) .oke-media-image, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-main .oke-mediaStrip--maxImages-1 .oke-media:not(.oke-media--video) .oke-media-image { width: inherit !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-main .oke-helpful, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-main .oke-helpful { margin-left: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-footer, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-product, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-recommendation, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-reply, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-selectAttributes, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-footer, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-product, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-recommendation, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-reply, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-selectAttributes { margin-top: 16px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-footer, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-footer { display: flex; align-items: center; justify-content: space-between; text-align: right; flex-wrap: wrap; gap: 4px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-review-reply, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-review-reply { border-top: var(--oke-border-width) solid var(--oke-border-color); padding-top: 16px; margin-bottom: 4px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-large .oke-w-review, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-medium .oke-w-review, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-large .oke-w-review, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-medium .oke-w-review { flex-flow: row; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-large .oke-w-review-main, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-medium .oke-w-review-main, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-large .oke-w-review-main, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-medium .oke-w-review-main { padding: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-large .oke-w-review--featuredMedia .oke-w-review-media, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-large .oke-w-review--featuredMedia .oke-w-review-media { margin-top: 0px; grid-area: 1 / 2 / 5 / span end; margin-left: 48px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-large .oke-w-review--featuredMedia .oke-w-review-media-featured, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-large .oke-w-review--featuredMedia .oke-w-review-media-featured { display: block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-is-large .oke-w-review--featuredMedia .oke-w-review-media-thumbnail, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-is-large .oke-w-review--featuredMedia .oke-w-review-media-thumbnail { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes { display: flex; flex-flow: column; gap: 32px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes--align-center, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes--align-center { align-items: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes--align-right, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes--align-right { align-items: flex-end; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes--sideBySide, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes--sideBySide { flex-flow: wrap; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes--sideBySide.oke-w-barAttributes--align-center, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes--sideBySide.oke-w-barAttributes--align-center { justify-content: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes--sideBySide.oke-w-barAttributes--align-right, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes--sideBySide.oke-w-barAttributes--align-right { justify-content: flex-end; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-barAttributes--sideBySide .oke-w-barAttributes-item--min-width, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-barAttributes--sideBySide .oke-w-barAttributes-item--min-width { min-width: 200px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-attrBar, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-attrBar { width: 100%; margin-bottom: 24px; max-width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-attrBar-labels, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-attrBar-labels { display: flex; justify-content: space-between; margin-top: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-attrBar-labels-label, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-attrBar-labels-label { flex: 1 1 50%; font-size: 10px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-attrBar-labels-label--min, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-attrBar-labels-label--min { text-align: left; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-attrBar-labels-label--mid, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-attrBar-labels-label--mid { text-align: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-attrBar-labels-label--max, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-attrBar-labels-label--max { text-align: right; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr { font-size: var(--oke-text-small); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr-item-title, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr-item-title { font-weight: 600; margin-right: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr-item:last-child, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr-item:last-child { margin-bottom: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr--line, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr--stacked .oke-w-selectAttr-item, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr--stacked .oke-w-selectAttr-item-value, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr--line, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr--stacked .oke-w-selectAttr-item, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr--stacked .oke-w-selectAttr-item-value { display: block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr--line .oke-w-selectAttr-item, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr--line .oke-w-selectAttr-item { display: inline-block; border-right: var(--oke-border-width) solid var(--oke-border-color); margin: 4px 12px 0px 0px; padding-right: 12px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-selectAttr--line .oke-w-selectAttr-item:last-child, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-selectAttr--line .oke-w-selectAttr-item:last-child { margin-right: 0px; padding-right: 0px; border: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-barAttributesSkeleton[data-v-7d348429] { display: flex; flex-flow: wrap; gap: 32px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-barAttributesSkeleton-item[data-v-7d348429] { min-width: 200px; width: 100%; max-width: 280px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-barAttributesSkeleton-title[data-v-7d348429] { height: 16px; width: 120px; margin-bottom: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-barAttributesSkeleton-bar[data-v-7d348429] { height: 32px; width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-selectAttrSkeleton-item[data-v-0c30900a]:last-child { margin-bottom: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip li { position: relative; width: auto; max-width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-reviewMinimal-media-thumbnail .oke-mediaStrip-container .oke-mediaStrip .oke-media-link, .atl-clean-skin-club-offre-p3 .oke-w-reviewSplit-media .oke-mediaStrip-container .oke-mediaStrip .oke-media-link { display: flex; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-reviewMinimal-media-thumbnail .oke-mediaStrip-container .oke-mediaStrip .oke-media, .atl-clean-skin-club-offre-p3 .oke-w-reviewMinimal-media-thumbnail .oke-mediaStrip-container .oke-mediaStrip .oke-media-image, .atl-clean-skin-club-offre-p3 .oke-w-reviewSplit-media .oke-mediaStrip-container .oke-mediaStrip .oke-media, .atl-clean-skin-club-offre-p3 .oke-w-reviewSplit-media .oke-mediaStrip-container .oke-mediaStrip .oke-media-image { width: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-1 li:nth-child(n+2) { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-1 .oke-mediaStrip-showMoreButton { display: block; } }
+@media (max-width: 796px) { @media only screen and (min-width: 1200px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-1.oke-mediaStrip--maxImagesLarge-all li:nth-child(n+2) { display: block; } } }
+@media (max-width: 796px) { @media only screen and (min-width: 1200px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-1.oke-mediaStrip--maxImagesLarge-all .oke-mediaStrip-showMoreButton { display: none; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-2 .oke-mediaStrip-showMoreButton { display: block; } }
+@media (max-width: 796px) { @media only screen and (min-width: 1200px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-2.oke-mediaStrip--maxImagesLarge-all .oke-mediaStrip-showMoreButton { display: none; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-3 li:nth-child(n+4) { display: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-3 .oke-mediaStrip-showMoreButton { display: block; } }
+@media (max-width: 796px) { @media only screen and (min-width: 1200px) { .atl-clean-skin-club-offre-p3 .oke-mediaStrip-container .oke-mediaStrip--maxImages-3.oke-mediaStrip--maxImagesLarge-all li:nth-child(n+4) { display: block; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewer--attributes .oke-w-reviewer-verified, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewer--minimal .oke-w-reviewer-verified, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewer--attributes .oke-w-reviewer-verified, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewer--minimal .oke-w-reviewer-verified { margin-left: 12px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewer--stacked, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewer--stacked { flex-flow: column; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewer--stacked .oke-w-reviewer-avatar, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewer--stacked .oke-w-reviewer-avatar { margin-right: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-w-reviewer-identity a:hover, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-w-reviewer-identity a:hover { text-decoration: underline; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-product--imageOnly .oke-product-thumbnail { margin-right: 0px; background-color: var(--oke-shadingColor); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-reviewBasicContentSkeleton-title[data-v-aaa0c736] { margin-top: 8px; margin-bottom: 8px; height: calc(var(--oke-title-fontSize) + 4px); width: 180px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .c-reviewBasicContentSkeleton-body[data-v-aaa0c736], .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-reviewContainer, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-reviewContent, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-reviewContainer, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-reviewContent { width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-reviewContent > :first-child, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-reviewContent > :first-child { margin-top: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-reviewContent-body, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-reviewContent-title, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-reviewContent-body, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-reviewContent-title { width: 100%; margin-top: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-reviewContent-date, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-reviewContent-date { color: var(--oke-text-secondaryColor); font-size: var(--oke-text-small); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-reviewReply { font-size: var(--oke-text-small); display: flex; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-reviewReply-main { display: flex; justify-content: space-between; flex-flow: wrap; flex-grow: 1; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-reviewReply-date, .atl-clean-skin-club-offre-p3 .oke-w-reviewReply-title { margin-bottom: 4px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-w-reviewReply-title { font-weight: 600; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-footerBadges--full, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-footerBadges--full { width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful { color: var(--oke-text-secondaryColor); display: block; font-size: var(--oke-text-small); line-height: 1; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful-question, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful-question { vertical-align: middle; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful-vote, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful-vote { display: inline-block; margin-left: 1em; line-height: 1; vertical-align: text-bottom; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful-vote-button, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful-vote-button { background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; color: var(--oke-text-secondaryColor); cursor: pointer; padding: 0px; transition: opacity 0.3s; vertical-align: middle; width: auto; position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful-vote-button--positive::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful-vote-button--positive::before { font-style: normal; font-weight: 400; font-variant: normal; text-transform: none; line-height: 1; -webkit-font-smoothing: antialiased; content: ""; color: var(--oke-text-secondaryColor); font-family: oke-widget-icons !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful-vote-button--negative::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful-vote-button--negative::before { font-style: normal; font-weight: 400; font-variant: normal; text-transform: none; line-height: 1; -webkit-font-smoothing: antialiased; content: ""; color: var(--oke-text-secondaryColor); font-family: oke-widget-icons !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-helpful-vote-button--negative, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-helpful-vote-button--negative { margin-left: 1em; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-incentivized-review-tooltip-text, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-incentivized-review-tooltip-text { text-align: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault { position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-background, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-background { position: absolute; top: 2px; left: 0px; height: 2px; background-color: var(--oke-attributeBar-backgroundColor); width: 100%; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-background-shading, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-background-shading { display: block; height: 100%; background-color: var(--oke-attributeBar-shadingColor); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-dots, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-dots { position: relative; display: flex; justify-content: space-between; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-dot, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-dot { background-color: var(--oke-attributeBar-backgroundColor); width: 6px; height: 6px; display: block; border-radius: 50%; z-index: 2; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-dot--dark, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-dot--dark { background-color: var(--oke-attributeBar-shadingColor); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-marker, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-marker { position: relative; margin: 0px 3px; z-index: 3; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault-marker .oke-barDefault-dot, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault-marker .oke-barDefault-dot { position: absolute; background-color: rgb(255, 255, 255); box-shadow: 0 0 0 2px var(--oke-attributeBar-markerColor); left: 0px; transform: translate(-50%); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault--centeredMiddle .oke-barDefault-dot--center, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault--centeredMiddle .oke-barDefault-dot--center { height: 16px; top: -6px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault--leftPadding, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault--leftPadding { padding-left: 2px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-barDefault--rightPadding, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-barDefault--rightPadding { padding-right: 2px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media.oke-is-loading, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media.oke-is-loading { background-color: var(--oke-shadingColor); position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media-link, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media-link { outline-offset: 1px; cursor: pointer; overflow: hidden; width: 100%; height: 100%; display: inline-block; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media-image, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media-image { transition: transform 0.1s ease-out; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center center; position: relative; } }
+@media (max-width: 796px) { @media (prefers-reduced-motion: reduce) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media-image, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media-image { transition: none; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--video:not(.oke-is-loading), .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--video:not(.oke-is-loading) { position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--video:not(.oke-is-loading)::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--video:not(.oke-is-loading)::before { font-style: normal; font-weight: 400; font-variant: normal; text-transform: none; line-height: 1; -webkit-font-smoothing: antialiased; content: ""; color: rgb(255, 255, 255); font-size: 24px; display: inline-block; font-family: oke-widget-icons !important; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--video:not(.oke-is-loading)::after, .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--video:not(.oke-is-loading)::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--video:not(.oke-is-loading)::after, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--video:not(.oke-is-loading)::before { cursor: pointer; position: absolute; inset: 0px; margin: auto; pointer-events: none; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--video:not(.oke-is-loading)::after, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--video:not(.oke-is-loading)::after { content: ""; background-color: rgba(0, 0, 0, 0.6); border-radius: 50%; width: 40px; height: 40px; max-width: 100%; max-height: 100%; border: 1px solid rgba(255, 255, 255, 0.5); transition: border 0.1s ease-out; z-index: 2; } }
+@media (max-width: 796px) { @media (prefers-reduced-motion: reduce) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--video:not(.oke-is-loading)::after, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--video:not(.oke-is-loading)::after { transition: none; } } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--linked, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--linked { overflow: hidden; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-media--linked:hover .oke-media-image, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-media--linked:hover .oke-media-image { transform: scale(1.05); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-showMoreButton, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-showMoreButton { cursor: pointer; position: absolute; bottom: 8px; right: 8px; background-color: rgba(0, 0, 0, 0.6); color: rgb(255, 255, 255); padding: 8px 12px; font-weight: 600; font-size: var(--oke-text-small); line-height: 1; white-space: nowrap; z-index: 2; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip { cursor: pointer; position: relative; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content { background: rgb(0, 0, 0); border-radius: 4px; border: 1px solid rgb(0, 0, 0); color: rgb(255, 255, 255); font-size: var(--oke-text-small); line-height: 1.6; max-width: 270px; opacity: 0; padding: 12px 16px; pointer-events: none; position: absolute; transition: opacity 0.3s ease-out; width: max-content; z-index: 3; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content::before { pointer-events: none; border-style: solid; content: ""; display: block; height: 0px; position: absolute; width: 0px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--top, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--top { top: -12px; transform: translateY(-100%); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--top::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--top::before { border-color: rgb(0, 0, 0) transparent transparent; border-width: 6px 6px 0px; bottom: -6px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--bottom, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--bottom { bottom: -12px; transform: translateY(100%); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--right, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--right { text-align: right; right: -8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--right::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--right::before { right: 8px; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--center, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--center { text-align: center; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--center::before, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--center::before { left: 0px; right: 0px; margin: auto; } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-tooltip-content--center.oke-tooltip-content--top, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-tooltip-content--center.oke-tooltip-content--top { transform: translate(-50%, -100%); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .oke-avatar-icon--vipTier img:hover { transform: scale(1.5); } }
+@media (max-width: 796px) { .atl-clean-skin-club-offre-p3 .okeReviews[data-oke-container] .oke-flag, .atl-clean-skin-club-offre-p3 div.okeReviews .oke-flag { display: inline-block; margin-left: 4px; line-height: 0; } }
+.atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__header-primary, .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__header-secondary, .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__header-primary p, .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__header-secondary p { margin: 0px; }
+.atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__timer { background-color: rgb(201, 32, 47); border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+@media screen and (max-width: 640px) { .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown { padding: 10px; gap: 12px; } }
+@media screen and (max-width: 640px) { .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__timer-value { font-size: 16px; width: 18px; } }
+@media screen and (max-width: 640px) { .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__timer-label { font-size: 10px; } }
+@media screen and (max-width: 640px) { .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__separator-wrapper { gap: 10px; } }
+@media screen and (max-width: 640px) { .atl-clean-skin-club-offre-p3 #shopify-section-template--19241385099335__replo_global_countdown_e_TdbEGF .global-countdown__separator { width: 2px; height: 2px; } }
+.atl-clean-skin-club-offre-p3 .variant-input, .atl-clean-skin-club-offre-p3 .variant-badge, .atl-clean-skin-club-offre-p3 .product-hero-section .product__thumbs { display: none !important; }
+.atl-clean-skin-club-offre-p3 #button-target { position: relative; top: 0px; z-index: 999; display: block !important; }
+.atl-clean-skin-club-offre-p3 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-clean-skin-club-offre-p3 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-clean-skin-club-offre-p3 [data-atl-car="track"] > * { transform: none !important; }
+.atl-clean-skin-club-offre-p3 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-clean-skin-club-offre-p3 [data-atl-h] { display: none !important; }
+.atl-clean-skin-club-offre-p3 [data-atl-href] { cursor: pointer; }
