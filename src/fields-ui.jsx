@@ -282,8 +282,8 @@ export function ImageSetting({ field, value, onChange }) {
               >
                 Coller un lien
               </button>
-              <button type="button" onClick={act(() => window.dispatchEvent(new CustomEvent("atl-open-studio")))}>
-                Refaire avec le Studio d'images
+              <button type="button" onClick={act(() => window.dispatchEvent(new CustomEvent("atl-ai-image")))}>
+                ✨ Refaire avec l'IA
               </button>
               {!original && (
                 <button type="button" className="is-danger" onClick={act(() => onChange(""))}>

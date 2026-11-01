@@ -8,10 +8,10 @@ import { brandRoles, designMarkdown, extractPalette } from "./engine/palette.js"
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
-import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles, IconSwap } from "./icons.jsx";
+import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
 
 // Colonne de gauche : un rail d'icônes et l'outil choisi.
-//   Structure · Ajouter une section · Palette · Régénérer · Rebrand · Score
+//   Structure · Ajouter une section · Palette · ✨ IA · Score
 
 const pageName = new URLSearchParams(location.search).get("page");
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
@@ -22,8 +22,7 @@ const TOOLS = [
   { id: "structure", label: "Structure", icon: IconList },
   { id: "ajouter", label: "Ajouter une section", icon: IconPlusSquare },
   { id: "palette", label: "Palette", icon: IconPalette },
-  { id: "regenerer", label: "Régénérer", icon: IconSparkles },
-  { id: "rebrand", label: "Rebrand", icon: IconSwap },
+  { id: "ia", label: "IA — toute la page", icon: IconSparkles },
   { id: "score", label: "Score de vente", icon: IconGauge },
 ];
 
@@ -78,8 +77,7 @@ export function LeftPanel() {
         {tool === "structure" && <StructureTool onAdd={() => setTool("ajouter")} />}
         {tool === "ajouter" && <AddTool />}
         {tool === "palette" && <PaletteTool />}
-        {tool === "regenerer" && <RegenerateTool />}
-        {tool === "rebrand" && <RebrandTool />}
+        {tool === "ia" && <AiTool />}
         {tool === "score" && <ScorePanel />}
       </div>
       )}
@@ -586,41 +584,38 @@ function PaletteTool() {
   );
 }
 
-// ---- Régénérer : les textes ou les images ----
-function RegenerateTool() {
-  const open = (name) => window.dispatchEvent(new CustomEvent(name));
-  return (
-    <>
-      <p className="atl-tool-panel__hint">Deux choix : refaire les textes de la page, ou refaire ses images avec ton produit.</p>
-      <div className="atl-choices">
-        <button type="button" onClick={() => open("atl-open-board")}>
-          <b>Planche des images</b>
-          <small>Toutes les images de la page côte à côte : en refaire une avec une consigne, ou en créer une pour une section.</small>
-        </button>
-        <button type="button" onClick={() => open("atl-open-rewrite")}>
-          <b>Régénérer les textes</b>
-          <small>Toutes les consignes entre crochets remplacées par de vrais textes, pour ton produit et ton client.</small>
-        </button>
-        <button type="button" onClick={() => open("atl-open-studio")}>
-          <b>Régénérer les images</b>
-          <small>Studio d'images : chaque photo d'origine refaite avec ton produit, ton logo et ta palette.</small>
-        </button>
-      </div>
-    </>
+// ---- ✨ IA : les outils qui changent TOUTE la page ----
+// (une section ou un élément : clic droit → Retravailler avec l'IA.)
+function AiTool() {
+  const open = (name, detail) => window.dispatchEvent(new CustomEvent(name, detail ? { detail } : undefined));
+  const item = (title, hint, onClick) => (
+    <button type="button" onClick={onClick}>
+      <b>{title}</b>
+      <small>{hint}</small>
+    </button>
   );
-}
-
-// ---- Rebrand : rechercher / remplacer ----
-function RebrandTool() {
   return (
     <>
-      <p className="atl-tool-panel__hint">Remplace un mot partout dans la page : la marque d'origine par la tienne, un nom de produit, un prix…</p>
+      <p className="atl-tool-panel__hint">
+        Pour toute la page. Une section ou un élément : clic droit dessus → « Retravailler avec l'IA ». Les outils se servent de la fiche « Ma marque et mon produit ».
+      </p>
+      <p className="atl-tool-panel__group">Textes</p>
       <div className="atl-choices">
-        <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("atl-open-rebrand"))}>
-          <b>Rechercher et remplacer</b>
-          <small>Ex. Aurivita → Clearflow. Ne touche que les textes lus par le client. Annulable avec ↶.</small>
-        </button>
+        {item("Réécrire pour mon produit", "Tous les textes, consignes entre crochets comprises, pour ta marque et ton produit.", () => open("atl-ai-page", "reecrire"))}
+        {item("Traduire", "Toute la page dans une autre langue, mise en forme gardée.", () => open("atl-ai-page", "traduire"))}
+        {item("Remplacer un mot", "Ex. Aurivita → Clearflow, partout dans la page. Annulable avec ↶.", () => open("atl-open-rebrand"))}
       </div>
+      <p className="atl-tool-panel__group">Images</p>
+      <div className="atl-choices">
+        {item("Planche des images", "Toutes les images côte à côte : en refaire une avec une consigne, ou toutes avec ton produit.", () => open("atl-open-board"))}
+      </div>
+      <p className="atl-tool-panel__group">Style</p>
+      <div className="atl-choices">
+        {item("Adapter toute la page à son style", "Chaque section redessinée avec la palette, les polices et les boutons de la page.", () => open("atl-ai-page", "adapter"))}
+      </div>
+      <button type="button" className="atl-tool-panel__link" onClick={() => open("atl-open-page-settings")}>
+        ⚙ Ma marque et mon produit
+      </button>
     </>
   );
 }

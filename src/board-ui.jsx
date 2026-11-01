@@ -105,6 +105,10 @@ function Board({ onClose }) {
       <div className="atl-modal__panel atl-board">
         <header className="atl-modal__head">
           <h2>Planche des images · {images.length}</h2>
+          {/* Toutes les photos d'un coup avec ton produit (Studio d'images). */}
+          <button type="button" className="atl-board__all" onClick={() => (onClose(), window.dispatchEvent(new CustomEvent("atl-open-studio")))}>
+            ✨ Tout refaire avec mon produit
+          </button>
           <button type="button" className="atl-modal__close" onClick={onClose} aria-label="Fermer">
             ×
           </button>

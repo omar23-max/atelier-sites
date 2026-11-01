@@ -672,3 +672,34 @@ L'état du bouton vit dans `saveStore` (`App.jsx`), hors du composant App :
 redessiner App redessine tout l'éditeur Puck, ce qui prenait environ 4 s par
 modification sur une grande page. `pages/` n'est pas surveillé par Vite, donc
 enregistrer ne recharge pas l'atelier.
+
+## Outils IA : où ils sont (2026-11-01)
+
+La règle : **l'endroit où on clique décide de ce qu'on change**.
+
+- **Toute la page** → menu **✨ IA** du rail de gauche (`AiTool`, `src/left-ui.jsx`). Il remplace « Régénérer » et « Rebrand ».
+  - Textes :
+    - *Réécrire pour mon produit* (`RewritePage`) ;
+    - *Traduire* (`TranslatePage`) ;
+    - *Remplacer un mot* (l'ancien Rebrand).
+  - Images : *Planche des images*. Son bouton « Tout refaire avec mon produit » ouvre le Studio d'images.
+  - Style : *Adapter toute la page à son style*. Chaque section passe par `rebuildSectionWith`, puis la page est enregistrée et rechargée.
+  - Les outils de la page s'ouvrent par l'événement `atl-ai-page` (`reecrire`, `traduire`, `adapter`) dans `PageAiDialog`.
+- **Fiche « Ma marque et mon produit »** → ⚙ Réglages de la page (`BrandSheet`). Elle enregistre dans `root.props` :
+  - `marque`, `produit`, `profil` et `infos` ;
+  - `photos_produit` (tableau d'adresses) et `logo`.
+
+  Elle sert à la réécriture, à « Retravailler » et au Studio (photos et logo préremplis). Produit et profil ne sont plus dans les champs Puck de la page.
+- **Une section ou un élément** → fenêtre **✨ Retravailler** (`AiDialog`). On l'ouvre par :
+  - clic droit ;
+  - ✨ dans l'en-tête du panneau ;
+  - le bouton « Retravailler avec l'IA… » en bas du panneau d'une section.
+
+  Elle a trois onglets :
+  - **Textes** ;
+  - **Images** ;
+  - **Design** (section entière seulement) : redessiner avec une consigne et/ou un exemple, nettoyer la mise en page, adapter au style de la page.
+
+  Les anciennes boîtes « Reconstruire / Adapter / Nettoyer » du bas du panneau sont retirées.
+- **Une image** → « Choisir une image ▾ » → **✨ Refaire avec l'IA** (événement `atl-ai-image`) : la fenêtre Retravailler, onglet Images, pour cette image seulement. Hors d'un élément (fond de section), c'est la Planche qui s'ouvre.
+- **Ajouter une section → Créer avec l'IA** : inchangé.

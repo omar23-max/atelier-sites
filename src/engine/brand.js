@@ -36,8 +36,7 @@ export const rootFields = {
       ...PAGE_TYPES.map((t) => ({ label: `${t.achat ? "Achat" : "Pas d'achat"} · ${t.label}`, value: t.id })),
     ],
   },
-  produit: { type: "text", label: "Produit (regroupe ses pages)" },
-  profil: { type: "text", label: "Profil client visé par cette page" },
+  // produit et profil : dans la fiche « Ma marque et mon produit » (Réglages de la page).
   pageAchat: { type: "text", label: "Page d'achat liée (si pas d'achat ici)" },
   font_heading: { type: "text", label: "Police des titres (Google Fonts, ex. Readex Pro)" },
   font_body: { type: "text", label: "Police du texte (Google Fonts, ex. Inter Tight)" },

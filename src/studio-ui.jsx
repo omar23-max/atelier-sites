@@ -157,7 +157,7 @@ function StudioDialog({ onClose }) {
   }, [data]);
   const [form, setForm] = useState({
     produit: root.produit ?? "",
-    description: "",
+    description: root.infos ?? "",
     mode: "fidele",
     rythme: "tout",
     n: 8,
@@ -169,6 +169,16 @@ function StudioDialog({ onClose }) {
   const [state, setState] = useState(null);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const design = designById[root.design];
+
+  // Fiche « Ma marque et mon produit » de la page : ses photos du produit et
+  // son logo arrivent tout seuls dans les deux boîtes.
+  useEffect(() => {
+    const urls = [...(Array.isArray(root.photos_produit) ? root.photos_produit : []).map((u) => [u, "produit", "Produit"]), ...(root.logo ? [[root.logo, "marque", "Logo"]] : [])];
+    if (!urls.length) return;
+    Promise.all(urls.map(([u, groupe, tag]) => urlToDataUrl(u).then((dataUrl) => ({ groupe, tag, name: u.split("/").pop(), dataUrl, auto: true })).catch(() => null))).then((auto) =>
+      setRefs((r) => [...auto.filter(Boolean), ...r].slice(0, MAX_REFS)),
+    );
+  }, []);
 
   // La boîte « marque » se remplit avec le kit de marque du projet (logos,
   // brand board) ; la description du produit avec celle du projet.

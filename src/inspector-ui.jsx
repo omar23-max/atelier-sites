@@ -370,6 +370,13 @@ export function Inspector({ children }) {
   const [openGroups, setOpenGroups] = useState({});
   const [menu, setMenu] = useState(null);
   const [ai, setAi] = useState(null);
+  // Outil IA de la page ouvert depuis le rail de gauche : « reecrire »,
+  // « traduire » ou « adapter ».
+  const [pageAi, setPageAi] = useState(null);
+  const patchRoot = (patch) => {
+    const { appState, dispatch } = getPuck();
+    dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, ...patch } } });
+  };
   const treeRef = useRef(null);
   const editRef = useRef(null);
   const [editing, setEditing] = useState(false);
@@ -666,6 +673,24 @@ export function Inspector({ children }) {
     if (other) moveNode(sectionId, sibs[i], other, dir > 0);
   }
 
+  // Menu ✨ IA du rail de gauche (outils de toute la page), et « Refaire avec
+  // l'IA » d'une image : la fenêtre Retravailler, sur cette image seulement.
+  useEffect(() => {
+    const onPage = (e) => setPageAi(e.detail);
+    const onImage = () => {
+      const cur = selRef.current;
+      if (cur?.sectionId && cur.key) setAi({ sectionId: cur.sectionId, keys: [cur.key], tab: "images" });
+      // Image hors d'un élément (fond de section…) : la planche des images.
+      else window.dispatchEvent(new CustomEvent("atl-open-board"));
+    };
+    window.addEventListener("atl-ai-page", onPage);
+    window.addEventListener("atl-ai-image", onImage);
+    return () => {
+      window.removeEventListener("atl-ai-page", onPage);
+      window.removeEventListener("atl-ai-image", onImage);
+    };
+  }, []);
+
   // Suppressions, toujours après confirmation.
   // Section : retirée de la page (Annuler / Historique pour revenir).
   const removeSection = (sectionId) => {
@@ -815,17 +840,8 @@ export function Inspector({ children }) {
       <div className="atl-insp__detail">
         {sel?.page && (
           <div className="atl-insp__panel">
-            <PanelHead onBack={close} title="Réglages de la page" sub="Titre, type, produit, polices" />
-            <RewritePage content={content} root={getPuck().appState.data.root?.props ?? {}} onApply={(id, values) => updateValues(id, values)} />
-            <TranslatePage
-              content={content}
-              root={getPuck().appState.data.root?.props ?? {}}
-              onApply={(id, values) => updateValues(id, values)}
-              onLangue={(code) => {
-                const { appState, dispatch } = getPuck();
-                dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, langue: code } } });
-              }}
-            />
+            <PanelHead onBack={close} title="Réglages de la page" sub="Marque et produit, titre, type, polices" />
+            <BrandSheet root={getPuck().appState.data.root?.props ?? {}} onChange={patchRoot} />
             <div className="atl-insp__puck">{children}</div>
           </div>
         )}
@@ -837,7 +853,6 @@ export function Inspector({ children }) {
               onBack={close}
               onChange={(props) => updateProps(sel.sectionId, props)}
               onAiTexts={() => setAi({ sectionId: sel.sectionId, keys: null })}
-              onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
               onValues={(values) => updateValues(sel.sectionId, values)}
               onOpen={(key) => setSel({ sectionId: sel.sectionId, key })}
               onMoveNode={(child, dir) => step(sel.sectionId, child, dir)}
@@ -849,8 +864,6 @@ export function Inspector({ children }) {
               onBack={close}
               onAi={() => setAi({ sectionId: sel.sectionId, keys: null })}
               onChange={(props) => updateProps(sel.sectionId, props)}
-              onAdapt={content.some((c) => byId[c.type]?.meta.pageSpecific) || getPuck().appState.data.root?.props?.design ? () => adaptToPage(sel.sectionId) : null}
-              onRebuild={(instruction, reference) => rebuildSection(sel.sectionId, instruction, reference)}
               onDelete={() => removeSection(sel.sectionId)}
             />
           ))}
@@ -945,7 +958,36 @@ export function Inspector({ children }) {
       )}
       {menu && <ContextMenu x={menu.x} y={menu.y} items={menuItems(menu)} onClose={() => setMenu(null)} />}
       {ai && content[indexOf(ai.sectionId)] && (
-        <AiDialog target={ai} item={content[indexOf(ai.sectionId)]} onClose={() => setAi(null)} onApply={(values) => updateValues(ai.sectionId, values)} root={getPuck().appState.data.root?.props ?? {}} />
+        <AiDialog
+          target={ai}
+          item={content[indexOf(ai.sectionId)]}
+          onClose={() => setAi(null)}
+          onApply={(values) => updateValues(ai.sectionId, values)}
+          root={getPuck().appState.data.root?.props ?? {}}
+          onRebuild={!ai.keys ? (instruction, reference) => rebuildSection(ai.sectionId, instruction, reference) : null}
+          onAdapt={!ai.keys ? () => adaptToPage(ai.sectionId) : null}
+        />
+      )}
+      {pageAi && (
+        <PageAiDialog
+          tool={pageAi}
+          content={content}
+          root={getPuck().appState.data.root?.props ?? {}}
+          onApply={(id, values) => updateValues(id, values)}
+          onRoot={patchRoot}
+          onAdaptAll={async (onStep) => {
+            const data = getPuck().appState.data;
+            const replacements = [];
+            for (const [i, item] of data.content.entries()) {
+              onStep(`Section ${i + 1} / ${data.content.length}…`);
+              replacements.push(await rebuildSectionWith(getPuck, item.props.id, adaptInstructionFor(data, item.props.id), null, { reload: false }));
+            }
+            onStep("Enregistrement…");
+            await savePageWith(getPuck, replacements);
+            location.reload();
+          }}
+          onClose={() => setPageAi(null)}
+        />
       )}
       {/* « + Ajouter une section » entre les sections de l'aperçu. */}
       {isMain() && <CanvasInsertChips content={content} />}
@@ -1253,7 +1295,7 @@ function PanelHead({ onBack, title, sub, onAi, onDelete }) {
   );
 }
 
-function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild, onDelete }) {
+function SectionSettings({ item, onBack, onAi, onChange, onDelete }) {
   const [busy, setBusy] = useState(false);
   if (!item) return null;
   const section = byId[item.type];
@@ -1309,31 +1351,10 @@ function SectionSettings({ item, onBack, onAi, onChange, onAdapt, onRebuild, onD
       ) : (
         <p className="atl-insp__empty">Cette section n'a pas de réglage général : ouvre ses éléments dans l'arbre.</p>
       )}
-      {onRebuild && <RebuildBox onRebuild={onRebuild} />}
-      {onAdapt && (
-        <div className="atl-aibox">
-          <p className="atl-aibox__title">✨ Adapter au style de la page</p>
-          <p className="atl-aibox__hint">
-            L'IA redessine cette section avec la palette, les polices, les espacements et l'allure du reste de la page, en gardant ses textes et ses images.
-          </p>
-          <button
-            type="button"
-            className="atl-aibox__go"
-            disabled={busy}
-            onClick={async () => {
-              setBusy(true);
-              try {
-                await onAdapt();
-              } catch (e) {
-                setBusy(false);
-                alert(e.message);
-              }
-            }}
-          >
-            {busy ? "Adaptation en cours (30 à 90 s)…" : "Adapter la section"}
-          </button>
-        </div>
-      )}
+      <button type="button" className="atl-aibtn-wide" onClick={onAi}>
+        ✨ Retravailler avec l'IA…
+        <small>Textes, images ou design de la section</small>
+      </button>
     </div>
   );
 }
@@ -1649,11 +1670,15 @@ function ContextMenu({ x, y, items, onClose }) {
 const QUICK = ["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Traduire en français", "Traduire en anglais"];
 const REFS_KEY = "atl-ia-references";
 
-function AiDialog({ target, item, onClose, onApply, root }) {
+// Trois onglets : Textes, Images, Design (section entière seulement :
+// redessiner, nettoyer, adapter au style de la page).
+function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt }) {
   const { texts, images } = useMemo(() => aiTargets(item, target.keys), [item, target.keys]);
   const [prompt, setPrompt] = useState("");
-  const [doTexts, setDoTexts] = useState(texts.length > 0);
-  const [doImages, setDoImages] = useState(images.length > 0 && texts.length === 0);
+  const [tab, setTab] = useState(target.tab ?? (texts.length ? "textes" : images.length ? "images" : "design"));
+  const doTexts = tab === "textes";
+  const doImages = tab === "images";
+  const [designRef, setDesignRef] = useState(null);
   const [refs, setRefs] = useState(() => {
     try {
       return JSON.parse(sessionStorage.getItem(REFS_KEY) ?? "[]");
@@ -1686,7 +1711,19 @@ function AiDialog({ target, item, onClose, onApply, root }) {
     setRefs((r) => [...r, ...added].slice(0, 6));
   }
 
+  // Onglet Design : la section est redessinée puis la page rechargée.
+  async function design(kind) {
+    setState({ busy: true, step: "Section en cours de redessin (30 à 90 s)…" });
+    try {
+      if (kind === "adapter") await onAdapt();
+      else await onRebuild(kind === "nettoyer" ? "Remets de l'ordre dans cette section : alignements, espacements et tailles cohérents et réguliers, sans changer les textes ni les images." : prompt.trim() || "Redessine cette section comme sur l'image de référence, en gardant ses textes et ses images.", designRef);
+    } catch (e) {
+      setState({ error: e.message });
+    }
+  }
+
   async function launch() {
+    if (tab === "design") return design("redessiner");
     if (!prompt.trim()) return setState({ error: "Écris ce que tu veux changer." });
     setState({ busy: true, step: "" });
     try {
@@ -1696,7 +1733,7 @@ function AiDialog({ target, item, onClose, onApply, root }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: texts, prompt: /tradui|translat/i.test(prompt) ? prompt : `${prompt}
-${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.profil ?? "", typeDePage: root.pageType ?? "" }, references: refs }),
+${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.produit ?? "", profil: root.profil ?? "", infosProduit: String(root.infos ?? "").slice(0, 8000), typeDePage: root.pageType ?? "" }, references: refs }),
         });
         const body = await res.json();
         if (!res.ok) throw new Error(body.error);
@@ -1736,6 +1773,22 @@ ${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.
           <p className="atl-aidlg__target">
             Sur {what} : {texts.length} texte(s), {images.length} image(s).
           </p>
+          <div className="atl-tabs2 atl-aidlg__tabs">
+            {[
+              ["textes", `Textes (${texts.length})`, texts.length > 0],
+              ["images", `Images (${images.length})`, images.length > 0],
+              ...(onRebuild ? [["design", "Design", true]] : []),
+            ].map(([id, label, ok]) => (
+              <button key={id} type="button" className={tab === id ? "is-on" : ""} disabled={!ok || state?.busy} onClick={() => (setTab(id), setState(null))}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="atl-aidlg__how">
+            {tab === "textes" && "Réécrit les textes choisis — gpt-5.4-mini, immédiat."}
+            {tab === "images" && `Refait ${images.length > 1 ? `les ${images.length} images` : "l'image"} — gpt-image-2, ~30 s et quelques cents par image.`}
+            {tab === "design" && "Redessine la section (disposition, tailles, espacements) en gardant ses textes et ses images — 30 à 90 s."}
+          </p>
           <label className="atl-aidlg__prompt">
             <span>Ce que tu veux changer</span>
             <textarea
@@ -1753,15 +1806,36 @@ ${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.
               </button>
             ))}
           </div>
-          <div className="atl-aidlg__what">
-            <label>
-              <input type="checkbox" checked={doTexts} disabled={!texts.length} onChange={(e) => setDoTexts(e.target.checked)} /> Réécrire les textes ({texts.length}) — gpt-5.4-mini, immédiat
-            </label>
-            <label>
-              <input type="checkbox" checked={doImages} disabled={!images.length} onChange={(e) => setDoImages(e.target.checked)} /> Refaire les images ({images.length}) — gpt-image-2, ~30 s et quelques cents par image
-            </label>
-          </div>
-          {(
+          {tab === "design" && (
+            <div className="atl-aidlg__design">
+              <label className="atl-aibox__ref">
+                {designRef ? <img src={designRef} alt="" /> : <span>+ Exemple à imiter (image, facultatif)</span>}
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const r = new FileReader();
+                    r.onload = () => setDesignRef(r.result);
+                    r.readAsDataURL(file);
+                  }}
+                />
+              </label>
+              <div className="atl-aibox__row">
+                <button type="button" disabled={state?.busy} onClick={() => design("nettoyer")} title="Alignements, espacements et tailles réguliers, sans rien changer d'autre">
+                  Nettoyer la mise en page
+                </button>
+                {onAdapt && (
+                  <button type="button" disabled={state?.busy} onClick={() => design("adapter")} title="Palette, polices, espacements et boutons du reste de la page">
+                    Adapter au style de la page
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          {tab !== "design" && (
             <div className="atl-aidlg__refs" onDragOver={(e) => e.preventDefault()} onDrop={(e) => (e.preventDefault(), addFiles(e.dataTransfer.files))}>
               <span>Photos de référence (facultatif) — l'IA s'en inspire pour les textes et les images : glisse-les ici ou clique sur +</span>
               <div>
@@ -1785,8 +1859,8 @@ ${consigneLangue(root)}`, contexte: { produit: root.produit ?? "", profil: root.
           <button type="button" onClick={onClose} disabled={state?.busy}>
             Annuler
           </button>
-          <button type="button" className="atl-newpage__create" disabled={state?.busy || (!doTexts && !doImages)} onClick={launch}>
-            {state?.busy ? "En cours…" : "Lancer"}
+          <button type="button" className="atl-newpage__create" disabled={state?.busy || (tab === "design" && !prompt.trim() && !designRef)} onClick={launch}>
+            {state?.busy ? "En cours…" : tab === "design" ? "Redessiner" : tab === "images" ? "Refaire" : "Réécrire"}
           </button>
         </footer>
       </div>
@@ -1902,11 +1976,8 @@ function Seg({ value, options, onChange }) {
 }
 
 // ---- Réglages d'une partie copiée : Design · Layout · Couleurs, et l'IA ----
-function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onValues, onOpen, onMoveNode, onDelete }) {
+function CopySectionSettings({ item, onBack, onChange, onAiTexts, onValues, onOpen, onMoveNode, onDelete }) {
   const [tab, setTab] = useState("design");
-  const [prompt, setPrompt] = useState("");
-  const [ref, setRef] = useState(null);
-  const [busy, setBusy] = useState(null);
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
   const [name, variant] = (section.meta.label ?? section.id).split(" — ");
@@ -1914,20 +1985,6 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onV
   const root = canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(item.props.id)}"] [class^="atl-"]`);
   const cs = root ? root.ownerDocument.defaultView.getComputedStyle(root) : null;
   const roles = editableSettings(section.schema.settings).filter((s) => s.id.startsWith("role_"));
-  const rebuild = async (instruction) => {
-    setBusy(instruction ? "Reconstruction en cours (30 à 90 s)…" : "Nettoyage en cours (30 à 90 s)…");
-    try {
-      await onRebuild(instruction || "Remets de l'ordre dans cette section : alignements, espacements et tailles cohérents et réguliers, sans changer les textes ni les images.", ref);
-    } catch (e) {
-      setBusy(null);
-      alert(e.message);
-    }
-  };
-  const readRef = (file) => {
-    const r = new FileReader();
-    r.onload = () => setRef(r.result);
-    r.readAsDataURL(file);
-  };
   return (
     <div className="atl-insp__panel">
       <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} onDelete={onDelete} />
@@ -1996,27 +2053,10 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onRebuild, onV
       )}
       {tab === "couleurs" && <FieldList settings={roles} meta={section.meta} values={props} onChange={onChange} />}
 
-      <div className="atl-aibox">
-        <p className="atl-aibox__title">✨ Reconstruire avec l'IA</p>
-        <p className="atl-aibox__hint">Dis ce qui doit changer : l'IA redessine cette section, le reste de la page ne bouge pas.</p>
-        <textarea rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="ex. Mets les avis sur 2 colonnes · Moins chargé, titre plus gros · Cette vidéo devient une image" />
-        <label className="atl-aibox__ref">
-          {ref ? <img src={ref} alt="" /> : <span>+ Image de référence (facultatif)</span>}
-          <input type="file" accept="image/*" hidden onChange={(e) => e.target.files[0] && readRef(e.target.files[0])} />
-        </label>
-        <button type="button" className="atl-aibox__go" disabled={!!busy || !prompt.trim()} onClick={() => rebuild(prompt.trim())}>
-          Reconstruire la section
-        </button>
-        <div className="atl-aibox__row">
-          <button type="button" onClick={onAiTexts} disabled={!!busy}>
-            Réécrire les textes
-          </button>
-          <button type="button" onClick={() => rebuild("")} disabled={!!busy}>
-            Nettoyer ✨
-          </button>
-        </div>
-        {busy && <p className="atl-aidlg__step">{busy}</p>}
-      </div>
+      <button type="button" className="atl-aibtn-wide" onClick={onAiTexts}>
+        ✨ Retravailler avec l'IA…
+        <small>Textes, images ou design de la section</small>
+      </button>
     </div>
   );
 }
@@ -2315,8 +2355,138 @@ const LANGUES = [
 // Comme « Rewrite copy » de Whitelabeler : une seule fiche (marque + tout ce
 // qu'on sait du produit) et toute la page est réécrite, longueur gardée pour
 // chaque emplacement, mise en forme comprise. Par lots de 40 textes.
-function RewritePage({ content, root, onApply }) {
-  const [form, setForm] = useState({ marque: "", infos: "" });
+// ---- Fiche « Ma marque et mon produit » (⚙ Réglages de la page) ----
+// Remplie une fois, reprise par tous les outils IA : réécrire la page,
+// retravailler une section, Studio d'images (photos du produit, logo).
+function BrandSheet({ root, onChange }) {
+  const [busy, setBusy] = useState(false);
+  const photos = Array.isArray(root.photos_produit) ? root.photos_produit : [];
+  async function add(files, field) {
+    setBusy(true);
+    try {
+      const urls = [];
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) continue;
+        const dataUrl = await new Promise((ok) => {
+          const r = new FileReader();
+          r.onload = () => ok(r.result);
+          r.readAsDataURL(file);
+        });
+        const res = await fetch(`/api/medias/${pageName}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, dataUrl }) });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error);
+        urls.push(body.url);
+      }
+      if (field === "logo") onChange({ logo: urls[0] ?? root.logo ?? "" });
+      else onChange({ photos_produit: [...photos, ...urls].slice(0, 8) });
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  const text = (key, label, ph, rows) => (
+    <label className="atl-brand__field">
+      <span>{label}</span>
+      {rows ? (
+        <textarea rows={rows} value={root[key] ?? ""} placeholder={ph} onChange={(e) => onChange({ [key]: e.target.value })} />
+      ) : (
+        <input value={root[key] ?? ""} placeholder={ph} onChange={(e) => onChange({ [key]: e.target.value })} />
+      )}
+    </label>
+  );
+  return (
+    <div className="atl-brand">
+      <p className="atl-brand__title">Ma marque et mon produit</p>
+      <p className="atl-brand__hint">Rempli une fois : tous les outils ✨ IA s'en servent.</p>
+      {text("marque", "Marque", "ex. Clearflow")}
+      {text("produit", "Produit", "ex. Crème au collagène")}
+      {text("profil", "Client visé", "ex. Femmes de 35-50 ans, peau sèche")}
+      {text("infos", "Ce que tu sais du produit", "Page fournisseur, bénéfices, ingrédients, prix, garanties…", 5)}
+      <div className="atl-brand__field">
+        <span>Photos du produit {busy && "· envoi…"}</span>
+        <div className="atl-brand__imgs">
+          {photos.map((u) => (
+            <button key={u} type="button" title="Retirer" onClick={() => onChange({ photos_produit: photos.filter((x) => x !== u) })}>
+              <img src={u} alt="" />
+            </button>
+          ))}
+          <label className="atl-brand__add" title="Ajouter des photos">
+            +
+            <input type="file" accept="image/*" multiple hidden onChange={(e) => add([...e.target.files], "photos")} />
+          </label>
+        </div>
+      </div>
+      <div className="atl-brand__field">
+        <span>Logo</span>
+        <div className="atl-brand__imgs">
+          {root.logo && (
+            <button type="button" title="Retirer" onClick={() => onChange({ logo: "" })}>
+              <img src={root.logo} alt="" />
+            </button>
+          )}
+          {!root.logo && (
+            <label className="atl-brand__add" title="Ajouter le logo">
+              +
+              <input type="file" accept="image/*" hidden onChange={(e) => add([...e.target.files], "logo")} />
+            </label>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- Outils IA de toute la page (menu ✨ IA du rail de gauche) ----
+function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClose }) {
+  const [state, setState] = useState(null);
+  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style" };
+  return createPortal(
+    <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && !state?.busy && onClose()}>
+      <div className="atl-modal__panel atl-aidlg">
+        <header className="atl-modal__head">
+          <h2>{titles[tool] ?? "✨ IA"}</h2>
+          <button type="button" className="atl-modal__close" onClick={onClose} aria-label="Fermer">
+            ×
+          </button>
+        </header>
+        <div className="atl-aidlg__body">
+          {tool === "reecrire" && <RewritePage content={content} root={root} onApply={onApply} onRoot={onRoot} />}
+          {tool === "traduire" && <TranslatePage content={content} root={root} onApply={onApply} onLangue={(code) => onRoot({ langue: code })} />}
+          {tool === "adapter" && (
+            <div className="atl-aibox">
+              <p className="atl-aibox__hint">
+                Chaque section ({content.length}) est redessinée avec la palette, les polices, les espacements et les boutons de la page, en gardant ses textes et ses images. Utile quand la page mélange des sections venues de templates différents. Compte 30 à 90 s par section ; une copie de sécurité est faite avant (Historique).
+              </p>
+              <button
+                type="button"
+                className="atl-aibox__go"
+                disabled={state?.busy}
+                onClick={async () => {
+                  if (!confirm(`Redessiner les ${content.length} sections de la page ?`)) return;
+                  setState({ busy: true, step: "" });
+                  try {
+                    await onAdaptAll((step) => setState({ busy: true, step }));
+                  } catch (e) {
+                    setState({ error: e.message });
+                  }
+                }}
+              >
+                {state?.busy ? "Adaptation en cours…" : "Adapter toute la page"}
+              </button>
+              {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
+              {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+function RewritePage({ content, root, onApply, onRoot }) {
+  const [form, setForm] = useState({ marque: root.marque ?? "", infos: root.infos ?? "" });
   const [state, setState] = useState(null);
   async function run() {
     if (!form.infos.trim() && !root.produit) return setState({ error: "Colle d'abord ce que tu sais du produit." });
@@ -2324,6 +2494,8 @@ function RewritePage({ content, root, onApply }) {
     const total = jobs.reduce((n, j) => n + j.texts.length, 0);
     if (!total) return setState({ error: "Aucun texte à réécrire." });
     if (!confirm(`Réécrire les ${total} textes de la page pour ${form.marque || root.produit || "ton produit"} ?`)) return;
+    // Ce qui est tapé ici complète la fiche « Ma marque et mon produit ».
+    if (form.marque !== (root.marque ?? "") || form.infos !== (root.infos ?? "")) onRoot?.({ marque: form.marque, infos: form.infos });
     let done = 0;
     try {
       for (const job of jobs) {
@@ -2353,8 +2525,8 @@ function RewritePage({ content, root, onApply }) {
   }
   return (
     <div className="atl-aibox">
-      <p className="atl-aibox__title">✍️ Réécrire toute la page pour mon produit</p>
-      <p className="atl-aibox__hint">Colle tout ce que tu sais du produit (page fournisseur, notes, bénéfices, ingrédients). Chaque texte est réécrit à sa longueur.</p>
+      <p className="atl-aibox__title">✍️ Réécrire pour mon produit</p>
+      <p className="atl-aibox__hint">Tous les textes de la page, consignes entre crochets comprises, réécrits pour ta marque et ton produit, chacun à sa longueur. Repris de la fiche « Ma marque et mon produit » (⚙ Réglages de la page).</p>
       <input value={form.marque} onChange={(e) => setForm({ ...form, marque: e.target.value })} placeholder="Nom de ta marque" disabled={state?.busy} />
       <textarea rows={5} value={form.infos} onChange={(e) => setForm({ ...form, infos: e.target.value })} placeholder={`Ce que tu sais de ${root.produit || "ton produit"}…`} disabled={state?.busy} />
       <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
