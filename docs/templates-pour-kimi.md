@@ -35,7 +35,6 @@ fichier zip (un dossier par page à la racine du zip), et donne-moi ce zip.
 |---|---|---|---|
 | 1 | `adv-8sheep` | advertorial | https://get.8sheep.com/ep-jr-advt-v2/ |
 | 2 | `adv-dailyskinmagazine` | advertorial | https://dailyskinmagazine.com/flawless-skin-over-50pbls-us-tb |
-| 3 | `adv-derila` | advertorial | https://derila.com/articles/people-sleep-with-pain?prodpv=2&pmt=vf&l=en&vndr=codderfbdovin |
 | 4 | `adv-drmtlgy` | advertorial | https://www.drmtlgy.com/pages/matte-utm-advertorial |
 | 5 | `adv-heartandsoil` | listicle | https://heartandsoil.co/blog/the-carnivore-diet-start-here/ |
 | 6 | `adv-nebroo` | advertorial | https://offer.nebroo.com/presell-v1 |
