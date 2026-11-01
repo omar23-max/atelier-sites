@@ -2,14 +2,35 @@
 .atl-lume-listicle-p5 * { box-sizing: border-box; }
 .atl-lume-listicle-p5 { margin: 0px; }
 .atl-lume-listicle-p5 section { padding: 64px max(24px, -590px + 50vw); }
-.atl-lume-listicle-p5 .lume-stats { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--purple); color: rgb(255, 255, 255); text-align: center; gap: 32px; }
-.atl-lume-listicle-p5 .lume-stats div { display: grid; gap: 12px; }
-.atl-lume-listicle-p5 .lume-stats strong { font-size: 72px; line-height: 1; }
-.atl-lume-listicle-p5 .lume-stats span { font-size: 17px; line-height: 1.4; }
+.atl-lume-listicle-p5 img { display: block; max-width: 100%; height: auto; }
+.atl-lume-listicle-p5 button, .atl-lume-listicle-p5 a { font: inherit; }
+.atl-lume-listicle-p5 button { cursor: pointer; }
+.atl-lume-listicle-p5 h1, .atl-lume-listicle-p5 h2, .atl-lume-listicle-p5 h3, .atl-lume-listicle-p5 p { margin-top: 0px; }
+.atl-lume-listicle-p5 h2 { font-size: clamp(32px, 4vw, 50px); line-height: 1.06; color: var(--purple); }
+.atl-lume-listicle-p5 .lume-eyebrow { font-size: 13px; font-weight: 800; letter-spacing: 0.14em; color: var(--orange); margin-bottom: 20px; }
+.atl-lume-listicle-p5 .lume-cta { min-height: 52px; padding: 14px 24px; border: 2px solid var(--orange); border-radius: 4px; background: var(--orange); color: rgb(255, 255, 255); font-weight: 800; letter-spacing: 0.04em; transition: transform 0.2s, background 0.2s; }
+.atl-lume-listicle-p5 .lume-cta:hover { transform: translateY(-2px); background: rgb(233, 70, 36); }
+.atl-lume-listicle-p5 .lume-cta:focus-visible, .atl-lume-listicle-p5 .lume-option:focus-visible, .atl-lume-listicle-p5 .lume-thumbnails button:focus-visible { outline: 3px solid var(--purple); outline-offset: 3px; }
+.atl-lume-listicle-p5 .lume-offer-heading { text-align: center; margin-bottom: 40px; }
+.atl-lume-listicle-p5 .lume-offer-heading h2 { margin-bottom: 8px; }
+.atl-lume-listicle-p5 .lume-offer-heading h2 strong { color: var(--orange); }
+.atl-lume-listicle-p5 .lume-offer-heading h3 { font-size: 28px; margin-bottom: 8px; }
+.atl-lume-listicle-p5 .lume-product-layout { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 56px; align-items: start; }
+.atl-lume-listicle-p5 .lume-product-layout > img { position: sticky; top: 20px; }
+.atl-lume-listicle-p5 .lume-options { display: grid; gap: 12px; margin-bottom: 28px; }
+.atl-lume-listicle-p5 .lume-option { text-align: left; padding: 18px; border: 2px solid rgb(221, 221, 221); border-radius: 6px; background: rgb(255, 255, 255); color: rgb(39, 35, 59); }
+.atl-lume-listicle-p5 .lume-option strong, .atl-lume-listicle-p5 .lume-option span { display: block; }
+.atl-lume-listicle-p5 .lume-option strong { font-size: 18px; margin-bottom: 6px; }
+.atl-lume-listicle-p5 .lume-option span { line-height: 1.5; }
+.atl-lume-listicle-p5 .lume-option.is-selected { border-color: var(--orange); background: rgb(255, 248, 245); }
+.atl-lume-listicle-p5 .lume-minis { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 0px 28px; line-height: 1.5; }
 @media (max-width: 760px) { .atl-lume-listicle-p5 section { padding: 40px 20px; } }
+@media (max-width: 760px) { .atl-lume-listicle-p5 .lume-hero, .atl-lume-listicle-p5 .lume-product-layout, .atl-lume-listicle-p5 .lume-science, .atl-lume-listicle-p5 .lume-feature { grid-template-columns: 1fr; gap: 32px; } }
+@media (max-width: 760px) { .atl-lume-listicle-p5 .lume-product-layout > img { position: static; } }
 @media (max-width: 760px) { .atl-lume-listicle-p5 .lume-stats, .atl-lume-listicle-p5 .lume-minis { grid-template-columns: 1fr; } }
-@media (max-width: 760px) { .atl-lume-listicle-p5 .lume-stats strong { font-size: 56px; } }
+.atl-lume-listicle-p5 button:focus-visible, .atl-lume-listicle-p5 a:focus-visible, .atl-lume-listicle-p5 summary:focus-visible { outline: rgb(37, 99, 235) solid 3px; outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .atl-lume-listicle-p5 *, .atl-lume-listicle-p5 ::before, .atl-lume-listicle-p5 ::after { transition-duration: 0.01ms !important; } }
+.atl-lume-listicle-p5 button[data-demo-action="purchase"] { animation: auto ease 0s 1 normal none running none !important; }
 .atl-lume-listicle-p5 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
 .atl-lume-listicle-p5 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
 .atl-lume-listicle-p5 [data-atl-car="track"] > * { transform: none !important; }

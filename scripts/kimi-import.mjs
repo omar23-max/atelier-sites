@@ -484,7 +484,8 @@ const built = await page.evaluate(
       const start = units.length;
       for (const c of list) {
         wait.push(c);
-        if (slotsOf(c) > 2) {
+        // Section nommée par Kimi (data-atelier-section) : toujours gardée seule.
+        if (slotsOf(c) > 2 || (c.dataset?.atelierSection && slotsOf(c) > 0)) {
           units.push({ chain, els: wait });
           wait = [];
         }
