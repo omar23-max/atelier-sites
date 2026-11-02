@@ -5,7 +5,7 @@
 //   node scripts/audit-sections.mjs [<id> …]
 //
 // Le résultat va dans sections/<id>/meta.json (« audit » : raisons et mesures) :
-// le catalogue montre ces sections sous « À vérifier ». Une section sans
+// le catalogue montre ces sections sous « Sections à revoir ». Une section sans
 // problème perd son « audit ».
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -90,4 +90,4 @@ for (const id of ids) {
   }
 }
 await browser.close();
-console.log(`\n${flagged} section(s) à vérifier sur ${ids.length} contrôlée(s).`);
+console.log(`\n${flagged} section(s) à revoir sur ${ids.length} contrôlée(s).`);

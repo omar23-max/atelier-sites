@@ -550,7 +550,7 @@ export default function Catalogue() {
               <OriginBar ids={sections.map((s) => s.id)} value={origin} onChange={setOrigin} />
               {sections.some((s) => s.meta.audit) && (
                 <button type="button" className={`cat-check${toCheck ? " is-on" : ""}`} onClick={() => setToCheck(!toCheck)} title="Sections trop hautes, qui débordent, excentrées, presque vides ou avec des images manquantes">
-                  ⚠ À vérifier ({sections.filter((s) => s.meta.audit).length})
+                  ⚠ Sections à revoir ({sections.filter((s) => s.meta.audit).length})
                 </button>
               )}
               <input className="cat-search" placeholder="Rechercher une section : nom, fonction (avis, FAQ…), site ou template d'origine, mot-clé…" value={query} onChange={(e) => setQuery(e.target.value)} />
