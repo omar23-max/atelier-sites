@@ -19,7 +19,7 @@
 //    réduit, pour chaque section, aux règles qui y servent.
 // Un petit script remplace React sur la page publiée (boutons appris,
 // carrousels) ; les blocs coupés entre sections y sont recollés (data-atl-suite / data-atl-col).
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { dirname, extname, join, resolve } from "node:path";
@@ -914,8 +914,22 @@ for (const s of content) {
   if (await writeIfChanged(join(sdir, "style.css"), s.css)) changed++;
   if (await writeIfChanged(join(sdir, "meta.json"), JSON.stringify(s.meta, null, 2) + "\n")) changed++;
 }
+// Type de la page : celui déjà choisi dans l'atelier (réimport, sauf
+// « produit », ancienne valeur imposée), sinon celui du meta.json de Kimi
+// (produit, offre, collection, listicle, advertorial, landing, accueil,
+// autre), sinon « produit ».
+const TYPES_PAGE = ["produit", "offre", "landing", "collection", "accueil", "advertorial", "listicle", "autre"];
+const kimiMeta = [join(app, "meta.json"), join(app, "src", "data", "meta.json")].filter(existsSync).map((f) => {
+  try {
+    return JSON.parse(readFileSync(f, "utf8"));
+  } catch {
+    return {};
+  }
+})[0] ?? {};
+const previousType = existsSync(join(root, "pages", `${slug}.json`)) ? JSON.parse(await readFile(join(root, "pages", `${slug}.json`), "utf8")).root?.props?.pageType : null;
+const pageType = [previousType !== "produit" ? previousType : null, kimiMeta.type].find((t) => TYPES_PAGE.includes(t)) ?? "produit";
 const pageJson = {
-  root: { props: { title: `Kimi — ${label}`, pageType: "produit", produit: "", profil: "", importSource: slug, design: "" } },
+  root: { props: { title: `Kimi — ${label}`, pageType, produit: "", profil: "", importSource: slug, design: "" } },
   content: content.map((s) => ({ type: s.id, props: { id: s.id, blocks_element: s.blocks } })),
   zones: {},
 };

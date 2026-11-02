@@ -15,7 +15,7 @@ Tu reproduis des pages web à l'identique sous forme d'applications React + Vite
 - package.json : scripts "dev", "build" et "preview" ; dépendances publiques seulement (react, react-dom, vite, @vitejs/plugin-react, et le strict nécessaire). Aucun script postinstall / preinstall / prepare.
 - package-lock.json : uniquement s'il pointe vers https://registry.npmjs.org (jamais vers un miroir privé). Sinon, ne le livre pas.
 - Pas de node_modules, pas de dist, pas de fichiers temporaires, pas de captures d'écran, pas de scripts d'audit.
-- meta.json : { "name": "<nom pour l'atelier>", "type": "<produit|offre|listicle|advertorial|landing|accueil>", "source": "<adresse d'origine>", "title": "<titre de la page>" }.
+- meta.json (à la racine du dossier) : { "name": "<nom pour l'atelier>", "type": "<produit|offre|collection|landing|accueil|advertorial|listicle|autre>", "source": "<adresse d'origine>", "title": "<titre de la page>" }. Types : produit (fiche produit avec achat), offre (promotion pour une pub), collection (grille de produits à choisir), landing (longue page de vente), accueil (page d'accueil), advertorial (article qui raconte), listicle (« N raisons… »), autre (à propos, contact…).
 - README.md : l'adresse d'origine et la commande npm install && npm run build.
 - Tous les dossiers dans UN SEUL zip. Ne mets pas le zip dans un dossier parent supplémentaire : à l'ouverture du zip, on voit directement les dossiers des pages.
 - `npm install` puis `npm run build` doivent réussir sur un ordinateur neuf, sans accès à autre chose que registry.npmjs.org.
@@ -112,7 +112,7 @@ Corrige chaque page qui échoue, puis refais les contrôles. Dans ta réponse fi
 ═══════════════════════════════════════
 9. PAGES À CLONER
 ═══════════════════════════════════════
-(nom pour l'atelier — adresse — type)
+(nom pour l'atelier — adresse — type : produit, offre, collection, landing, accueil, advertorial, listicle ou autre)
 - exemple-produit — https://exemple.com/products/xxx — produit
 ```
 
