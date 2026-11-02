@@ -41,6 +41,8 @@ const anyMain = parts.some((item) => {
 const NAV_LIKE = /^<(?:[a-z]+[^>]*>)*?<(?:header|footer|nav)|^(?:<[^>]+>)*<[a-z]+[^>]*class="[^"]*(?:header|footer|navbar|site-nav)/i;
 
 const prefix = `${slug}-sec-`;
+// Sections mises à la corbeille (corbeille/sections/<id>__<date>).
+const trashed = new Set(existsSync(join(root, "corbeille", "sections")) ? (await readdir(join(root, "corbeille", "sections"))).map((e) => e.split("__")[0]) : []);
 const kept = new Set();
 for (const [i, item] of parts.entries()) {
   const dir = join(root, "sections", item.type);
@@ -67,6 +69,11 @@ for (const [i, item] of parts.entries()) {
   const nom = grid ? "Grille de produits" : buyBox ? "Fiche produit" : f.nom;
 
   const sid = `${prefix}${i + 1}`;
+  // Section supprimée par l'utilisateur (dans la corbeille) : pas recréée.
+  if (trashed.has(sid)) {
+    console.log(`  – ${sid} : supprimée par toi (corbeille), pas recréée`);
+    continue;
+  }
   const from = `atl-${item.type}`;
   const to = `atl-${sid}`;
   // La classe de la section (\b : « -p1 » ne doit pas toucher « -p10 »).
@@ -75,8 +82,14 @@ for (const [i, item] of parts.entries()) {
   const meta = JSON.parse(await readFile(join(dir, "meta.json"), "utf8"));
   const { pageSpecific, families, ...rest } = meta;
   const outSchema = { ...schema, name: `${nom} · ${marque}`.slice(0, 25), presets: [{ name: `${nom} · ${marque}`.slice(0, 25), blocks: blocks.map((b) => ({ type: "element", settings: b })) }] };
+  // Réimport : ce que l'utilisateur a réglé sur la section reste (masquée,
+  // version enregistrée depuis une page).
+  const prevFile = join(root, "sections", sid, "meta.json");
+  const prev = existsSync(prevFile) ? JSON.parse(await readFile(prevFile, "utf8")) : {};
   const outMeta = {
     ...rest,
+    ...(prev.status ? { status: prev.status } : {}),
+    ...(prev.presetProps ? { presetProps: prev.presetProps } : {}),
     label: `${nom} — ${marque}`,
     family,
     fonction: nom,

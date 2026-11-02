@@ -181,6 +181,12 @@ function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
         <div className="cat-card__badges">
           <span className={`cat-badge ${hidden ? "cat-badge--grey" : "cat-badge--green"}`}>{hidden ? "Masquée" : "Visible"}</span>
           {section.errors.length > 0 && <span className="cat-badge cat-badge--red">À corriger</span>}
+          {section.meta.audit && (
+            <span className="cat-badge cat-badge--orange" title={section.meta.audit.raisons.join("
+")}>
+              ⚠ {section.meta.audit.raisons[0]}
+            </span>
+          )}
         </div>
       </div>
       <div className="cat-card__actions">
@@ -203,6 +209,7 @@ export default function Catalogue() {
   const [view, setView] = useState(() => location.hash.slice(1) || (location.search.includes("page=") ? "designs" : "tout"));
   const [query, setQuery] = useState("");
   const [origin, setOrigin] = useState("");
+  const [toCheck, setToCheck] = useState(false); // sections signalées par scripts/audit-sections.mjs
   const { originOf } = useOrigins();
   const [preview, setPreview] = useState(null);
   const [statusOverride, setStatusOverride] = useState({});
@@ -253,6 +260,7 @@ export default function Catalogue() {
   // Recherche : nom, fonction, famille, site et template d'origine, mots du
   // contenu ; filtre : origine (Daydreamer Excel, Whitelabeler…).
   const matches = (s) =>
+    (!toCheck || s.meta.audit) &&
     (!origin || originOf(s.id) === origin) &&
     (!q ||
       q.split(/\s+/).every((w) =>
@@ -370,7 +378,7 @@ export default function Catalogue() {
 
   function FamilyBlock({ family }) {
     const list = (grouped[family.id] ?? []).filter(matches);
-    if ((q || origin) && list.length === 0) return null;
+    if ((q || origin || toCheck) && list.length === 0) return null;
     return (
       <section className="cat-panel">
         <div className="cat-panel__head">
@@ -541,8 +549,13 @@ export default function Catalogue() {
               </section>
               </div>
               <OriginBar ids={sections.map((s) => s.id)} value={origin} onChange={setOrigin} />
+              {sections.some((s) => s.meta.audit) && (
+                <button type="button" className={`cat-check${toCheck ? " is-on" : ""}`} onClick={() => setToCheck(!toCheck)} title="Sections trop hautes, qui débordent, excentrées, presque vides ou avec des images manquantes">
+                  ⚠ À vérifier ({sections.filter((s) => s.meta.audit).length})
+                </button>
+              )}
               <input className="cat-search" placeholder="Rechercher une section : nom, fonction (avis, FAQ…), site ou template d'origine, mot-clé…" value={query} onChange={(e) => setQuery(e.target.value)} />
-              {FAMILIES.filter((f) => grouped[f.id]?.length || !(q || origin)).map((f) => (
+              {FAMILIES.filter((f) => grouped[f.id]?.length || !(q || origin || toCheck)).map((f) => (
                 <FamilyBlock key={f.id} family={f} />
               ))}
             </>
