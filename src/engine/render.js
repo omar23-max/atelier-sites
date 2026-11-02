@@ -43,6 +43,9 @@ export function defaultPropsFor(section) {
       .filter((b) => b.type === block.type)
       .map((b) => ({ ...itemDefaults, ...(b.settings ?? {}) }));
   }
+  // Section enregistrée depuis l'atelier (« Enregistrer dans le catalogue ») :
+  // ses textes, images, styles et réglages tels qu'ils étaient dans la page.
+  if (meta.presetProps) Object.assign(props, structuredClone(meta.presetProps));
   return props;
 }
 

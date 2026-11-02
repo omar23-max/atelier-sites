@@ -1384,6 +1384,7 @@ function SectionSettings({ item, onBack, onAi, onChange, onDelete }) {
       ) : (
         <p className="atl-insp__empty">Cette section n'a pas de réglage général : ouvre ses éléments dans l'arbre.</p>
       )}
+      <SaveSectionBox item={item} />
       <button type="button" className="atl-aibtn-wide" onClick={onAi}>
         ✨ Retravailler avec l'IA…
         <small>Textes, images ou design de la section</small>
@@ -1902,6 +1903,57 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
   );
 }
 
+// ---- Enregistrer la section modifiée dans le catalogue ----
+// Nouvelle section (copie avec ces textes, images et styles), ou la section
+// d'origine du catalogue mise à jour (les pages qui l'utilisent ne bougent pas).
+function SaveSectionBox({ item }) {
+  const [state, setState] = useState(null);
+  const section = byId[item.type];
+  if (!section) return null;
+  const canOverwrite = !section.meta.pageSpecific;
+  async function save(mode) {
+    const name = section.meta.label ?? section.id;
+    if (mode === "ecraser" && !confirm(`Remplacer « ${name} » du catalogue par cette version ?
+
+Les prochains ajouts de cette section la prendront telle quelle ; les pages qui l'utilisent déjà ne changent pas.`)) return;
+    const label = mode === "nouvelle" ? prompt("Nom de la nouvelle section :", `${name.replace(/ — .*$/, "")} — perso`) : null;
+    if (mode === "nouvelle" && label === null) return;
+    setState({ busy: true });
+    try {
+      const res = await fetch("/api/sections-save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ from: section.id, mode, props: item.props, label }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error);
+      setState({ done: mode === "nouvelle" ? `Ajoutée au catalogue : « ${label} ».` : "Section du catalogue mise à jour." });
+    } catch (e) {
+      setState({ error: e.message });
+    }
+  }
+  return (
+    <div className="atl-savesec">
+      <span>Enregistrer cette version dans le catalogue</span>
+      <div>
+        <button type="button" disabled={state?.busy} onClick={() => save("nouvelle")}>
+          Nouvelle section
+        </button>
+        <button
+          type="button"
+          disabled={state?.busy || !canOverwrite}
+          onClick={() => save("ecraser")}
+          title={canOverwrite ? "La section du catalogue prend ces textes, images et styles" : "Section propre à cette page : pas d'original dans le catalogue"}
+        >
+          Remplacer l'originale
+        </button>
+      </div>
+      {state?.done && <small className="atl-topbar__ok">{state.done}</small>}
+      {state?.error && <small className="atl-topbar__error">{state.error}</small>}
+    </div>
+  );
+}
+
 // ---- Texte riche (comme Shopify) : gras, italique, souligné, lien ----
 // Le texte garde la mise en forme d'origine (<span style>) ; seules les
 // balises de mise en forme simples sont conservées.
@@ -2087,6 +2139,7 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onValues, onOp
       )}
       {tab === "couleurs" && <FieldList settings={roles} meta={section.meta} values={props} onChange={onChange} />}
 
+      <SaveSectionBox item={item} />
       <button type="button" className="atl-aibtn-wide" onClick={onAiTexts}>
         ✨ Retravailler avec l'IA…
         <small>Textes, images ou design de la section</small>

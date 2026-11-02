@@ -651,6 +651,42 @@ function atelierApi() {
             return json(res, 200, out.sort((a, b) => String(b.capturedAt).localeCompare(String(a.capturedAt))));
           }
 
+          // ---- Section modifiée dans une page → catalogue ----
+          // { from, mode: "nouvelle" | "ecraser", props, label }. « nouvelle » :
+          // copie de la section (classe atl-<id> renommée) dont les valeurs par
+          // défaut sont celles de la page ; « ecraser » : la section d'origine
+          // prend ces valeurs (les pages qui l'utilisent déjà ne bougent pas).
+          if (parts[0] === "sections-save" && req.method === "POST") {
+            const { from, mode, props, label } = await readBody(req);
+            if (!NAME.test(from ?? "") || !existsSync(join(sectionsDir, from, "schema.json"))) return json(res, 400, { error: "Section introuvable." });
+            const clean = { ...(props ?? {}) };
+            delete clean.id;
+            const srcDir = join(sectionsDir, from);
+            const srcMeta = existsSync(join(srcDir, "meta.json")) ? JSON.parse(await readFile(join(srcDir, "meta.json"), "utf8")) : {};
+            let id = from;
+            if (mode === "ecraser") {
+              if (srcMeta.pageSpecific) return json(res, 400, { error: "Cette section appartient à une page : enregistre-la plutôt comme nouvelle section." });
+              await writeFile(join(srcDir, "meta.json"), JSON.stringify({ ...srcMeta, presetProps: clean, modifieeLe: new Date().toISOString().slice(0, 10) }, null, 2) + "\n", "utf8");
+            } else {
+              const base = from.replace(/-(sec-|p)\d+$/, "").replace(/-perso-\d+$/, "");
+              let n = 1;
+              while (existsSync(join(sectionsDir, `${base}-perso-${n}`))) n++;
+              id = `${base}-perso-${n}`;
+              const dir = join(sectionsDir, id);
+              await mkdir(dir, { recursive: true });
+              const renameClass = (t) => t.replace(new RegExp(`atl-${from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![0-9])`, "g"), `atl-${id}`);
+              for (const f of ["schema.json", "template.liquid", "style.css"]) {
+                if (existsSync(join(srcDir, f))) await writeFile(join(dir, f), renameClass(await readFile(join(srcDir, f), "utf8")), "utf8");
+              }
+              const meta = { ...srcMeta, label: label || `${srcMeta.label ?? from} (modifiée)`, presetProps: clean, pageSpecific: false, status: "visible", copieDe: from, creeLe: new Date().toISOString().slice(0, 10) };
+              delete meta.figeeDepuis;
+              await writeFile(join(dir, "meta.json"), JSON.stringify(meta, null, 2) + "\n", "utf8");
+            }
+            // Miniature refaite en tâche de fond.
+            spawn(process.execPath, [join(root, "scripts", "thumbs.mjs"), id], { cwd: root, stdio: "ignore", windowsHide: true }).on("error", () => {});
+            return json(res, 200, { ok: true, id });
+          }
+
           // ---- Section refaite par l'IA : écrite dans sections/<id>/ ----
           if (parts[0] === "sections-ia" && req.method === "POST") {
             const { id, schema, template, css, meta } = await readBody(req);
