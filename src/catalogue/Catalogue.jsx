@@ -182,8 +182,7 @@ function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
           <span className={`cat-badge ${hidden ? "cat-badge--grey" : "cat-badge--green"}`}>{hidden ? "Masquée" : "Visible"}</span>
           {section.errors.length > 0 && <span className="cat-badge cat-badge--red">À corriger</span>}
           {section.meta.audit && (
-            <span className="cat-badge cat-badge--orange" title={section.meta.audit.raisons.join("
-")}>
+            <span className="cat-badge cat-badge--orange" title={section.meta.audit.raisons.join(" · ")}>
               ⚠ {section.meta.audit.raisons[0]}
             </span>
           )}
