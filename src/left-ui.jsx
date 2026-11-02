@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { sections } from "./engine/sections.js";
 import { FAMILIES, familyOf } from "./engine/families.js";
@@ -231,6 +232,7 @@ function AddTool() {
   const hasSelection = usePuckSelect((s) => !!s.selectedItem);
   const [family, setFamily] = useState(null);
   const [mode, setMode] = useState(null); // "galerie" | "ia"
+  const [peek, setPeek] = useState(null); // modèle survolé, montré en grand
   const [answers, setAnswers] = useState({});
   const [state, setState] = useState(null);
   const grouped = useMemo(() => {
@@ -311,9 +313,9 @@ function AddTool() {
       )}
 
       {mode === "galerie" && (
-        <ol className="atl-variants">
+        <ol className="atl-variants" onMouseLeave={() => setPeek(null)}>
           {variants.map((s) => (
-            <li key={s.id}>
+            <li key={s.id} onMouseEnter={() => setPeek(s)}>
               <button type="button" onClick={() => insertSection(getPuck, s.id)} title="Ajouter à la page">
                 <Thumb section={s} />
                 <span>{nameOf(s, s.id)[1] ?? s.meta.label}</span>
@@ -322,6 +324,16 @@ function AddTool() {
           ))}
         </ol>
       )}
+
+      {/* Survol d'un modèle : la section en grand, à droite du panneau (comme Whitelabeler). */}
+      {mode === "galerie" && peek?.thumbnail &&
+        createPortal(
+          <div className="atl-peek" aria-hidden="true">
+            <b>{nameOf(peek, peek.id)[1] ?? peek.meta.label}</b>
+            <img src={peek.thumbnail} alt="" />
+          </div>,
+          document.body,
+        )}
 
       {mode === "ia" &&
         (state?.done ? (

@@ -673,6 +673,27 @@ export function Inspector({ children }) {
     if (other) moveNode(sectionId, sibs[i], other, dir > 0);
   }
 
+  // Arrivée depuis le catalogue (« + Ajouter ») : ?section=<id> → la section
+  // ajoutée est choisie et l'aperçu défile jusqu'à elle, dès qu'elle est là.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const target = params.get("section");
+    if (!target) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+      const doc = canvasFrame()?.contentDocument;
+      if (doc?.querySelector(`[data-atl-id="${CSS.escape(target)}"]`)) {
+        clearInterval(timer);
+        choose({ sectionId: target });
+        setTimeout(() => scrollCanvasTo(target), 300);
+        params.delete("section");
+        history.replaceState(null, "", `${location.pathname}?${params}`);
+      } else if (tries > 60) clearInterval(timer);
+    }, 500);
+    return () => clearInterval(timer);
+  }, []);
+
   // Menu ✨ IA du rail de gauche (outils de toute la page), et « Refaire avec
   // l'IA » d'une image : la fenêtre Retravailler, sur cette image seulement.
   useEffect(() => {

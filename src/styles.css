@@ -5287,3 +5287,31 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   background: none;
   color: #fff;
 }
+
+/* Survol d'un modèle dans « Ajouter une section » : la section en grand. */
+.atl-peek {
+  position: fixed;
+  top: 70px;
+  left: 340px;
+  z-index: 2500;
+  width: min(820px, calc(100vw - 380px));
+  max-height: calc(100vh - 110px);
+  overflow: hidden;
+  padding: 10px;
+  border: 1px solid var(--atl-line, #e5e5e5);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+}
+.atl-peek b {
+  display: block;
+  margin: 0 0 8px;
+  font: 600 13px "Inter", system-ui, sans-serif;
+}
+.atl-peek img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}

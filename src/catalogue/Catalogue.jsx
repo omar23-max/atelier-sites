@@ -72,7 +72,7 @@ export async function addToCurrentPage(section) {
   if (design) item = applyDesign({ root: {}, content: [item] }, design, Object.fromEntries(everySection.map((x) => [x.id, x]))).page.content[0];
   await api("POST", `${url}/snapshot`).catch(() => {});
   await api("PUT", url, { ...page, content: [...(page.content ?? []), item] });
-  return page.content?.length ?? 0;
+  return item.props.id;
 }
 
 function AddToPageButton({ section, onMessage, short }) {
@@ -87,8 +87,10 @@ function AddToPageButton({ section, onMessage, short }) {
       onClick={async () => {
         setBusy(true);
         try {
-          await addToCurrentPage(section);
-          onMessage?.({ text: `« ${section.meta.label ?? section.id} » ajoutée à la fin de « ${targetPage} ». Ouvre l'atelier pour la voir.` });
+          const id = await addToCurrentPage(section);
+          // La page s'ouvre tout de suite, sur la section ajoutée (sélectionnée).
+          onMessage?.({ text: `« ${section.meta.label ?? section.id} » ajoutée à « ${targetPage} ». Ouverture de la page…` });
+          location.href = `/?page=${encodeURIComponent(targetPage)}&section=${encodeURIComponent(id)}`;
         } catch (e) {
           onMessage?.({ error: true, text: `Échec : ${e.message}` });
         } finally {
