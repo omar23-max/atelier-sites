@@ -99,11 +99,13 @@ const TOOLS = () => {
   // pseudo-éléments sont retirés pour le test.
   window.__atlRules = () => {
     const list = [];
+    // Mêmes règles, même ordre que l'écriture du CSS (plus bas) : une règle
+    // de style (ses règles imbriquées restent dedans), et l'intérieur des
+    // blocs @media, @supports, @container, @layer… ; pas les @keyframes.
     const walk = (rules) => {
       for (const r of rules) {
-        if (r.cssRules && !(r instanceof CSSStyleRule)) walk(r.cssRules);
-        else if (r instanceof CSSStyleRule) list.push(r);
-        if (r instanceof CSSStyleRule && r.cssRules?.length) walk(r.cssRules);
+        if (r instanceof CSSStyleRule) list.push(r);
+        else if (r.cssRules && !(r instanceof CSSKeyframesRule)) walk(r.cssRules);
       }
     };
     for (const s of document.styleSheets) {
@@ -714,13 +716,18 @@ const built = await page.evaluate(
 
     // CSS : chaque règle, avec son emballage (@media…), dans l'ordre.
     const css = [];
+    let nStyle = 0;
     const walk = (rules, wrap) => {
       for (const r of rules) {
-        if (r instanceof CSSStyleRule) css.push({ sel: r.selectorText, body: r.style.cssText, wrap, i: css.filter((x) => x.sel != null).length });
-        else if (r instanceof CSSMediaRule) walk(r.cssRules, [...wrap, `@media ${r.conditionText}`]);
-        else if (r instanceof CSSSupportsRule) walk(r.cssRules, [...wrap, `@supports ${r.conditionText}`]);
-        else if (r.cssRules && r.cssText.startsWith("@layer")) walk(r.cssRules, wrap);
-        else css.push({ raw: r.cssText, wrap });
+        if (r instanceof CSSStyleRule) {
+          // Règles imbriquées (CSS nesting) : gardées dans leur règle.
+          const body = r.cssRules?.length ? r.cssText.slice(r.cssText.indexOf("{") + 1, r.cssText.lastIndexOf("}")).trim() : r.style.cssText;
+          css.push({ sel: r.selectorText, body, wrap, i: nStyle++ });
+        } else if (r.cssRules && !(r instanceof CSSKeyframesRule)) {
+          // @media, @supports, @container, @scope… : même emballage ; @layer : à plat.
+          const head = r.cssText.slice(0, r.cssText.indexOf("{")).trim();
+          walk(r.cssRules, head.startsWith("@layer") ? wrap : [...wrap, head]);
+        } else css.push({ raw: r.cssText, wrap });
       }
     };
     for (const s of document.styleSheets) {
