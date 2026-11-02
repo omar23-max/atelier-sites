@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { designs, designById } from "../engine/designs.js";
 import { ROLES, applyDesign } from "../engine/design.js";
 import { sections } from "../engine/sections.js";
@@ -49,11 +50,41 @@ function Swatches({ design }) {
 
 // Carte de design : un échantillon vivant du design.md (qui défile), puis le
 // contenu. Clic sur le titre de l'échantillon : la fiche complète.
+// Carte d'un design, comme les thèmes de shadcnblocks.com : une bande de ses
+// couleurs (la principale d'abord), son nom ; au survol, l'échantillon complet
+// (titres, boutons, sections, couleurs) s'affiche en grand à droite.
+function themeColors(design) {
+  const c = design.tokens.couleurs ?? {};
+  const first = [c.bouton, c.accent, c.texte, c.secondaire, c["fond-alt"], c.fond].filter(Boolean);
+  const rest = Object.values(c).filter((v) => typeof v === "string" && /^#|^rgb/i.test(v));
+  return [...new Set([...first, ...rest].map((v) => v.trim().toLowerCase()))].slice(0, 5);
+}
+
 function DesignCard({ design, isCurrent, onDetails, children }) {
+  const [peek, setPeek] = useState(false);
+  const colors = themeColors(design);
+  const c = design.tokens.couleurs ?? {};
   return (
-    <article className={`cat-card cat-dcard${isCurrent ? " is-current" : ""}`}>
-      <DesignSpecimen design={design} onOpen={onDetails} />
+    <article className={`cat-card cat-dcard cat-theme${isCurrent ? " is-current" : ""}`} onMouseEnter={() => setPeek(true)} onMouseLeave={() => setPeek(false)}>
+      <button type="button" className="cat-theme__tile" style={{ background: c.fond ?? "#fafafa" }} onClick={onDetails} title="Ouvrir la fiche du design">
+        <span className="cat-theme__strip">
+          {colors.map((col, i) => (
+            <span key={i} style={{ background: col }} />
+          ))}
+        </span>
+        <span className="cat-theme__name" style={{ color: c.texte ?? "#111" }}>
+          {design.title ?? design.id}
+          <i style={{ background: c.bouton ?? colors[0] ?? "#111" }} />
+        </span>
+      </button>
       {children}
+      {peek &&
+        createPortal(
+          <div className="cat-theme-peek" aria-hidden="true">
+            <DesignSpecimen design={design} />
+          </div>,
+          document.body,
+        )}
     </article>
   );
 }
@@ -449,7 +480,6 @@ export function DesignsView({ targetPage, onMessage }) {
                 <span className="cat-muted cat-card__meta">
                   <SourceLink url={d.source} prefix="Extrait de" />
                 </span>
-                <Swatches design={d} />
                 <div className="cat-card__badges">
                   {d.id === currentDesign && <span className="cat-badge cat-badge--green">Appliqué à cette page</span>}
                   {d.error && <span className="cat-badge cat-badge--red">À corriger : {d.error}</span>}

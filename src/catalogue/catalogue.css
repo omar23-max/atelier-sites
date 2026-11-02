@@ -1744,3 +1744,63 @@ textarea {
   background: #eef2ff;
   color: #3b3fb6;
 }
+
+/* ---- Designs : cartes façon thèmes shadcnblocks ---- */
+.cat-theme .cat-theme__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 16px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--cat-line);
+  text-align: left;
+  cursor: pointer;
+}
+.cat-theme__strip {
+  display: flex;
+  gap: 0;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.cat-theme__strip span {
+  flex: 1;
+}
+.cat-theme__strip span:first-child {
+  flex: 1.4;
+}
+.cat-theme__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 15px "Inter", system-ui, sans-serif;
+}
+.cat-theme__name i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.cat-theme:hover {
+  border-color: #cfcfcf;
+}
+.cat-theme-peek {
+  position: fixed;
+  top: 84px;
+  right: 24px;
+  z-index: 2600;
+  width: min(560px, 42vw);
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+  border: 1px solid #e3e3e3;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+}
+.cat-theme-peek .cat-spec {
+  height: auto !important;
+  max-height: calc(100vh - 120px);
+  overflow: hidden !important;
+}
