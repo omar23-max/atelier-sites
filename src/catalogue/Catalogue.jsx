@@ -6,7 +6,8 @@ import { applyDesign } from "../engine/design.js";
 import { Enrichir, METHODS } from "./Enrichir.jsx";
 import { DesignsView } from "./Designs.jsx";
 import { designById, designs } from "../engine/designs.js";
-import { HoverPreviewProvider, SourceLink, useHoverPreview } from "./hover.jsx";
+import { HoverPreviewProvider, SourceLink } from "./hover.jsx";
+import { OriginBar, originLabel, useOrigins } from "./origins.jsx";
 import { TemplatesView } from "./Templates.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
@@ -163,33 +164,12 @@ function NavGroup({ label, count, active, open, onToggle, children }) {
 
 function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
   const hidden = statusOf(section) === "masquee";
-  const hover = useHoverPreview("section", section);
   return (
     <article className={`cat-card${hidden ? " is-hidden" : ""}`}>
-      <button
-        type="button"
-        className="cat-card__thumb"
-        onClick={() => {
-          hover.onMouseLeave();
-          onPreview(section);
-        }}
-        {...hover}
-      >
-        {section.thumbnail ? (
-          <img
-            src={section.thumbnail}
-            alt=""
-            loading="lazy"
-            onLoad={(e) => {
-              const img = e.currentTarget;
-              // Bandeau très bas : on le centre plutôt que de laisser un grand vide.
-              if (img.naturalHeight / img.naturalWidth < 0.25) img.parentElement.classList.add("is-thin");
-            }}
-          />
-        ) : (
-          <span>Pas de miniature</span>
-        )}
-      </button>
+      {/* Image entière de la section : on la fait défiler dans la carte. */}
+      <div className="cat-card__thumb cat-card__scroll">
+        {section.thumbnail ? <img src={section.thumbnail} alt="" loading="lazy" /> : <span>Pas de miniature</span>}
+      </div>
       <div className="cat-card__body">
         <strong>{section.meta.label ?? section.schema.name}</strong>
         <span className="cat-muted cat-card__meta">
@@ -220,6 +200,8 @@ function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
 export default function Catalogue() {
   const [view, setView] = useState(() => location.hash.slice(1) || (location.search.includes("page=") ? "designs" : "tout"));
   const [query, setQuery] = useState("");
+  const [origin, setOrigin] = useState("");
+  const { originOf } = useOrigins();
   const [preview, setPreview] = useState(null);
   const [statusOverride, setStatusOverride] = useState({});
   const [trashed, setTrashed] = useState([]);
@@ -266,8 +248,17 @@ export default function Catalogue() {
   for (const s of sections) (grouped[familyOf(s).id] ??= []).push(s);
 
   const q = query.trim().toLowerCase();
+  // Recherche : nom, fonction, famille, site et template d'origine, mots du
+  // contenu ; filtre : origine (Daydreamer Excel, Whitelabeler…).
   const matches = (s) =>
-    !q || [s.meta.label, s.schema.name, s.meta.source?.url, familyOf(s).label].join(" ").toLowerCase().includes(q);
+    (!origin || originOf(s.id) === origin) &&
+    (!q ||
+      q.split(/\s+/).every((w) =>
+        [s.id, s.meta.label, s.meta.fonction, s.schema.name, s.meta.source?.url, familyOf(s).label, originLabel(originOf(s.id)), s.meta.family]
+          .join(" ")
+          .toLowerCase()
+          .includes(w),
+      ));
 
   const pending = requests.filter((r) => r.statut !== "traitée").length;
   const filledFamilies = FAMILIES.filter((f) => grouped[f.id]?.length).length;
@@ -377,7 +368,7 @@ export default function Catalogue() {
 
   function FamilyBlock({ family }) {
     const list = (grouped[family.id] ?? []).filter(matches);
-    if (q && list.length === 0) return null;
+    if ((q || origin) && list.length === 0) return null;
     return (
       <section className="cat-panel">
         <div className="cat-panel__head">
@@ -547,8 +538,9 @@ export default function Catalogue() {
                 </div>
               </section>
               </div>
-              <input className="cat-search" placeholder="Rechercher une section (nom, famille, site d'origine)…" value={query} onChange={(e) => setQuery(e.target.value)} />
-              {FAMILIES.filter((f) => grouped[f.id]?.length || !q).map((f) => (
+              <OriginBar ids={sections.map((s) => s.id)} value={origin} onChange={setOrigin} />
+              <input className="cat-search" placeholder="Rechercher une section : nom, fonction (avis, FAQ…), site ou template d'origine, mot-clé…" value={query} onChange={(e) => setQuery(e.target.value)} />
+              {FAMILIES.filter((f) => grouped[f.id]?.length || !(q || origin)).map((f) => (
                 <FamilyBlock key={f.id} family={f} />
               ))}
             </>

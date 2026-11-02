@@ -102,12 +102,10 @@ export function HoverPreviewProvider({ children }) {
 }
 
 // À poser sur une miniature : { onMouseEnter, onMouseLeave }.
-export function useHoverPreview(kind, value) {
-  const api = useContext(HoverContext);
-  return {
-    onMouseEnter: () => api?.enter({ kind, value }),
-    onMouseLeave: () => api?.leave(),
-  };
+// Désactivé (demande du 2026-11-02) : l'aperçu ne s'ouvre plus au survol,
+// seulement avec le bouton « Aperçu » ; on fait défiler l'image dans la carte.
+export function useHoverPreview() {
+  return { onMouseEnter() {}, onMouseLeave() {} };
 }
 
 // Lien vers le site d'inspiration, ouvert dans un nouvel onglet.

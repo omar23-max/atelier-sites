@@ -68,17 +68,29 @@ function Color({ label, value, fallback, onChange }) {
 }
 
 function Px({ label, value, placeholder, onChange, unit = "px", free = false }) {
+  // Saisie libre (« 320 », « 80% », « auto ») : le texte tapé reste tel quel
+  // pendant la frappe ; « px » n'est ajouté qu'en validant (Entrée ou sortie
+  // du champ), sinon « 8 » devenait « 8px » et le chiffre suivant « 8px0 ».
+  const [draft, setDraft] = useState(null);
+  const shown = (v) => String(v ?? "").replace(/^(-?\d+(?:\.\d+)?)px$/, "$1");
+  const commit = () => {
+    if (draft === null) return;
+    onChange(len(draft));
+    setDraft(null);
+  };
   return (
     <label className="atl-style__row">
       <span>{label}</span>
       <span className="atl-style__px">
         <input
           type={free ? "text" : "number"}
-          value={free ? value ?? "" : num(value)}
+          value={free ? draft ?? shown(value) : num(value)}
           placeholder={placeholder ?? ""}
-          onChange={(e) => onChange(free ? len(e.target.value) : e.target.value === "" ? "" : `${e.target.value}${unit}`)}
+          onChange={(e) => (free ? setDraft(e.target.value) : onChange(e.target.value === "" ? "" : `${e.target.value}${unit}`))}
+          onBlur={free ? commit : undefined}
+          onKeyDown={free ? (e) => e.key === "Enter" && commit() : undefined}
         />
-        {!free && unit}
+        {free ? (/^-?\d+(\.\d+)?$/.test(String(draft ?? shown(value)).trim()) ? "px" : "") : unit}
       </span>
     </label>
   );

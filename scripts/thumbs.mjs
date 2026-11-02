@@ -20,7 +20,9 @@ import { renderPage } from "./render-page.mjs";
 setPhotoResolver(photoDataUrl);
 
 const WIDTH = 1440;
-const MAX_HEIGHT = 1500; // une fiche produit très haute est coupée : on garde le haut
+// Section entière (on la fait défiler dans la carte du catalogue) ; au-delà
+// de 6000 px, on garde le haut.
+const MAX_HEIGHT = 6000;
 const SCALE = 0.35; // miniature d'environ 500 px de large
 const designsDir = join(root, "designs");
 

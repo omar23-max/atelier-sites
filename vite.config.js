@@ -135,7 +135,7 @@ function sectionsBundle() {
       });
 
       // Changement dans sections/<id>/ : ce dossier seulement est relu, puis
-      // l'atelier et le catalogue se rechargent.
+      // les pages ouvertes sont prévenues (sans rechargement).
       const changed = new Set();
       let timer = null;
       const onChange = (file) => {
@@ -149,7 +149,9 @@ function sectionsBundle() {
           await ensure();
           for (const id of ids) await readOne(id);
           gz.clear();
-          server.ws.send({ type: "full-reload" });
+          // Plus de rechargement de toutes les pages ouvertes : un message
+          // « ces sections ont changé » ; chaque page décide (src/engine/sections.js).
+          server.ws.send({ type: "custom", event: "atl-sections", data: { ids, removed: ids.filter((id) => !cache.has(id)) } });
         }, 400);
       };
       for (const ev of ["add", "change", "unlink", "addDir", "unlinkDir"]) server.watcher.on(ev, onChange);
@@ -599,6 +601,29 @@ function atelierApi() {
           }
 
           // ---- Templates : chaque site ou page importé (imports/<nom>/) ----
+          // ---- Origine des templates, sections et designs (filtre du catalogue) ----
+          // Par défaut : les 44 de docs/templates-pour-kimi.md → Daydreamer Excel,
+          // wl-… / wll-… → Whitelabeler, le reste → Autres. Choix à la main
+          // (Daydreamer Vault, Replo…) rangés dans origines.json, par template.
+          if (parts[0] === "origines") {
+            const file = join(root, "origines.json");
+            const read = async () => (existsSync(file) ? JSON.parse(await readFile(file, "utf8")) : {});
+            if (req.method === "GET") {
+              const list = existsSync(join(root, "docs", "templates-pour-kimi.md")) ? await readFile(join(root, "docs", "templates-pour-kimi.md"), "utf8") : "";
+              const excel = [...list.matchAll(/^\|\s*\d+\s*\|\s*`([a-z0-9-]+)`/gm)].map((m) => m[1]);
+              return json(res, 200, { excel, choix: await read() });
+            }
+            if (req.method === "PUT") {
+              const { id, origine } = await readBody(req);
+              if (!/^[a-z0-9][a-z0-9-]*$/.test(id ?? "")) return json(res, 400, { error: "Identifiant invalide." });
+              const choix = await read();
+              if (origine) choix[id] = origine;
+              else delete choix[id];
+              await writeFile(file, JSON.stringify(choix, null, 2) + "\n", "utf8");
+              return json(res, 200, { ok: true, choix });
+            }
+          }
+
           if (parts[0] === "templates" && req.method === "GET") {
             const dirs = existsSync(importsDir) ? await readdir(importsDir, { withFileTypes: true }) : [];
             const out = [];

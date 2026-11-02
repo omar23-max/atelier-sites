@@ -165,6 +165,8 @@ export default function App() {
   // redessine tout l'éditeur Puck (plusieurs secondes sur une grande page).
   const dataRef = useRef(null);
   dataRef.current = data;
+  // Sections utilisées par la page ouverte (bandeau « modifiée ailleurs », engine/sections.js).
+  window.__atlPageTypes = () => ((latest.current ?? dataRef.current)?.content ?? []).map((c) => c.type);
   const savedJson = useRef(null);
   const saveTimer = useRef(null);
   const saving = useRef(false);

@@ -1668,3 +1668,79 @@ textarea {
   color: #6f6f6f;
   font-size: 9.5px;
 }
+
+/* ---- Cartes : grande image qu'on fait défiler dans la carte (2026-11-02) ----
+   L'aperçu ne s'ouvre qu'avec le bouton « Aperçu » ; nom, infos et boutons
+   restent sous l'image. */
+.cat-card__scroll {
+  display: block !important;
+  height: 300px !important;
+  aspect-ratio: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  cursor: default !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.cat-card__scroll img {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: initial !important;
+  transform: none !important;
+}
+.cat-card__scroll > span:not(:has(img)) {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: var(--cat-muted);
+  font-size: 12px;
+}
+.cat-tpl__actions {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.cat-tpl__preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.cat-tpl__actions .cat-tpl__use {
+  flex: 1;
+}
+
+/* ---- Filtre « Origine » (sections, templates, designs) ---- */
+.cat-origins {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+.cat-origins > span {
+  margin-right: 4px;
+  color: var(--cat-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cat-origins button {
+  padding: 5px 11px;
+  border: 1px solid var(--cat-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.cat-origins button.is-on {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+.cat-tpl__pill.is-origin {
+  background: #eef2ff;
+  color: #3b3fb6;
+}

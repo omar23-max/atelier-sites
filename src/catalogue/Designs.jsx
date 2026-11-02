@@ -4,6 +4,7 @@ import { ROLES, applyDesign } from "../engine/design.js";
 import { sections } from "../engine/sections.js";
 import { normalizeProps } from "../engine/render.js";
 import { SourceLink } from "./hover.jsx";
+import { OriginBar, originLabel, useOrigins } from "./origins.jsx";
 import { confirmDelete } from "../projects.js";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
@@ -341,6 +342,18 @@ function DesignPreview({ design, onClose, onApply, targetPage }) {
 
 export function DesignsView({ targetPage, onMessage }) {
   const [preview, setPreview] = useState(null);
+  const [origin, setOrigin] = useState("");
+  const [q, setQ] = useState("");
+  const { originOf } = useOrigins();
+  const shownDesigns = designs.filter(
+    (d) =>
+      (!origin || originOf(d.id) === origin) &&
+      (!q.trim() ||
+        q
+          .toLowerCase()
+          .split(/\s+/)
+          .every((w) => [d.id, d.title, d.tokens?.polices?.titres, d.tokens?.polices?.texte, originLabel(originOf(d.id))].join(" ").toLowerCase().includes(w))),
+  );
   const [pages, setPages] = useState([]);
   const [chosenPage, setChosenPage] = useState(targetPage ?? "");
   const [busy, setBusy] = useState(null);
@@ -422,8 +435,11 @@ export function DesignsView({ targetPage, onMessage }) {
       {designs.length === 0 ? (
         <div className="cat-empty">Aucun design pour l'instant. Chaque import de site en ajoute un.</div>
       ) : (
+        <>
+        <OriginBar ids={designs.map((d) => d.id)} value={origin} onChange={setOrigin} />
+        <input className="cat-search" placeholder="Rechercher un design : nom, police…" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="cat-grid cat-grid--designs">
-          {designs.map((d) => (
+          {shownDesigns.map((d) => (
             <DesignCard key={d.id} design={d} isCurrent={d.id === currentDesign} onDetails={() => setPreview(d)}>
               <div className="cat-card__body">
                 <strong>{d.id}.md</strong>
@@ -459,6 +475,7 @@ export function DesignsView({ targetPage, onMessage }) {
             </DesignCard>
           ))}
         </div>
+        </>
       )}
 
       {preview && (

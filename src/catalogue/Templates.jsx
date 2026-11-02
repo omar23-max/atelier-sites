@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, mirrorIntoPage, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
-import { SourceLink, useHoverPreview } from "./hover.jsx";
+import { SourceLink } from "./hover.jsx";
+import { ORIGINS, OriginBar, originLabel, useOrigins } from "./origins.jsx";
 
 const sameSource = (a, b) => {
   try {
@@ -118,7 +119,8 @@ const shortTitle = (t) => {
 // page ouverte) et un menu ⋯ pour les actions rares.
 function TemplateCard({ template, onUse, onDelete, onMessage }) {
   // Aperçu : la capture pleine page (nette), la vignette en secours.
-  const hover = useHoverPreview("template", { thumbnail: template.vignette, full: template.vignette?.replace(/vignette.png$/, "desktop.png") });
+  const { originOf, setOrigin } = useOrigins();
+  const origin = originOf(template.id);
   const type = pageTypeById[template.pageType];
   const extracted = sectionsFromTemplate(template).length;
   const [check, setCheck] = useState(template.controleSite ?? null);
@@ -135,9 +137,14 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
   return (
     <article className="cat-card cat-tpl">
       <div className="cat-tpl__media">
-        <a className="cat-tpl__thumb" href={template.page ? `/?page=${template.page}` : undefined} title="Ouvrir la page modifiable" {...(template.vignette ? hover : {})}>
-          {template.vignette ? <img src={template.vignette} alt="" loading="lazy" /> : <span>Pas de vignette</span>}
-        </a>
+        {/* Page entière (desktop.png), à faire défiler dans la carte ; la vignette en secours. */}
+        <div className="cat-tpl__thumb cat-card__scroll">
+          {template.vignette ? (
+            <img src={template.vignette.replace(/vignette.png$/, "desktop.png")} alt="" loading="lazy" onError={(e) => e.currentTarget.src !== new URL(template.vignette, location.href).href && (e.currentTarget.src = template.vignette)} />
+          ) : (
+            <span>Pas de vignette</span>
+          )}
+        </div>
         {type && <span className="cat-tpl__type">{type.label}</span>}
         <Menu
           className="cat-tpl__more"
@@ -146,6 +153,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
           items={[
             template.url && { label: "Voir l'original", href: `/api/original/${template.id}` },
             template.url && { label: "Vérifier si le site a changé", action: () => checkSite(template, onMessage, setCheck) },
+            ...ORIGINS.map((o) => ({ label: `${o.id === origin ? "✓ " : ""}Origine : ${o.label}`, action: () => setOrigin(template.id, o.id).catch((e) => onMessage({ error: true, text: e.message })) })),
             { label: "Supprimer", danger: true, action: () => onDelete(template) },
           ]}
         />
@@ -164,6 +172,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
           )}
         </span>
         <div className="cat-tpl__pills">
+          <span className="cat-tpl__pill is-origin">{originLabel(origin)}</span>
           {niche && <span className="cat-tpl__pill">{niche}</span>}
           {extracted > 0 && <span className="cat-tpl__pill">{extracted} sections</span>}
           {props && (
@@ -179,6 +188,10 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
         </div>
       </div>
       <div className="cat-tpl__actions">
+        {/* Aperçu : la page du template, en lecture seule, dans un nouvel onglet. */}
+        <a className="cat-btn cat-btn--ghost cat-tpl__preview" href={template.page ? `/partage/${template.page}` : undefined} target="_blank" rel="noopener noreferrer">
+          Aperçu
+        </a>
         <div className={`cat-tpl__use${canReplace ? " has-more" : ""}`}>
           <button type="button" className="cat-tpl__primary" disabled={!template.page} onClick={() => onUse(template)} title="Créer une page avec ce template, dans un projet">
             Utiliser ce template
@@ -319,6 +332,13 @@ function UseTemplate({ template, onClose, onMessage }) {
 export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {} }) {
   const [templates, setTemplates] = useState(null);
   const [type, setType] = useState(initialType);
+  const [origin, setOriginFilter] = useState("");
+  const [q, setQ] = useState("");
+  const { originOf } = useOrigins();
+  const shown = (t) =>
+    (type === "tous" || t.pageType === type) &&
+    (!origin || originOf(t.id) === origin) &&
+    (!q.trim() || q.toLowerCase().split(/\s+/).every((w) => [t.id, t.nom, t.marque, t.niche, t.url, t.produit, originLabel(originOf(t.id))].join(" ").toLowerCase().includes(w)));
   const [using, setUsing] = useState(null);
   const load = () => listTemplates().then(setTemplates).catch(() => setTemplates([]));
   useEffect(() => {
@@ -370,9 +390,11 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
               );
             })}
           </div>
-        {templates.some((t) => type === "tous" || t.pageType === type) ? (
+          <OriginBar ids={templates.map((t) => t.id)} value={origin} onChange={setOriginFilter} />
+          <input className="cat-search" placeholder="Rechercher un template : marque, produit, niche, site…" value={q} onChange={(e) => setQ(e.target.value)} />
+        {templates.some(shown) ? (
           <div className="cat-grid">
-            {templates.filter((t) => type === "tous" || t.pageType === type).map((t) => (
+            {templates.filter(shown).map((t) => (
               <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} onMessage={onMessage} />
             ))}
           </div>

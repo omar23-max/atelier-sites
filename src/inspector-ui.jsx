@@ -964,7 +964,19 @@ export function Inspector({ children }) {
           onClose={() => setAi(null)}
           onApply={(values) => updateValues(ai.sectionId, values)}
           root={getPuck().appState.data.root?.props ?? {}}
-          onRebuild={!ai.keys ? (instruction, reference) => rebuildSection(ai.sectionId, instruction, reference) : null}
+          // Design : toujours la section entière qui est redessinée ; pour un
+          // élément ou un groupe, la consigne ne vise que cette partie.
+          onRebuild={(instruction, reference) => {
+            if (!ai.keys) return rebuildSection(ai.sectionId, instruction, reference);
+            const part = aiTargets(content[indexOf(ai.sectionId)], ai.keys)
+              .texts.map((t) => String(t.text ?? "").replace(/<[^>]+>/g, " ").trim())
+              .filter(Boolean)
+              .slice(0, 3)
+              .join(" / ")
+              .slice(0, 200);
+            const which = `« ${ai.label ?? "élément choisi"} »${part ? ` (celle qui contient : ${part})` : ""}`;
+            return rebuildSection(ai.sectionId, `Ne change QUE la partie ${which} ; tout le reste de la section reste identique. Consigne : ${instruction}`, reference);
+          }}
           onAdapt={!ai.keys ? () => adaptToPage(ai.sectionId) : null}
         />
       )}
@@ -1777,7 +1789,7 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
             {[
               ["textes", `Textes (${texts.length})`, texts.length > 0],
               ["images", `Images (${images.length})`, images.length > 0],
-              ...(onRebuild ? [["design", "Design", true]] : []),
+              ["design", "Design", Boolean(onRebuild)],
             ].map(([id, label, ok]) => (
               <button key={id} type="button" className={tab === id ? "is-on" : ""} disabled={!ok || state?.busy} onClick={() => (setTab(id), setState(null))}>
                 {label}
@@ -2003,19 +2015,20 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onValues, onOp
       </div>
       {tab === "design" && (
         <div className="atl-style">
-          <p className="atl-style__title">Fond</p>
-          <div className="atl-style__row">
-            <span>Couleur</span>
-            <span className="atl-style__color">
-              <input type="color" value={props.fond_section || toHex(cs?.backgroundColor)} onChange={(e) => set("fond_section", e.target.value)} />
-              <code>{props.fond_section || "d'origine"}</code>
-              {props.fond_section && (
-                <button type="button" onClick={() => set("fond_section", "")}>
+          {/* Le fond se règle plus bas (« Fond de la section » : couleurs du
+              style, autre couleur, dégradé, image). Un ancien réglage reste
+              visible ici pour pouvoir le retirer. */}
+          {props.fond_section && (
+            <div className="atl-style__row">
+              <span>Ancien fond</span>
+              <span className="atl-style__color">
+                <code>{props.fond_section}</code>
+                <button type="button" onClick={() => set("fond_section", "")} title="Retirer">
                   ↺
                 </button>
-              )}
-            </span>
-          </div>
+              </span>
+            </div>
+          )}
           <p className="atl-style__title">Marges</p>
           <div className="atl-style__two">
             <label>

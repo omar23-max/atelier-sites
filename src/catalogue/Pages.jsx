@@ -26,8 +26,13 @@ function PageThumb({ name, data }) {
   const shown = (data?.content ?? []).slice(0, 4).map((item) => byId[item.type]).filter((s) => s?.thumbnail);
   if (!failed && data?.content?.length)
     return (
-      <span className="cat-page-thumb" {...hover}>
-        <img src={`/medias/_vignettes/${name}.png?v=${loadedAt}`} alt="" loading="lazy" onError={() => setFailed(true)} />
+      <span className="cat-page-thumb cat-card__scroll">
+        <img
+          src={`/medias/_vignettes/${name}-full.jpg?v=${loadedAt}`}
+          alt=""
+          loading="lazy"
+          onError={(e) => (e.currentTarget.src.includes("-full.jpg") ? (e.currentTarget.src = `/medias/_vignettes/${name}.png?v=${loadedAt}`) : setFailed(true))}
+        />
       </span>
     );
   return (
