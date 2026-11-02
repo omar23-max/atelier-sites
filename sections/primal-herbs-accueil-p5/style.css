@@ -103,62 +103,68 @@
   75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
   100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
 }
-.atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) { flex-direction: column; justify-content: flex-start; margin: 0px; }
-.atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; }
-.atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; }
-.atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(6)) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); }
-@media screen and (max-width: 750px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid { justify-content: stretch; } }
-@media screen and (max-width: 750px) { .atl-primal-herbs-accueil-p5 .wallet-cart-button-container, .atl-primal-herbs-accueil-p5 .wallet-cart-button { min-width: 0px; } }
-@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid { flex-direction: column; justify-content: flex-start; margin: 0px; } }
-@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-primal-herbs-accueil-p5 .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
-@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-primal-herbs-accueil-p5 .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
-@supports (not (container-type:inline-size)) or (not selector(:has(*))) { .atl-primal-herbs-accueil-p5 .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
-.atl-primal-herbs-accueil-p5 .screen-reader-text { clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; width: 1px; height: 1px; margin: -1px; padding: 0px; position: absolute; overflow: hidden; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar { background: rgb(12, 32, 22); height: 38px; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .utility-bar__grid { padding-left: 15px; padding-right: 15px; height: 100%; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar-slider { justify-content: space-between; align-items: center; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar-slider .slider-button { width: 8px; height: 14px; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar-slider .slider-button svg { display: block; width: 100%; height: 100%; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar-slider .slider-button svg path { fill: rgb(224, 253, 214); }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar__message { margin: 0px; padding: 0px; color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 38px; letter-spacing: 0px; }
-.atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar__message a { color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 38px; letter-spacing: 0px; display: inline; }
-@media screen and (max-width: 389px) { .atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar__message, .atl-primal-herbs-accueil-p5 .announcement-bar-container.utility-bar .announcement-bar__message a { font-size: 11px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 210px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 210px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 210px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 210px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 320px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 320px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 320px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 320px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 430px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 430px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 430px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 430px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 540px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 540px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 540px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 540px) { .atl-primal-herbs-accueil-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header { padding: 0px 15px; height: 100%; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header header-drawer { display: block; margin: 0px; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header header-drawer .header__icon { height: fit-content; width: fit-content; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header header-drawer .header__icon svg { width: 25px; height: 16px; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu { display: none; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading .header__heading-link { padding: 0px; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img { width: 172px; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img.logo-white { display: none; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons { padding: 0px; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__shop_button { display: none; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon { width: fit-content; height: fit-content; margin-right: 24px; cursor: pointer; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon:last-child { margin-right: 0px; }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon svg { height: 20px; }
+@media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header { max-width: 1780px; width: 100%; height: 100%; margin: auto; padding: 0px 30px !important; } }
+@media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header header-drawer { display: none; } }
+@media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu { display: block; margin: 0px; } }
+@media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu { max-width: 601px; width: 100%; justify-content: space-between; align-items: center; } }
+@media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li a { padding: 0px; margin-right: 5px; } }
+@media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li:last-child a { margin-right: 0px; } }
 @media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li a span { color: rgb(12, 32, 22); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 500; line-height: 16px; text-decoration: none; } }
 @media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img { width: 233px; height: 23px; } }
 @media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__shop_button { display: block; margin-right: 35px; border-radius: 99px; background: rgb(5, 144, 108); padding: 17px 27px; width: fit-content; color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 500; line-height: 11px; text-decoration: none; } }
 @media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon { margin-right: 35px; } }
 @media screen and (min-width: 1340px) { .atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon svg { height: 27px; } }
-.atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper { background: transparent; border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; }
-.atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper { border-bottom: 0.1rem solid rgba(18, 18, 18, 0.08); }
 .atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__shop_button { display: none; }
-.atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper { background: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li a span { color: rgb(12, 32, 22); }
 .atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li a span { color: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon svg path, .atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header header-drawer .header__icon svg path { fill: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__icons .header__icon svg path, .atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header header-drawer .header__icon svg path { fill: rgb(12, 32, 22); }
+.atl-primal-herbs-accueil-p5 sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li a.index_volume_herbal_mix { display: block; text-align: center; border-radius: 99px; border: 1px solid rgb(255, 255, 255); background: rgba(217, 217, 217, 0); text-decoration: none; padding: 17px 5px; width: 232px; min-width: fit-content; color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 500; line-height: 11px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 .shopify-section-header-sticky sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__inline-menu .list-menu li a.index_volume_herbal_mix { background: rgb(5, 144, 108); color: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img.logo-black { display: none; }
 .atl-primal-herbs-accueil-p5 .index sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img.logo-white { display: block; }
 .atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img.logo-black { display: block; }
 .atl-primal-herbs-accueil-p5 .index .shopify-section-header-sticky sticky-header.header-wrapper :is(header, .atl-primal-herbs-accueil-p5 .atelier-section-header).header .header__heading-link img.logo-white { display: none; }
-.atl-primal-herbs-accueil-p5 slider-component { --desktop-margin-left-first-item: max( 5rem, calc((100vw - var(--page-width) + 10rem - var(--grid-desktop-horizontal-spacing)) / 2) ); position: relative; display: block; }
-.atl-primal-herbs-accueil-p5 slider-component.slider-component-full-width { --desktop-margin-left-first-item: 1.5rem; }
-@media screen and (max-width: 749px) { .atl-primal-herbs-accueil-p5 slider-component.page-width { padding: 0px 1.5rem; } }
-@media screen and (min-width: 749px) and (max-width: 990px) { .atl-primal-herbs-accueil-p5 slider-component.page-width { padding: 0px 5rem; } }
-@media screen and (max-width: 989px) { .atl-primal-herbs-accueil-p5 .no-js slider-component .slider { padding-bottom: 3rem; } }
-.atl-primal-herbs-accueil-p5 .slider__slide { --focus-outline-padding: .5rem; --shadow-padding-top: calc((var(--shadow-vertical-offset) * -1 + var(--shadow-blur-radius)) * var(--shadow-visible)); --shadow-padding-bottom: calc((var(--shadow-vertical-offset) + var(--shadow-blur-radius)) * var(--shadow-visible)); scroll-snap-align: start; flex-shrink: 0; padding-bottom: 0px; }
-@media screen and (max-width: 749px) { .atl-primal-herbs-accueil-p5 .slider.slider--mobile .slider__slide { margin-bottom: 0px; padding-top: max(var(--focus-outline-padding),var(--shadow-padding-top)); padding-bottom: max(var(--focus-outline-padding),var(--shadow-padding-bottom)); } }
-@media screen and (max-width: 749px) { .atl-primal-herbs-accueil-p5 .slider.slider--mobile.contains-content-container .slider__slide { --focus-outline-padding: 0rem; } }
-@media screen and (min-width: 750px) { .atl-primal-herbs-accueil-p5 .slider.slider--tablet-up { position: relative; flex-wrap: inherit; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-left: 1rem; } }
-@media screen and (min-width: 750px) { .atl-primal-herbs-accueil-p5 .slider.slider--tablet-up .slider__slide { margin-bottom: 0px; } }
-@media screen and (max-width: 989px) { .atl-primal-herbs-accueil-p5 .slider.slider--tablet { position: relative; flex-wrap: inherit; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scroll-padding-left: 1.5rem; margin-bottom: 1rem; } }
-@media screen and (max-width: 989px) { .atl-primal-herbs-accueil-p5 .slider--tablet::after { content: ""; width: 0px; padding-left: 1.5rem; margin-left: calc(-1 * var(--grid-desktop-horizontal-spacing)); } }
-@media screen and (max-width: 989px) { .atl-primal-herbs-accueil-p5 .slider.slider--tablet .slider__slide { margin-bottom: 0px; padding-top: max(var(--focus-outline-padding),var(--shadow-padding-top)); padding-bottom: max(var(--focus-outline-padding),var(--shadow-padding-bottom)); } }
-@media screen and (max-width: 989px) { .atl-primal-herbs-accueil-p5 .slider.slider--tablet.contains-card--standard .slider__slide:not(.collection-list__item--no-media) { padding-bottom: var(--focus-outline-padding); } }
-@media screen and (max-width: 989px) { .atl-primal-herbs-accueil-p5 .slider.slider--tablet.contains-content-container .slider__slide { --focus-outline-padding: 0rem; } }
-.atl-primal-herbs-accueil-p5 .slider--everywhere { position: relative; flex-wrap: inherit; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; margin-bottom: 1rem; }
-.atl-primal-herbs-accueil-p5 .slider.slider--everywhere .slider__slide { margin-bottom: 0px; scroll-snap-align: center; }
-.atl-primal-herbs-accueil-p5 .cart-notification-product__image::after { content: none; }
+.atl-primal-herbs-accueil-p5 input::-webkit-search-decoration { appearance: none; }
+.atl-primal-herbs-accueil-p5 img, .atl-primal-herbs-accueil-p5 svg, .atl-primal-herbs-accueil-p5 video { max-width: 100%; }
+.atl-primal-herbs-accueil-p5 button, .atl-primal-herbs-accueil-p5 a, .atl-primal-herbs-accueil-p5 [role="button"] { cursor: pointer; }
+.atl-primal-herbs-accueil-p5 button:focus-visible, .atl-primal-herbs-accueil-p5 a:focus-visible, .atl-primal-herbs-accueil-p5 [role="button"]:focus-visible, .atl-primal-herbs-accueil-p5 summary:focus-visible { outline-offset: 3px; outline: rgb(37, 99, 235) solid 3px !important; }
+.atl-primal-herbs-accueil-p5 [hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .atl-primal-herbs-accueil-p5 *, .atl-primal-herbs-accueil-p5 ::before, .atl-primal-herbs-accueil-p5 ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+.atl-primal-herbs-accueil-p5 .hide { display: none !important; }
 @keyframes spin { 
   0% { transform: rotate(0deg); }
   100% { transform: rotate(1turn); }
@@ -166,12 +172,6 @@
 .atl-primal-herbs-accueil-p5.cart_open #cart .cart_section { transform: translate(0px); }
 .atl-primal-herbs-accueil-p5.cart_open .cart_overlay, .atl-primal-herbs-accueil-p5.big_pack_overlay .cart_overlay { display: block; }
 .atl-primal-herbs-accueil-p5.fixed div#smile-ui-container, .atl-primal-herbs-accueil-p5.cart_open div#smile-ui-container { display: none; }
-.atl-primal-herbs-accueil-p5 .cart_overlay { position: fixed; inset: 0px; background: rgb(0, 0, 0); z-index: 2147483647; display: none; opacity: 0.5; }
-.atl-primal-herbs-accueil-p5 #cart .line_discount span.d_code { background: rgb(241, 64, 93); color: rgb(255, 255, 255); border-radius: 6px; padding: 2px 5px; line-height: 1; font-size: 11px; text-transform: uppercase; margin-left: 5px; display: flex; align-items: center; }
-.atl-primal-herbs-accueil-p5 #cart .cart_header_top { padding: 10px 20px; }
-.atl-primal-herbs-accueil-p5 #cart .line_discount img { width: 15px; margin-right: 5px; }
-.atl-primal-herbs-accueil-p5 #cart .cart_header_badge { display: flex; justify-content: center; align-items: center; margin-left: 9px; width: 18px; color: rgb(255, 255, 255); height: 18px; border-radius: 15px; border: 0px solid rgb(1, 41, 0); background: rgb(5, 144, 108); font-family: "ABC Diatype"; font-size: 12px; font-weight: 700; line-height: 1; }
-.atl-primal-herbs-accueil-p5 #cart .cart_close_button img { width: 15px; height: 15px; }
 @keyframes line_finger_effect { 
   0% { transform: scale(0.9); }
   50% { transform: scale(1); }
@@ -185,6 +185,23 @@
   0% { transform: translate(0px); }
   100% { transform: translate(-50%); }
 }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe { overflow: hidden; margin: 0px auto; max-width: 1920px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_section_holder { padding: 38px 15px 21px; overflow: hidden; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .section_title { margin: 0px auto 8px; color: rgb(55, 82, 58); text-align: center; font-family: "ABC Diatype"; font-size: 26px; font-style: normal; font-weight: 500; line-height: 28px; letter-spacing: 0px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item.active .variant_price.per_jar span { color: rgb(255, 255, 255); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item.active .variant_price.per_jar div { display: flex; align-items: center; justify-content: center; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item .variant_price.per_jar span.variant_price__compare { color: rgb(145, 145, 145); font-family: "ABC Diatype"; font-size: 16px; font-weight: 700; text-decoration: line-through; line-height: 24px; margin-right: 4px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item .variant_price.per_jar div .big_text { font-size: 20px; margin-right: 2px; color: rgb(0, 0, 0); font-weight: 700; line-height: 24px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item.active .variant_price.per_jar div .big_text { color: rgb(255, 255, 255); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item .total_serving { display: none !important; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item.active .total_serving { display: flex !important; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .total_serving { display: flex; width: 100%; line-height: normal; padding: 5px 20px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .section_title span { color: rgb(12, 32, 22); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_container { display: block; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_wrapper { position: relative; margin-bottom: 7px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper { border-radius: 8px; overflow: hidden; transform: translateZ(0px); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image { position: relative; padding-top: 100%; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image img { position: absolute; display: block; inset: 0px; width: 100%; height: 100%; object-fit: cover; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-next, .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-prev { display: block; width: 90px; height: 90px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-next::after, .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-prev::after { display: none; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-next img, .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-prev img { display: block; width: 100%; height: 100%; }
@@ -193,18 +210,16 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-prev { left: -9px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_image_review_buttons { display: none; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image_swiper_wrapper { display: flex; align-items: center; margin-bottom: 16px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image_swiper { width: calc(100% - 143px); margin-right: 24px; overflow: hidden; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image { position: relative; padding-top: 100%; border-radius: 3px; overflow: hidden; transform: translateZ(0px); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image img { position: absolute; display: block; inset: 0px; width: 100%; height: 100%; object-fit: cover; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image_swiper_wrapper .supplement_button { width: 143px; height: 39px; border-radius: 99px; background: rgb(1, 41, 0); display: flex; justify-content: center; align-items: center; color: rgb(224, 253, 214); text-align: center; font-family: "ABC Diatype"; font-size: 13px; font-style: normal; font-weight: 700; line-height: 13px; letter-spacing: 0px; text-decoration: none; cursor: pointer; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_review_container { display: none; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_detail { display: block; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_trustpilot_review { display: flex; align-items: center; margin-bottom: 12px; text-decoration: none; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .five_stars_image { display: block; width: 103px; height: 19px; margin-right: 6px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .rating_review_count { color: rgb(12, 32, 22); text-align: right; font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 10px; letter-spacing: 0px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .rating_review_count span { color: rgb(5, 144, 108); text-decoration-line: underline; cursor: pointer; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_title { color: rgb(12, 32, 22); font-family: "ABC Diatype"; font-size: 28px; font-style: normal; font-weight: 400; line-height: 25px; letter-spacing: 0px; margin-bottom: 12px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .shoppay_installment { margin-bottom: 18px; display: flex; align-items: center; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .shoppay_installment svg { display: block; width: 52px; height: 12px; margin-left: 5px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .shoppay_installment p { margin: 0px; color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 13px; font-style: normal; font-weight: 400; line-height: normal; letter-spacing: 0px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .shoppay_installment p span { text-decoration: underline; cursor: pointer; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_detail .usp_wrapper { display: flex; width: max-content; margin: 0px -15px 27px; animation: 30s linear 0s infinite normal none running autoScroll; border-top: 1px solid rgb(242, 242, 242); border-bottom: 1px solid rgb(242, 242, 242); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_detail .usp_wrapper .usp_item { display: flex; padding: 0px 9px; align-items: center; min-width: fit-content; margin: 11px auto; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_detail .usp_wrapper .usp_item svg { display: block; width: 19px; height: 19px; margin-right: 4px; }
@@ -216,10 +231,15 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .save_text_every_day { padding: 7px 0px; margin: auto; color: rgb(255, 255, 255); text-align: center; font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: 10px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .subscribe_holder { border-radius: 8px; border: 1px solid rgb(211, 211, 211); overflow: hidden; transform: translateZ(0px); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .subscribe_holder { border: 1px solid rgb(1, 41, 0); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_container { display: flex; align-items: center; justify-content: space-between; background: rgb(244, 244, 244); padding: 24px 18px 25px 15px; cursor: pointer; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .choose_container { background: rgb(1, 41, 0); padding: 10px 17px 10px 15px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_circle { display: flex; justify-content: center; align-items: center; width: 21px; min-width: 21px; height: 21px; border-radius: 21px; border: 1px solid rgb(211, 211, 211); margin-right: 6px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .choose_circle { border: 1px solid rgb(224, 253, 214); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_circle .selected_circle { display: none; width: 15px; min-width: 15px; height: 15px; border-radius: 15px; background: rgb(224, 253, 214); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .choose_circle .selected_circle { display: block; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_title { width: 100%; color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 17px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: 13px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .choose_title { color: rgb(255, 255, 255); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .price_container { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .price_container { margin-bottom: 5px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_compare_price { color: rgb(159, 159, 159); text-align: right; font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 14px; letter-spacing: 0px; text-decoration: line-through; order: 2; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .choose_compare_price { order: 1; }
@@ -248,46 +268,43 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .usp_item svg path { fill: rgb(1, 41, 0); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .usp_item p { margin: 0px; color: rgb(10, 48, 1); font-family: "ABC Diatype"; font-size: 13px; font-style: normal; font-weight: 400; line-height: 9px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container { border-radius: 12px; border: 1px solid rgb(211, 211, 211); overflow: hidden; transform: translateZ(0px); }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active { border: 1px solid rgb(1, 41, 0); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_container { display: flex; align-items: center; justify-content: space-between; background: rgb(244, 244, 244); padding: 15px; cursor: pointer; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active .choose_container { background: rgb(1, 41, 0); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_circle { display: flex; justify-content: center; align-items: center; width: 21px; min-width: 21px; height: 21px; border-radius: 21px; border: 1px solid rgb(211, 211, 211); margin-right: 6px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active .choose_circle { border: 1px solid rgb(224, 253, 214); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_circle .selected_circle { display: none; width: 15px; min-width: 15px; height: 15px; border-radius: 15px; background: rgb(224, 253, 214); }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active .choose_circle .selected_circle { display: block; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_title { width: 100%; color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 15px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: 16px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active .choose_title { color: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_price { display: flex; align-items: center; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active .choose_price { display: none; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_final_price { color: rgb(1, 41, 0); text-align: right; font-family: "ABC Diatype"; font-size: 18px; font-style: normal; font-weight: 700; line-height: 18px; margin-right: 5px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_compare_price { color: rgb(159, 159, 159); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 14px; text-decoration: line-through; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_container { display: none; padding: 15px 15px 18px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container.active .variant_container { display: block; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item:first-child { margin-bottom: 34px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item { position: relative; margin-bottom: 12px; border-radius: 7px; background: rgb(255, 255, 255); border: 1px solid rgb(211, 211, 211); cursor: pointer; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item:nth-child(3) { margin-bottom: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active { border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: rgb(1, 41, 0); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_tag { position: absolute; display: block; width: 96px; border-radius: 5px; background: rgb(224, 253, 214); padding: 7px 9px 20px; color: rgb(1, 41, 0); text-align: center; font-family: "ABC Diatype"; font-size: 13px; font-style: normal; font-weight: 500; line-height: 10px; top: -22px; left: 0px; letter-spacing: 0px; z-index: 1; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_detail { padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom-width: medium; border-bottom-style: none; border-bottom-color: currentcolor; position: relative; z-index: 2; background: rgb(255, 255, 255); border-radius: 7px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active .variant_detail { background: rgb(1, 41, 0); border-bottom: 1px solid rgb(61, 77, 69); border-radius: 7px 7px 0px 0px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_title { color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 17px; font-style: normal; font-weight: 500; line-height: 17px; margin-bottom: 6px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active .variant_title { color: rgb(255, 255, 255); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_name { color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 15px; font-style: normal; font-weight: 400; line-height: 15px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active .variant_name { color: rgb(255, 255, 255); }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .price_container { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 6px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .final_price { margin-left: 5px; color: rgb(1, 41, 0); text-align: right; font-family: "ABC Diatype"; font-size: 22px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: 15px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_price { display: flex; flex-direction: column; align-items: flex-end; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .saving_text { width: fit-content; min-width: fit-content; padding: 6px; border-radius: 2px; background: rgb(255, 255, 255); color: rgb(5, 144, 108); border: 1px solid rgb(5, 144, 108); text-align: center; font-family: "ABC Diatype"; font-size: 13px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: 9px; white-space: nowrap; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active .saving_text { background: rgb(5, 144, 108); color: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .serving_text { display: none; padding: 4px 0px 7px; margin: auto; color: rgb(255, 255, 255); text-align: center; font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 11px; letter-spacing: 0px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active .serving_text { display: block; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item:last-child { margin-bottom: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button_wrapper { margin-bottom: 8px; width: 100%; height: 55px; border-radius: 30px; background: rgb(35, 209, 96); position: relative; overflow: hidden; padding: 5px; transform: translateZ(0px); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button_wrapper::before { content: ""; display: block; background: conic-gradient(rgb(35, 209, 96), rgb(35, 209, 96), rgb(35, 209, 96), rgb(35, 209, 96), rgb(250, 246, 240), rgb(255, 255, 255)); width: 110%; padding-bottom: 216%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 100%; z-index: 2; animation: 2.5s linear 0s infinite normal none running button_border_spin; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button { position: absolute; width: calc(100% - 10px); height: 45px; border-radius: 30px; background: rgb(35, 209, 96); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button svg { display: block; width: 21px; height: 22px; margin-right: 6px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button p { margin: 0px; color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 19px; font-style: normal; font-weight: 700; line-height: 12px; letter-spacing: 0px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .guarantee_container { margin-bottom: 21px; display: flex; align-items: center; justify-content: space-between; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .guarantee_container img { display: block; width: 55px; min-width: 55px; height: 55px; margin-right: 8px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .guarantee_container p { width: 100%; margin: 0px; color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 15px; font-style: normal; font-weight: 400; line-height: 16px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .click_to_expand { margin-bottom: 8px; display: flex; align-items: center; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .click_to_expand svg { display: block; width: 21px; min-width: 21px; height: 20px; margin-right: 5px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .click_to_expand p { color: rgb(12, 32, 22); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 400; line-height: 11px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification { border-radius: 8px; border: 1px solid rgb(61, 77, 69); margin-bottom: 8px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification:last-child { margin-bottom: 0px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification.active { border: 0px solid rgb(1, 41, 0); background: rgb(61, 77, 69); padding: 17px 17px 21px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_heading { display: flex; justify-content: space-between; align-items: center; padding: 13px 19px 12px 17px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification.active .product_specification_heading { padding: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_heading svg:first-child { display: block; width: 24px; min-width: 24px; height: 30px; margin-right: 9px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification.active .product_specification_heading svg:first-child path { fill: rgb(224, 253, 214); }
@@ -298,6 +315,9 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification.active .product_specification_heading svg:last-child path { fill: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification.active .product_specification_heading svg:last-child circle { stroke: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body { display: none; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification.active .product_specification_body { display: block; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body p { margin: 10px 0px; color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 300; line-height: 18px; letter-spacing: 0px; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body p strong { color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 500; line-height: 18px; letter-spacing: 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul { margin-top: 26px; padding-left: 50px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li { list-style-type: none; position: relative; color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 12px; font-style: normal; font-weight: 300; line-height: 125%; letter-spacing: 0px; margin: 15px 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li::before { display: block; content: " "; width: 36px; height: 36px; background-image: url("/imports/primal-herbs-accueil/assets/562a1c2dbd90-new-li-bullet.svg"); background-size: contain; background-repeat: no-repeat; position: absolute; top: 0px; left: -50px; }
@@ -306,31 +326,28 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li:nth-child(3)::before { background-image: url("/imports/primal-herbs-accueil/assets/2f4feb62a936-Stamina_100x.svg"); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li strong { color: rgb(255, 255, 255); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 500; line-height: 17px; letter-spacing: 0px; margin-bottom: 12px; display: block; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li br { display: none; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body .product_specification_video { margin-top: 13px; display: block; height: 200px; width: 100%; border-radius: 12px; overflow: hidden; position: relative; transform: translateZ(0px); }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body .product_specification_video video { width: 100%; height: 100%; object-fit: cover; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body .product_specification_video svg { display: block; width: 60px; height: 60px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe > .usp_wrapper { display: none; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_container .head_container { display: flex; align-items: center; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .offer_text { font-size: 14px; font-weight: 500; line-height: 16px; text-align: center; padding: 6px; background: rgb(5, 144, 108); color: rgb(255, 255, 255); }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe span.active_saving, .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active span.saving { display: none; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active span.active_saving { display: block; margin-right: 4px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .choose_plan_container .one_time_purchase_container .variant_container .variant_item:nth-child(4), .atl-primal-herbs-accueil-p5 #product_section_7QAe .choose_plan_container .one_time_purchase_container .variant_container .variant_item:nth-child(5), .atl-primal-herbs-accueil-p5 #product_section_7QAe .choose_plan_container .one_time_purchase_container .variant_container .variant_item:nth-child(6) { display: none; }
-@media screen and (max-width: 476px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .offer_text { font-size: 12px !important; font-weight: 400 !important; padding: 3px !important; } }
 @media screen and (max-width: 476px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_tag { width: 108px; padding: 8px 12px 19px; font-size: 14px; top: -26px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_section_holder { padding: 80px 30px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .section_title { margin: 0px auto 36px; font-size: 56px; line-height: 55px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .total_serving .total { font-size: 16px; line-height: 28px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_container { display: flex; justify-content: space-between; max-width: 1368px; width: 100%; margin: auto; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_image_review { width: 55.8%; max-width: 730px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper { border-radius: 24px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-next, .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-prev { width: 118px; height: 118px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-next { right: -9px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .main_product_image_swiper_buttons .swiper-button-prev { left: -9px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_image_review_buttons { display: flex; left: 50%; bottom: 24px; transform: translate(-50%); position: absolute; z-index: 1; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_image_review_buttons .supplement { display: block; border-radius: 999px; background: rgb(255, 255, 255); width: 215px; padding-top: 18px; padding-bottom: 19px; color: rgb(5, 144, 108); text-align: center; font-family: "ABC Diatype"; font-size: 18px; font-style: normal; font-weight: 700; line-height: 13px; letter-spacing: 0px; text-decoration: none; margin-right: 8px; cursor: pointer; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_image_review_buttons .ingredient { display: block; border-radius: 999px; border: 1px solid rgb(255, 255, 255); background: rgb(61, 77, 69); width: 215px; padding-top: 18px; padding-bottom: 19px; color: rgb(255, 255, 255); text-align: center; font-family: "ABC Diatype"; font-size: 18px; font-style: normal; font-weight: 700; line-height: 13px; letter-spacing: 0px; text-decoration: none; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image_swiper_wrapper { justify-content: center; margin-bottom: 24px; padding: 0px 17px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image_swiper { width: 100%; margin: 0px auto; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image { border-radius: 6px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbs_product_image_swiper_wrapper .supplement_button { display: none; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_review_container { display: block; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_review_content { color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 23px; font-style: italic; font-weight: 400; line-height: 27px; letter-spacing: 0px; margin-bottom: 10px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_customer_name { color: rgb(5, 144, 108); font-family: "PT Mono"; font-size: 18px; font-style: normal; font-weight: 400; line-height: 13px; letter-spacing: 0px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_detail { width: 38.3%; max-width: 500px; min-width: 390px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_trustpilot_review { margin-bottom: 11px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .five_stars_image { width: 128px; height: 24px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_title { font-size: 42px; line-height: 36px; margin-bottom: 15px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .shoppay_installment { margin-bottom: 18px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .shoppay_installment svg { width: 61px; height: 14px; margin-left: 8px; } }
@@ -348,6 +365,9 @@
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .price_container { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 5px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_compare_price { font-size: 17px; line-height: 12px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .choose_final_price { margin-left: 5px; font-size: 32px; line-height: 32px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container.active .choose_final_price { margin-left: 5px; font-size: 32px; line-height: 22px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .saving_text { padding: 5px 7px; border-radius: 3px; font-size: 14px; line-height: 10px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .frequency_variant { padding: 24px 23px 16px 24px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .frequency_container { margin-bottom: 21px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .frequency_container h5 { margin: 0px 0px 13px; font-size: 18px; line-height: 13px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .frequency_item { width: calc(25% - 6px); margin-right: 8px; border-radius: 7px; height: 51px; font-size: 19px; line-height: 13px; } }
@@ -372,15 +392,10 @@
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item.active .variant_detail { border-radius: 12px 12px 0px 0px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_title { font-size: 18px; line-height: 18px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .variant_name { font-size: 16px; line-height: 16px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .compare_price { font-size: 13px; line-height: 17px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .final_price { font-size: 22px; line-height: 17px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .saving_text { font-size: 14px; line-height: 10px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_item .serving_text { padding: 8px 0px; font-size: 16px; display: block; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button svg { width: 27px; height: 28px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .atc_button p { font-size: 22px; line-height: 16px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .guarantee_container { margin-bottom: 18px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .guarantee_container img { width: 60px; min-width: 60px; height: 60px; margin-right: 12px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .guarantee_container p { font-size: 17px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_detail .usp_wrapper { display: none; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .click_to_expand { margin-bottom: 18px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .click_to_expand svg { width: 26px; min-width: 26px; height: 25px; margin-right: 8px; } }
@@ -392,17 +407,19 @@
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_heading svg:last-child { width: 35px; min-width: 35px; height: 35px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body p { margin: 12px 0px; font-size: 17px; line-height: 19px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body p strong { font-size: 17px; line-height: 19px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul { margin-top: 24px; padding-left: 64px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li { font-size: 16px; margin: 12px 0px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li::before { width: 48px; height: 48px; left: -64px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body ul li strong { font-size: 17px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body .product_specification_video { margin-top: 30px; height: 260px; } }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .product_specification .product_specification_body .product_specification_video svg { width: 74px; height: 74px; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe > .usp_wrapper { display: flex; width: max-content; margin: 0px; animation: 120s linear 0s infinite normal none running autoScroll; border-top: 1px solid rgb(242, 242, 242); border-bottom: 1px solid rgb(242, 242, 242); } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe > .usp_wrapper .usp_item { display: flex; padding: 0px 32px 0px 33px; align-items: center; min-width: fit-content; margin: 15px auto; } }
+@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe > .usp_wrapper .usp_item svg { display: block; width: 24px; height: 24px; margin-right: 6px; } }
 @media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe > .usp_wrapper .usp_item .usp_text { text-align: left; color: rgb(12, 32, 22); font-family: "ABC Diatype"; font-size: 18px; font-style: normal; font-weight: 400; line-height: 18px; letter-spacing: 0px; min-width: fit-content; white-space: nowrap; } }
 @media screen and (min-width: 1330px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .subscribe_container .frequency_tag { width: 94px; font-size: 13px; } }
 @media screen and (max-width: 678px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item .variant_price.per_jar div .big_text { font-size: 18px !important; } }
 @media screen and (max-width: 678px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item .variant_price.per_jar span.variant_price__compare { font-size: 14px !important; } }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .variant_item .variant_price.per_jar span.variant_price__compare { display: none; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .variant_container { background: rgb(255, 255, 255); }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .ont_sale_note { text-align: center; color: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .one_time_purchase_container .choose_container { border-radius: 16px 16px 0px 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-body { display: flex; align-items: center; color: rgb(10, 48, 1); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 400; border-radius: 4px; line-height: 18px; padding: 14px 16px; background: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-body img { width: 55px; height: 55px; min-width: 55px; margin-right: 15px; }
@@ -411,7 +428,8 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-contact-content p { margin: 5px 0px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper { border-radius: 6px; background: rgb(251, 251, 247); padding: 14px 21px; margin-bottom: 30px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-button { border-radius: 999px; border: 1px solid rgb(32, 67, 31); color: rgb(32, 67, 31); font-family: "ABC Diatype"; font-size: 11px; margin-left: 5px; font-style: normal; font-weight: 500; text-align: center; line-height: 16px; padding: 0px 10px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; white-space: nowrap; width: fit-content; min-width: 82px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper.open .mg-button span.active { display: block; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-title strong, .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-contact-content strong { color: rgb(65, 142, 110); }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-contact-content a { text-decoration-color: rgb(65, 142, 110); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper.open .mg-button span.inactive, .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper .mg-button span.active { display: none; }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-button { min-width: 76px; margin-left: 5px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-body { padding: 14px; } }
@@ -420,6 +438,7 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-popup-button { border-top: 1px solid rgb(211, 211, 211); border-radius: 0px 0px 6px 6px; background: rgb(251, 251, 247); padding: 15px 0px; margin-bottom: 35px; color: rgb(5, 144, 108); text-align: center; font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 700; cursor: pointer; line-height: 16px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-heading { color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 700; line-height: 16px; margin-bottom: 10px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-product-container { display: grid; grid-template-columns: 100px auto auto; gap: 12px; align-items: center; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-image-wrapper img { width: 100%; border-radius: 8px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-title-price-wrap { color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 700; line-height: 16px; margin-bottom: 5px; margin-right: -70px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-title-price-wrap span { color: rgb(5, 144, 108); text-align: right; font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 700; line-height: 16px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-volume { color: rgb(135, 146, 140); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 400; line-height: 120%; margin-bottom: 0px; }
@@ -430,9 +449,8 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-popup-button u { text-underline-offset: 3px; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-images-popup-overlay { position: fixed; inset: 0px; background: rgba(26, 33, 30, 0.9); z-index: 2147483647; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-images-popup-inner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 600px; z-index: 2147483647; }
+.atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-images-popup img { border-radius: 6px; display: block; width: 100%; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbnail-upsell-images { margin: auto auto 25px; max-width: 420px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-popup-in-button { color: rgb(255, 255, 255); text-align: center; font-family: "ABC Diatype"; font-size: 16px; font-style: normal; font-weight: 700; line-height: 16px; cursor: pointer; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbnail-upsell-images .swiper-slide-thumb-active img { border-radius: 6px; border: 2px solid rgb(224, 253, 214); background: rgb(255, 255, 255); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbnail-upsell-images img { border: 2px solid transparent; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main-upsell-images { margin-bottom: 5px; position: relative; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main-swiper-buttons > div::after { display: none; }
@@ -442,7 +460,6 @@
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .main-swiper-buttons .swiper-button-prev { transform: rotate(180deg); }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-popup-close { position: absolute; left: 50%; transform: translate(-50%); top: -50px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1; border: 1px solid rgb(255, 255, 255); border-radius: 50%; }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-images-popup-inner { max-width: calc(100% - 30px); width: 100%; } }
-@media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-popup-in-button { font-size: 12px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .thumbnail-upsell-images { max-width: 300px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-block-container { margin: 0px -15px; border-radius: 0px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-title-price-wrap span { font-size: 14px; } }
@@ -451,6 +468,8 @@
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-volume { font-size: 12px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-button { height: 32px; min-width: 75px; font-size: 14px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-product-container { grid-template-columns: 80px auto 75px; } }
+@media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-description { font-size: 12px; } }
+@media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .upsell-title-price-wrap { font-size: 14px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .main-swiper-buttons > div { width: 70px; height: 70px; } }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .plan-box__perserv.hidded { display: none; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .plan-box__perserv { font-size: 16px; font-weight: 600; color: rgb(1, 41, 0); margin: 0px 0px 12px; }
@@ -460,6 +479,7 @@
 .atl-primal-herbs-accueil-p5 .af_cont .af_dev_time p { margin: 0px; font-size: 14px; font-weight: 500; color: rgb(1, 41, 0); }
 .atl-primal-herbs-accueil-p5 .af_dev_time img { max-width: 30px; width: 100%; }
 .atl-primal-herbs-accueil-p5 .af_cont { margin-top: 12px; margin-bottom: 24px; }
+.atl-primal-herbs-accueil-p5 .af_cont p { display: flex; align-items: center; gap: 8px; }
 .atl-primal-herbs-accueil-p5 .af_cont p { margin: 0px; color: rgb(65, 142, 110); font-weight: 700; font-size: 14px; }
 .atl-primal-herbs-accueil-p5 .afbubble { width: 12px; height: 12px; border-radius: 50%; background: rgb(65, 142, 110); margin-right: 8px; margin-left: 10px; display: block !important; }
 .atl-primal-herbs-accueil-p5 .af_time__js { font-size: 12px; }
@@ -477,7 +497,6 @@
 .atl-primal-herbs-accueil-p5 #variant-picker-box .plan-select-box { border-radius: 8px; border: 1.5px solid rgb(211, 211, 211); padding: 4%; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .active.plan-select-box { border-radius: 8px; border: 1.5px solid rgb(1, 41, 0); background: rgb(251, 251, 247); }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .subscription-plan-box.plan-select-box { margin-bottom: 8px; }
-.atl-primal-herbs-accueil-p5 #variant-picker-box .plan-checkbox { display: flex; align-items: flex-start; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .checkbox-circle { border-radius: 16px; border: 2px solid rgb(211, 211, 211); background: rgb(255, 255, 255); width: 20px; position: relative; height: 20px; min-width: 20px; margin-right: 8px; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .plan-box-header { display: flex; align-items: flex-start; cursor: pointer; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .sale-price { color: rgb(1, 41, 0); text-align: right; font-family: "ABC Diatype"; font-size: 18px; font-style: normal; font-weight: 700; line-height: 16px; margin-bottom: 5px; }
@@ -498,7 +517,6 @@
 .atl-primal-herbs-accueil-p5 #variant-picker-box .active.plan-select-box .plan-box-main { display: block; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .subscription-usp { color: rgb(1, 41, 0); font-family: "ABC Diatype"; font-size: 14px; font-style: normal; font-weight: 500; line-height: 16px; text-transform: capitalize; display: flex; align-items: center; margin-bottom: 10px; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .subscription-usp svg { width: 15px; height: 15px; min-width: 15px; margin-right: 6px; }
-.atl-primal-herbs-accueil-p5 #variant-picker-box .add-to-cart-button svg { width: 27px; height: 28px; margin-right: 6px; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .add-to-cart-button .button-main { position: absolute; width: calc(100% - 10px); height: 45px; border-radius: 30px; background: rgb(5, 144, 108); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .add-to-cart-button { margin: 12px 0px; width: 100%; height: 55px; border-radius: 30px; background: rgb(5, 144, 108); position: relative; overflow: hidden; padding: 5px; transform: translateZ(0px); }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .subscription-usp:last-child { margin-bottom: 0px; }
@@ -520,7 +538,9 @@
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #variant-picker-box .sale-price { font-size: 16px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #variant-picker-box .compare-price, .atl-primal-herbs-accueil-p5 #variant-picker-box .plan-subheading, .atl-primal-herbs-accueil-p5 #variant-picker-box .subscription-usp { font-size: 12px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #variant-picker-box .add-to-cart-button p { font-size: 19px; } }
+@media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #variant-picker-box .review-box, .atl-primal-herbs-accueil-p5 #variant-picker-box .customer-name { font-size: 10px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #variant-picker-box .active.plan-select-box .plan-box-header { padding-bottom: 12px; margin-bottom: 12px; } }
+.atl-primal-herbs-accueil-p5 #variant-picker-box .variant-item-box { position: relative; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .variant_badge_outer { position: absolute; top: -18px; left: 0px; width: 100%; text-align: center; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .variant_badge__in { display: inline-block; padding: 4px 8px; border-radius: 4px; text-align: center; font-size: 12px; line-height: 1.1em; font-weight: 700; }
 .atl-primal-herbs-accueil-p5 #variant-picker-box .variant_badge__in.green { color: rgb(255, 255, 255); background: rgb(5, 144, 108); }
@@ -548,7 +568,6 @@
 .atl-primal-herbs-accueil-p5 .mg-wrapper-v1, .atl-primal-herbs-accueil-p5 #shopify-section-atc-sticky { display: none !important; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper.mg-wrapper-v2 { margin-bottom: 0px !important; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-button-v2 { border-radius: 999px; border: 1px solid rgb(32, 67, 31); color: rgb(32, 67, 31); font-family: "ABC Diatype"; font-size: 11px; margin-left: 5px; font-style: normal; font-weight: 500; text-align: center; line-height: 16px; padding: 0px 10px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; white-space: nowrap; width: fit-content; min-width: 82px; }
-.atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper.open .mg-button-v2 span.active { display: block; }
 .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper.open .mg-button-v2 span.inactive, .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper .mg-button-v2 span.active { display: none; }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-wrapper.mg-wrapper-v2 { padding: 15px 21px; } }
 @media screen and (max-width: 900px) { .atl-primal-herbs-accueil-p5 #product_section_7QAe .mg-button-v2 { min-width: 76px; margin-left: 5px; } }
@@ -556,7 +575,6 @@
 .atl-primal-herbs-accueil-p5 .af_dev_time_v2 > div { display: flex; align-items: center; }
 .atl-primal-herbs-accueil-p5 .af_time__js_v2 { color: rgb(255, 255, 255); background: rgb(65, 142, 110); padding: 4px 8px; border-radius: 4px; line-height: 1em; font-size: 12px; margin: 0px 5px; }
 .atl-primal-herbs-accueil-p5 .af_cont_v2 .af_dev_time_v2 p { margin: 0px; font-size: 14px; font-weight: 500; color: rgb(1, 41, 0); }
-.atl-primal-herbs-accueil-p5 .af_dev_time_v2 img { max-width: 30px; width: 100%; }
 .atl-primal-herbs-accueil-p5 .af_cont_v2 { margin-top: 12px; margin-bottom: 24px; border-radius: 6px; border: 1.5px solid rgb(251, 251, 247); padding: 16px 20px; }
 .atl-primal-herbs-accueil-p5 .af_cont_v2 p { display: flex; align-items: center; margin: 0px 0px 10px; color: rgb(65, 142, 110); font-weight: 700; font-size: 14px; }
 .atl-primal-herbs-accueil-p5 .afbubble_v2 { width: 13px; height: 13px; border-radius: 50%; background: rgb(65, 142, 110); margin-right: 8px; margin-left: 4px; display: block !important; }
@@ -565,26 +583,7 @@
 @media only screen and (max-width: 676px) { .atl-primal-herbs-accueil-p5 .af_cont_v2 p { font-size: 12px; } }
 @media only screen and (max-width: 676px) { .atl-primal-herbs-accueil-p5 .af_dev_time_v2 { margin-top: 8px; } }
 @media only screen and (max-width: 676px) { .atl-primal-herbs-accueil-p5 .af_time__js_v2 { font-size: min(2.7vw, 12px); } }
-.atl-primal-herbs-accueil-p5 #loox-reviews-feed { display: none; }
-.atl-primal-herbs-accueil-p5 #shopify-section-template--23359382913372__sticky_product_bar_9j8M4d.sticky-bottom { position: fixed; bottom: -110px; left: 0px; right: 0px; width: 100%; z-index: 91; transition: bottom 0.3s; }
-.atl-primal-herbs-accueil-p5 #shopify-section-template--23359382913372__sticky_product_bar_9j8M4d.sticky-bottom.show-sticky { bottom: 0px; }
-.atl-primal-herbs-accueil-p5 #shopify-section-template--23359382913372__sticky_product_bar_9j8M4d .spb-container { display: flex; justify-content: space-between; gap: 8px; }
-.atl-primal-herbs-accueil-p5 .spb-product { min-width: 300px; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown { position: relative; display: flex; flex-direction: column; gap: 4px; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-content { position: absolute; bottom: 100%; left: 0px; right: 0px; background-color: rgb(255, 255, 255); border-radius: 6px; overflow: hidden; padding: 8px 8px 13px; display: none; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-content.active { display: block; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item, .atl-primal-herbs-accueil-p5 .selected-variant { padding: 8px 20px 8px 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px; cursor: pointer; border: 1px solid rgb(233, 233, 233); border-radius: 6px; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item { margin-bottom: 6px; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item.active { border: 1px solid rgb(0, 0, 0); background: rgb(251, 251, 247); }
-.atl-primal-herbs-accueil-p5 .selected-variant { background: rgb(251, 251, 247); padding-left: 10px; gap: 10px; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item:hover { background-color: rgb(251, 251, 247); }
-.atl-primal-herbs-accueil-p5 .spb-action-button { padding: 12px 16px; border-radius: 999px; background: rgb(5, 144, 108); color: rgb(255, 255, 255); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: pointer; width: 100%; font-family: "ABC Diatype"; font-size: 21px; font-weight: 700; line-height: 1; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item * { pointer-events: none; }
-.atl-primal-herbs-accueil-p5 .spb-variant-image img { height: 47px; display: block; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item .spb-variant-image { min-width: 61px; display: flex; align-items: center; justify-content: center; }
-.atl-primal-herbs-accueil-p5 .spb-variant-dropdown-item .spb-variant-image img { height: 40px; }
 .atl-primal-herbs-accueil-p5 { --tw-main-bg-color: #0C2016; --tw-main-text-color: #FFFFFF; }
-@media screen and (min-width: 992px) { .atl-primal-herbs-accueil-p5 #footer_v2_iKcL .submenu_items a, .atl-primal-herbs-accueil-p5 #footer_v2_iKcL .menu_title p { line-height: normal !important; } }
 .atl-primal-herbs-accueil-p5 { --lxs-rating-icon-color: #012900; }
 .atl-primal-herbs-accueil-p5 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
 .atl-primal-herbs-accueil-p5 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
