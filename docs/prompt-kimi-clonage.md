@@ -55,7 +55,7 @@ k) Pages construites en positionnement absolu (constructeurs de pages) : découp
 ═══════════════════════════════════════
 - Tous les textes sont de vrais textes HTML (pas d'images de texte, pas de canvas, pas de texte SVG sauf logos). Titres en h1/h2/h3 comme sur l'original. Langue d'origine conservée, aucun texte inventé ou abrégé.
 - Tout le contenu est présent dans le DOM dès le chargement : pas de rendu au défilement, pas d'éléments à opacity: 0 qui n'apparaissent qu'avec une animation au scroll (s'il y a des animations d'apparition, l'état final doit être visible sans défilement).
-- Images : fichiers locaux dans public/assets, chemins /assets/…, attribut src réel (pas de data-src, pas de lazy-loading JavaScript). loading="lazy" natif autorisé.
+- Images : fichiers locaux dans public/assets, chemins /assets/…, attribut src réel (pas de data-src, pas de lazy-loading JavaScript). loading="lazy" natif autorisé. Conversion en WebP autorisée ; largeur maximale 1600 px pour les bannières, héros et fonds pleine largeur (pas de réduction à 500 px : elles deviennent floues sur ordinateur), 800 px pour le reste.
 - Vidéos : fichiers locaux ou image d'aperçu ; pas d'iframe YouTube/Vimeo.
 - Les textes peuvent être dans src/data/ ; le HTML peut être injecté (dangerouslySetInnerHTML) à condition que la structure finale respecte la partie 2.
 
@@ -107,7 +107,11 @@ Lance la page compilée (npm run build puis npm run preview) dans Chromium, et v
 8. Onglet Réseau : aucune requête vers un autre domaine que la page elle-même.
 9. Chaque bouton (FAQ, onglets, variantes, flèches de carrousel) fait quelque chose.
 10. Capture pleine page à 1440 px et 390 px : identique à l'original (pas de décalage, pas d'icône géante, pas de bloc manquant, pas de texte dans une autre police).
-Corrige chaque page qui échoue, puis refais les contrôles. Dans ta réponse finale, donne un tableau : page | sections | contrôles 1-10 OK ? | remarques.
+11. Couverture CSS : part des noms de classes du HTML de main qui apparaissent dans au moins un sélecteur de document.styleSheets ≥ 80 %. En dessous, la feuille principale du thème manque (base.css, theme.css…) : récupère toutes les feuilles de la page d'origine chargée ET défilée, via [...document.styleSheets], y compris celles ajoutées par JavaScript.
+12. Aucune icône géante : [...document.querySelectorAll('svg')].filter(s => s.getBoundingClientRect().width > 300).length === 0, sauf grande illustration présente sur l'original.
+13. Police : getComputedStyle(document.querySelector('main h1, main h2, main p')).fontFamily n'est pas la police par défaut du navigateur (Times New Roman / serif seul) si l'original en utilise une autre.
+14. Hauteur : document.documentElement.scrollHeight de la copie entre 0,8 et 1,25 fois celle de l'original à 1440 px.
+Corrige chaque page qui échoue, puis refais les contrôles. Dans ta réponse finale, donne un tableau : page | sections | couverture CSS % | hauteur copie / original | contrôles 1-14 OK ? | remarques. Ne livre pas une page restée sans style : signale-la.
 
 ═══════════════════════════════════════
 9. PAGES À CLONER
