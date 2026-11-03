@@ -65,6 +65,7 @@
 }
 .atl-livfresh-listicle-p1 { --swiper-pagination-bullet-size: 20px; --swiper-theme-color: var(--blue); }
 .atl-livfresh-listicle-p1.noScroll .productV7Sticky, .atl-livfresh-listicle-p1.noScroll .productV8Sticky, .atl-livfresh-listicle-p1.noScroll .productV9Sticky { display: none !important; }
+.atl-livfresh-listicle-p1 #header { --header-teal: #35afc8; --header-teal-bright: #21cddf; --header-navy: #1c355e; --header-navy-deep: #0f204c; --header-slate: #5b6e93; --header-gray-heading: #7e8ea5; --header-gray-desc: #5d6b80; --header-teal-card-bg: #ccf4f8; --header-teal-row-bg: #e5fafc; --header-font: "Nunito Sans", -apple-system, "Segoe UI", sans-serif; font-family: var(--header-font); color: var(--header-navy); background: rgb(255, 255, 255); position: relative; z-index: 50; }
 .atl-livfresh-listicle-p1 #header * { box-sizing: border-box; }
 .atl-livfresh-listicle-p1 #header a { text-decoration: none; color: inherit; }
 .atl-livfresh-listicle-p1 #header img { display: block; }
@@ -107,11 +108,25 @@
 .atl-livfresh-listicle-p1 .headerMenuCta:hover { filter: brightness(0.97); }
 .atl-livfresh-listicle-p1 #headerIcons { display: flex; align-items: center; gap: 26px; }
 .atl-livfresh-listicle-p1 .headerIconsItem, .atl-livfresh-listicle-p1 .headerMobileTopIconsItem { background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; display: flex; align-items: center; gap: 5px; color: var(--header-teal); position: relative; }
+.atl-livfresh-listicle-p1 #headerMobile { display: none; }
 @media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerInner { padding: 0px 20px; height: 70px; position: relative; } }
 @media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerLogo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); } }
 @media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerHamburger { display: block; width: 26px; flex: 0 0 26px; padding: 0px; overflow: hidden; } }
 @media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerLogoImage { height: 30px; } }
 @media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerNav { display: none; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerMobile { position: fixed; inset: 0px; background: rgb(255, 255, 255); z-index: 100; overflow-y: auto; display: none; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerMobileTop { display: flex; align-items: center; gap: 16px; padding: 16px 20px; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerMobileTopClose { background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; color: var(--header-navy); padding: 0px; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerMobileTopLogo { height: 28px; width: auto; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerMobileTopIcons { display: flex; align-items: center; gap: 18px; margin-left: auto; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 #headerMobileTabs { display: flex; gap: 22px; padding: 6px 20px 0px; border-bottom: 1px solid rgb(238, 241, 245); } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 .headerMobileTabsItem { background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; font-size: 17px; font-weight: 800; color: var(--header-navy); padding: 8px 0px 12px; position: relative; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 .headerMobileTabsItem.active::after { content: ""; position: absolute; left: 0px; right: 0px; bottom: 0px; height: 3px; background: var(--header-teal); border-radius: 2px; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 .headerMobilePanel { display: none; padding: 18px 20px 32px; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 .headerMobilePanel.active { display: block; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 .headerMobilePanel .headerMenuOffer { margin-bottom: 18px; } }
+@media (max-width: 900px) { .atl-livfresh-listicle-p1 .headerMobilePanel .headerMenuItemDesc { max-width: none; } }
+@media (min-width: 901px) { .atl-livfresh-listicle-p1 #headerMobile { display: none !important; } }
 @media (min-width: 901px) and (max-width: 1299px) { .atl-livfresh-listicle-p1 #headerInner { padding: 0px clamp(20px, -45px + 7.2vw, 48px); gap: 16px; } }
 @media (min-width: 901px) and (max-width: 1299px) { .atl-livfresh-listicle-p1 #headerLogoImage { height: clamp(30px, 12px + 2vw, 38px); } }
 @media (min-width: 901px) and (max-width: 1299px) { .atl-livfresh-listicle-p1 #headerNav { position: static; transform: none; margin: 0px auto; gap: clamp(12px, -38px + 5.5vw, 34px); } }

@@ -1,0 +1,451 @@
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+1F00-1FFF; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: swiper-icons; src: url("data:application/font-woff;charset=utf-8;base64, d09GRgABAAAAAAZgABAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAAGRAAAABoAAAAci6qHkUdERUYAAAWgAAAAIwAAACQAYABXR1BPUwAABhQAAAAuAAAANuAY7+xHU1VCAAAFxAAAAFAAAABm2fPczU9TLzIAAAHcAAAASgAAAGBP9V5RY21hcAAAAkQAAACIAAABYt6F0cBjdnQgAAACzAAAAAQAAAAEABEBRGdhc3AAAAWYAAAACAAAAAj//wADZ2x5ZgAAAywAAADMAAAD2MHtryVoZWFkAAABbAAAADAAAAA2E2+eoWhoZWEAAAGcAAAAHwAAACQC9gDzaG10eAAAAigAAAAZAAAArgJkABFsb2NhAAAC0AAAAFoAAABaFQAUGG1heHAAAAG8AAAAHwAAACAAcABAbmFtZQAAA/gAAAE5AAACXvFdBwlwb3N0AAAFNAAAAGIAAACE5s74hXjaY2BkYGAAYpf5Hu/j+W2+MnAzMYDAzaX6QjD6/4//Bxj5GA8AuRwMYGkAPywL13jaY2BkYGA88P8Agx4j+/8fQDYfA1AEBWgDAIB2BOoAeNpjYGRgYNBh4GdgYgABEMnIABJzYNADCQAACWgAsQB42mNgYfzCOIGBlYGB0YcxjYGBwR1Kf2WQZGhhYGBiYGVmgAFGBiQQkOaawtDAoMBQxXjg/wEGPcYDDA4wNUA2CCgwsAAAO4EL6gAAeNpj2M0gyAACqxgGNWBkZ2D4/wMA+xkDdgAAAHjaY2BgYGaAYBkGRgYQiAHyGMF8FgYHIM3DwMHABGQrMOgyWDLEM1T9/w8UBfEMgLzE////P/5//f/V/xv+r4eaAAeMbAxwIUYmIMHEgKYAYjUcsDAwsLKxc3BycfPw8jEQA/gZBASFhEVExcQlJKWkZWTl5BUUlZRVVNXUNTQZBgMAAMR+E+gAEQFEAAAAKgAqACoANAA+AEgAUgBcAGYAcAB6AIQAjgCYAKIArAC2AMAAygDUAN4A6ADyAPwBBgEQARoBJAEuATgBQgFMAVYBYAFqAXQBfgGIAZIBnAGmAbIBzgHsAAB42u2NMQ6CUAyGW568x9AneYYgm4MJbhKFaExIOAVX8ApewSt4Bic4AfeAid3VOBixDxfPYEza5O+Xfi04YADggiUIULCuEJK8VhO4bSvpdnktHI5QCYtdi2sl8ZnXaHlqUrNKzdKcT8cjlq+rwZSvIVczNiezsfnP/uznmfPFBNODM2K7MTQ45YEAZqGP81AmGGcF3iPqOop0r1SPTaTbVkfUe4HXj97wYE+yNwWYxwWu4v1ugWHgo3S1XdZEVqWM7ET0cfnLGxWfkgR42o2PvWrDMBSFj/IHLaF0zKjRgdiVMwScNRAoWUoH78Y2icB/yIY09An6AH2Bdu/UB+yxopYshQiEvnvu0dURgDt8QeC8PDw7Fpji3fEA4z/PEJ6YOB5hKh4dj3EvXhxPqH/SKUY3rJ7srZ4FZnh1PMAtPhwP6fl2PMJMPDgeQ4rY8YT6Gzao0eAEA409DuggmTnFnOcSCiEiLMgxCiTI6Cq5DZUd3Qmp10vO0LaLTd2cjN4fOumlc7lUYbSQcZFkutRG7g6JKZKy0RmdLY680CDnEJ+UMkpFFe1RN7nxdVpXrC4aTtnaurOnYercZg2YVmLN/d/gczfEimrE/fs/bOuq29Zmn8tloORaXgZgGa78yO9/cnXm2BpaGvq25Dv9S4E9+5SIc9PqupJKhYFSSl47+Qcr1mYNAAAAeNptw0cKwkAAAMDZJA8Q7OUJvkLsPfZ6zFVERPy8qHh2YER+3i/BP83vIBLLySsoKimrqKqpa2hp6+jq6RsYGhmbmJqZSy0sraxtbO3sHRydnEMU4uR6yx7JJXveP7WrDycAAAAAAAH//wACeNpjYGRgYOABYhkgZgJCZgZNBkYGLQZtIJsFLMYAAAw3ALgAeNolizEKgDAQBCchRbC2sFER0YD6qVQiBCv/H9ezGI6Z5XBAw8CBK/m5iQQVauVbXLnOrMZv2oLdKFa8Pjuru2hJzGabmOSLzNMzvutpB3N42mNgZGBg4GKQYzBhYMxJLMlj4GBgAYow/P/PAJJhLM6sSoWKfWCAAwDAjgbRAAB42mNgYGBkAIIbCZo5IPrmUn0hGA0AO8EFTQAA"); font-weight: 400; font-style: normal; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { --swiper-theme-color: #007aff; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 swiper-container { margin-left: auto; margin-right: auto; position: relative; overflow: hidden; list-style: none; padding: 0px; z-index: 1; display: block; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-wrapper { position: relative; width: 100%; height: 100%; z-index: 1; display: flex; transition-property: transform; transition-timing-function: var(--swiper-wrapper-transition-timing-function,initial); box-sizing: content-box; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-android .swiper-slide, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-wrapper { transform: translateZ(0px); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-slide, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 swiper-slide { flex-shrink: 0; width: 100%; height: 100%; position: relative; transition-property: transform; display: block; }
+@keyframes swiper-preloader-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { --swiper-navigation-size: 44px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-next, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-prev { position: absolute; top: var(--swiper-navigation-top-offset,50%); width: calc(var(--swiper-navigation-size)/ 44 * 27); height: var(--swiper-navigation-size); margin-top: calc(0px - (var(--swiper-navigation-size)/ 2)); z-index: 10; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--swiper-navigation-color,var(--swiper-theme-color)); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-next::after, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-prev::after { font-family: swiper-icons; font-size: var(--swiper-navigation-size); letter-spacing: 0px; font-variant: initial; line-height: 1; text-transform: none !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-prev, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-rtl .swiper-button-next { left: var(--swiper-navigation-sides-offset,10px); right: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-prev::after, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-rtl .swiper-button-next::after { content: "prev"; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-next, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-rtl .swiper-button-prev { right: var(--swiper-navigation-sides-offset,10px); left: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-next::after, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-rtl .swiper-button-prev::after { content: "next"; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-pagination { position: absolute; text-align: center; transition: opacity 0.3s; transform: translateZ(0px); z-index: 10; }
+@font-face { font-family: "Open Sans"; font-weight: 800; font-style: normal; }
+@font-face { font-family: "Open Sans"; font-weight: 700; font-style: normal; }
+@font-face { font-family: "Open Sans"; font-weight: 600; font-style: normal; }
+@font-face { font-family: "Open Sans"; font-weight: 400; font-style: normal; }
+@font-face { font-family: "Open Sans"; font-weight: 300; font-style: normal; }
+@font-face { font-family: Dino; font-weight: 700; font-style: normal; }
+@font-face { font-family: Avenir; font-weight: 400; font-style: normal; }
+@font-face { font-family: Avenir; font-weight: 500; font-style: normal; }
+@font-face { font-family: Avenir; font-weight: 500; font-style: italic; }
+@font-face { font-family: Avenir; font-weight: 700; font-style: normal; }
+@font-face { font-family: Avenir; font-weight: 700; font-style: italic; }
+@font-face { font-family: Avenir; font-weight: 900; font-style: normal; }
+@font-face { font-family: PlaylistScript; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 1000; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 1000; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 800; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 800; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 700; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 700; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 600; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 600; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 500; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 500; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 400; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 400; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 300; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 300; font-style: italic; }
+@font-face { font-family: NunitoSans; font-weight: 200; font-style: normal; }
+@font-face { font-family: NunitoSans; font-weight: 200; font-style: italic; }
+@font-face { font-family: Lato; font-weight: 100; font-style: italic; }
+@font-face { font-family: Lato; font-weight: 900; font-style: normal; }
+@font-face { font-family: Lato; font-weight: 900; font-style: italic; }
+@font-face { font-family: Lato; font-weight: 700; font-style: normal; }
+@font-face { font-family: Lato; font-weight: 700; font-style: italic; }
+@font-face { font-family: Lato; font-weight: 400; font-style: italic; }
+@font-face { font-family: Lato; font-weight: 300; font-style: normal; }
+@font-face { font-family: Lato; font-weight: 300; font-style: italic; }
+@font-face { font-family: Lato; font-weight: 400; font-style: normal; }
+@font-face { font-family: Lato; font-weight: 100; font-style: normal; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { --sale: #ef0d0d; --dark-green: #036702; --blue: #0398C5; --primary-blue: #1c355e; --off-white: #f5fbfb; --elliot-blue: #4D7FD3CC; --razzmatazz: #d81159; --light-blue: #d7eff1; --mid-blue: #b1e0e6; --dark-blue: #35afc8; --blue-green: #cde9e3; --faded-blue: #657ba8; --light-grey: #f7f7f7; --grey: #daddde; --mid-grey: #d1d4d6; --mint: #dbefea; --green: #0dcd8d; --wintergreen: #00a990; --light-wintergreen: #b8e7e3; --peppermint: #37b0c9; --light-peppermint: #c0e8f0; --light-mild: #bcd0e3; --mild: #326195; --darker-grey: #a7aaac; --darkest-grey: #54565b; --gold: #EBBF20; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 * { box-sizing: border-box; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { font-size: 16px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { font-family: NunitoSans, serif; font-weight: 400; margin: 0px; padding: 0px; color: var(--primary-blue); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2.noScroll { overflow: hidden; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 a { text-decoration: none; color: inherit; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 button, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 input, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 optgroup, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 select, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 textarea { font: inherit; color: inherit; background-color: transparent; display: block; padding: 0px; margin: 0px; width: 100%; text-align: left; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 input, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 select, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 textarea { border: 1px solid lightgray; padding: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 img, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 picture, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 video { display: block; height: auto; width: 100%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .shopify-challenge__button, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .button { background-color: var(--primary-blue); color: rgb(255, 255, 255); text-align: center; font-size: 18px; padding: 8px 15px; font-weight: 700; max-width: 330px; appearance: none; cursor: pointer; display: block; border-radius: 5px; }
+@keyframes loading { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .button { max-width: none; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featured { display: flex; flex-direction: column; align-items: center; max-width: 800px; margin: 0px auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeader { display: flex; flex-direction: row; align-items: center; margin-bottom: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderImg { height: 125px; width: auto; display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContent { display: flex; flex-direction: column; gap: 5px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentWrap { height: 20px; margin-bottom: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentWrapImg { height: 100%; width: auto; margin: 0px auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentSubtitle { font-size: 12px; margin: 0px; text-align: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentTitle { font-size: 30px; text-align: center; font-weight: 700; margin: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentTitle p { margin: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredContent { font-size: 16px; font-weight: 400; font-style: italic; text-align: center; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeader { margin-bottom: 20px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentTitle { font-size: 16px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .break { display: flex; flex-direction: row; align-items: center; width: 100%; margin-bottom: 30px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .breakLine { flex-grow: 1; height: 1px; background-color: var(--dark-blue); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .breakImg { display: flex; height: 30px; width: auto; padding: 0px 5px 0px 6px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { --swiper-pagination-bullet-size: 20px; --swiper-theme-color: var(--blue); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-next, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .swiper-button-prev { user-select: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2.noScroll .productV7Sticky, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2.noScroll .productV8Sticky, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2.noScroll .productV9Sticky { display: none !important; }
+@keyframes gradientAnimation { 
+  0% { background-position: 0px 0px; }
+  100% { background-position: 200% 0px; }
+}
+@keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+}
+@keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
+}
+@keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+}
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 210px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 210px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 210px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 210px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 320px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 320px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 320px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 320px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 430px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 430px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 430px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 430px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 540px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 540px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 540px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 540px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 *, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 ::before, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 ::after { animation: auto ease 0s 1 normal none running none !important; transition: none !important; caret-color: transparent !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2.noScroll .productV10Sticky { display: none !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10Sticky:not(.visible) { display: none !important; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBody { padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeft { display: grid; grid-template-columns: 52px minmax(0px, 1fr) auto; align-items: center; gap: 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftImg { width: 52px; height: 52px; object-fit: contain; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftTitle { min-width: 0px; width: auto; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftTitleTxt, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBody.small .productV10StickyBodyLeftTitleTxt { font-size: 13px; line-height: 1.2; margin: 0px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftTitleCollection { font-size: 9.5px; line-height: 1.25; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftMobile { width: auto; max-width: 38vw; align-items: flex-end; text-align: right; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftMobileAmount, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBody.small .productV10StickyBodyLeftMobileAmount { font-size: 14px; line-height: 1.15; white-space: normal; text-align: right; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyLeftMobileInterval { font-size: 11px; line-height: 1.2; width: auto; text-align: right; margin-top: 2px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #shopify-section-template--28037726765375__main-product .productV10StickyBodyRight { margin-top: 8px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10 { max-width: 1280px; width: 100%; margin: auto; padding: 40px 64px 20px; display: grid; grid-template-columns: 1fr minmax(0px, 1fr); column-gap: 40px; height: 100%; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10 { padding: 12px 8px; width: 100%; grid-template-columns: minmax(0px, 1fr); row-gap: 0px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Inner { padding: 0px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10InnerWrap { display: flex; flex-direction: column; top: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Visual { display: flex; align-items: center; gap: 15px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualSwiper { height: 100%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualSwiperImage { aspect-ratio: 1 / 1; object-fit: contain; border-radius: 7px; padding: 20px; width: 100% !important; height: 100% !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualThumbs { display: flex; flex-direction: column; gap: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualThumbsThumbnail { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--darker-grey); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualThumbsThumbnail:first-child:last-child { display: none; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualSwiperImage { border-radius: 0px; padding: 0px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualThumbs { flex-direction: column; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10VisualThumbsThumbnail { width: 32px; height: 32px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Featured { display: none; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Featured { max-width: 400px; margin: 30px auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FeaturedSpacer { width: 100%; height: 40px; display: block; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FeaturedQuote { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 40px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FeaturedQuoteImg { margin-bottom: 10px; height: 20px; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FeaturedQuoteName { font-weight: 700; margin-top: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FeaturedQuoteVerified { display: flex; flex-direction: row; align-items: center; gap: 5px; font-size: 12px; color: var(--darker-grey); margin-top: 3px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FeaturedQuoteVerifiedImg { height: 13px; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Content { width: 100%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Reviews { display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 16px; font-weight: 700; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10CheckingOut { font-size: 16px; color: var(--dark-blue); margin-bottom: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Title { font-size: 25px; font-weight: 700; margin: 0px 0px 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Title span { color: rgb(207, 24, 70); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10LineTags { display: flex; flex-direction: row; margin: 10px auto; gap: 8px; width: 100%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10LineTagsItem { text-transform: uppercase; font-size: 12px; letter-spacing: 2px; padding: 8px 20px; border-radius: 10px; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10LineTags { flex-wrap: wrap; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Line { height: 2px; width: 100%; margin: 20px 0px; background-color: var(--darker-grey); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10LineTxt { font-size: 16px; font-weight: 700; color: var(--primary-blue); margin-bottom: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Bullets { display: flex; flex-direction: column; font-size: 18px; font-weight: 700; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBody { margin: 15px auto 10px; display: flex; flex-wrap: wrap; gap: 8px 20px; line-height: 1.1; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBodyItem { display: flex; flex-direction: row; gap: 20px; flex: 1 1 45%; align-items: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBodyItemTxt { font-size: 16px; font-weight: 400; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBodyItemImg { height: 30px; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Form { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSub { display: grid; grid-template-columns: 1fr 1fr; width: 100%; border-radius: 8px; overflow: hidden; font-family: NunitoSans, sans-serif; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabel { display: flex; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelInput { opacity: 0; height: 0px; width: 0px; position: absolute; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelBody { display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; cursor: pointer; padding: 8px 6px; gap: 4px; background-color: rgb(235, 247, 249); width: 100%; position: relative; transition: background-color 0.15s, box-shadow 0.15s; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelInput:checked + .productV10FormSubLabelBody { background-color: rgb(255, 255, 255); box-shadow: rgb(28, 53, 94) 0px -2px inset; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelInput:focus-visible + .productV10FormSubLabelBody { outline: rgb(0, 185, 209) solid 2px; outline-offset: -2px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelBodyTitle { font-size: 16px; font-weight: 900; line-height: 1.2; color: rgb(170, 187, 190); transition: color 0.15s; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelInput:checked + .productV10FormSubLabelBody .productV10FormSubLabelBodyTitle { color: rgb(0, 0, 0); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelBodySubtitle { font-size: 14px; font-weight: 400; line-height: 1.2; color: rgb(170, 187, 190); transition: color 0.15s; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelInput:checked + .productV10FormSubLabelBody .productV10FormSubLabelBodySubtitle { color: rgb(0, 169, 143); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormWrap { width: 100%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormOptions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding-top: 16px; direction: rtl; font-family: NunitoSans, sans-serif; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGifts { display: none; flex-direction: column; gap: 12px; margin-top: 8px; padding: 8px 6px 10px; border-radius: 6px; background-color: rgb(237, 254, 254); font-family: NunitoSans, sans-serif; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGifts.active { display: flex; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsTitle { margin: 0px; text-align: center; font-size: 14px; font-weight: 800; color: rgb(28, 53, 94); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBody { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItem { position: relative; min-width: 0px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding-top: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItemBadge { position: absolute; top: 0px; left: 50%; z-index: 3; transform: translate(-50%); padding: 2.5px 5px; border-radius: 15px; background-color: rgb(28, 53, 94); color: rgb(255, 255, 255); font-size: 8px; font-weight: 800; line-height: 1.2; text-transform: uppercase; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItemImg { position: relative; width: 100%; max-width: 72px; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; border: 1.3px solid rgb(0, 0, 0); border-radius: 5px; background-color: transparent; overflow: hidden; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItemImgPhoto { width: 82%; height: 82%; object-fit: contain; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItemImgLock { position: absolute; inset: 0px; display: none; align-items: center; justify-content: center; pointer-events: none; color: rgb(170, 187, 190); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItemImgLockIcon { height: 18px; width: 17px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItemName { font-size: 10px; font-weight: 800; line-height: 1.2; color: rgb(28, 53, 94); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItem.locked .productV10FormGiftsBodyItemImg { border-color: rgb(235, 235, 235); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItem.locked .productV10FormGiftsBodyItemImgPhoto { filter: grayscale(1); opacity: 0.2; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormGiftsBodyItem.locked .productV10FormGiftsBodyItemImgLock { display: flex; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATC { padding: 22px; margin: 24px 0px 0px; width: 100%; border: 0px; border-radius: 14px; background-color: rgb(38, 63, 106); color: rgb(255, 255, 255); font-size: 23px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; box-shadow: rgba(28, 53, 94, 0.45) 0px 12px 24px -10px; transition: background 0.14s, transform 0.1s; display: flex; align-items: center; justify-content: center; max-width: unset; gap: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATC:hover { background-color: rgb(60, 182, 206); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATCPrice { display: flex; align-items: center; gap: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATC:has(.productV10FormATCPriceReal:empty) .productV10FormATCDash { display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATCPriceCompare { font-weight: 600; font-size: 16px; text-decoration: line-through; opacity: 0.7; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATCPriceCompare:empty { display: none; }
+@media (max-width: 400px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormSubLabelBodySubtitle { font-size: 12.5px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATC { padding: 18px 10px; font-size: 16px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormATCPriceCompare { font-size: 13px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormFrequency { margin: 12px auto 0px; text-align: center; font-size: 13.5px; display: block; font-weight: 600; color: rgb(38, 63, 106); line-height: 1.3; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormBadges { display: flex; flex-flow: wrap; margin-top: 18px; align-items: center; justify-content: center; gap: 14px; font-size: 13px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormBadgesItem { display: flex; flex-direction: row; align-items: center; gap: 7px; white-space: nowrap; font-size: 13px; font-weight: 600; color: rgb(38, 63, 106); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormBadgesItemImg { height: 17px; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormBadgesSpacer { width: 1px; height: 14px; background-color: rgb(177, 224, 230); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormCards { margin-top: 14px; display: flex; flex-flow: wrap; align-items: center; justify-content: center; gap: 6px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormCardsItem svg { height: 26px; width: auto; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10FormCardsItem svg { height: 20px; width: auto; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Order { display: none; flex-direction: column; border-radius: 20px; color: var(--primary-blue); background-color: var(--light-wintergreen); padding: 30px; margin: 30px 0px; border: 1px solid rgb(226, 228, 231); box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 4px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Order.active { display: flex; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderTitle { font-size: 20px; font-weight: 700; text-transform: capitalize; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderList { padding-left: 20px; display: flex; margin-top: 15px; flex-direction: column; text-transform: capitalize; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderListItem { position: relative; padding-left: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderListItem::before { content: "•"; margin-right: 10px; position: absolute; left: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderDates { display: flex; flex-direction: column; margin-top: 15px; gap: 15px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderDatesItem { display: flex; flex-direction: row; justify-content: space-between; align-items: center; background-color: rgb(255, 255, 255); padding: 10px 20px; font-size: 18px; font-weight: 700; border-radius: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderDatesItem.active { border: 1px solid var(--dark-blue); box-shadow: rgb(255, 255, 255) 0px 0px 10px; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Order { padding: 20px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderTitle { font-size: 18px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderList { margin-top: 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderList { padding-left: 0px; font-size: 13px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10OrderDatesItem { font-size: 18px; padding: 10px 15px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Drops { display: flex; flex-direction: column; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemTitle { display: flex; align-items: center; font-weight: 700; text-transform: uppercase; font-size: 18px; cursor: pointer; padding: 20px 0px; border-bottom: 1px solid var(--darker-grey); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemTitle::after { content: ">"; font-size: 18px; margin-left: 10px; position: relative; transition: 0.3s; padding: 3px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody { overflow: hidden; height: 0px; font-size: 18px; line-height: 24px; font-weight: 500; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody.small { padding: 0px !important; margin-top: 0px !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody ul li { margin-bottom: 8px; margin-left: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody ul li::marker { font-size: 30px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody ul { list-style-image: none; background-size: 20px auto; padding-left: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody ol { padding-left: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody ol li { margin-bottom: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBody p { margin: 0px 0px 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyBullets { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyBulletsItem { display: flex; flex-direction: row; gap: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyBulletsItemImg { height: 20px; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBtn { color: var(--dark-blue); text-decoration: underline; margin-top: 20px; cursor: pointer; width: fit-content; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyHeader { display: flex; flex-direction: row; align-items: center; justify-content: space-between; text-align: left; font-size: 16px; font-weight: 700; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyHeaderItem { display: flex; flex-direction: row; gap: 5px; align-items: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyHeaderItemImg { height: 18px; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyName { margin-top: 5px; font-size: 16px; font-weight: 700; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyTxt { margin-top: 10px; font-size: 16px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyReviews { color: var(--dark-blue); font-size: 16px; display: flex; cursor: pointer; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Content { padding: 0px 0px 40px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Reviews { font-size: 12px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Title { font-size: 26px; margin-bottom: 5px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10CheckingOut { font-size: 14px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10LineTagsItem { font-size: 13px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Bullets { column-gap: 10px; margin-bottom: 20px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBody { column-gap: 12px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBodyItem { gap: 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBodyItemImg { height: 20px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10BulletsBodyItemTxt { font-size: 13px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyHeader { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyHeaderItem { flex-direction: column; text-align: left; width: 100%; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10DropsItemBodyHeaderItemTxt { text-align: left; width: 100%; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Sticky { width: 100%; align-items: center; background-color: rgb(255, 255, 255); color: var(--primary-blue); position: fixed; bottom: 0px; left: 0px; z-index: 100; box-shadow: rgba(0, 0, 0, 0.77) 0px -4px 10px -2px; display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBody { width: 90%; margin: 0px auto; max-width: 1400px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeft { display: flex; flex-direction: row; align-items: center; height: 110px; gap: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftImg { height: 90%; width: auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftTitleTxt { margin: 0px; font-weight: 800; font-size: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftTitleCollection { text-transform: uppercase; font-weight: 200; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRight { display: flex; flex-direction: row; align-items: center; gap: 30px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightOption { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightOptionAmount { font-size: 20px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightOptionInterval { white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightATC { display: flex; flex-direction: row; align-items: center; gap: 10px; white-space: nowrap; font-size: 18px; padding: 10px 20px; border-radius: 2px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightATC:disabled { background-color: var(--darker-grey); pointer-events: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightATC:disabled .productV10StickyBodyRightATCCompare { display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightATC:disabled .productV10StickyBodyRightATCPrice { display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightATCCompare { text-decoration: line-through red; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftMobile { display: none; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Sticky { display: flex; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBody { flex-direction: column; align-items: flex-start; width: 100%; padding: 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeft { justify-content: center; gap: 12px; height: 80px; width: fit-content; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftTitleTxt { font-size: 14px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftTitleCollection { font-size: 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftMobile { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 16px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftMobileAmount { white-space: nowrap; font-weight: 700; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyLeftMobileInterval { white-space: nowrap; font-size: 12px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRight { flex-direction: column; gap: 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightOption { display: none; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRight { width: 100%; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10StickyBodyRightATC { width: 100%; justify-content: center; font-size: 16px; max-width: 100% !important; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContentTitle { font-size: 20px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV3AddOn { max-width: 100%; margin: 20px auto 0px; display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV3AddOnPag { position: relative; margin: 20px auto 0px; display: flex; justify-content: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10Visual { position: relative; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10VisualSale { position: absolute; top: 24px; right: 0px; z-index: 11; display: flex; flex-direction: column; align-items: center; padding: 8px 14px; border-radius: 10px; background-color: rgb(38, 63, 106); color: rgb(255, 255, 255); font-family: NunitoSans, sans-serif; text-align: center; line-height: 1.15; box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 6px; pointer-events: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10VisualSaleTitle { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; white-space: nowrap; }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10VisualSale { top: 0px; padding: 6px 10px; } }
+@media (max-width: 800px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10VisualSaleTitle { font-size: 13px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 a.ebfBar, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 a.ebfBar:hover, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 a.ebfBar:visited { color: rgb(255, 255, 255); text-decoration: none; cursor: pointer; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBar { width: 100%; display: flex; align-items: center; justify-content: center; gap: clamp(12px, 2.4vw, 20px); padding: 8px 16px; background: rgb(28, 53, 94); color: rgb(255, 255, 255); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarText { display: flex; flex-direction: column; align-items: center; line-height: 1; text-align: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarTitle { font-size: clamp(15px, 2vw, 21px); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarSub { margin-top: 4px; font-size: clamp(7.5px, 0.8vw, 9px); font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.9; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarClock { display: inline-flex; align-items: flex-start; gap: 3px; padding: 4px 8px 3px; border-radius: 6px; background: rgb(255, 255, 255); color: rgb(28, 53, 94); font-variant-numeric: tabular-nums; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarUnit { display: flex; flex-direction: column; align-items: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarUnit b { font-size: clamp(15px, 1.9vw, 20px); font-weight: 800; line-height: 1; letter-spacing: 0.04em; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarUnit small { margin-top: 2px; font-size: 7px; font-weight: 800; letter-spacing: 0.1em; line-height: 1; color: rgb(91, 107, 130); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarColon { font-size: clamp(15px, 1.9vw, 20px); font-weight: 800; line-height: 1; color: rgb(91, 107, 130); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .ebfBarGold { color: rgb(233, 195, 102); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .featuredHeaderContent { align-items: center; text-align: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="a788d6f5-f0c9-4c27-9e44-51afbb8408b2"] { background-color: rgb(12, 186, 186); color: rgb(255, 255, 255); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="f8adf909-5ee0-462e-9dd7-e3c7df61f896"] { background-color: rgb(225, 225, 225); color: rgb(88, 89, 94); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="tag_A9jXXm"] { background-color: rgb(54, 175, 200); color: rgb(255, 255, 255); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Order--meter .productV10OrderDatesItem { position: relative; overflow: hidden; isolation: isolate; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .productV10Order--meter .productV10OrderDatesItem > :not(.sfMeter) { position: relative; z-index: 1; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .sfMeter { position: absolute; inset: 0px; z-index: 0; pointer-events: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .sfMeterFill { position: absolute; top: 0px; bottom: 0px; left: 0px; width: 89%; overflow: hidden; background: linear-gradient(90deg, rgba(120, 214, 222, 0.22), rgba(120, 214, 222, 0.42)); box-shadow: rgba(120, 214, 222, 0.7) -2px 0px inset; transition: width 1.2s; animation: 2.4s ease-in-out 0s infinite normal none running sfMeterPulse; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .sfMeterFill::after { content: ""; position: absolute; inset: 0px; background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%); transform: translate(-100%); animation: 2.8s ease-in-out 0s infinite normal none running sfMeterSweep; }
+@keyframes sfMeterSweep { 
+  100% { transform: translate(100%); }
+}
+@keyframes sfMeterPulse { 
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .sfMeterFill, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .sfMeterFill::after { animation: auto ease 0s 1 normal none running none; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10FormSub, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10FormOptions, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10FormGifts, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10FormATCForm, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10FormFrequency { display: none !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .aiSbb { margin-bottom: 16px; }
+@media (min-width: 801px) and (max-width: 1099px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"].productV10, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10 { padding: 32px 24px 20px; column-gap: 24px; grid-template-columns: minmax(0px, 4fr) minmax(0px, 5fr); } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ai-sbb] { --sbb-navy: #1c355e; --sbb-green: #00a98f; --sbb-green-dk: #007f6b; --sbb-teal: #0b8aa3; --sbb-red: #d81159; --sbb-line: #dfe5ec; --sbb-muted: #5b6b82; --sbb-panel: #f2f5f8; --sbb-mint: #e7f8f1; font-family: NunitoSans, "Nunito Sans", sans-serif; color: var(--sbb-navy); background: var(--sbb-panel); border-radius: 18px; padding: clamp(12px, 3.5vw, 20px); display: flex; flex-direction: column; gap: 12px; margin: 8px 0px 16px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ai-sbb] * { box-sizing: border-box; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ai-sbb] button { font-family: inherit; color: inherit; cursor: pointer; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ai-sbb] s { text-decoration-thickness: 1px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlan { display: grid; grid-template-columns: repeat(2, minmax(0px, 1fr)); gap: 4px; background: rgb(226, 232, 239); border-radius: 14px; padding: 4px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanBtn { border: 0px; border-radius: 11px; min-height: 52px; padding: 6px 4px; text-align: center; background: transparent; color: var(--sbb-muted); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanBtn[aria-pressed="true"] { background: rgb(255, 255, 255); color: var(--sbb-navy); box-shadow: rgba(28, 53, 94, 0.15) 0px 2px 6px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanName { display: block; font-size: clamp(14px, 4.8cqi, 17px); font-weight: 800; line-height: 1.2; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanSub { display: block; font-size: clamp(10.5px, 3.6cqi, 13px); font-weight: 700; line-height: 1.25; text-wrap: balance; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanBtn[data-plan="sub"] .aiSbbPlanSub { color: var(--sbb-green-dk); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbFlavors { padding-top: 6px; display: grid; grid-template-columns: repeat(2, minmax(0px, 1fr)); gap: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPill { text-wrap: balance; line-height: 1.25; align-self: center; max-width: 100%; background: var(--sbb-red); color: rgb(255, 255, 255); font-size: clamp(11px, 4cqi, 15px); font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; padding: 6px 18px; border-radius: 999px; text-align: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCards { display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 8px; padding-top: 10px; align-items: stretch; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCard { container-type: inline-size; position: relative; min-width: 0px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; padding: 16px 4px 10px; border-radius: 14px; background: rgb(255, 255, 255); border: 1.5px solid var(--sbb-line); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCard[aria-checked="true"] { background: var(--sbb-mint); border-color: var(--sbb-green); box-shadow: inset 0 0 0 1px var(--sbb-green),0 6px 16px #00a98f2e; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTag { position: absolute; top: 0px; left: 50%; transform: translate(-50%, -55%); white-space: nowrap; max-width: calc(100% + 8px); font-size: clamp(8px, 10cqi, 11px); font-weight: 900; letter-spacing: 0.03em; text-transform: uppercase; color: rgb(255, 255, 255); padding: 3px clamp(4px, 6cqi, 8px); border-radius: 999px; background: var(--sbb-navy); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTag[data-kind="best"] { background: var(--sbb-green-dk); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbSave { font-size: clamp(13px, 16cqi, 19px); font-weight: 900; line-height: 1.1; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbReg { font-size: clamp(10px, 11cqi, 12px); font-weight: 600; color: var(--sbb-muted); line-height: 1.25; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTubes { display: flex; align-items: flex-end; justify-content: center; gap: 0px; width: 100%; height: clamp(36px, 46cqi, 60px); margin: 4px 0px 2px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTubes img { height: 100%; width: auto; max-width: 21%; object-fit: contain; object-position: center bottom; flex: 0 1 auto; min-width: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTubes img + img { margin-left: -2.5cqi; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlus { align-self: center; flex: 0 0 auto; width: clamp(11px, 12cqi, 15px); height: clamp(11px, 12cqi, 15px); border-radius: 50%; background: var(--sbb-navy); color: rgb(255, 255, 255); font-size: clamp(9px, 9cqi, 11px); font-weight: 900; line-height: clamp(11px, 12cqi, 15px); margin: 0px 1px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTitle { font-size: clamp(11.5px, 13cqi, 15px); font-weight: 800; line-height: 1.15; min-height: 2.3em; display: flex; align-items: center; justify-content: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPerTube { font-size: clamp(10px, 10.5cqi, 12px); font-weight: 600; color: rgb(59, 74, 99); white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbDiv { width: 100%; border-top: 1px solid var(--sbb-line); margin: 4px 0px 2px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbWas { white-space: nowrap; font-size: clamp(11px, 12.5cqi, 15px); font-weight: 600; color: rgb(122, 135, 154); line-height: 1.2; min-height: 1.2em; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCur { font-size: 0.62em; letter-spacing: 0px; margin-right: 0.06em; vertical-align: 0.08em; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCta .aiSbbCur, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftBadge .aiSbbCur, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbReg .aiSbbCur, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbWas .aiSbbCur { font-size: 0.8em; vertical-align: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbNow { font-size: clamp(18px, 22cqi, 32px); font-weight: 900; line-height: 1.05; color: var(--sbb-green); letter-spacing: -0.02em; white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbBrush { font-size: clamp(9.5px, 10.2cqi, 12px); font-weight: 700; color: var(--sbb-teal); white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGifts { background: rgb(240, 251, 251); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftsHead { display: flex; justify-content: center; text-align: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ebf="true"] .aiSbbGiftsHead { flex-direction: column; align-items: center; gap: 2px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftsTitle--ebf { color: var(--sbb-red); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftsSub { margin: 0px; font-size: clamp(12px, 3.6cqi, 14px); line-height: 1.3; color: var(--sbb-navy); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ebf="true"] .aiSbbWas { display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ebf="true"] { margin-bottom: 4px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTimer { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px clamp(6px, 2.4cqi, 10px); padding: 11px clamp(10px, 3.6cqi, 16px); border-radius: 10px; background: rgb(255, 255, 255); box-shadow: inset 0 0 0 1px var(--sbb-line); color: var(--sbb-navy); font-size: clamp(12.5px, 3.75cqi, 17px); font-weight: 800; line-height: 1; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTimerBolt { color: var(--sbb-red); flex: 0 0 auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTimerLabel { color: var(--sbb-red); white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTimerClock { display: inline-flex; align-items: center; gap: clamp(0.2em, 0.8cqi, 0.3em); font-size: 1.12em; font-variant-numeric: tabular-nums; letter-spacing: clamp(0.03em, 0.3cqi, 0.06em); white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTimerClock i { font-style: normal; letter-spacing: 0px; color: var(--sbb-muted); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStock { display: flex; align-items: center; justify-content: center; gap: 9px; color: rgb(26, 148, 71); font-size: clamp(13px, 3.6cqi, 15px); font-weight: 700; line-height: 1.2; margin-top: 2px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStockDot { position: relative; flex: 0 0 auto; width: 10px; height: 10px; border-radius: 50%; background: rgb(26, 148, 71); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStockDot::after { content: ""; position: absolute; inset: 0px; border-radius: 50%; background: rgb(26, 148, 71); animation: 1.8s ease-out 0s infinite normal none running aiSbbPulse; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStock--hot { color: rgb(235, 169, 0); white-space: nowrap; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStock--hot .aiSbbStockDot, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStock--hot .aiSbbStockDot::after { background: rgb(235, 169, 0); }
+@keyframes aiSbbPulse { 
+  0% { transform: scale(1); opacity: 0.55; }
+  80%, 100% { transform: scale(2.6); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbStockDot::after { animation: auto ease 0s 1 normal none running none; opacity: 0.25; transform: scale(1.8); } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftsTitle { font-size: clamp(13.5px, 4.6cqi, 17px); font-weight: 800; margin: 0px; text-wrap: balance; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftRow { display: flex; justify-content: center; gap: 6px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftRow { padding-top: 8px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift { container-type: inline-size; min-width: 0px; flex: 0 0 calc(25% - 4.5px); position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftBadge { position: absolute; top: 0px; left: 50%; transform: translate(-50%, -50%); z-index: 1; white-space: nowrap; padding: 3px 7px; border-radius: 999px; background: var(--sbb-navy); color: rgb(255, 255, 255); font-size: clamp(8.5px, 11cqi, 11px); font-weight: 900; letter-spacing: 0.02em; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftBadge s { opacity: 0.85; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftImg { position: relative; width: 100%; aspect-ratio: 1 / 1; min-height: 0px; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 2px; border: 1.5px solid var(--sbb-navy); border-radius: 10px; background: rgb(255, 255, 255); padding: 14% 8% 8%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftImg img { height: 100%; max-height: 100%; width: auto; max-width: 100%; object-fit: contain; min-width: 0px; flex: 0 1 auto; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftImg img:not(:only-of-type) { max-width: 46%; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftLock { position: absolute; inset: 0px; display: none; align-items: center; justify-content: center; color: rgb(138, 152, 168); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftName { font-size: clamp(10px, 13cqi, 13px); font-weight: 800; line-height: 1.15; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift.is-locked .aiSbbGiftBadge { background: rgb(185, 196, 204); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift.is-locked .aiSbbGiftImg { border-color: rgb(213, 221, 227); background: rgb(242, 245, 247); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift.is-locked .aiSbbGiftImg img { opacity: 0.3; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift.is-locked .aiSbbGiftLock { display: flex; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift.is-locked .aiSbbGiftName { color: rgb(154, 167, 180); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCta { width: 100%; min-height: 58px; padding: 8px 10px; border: 0px; border-radius: 14px; background: var(--sbb-navy); display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; font-size: clamp(14px, 5.6cqi, 20px); font-weight: 900; letter-spacing: 0.02em; text-transform: uppercase; box-shadow: rgba(28, 53, 94, 0.25) 0px 8px 18px; color: rgb(255, 255, 255) !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCta:hover { background: rgb(38, 63, 106); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCta s { font-size: 0.78em; font-weight: 600; opacity: 0.7; margin-left: 6px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbShip { text-wrap: balance; text-align: center; font-size: clamp(11px, 3.5cqi, 14px); font-weight: 700; color: rgb(59, 74, 99); }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-ai-sbb] { container: sbb / inline-size; }
+@container sbb (min-width: 480px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCards { gap: 12px; } }
+@container sbb (min-width: 480px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCard { padding: 18px 8px 12px; } }
+@container sbb (min-width: 480px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftRow { gap: 8px; } }
+@container sbb (min-width: 480px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift { flex-basis: calc(25% - 6px); } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanName { white-space: normal; font-size: 14px; } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanSub { font-size: 10.5px; } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftRow { gap: 4px; } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGift { flex-basis: calc(25% - 3px); } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftBadge s { display: none; } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftBadge { padding: 2px 6px; } }
+@container sbb (max-width: 300px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbGiftName { font-size: 10px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCta s { display: none; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCards { gap: 5px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCard { padding: 15px 2px 8px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPlanName { font-size: 13px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbSave { font-size: 12.5px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbNow { font-size: 17px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbBrush { font-size: 9px; white-space: normal; line-height: 1.15; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPerTube { font-size: 9.5px; white-space: normal; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTitle { font-size: 11px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbTag { font-size: 7.5px; padding: 2px 5px; letter-spacing: 0px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbPill { font-size: 10.5px; padding: 5px 12px; } }
+@container sbb (max-width: 270px) { .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 .aiSbbCta { font-size: 14px; min-height: 50px; } }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [id="template--28037726765375__main-product"] .productV10FormBadges { margin-top: 0px; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 { --lxs-rating-icon-color: #EBBF20; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #root > main { position: relative; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 #root > main > section[data-atelier-section] { position: relative; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 button, .atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [role="button"] { cursor: pointer; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-atl-car="track"] > * { transform: none !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-atl-h] { display: none !important; }
+.atl-livfresh-livfresh-gum-protect-wintergreen-gel-toothpaste-p2 [data-atl-href] { cursor: pointer; }

@@ -1,0 +1,803 @@
+@keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+}
+@keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
+}
+@keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+}
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 { --baseFont: "New York", Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; --titleFont: "New York", Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; --smallFontSize: 14px; --baseFontSize: 16px; --mediumFontSize: 28px; --mediumSubtitleFontSize: 22.4px; --bigFontSize: 50px; --headingFontSize: 28px; --subHeadingFontSize: 18px; --bodyBackgroundColor: #FFFFFF; --textColor: #191d21; --titleColor: #191d21; --secondaryBodyBackgroundColor: rgba(0,0,0,0); --secondaryTextColor: #393939; --linkColor: #393939; --gLinkColor: #393939; --accentColor: #b62a2c; --accentColor005: rgba(182, 42, 44, .05); --accentColor01: rgba(182, 42, 44, .1); --accentColor025: rgba(182, 42, 44, .25); --accentColor05: rgba(182, 42, 44, .5); --accentColor075: rgba(182, 42, 44, .75); --accentTextColor: #FFFFFF; --secondaryAccentColor: #c5a119; --secondaryAccentTextColor: #000; --disabledBackgroundColor: ; --disabledTextColor: ; --alertColor: #EF0000; --alertColor005: rgba(239, 0, 0, .05); --borderRadius: 0px; --borderRadiusSmall: 0px; --cardPadding: 25px; --maxwidth: 1360px; --inputFill: #EFEFEF; --inputContent: #000000; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 * { box-sizing: border-box; backface-visibility: hidden; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 { text-size-adjust: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 { margin: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 main { display: block; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 b, .atl-kavallerie-acp-honeycomb-half-pads-p5 strong { font-weight: bolder; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 img { border-style: none; max-width: 100%; height: auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 ::-webkit-file-upload-button { appearance: button; font: inherit; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :focus { outline: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 ::selection { color: var(--accentTextColor); background: var(--accentColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 p, .atl-kavallerie-acp-honeycomb-half-pads-p5 span { color: var(--textColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p5, .atl-kavallerie-acp-honeycomb-half-pads-p5 { height: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 main { display: flex; flex-direction: column; flex: 1 1 auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 { font-family: var(--baseFont); font-weight: 400; font-size: var(--baseFontSize); background: var(--bodyBackgroundColor); color: var(--textColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 .header__utility > :hover, .atl-kavallerie-acp-honeycomb-half-pads-p5 .header__utility .uil:hover { cursor: pointer; color: var(--accent); }
+@keyframes bounce { 
+  0%, 20%, 53%, 80%, 100% { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); transform: translateZ(0px); }
+  40%, 43% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -30px, 0px); }
+  70% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -15px, 0px); }
+  90% { transform: translate3d(0px, -4px, 0px); }
+}
+@keyframes flash { 
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+@keyframes pulse { 
+  0% { transform: scaleZ(1); }
+  50% { transform: scale3d(1.05, 1.05, 1.05); }
+  100% { transform: scaleZ(1); }
+}
+@keyframes rubberBand { 
+  0% { transform: scaleZ(1); }
+  30% { transform: scale3d(1.25, 0.75, 1); }
+  40% { transform: scale3d(0.75, 1.25, 1); }
+  50% { transform: scale3d(1.15, 0.85, 1); }
+  65% { transform: scale3d(0.95, 1.05, 1); }
+  75% { transform: scale3d(1.05, 0.95, 1); }
+  100% { transform: scaleZ(1); }
+}
+@keyframes shake { 
+  0%, 100% { transform: translateZ(0px); }
+  10%, 30%, 50%, 70%, 90% { transform: translate3d(-10px, 0px, 0px); }
+  20%, 40%, 60%, 80% { transform: translate3d(10px, 0px, 0px); }
+}
+@keyframes swing { 
+  20% { transform: rotate3d(0, 0, 1, 15deg); }
+  40% { transform: rotate3d(0, 0, 1, -10deg); }
+  60% { transform: rotate3d(0, 0, 1, 5deg); }
+  80% { transform: rotate3d(0, 0, 1, -5deg); }
+  100% { transform: rotate3d(0, 0, 1, 0deg); }
+}
+@keyframes tada { 
+  0% { transform: scaleZ(1); }
+  10%, 20% { transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg); }
+  30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+  40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+  100% { transform: scaleZ(1); }
+}
+@keyframes wobble { 
+  0% { transform: translateZ(0px); }
+  15% { transform: translate3d(-25%, 0px, 0px) rotate3d(0, 0, 1, -5deg); }
+  30% { transform: translate3d(20%, 0px, 0px) rotate3d(0, 0, 1, 3deg); }
+  45% { transform: translate3d(-15%, 0px, 0px) rotate3d(0, 0, 1, -3deg); }
+  60% { transform: translate3d(10%, 0px, 0px) rotate3d(0, 0, 1, 2deg); }
+  75% { transform: translate3d(-5%, 0px, 0px) rotate3d(0, 0, 1, -1deg); }
+  100% { transform: translateZ(0px); }
+}
+@keyframes jello { 
+  0%, 11.1%, 100% { transform: translateZ(0px); }
+  22.2% { transform: skew(-12.5deg) skewY(-12.5deg); }
+  33.3% { transform: skew(6.25deg) skewY(6.25deg); }
+  44.4% { transform: skew(-3.125deg) skewY(-3.125deg); }
+  55.5% { transform: skew(1.5625deg) skewY(1.5625deg); }
+  66.6% { transform: skew(-0.78125deg) skewY(-0.78125deg); }
+  77.7% { transform: skew(0.39063deg) skewY(0.39063deg); }
+  88.8% { transform: skew(-0.19531deg) skewY(-0.19531deg); }
+}
+@keyframes heartBeat { 
+  0% { transform: scale(1); }
+  14% { transform: scale(1.3); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.3); }
+  70% { transform: scale(1); }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p5 .model__holder > :first-child { height: 100%; width: 100%; }
+@keyframes fadeout { 
+  0% { opacity: 1; }
+  100% { opacity: 0; height: 0px; }
+}
+@keyframes fadein { 
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0px); }
+}
+@keyframes blink { 
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes animation-fade { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes animation-slide-fade { 
+  0% { transform: translateY(-100%); opacity: 0; }
+  100% { transform: translateY(0px); opacity: 1; }
+}
+@keyframes animation-scale { 
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+@keyframes animation-scale-rotate { 
+  0% { transform: scale(0) rotate(720deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes animation-slide-top { 
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(0px); }
+}
+@keyframes animation-slide-bottom { 
+  0% { transform: translateY(100vh); }
+  100% { transform: translateY(0px); }
+}
+@keyframes animation-slide-left { 
+  0% { transform: translate(-100vw); }
+  100% { transform: translate(0px); }
+}
+@keyframes animation-slide-right { 
+  0% { transform: translate(100vw); }
+  100% { transform: translate(0px); }
+}
+@keyframes animation-shake { 
+  10%, 90% { transform: translate(-4px); }
+  20%, 80% { transform: translate(6px); }
+  30%, 50%, 70% { transform: translate(-4px); }
+  40%, 60% { transform: translate(6px); }
+  100% { transform: translate(0px); }
+}
+@keyframes pulse { 
+  0% { opacity: 0; transform: scale(0.75); }
+  100% { opacity: 0.65; transform: scale(1); }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p5 .grid__block--cta-content > :last-child { margin-bottom: 0px !important; }
+@supports (-webkit-touch-callout: none) { .atl-kavallerie-acp-honeycomb-half-pads-p5 * { background-attachment: initial !important; } }
+@keyframes bss-button-loading-spinner { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-pulse { 
+  0% { transform: translate(0px) scale(0.8); }
+  100% { transform: translate(0px) scale(1.1); }
+}
+@keyframes bss-pulse_center-X { 
+  0% { transform: translate(-50%) scale(0.8); }
+  100% { transform: translate(-50%) scale(1.1); }
+}
+@keyframes bss-pulse_center-Y { 
+  0% { transform: translateY(-50%) scale(0.8); }
+  100% { transform: translateY(-50%) scale(1.1); }
+}
+@keyframes bss-pulse_center { 
+  0% { transform: translate(-50%, -50%) scale(0.8); }
+  100% { transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes bss-bounce-in { 
+  0% { opacity: 0; transform: translate(0px) scale(0.3); }
+  50% { opacity: 1; transform: translate(0px) scale(1.05); }
+  70% { transform: translate(0px) scale(0.9); }
+  100% { transform: translate(0px) scale(1); }
+}
+@keyframes bss-bounce-in_center-X { 
+  0% { opacity: 0; transform: translate(-50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%) scale(1.05); }
+  70% { transform: translate(-50%) scale(0.9); }
+  100% { transform: translate(-50%) scale(1); }
+}
+@keyframes bss-bounce-in_center-Y { 
+  0% { opacity: 0; transform: translateY(-50%) scale(0.3); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.05); }
+  70% { transform: translateY(-50%) scale(0.9); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+@keyframes bss-bounce-in_center { 
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  70% { transform: translate(-50%, -50%) scale(0.9); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes bss-bounce-out { 
+  0% { opacity: 0; transform: translate(0px) scale(1); }
+  25% { opacity: 1; transform: translate(0px) scale(0.95); }
+  50% { opacity: 1; transform: translate(0px) scale(1.1); }
+  100% { opacity: 0; transform: translate(0px) scale(0.3); }
+}
+@keyframes bss-bounce-out_center-X { 
+  0% { opacity: 0; transform: translate(-50%) scale(1); }
+  25% { opacity: 1; transform: translate(-50%) scale(0.95); }
+  50% { opacity: 1; transform: translate(-50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%) scale(0.3); }
+}
+@keyframes bss-bounce-out_center-Y { 
+  0% { opacity: 0; transform: translateY(-50%) scale(1); }
+  25% { opacity: 1; transform: translateY(-50%) scale(0.95); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-50%) scale(0.3); }
+}
+@keyframes bss-bounce-out_center { 
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  25% { opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+}
+@keyframes bss-swing { 
+  0% { transform: translate(0px) rotate(0deg); }
+  20% { transform: translate(0px) rotate(15deg); }
+  40% { transform: translate(0px) rotate(-10deg); }
+  60% { transform: translate(0px) rotate(5deg); }
+  80% { transform: translate(0px) rotate(-5deg); }
+  100% { transform: translate(0px) rotate(0deg); }
+}
+@keyframes bss-swing_center-X { 
+  0% { transform: translate(-50%) rotate(0deg); }
+  20% { transform: translate(-50%) rotate(15deg); }
+  40% { transform: translate(-50%) rotate(-10deg); }
+  60% { transform: translate(-50%) rotate(5deg); }
+  80% { transform: translate(-50%) rotate(-5deg); }
+  100% { transform: translate(-50%) rotate(0deg); }
+}
+@keyframes bss-swing_center-Y { 
+  0% { transform: translateY(-50%) rotate(0deg); }
+  20% { transform: translateY(-50%) rotate(15deg); }
+  40% { transform: translateY(-50%) rotate(-10deg); }
+  60% { transform: translateY(-50%) rotate(5deg); }
+  80% { transform: translateY(-50%) rotate(-5deg); }
+  100% { transform: translateY(-50%) rotate(0deg); }
+}
+@keyframes bss-swing_center { 
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  20% { transform: translate(-50%, -50%) rotate(15deg); }
+  40% { transform: translate(-50%, -50%) rotate(-10deg); }
+  60% { transform: translate(-50%, -50%) rotate(5deg); }
+  80% { transform: translate(-50%, -50%) rotate(-5deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes bss-hi-there { 
+  0% { transform: translate(0px) scale(1); }
+  30% { transform: translate(0px) scale(1.2); }
+  40%, 60% { transform: translate(0px) rotate(-20deg) scale(1.2); }
+  50% { transform: translate(0px) rotate(20deg) scale(1.2); }
+  70% { transform: translate(0px) rotate(0deg) scale(1.2); }
+  100% { transform: translate(0px) scale(1); }
+}
+@keyframes bss-hi-there_center-X { 
+  0% { transform: translate(-50%) scale(1); }
+  30% { transform: translate(-50%) scale(1.2); }
+  40%, 60% { transform: translate(-50%) rotate(-20deg) scale(1.2); }
+  50% { transform: translate(-50%) rotate(20deg) scale(1.2); }
+  70% { transform: translate(-50%) rotate(0deg) scale(1.2); }
+  100% { transform: translate(-50%) scale(1); }
+}
+@keyframes bss-hi-there_center-Y { 
+  0% { transform: translateY(-50%) scale(1); }
+  30% { transform: translateY(-50%) scale(1.2); }
+  40%, 60% { transform: translateY(-50%) rotate(-20deg) scale(1.2); }
+  50% { transform: translateY(-50%) rotate(20deg) scale(1.2); }
+  70% { transform: translateY(-50%) rotate(0deg) scale(1.2); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+@keyframes bss-hi-there_center { 
+  0% { transform: translate(-50%, -50%) scale(1); }
+  30% { transform: translate(-50%, -50%) scale(1.2); }
+  40%, 60% { transform: translate(-50%, -50%) rotate(-20deg) scale(1.2); }
+  50% { transform: translate(-50%, -50%) rotate(20deg) scale(1.2); }
+  70% { transform: translate(-50%, -50%) rotate(0deg) scale(1.2); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes bss-flash { 
+  0%, 40%, 80%, 100% { opacity: 1; }
+  20%, 60% { opacity: 0; }
+}
+@keyframes bss-roll-in { 
+  0% { opacity: 0; transform: translate(-100%) rotate(-120deg); }
+  100% { opacity: 1; transform: translate(0px) rotate(0deg); }
+}
+@keyframes bss-roll-in_center-X { 
+  0% { opacity: 0; transform: translate(-150%) rotate(-120deg); }
+  100% { opacity: 1; transform: translate(-50%) rotate(0deg); }
+}
+@keyframes bss-roll-in_center-Y { 
+  0% { opacity: 0; transform: translate(-100%, -50%) rotate(-120deg); }
+  100% { opacity: 1; transform: translateY(-50%) rotate(0deg); }
+}
+@keyframes bss-roll-in_center { 
+  0% { opacity: 0; transform: translate(-150%, -50%) rotate(-120deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes bss-roll-out { 
+  0% { opacity: 1; transform: translate(0px) rotate(0deg); }
+  100% { opacity: 0; transform: translate(100%) rotate(120deg); }
+}
+@keyframes bss-roll-out_center-X { 
+  0% { opacity: 1; transform: translate(-50%) rotate(0deg); }
+  100% { opacity: 0; transform: translate(50%) rotate(120deg); }
+}
+@keyframes bss-roll-out_center-Y { 
+  0% { opacity: 1; transform: translateY(-50%) rotate(0deg); }
+  100% { opacity: 0; transform: translate(100%, -50%) rotate(120deg); }
+}
+@keyframes bss-roll-out_center { 
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+  100% { opacity: 0; transform: translate(50%, -50%) rotate(120deg); }
+}
+@keyframes highlight { 
+  0% { opacity: 1; transform: translate(0px); }
+  100% { opacity: 0; transform: translate(80%); }
+}
+@keyframes highlight_center-X { 
+  0% { opacity: 1; transform: translate(-50%); }
+  100% { opacity: 0; transform: translate(30%); }
+}
+@keyframes highlight_center-Y { 
+  0% { opacity: 1; transform: translateY(-50%); }
+  100% { opacity: 0; transform: translate(80%, -50%); }
+}
+@keyframes highlight_center { 
+  0% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(30%, -50%); }
+}
+@keyframes bss-pl-slide-down-34332 { 
+  0% { top: -100px; }
+  100% { top: 70px; }
+}
+@keyframes bss-pl-slide-up { 
+  0% { bottom: -100px; }
+  100% { bottom: 20px; }
+}
+@keyframes bss-pl-slide-down { 
+  0% { top: -100px; }
+  100% { top: 20px; }
+}
+@keyframes bss-pl-slide-right { 
+  0% { right: -100px; }
+  100% { right: 0px; }
+}
+@keyframes bss-pl-slide-left { 
+  0% { left: -100px; }
+  100% { left: 0px; }
+}
+@keyframes bss-pl-fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes bss-pl-fade-out { 
+  0% { opacity: 1; pointer-events: auto; }
+  100% { opacity: 0; pointer-events: none; }
+}
+@keyframes bss-pl-slide-up-26172 { 
+  0% { bottom: -100px; }
+  100% { bottom: 70px; }
+}
+@keyframes bss-rotate { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-rotate_center-X { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-rotate_center-Y { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-rotate_center { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p5 *, .atl-kavallerie-acp-honeycomb-half-pads-p5 ::before, .atl-kavallerie-acp-honeycomb-half-pads-p5 ::after { animation: auto ease 0s 1 normal none running none !important; transition: none !important; caret-color: transparent !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-9faizq { display: flex; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; flex-direction: column; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-9faizq { display: flex; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; flex-direction: column; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-9faizq { display: flex; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; flex-direction: column; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-11ckhfn { display: flex; gap: 0.7rem; position: relative; align-self: stretch; flex-basis: auto; align-items: center; flex-shrink: 0; padding-top: 4rem; animation-name: alchemy-fade; flex-direction: column; padding-bottom: 4rem; --final-opacity: 1; animation-delay: 0ms; justify-content: center; --initial-opacity: 0; animation-duration: 0.8s; animation-direction: normal; animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-in-out; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-11ckhfn { display: flex; gap: 0.7rem; position: relative; align-self: stretch; flex-basis: auto; align-items: center; flex-shrink: 0; padding: 2rem 1rem 4rem; animation-name: alchemy-fade; flex-direction: column; --final-opacity: 1; animation-delay: 0ms; justify-content: center; --initial-opacity: 0; animation-duration: 0.8s; animation-direction: normal; animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-in-out; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-11ckhfn { display: flex; gap: 0.7rem; position: relative; align-self: stretch; flex-basis: auto; align-items: center; flex-shrink: 0; padding-top: 4rem; animation-name: alchemy-fade; flex-direction: column; padding-bottom: 4rem; --final-opacity: 1; animation-delay: 0ms; justify-content: center; --initial-opacity: 0; animation-duration: 0.8s; animation-direction: normal; animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-in-out; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1xvxlzb { display: flex; gap: 0.6rem; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1xvxlzb { display: flex; gap: 0.5rem; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1xvxlzb { display: flex; gap: 0.6rem; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-dw7git { color: rgb(0, 0, 0); flex: 1 1 auto; font-size: 40px; text-align: center; font-family: Leiko-Regular, " sans-serif"; line-height: 120%; overflow-wrap: break-word; text-transform: none; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-dw7git { color: rgb(0, 0, 0); flex: 1 1 auto; font-size: 28px; text-align: center; font-family: Leiko-Regular, " sans-serif"; line-height: 120%; text-transform: none; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-dw7git { color: rgb(0, 0, 0); flex: 1 1 auto; font-size: 40px; text-align: center; font-family: Leiko-Regular, " sans-serif"; line-height: 120%; text-transform: none; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-ygm2k7 { color: rgb(44, 44, 44); font-size: 22px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 151%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ygm2k7 { color: rgb(44, 44, 44); font-size: 16px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 151%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ygm2k7 { color: rgb(44, 44, 44); font-size: 22px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 151%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-6fu512 { width: 100%; display: flex; gap: 1.2rem; position: relative; max-width: 1000px; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding-top: 1.2rem; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-6fu512 { width: 100%; display: flex; gap: 1.2rem; position: relative; max-width: 1000px; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding-top: 0.9rem; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-6fu512 { width: 100%; display: flex; gap: 1.2rem; position: relative; max-width: 1000px; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding-top: 1.2rem; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-3c5pcd { top: 0px; left: 0px; display: flex; gap: 1rem; z-index: 5; overflow: hidden; position: absolute; max-width: 100%; min-width: auto; transform: none; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; margin-left: 150px; padding: 0.4rem 1.2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-3c5pcd { top: 0px; left: 0px; width: auto; display: flex; gap: 1rem; z-index: 5; overflow: hidden; position: absolute; max-width: 100%; min-width: auto; transform: none; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; margin-left: 100px; padding: 0.3rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-3c5pcd { top: 0px; left: 0px; display: flex; gap: 1rem; z-index: 5; overflow: hidden; position: absolute; max-width: 100%; min-width: auto; transform: none; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; margin-left: 150px; padding: 0.4rem 1.2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1g6wh99 { color: rgb(255, 255, 255); font-size: 15px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1g6wh99 { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1g6wh99 { color: rgb(255, 255, 255); font-size: 15px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1nalf8r { top: 0px; left: 0px; display: flex; gap: 1rem; z-index: 5; overflow: hidden; position: absolute; max-width: 100%; min-width: auto; transform: none; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; margin-left: 400px; padding: 0.4rem 1.2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nalf8r { top: 0px; left: 0px; width: auto; display: flex; gap: 1rem; z-index: 5; overflow: hidden; position: absolute; max-width: 100%; min-width: auto; transform: none; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; margin-left: 290px; padding: 0.3rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nalf8r { top: 0px; left: 0px; display: flex; gap: 1rem; z-index: 5; overflow: hidden; position: absolute; max-width: 100%; min-width: auto; transform: none; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; margin-left: 400px; padding: 0.4rem 1.2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1u96shx { color: rgb(255, 255, 255); font-size: 15px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1u96shx { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1u96shx { color: rgb(255, 255, 255); font-size: 15px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-4v1wxg { gap: 1rem 0.8rem; width: 100%; display: grid; position: relative; max-width: 1000px; flex-basis: auto; --replo-gap: .8rem; flex-shrink: 0; grid-template-columns: repeat(4, minmax(0px, 1fr)); }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-4v1wxg { gap: 0.7rem 0.5rem; width: 100%; display: grid; position: relative; max-width: 1000px; flex-basis: auto; --replo-gap: .5rem; flex-shrink: 0; padding-left: 0px; padding-right: 0px; padding-bottom: 3.5rem; grid-template-columns: repeat(2, minmax(0px, 1fr)); } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-4v1wxg { gap: 1rem 0.7rem; width: 100%; display: grid; position: relative; max-width: 1000px; flex-basis: auto; --replo-gap: .7rem; flex-shrink: 0; padding-left: 1rem; padding-right: 1rem; grid-template-columns: repeat(4, minmax(0px, 1fr)); } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1f9c4k8 { width: 100%; display: flex; flex-basis: auto; align-items: center; flex-shrink: 0; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1f9c4k8 { width: 100%; display: flex; flex-basis: auto; align-items: center; flex-shrink: 0; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1f9c4k8 { width: 100%; display: flex; flex-basis: auto; align-items: center; flex-shrink: 0; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1vwf720 { display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1vwf720 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1vwf720 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1jw00ep { display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); padding: 12px 25px; background-color: rgb(255, 184, 0); background-image: none; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ):not(#\ ).r-1jw00ep { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); padding: 12px 18px; background-color: rgb(255, 184, 0); background-image: none; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ):not(#\ ).r-1jw00ep { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); padding: 12px 18px; background-color: rgb(255, 184, 0); background-image: none; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-sm6u7l { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-sm6u7l { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 14px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-sm6u7l { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 .r-1jw00ep :not(#\ ):not(#\ ).r-sm6u7l { color: rgb(44, 44, 44); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ).r-1jw00ep :not(#\ ):not(#\ ).r-sm6u7l { color: rgb(44, 44, 44); flex: 1 1 0px; font-size: 14px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ).r-1jw00ep :not(#\ ):not(#\ ).r-sm6u7l { color: rgb(44, 44, 44); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-yeopov { display: flex; gap: 12px; z-index: 1; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); transform: none; min-height: 1px; padding: 12px 15px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-yeopov { width: auto; height: auto; display: flex; gap: 12px; z-index: 1; overflow: hidden; position: relative; flex-grow: unset; transform: none; align-self: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; margin-right: 0px; padding: 12px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-yeopov { width: auto; height: auto; display: flex; gap: 12px; z-index: 1; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); transform: none; min-height: 1px; margin-right: 1rem; padding: 12px 15px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-k6y4dj { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-k6y4dj { color: rgb(255, 184, 0); flex: 1 1 auto; font-size: 14px; align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-k6y4dj { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-157ua41 { display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-157ua41 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-157ua41 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-j2us7e { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-j2us7e { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 14px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-j2us7e { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1hyz9j7 { display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1hyz9j7 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 10px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1hyz9j7 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-qdrtdf { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-qdrtdf { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 14px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-qdrtdf { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-jc5uky { display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-jc5uky { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 10px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-jc5uky { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); min-height: 1px; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1vowt2 { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1vowt2 { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 14px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1vowt2 { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1p8g422 { width: 250px; display: flex; gap: 12px; overflow: hidden; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1p8g422 { width: auto; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex-grow: unset; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1p8g422 { width: 220px; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex-grow: unset; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; padding: 12px 18px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-mic5zm { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-mic5zm { color: rgb(255, 184, 0); flex: 1 1 auto; font-size: 14px; align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-mic5zm { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-12o6n4q { width: 460px; display: flex; gap: 12px; overflow: hidden; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; margin-left: 1rem; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-12o6n4q { inset: auto auto 0px 50%; width: 300px; height: auto; display: flex; gap: 12px; z-index: 1; overflow: hidden; position: absolute; flex-grow: unset; min-width: auto; transform: translate3d(-50%, 0px, 0px); align-self: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; margin-left: 0px; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-12o6n4q { width: 330px; height: auto; display: flex; gap: 12px; overflow: hidden; position: relative; flex-grow: unset; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; margin-left: 2.3rem; padding: 12px 25px; border-color: rgb(255, 184, 0); border-style: solid; border-width: 1px; border-radius: 100px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-c996hy { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 20px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-c996hy { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 14px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-c996hy { color: rgb(255, 184, 0); flex: 1 1 0px; font-size: 16px; min-width: var(--replo-flex-min-dimension, 0px); align-self: center; text-align: center; transition: inherit; font-family: "Open Sans"; font-weight: 700; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1rvnuee { width: 100%; display: flex; position: relative; max-width: 1200px; flex-basis: auto; flex-shrink: 0; padding-top: 0.5rem; flex-direction: column; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1rvnuee { width: 100%; display: flex; position: relative; max-width: 1200px; flex-basis: auto; flex-shrink: 0; padding-top: 0.5rem; padding-left: 0px; padding-right: 0px; flex-direction: column; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1rvnuee { width: 100%; display: flex; position: relative; max-width: 1200px; flex-basis: auto; flex-shrink: 0; padding-top: 0.5rem; padding-left: 1.2rem; padding-right: 1.2rem; flex-direction: column; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1fbdi9w { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1fbdi9w { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1fbdi9w { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1ca9q3x { color: rgb(44, 44, 44); font-size: 21px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1ca9q3x { color: rgb(44, 44, 44); font-size: 18px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1ca9q3x { color: rgb(44, 44, 44); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-u9ihns { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-u9ihns { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-u9ihns { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-tpnx2g { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-tpnx2g { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-tpnx2g { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-d89e2z { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-d89e2z { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-d89e2z { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-csauyq { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-csauyq { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-csauyq { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-fath7x { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-fath7x { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-fath7x { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1ststr7 { color: rgb(44, 44, 44); width: 100%; font-size: 21px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1ststr7 { color: rgb(44, 44, 44); width: 100%; font-size: 18px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1ststr7 { color: rgb(44, 44, 44); width: 100%; font-size: 20px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-8pqiba { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-8pqiba { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-8pqiba { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-hjxbqp { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-hjxbqp { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-hjxbqp { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-l8ybrk { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-l8ybrk { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-l8ybrk { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1nn7vbc { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nn7vbc { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nn7vbc { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-tymgxt { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-tymgxt { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-tymgxt { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-14m9a8b { color: rgb(44, 44, 44); width: 100%; font-size: 21px; max-width: 800px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-14m9a8b { color: rgb(44, 44, 44); width: 100%; font-size: 18px; max-width: 800px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-14m9a8b { color: rgb(44, 44, 44); width: 100%; font-size: 20px; max-width: 800px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-usd5bq { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-usd5bq { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-usd5bq { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1bmadtf { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1bmadtf { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1bmadtf { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1viowxs { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1viowxs { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1viowxs { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1nzcp4r { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nzcp4r { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nzcp4r { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1uhpjtb { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1uhpjtb { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1uhpjtb { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-a6s12o { color: rgb(44, 44, 44); width: 100%; font-size: 21px; max-width: 800px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-a6s12o { color: rgb(44, 44, 44); width: 100%; font-size: 18px; max-width: 800px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-a6s12o { color: rgb(44, 44, 44); width: 100%; font-size: 20px; max-width: 800px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-ytlpce { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ytlpce { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ytlpce { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-p1sn2y { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-p1sn2y { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-p1sn2y { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-65l4j4 { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-65l4j4 { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-65l4j4 { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-fp288f { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-fp288f { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-fp288f { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-fz9kaj { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-fz9kaj { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-fz9kaj { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-8vjyx4 { color: rgb(44, 44, 44); width: 100%; font-size: 21px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-8vjyx4 { color: rgb(44, 44, 44); width: 100%; font-size: 18px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-8vjyx4 { color: rgb(44, 44, 44); width: 100%; font-size: 20px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-pd6upw { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-pd6upw { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-pd6upw { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1a2vev1 { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1a2vev1 { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1a2vev1 { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1oxr5f { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1oxr5f { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1oxr5f { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-f2a1n5 { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-f2a1n5 { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-f2a1n5 { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-a4l8hf { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-a4l8hf { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-a4l8hf { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-ymmbgx { color: rgb(44, 44, 44); width: 100%; font-size: 21px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ymmbgx { color: rgb(44, 44, 44); width: 100%; font-size: 18px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ymmbgx { color: rgb(44, 44, 44); width: 100%; font-size: 20px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-nvloeb { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 10px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-nvloeb { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 10px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-nvloeb { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 10px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-dw9iq7 { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-dw9iq7 { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-dw9iq7 { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-cwlrc5 { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-cwlrc5 { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-cwlrc5 { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-ac4so8 { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ac4so8 { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ac4so8 { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-d744la { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-d744la { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-d744la { display: flex; gap: 1rem; position: relative; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; flex-direction: column; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-cg8ejt { color: rgb(44, 44, 44); width: 100%; font-size: 21px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-cg8ejt { color: rgb(44, 44, 44); width: 100%; font-size: 18px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-cg8ejt { color: rgb(44, 44, 44); width: 100%; font-size: 20px; max-width: 1000px; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 400; line-height: 140%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-11wqxe4 { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-11wqxe4 { width: auto; display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 1rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-11wqxe4 { display: flex; gap: 1rem; overflow: hidden; position: relative; max-width: 100%; min-width: auto; flex-basis: auto; min-height: 1px; align-items: center; flex-shrink: 0; padding: 0.6rem 2rem; flex-direction: column; justify-content: center; background-color: rgb(144, 16, 18); background-image: none; border-radius: 15px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-ohsg7u { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; overflow-wrap: break-word; text-align-last: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ohsg7u { color: rgb(255, 255, 255); font-size: 13px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ohsg7u { color: rgb(255, 255, 255); font-size: 20px; align-self: stretch; flex-basis: auto; text-align: center; flex-shrink: 0; font-family: "Open Sans"; font-weight: 700; line-height: 120%; text-align-last: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-ttnkjx { width: 100%; display: flex; max-width: 770px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ttnkjx { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-ttnkjx { width: 100%; display: flex; max-width: 500px; min-width: 0px; flex-basis: auto; min-height: 0px; object-fit: cover; overflow: auto hidden; align-items: center; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ).r-1nrymsr { height: 100%; margin: 0px; display: block; padding: 0px; max-width: 100%; min-width: 100%; max-height: 100%; min-height: 100%; object-fit: cover; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nrymsr { object-fit: cover; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p5 :not(#\ ):not(#\ ):not(#\ ).r-1nrymsr { object-fit: cover; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p5:has(> .replo-modal-after-open) { scroll-behavior: auto !important; }
+@keyframes replo-marquee { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(calc(var(--replo-marquee-width,100%) * -1 / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-marquee-left { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(calc(var(--replo-marquee-width,100%) * -1 / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-marquee-right { 
+  0% { transform: translate(-50%); }
+  100% { transform: translate(calc(-50% + var(--replo-marquee-width,100%) / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-fade { 
+  0% { opacity: var(--initial-opacity); }
+  100% { opacity: var(--final-opacity); }
+}
+@keyframes alchemy-slide-y { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px); }
+}
+@keyframes alchemy-slide-x { 
+  0% { opacity: var(--initial-opacity); transform: translate(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translate(0px); }
+}
+@keyframes alchemy-flip-y { 
+  0% { opacity: var(--initial-opacity); transform: rotateY(var(--angle)); }
+  100% { opacity: var(--final-opacity); transform: rotateY(0deg); }
+}
+@keyframes alchemy-flip-x { 
+  0% { opacity: var(--initial-opacity); transform: rotateX(var(--angle)); }
+  100% { opacity: var(--final-opacity); transform: rotateX(0deg); }
+}
+@keyframes alchemy-grow { 
+  0% { opacity: var(--initial-opacity); transform: scale(var(--initial-scale)); }
+  100% { opacity: var(--final-opacity); transform: scale(var(--final-scale)); }
+}
+@keyframes alchemy-spin { 
+  0% { opacity: var(--initial-opacity); transform: rotate(var(--initial-angle)); }
+  100% { opacity: var(--final-opacity); transform: rotate(var(--final-angle)); }
+}
+@keyframes alchemy-fly-y { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)) scale(0); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px) scale(1); }
+}
+@keyframes alchemy-fly-x { 
+  0% { opacity: var(--initial-opacity); transform: translate(var(--offset)) scale(0); }
+  100% { opacity: var(--final-opacity); transform: translate(0px) scale(1); }
+}
+@keyframes alchemy-drop { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px); }
+}
+@keyframes replo-spin { 
+  100% { transform: rotate(360deg); }
+}
+@keyframes shimmer { 
+  100% { mask-position: left center; }
+}
+@keyframes slideDown { 
+  0% { height: 0px; }
+  100% { height: var(--radix-collapsible-content-height); }
+}
+@keyframes slideUp { 
+  0% { height: var(--radix-collapsible-content-height); }
+  100% { height: 0px; }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p5, .atl-kavallerie-acp-honeycomb-half-pads-p5 { zoom: unset !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 { overflow-y: visible !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 main, .atl-kavallerie-acp-honeycomb-half-pads-p5 #main { margin: 0px !important; padding: 0px !important; max-width: none !important; max-height: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 h1, .atl-kavallerie-acp-honeycomb-half-pads-p5 h2, .atl-kavallerie-acp-honeycomb-half-pads-p5 h3, .atl-kavallerie-acp-honeycomb-half-pads-p5 p, .atl-kavallerie-acp-honeycomb-half-pads-p5 span { color: inherit; }
+@font-face { font-family: stamped-font; font-display: swap; font-weight: 400; font-style: normal; }
+@-webkit-keyframes fadeInStamped { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fadeInStamped { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-webkit-keyframes fadeOut { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes fadeOut { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-webkit-keyframes rotateIn { 
+  0% { transform-origin: center center; transform: rotate3d(0, 0, 1, -200deg); opacity: 0; }
+  100% { transform-origin: center center; transform: translateZ(0px); opacity: 1; }
+}
+@keyframes rotateIn { 
+  0% { transform-origin: center center; transform: rotate3d(0, 0, 1, -200deg); opacity: 0; }
+  100% { transform-origin: center center; transform: translateZ(0px); opacity: 1; }
+}
+@-webkit-keyframes rotateOut { 
+  0% { transform-origin: center center; opacity: 1; }
+  100% { transform-origin: center center; transform: rotate3d(0, 0, 1, 200deg); opacity: 0; }
+}
+@keyframes rotateOut { 
+  0% { transform-origin: center center; opacity: 1; }
+  100% { transform-origin: center center; transform: rotate3d(0, 0, 1, 200deg); opacity: 0; }
+}
+@-webkit-keyframes zoomOut { 
+  0% { opacity: 1; }
+  50% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  100% { opacity: 0; }
+}
+@keyframes zoomOut { 
+  0% { opacity: 1; }
+  50% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  100% { opacity: 0; }
+}
+@-webkit-keyframes zoomIn { 
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  50% { opacity: 1; }
+}
+@keyframes zoomIn { 
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  50% { opacity: 1; }
+}
+@-webkit-keyframes scaleInWidth { 
+  0% { width: auto; }
+  100% { width: 40px; }
+}
+@-webkit-keyframes scaleOutWidth { 
+  0% { width: auto; }
+  100% { width: auto; }
+}
+@-webkit-keyframes navScaleSmall { 
+  0% { height: 213px; }
+  100% { height: 75px; }
+}
+@-webkit-keyframes stamped-view-loader { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes stamped-view-loader { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@-webkit-keyframes testingUp { 
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0px); opacity: 1; }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p5[data-mobile="true"] .stamped-rewards-header-close { top: 5px; right: 5px; width: 20px; height: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5[data-mobile="true"] .stamped-launcher-icon-opened svg, .atl-kavallerie-acp-honeycomb-half-pads-p5[data-mobile="true"] .stamped-launcher-icon-opened i { margin-right: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5[data-mobile="true"] .stamped-launcher-icon-opened span { display: none; }
+@font-face { font-family: Leiko-Regular; src: url("/imports/kavallerie-acp-honeycomb-half-pads/assets/0759ba07d74c-Leiko-Regular.woff") format("woff"); font-display: swap; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E800-E83B; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E83C-E877; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EA5B-EA96; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EA97-EAD4; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EAD5-EB11; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EB12-EB4D; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EB4E-EB89; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EB8A-EBC5; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EBC6-EC01; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EC02-EC3D; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EC3E-EC79; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EC7A-ECB5; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E878-E8B3; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+ECB6-ECB9; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E8B4-E8EF; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E8F0-E92B; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E92C-E967; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E968-E9A4; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E9A5-E9E1; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E9E2-EA1D; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EA1E-EA5A; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 { --isf-color-primary: #000000; --isf-color-light: #979797; --isf-header-bg: #f9f9f9; --isf-color-border: #ededed; --isf-color: #111111; --isf-box-height: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 #root > main { position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 #root > main > section[data-atelier-section] { position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 [data-atl-car="track"] > * { transform: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 [data-atl-h] { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p5 [data-atl-href] { cursor: pointer; }

@@ -1,0 +1,869 @@
+@keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+}
+@keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
+}
+@keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+}
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 210px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 320px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 430px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 540px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 { --baseFont: "New York", Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; --titleFont: "New York", Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; --smallFontSize: 14px; --baseFontSize: 16px; --mediumFontSize: 28px; --mediumSubtitleFontSize: 22.4px; --bigFontSize: 50px; --headingFontSize: 28px; --subHeadingFontSize: 18px; --bodyBackgroundColor: #FFFFFF; --textColor: #191d21; --titleColor: #191d21; --secondaryBodyBackgroundColor: rgba(0,0,0,0); --secondaryTextColor: #393939; --linkColor: #393939; --gLinkColor: #393939; --accentColor: #b62a2c; --accentColor005: rgba(182, 42, 44, .05); --accentColor01: rgba(182, 42, 44, .1); --accentColor025: rgba(182, 42, 44, .25); --accentColor05: rgba(182, 42, 44, .5); --accentColor075: rgba(182, 42, 44, .75); --accentTextColor: #FFFFFF; --secondaryAccentColor: #c5a119; --secondaryAccentTextColor: #000; --disabledBackgroundColor: ; --disabledTextColor: ; --alertColor: #EF0000; --alertColor005: rgba(239, 0, 0, .05); --borderRadius: 0px; --borderRadiusSmall: 0px; --cardPadding: 25px; --maxwidth: 1360px; --inputFill: #EFEFEF; --inputContent: #000000; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 * { box-sizing: border-box; backface-visibility: hidden; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 { text-size-adjust: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 { margin: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 main { display: block; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 a { background-color: transparent; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 b, .atl-kavallerie-acp-honeycomb-half-pads-p14 strong { font-weight: bolder; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 img { border-style: none; max-width: 100%; height: auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 button, .atl-kavallerie-acp-honeycomb-half-pads-p14 input, .atl-kavallerie-acp-honeycomb-half-pads-p14 optgroup, .atl-kavallerie-acp-honeycomb-half-pads-p14 select, .atl-kavallerie-acp-honeycomb-half-pads-p14 textarea { font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0px; background: var(--inputFill); color: var(--inputContent); border: 1px solid rgb(226, 226, 226); border-radius: var(--borderRadiusSmall); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 button:hover, .atl-kavallerie-acp-honeycomb-half-pads-p14 select:hover { cursor: pointer; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 button, .atl-kavallerie-acp-honeycomb-half-pads-p14 input { overflow: visible; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 button, .atl-kavallerie-acp-honeycomb-half-pads-p14 select { text-transform: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 button, .atl-kavallerie-acp-honeycomb-half-pads-p14 [type="button"], .atl-kavallerie-acp-honeycomb-half-pads-p14 [type="reset"], .atl-kavallerie-acp-honeycomb-half-pads-p14 [type="submit"] { appearance: button; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 fieldset { padding: 0.35em 0.75em 0.625em; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 legend { box-sizing: border-box; color: inherit; display: table; max-width: 100%; padding: 0px; white-space: normal; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 textarea { overflow: auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 ::-webkit-file-upload-button { appearance: button; font: inherit; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :focus { outline: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .hide { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .flex { display: flex; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 ::selection { color: var(--accentTextColor); background: var(--accentColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 h1, .atl-kavallerie-acp-honeycomb-half-pads-p14 h2, .atl-kavallerie-acp-honeycomb-half-pads-p14 h3 { font-family: var(--titleFont); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 p, .atl-kavallerie-acp-honeycomb-half-pads-p14 span { color: var(--textColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 a { color: var(--linkColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 a:not(.button):hover { color: var(--accentColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14, .atl-kavallerie-acp-honeycomb-half-pads-p14 { height: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 main { display: flex; flex-direction: column; flex: 1 1 auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 { font-family: var(--baseFont); font-weight: 400; font-size: var(--baseFontSize); background: var(--bodyBackgroundColor); color: var(--textColor); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 input { border-radius: var(--borderRadiusSmall); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 select { padding: 0.5rem; border-radius: var(--borderRadiusSmall); font-size: var(--smallFontSize); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .header__utility > :hover, .atl-kavallerie-acp-honeycomb-half-pads-p14 .header__utility .uil:hover { cursor: pointer; color: var(--accent); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .button, .atl-kavallerie-acp-honeycomb-half-pads-p14 .shopify-payment-button__button.shopify-payment-button__button--unbranded, .atl-kavallerie-acp-honeycomb-half-pads-p14 .shopify-challenge__button { text-align: center; text-decoration: none; font-size: 16px; border-width: 8px; border-style: solid; border-color: transparent; border-radius: var(--borderRadiusSmall); display: inline-block; padding: 14px 32px; max-width: 100%; background-color: transparent; transition: 0.15s; animation-duration: 1s; }
+@media (hover: hover) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .button:hover { cursor: pointer; animation-name: none !important; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .button:disabled { opacity: 0.6; cursor: not-allowed; }
+@keyframes bounce { 
+  0%, 20%, 53%, 80%, 100% { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); transform: translateZ(0px); }
+  40%, 43% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -30px, 0px); }
+  70% { animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06); transform: translate3d(0px, -15px, 0px); }
+  90% { transform: translate3d(0px, -4px, 0px); }
+}
+@keyframes flash { 
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+@keyframes pulse { 
+  0% { transform: scaleZ(1); }
+  50% { transform: scale3d(1.05, 1.05, 1.05); }
+  100% { transform: scaleZ(1); }
+}
+@keyframes rubberBand { 
+  0% { transform: scaleZ(1); }
+  30% { transform: scale3d(1.25, 0.75, 1); }
+  40% { transform: scale3d(0.75, 1.25, 1); }
+  50% { transform: scale3d(1.15, 0.85, 1); }
+  65% { transform: scale3d(0.95, 1.05, 1); }
+  75% { transform: scale3d(1.05, 0.95, 1); }
+  100% { transform: scaleZ(1); }
+}
+@keyframes shake { 
+  0%, 100% { transform: translateZ(0px); }
+  10%, 30%, 50%, 70%, 90% { transform: translate3d(-10px, 0px, 0px); }
+  20%, 40%, 60%, 80% { transform: translate3d(10px, 0px, 0px); }
+}
+@keyframes swing { 
+  20% { transform: rotate3d(0, 0, 1, 15deg); }
+  40% { transform: rotate3d(0, 0, 1, -10deg); }
+  60% { transform: rotate3d(0, 0, 1, 5deg); }
+  80% { transform: rotate3d(0, 0, 1, -5deg); }
+  100% { transform: rotate3d(0, 0, 1, 0deg); }
+}
+@keyframes tada { 
+  0% { transform: scaleZ(1); }
+  10%, 20% { transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg); }
+  30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+  40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+  100% { transform: scaleZ(1); }
+}
+@keyframes wobble { 
+  0% { transform: translateZ(0px); }
+  15% { transform: translate3d(-25%, 0px, 0px) rotate3d(0, 0, 1, -5deg); }
+  30% { transform: translate3d(20%, 0px, 0px) rotate3d(0, 0, 1, 3deg); }
+  45% { transform: translate3d(-15%, 0px, 0px) rotate3d(0, 0, 1, -3deg); }
+  60% { transform: translate3d(10%, 0px, 0px) rotate3d(0, 0, 1, 2deg); }
+  75% { transform: translate3d(-5%, 0px, 0px) rotate3d(0, 0, 1, -1deg); }
+  100% { transform: translateZ(0px); }
+}
+@keyframes jello { 
+  0%, 11.1%, 100% { transform: translateZ(0px); }
+  22.2% { transform: skew(-12.5deg) skewY(-12.5deg); }
+  33.3% { transform: skew(6.25deg) skewY(6.25deg); }
+  44.4% { transform: skew(-3.125deg) skewY(-3.125deg); }
+  55.5% { transform: skew(1.5625deg) skewY(1.5625deg); }
+  66.6% { transform: skew(-0.78125deg) skewY(-0.78125deg); }
+  77.7% { transform: skew(0.39063deg) skewY(0.39063deg); }
+  88.8% { transform: skew(-0.19531deg) skewY(-0.19531deg); }
+}
+@keyframes heartBeat { 
+  0% { transform: scale(1); }
+  14% { transform: scale(1.3); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.3); }
+  70% { transform: scale(1); }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .model__holder > :first-child { height: 100%; width: 100%; }
+@keyframes fadeout { 
+  0% { opacity: 1; }
+  100% { opacity: 0; height: 0px; }
+}
+@keyframes fadein { 
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0px); }
+}
+@keyframes blink { 
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes animation-fade { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes animation-slide-fade { 
+  0% { transform: translateY(-100%); opacity: 0; }
+  100% { transform: translateY(0px); opacity: 1; }
+}
+@keyframes animation-scale { 
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+@keyframes animation-scale-rotate { 
+  0% { transform: scale(0) rotate(720deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes animation-slide-top { 
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(0px); }
+}
+@keyframes animation-slide-bottom { 
+  0% { transform: translateY(100vh); }
+  100% { transform: translateY(0px); }
+}
+@keyframes animation-slide-left { 
+  0% { transform: translate(-100vw); }
+  100% { transform: translate(0px); }
+}
+@keyframes animation-slide-right { 
+  0% { transform: translate(100vw); }
+  100% { transform: translate(0px); }
+}
+@keyframes animation-shake { 
+  10%, 90% { transform: translate(-4px); }
+  20%, 80% { transform: translate(6px); }
+  30%, 50%, 70% { transform: translate(-4px); }
+  40%, 60% { transform: translate(6px); }
+  100% { transform: translate(0px); }
+}
+@keyframes pulse { 
+  0% { opacity: 0; transform: scale(0.75); }
+  100% { opacity: 0.65; transform: scale(1); }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .grid__block--cta-content > :last-child { margin-bottom: 0px !important; }
+@media only screen and (max-width: 768px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 input { font-size: calc(16px); } }
+@supports (-webkit-touch-callout: none) { .atl-kavallerie-acp-honeycomb-half-pads-p14 * { background-attachment: initial !important; } }
+@keyframes bss-button-loading-spinner { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-pulse { 
+  0% { transform: translate(0px) scale(0.8); }
+  100% { transform: translate(0px) scale(1.1); }
+}
+@keyframes bss-pulse_center-X { 
+  0% { transform: translate(-50%) scale(0.8); }
+  100% { transform: translate(-50%) scale(1.1); }
+}
+@keyframes bss-pulse_center-Y { 
+  0% { transform: translateY(-50%) scale(0.8); }
+  100% { transform: translateY(-50%) scale(1.1); }
+}
+@keyframes bss-pulse_center { 
+  0% { transform: translate(-50%, -50%) scale(0.8); }
+  100% { transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes bss-bounce-in { 
+  0% { opacity: 0; transform: translate(0px) scale(0.3); }
+  50% { opacity: 1; transform: translate(0px) scale(1.05); }
+  70% { transform: translate(0px) scale(0.9); }
+  100% { transform: translate(0px) scale(1); }
+}
+@keyframes bss-bounce-in_center-X { 
+  0% { opacity: 0; transform: translate(-50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%) scale(1.05); }
+  70% { transform: translate(-50%) scale(0.9); }
+  100% { transform: translate(-50%) scale(1); }
+}
+@keyframes bss-bounce-in_center-Y { 
+  0% { opacity: 0; transform: translateY(-50%) scale(0.3); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.05); }
+  70% { transform: translateY(-50%) scale(0.9); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+@keyframes bss-bounce-in_center { 
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  70% { transform: translate(-50%, -50%) scale(0.9); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes bss-bounce-out { 
+  0% { opacity: 0; transform: translate(0px) scale(1); }
+  25% { opacity: 1; transform: translate(0px) scale(0.95); }
+  50% { opacity: 1; transform: translate(0px) scale(1.1); }
+  100% { opacity: 0; transform: translate(0px) scale(0.3); }
+}
+@keyframes bss-bounce-out_center-X { 
+  0% { opacity: 0; transform: translate(-50%) scale(1); }
+  25% { opacity: 1; transform: translate(-50%) scale(0.95); }
+  50% { opacity: 1; transform: translate(-50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%) scale(0.3); }
+}
+@keyframes bss-bounce-out_center-Y { 
+  0% { opacity: 0; transform: translateY(-50%) scale(1); }
+  25% { opacity: 1; transform: translateY(-50%) scale(0.95); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-50%) scale(0.3); }
+}
+@keyframes bss-bounce-out_center { 
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  25% { opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+}
+@keyframes bss-swing { 
+  0% { transform: translate(0px) rotate(0deg); }
+  20% { transform: translate(0px) rotate(15deg); }
+  40% { transform: translate(0px) rotate(-10deg); }
+  60% { transform: translate(0px) rotate(5deg); }
+  80% { transform: translate(0px) rotate(-5deg); }
+  100% { transform: translate(0px) rotate(0deg); }
+}
+@keyframes bss-swing_center-X { 
+  0% { transform: translate(-50%) rotate(0deg); }
+  20% { transform: translate(-50%) rotate(15deg); }
+  40% { transform: translate(-50%) rotate(-10deg); }
+  60% { transform: translate(-50%) rotate(5deg); }
+  80% { transform: translate(-50%) rotate(-5deg); }
+  100% { transform: translate(-50%) rotate(0deg); }
+}
+@keyframes bss-swing_center-Y { 
+  0% { transform: translateY(-50%) rotate(0deg); }
+  20% { transform: translateY(-50%) rotate(15deg); }
+  40% { transform: translateY(-50%) rotate(-10deg); }
+  60% { transform: translateY(-50%) rotate(5deg); }
+  80% { transform: translateY(-50%) rotate(-5deg); }
+  100% { transform: translateY(-50%) rotate(0deg); }
+}
+@keyframes bss-swing_center { 
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  20% { transform: translate(-50%, -50%) rotate(15deg); }
+  40% { transform: translate(-50%, -50%) rotate(-10deg); }
+  60% { transform: translate(-50%, -50%) rotate(5deg); }
+  80% { transform: translate(-50%, -50%) rotate(-5deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes bss-hi-there { 
+  0% { transform: translate(0px) scale(1); }
+  30% { transform: translate(0px) scale(1.2); }
+  40%, 60% { transform: translate(0px) rotate(-20deg) scale(1.2); }
+  50% { transform: translate(0px) rotate(20deg) scale(1.2); }
+  70% { transform: translate(0px) rotate(0deg) scale(1.2); }
+  100% { transform: translate(0px) scale(1); }
+}
+@keyframes bss-hi-there_center-X { 
+  0% { transform: translate(-50%) scale(1); }
+  30% { transform: translate(-50%) scale(1.2); }
+  40%, 60% { transform: translate(-50%) rotate(-20deg) scale(1.2); }
+  50% { transform: translate(-50%) rotate(20deg) scale(1.2); }
+  70% { transform: translate(-50%) rotate(0deg) scale(1.2); }
+  100% { transform: translate(-50%) scale(1); }
+}
+@keyframes bss-hi-there_center-Y { 
+  0% { transform: translateY(-50%) scale(1); }
+  30% { transform: translateY(-50%) scale(1.2); }
+  40%, 60% { transform: translateY(-50%) rotate(-20deg) scale(1.2); }
+  50% { transform: translateY(-50%) rotate(20deg) scale(1.2); }
+  70% { transform: translateY(-50%) rotate(0deg) scale(1.2); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+@keyframes bss-hi-there_center { 
+  0% { transform: translate(-50%, -50%) scale(1); }
+  30% { transform: translate(-50%, -50%) scale(1.2); }
+  40%, 60% { transform: translate(-50%, -50%) rotate(-20deg) scale(1.2); }
+  50% { transform: translate(-50%, -50%) rotate(20deg) scale(1.2); }
+  70% { transform: translate(-50%, -50%) rotate(0deg) scale(1.2); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes bss-flash { 
+  0%, 40%, 80%, 100% { opacity: 1; }
+  20%, 60% { opacity: 0; }
+}
+@keyframes bss-roll-in { 
+  0% { opacity: 0; transform: translate(-100%) rotate(-120deg); }
+  100% { opacity: 1; transform: translate(0px) rotate(0deg); }
+}
+@keyframes bss-roll-in_center-X { 
+  0% { opacity: 0; transform: translate(-150%) rotate(-120deg); }
+  100% { opacity: 1; transform: translate(-50%) rotate(0deg); }
+}
+@keyframes bss-roll-in_center-Y { 
+  0% { opacity: 0; transform: translate(-100%, -50%) rotate(-120deg); }
+  100% { opacity: 1; transform: translateY(-50%) rotate(0deg); }
+}
+@keyframes bss-roll-in_center { 
+  0% { opacity: 0; transform: translate(-150%, -50%) rotate(-120deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes bss-roll-out { 
+  0% { opacity: 1; transform: translate(0px) rotate(0deg); }
+  100% { opacity: 0; transform: translate(100%) rotate(120deg); }
+}
+@keyframes bss-roll-out_center-X { 
+  0% { opacity: 1; transform: translate(-50%) rotate(0deg); }
+  100% { opacity: 0; transform: translate(50%) rotate(120deg); }
+}
+@keyframes bss-roll-out_center-Y { 
+  0% { opacity: 1; transform: translateY(-50%) rotate(0deg); }
+  100% { opacity: 0; transform: translate(100%, -50%) rotate(120deg); }
+}
+@keyframes bss-roll-out_center { 
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(0deg); }
+  100% { opacity: 0; transform: translate(50%, -50%) rotate(120deg); }
+}
+@keyframes highlight { 
+  0% { opacity: 1; transform: translate(0px); }
+  100% { opacity: 0; transform: translate(80%); }
+}
+@keyframes highlight_center-X { 
+  0% { opacity: 1; transform: translate(-50%); }
+  100% { opacity: 0; transform: translate(30%); }
+}
+@keyframes highlight_center-Y { 
+  0% { opacity: 1; transform: translateY(-50%); }
+  100% { opacity: 0; transform: translate(80%, -50%); }
+}
+@keyframes highlight_center { 
+  0% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(30%, -50%); }
+}
+@keyframes bss-pl-slide-down-34332 { 
+  0% { top: -100px; }
+  100% { top: 70px; }
+}
+@keyframes bss-pl-slide-up { 
+  0% { bottom: -100px; }
+  100% { bottom: 20px; }
+}
+@keyframes bss-pl-slide-down { 
+  0% { top: -100px; }
+  100% { top: 20px; }
+}
+@keyframes bss-pl-slide-right { 
+  0% { right: -100px; }
+  100% { right: 0px; }
+}
+@keyframes bss-pl-slide-left { 
+  0% { left: -100px; }
+  100% { left: 0px; }
+}
+@keyframes bss-pl-fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes bss-pl-fade-out { 
+  0% { opacity: 1; pointer-events: auto; }
+  100% { opacity: 0; pointer-events: none; }
+}
+@keyframes bss-pl-slide-up-26172 { 
+  0% { bottom: -100px; }
+  100% { bottom: 70px; }
+}
+@keyframes bss-rotate { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-rotate_center-X { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-rotate_center-Y { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+@keyframes bss-rotate_center { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p14 *, .atl-kavallerie-acp-honeycomb-half-pads-p14 ::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 ::after { animation: auto ease 0s 1 normal none running none !important; transition: none !important; caret-color: transparent !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-9faizq { display: flex; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; flex-direction: column; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-9faizq { display: flex; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; flex-direction: column; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-9faizq { display: flex; position: relative; min-width: auto; flex-basis: auto; min-height: 1px; flex-shrink: 0; flex-direction: column; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-dorj89 { display: flex; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: flex-start; flex-shrink: 0; animation-name: alchemy-fade; flex-direction: column; --final-opacity: 1; animation-delay: 0ms; justify-content: flex-start; --initial-opacity: 0; animation-duration: 0.8s; animation-direction: normal; animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-in-out; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-dorj89 { display: flex; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: flex-start; flex-shrink: 0; animation-name: alchemy-fade; flex-direction: column; --final-opacity: 1; animation-delay: 0ms; justify-content: flex-start; --initial-opacity: 0; animation-duration: 0.8s; animation-direction: normal; animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-in-out; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-dorj89 { display: flex; position: relative; max-width: 100%; min-width: auto; align-self: stretch; flex-basis: auto; min-height: 1px; align-items: flex-start; flex-shrink: 0; animation-name: alchemy-fade; flex-direction: column; --final-opacity: 1; animation-delay: 0ms; justify-content: flex-start; --initial-opacity: 0; animation-duration: 0.8s; animation-direction: normal; animation-fill-mode: both; animation-play-state: paused; animation-timing-function: ease-in-out; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-vm54b0 { display: flex; gap: 36px; position: relative; flex: 1 1 auto; min-width: auto; align-self: stretch; min-height: 1px; align-items: center; padding-top: 6rem; padding-left: 1rem; padding-right: 1rem; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-vm54b0 { display: flex; gap: 0px; position: relative; flex: 1 1 auto; min-width: auto; align-self: stretch; min-height: 1px; align-items: center; padding: 4.5rem 0.2rem 0px; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-vm54b0 { display: flex; gap: 36px; position: relative; flex: 1 1 auto; min-width: auto; align-self: stretch; min-height: 1px; align-items: center; padding-top: 5rem; padding-left: 1rem; padding-right: 1rem; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-1uxvut1 { flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); align-self: stretch; transition: inherit; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-1uxvut1 { flex: 1 1 auto; align-self: stretch; transition: inherit; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-1uxvut1 { flex: 1 1 0px; min-width: var(--replo-flex-min-dimension, 0px); align-self: stretch; transition: inherit; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-1vd8xe0 { display: none; gap: 36px; position: relative; flex: 1 1 auto; min-width: auto; align-self: stretch; min-height: 1px; align-items: center; padding-top: 6rem; padding-left: 1rem; padding-right: 1rem; justify-content: center; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-1vd8xe0 { display: none; gap: 0px; position: relative; flex: 1 1 auto; min-width: auto; align-self: stretch; min-height: 1px; align-items: center; padding: 4.5rem 0.2rem 0px; flex-direction: column; justify-content: center; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-1vd8xe0 { display: none; gap: 36px; position: relative; flex: 1 1 auto; min-width: auto; align-self: stretch; min-height: 1px; align-items: center; padding-top: 5rem; padding-left: 1rem; padding-right: 1rem; justify-content: center; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-xb822 { flex-basis: auto; transition: inherit; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-xb822 { flex-basis: auto; transition: inherit; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-xb822 { flex-basis: auto; transition: inherit; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ).r-5yv9hy { flex-basis: auto; transition: inherit; flex-shrink: 0; }
+@media (max-width: 640px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-5yv9hy { flex-basis: auto; transition: inherit; flex-shrink: 0; } }
+@media (min-width: 641px) and (max-width: 1024px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 :not(#\ ):not(#\ ):not(#\ ).r-5yv9hy { flex-basis: auto; transition: inherit; flex-shrink: 0; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14:has(> .replo-modal-after-open) { scroll-behavior: auto !important; }
+@keyframes replo-marquee { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(calc(var(--replo-marquee-width,100%) * -1 / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-marquee-left { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(calc(var(--replo-marquee-width,100%) * -1 / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-marquee-right { 
+  0% { transform: translate(-50%); }
+  100% { transform: translate(calc(-50% + var(--replo-marquee-width,100%) / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-fade { 
+  0% { opacity: var(--initial-opacity); }
+  100% { opacity: var(--final-opacity); }
+}
+@keyframes alchemy-slide-y { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px); }
+}
+@keyframes alchemy-slide-x { 
+  0% { opacity: var(--initial-opacity); transform: translate(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translate(0px); }
+}
+@keyframes alchemy-flip-y { 
+  0% { opacity: var(--initial-opacity); transform: rotateY(var(--angle)); }
+  100% { opacity: var(--final-opacity); transform: rotateY(0deg); }
+}
+@keyframes alchemy-flip-x { 
+  0% { opacity: var(--initial-opacity); transform: rotateX(var(--angle)); }
+  100% { opacity: var(--final-opacity); transform: rotateX(0deg); }
+}
+@keyframes alchemy-grow { 
+  0% { opacity: var(--initial-opacity); transform: scale(var(--initial-scale)); }
+  100% { opacity: var(--final-opacity); transform: scale(var(--final-scale)); }
+}
+@keyframes alchemy-spin { 
+  0% { opacity: var(--initial-opacity); transform: rotate(var(--initial-angle)); }
+  100% { opacity: var(--final-opacity); transform: rotate(var(--final-angle)); }
+}
+@keyframes alchemy-fly-y { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)) scale(0); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px) scale(1); }
+}
+@keyframes alchemy-fly-x { 
+  0% { opacity: var(--initial-opacity); transform: translate(var(--offset)) scale(0); }
+  100% { opacity: var(--final-opacity); transform: translate(0px) scale(1); }
+}
+@keyframes alchemy-drop { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px); }
+}
+@keyframes replo-spin { 
+  100% { transform: rotate(360deg); }
+}
+@keyframes shimmer { 
+  100% { mask-position: left center; }
+}
+@keyframes slideDown { 
+  0% { height: 0px; }
+  100% { height: var(--radix-collapsible-content-height); }
+}
+@keyframes slideUp { 
+  0% { height: var(--radix-collapsible-content-height); }
+  100% { height: 0px; }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p14, .atl-kavallerie-acp-honeycomb-half-pads-p14 { zoom: unset !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 { overflow-y: visible !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 main, .atl-kavallerie-acp-honeycomb-half-pads-p14 #main { margin: 0px !important; padding: 0px !important; max-width: none !important; max-height: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 h1, .atl-kavallerie-acp-honeycomb-half-pads-p14 h2, .atl-kavallerie-acp-honeycomb-half-pads-p14 h3, .atl-kavallerie-acp-honeycomb-half-pads-p14 p, .atl-kavallerie-acp-honeycomb-half-pads-p14 span { color: inherit; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-badge, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-badge::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-content, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-actions::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-email::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-location::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-name::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-body::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-title::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header-title::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-loading::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header-title, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary::after { clear: both; }
+@font-face { font-family: stamped-font; font-display: swap; font-weight: 400; font-style: normal; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa { display: inline-block; font-style: normal; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [class*=" stamped-icon-"]::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 [class*=" stamped-fa-"]::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 [class^="fa-"]::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 [class^="stamped-fa-"]::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 [class^="stamped-icon-"]::before { font-family: stamped-font, FontAwesome, "Font Awesome 5 Pro", "Font Awesome 5 Brands"; font-style: normal; font-weight: 400; speak: none; text-decoration: inherit; width: 1em; margin-right: 0.2em; text-align: center; font-variant: normal; text-transform: none; line-height: 1em; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-o::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-camera::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-camera::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-search::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-twitter::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-twitter::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-facebook::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-facebook::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-spinner::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-spinner::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-thumbs-up::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-thumbs-up::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-thumbs-down::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-thumbs-down::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-params::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-params::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container { font-family: "Open Sans", Verdana, sans-serif; text-align: left; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header-title::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header-title::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-loading::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-loading::before { content: " "; display: table; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-checked, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-half-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-checked, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-half-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-o { color: rgb(255, 210, 0); padding: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-half-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-half-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star::before { font-size: 18px; margin-right: -1px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating .fa-star-half-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating .fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating .fa-star::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating .stamped-fa-star-half-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating .stamped-fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating .stamped-fa-star::before { font-size: 23px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-check-circle-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-share-alt, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-thumbs-down, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-thumbs-up, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-check-circle-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-share-alt, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-thumbs-down, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-thumbs-up { color: rgb(0, 0, 0); padding: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-check-circle-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-share-alt::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-thumbs-down::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-thumbs-up::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-check-circle-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-share-alt::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-thumbs-down::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-thumbs-up::before { font-size: 12px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 a.stamped-thumbs-up { margin-left: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-half-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .fa-star::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-half-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star-o::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-fa-star::before { font-family: stamped-font, FontAwesome !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-starrating a { color: gold; text-decoration: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget { display: block; overflow: hidden; margin: 1em 15px; font-style: normal; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget::before { content: " "; display: table; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header-title { font-size: 24px; margin: 0px 0px 30px; width: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-starratings { font-size: 13px; margin: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-tab-container { position: relative; font-size: 14px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 div.stamped-container ul.stamped-tabs, .atl-kavallerie-acp-honeycomb-half-pads-p14 div.stamped-container ul.stamped-tabs li { max-height: 45px; margin-bottom: 0px; margin-left: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container ul.stamped-tabs { padding: 0px; border-bottom: 1px solid rgb(238, 238, 238); margin: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container ul.stamped-tabs li { display: inline-block; height: 100%; margin-right: 15px; padding: 6px 10px 10px; color: rgb(0, 0, 0); font-size: 14px; cursor: pointer; box-sizing: border-box; width: auto !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container ul.stamped-tabs li.active { font-weight: 700; border-bottom: 3px solid rgb(0, 0, 0); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 li#tab-questions[data-count][data-new-tab]::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 li#tab-reviews[data-count]::after { content: "" attr(data-count); background: rgb(248, 249, 250); padding: 2px 5px; margin-left: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader { vertical-align: bottom; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-holder { float: left; margin-top: 15px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader label[for="stamped-file-uploader-input"] { margin: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader label[for="stamped-file-uploader-input"] > span { margin-right: 5px; border-radius: 0px; padding: 9px 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader-btn { color: rgb(0, 0, 0); border-radius: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader:focus-visible { outline: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader:focus-visible .stamped-file-uploader-btn { outline: rgb(0, 95, 204) solid 2px; outline-offset: 2px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader-btn-label2::before { content: " Add Photos"; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-overview { margin-bottom: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary { padding-bottom: 10px; margin-bottom: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary::before { content: " "; display: table; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions { display: inline; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-clear, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-mobile-filter { font-size: 13px; text-decoration: none; text-align: center; width: auto; line-height: 30px; background: 0px 0px; color: rgb(0, 0, 0); border: 1px solid rgb(204, 214, 224); padding: 3px 20px; border-radius: 3px; font-weight: 700; box-shadow: rgba(136, 136, 136, 0.42) 2px 3px 5px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion:hover, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview:hover { box-shadow: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-clear { display: inline-block; cursor: pointer; margin-top: 15px; font-size: 12px; margin-right: 3px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-clear::before { content: "× "; font-size: 18px; vertical-align: bottom; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview { float: right; margin: 0px 0px 0px 15px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion:hover, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview:hover { text-decoration: none; opacity: 0.9; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview::before { font-family: stamped-font, FontAwesome; font-style: normal; font-weight: 400; text-decoration: inherit; padding-right: 8px; display: inline-block; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-starrating { float: left; margin: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-starrating i::before { font-size: 23px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-ratings { width: 250px; float: left; padding-left: 20px; border-left: 1px solid rgb(238, 238, 238); color: rgb(153, 153, 153); font-size: 12px; line-height: normal; border-right: 1px solid rgb(238, 238, 238); margin-right: 20px; margin-bottom: 15px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-ratings:hover .summary-rating { opacity: 0.5; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating[data-count="0"] { pointer-events: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating:hover { opacity: 1 !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-ratings .summary-rating:focus-within { opacity: 1; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption { display: inline-block; margin-left: 2px; float: left; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption-1 { line-height: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption .stamped-summary-text { font-size: 15px; margin-top: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-text { display: inline-block; font-size: 0.9em; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption .stamped-summary-text::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption .stamped-summary-text::before { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-text-1 { font-size: 37px; line-height: 30px; font-weight: 700; margin-right: 5px; margin-top: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating { margin-bottom: 3px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-ratings .summary-rating { min-height: 22px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-title { width: 19%; display: inline-block; cursor: pointer; color: rgb(85, 85, 85); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-title { font-size: 13px; line-height: 10px; display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-bar { width: 59%; display: inline-block; background: rgb(240, 240, 240); border-width: medium; border-style: none; border-color: currentcolor; border-image: none; text-align: center; cursor: pointer; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-bar div[data-rating="0"] { color: rgb(85, 85, 85); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-count { width: 15%; display: inline-block; text-align: left; padding-left: 5px; color: rgb(85, 85, 85); white-space: nowrap; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-bar-content { background: rgb(255, 210, 0); line-height: normal; display: flex; padding: 1px 0px 2px; overflow-wrap: initial; word-break: initial; color: rgb(85, 85, 85); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-bar-content::before { content: ""; display: block; margin: 2px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos { max-width: 470px; position: relative; color: rgb(153, 153, 153); height: auto; white-space: nowrap; overflow: visible; min-width: 280px; display: flex; margin-bottom: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos.stamped-summary-photos-container { max-width: 295px; min-width: 295px; white-space: normal; display: inline-table; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos-container { overflow: hidden !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos-container .stamped-photos-carousel .photo.stamped-photo img { width: 70px; object-fit: cover; display: block; position: relative; cursor: zoom-in; border-radius: 0px; height: 55px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel .photo.stamped-photo img:focus-visible { outline: rgb(0, 95, 204) solid 2px; outline-offset: -2px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos-container .stamped-photos-carousel-btn-left, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos-container .stamped-photos-carousel-btn-right { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos > div:nth-child(2) { height: auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel { width: 100%; height: auto; position: relative; left: 0px; transition: 1s; overflow: hidden; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel .photo { display: inline-block; height: auto; padding-bottom: 0px; padding-right: 5px; vertical-align: top; font-size: 11px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel .photo.stamped-photo { position: relative; width: 70px; height: 55px; padding-right: 0px; margin-bottom: 5px; margin-right: 3px; border: 1px solid rgb(204, 204, 204); box-sizing: border-box; background-repeat: no-repeat !important; background-size: cover !important; background-position: center center !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-filter-label { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-filter { width: 100%; margin: 0px 1px; display: inline-block; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-filter-label, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-questions-filter-label { margin-top: 20px; font-weight: 700; font-size: 13px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-filter-label:empty::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-questions-filter-label:empty::before { content: "Filter Reviews:"; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-filter-selects { margin-top: 15px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-keywords { clear: none; font-size: 13px; margin-top: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 ul.stamped-summary-keywords-list { margin: 0px; padding: 0px; font-size: 12px; max-width: 600px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-actions::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-actions::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-email::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-email::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-location::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-location::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-name::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-name::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-body::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-body::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-title::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-title::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review::before { content: " "; display: table; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-location { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel .photo.stamped-photo:nth-child(n+9), .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="0"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="0"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="1"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="1"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="7"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="7"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="6"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="6"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="5"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="5"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="4"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="4"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="3"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="3"] > div::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="2"] > div::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel[data-count="2"] > div::before { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel .photo.stamped-photo:nth-child(8) { z-index: 2; position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel-btn-left, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel-btn-right { position: absolute; top: 50%; vertical-align: middle; margin-top: -10px; height: 20px; text-align: right; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel-btn-left { left: -16px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel-btn-right { right: -18px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 span.btn-slide-left, .atl-kavallerie-acp-honeycomb-half-pads-p14 span.btn-slide-right { cursor: pointer; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .new-review-form, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-content form { display: block; margin: 25px 0px 0px; padding: 25px 0px 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-title { font-size: 16px; line-height: 24px; margin-top: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-actions, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-custom-questions, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review { padding: 0px; border: 0px; margin: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-actions { text-align: right; margin-bottom: 30px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-content { position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews:empty::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-ugc-modal-wrapper::after { content: ""; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating { overflow: hidden; margin-bottom: 15px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating input { display: table; appearance: none; height: 5px !important; width: 5px !important; font-size: 1px !important; line-height: 5px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating a, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-review-rating a:hover { text-decoration: none !important; display: inline-block !important; float: left !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-label { font-size: 14px; line-height: 20px; color: rgb(0, 0, 0); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-input { margin: 0px; font-style: normal; font-family: inherit !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-label + .stamped-form-input { font-weight: 400; margin: 0px 0px 10px; display: block; min-height: 30px; line-height: 30px; width: 100% !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-avatar[data-avatar="true"] .stamped-review-avatar-content, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header #stamped-review-avatar:empty, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .stamped-review-avatar:empty, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-reply #stamped-review-avatar:empty, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-reply .stamped-review-avatar:empty { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-form-input { height: 35px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-form-input-email, .atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-form-input-text, .atl-kavallerie-acp-honeycomb-half-pads-p14 textarea.stamped-form-input-textarea { box-sizing: border-box; height: auto; max-width: 100%; margin: 0px; padding: 5px; border: 1px solid rgb(215, 215, 215); width: 100% !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-form-input-email, .atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-form-input-text { padding: 0px 8px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-input-textarea { resize: vertical; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-button, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-button-primary { width: auto; margin: 0px; min-height: 1em; height: auto !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-button-primary { float: initial; border: 1px solid; padding: 5px 10px; margin-left: 10px; min-height: 30px; text-decoration: none; background: rgb(0, 0, 0); color: rgb(255, 255, 255); cursor: pointer; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-button-submit, .atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-button.stamped-button-primary.button.button-primary.btn.btn-primary { background: rgb(0, 0, 0); color: rgb(255, 255, 255); width: auto; padding: 10px 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews { margin: 0px; position: relative; clear: both; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review { border-top: 1px solid rgb(238, 238, 238); margin-bottom: 30px; padding-top: 25px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review:first-child { margin-top: 0px; border-top-width: medium; border-top-style: none; border-top-color: currentcolor; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review:last-child { padding-bottom: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header { font-size: 14px; width: 100%; line-height: 18px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header #stamped-review-avatar, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .stamped-review-avatar, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-reply #stamped-review-avatar, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-reply .stamped-review-avatar { float: left; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-avatar { position: relative; float: left; padding: 0px; margin-right: 10px; color: rgb(89, 89, 89); background: rgb(245, 245, 245); border-radius: 50%; text-shadow: rgb(255, 255, 255) 1px 1px 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review[data-verified="buyer"] .stamped-review-avatar::before { content: ""; font-family: stamped-font; position: absolute; right: -5px; bottom: 0px; color: rgb(28, 194, 134); font-size: 21px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-avatar-content { height: 55px; width: 55px; font-size: 18px; vertical-align: text-bottom; text-align: center; text-transform: inherit; font-style: initial; margin-right: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-avatar-content { display: table-cell; vertical-align: middle; height: 56px; width: 55px; font-weight: 700; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .review-location { color: rgb(85, 85, 85); font-size: 12px; font-weight: 400; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-location-flag { width: 18px; max-width: 18px; min-width: 18px; line-height: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-location-flag img { width: 18px; max-width: 18px; min-width: 18px; display: inline-block; vertical-align: bottom; line-height: 0px; margin: 3px 3px 3px 1px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .stamped-verified-badge[data-type="buyer"][data-verified-label]::after { content: attr(data-verified-label); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .verified, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .verified .fa-check-circle-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .verified .stamped-fa-check-circle-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .verified-badge, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .stamped-verified-badge, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .verified-badge .fa-check-circle-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header .verified-badge .stamped-fa-check-circle-o, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-verified-badge { color: rgb(0, 122, 85); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header-starratings { font-size: 20px; display: inline-block; margin-left: -2px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-header-title { font-size: 15px; line-height: 24px; min-height: 15px; margin: 5px 0px 0px; padding: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; font-weight: 700; text-align: left; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-content { margin: 0px 0px 15px; clear: both; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-content::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-content::before { content: " "; display: table; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-content::after { clear: both; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-image { margin-top: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-image img { width: auto; border: 1px solid rgb(204, 204, 204); transition: 0.2s; cursor: zoom-in; margin-right: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-image a { position: relative; display: inline-block; margin-right: 10px; line-height: 0; overflow: hidden; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-image a:hover img { border-color: orange; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review .author { margin-right: 7px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-content-body, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-reply-body, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-reply-shop { font-size: 1em; line-height: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-content-body { margin: 0px; padding: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 p.stamped-review-content-body { font-size: 14px; white-space: pre-wrap; margin-bottom: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-recommend:not([data-is-recommend="true"]) { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-share-links a { text-decoration: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-messages .stamped-thank-you { width: 100%; text-align: center; padding: 30px 0px; border: 1px solid rgb(238, 238, 238); display: none; margin-top: 23px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-messages .stamped-thank-you p:first-child { font-size: 1.3em; margin: auto; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-messages .stamped-share-links { margin-top: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-messages .stamped-share-links a { text-decoration: none; padding: 7px 20px; color: rgb(0, 0, 0); border: 1px solid rgb(204, 204, 204); background: rgb(238, 238, 238); margin-right: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-messages .stamped-share-links a i { margin-right: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer { font-size: 12px; opacity: 0.8; margin-top: 25px; clear: both !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer::after, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer::before { content: " " !important; display: table !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer::after { clear: both !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer a { text-decoration: none; border-width: medium !important; border-style: none !important; border-color: currentcolor !important; border-image: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer #stamped-review-vote, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer .stamped-review-vote { float: right !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer #stamped-review-share, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-footer .stamped-review-share { float: left !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-review-share, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-review-vote, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-share, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-vote { margin-top: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-review-vote a, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-vote a { cursor: pointer; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-sort-select { float: right; margin: auto 1px 15px auto; max-width: initial; color: rgb(51, 51, 51); position: initial; height: 35px; min-height: 35px; background-position: right -1px center; background-repeat: no-repeat; background-color: rgb(255, 255, 255); background-size: initial; padding: 0px 0px 0px 12px; line-height: 1.25; text-indent: 0.01px; bottom: 12px; appearance: none; transition: 0.2s ease-in-out; cursor: pointer; z-index: 2; border-radius: 3px; font-size: 11px; font-weight: 400; width: auto; min-width: 170px; background-image: none !important; border: 1px solid rgb(204, 214, 224) !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-filter-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-filter-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select2 { color: rgb(51, 51, 51); position: initial; height: 35px; min-height: 35px; background-position: right -1px center; background-repeat: no-repeat; background-color: rgb(255, 255, 255); line-height: 1.25; text-indent: 0.01px; bottom: 12px; appearance: none; transition: 0.2s ease-in-out; cursor: pointer; z-index: 2; border-radius: 3px; font-size: 12px; font-weight: 400; width: auto; background-image: none !important; background-size: initial !important; padding: 0px 12px !important; border: 1px solid rgb(204, 214, 224) !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select2 { color: rgb(51, 51, 51); position: initial; height: 35px; min-height: 35px; background-position: right -1px center; background-repeat: no-repeat; background-color: rgb(255, 255, 255); background-size: initial; padding-right: 0px; padding-left: 12px; line-height: 1.25; text-indent: 0.01px; bottom: 12px; appearance: none; transition: 0.2s ease-in-out; cursor: pointer; z-index: 2; border-radius: 3px; font-size: 11px; font-weight: 400; width: auto; min-width: 170px; margin-bottom: 15px; background-image: none !important; border: 1px solid rgb(204, 214, 224) !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select { margin-top: -1px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-search-text, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-questions-search-text { color: rgb(0, 0, 0); margin: 15px 0px 0px; max-width: 435px; position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-search-text .stamped-reviews-search-icon.stamped-fa.stamped-fa-search, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-questions-search-text .stamped-questions-search-icon.stamped-fa.stamped-fa-search { position: absolute; top: calc(50% - 11px); left: 6px; line-height: 0px; font-size: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-search-text .stamped-reviews-search-clear, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-questions-search-text .stamped-questions-search-clear { position: absolute; right: 10px; top: calc(50% - 12px); color: rgb(0, 0, 0); cursor: pointer; font-size: 20px; line-height: 20px; font-family: verdana; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-search-text input.stamped-reviews-search-input, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-questions-search-text input.stamped-questions-search-input { color: rgb(51, 51, 51); position: initial; height: 35px; min-height: 35px; background-color: rgb(255, 255, 255); line-height: 1.25; text-indent: 0.01px; bottom: 12px; appearance: none; transition: 0.2s ease-in-out; z-index: 2; border-radius: 3px; font-size: 14px; font-weight: 400; width: 99%; padding-left: 27px; padding-right: 50px; box-sizing: border-box; border: 1px solid rgb(204, 214, 224) !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-custom-questions:empty { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews .stamped-review-options:empty { display: none; }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container { padding: 2em 1em; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption { display: inline-block; margin-left: 5px; margin-bottom: 10px; vertical-align: middle; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header-title, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary { text-align: center; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-starrating { float: none; margin-right: 0px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-ratings { float: none; margin-left: 0px; padding-left: 0px; border-left-width: medium; border-left-style: none; border-left-color: currentcolor; border-right-width: medium; border-right-style: none; border-right-color: currentcolor; margin-bottom: 20px; text-align: center; clear: both; margin-top: 0px !important; width: 100% !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-filter-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-filter-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-sort-select2 { font-size: 12px; height: 32px; min-height: 30px; min-width: 100%; max-width: 100%; padding-right: 50px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 select#stamped-sort-select { background-size: 25px auto; border-radius: 0px; padding-right: 10px !important; min-width: unset !important; width: 100% !important; border-top: rgb(238, 238, 238) !important; border-right-color: rgb(238, 238, 238) !important; border-bottom-color: rgb(238, 238, 238) !important; border-left-color: rgb(238, 238, 238) !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-clear { font-size: 13px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-reviews-search-text input.stamped-reviews-search-input { font-size: 16px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-count { width: 9% !important; text-align: center !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-rating-bar { width: 67% !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .summary-overview { margin-bottom: 30px; width: 100% !important; float: none !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-photos { width: 100% !important; margin: auto auto 15px !important; padding: 0px !important; border-width: medium !important; border-style: none !important; border-color: currentcolor !important; border-image: none !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-photos-carousel-btn-left { left: -20px !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions { display: block; clear: both; padding-top: 0px; margin-bottom: 15px; white-space: initial; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review { margin-bottom: 10px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview { width: 99%; display: inline-block; float: none; margin: 0px 3px 10px 0px; font-size: 13px; box-sizing: border-box; line-height: 30px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newquestion { margin-left: 0px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-actions-newreview::after { clear: both; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-share { margin-bottom: 15px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-messages .stamped-share-links a { display: block; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-review-avatar-content { height: 45px; width: 45px; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-sort-select { width: 150px; max-width: 150px !important; } }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 ul.stamped-tabs li { font-size: 13px !important; color: rgb(0, 0, 0); } }
+@media (min-width: 768px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-email, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-location, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-name { float: left; width: 32.3333%; max-width: 300px; position: relative; min-height: 1px; padding-right: 15px; } }
+@media (min-width: 768px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-form-contact-location { padding-right: 0px; } }
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader label[for="stamped-file-uploader-input"] > span { border: 1px solid rgb(51, 51, 51); padding: 6px 10px; font-size: 13px; border-radius: 0.3em; width: 100%; display: block; text-align: center; } }
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 input.stamped-button.stamped-button-primary.button.button-primary.btn.btn-primary { margin: 10px 0px 0px; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-empty-state { margin-top: 50px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 div.stamped-container[data-widget-style], .atl-kavallerie-acp-honeycomb-half-pads-p14 div[data-widget-style] div.stamped-container { max-width: 1200px; margin: 30px auto !important; border-width: medium !important; border-style: none !important; border-color: currentcolor !important; border-image: none !important; padding: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 div[data-widget-style] .summary-rating:nth-child(1) .summary-rating-title::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 div[data-widget-style] .summary-rating:nth-child(2) .summary-rating-title::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 div[data-widget-style] .summary-rating:nth-child(3) .summary-rating-title::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 div[data-widget-style] .summary-rating:nth-child(4) .summary-rating-title::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 div[data-widget-style] .summary-rating:nth-child(5) .summary-rating-title::before { font-size: 17px; letter-spacing: -1px; color: rgb(119, 119, 119); font-family: stamped-font !important; width: 200px !important; }
+@media only screen and (max-width: 480px) { .atl-kavallerie-acp-honeycomb-half-pads-p14 ul.stamped-summary-keywords-list { max-height: 80px; overflow-y: scroll; } }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-avatar="false"] .stamped-review-avatar, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-date-qna="false"] .stamped-questions .stamped-review .created, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-date="false"] .stamped-reviews .stamped-review .created, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-date="false"] .stamped-review-date, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-filter-keywords="false"] .stamped-reviews-filter-label, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-filter-keywords="false"] .stamped-summary-keywords, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-graph="false"] .stamped-summary-ratings, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-qna="false"] .stamped-summary-actions-newquestion, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-qna="false"] li#tab-questions, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-share="false"] .stamped-review-share, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-sort="false"] #stamped-sort-select, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-sort="false"] .stamped-sort-select-wrapper, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-sort="false"] .stamped-sort-select2-wrapper, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-summary-photo="false"] .stamped-photos-carousel, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-summary-recommend="false"] .stamped-summary-recommend, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-summary-recommend="false"] .stamped-review-recommend, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-tab-qna="false"] .stamped-tabs li#tab-questions, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-tab-reviews="false"] .stamped-tabs li#tab-reviews, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-verified="false"] .verified-badge, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-verified="false"] .stamped-verified-badge, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-verified="false"] .stamped-review[data-verified="buyer"] .stamped-review-avatar::before, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-votes="false"] .stamped-review-vote, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-votes="false"] div.stamped-review-vote, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-location="false"] .review-location, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-product-variant="false"] .stamped-review-product, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-product-variant="false"] .stamped-review-variant { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-product, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-variant { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-product-variant="true"] .stamped-review-product, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-product-variant="true"] .stamped-review-variant { display: inline-block !important; font-size: 13px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-product-variant="true"] .stamped-review-product a, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-product-variant="true"] .stamped-review-variant a { color: rgb(0, 0, 0); text-decoration: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container .stamped-review-product a:not(:empty) { display: inline-block; min-height: 24px; line-height: 24px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container[data-widget-show-upload="true"] .stamped-file-uploader { display: inline-block !important; vertical-align: middle !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container input:focus, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container select, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container textarea:focus { outline: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container input:focus-visible, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container select:focus-visible, .atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container textarea:focus-visible { outline: rgb(0, 95, 204) solid 2px; outline-offset: 2px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget [data-widget-style] .stamped-review-product:empty { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review { border-radius: 5px; transition: box-shadow 0.3s ease-in-out; overflow: hidden; border: 1px solid rgb(224, 224, 224) !important; padding: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review:hover { box-shadow: rgb(229, 229, 229) 0px 5px 11px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .created { float: right; font-size: 12px; color: rgb(85, 85, 85); margin-bottom: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-verified-badge { display: inline-block; font-size: 12px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-header-starratings { margin-bottom: 10px; line-height: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-image { overflow: hidden; margin: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-image a:nth-child(2), .atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-image a:nth-child(3) { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-image a { display: block; width: 100%; margin: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-image img, .atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-image video { width: 100% !important; height: auto !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-avatar { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-footer #stamped-review-vote, .atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-review-footer .stamped-review-vote { float: none !important; clear: both !important; padding-top: 5px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-widget-type="masonry"] .stamped-reviews { margin-bottom: 80px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-version="2"] .stamped-summary-caption { clear: both; float: none; vertical-align: text-bottom; display: inline-block !important; margin: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-version="2"] .stamped-summary-starrating { float: none; white-space: nowrap; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-version="2"] .stamped-summary { padding-bottom: 0px; margin-bottom: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-version="2"] .stamped-summary-caption { float: none; }
+@-webkit-keyframes fadeInStamped { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fadeInStamped { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@-webkit-keyframes fadeOut { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes fadeOut { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-webkit-keyframes rotateIn { 
+  0% { transform-origin: center center; transform: rotate3d(0, 0, 1, -200deg); opacity: 0; }
+  100% { transform-origin: center center; transform: translateZ(0px); opacity: 1; }
+}
+@keyframes rotateIn { 
+  0% { transform-origin: center center; transform: rotate3d(0, 0, 1, -200deg); opacity: 0; }
+  100% { transform-origin: center center; transform: translateZ(0px); opacity: 1; }
+}
+@-webkit-keyframes rotateOut { 
+  0% { transform-origin: center center; opacity: 1; }
+  100% { transform-origin: center center; transform: rotate3d(0, 0, 1, 200deg); opacity: 0; }
+}
+@keyframes rotateOut { 
+  0% { transform-origin: center center; opacity: 1; }
+  100% { transform-origin: center center; transform: rotate3d(0, 0, 1, 200deg); opacity: 0; }
+}
+@-webkit-keyframes zoomOut { 
+  0% { opacity: 1; }
+  50% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  100% { opacity: 0; }
+}
+@keyframes zoomOut { 
+  0% { opacity: 1; }
+  50% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  100% { opacity: 0; }
+}
+@-webkit-keyframes zoomIn { 
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  50% { opacity: 1; }
+}
+@keyframes zoomIn { 
+  0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+  50% { opacity: 1; }
+}
+@-webkit-keyframes scaleInWidth { 
+  0% { width: auto; }
+  100% { width: 40px; }
+}
+@-webkit-keyframes scaleOutWidth { 
+  0% { width: auto; }
+  100% { width: auto; }
+}
+@-webkit-keyframes navScaleSmall { 
+  0% { height: 213px; }
+  100% { height: 75px; }
+}
+@-webkit-keyframes stamped-view-loader { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes stamped-view-loader { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@-webkit-keyframes testingUp { 
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0px); opacity: 1; }
+}
+.atl-kavallerie-acp-honeycomb-half-pads-p14[data-mobile="true"] .stamped-rewards-header-close { top: 5px; right: 5px; width: 20px; height: 20px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14[data-mobile="true"] .stamped-launcher-icon-opened svg, .atl-kavallerie-acp-honeycomb-half-pads-p14[data-mobile="true"] .stamped-launcher-icon-opened i { margin-right: 0px !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14[data-mobile="true"] .stamped-launcher-icon-opened span { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-header-title { font-size: 1px; font-family: "Times New Roman", Times, serif; margin: 0px; width: 1%; color: rgb(255, 255, 255); }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-text-1 { font-size: 30px; font-family: "Times New Roman", Times, serif; line-height: 30px; font-weight: 700; margin-right: 5px; margin-top: 0px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-summary-caption .stamped-summary-text { font-size: 1px; font-family: "Times New Roman", Times, serif; color: rgb(255, 255, 255); margin-top: 10px; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-container { margin: 1px auto !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #stamped-main-widget { overflow: visible !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 .stamped-file-uploader-btn-label2::before { content: " Add Photos" !important; }
+@font-face { font-family: Leiko-Regular; src: url("/imports/kavallerie-acp-honeycomb-half-pads/assets/0759ba07d74c-Leiko-Regular.woff") format("woff"); font-display: swap; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E800-E83B; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E83C-E877; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EA5B-EA96; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EA97-EAD4; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EAD5-EB11; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EB12-EB4D; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EB4E-EB89; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EB8A-EBC5; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EBC6-EC01; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EC02-EC3D; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EC3E-EC79; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EC7A-ECB5; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E878-E8B3; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+ECB6-ECB9; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E8B4-E8EF; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E8F0-E92B; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E92C-E967; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E968-E9A4; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E9A5-E9E1; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+E9E2-EA1D; }
+@font-face { font-family: unicons-line; font-weight: 400; font-display: swap; font-style: normal; unicode-range: U+EA1E-EA5A; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 { --isf-color-primary: #000000; --isf-color-light: #979797; --isf-header-bg: #f9f9f9; --isf-color-border: #ededed; --isf-color: #111111; --isf-box-height: 100%; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #root > main { position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 #root > main > section[data-atelier-section] { position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 button, .atl-kavallerie-acp-honeycomb-half-pads-p14 [role="button"] { cursor: pointer; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-atl-car="track"] > * { transform: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-atl-h] { display: none !important; }
+.atl-kavallerie-acp-honeycomb-half-pads-p14 [data-atl-href] { cursor: pointer; }
