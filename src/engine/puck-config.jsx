@@ -215,7 +215,11 @@ const EDITOR_CSS = `
 [data-atl-group].atl-hover {
   transform: scale(1.015) !important;
   filter: brightness(1.04);
+  outline: 1px dashed rgba(44, 110, 203, 0.75) !important;
+  outline-offset: 2px;
 }
+/* Étiquette du type d'élément survolé (posée par inspector-ui). */
+#atl-tag { position: fixed; z-index: 2147483001; display: none; pointer-events: none; padding: 1px 6px; border: 1px solid #b9d0f3; border-radius: 4px; background: #eef4fd; color: #2c6ecb; font: 600 10.5px/16px "Inter", system-ui, sans-serif; white-space: nowrap; }
 /* Écriture directe dans la page : le texte reçoit la souris et le clavier. */
 html[data-atl-editing] [class*="DraggableComponent-overlay"] { pointer-events: none !important; }
 [contenteditable="true"] { pointer-events: auto !important; cursor: text; outline: 2px solid #6d4aff !important; outline-offset: 3px; }

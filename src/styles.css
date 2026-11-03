@@ -5860,3 +5860,59 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   font-style: normal;
   color: #5b3fd6;
 }
+
+/* ---- Barre « Demander une modification » en bas du panneau de droite ---- */
+.atl-ask {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 8px;
+  border-top: 1px solid #ececec;
+  background: #fff;
+  box-shadow: 0 -6px 14px rgba(0, 0, 0, 0.05);
+}
+.atl-ask__chip {
+  grid-column: 1 / -1;
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 2px 8px;
+  border: 1px solid #d9ccff;
+  border-radius: 6px;
+  background: #f3f0ff;
+  color: #5b3fd6;
+  font: 600 11px "Inter", system-ui, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-ask textarea {
+  min-width: 0;
+  resize: none;
+  padding: 6px 8px;
+  border: 1px solid #c9cccf;
+  border-radius: 8px;
+  font: 12.5px "Inter", system-ui, sans-serif;
+}
+.atl-ask textarea:focus {
+  border-color: #5b3fd6;
+  outline: none;
+}
+.atl-ask button {
+  align-self: end;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+.atl-ask button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

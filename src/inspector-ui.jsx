@@ -587,6 +587,7 @@ export function Inspector({ children }) {
       if (editRef.current) {
         hovered?.classList.remove("atl-hover");
         hovered = null;
+        placeTag(null);
         return;
       }
       const sec = under(e, "[data-atl-id]");
@@ -595,6 +596,36 @@ export function Inspector({ children }) {
       hovered?.classList.remove("atl-hover");
       hovered = el;
       hovered?.classList.add("atl-hover");
+      placeTag(el);
+    };
+    // Étiquette du type d'élément survolé (Titre, Texte, Bouton, Image, Bloc),
+    // posée dans le coin haut gauche, comme dans les éditeurs visuels.
+    const tagLabel = (el) => {
+      if (el.hasAttribute("data-atl-group") && !el.hasAttribute("data-atl-slot")) return "▢ Bloc";
+      if (el.tagName === "IMG" || el.tagName === "PICTURE" || el.querySelector?.(":scope > img:only-child")) return "🖼 Image";
+      if (el.tagName === "A" || el.tagName === "BUTTON" || el.getAttribute("role") === "button") return "⚡ Bouton";
+      if (/^H[1-6]$/.test(el.tagName)) return `T ${el.tagName === "H1" ? "Titre 1" : el.tagName === "H2" ? "Titre 2" : "Titre"}`;
+      return "T Texte";
+    };
+    const placeTag = (el) => {
+      let tag = doc.getElementById("atl-tag");
+      if (!el) return void (tag && (tag.style.display = "none"));
+      if (!tag) {
+        tag = doc.createElement("div");
+        tag.id = "atl-tag";
+        doc.body.appendChild(tag);
+      }
+      const r = el.getBoundingClientRect();
+      tag.textContent = tagLabel(el);
+      tag.style.display = "block";
+      tag.style.left = `${Math.max(0, r.left)}px`;
+      tag.style.top = `${r.top > 22 ? r.top - 20 : r.top + 2}px`;
+    };
+    const onScrollDoc = () => {
+      const tag = doc?.getElementById("atl-tag");
+      if (tag) tag.style.display = "none";
+      hovered?.classList.remove("atl-hover");
+      hovered = null;
     };
     const onMove = (e) => {
       lastMove = e;
@@ -605,8 +636,7 @@ export function Inspector({ children }) {
     };
     const onLeaveDoc = () => {
       lastMove = null;
-      hovered?.classList.remove("atl-hover");
-      hovered = null;
+      onScrollDoc();
     };
     const attach = () => {
       const next = canvasFrame()?.contentDocument ?? null;
@@ -616,6 +646,7 @@ export function Inspector({ children }) {
       doc?.removeEventListener("dblclick", onDouble, true);
       doc?.removeEventListener("mousemove", onMove, true);
       doc?.removeEventListener("mouseleave", onLeaveDoc, true);
+      doc?.removeEventListener("scroll", onScrollDoc, true);
       onLeaveDoc();
       doc = next;
       doc?.addEventListener("click", onClick, true);
@@ -623,6 +654,7 @@ export function Inspector({ children }) {
       doc?.addEventListener("dblclick", onDouble, true);
       doc?.addEventListener("mousemove", onMove, true);
       doc?.addEventListener("mouseleave", onLeaveDoc, true);
+      doc?.addEventListener("scroll", onScrollDoc, { capture: true, passive: true });
     };
     attach();
     const timer = setInterval(attach, 1000);
@@ -633,6 +665,7 @@ export function Inspector({ children }) {
       doc?.removeEventListener("dblclick", onDouble, true);
       doc?.removeEventListener("mousemove", onMove, true);
       doc?.removeEventListener("mouseleave", onLeaveDoc, true);
+      doc?.removeEventListener("scroll", onScrollDoc, true);
     };
   }, [content]);
 
@@ -949,6 +982,13 @@ export function Inspector({ children }) {
             />
             <p className="atl-insp__hint">Glisse les lignes de l'arbre pour changer l'ordre. Clic droit pour l'IA sur tout le groupe.</p>
           </div>
+        )}
+        {sel?.sectionId && content[indexOf(sel.sectionId)] && (
+          <AskBar
+            key={`${sel.sectionId}-${sel.key ?? sel.group ?? ""}`}
+            label={selNode ? (selNode.run ? "Paragraphes" : selNode.group ? selNode.label : selNode.name ?? (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
+            onAsk={(prompt) => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null, prompt })}
+          />
         )}
       </div>
       {!sel?.page && <div style={{ display: "none" }}>{children}</div>}
@@ -1701,15 +1741,46 @@ function ContextMenu({ x, y, items, onClose }) {
   );
 }
 
+// Barre « Demander une modification » en bas du panneau : porte sur l'élément
+// choisi (pastille), ouvre la fenêtre IA avec la demande déjà écrite.
+function AskBar({ label, onAsk }) {
+  const [text, setText] = useState("");
+  const send = () => {
+    if (!text.trim()) return;
+    onAsk(text.trim());
+    setText("");
+  };
+  return (
+    <div className="atl-ask">
+      <span className="atl-ask__chip">✨ {label}</span>
+      <textarea
+        rows={2}
+        value={text}
+        placeholder="Demander une modification sur cet élément…"
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            send();
+          }
+        }}
+      />
+      <button type="button" onClick={send} disabled={!text.trim()} aria-label="Envoyer à l'IA">
+        ↑
+      </button>
+    </div>
+  );
+}
+
 // ---- Retravailler avec l'IA ----
-const QUICK = ["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Traduire en français", "Traduire en anglais"];
+const QUICK =["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Traduire en français", "Traduire en anglais"];
 const REFS_KEY = "atl-ia-references";
 
 // Trois onglets : Textes, Images, Design (section entière seulement :
 // redessiner, nettoyer, adapter au style de la page).
 function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt }) {
   const { texts, images } = useMemo(() => aiTargets(item, target.keys), [item, target.keys]);
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(target.prompt ?? "");
   const [tab, setTab] = useState(target.tab ?? (texts.length ? "textes" : images.length ? "images" : "design"));
   const doTexts = tab === "textes";
   const doImages = tab === "images";

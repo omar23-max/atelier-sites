@@ -158,7 +158,9 @@ function textStyles(design, el) {
   if (!doc) return out;
   const win = doc.defaultView;
   for (const [key, sel] of [["h1", "h1"], ["h2", "h2"], ["h3", "h3"], ["h4", "h4"], ["texte", "main p, p"]]) {
-    const node = [...doc.querySelectorAll(sel)].find((n) => n.getBoundingClientRect().height > 0 && n.textContent.trim());
+    const seen = [...doc.querySelectorAll(sel)].filter((n) => n.getBoundingClientRect().height > 0 && n.textContent.trim()).slice(0, 40);
+    // Paragraphe : le plus long des premiers (une accroche en gras n'est pas représentative).
+    const node = key === "texte" ? seen.sort((a, b) => b.textContent.length - a.textContent.length)[0] : seen[0];
     if (!node) continue;
     const cs = win.getComputedStyle(node);
     const size = Math.round(parseFloat(cs.fontSize));
