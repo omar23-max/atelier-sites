@@ -611,6 +611,10 @@ function AiTool() {
       <p className="atl-tool-panel__hint">
         Pour toute la page. Une section ou un élément : clic droit dessus → « Retravailler avec l'IA ». Les outils se servent de la fiche « Ma marque et mon produit ».
       </p>
+      <p className="atl-tool-panel__group">Analyse</p>
+      <div className="atl-choices">
+        {item("Auditer la page", "La grille de la méthode : 5 croyances, 5 premières secondes, confiance, bloc d'achat. Gains rapides et textes prêts à coller.", () => open("atl-ai-page", "auditer"))}
+      </div>
       <p className="atl-tool-panel__group">Textes</p>
       <div className="atl-choices">
         {item("Réécrire pour mon produit", "Tous les textes, consignes entre crochets comprises, pour ta marque et ton produit.", () => open("atl-ai-page", "reecrire"))}

@@ -703,11 +703,13 @@ function atelierApi() {
           // ---- Retravailler avec l'IA (OpenAI, clé de .env.local) ----
           if (parts[0] === "ia" && req.method === "POST") {
             const env = loadEnv("development", root, "");
-            const { rewriteTexts, reworkImage } = await import("./scripts/lib/ia.mjs");
+            const { rewriteTexts, reworkImage, auditPage } = await import("./scripts/lib/ia.mjs");
             const b = await readBody(req);
             try {
+              // Auditer la page (menu ✨ IA) : grille du skill, gains rapides.
+              if (parts[1] === "audit") return json(res, 200, await auditPage({ key: env.OPENAI_API_KEY, page: b.page }));
               if (parts[1] === "textes") {
-                const items = await rewriteTexts({ key: env.OPENAI_API_KEY, items: b.items, prompt: b.prompt, contexte: b.contexte, references: b.references ?? [] });
+                const items = await rewriteTexts({ key: env.OPENAI_API_KEY, items: b.items, prompt: b.prompt, contexte: b.contexte, references: b.references ?? [], regles: b.regles !== false });
                 return json(res, 200, { items });
               }
               if (parts[1] === "image" && NAME.test(b.page ?? "")) {

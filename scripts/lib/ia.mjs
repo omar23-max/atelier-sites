@@ -6,6 +6,7 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, normalize } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const TEXT_MODEL = "gpt-5.4-mini";
 const IMAGE_MODEL = "gpt-image-2";
@@ -23,8 +24,22 @@ async function openaiError(res) {
 // items : [{ id, text }] — le texte peut contenir des <span style> et <br>.
 // references : data URLs d'images (le produit, la cible…) que le modèle voit
 // pour mieux coller aux textes (ton, vocabulaire, promesses réalistes).
-export async function rewriteTexts({ key, items, prompt, contexte = {}, references = [] }) {
+// Règles d'écriture de la méthode (docs/regles-copy.md, tirées du skill
+// landing-page-jeffrey-arsh) : relues à chaque appel, pour qu'une modification
+// du fichier serve tout de suite. Pas pour une traduction (regles: false).
+const RULES_FILE = join(fileURLToPath(new URL(".", import.meta.url)), "..", "..", "docs", "regles-copy.md");
+async function copyRules() {
+  try {
+    // Sans le titre ni la note du haut (destinés aux humains).
+    return (await readFile(RULES_FILE, "utf8")).replace(/^#[^\n]*\n\n(>[^\n]*\n)+/, "").trim();
+  } catch {
+    return "";
+  }
+}
+
+export async function rewriteTexts({ key, items, prompt, contexte = {}, references = [], regles = true }) {
   if (!items?.length) return [];
+  const rules = regles ? await copyRules() : "";
   const system = [
     "Tu es rédacteur publicitaire (direct response) pour des pages de vente et des advertorials.",
     "On te donne des textes d'une page, chacun avec un identifiant, et une consigne de modification.",
@@ -38,9 +53,12 @@ export async function rewriteTexts({ key, items, prompt, contexte = {}, referenc
     references.length
       ? "- des photos de référence accompagnent la consigne : le produit, la cible ou l'univers. Décris-les fidèlement (nom du produit, usage, bénéfices visibles) sans inventer de chiffres."
       : "",
+    rules
+      ? `- chaque texte peut avoir un « role » (Titre H1, Titre H2, Bouton, Texte…) : applique la règle de ce rôle ci-dessous ; la consigne de l'utilisateur prime sur ces règles.\n\n${rules}\n`
+      : "",
     'Réponds uniquement en JSON : {"items":[{"id":"…","text":"…"}]} avec tous les identifiants reçus.',
   ].filter(Boolean).join("\n");
-  const userText = JSON.stringify({ consigne: prompt, contexte, textes: items.map(({ id, text }) => ({ id, text })) });
+  const userText = JSON.stringify({ consigne: prompt, contexte, textes: items.map(({ id, text, role }) => (role ? { id, role, text } : { id, text })) });
   const user = references.length
     ? [
         { type: "text", text: userText },
@@ -118,6 +136,10 @@ export async function reworkImage({ key, root, page, source, prompt, references 
 // image de référence facultative). Retourne { html, css } : une seule racine
 // .ROOT, CSS préfixé par .ROOT, textes et images gardés sauf consigne contraire.
 export async function rebuildSection({ key, html, css, prompt, reference, rootClass }) {
+  // Si la consigne fait écrire des textes (section adaptée à un produit,
+  // ajoutée par le Score de vente) : mêmes règles d'écriture que les réécritures.
+  const writes = /r[ée]écri|textes? pour|produit «/i.test(prompt ?? "");
+  const rules = writes ? await copyRules() : "";
   const system = [
     "Tu es intégrateur web pour des pages de vente Shopify.",
     "On te donne le HTML et le CSS actuels d'une section de page, et une consigne.",
@@ -126,8 +148,9 @@ export async function rebuildSection({ key, html, css, prompt, reference, rootCl
     "Garde tous les textes et toutes les images (mêmes valeurs src) sauf si la consigne dit autre chose.",
     "N'utilise que des balises HTML simples (div, section, h1-h4, p, span, strong, em, a, ul, li, img, button) ; pas de script, pas de style en ligne, pas d'autre ressource externe.",
     "Polices : var(--atl-font-heading, inherit) pour les titres, var(--atl-font-body, inherit) pour le texte.",
+    rules ? `Pour les textes que tu écris, suis ces règles :\n\n${rules}\n` : "",
     'Réponds uniquement en JSON : {"html":"…","css":"…"}.',
-  ].join("\n");
+  ].filter(Boolean).join("\n");
   const content = [{ type: "text", text: JSON.stringify({ consigne: prompt, html: html.slice(0, 60000), css: css.slice(0, 40000) }) }];
   if (reference) content.push({ type: "image_url", image_url: { url: reference } });
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -168,3 +191,45 @@ export async function editImageFiles({ key, files, prompt, size = "1024x1024", q
 }
 
 export { sizeFor };
+
+// ---- Auditer la page (menu ✨ IA) ----
+// page : { type, achat, fiche (marque, produit, profil, infos), score (note,
+// sections manquantes, croyances, textes à reprendre — calcul local du Score
+// de vente), sections : [{ id, famille, nom, textes: [{ role, text }] }] }.
+// La grille vient du skill landing-page-jeffrey-arsh (references/audit-cro.md).
+const AUDIT_GRID = `Grille d'audit (dans l'ordre d'impact) :
+A. Les 5 croyances : installée ? par quelle section ? Une croyance manquante = fuite.
+B. Au-dessus de la ligne de flottaison (règle des 5 secondes) : qu'est-ce que c'est, pour qui, pourquoi m'en soucier, que faire ensuite ? Preuve sociale n°1 visible ; titre orienté résultat (pas une étiquette ni une formule poétique) ; sous-titre (méthode, différence, douleur levée) ; bouton visible et précis ; réassurance sous le bouton.
+C. Confiance : avis vérifiables titrés par le résultat ; autorité (expert, fondateur, tests, presse avec citation) ; clarté (on comprend ce que c'est et comment ça marche) ; garantie près du prix.
+D. Circulation : une idée par section ; le test des titres seuls (les titres racontent l'offre) ; boutons là où la croyance est la plus haute ; un seul objectif.
+E. Bloc d'achat (produit, offre, landing) : étoiles et nombre d'avis, titre orienté résultat, description en puces, packs avec l'option recommandée mise en avant, réassurance sous le bouton.
+Ne réclame pas une section inutile pour ce type de page. N'invente aucun chiffre ni avis : propose des emplacements à compléter.`;
+
+export async function auditPage({ key, page }) {
+  const rules = await copyRules();
+  const system = [
+    "Tu es expert en conversion (CRO) et rédacteur direct response pour l'e-commerce, méthode Jeffrey Park (Daydreamers) + Arsh, avec Hormozi et Corey Haines.",
+    "On te donne une page de l'atelier : son type, la fiche de la marque, le résultat du Score de vente calculé localement, et ses sections avec leurs principaux textes.",
+    "Fais l'audit de la page, en français, concret et court, en nommant les sections par leur nom et en disant où agir.",
+    AUDIT_GRID,
+    rules ? `Règles d'écriture à appliquer dans tes propositions :\n\n${rules}` : "",
+    'Réponds uniquement en JSON : {"verdict":"2 phrases","croyances":[{"n":1,"etat":"ok|faible|absente","comment":"…"}],"gainsRapides":[{"quoi":"…","ou":"…","sectionId":"… ou null"}],"fortImpact":[{"quoi":"…","pourquoi":"…","ou":"…"}],"titres":["3 propositions de titre principal"],"boutons":["3 propositions de texte de bouton"],"tests":["3 idées de tests A/B, dans l\'ordre de priorité"]}',
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { ...headers(key), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: TEXT_MODEL,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: JSON.stringify(page).slice(0, 120000) },
+      ],
+    }),
+  });
+  if (!res.ok) throw await openaiError(res);
+  const body = await res.json();
+  return JSON.parse(body.choices?.[0]?.message?.content ?? "{}");
+}

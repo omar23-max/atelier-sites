@@ -5348,3 +5348,169 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   opacity: 0.45;
   cursor: default;
 }
+
+/* ---- Score de vente : 5 croyances et textes à reprendre ---- */
+.atl-score__block {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  background: #fff;
+}
+.atl-score__block h4 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+.atl-score__block h4 em {
+  font-style: normal;
+  color: #5b3fd6;
+}
+.atl-beliefs,
+.atl-textchecks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.atl-beliefs li {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+.atl-beliefs li > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.atl-beliefs small {
+  color: #6b6b6b;
+}
+.atl-beliefs__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+.atl-beliefs li.is-ok .atl-beliefs__mark {
+  background: #e6f6ea;
+  color: #2f9e44;
+}
+.atl-beliefs li.is-missing .atl-beliefs__mark {
+  background: #fdecef;
+  color: #d6336c;
+}
+.atl-beliefs__add {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 3px 8px;
+  border: 1px solid #d9d0ff;
+  border-radius: 6px;
+  background: #f6f3ff;
+  color: #4a32c4;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.atl-linkbtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #4a32c4;
+  text-decoration: underline;
+  font-size: inherit;
+  cursor: pointer;
+}
+.atl-textchecks button {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: #fafafa;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+.atl-textchecks button:hover {
+  background: #f1efff;
+}
+.atl-textchecks span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.atl-textchecks b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-textchecks small {
+  color: #6b6b6b;
+}
+.atl-textchecks__icon {
+  flex: none;
+  width: 22px;
+  color: #8a5300;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---- Auditer la page ---- */
+.atl-audit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font: 13px/1.45 "Inter", system-ui, sans-serif;
+}
+.atl-audit h4 {
+  margin: 8px 0 2px;
+  font-size: 13px;
+}
+.atl-audit__verdict {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f6f3ff;
+}
+.atl-audit__list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
+}
+.atl-audit__list small {
+  color: #6b6b6b;
+}
+.atl-audit__list .atl-linkbtn {
+  margin-left: 6px;
+}
+.atl-audit__state {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+}
+.atl-audit__state.is-ok {
+  background: #e6f6ea;
+  color: #2f9e44;
+}
+.atl-audit__state.is-faible {
+  background: #fff1dc;
+  color: #8a5300;
+}
+.atl-audit__state.is-absente {
+  background: #fdecef;
+  color: #d6336c;
+}

@@ -3,7 +3,7 @@ import { useGetPuck } from "@puckeditor/core";
 import { sections } from "./engine/sections.js";
 import { scorePage, ruleLabel } from "./engine/page-score.js";
 import { PAGE_TYPES } from "./engine/page-types.js";
-import { familyOf } from "./engine/families.js";
+import { familyById, familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { adaptInstructionFor, rebuildSectionWith, savePageWith } from "./inspector-ui.jsx";
 
@@ -100,6 +100,96 @@ function Recommendation({ item, onAdd }) {
   );
 }
 
+// Choisit une section de la page et la montre.
+function showSection(getPuck, sectionId) {
+  const { appState, dispatch } = getPuck();
+  const index = appState.data.content.findIndex((c) => c.props.id === sectionId);
+  if (index < 0) return;
+  dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT_ZONE } } });
+  setTimeout(() => scrollCanvasTo(sectionId), 60);
+}
+
+// Les 5 croyances (skill landing-page-jeffrey-arsh) : installées par quelles
+// sections, ou quoi ajouter.
+function Beliefs({ result, onAdd }) {
+  const getPuck = useGetPuck();
+  const missingCount = result.beliefs.filter((b) => !b.ok).length;
+  return (
+    <div className="atl-score__block">
+      <h4>
+        Les 5 croyances <em>{5 - missingCount} / 5</em>
+      </h4>
+      <p className="atl-score__note">S'il en manque une seule, le visiteur hésite ou part.</p>
+      <ul className="atl-beliefs">
+        {result.beliefs.map((b) => {
+          // Où placer la section qui l'installe : comme une section conseillée
+          // de la même famille, sinon à la fin.
+          const rec = result.missing.find((m) => m.rule.families?.some((f) => b.families.includes(f)));
+          const model = !b.ok && variantsFor(rec ? rec.rule.families : [b.families[0]])[0];
+          return (
+            <li key={b.n} className={b.ok ? "is-ok" : "is-missing"}>
+              <span className="atl-beliefs__mark">{b.ok ? "✓" : "✗"}</span>
+              <div>
+                <b>
+                  {b.n}. {b.label}
+                </b>
+                {b.ok ? (
+                  <small>
+                    Par{" "}
+                    {[...new Set(b.by.map((x) => x.family))]
+                      .slice(0, 3)
+                      .map((f) => familyById[f]?.label ?? f)
+                      .join(", ")}
+                    {" · "}
+                    <button type="button" className="atl-linkbtn" onClick={() => showSection(getPuck, b.by[0].sectionId)}>
+                      voir
+                    </button>
+                  </small>
+                ) : (
+                  <small>{b.how}</small>
+                )}
+                {model && (
+                  <button type="button" className="atl-beliefs__add" onClick={() => onAdd(model.id, rec?.index ?? getPuck().appState.data.content.length)}>
+                    + Ajouter « {familyOf(model).label} »
+                  </button>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+// Textes à reprendre : titres-étiquettes, boutons génériques, réassurance
+// absente sous un bouton d'achat, consignes entre crochets.
+const KIND_ICON = { titre: "H", bouton: "▭", reassurance: "🛡", consignes: "[ ]" };
+function TextChecks({ items }) {
+  const getPuck = useGetPuck();
+  if (!items.length) return <p className="atl-score__note">✓ Textes : aucun titre-étiquette, bouton générique ou consigne oubliée.</p>;
+  return (
+    <div className="atl-score__block">
+      <h4>
+        Textes à reprendre <em>{items.length}</em>
+      </h4>
+      <ul className="atl-textchecks">
+        {items.slice(0, 20).map((t, i) => (
+          <li key={i}>
+            <button type="button" onClick={() => showSection(getPuck, t.sectionId)} title="Voir la section">
+              <span className="atl-textchecks__icon">{KIND_ICON[t.kind]}</span>
+              <span>
+                <b>« {t.text.slice(0, 60)} »</b>
+                <small>{t.fix}</small>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function ScorePanel() {
   const getPuck = useGetPuck();
   const data = usePuckSelect((s) => s.appState.data);
@@ -170,6 +260,8 @@ export function ScorePanel() {
               </span>
             </div>
           </div>
+          <Beliefs result={result} onAdd={(type, index) => insertAt(getPuck, type, index)} />
+          <TextChecks items={result.texts} />
           {addable.length > 0 && (
             <>
               <button type="button" className="atl-score__all atl-score__all--ia" disabled={ai?.step} onClick={addAllWithAi}>

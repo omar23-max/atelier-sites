@@ -9,6 +9,7 @@ import { StyleEditor } from "./style-editor-ui.jsx";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
+import { scorePage } from "./engine/page-score.js";
 
 // Panneau de droite, façon éditeur de thème Shopify :
 //   - en haut, l'arbre de la page : sections, sous-sections (groupes,
@@ -181,7 +182,7 @@ export function aiTargets(item, keys = null) {
     for (const l of leaves) {
       if (isImageType(l.type)) {
         if (l.image) images.push({ key: l.key, src: l.image, size: l.size });
-      } else if (plain(l.text)) texts.push({ id: l.key, text: l.text });
+      } else if (plain(l.text)) texts.push({ id: l.key, text: l.text, role: l.name ?? l.type }); // rôle : « Titre H1 », « Bouton »… (règles de l'IA)
     }
     return { texts, images };
   }
@@ -1766,7 +1767,7 @@ function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt }) 
         const res = await fetch("/api/ia/textes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items: texts, prompt: /tradui|translat/i.test(prompt) ? prompt : `${prompt}
+          body: JSON.stringify({ items: texts, regles: !/tradui|translat/i.test(prompt), prompt: /tradui|translat/i.test(prompt) ? prompt : `${prompt}
 ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.produit ?? "", profil: root.profil ?? "", infosProduit: String(root.infos ?? "").slice(0, 8000), typeDePage: root.pageType ?? "" }, references: refs }),
         });
         const body = await res.json();
@@ -2527,7 +2528,7 @@ function BrandSheet({ root, onChange }) {
 // ---- Outils IA de toute la page (menu ✨ IA du rail de gauche) ----
 function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClose }) {
   const [state, setState] = useState(null);
-  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style" };
+  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page" };
   return createPortal(
     <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && !state?.busy && onClose()}>
       <div className="atl-modal__panel atl-aidlg">
@@ -2539,6 +2540,7 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClos
         </header>
         <div className="atl-aidlg__body">
           {tool === "reecrire" && <RewritePage content={content} root={root} onApply={onApply} onRoot={onRoot} />}
+          {tool === "auditer" && <AuditPage content={content} root={root} onClose={onClose} />}
           {tool === "traduire" && <TranslatePage content={content} root={root} onApply={onApply} onLangue={(code) => onRoot({ langue: code })} />}
           {tool === "adapter" && (
             <div className="atl-aibox">
@@ -2569,6 +2571,141 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClos
       </div>
     </div>,
     document.body,
+  );
+}
+
+// ---- Auditer la page : grille du skill (Score de vente local + IA) ----
+function AuditPage({ content, root, onClose }) {
+  const getPuck = useGetPuck();
+  const [state, setState] = useState(null);
+  async function run() {
+    setState({ busy: true });
+    try {
+      const data = getPuck().appState.data;
+      const score = scorePage(data, byId);
+      const sectionsOut = data.content.map((item) => {
+        const section = byId[item.type];
+        const texts = aiTargets(item).texts.map((t) => ({ role: t.role ?? "", text: plain(t.text).slice(0, 160) })).filter((t) => t.text);
+        const important = [...texts.filter((t) => /Titre|Bouton/.test(t.role)), ...texts.filter((t) => !/Titre|Bouton/.test(t.role))].slice(0, 10);
+        return { id: item.props.id, famille: section?.meta.family ?? "", nom: (section?.meta.label ?? item.type).split(" — ")[0], textes: important };
+      });
+      const page = {
+        type: root.pageType ?? "",
+        fiche: { marque: root.marque ?? "", produit: root.produit ?? "", profil: root.profil ?? "", infos: String(root.infos ?? "").slice(0, 3000), pageAchat: root.pageAchat ?? "" },
+        score: score.type
+          ? {
+              note: score.score,
+              sectionsManquantes: score.missing.map((m) => ({ section: m.rule.families?.join(" ou ") ?? m.rule.label, ou: m.where, pourquoi: m.rule.why })),
+              croyances: score.beliefs.map((b) => ({ n: b.n, croyance: b.label, installee: b.ok })),
+              textesAReprendre: score.texts.map((t) => ({ texte: t.text, section: t.name, probleme: t.fix })),
+            }
+          : null,
+        sections: sectionsOut,
+      };
+      const res = await fetch("/api/ia/audit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page }) });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error);
+      setState({ result: body });
+    } catch (e) {
+      setState({ error: e.message });
+    }
+  }
+  const go = (sectionId) => {
+    if (!sectionId) return;
+    const index = getPuck().appState.data.content.findIndex((c) => c.props.id === sectionId);
+    if (index < 0) return;
+    getPuck().dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT_ZONE } } });
+    onClose();
+    setTimeout(() => scrollCanvasTo(sectionId), 100);
+  };
+  const r = state?.result;
+  return (
+    <div className="atl-audit">
+      {!r && (
+        <div className="atl-aibox">
+          <p className="atl-aibox__hint">
+            L'IA passe la page à la grille de la méthode (5 croyances, règle des 5 secondes, confiance, circulation, bloc d'achat) et liste
+            les gains rapides, les changements à fort impact et des titres et boutons prêts à coller. Environ 30 s, un appel OpenAI.
+          </p>
+          <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
+            {state?.busy ? "Audit en cours…" : "Auditer la page"}
+          </button>
+          {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+        </div>
+      )}
+      {r && (
+        <>
+          <p className="atl-audit__verdict">{r.verdict}</p>
+          {r.croyances?.length > 0 && (
+            <>
+              <h4>Les 5 croyances</h4>
+              <ul className="atl-audit__list">
+                {r.croyances.map((c) => (
+                  <li key={c.n}>
+                    <b className={`atl-audit__state is-${c.etat}`}>{c.n}</b> {c.comment}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {r.gainsRapides?.length > 0 && (
+            <>
+              <h4>Gains rapides</h4>
+              <ul className="atl-audit__list">
+                {r.gainsRapides.map((g, i) => (
+                  <li key={i}>
+                    {g.quoi} <small>{g.ou}</small>
+                    {g.sectionId && content.some((c) => c.props.id === g.sectionId) && (
+                      <button type="button" className="atl-linkbtn" onClick={() => go(g.sectionId)}>
+                        voir
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {r.fortImpact?.length > 0 && (
+            <>
+              <h4>Changements à fort impact</h4>
+              <ul className="atl-audit__list">
+                {r.fortImpact.map((g, i) => (
+                  <li key={i}>
+                    <b>{g.quoi}</b> <small>{g.pourquoi} — {g.ou}</small>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {[
+            ["Titres à essayer", r.titres],
+            ["Boutons à essayer", r.boutons],
+            ["Tests A/B", r.tests],
+          ].map(([title, list]) =>
+            list?.length ? (
+              <div key={title}>
+                <h4>{title}</h4>
+                <ul className="atl-audit__list">
+                  {list.map((t, i) => (
+                    <li key={i}>
+                      {t}
+                      {title !== "Tests A/B" && (
+                        <button type="button" className="atl-linkbtn" onClick={() => navigator.clipboard?.writeText(t)} title="Copier">
+                          copier
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null,
+          )}
+          <button type="button" className="atl-aibox__go" onClick={run} disabled={state?.busy}>
+            {state?.busy ? "Audit en cours…" : "Refaire l'audit"}
+          </button>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -2646,6 +2783,7 @@ function TranslatePage({ content, root, onApply, onLangue }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               items: batch,
+              regles: false, // une traduction ne réécrit pas : pas de règles de copy
               prompt: `Traduis chaque texte en ${langue}, de façon naturelle et vendeuse pour une page de vente (pas mot à mot). Garde les chiffres, les noms de marque et de produit, les balises de mise en forme, et une longueur proche de l'original.`,
               contexte: { produit: root.produit ?? "", typeDePage: root.pageType ?? "" },
             }),

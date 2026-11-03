@@ -703,3 +703,29 @@ La règle : **l'endroit où on clique décide de ce qu'on change**.
   Les anciennes boîtes « Reconstruire / Adapter / Nettoyer » du bas du panneau sont retirées.
 - **Une image** → « Choisir une image ▾ » → **✨ Refaire avec l'IA** (événement `atl-ai-image`) : la fenêtre Retravailler, onglet Images, pour cette image seulement. Hors d'un élément (fond de section), c'est la Planche qui s'ouvre.
 - **Ajouter une section → Créer avec l'IA** : inchangé.
+
+## Méthode d'écriture des pages : skill landing-page-jeffrey-arsh (2026-11-03)
+
+- **Demandes « textes »** (et tout texte de page écrit par Claude) : suivre le
+  skill `landing-page-jeffrey-arsh` (`~/.claude/skills/landing-page-jeffrey-arsh/`).
+  Commencer par `references/atelier-sites.md` (types de page, familles,
+  ordre conseillé, règles de l'atelier), puis le fichier du format.
+- **IA intégrée (OpenAI)** : `docs/regles-copy.md` est la version courte du
+  skill. `scripts/lib/ia.mjs` la relit à chaque appel :
+  - toute réécriture de textes (`rewriteTexts`, sauf une traduction : `regles: false`) ;
+  - le redessin d'une section qui réécrit ses textes (`rebuildSection`) ;
+  - l'audit (`auditPage`).
+  Chaque texte envoyé porte son rôle (« Titre H1 », « Bouton »…). Si le skill
+  évolue, mettre ce fichier à jour (court : il est envoyé à chaque appel).
+- **Score de vente** (`src/engine/page-score.js`, panneau `src/score-ui.jsx`) :
+  - règles alignées sur l'ordre conseillé du skill pour chaque type de page ;
+  - **les 5 croyances** (`BELIEFS`, `beliefsOf`) : installées par quelles
+    sections, ou laquelle ajouter ;
+  - **textes à reprendre** (`textChecks`) : titres-étiquettes, boutons
+    génériques, pas de réassurance sous un bouton d'achat, consignes entre
+    crochets restantes.
+- **Auditer la page** (menu ✨ IA → Analyse) : envoie le type, la fiche, le
+  Score de vente local et les principaux textes de chaque section à
+  `/api/ia/audit`, qui suit la grille de `references/audit-cro.md`. Il rend : le
+  verdict, les 5 croyances, les gains rapides (avec « voir »), les changements
+  à fort impact, des titres et boutons à copier, et des tests A/B.
