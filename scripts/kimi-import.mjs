@@ -457,7 +457,10 @@ const built = await page.evaluate(
     };
 
     // Unités : ce qui précède <main>, chaque enfant de <main>, ce qui suit.
-    let shell = document.querySelector("#root")?.firstElementChild ?? document.body;
+    // #root à plusieurs enfants (<header>, <main>, <footer> côte à côte) : la
+    // coque est #root lui-même, sinon seul l'en-tête serait importé.
+    const rootEl = document.querySelector("#root");
+    let shell = !rootEl ? document.body : rootEl.children.length === 1 ? rootEl.firstElementChild : rootEl;
     // Enveloppes d'un seul enfant (sans <main>) : on descend jusqu'au niveau
     // où la page se divise ; elles restent autour de chaque section.
     const above = [];
