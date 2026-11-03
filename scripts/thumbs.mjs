@@ -26,6 +26,9 @@ const MAX_HEIGHT = 6000;
 const SCALE = 0.35; // miniature d'environ 500 px de large
 const designsDir = join(root, "designs");
 
+// Hors du serveur de l'atelier, les adresses de srcset (/imports/…) ne
+// répondent pas et le navigateur les préfère à src (image intégrée) : retirées.
+const noSrcset = (html) => html.replace(/\s(srcset|sizes)="[^"]*"/g, "");
 const IMPORT = /@import\s+(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g;
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
@@ -35,7 +38,7 @@ function sectionDocument(section) {
 ${imports}
 html, body { margin: 0; background: #fff; }
 ${section.css.replace(IMPORT, "")}
-</style></head><body>${renderSectionHtml(section, {}, "miniature")}</body></html>`;
+</style></head><body>${noSrcset(renderSectionHtml(section, {}, "miniature"))}</body></html>`;
 }
 
 // Carte de design : police des titres, texte, palette, bouton, bloc sombre.

@@ -37,5 +37,8 @@ export async function loadPage(name) {
 // Photo d'origine (/imports/…) → data URL, pour les rendus faits hors serveur.
 export function photoDataUrl(path) {
   const file = join(root, path);
-  return existsSync(file) ? `data:image/png;base64,${readFileSync(file).toString("base64")}` : "";
+  // Type selon l'extension : une image SVG ou AVIF déclarée « png » ne s'affiche pas.
+  const ext = (path.split("?")[0].match(/\.(\w+)$/)?.[1] ?? "png").toLowerCase();
+  const type = { svg: "image/svg+xml", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", avif: "image/avif", gif: "image/gif" }[ext] ?? "image/png";
+  return existsSync(file) ? `data:${type};base64,${readFileSync(file).toString("base64")}` : "";
 }

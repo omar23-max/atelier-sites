@@ -15,12 +15,15 @@ import { listSectionIds, loadSection, photoDataUrl, sectionsDir } from "./lib/lo
 
 setPhotoResolver(photoDataUrl);
 const WIDTH = 1440;
+// Hors du serveur de l'atelier, les adresses de srcset (/imports/…) ne
+// répondent pas et le navigateur les préfère à src (image intégrée) : retirées.
+const noSrcset = (html) => html.replace(/\s(srcset|sizes)="[^"]*"/g, "");
 const IMPORT = /@import\s+(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g;
 const doc = (section) => `<!doctype html><html><head><meta charset="utf-8"><style>
 ${[...new Set(section.css.match(IMPORT) ?? [])].join("\n")}
 html, body { margin: 0; background: #fff; }
 ${section.css.replace(IMPORT, "")}
-</style></head><body>${renderSectionHtml(section, {}, "miniature")}</body></html>`;
+</style></head><body>${noSrcset(renderSectionHtml(section, {}, "miniature"))}</body></html>`;
 
 const only = process.argv.slice(2);
 const ids = (only.length ? only : await listSectionIds()).filter((id) => !/-p\d+$/.test(id) && !id.includes("--") && !/^wll?-/.test(id));
