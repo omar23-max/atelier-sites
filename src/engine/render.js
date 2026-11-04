@@ -1,6 +1,7 @@
 import { INFO_SETTING_TYPES } from "./shopify.js";
 import { renderLiquid } from "./liquid.js";
 import { frameCss, safeAnchor } from "./frame.js";
+import { CARROUSEL_SCRIPT, carrouselAttr, hasCarrouselTrack } from "./carrousel.js";
 import { nearRolesInHtml } from "../../scripts/lib/proche.mjs";
 
 // Partagé par l'atelier (Puck) et les scripts Node (export HTML, comparaison).
@@ -129,6 +130,9 @@ function withSectionFrame(section, props, instanceId, html) {
   const cls = `atl-cadre-${String(instanceId).replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const css = frameCss(section, props, `.${cls}`, { imageUrl: props.atl_fond_image ? resolvePhoto(props.atl_fond_image) : null });
   const anchor = safeAnchor(props.atl_ancre);
-  if (!css && !anchor) return html;
-  return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}>${html}${css ? `<style>${css}</style>` : ""}</div>`;
+  // Carrousel réglé dans le panneau de droite (engine/carrousel.js) : le script
+  // tourne sur la page publiée ; dans l'atelier, puck-config.jsx l'appelle.
+  const car = hasCarrouselTrack(section) ? carrouselAttr(props.atl_carrousel) : null;
+  if (!css && !anchor && !car) return html;
+  return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}${car ? ` data-atl-carrousel="${car}"` : ""}>${html}${css ? `<style>${css}</style>` : ""}${car ? CARROUSEL_SCRIPT : ""}</div>`;
 }

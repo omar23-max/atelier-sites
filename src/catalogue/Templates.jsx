@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, mirrorIntoPage, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
-import { SourceLink } from "./hover.jsx";
+import { PagePreview, SourceLink } from "./hover.jsx";
 import { ORIGINS, OriginBar, originLabel, useOrigins } from "./origins.jsx";
 
 const sameSource = (a, b) => {
@@ -124,6 +124,8 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
   const type = pageTypeById[template.pageType];
   const extracted = sectionsFromTemplate(template).length;
   const [check, setCheck] = useState(template.controleSite ?? null);
+  const [preview, setPreview] = useState(false);
+  const closePreview = useCallback(() => setPreview(false), []);
   const host = (() => {
     try {
       return new URL(template.url).hostname.replace(/^www\./, "");
@@ -188,10 +190,18 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
         </div>
       </div>
       <div className="cat-tpl__actions">
-        {/* Aperçu : la page du template, en lecture seule, dans un nouvel onglet. */}
-        <a className="cat-btn cat-btn--ghost cat-tpl__preview" href={template.page ? `/partage/${template.page}` : undefined} target="_blank" rel="noopener noreferrer">
+        {/* Aperçu : la page du template, en lecture seule, par-dessus le catalogue. */}
+        <button type="button" className="cat-btn cat-btn--ghost cat-tpl__preview" disabled={!template.page && !template.vignette} onClick={() => setPreview(true)}>
           Aperçu
-        </a>
+        </button>
+        {preview && (
+          <PagePreview
+            page={template.page}
+            image={template.vignette?.replace(/vignette.png$/, "desktop.png")}
+            title={template.nom}
+            onClose={closePreview}
+          />
+        )}
         <div className={`cat-tpl__use${canReplace ? " has-more" : ""}`}>
           <button type="button" className="cat-tpl__primary" disabled={!template.page} onClick={() => onUse(template)} title="Créer une page avec ce template, dans un projet">
             Utiliser ce template

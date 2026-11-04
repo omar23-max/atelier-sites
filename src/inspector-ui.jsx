@@ -6,6 +6,7 @@ import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
 import { StyleEditor } from "./style-editor-ui.jsx";
+import { CarrouselPanel } from "./carrousel-ui.jsx";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
@@ -908,6 +909,7 @@ export function Inspector({ children }) {
               onBack={close}
               onChange={(props) => updateProps(sel.sectionId, props)}
               onAiTexts={() => setAi({ sectionId: sel.sectionId, keys: null })}
+              onAiDesign={(prompt) => setAi({ sectionId: sel.sectionId, keys: null, tab: "design", prompt })}
               onValues={(values) => updateValues(sel.sectionId, values)}
               onOpen={(key) => setSel({ sectionId: sel.sectionId, key })}
               onMoveNode={(child, dir) => step(sel.sectionId, child, dir)}
@@ -918,6 +920,7 @@ export function Inspector({ children }) {
               item={content[indexOf(sel.sectionId)]}
               onBack={close}
               onAi={() => setAi({ sectionId: sel.sectionId, keys: null })}
+              onAiDesign={(prompt) => setAi({ sectionId: sel.sectionId, keys: null, tab: "design", prompt })}
               onChange={(props) => updateProps(sel.sectionId, props)}
               onDelete={() => removeSection(sel.sectionId)}
             />
@@ -1369,7 +1372,7 @@ function PanelHead({ onBack, title, sub, onAi, onDelete }) {
   );
 }
 
-function SectionSettings({ item, onBack, onAi, onChange, onDelete }) {
+function SectionSettings({ item, onBack, onAi, onAiDesign, onChange, onDelete }) {
   const [busy, setBusy] = useState(false);
   if (!item) return null;
   const section = byId[item.type];
@@ -1412,6 +1415,7 @@ function SectionSettings({ item, onBack, onAi, onChange, onDelete }) {
           ))}
         </div>
       </div>
+      <CarrouselPanel section={section} props={props} el={canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(item.props.id)}"]`)} onChange={onChange} onAiDesign={onAiDesign} />
       <StyleEditor
         key={item.props.id}
         kind="section"
@@ -2133,7 +2137,7 @@ function Seg({ value, options, onChange }) {
 }
 
 // ---- Réglages d'une partie copiée : Design · Layout · Couleurs, et l'IA ----
-function CopySectionSettings({ item, onBack, onChange, onAiTexts, onValues, onOpen, onMoveNode, onDelete }) {
+function CopySectionSettings({ item, onBack, onChange, onAiTexts, onAiDesign, onValues, onOpen, onMoveNode, onDelete }) {
   const [tab, setTab] = useState("design");
   const section = byId[item.type];
   const props = normalizeProps(section, item.props);
@@ -2158,6 +2162,7 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onValues, onOp
           </button>
         ))}
       </div>
+      {tab === "design" && <CarrouselPanel section={section} props={props} el={root?.closest("[data-atl-id]")} onChange={onChange} onAiDesign={onAiDesign} />}
       {tab === "design" && (
         <div className="atl-style">
           {/* Le fond se règle plus bas (« Fond de la section » : couleurs du

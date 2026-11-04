@@ -108,6 +108,46 @@ export function useHoverPreview() {
   return { onMouseEnter() {}, onMouseLeave() {} };
 }
 
+// Aperçu d'une page au-dessus du catalogue : la vraie page (/partage/<page>)
+// rendue à 1440 px et réduite à la fenêtre ; on la fait défiler, ✕, Échap ou
+// un clic à côté la ferme. Sans page, la capture pleine page (image).
+export function PagePreview({ page, image, title, onClose }) {
+  const width = Math.min(1280, window.innerWidth * 0.92);
+  const height = window.innerHeight * 0.9;
+  const scale = width / 1440;
+  useEffect(() => {
+    const before = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.documentElement.style.overflow = before;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+  return createPortal(
+    <div className="cat-pageview" onClick={onClose}>
+      <div className="cat-pageview__box" style={{ width, height }} onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="cat-pageview__close" onClick={onClose} aria-label="Fermer l'aperçu" title="Fermer (Échap)">
+          ✕
+        </button>
+        {page ? (
+          <iframe
+            title={title ?? "Aperçu"}
+            src={`/partage/${page}`}
+            style={{ width: 1440, height: height / scale, border: 0, transform: `scale(${scale})`, transformOrigin: "top left" }}
+          />
+        ) : (
+          <div className="cat-float__scroll" style={{ height }}>
+            <img src={image} alt="" style={{ display: "block", width: "100%" }} />
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 // Lien vers le site d'inspiration, ouvert dans un nouvel onglet.
 export function SourceLink({ url, prefix = "Inspirée de" }) {
   let host = null;

@@ -1,6 +1,7 @@
 // Règles communes à l'atelier (navigateur) et au script d'export (Node).
 // Aucune dépendance à Vite ici.
 import { frameCss, safeAnchor } from "./frame.js";
+import { CARROUSEL_SCRIPT, CAR_DEFAULTS, carrouselAttr, hasCarrouselTrack } from "./carrousel.js";
 
 export const SUPPORTED_SETTING_TYPES = [
   "text",
@@ -138,6 +139,7 @@ export function buildShopifyTemplate(page, sectionsById) {
     // Image de fond : seulement une image créée dans l'atelier (envoyée dans Fichiers).
     if (isAtelierImage(props.atl_fond_image)) entry.settings.atl_bg = shopifyImageName(props.atl_fond_image);
     if (safeAnchor(props.atl_ancre)) entry.settings.atl_ancre = safeAnchor(props.atl_ancre);
+    if (hasCarrouselTrack(section) && carrouselAttr(props.atl_carrousel)) entry.settings.atl_carrousel = JSON.stringify({ ...CAR_DEFAULTS, ...props.atl_carrousel });
 
     const blockTypes = section.schema.blocks ?? [];
     if (blockTypes.length > 0) {
@@ -172,8 +174,10 @@ export function buildShopifySectionFile({ id, schema, meta, template, css }) {
       { type: "textarea", id: FRAME_SETTING, label: "Style ajouté par l'atelier (ne pas modifier)" },
       { type: "text", id: "atl_bg", label: "Image de fond (fichier de Contenu → Fichiers)" },
       { type: "text", id: "atl_ancre", label: "Ancre (lien #nom vers cette section)" },
+      ...(template.includes('data-atl-car="track"') ? [{ type: "text", id: "atl_carrousel", label: "Carrousel réglé dans l'atelier (ne pas modifier)" }] : []),
     ],
   };
+  const car = template.includes('data-atl-car="track"');
   return [
     `{%- comment -%}`,
     `  Généré par l'atelier (sections/${id}/)${source}.`,
@@ -184,7 +188,9 @@ export function buildShopifySectionFile({ id, schema, meta, template, css }) {
     `</style>`,
     `{%- if section.settings.${FRAME_SETTING} != blank -%}{%- capture atl_scope -%}#shopify-section-{{ section.id }}{%- endcapture -%}{%- capture atl_img -%}{%- if section.settings.atl_bg != blank -%}{{ section.settings.atl_bg | file_url }}{%- endif -%}{%- endcapture -%}<style>{{ section.settings.${FRAME_SETTING} | replace: '${FRAME_SCOPE}', atl_scope | replace: '@@IMG@@', atl_img }}</style>{%- endif -%}`,
     `{%- if section.settings.atl_ancre != blank -%}<span id="{{ section.settings.atl_ancre | handleize }}" style="display:block;position:relative;top:-80px;height:0"></span>{%- endif -%}`,
+    car ? `{%- if section.settings.atl_carrousel != blank -%}<div data-atl-carrousel="{{ section.settings.atl_carrousel | escape }}">{%- endif -%}` : "",
     template.trim(),
+    car ? `{%- if section.settings.atl_carrousel != blank -%}</div>{% raw %}${CARROUSEL_SCRIPT}{% endraw %}{%- endif -%}` : "",
     ``,
     `{% schema %}`,
     JSON.stringify(withFrame, null, 2),

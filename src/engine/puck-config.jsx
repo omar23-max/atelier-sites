@@ -4,6 +4,7 @@ import { brandCss, rootFields } from "./brand.js";
 import { FAMILIES, familyOf } from "./families.js";
 import { blocksKey, defaultPropsFor, defaultsFor, editableSettings, renderSectionHtml } from "./render.js";
 import { ROLES } from "./design.js";
+import { atlCarrousels } from "./carrousel.js";
 import {
   ColorSetting,
   HeaderField,
@@ -126,6 +127,30 @@ function StickySuites() {
     return () => {
       win.removeEventListener("scroll", schedule);
       win.removeEventListener("resize", schedule);
+      observer.disconnect();
+      if (frame) win.clearTimeout(frame);
+    };
+  }, []);
+  return <span ref={ref} hidden />;
+}
+
+// Carrousels réglés (data-atl-carrousel) : le <script> posé par render.js ne
+// s'exécute pas dans l'aperçu ; ils sont réglés ici, à chaque changement.
+function Carrousels() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const doc = ref.current?.ownerDocument;
+    const win = doc?.defaultView;
+    if (!win) return;
+    let frame = 0;
+    const run = () => (frame ||= win.setTimeout(() => {
+      frame = 0;
+      atlCarrousels(doc);
+    }, 50));
+    const observer = new win.MutationObserver(run);
+    observer.observe(doc.body, { childList: true, subtree: true });
+    run();
+    return () => {
       observer.disconnect();
       if (frame) win.clearTimeout(frame);
     };
@@ -264,6 +289,7 @@ export function buildPuckConfig(sections) {
         <>
           <style>{brandCss({ font_heading, font_body, fond_page }) + EDITOR_CSS}</style>
           <StickySuites />
+          <Carrousels />
           {children}
         </>
       ),

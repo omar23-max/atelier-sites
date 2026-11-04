@@ -1,0 +1,307 @@
+@font-face { font-family: "DM Sans"; font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "DM Sans"; font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "DM Sans"; font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "DM Sans"; font-weight: 600; font-style: italic; font-display: swap; }
+.atl-wholly-pup-smokehouse-p9 { --colorBtnPrimary: #282560; --colorBtnPrimaryLight: #373385; --colorBtnPrimaryDim: #201e4e; --colorBtnPrimaryText: #ffffff; --colorCartDot: #47b649; --colorCartDotText: #fff; --colorLink: #282560; --colorTextBody: #282560; --colorPrice: #282560; --colorTextSavings: #47b649; --colorSaleTag: #47b649; --colorSaleTagText: #ffffff; --colorBody: #fff; --colorBodyDim: #f2f2f2; --colorFooter: #ffffff; --colorFooterBorder: #e8e8e1; --colorFooterText: #282560; --colorBorder: #e8e8e1; --colorNav: #fff; --colorNavText: #282560; --colorToolbar: #47b649; --colorToolbarText: #ffffff; --colorNavSearch: #f7f7f7; --colorModalBg: #e0e0e0; --colorScheme1Text: #282560; --colorScheme1Bg: #ffffff; --colorScheme2Text: #282560; --colorScheme2Bg: #47b649; --colorScheme3Text: #47b649; --colorScheme3Bg: #fff; --header-padding-bottom: 0; --pageTopPadding: 35px; --pageNarrow: 700px; --pageWidthPadding: 40px; --gridGutter: 22px; --indexSectionPadding: 60px; --sectionHeaderBottom: 40px; --collapsibleIconWidth: 12px; --sizeChartMargin: 30px 0; --sizeChartIconMargin: 5px; --newsletterReminderPadding: 20px 30px 20px 25px; --textFrameMargin: 10px; --color-body-text: #282560; --color-body: #fff; --color-bg: #fff; }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 { --pageTopPadding: 15px; --pageNarrow: 330px; --pageWidthPadding: 17px; --gridGutter: 16px; --indexSectionPadding: 40px; --sectionHeaderBottom: 25px; --collapsibleIconWidth: 10px; --textFrameMargin: 7px; } }
+@keyframes spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes preloading { 
+  0% { transform-origin: 0% 50%; transform: scaleX(0); opacity: 0; }
+  40% { transform-origin: 0% 50%; transform: scaleX(1); opacity: 1; }
+  41% { transform-origin: 100% 50%; transform: scaleX(1); opacity: 1; }
+  100% { transform-origin: 100% 50%; transform: scaleX(0); opacity: 1; }
+}
+@keyframes slideshowBars { 
+  0% { transform: translate(-100%); }
+  100% { transform: translate(0px); }
+}
+@keyframes grid-product__loading { 
+  0% { opacity: 1; }
+  60% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes overlay-on { 
+  0% { opacity: 0; }
+  100% { opacity: 0.6; }
+}
+@keyframes overlay-off { 
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+@keyframes full-overlay-on { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes full-overlay-off { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes modal-open { 
+  0% { opacity: 0; transform: scale(0.97); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes modal-closing { 
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.97); }
+}
+@keyframes rise-up { 
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0px); }
+}
+@keyframes fade-in { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fade-out { 
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes zoom-fade { 
+  0% { opacity: 0; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes placeholder-shimmer { 
+  0% { background-position: -150% 0px; }
+  100% { background-position: 150% 0px; }
+}
+.atl-wholly-pup-smokehouse-p9 *, .atl-wholly-pup-smokehouse-p9 ::after, .atl-wholly-pup-smokehouse-p9 ::before, .atl-wholly-pup-smokehouse-p9 input { box-sizing: border-box; }
+.atl-wholly-pup-smokehouse-p9, .atl-wholly-pup-smokehouse-p9 { padding: 0px; margin: 0px; }
+.atl-wholly-pup-smokehouse-p9 article, .atl-wholly-pup-smokehouse-p9 aside, .atl-wholly-pup-smokehouse-p9 details, .atl-wholly-pup-smokehouse-p9 figcaption, .atl-wholly-pup-smokehouse-p9 figure, .atl-wholly-pup-smokehouse-p9 footer, .atl-wholly-pup-smokehouse-p9 header, .atl-wholly-pup-smokehouse-p9 hgroup, .atl-wholly-pup-smokehouse-p9 main, .atl-wholly-pup-smokehouse-p9 nav, .atl-wholly-pup-smokehouse-p9 section, .atl-wholly-pup-smokehouse-p9 summary { display: block; }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid { margin-left: 0px; margin-right: -16px; } }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid { margin-left: 0px; margin-right: -22px; }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid__item { padding-left: 0px; padding-right: 16px; } }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid__item { float: right; padding-left: 0px; padding-right: 22px; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid--no-gutters { margin-right: 0px; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid--no-gutters .grid__item { padding-right: 0px; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid--center .grid__item { text-align: right; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .grid-item__content { text-align: right; }
+.atl-wholly-pup-smokehouse-p9 .text-center { text-align: center !important; }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 .small--text-left { text-align: left !important; } }
+.atl-wholly-pup-smokehouse-p9:not(.no-js):not(.tab-outline) :focus { outline: none; }
+.atl-wholly-pup-smokehouse-p9 { touch-action: manipulation; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] { direction: rtl; }
+.atl-wholly-pup-smokehouse-p9, .atl-wholly-pup-smokehouse-p9 { background-color: var(--colorBody); color: var(--colorTextBody); }
+.atl-wholly-pup-smokehouse-p9 .page-width { max-width: 1500px; margin: 0px auto; }
+.atl-wholly-pup-smokehouse-p9 .page-full, .atl-wholly-pup-smokehouse-p9 .page-width { padding: 0 var(--pageWidthPadding); }
+.atl-wholly-pup-smokehouse-p9 { font-weight: var(--typeBaseWeight); }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .text-left { text-align: right !important; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .text-right { text-align: left !important; }
+.atl-wholly-pup-smokehouse-p9 .icon-and-text { display: flex; flex-wrap: nowrap; align-items: center; }
+.atl-wholly-pup-smokehouse-p9 .icon-and-text .icon { flex: 0 0 auto; }
+.atl-wholly-pup-smokehouse-p9 ol, .atl-wholly-pup-smokehouse-p9 ul { margin: 0px 0px 15px 30px; padding: 0px; text-rendering: optimizelegibility; }
+.atl-wholly-pup-smokehouse-p9 li { margin-bottom: 0.25em; }
+.atl-wholly-pup-smokehouse-p9 .no-bullets { list-style: outside none; margin-left: 0px; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] td, .atl-wholly-pup-smokehouse-p9[dir="rtl"] th { text-align: right; }
+.atl-wholly-pup-smokehouse-p9 a { color: var(--colorTextBody); text-decoration: none; background: transparent; }
+.atl-wholly-pup-smokehouse-p9 a:hover { color: var(--colorTextBody); }
+.atl-wholly-pup-smokehouse-p9 img { border: 0px; }
+.atl-wholly-pup-smokehouse-p9 svg:not(:root) { overflow: hidden; }
+.atl-wholly-pup-smokehouse-p9 iframe, .atl-wholly-pup-smokehouse-p9 img { max-width: 100%; }
+.atl-wholly-pup-smokehouse-p9 .icon { display: inline-block; width: 20px; height: 20px; vertical-align: middle; fill: currentcolor; }
+.atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) circle, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) ellipse, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) g, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) line, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) path, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) polygon, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) polyline, .atl-wholly-pup-smokehouse-p9 svg.icon:not(.icon--full-color) rect, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) circle, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) ellipse, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) g, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) line, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) path, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) polygon, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) polyline, .atl-wholly-pup-smokehouse-p9 symbol.icon:not(.icon--full-color) rect { fill: inherit; stroke: inherit; }
+.atl-wholly-pup-smokehouse-p9 .icon-bag-minimal circle, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal ellipse, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal g, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal line, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal path, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal polygon, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal polyline, .atl-wholly-pup-smokehouse-p9 .icon-bag-minimal rect, .atl-wholly-pup-smokehouse-p9 .icon-bag circle, .atl-wholly-pup-smokehouse-p9 .icon-bag ellipse, .atl-wholly-pup-smokehouse-p9 .icon-bag g, .atl-wholly-pup-smokehouse-p9 .icon-bag line, .atl-wholly-pup-smokehouse-p9 .icon-bag path, .atl-wholly-pup-smokehouse-p9 .icon-bag polygon, .atl-wholly-pup-smokehouse-p9 .icon-bag polyline, .atl-wholly-pup-smokehouse-p9 .icon-bag rect, .atl-wholly-pup-smokehouse-p9 .icon-cart circle, .atl-wholly-pup-smokehouse-p9 .icon-cart ellipse, .atl-wholly-pup-smokehouse-p9 .icon-cart g, .atl-wholly-pup-smokehouse-p9 .icon-cart line, .atl-wholly-pup-smokehouse-p9 .icon-cart path, .atl-wholly-pup-smokehouse-p9 .icon-cart polygon, .atl-wholly-pup-smokehouse-p9 .icon-cart polyline, .atl-wholly-pup-smokehouse-p9 .icon-cart rect, .atl-wholly-pup-smokehouse-p9 .icon-chat circle, .atl-wholly-pup-smokehouse-p9 .icon-chat ellipse, .atl-wholly-pup-smokehouse-p9 .icon-chat g, .atl-wholly-pup-smokehouse-p9 .icon-chat line, .atl-wholly-pup-smokehouse-p9 .icon-chat path, .atl-wholly-pup-smokehouse-p9 .icon-chat polygon, .atl-wholly-pup-smokehouse-p9 .icon-chat polyline, .atl-wholly-pup-smokehouse-p9 .icon-chat rect, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down circle, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down ellipse, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down g, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down line, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down path, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down polygon, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down polyline, .atl-wholly-pup-smokehouse-p9 .icon-chevron-down rect, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark circle, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark ellipse, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark g, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark line, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark path, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark polygon, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark polyline, .atl-wholly-pup-smokehouse-p9 .icon-circle-checkmark rect, .atl-wholly-pup-smokehouse-p9 .icon-close circle, .atl-wholly-pup-smokehouse-p9 .icon-close ellipse, .atl-wholly-pup-smokehouse-p9 .icon-close g, .atl-wholly-pup-smokehouse-p9 .icon-close line, .atl-wholly-pup-smokehouse-p9 .icon-close path, .atl-wholly-pup-smokehouse-p9 .icon-close polygon, .atl-wholly-pup-smokehouse-p9 .icon-close polyline, .atl-wholly-pup-smokehouse-p9 .icon-close rect, .atl-wholly-pup-smokehouse-p9 .icon-email circle, .atl-wholly-pup-smokehouse-p9 .icon-email ellipse, .atl-wholly-pup-smokehouse-p9 .icon-email g, .atl-wholly-pup-smokehouse-p9 .icon-email line, .atl-wholly-pup-smokehouse-p9 .icon-email path, .atl-wholly-pup-smokehouse-p9 .icon-email polygon, .atl-wholly-pup-smokehouse-p9 .icon-email polyline, .atl-wholly-pup-smokehouse-p9 .icon-email rect, .atl-wholly-pup-smokehouse-p9 .icon-filter circle, .atl-wholly-pup-smokehouse-p9 .icon-filter ellipse, .atl-wholly-pup-smokehouse-p9 .icon-filter g, .atl-wholly-pup-smokehouse-p9 .icon-filter line, .atl-wholly-pup-smokehouse-p9 .icon-filter path, .atl-wholly-pup-smokehouse-p9 .icon-filter polygon, .atl-wholly-pup-smokehouse-p9 .icon-filter polyline, .atl-wholly-pup-smokehouse-p9 .icon-filter rect, .atl-wholly-pup-smokehouse-p9 .icon-gift circle, .atl-wholly-pup-smokehouse-p9 .icon-gift ellipse, .atl-wholly-pup-smokehouse-p9 .icon-gift g, .atl-wholly-pup-smokehouse-p9 .icon-gift line, .atl-wholly-pup-smokehouse-p9 .icon-gift path, .atl-wholly-pup-smokehouse-p9 .icon-gift polygon, .atl-wholly-pup-smokehouse-p9 .icon-gift polyline, .atl-wholly-pup-smokehouse-p9 .icon-gift rect, .atl-wholly-pup-smokehouse-p9 .icon-globe circle, .atl-wholly-pup-smokehouse-p9 .icon-globe ellipse, .atl-wholly-pup-smokehouse-p9 .icon-globe g, .atl-wholly-pup-smokehouse-p9 .icon-globe line, .atl-wholly-pup-smokehouse-p9 .icon-globe path, .atl-wholly-pup-smokehouse-p9 .icon-globe polygon, .atl-wholly-pup-smokehouse-p9 .icon-globe polyline, .atl-wholly-pup-smokehouse-p9 .icon-globe rect, .atl-wholly-pup-smokehouse-p9 .icon-hamburger circle, .atl-wholly-pup-smokehouse-p9 .icon-hamburger ellipse, .atl-wholly-pup-smokehouse-p9 .icon-hamburger g, .atl-wholly-pup-smokehouse-p9 .icon-hamburger line, .atl-wholly-pup-smokehouse-p9 .icon-hamburger path, .atl-wholly-pup-smokehouse-p9 .icon-hamburger polygon, .atl-wholly-pup-smokehouse-p9 .icon-hamburger polyline, .atl-wholly-pup-smokehouse-p9 .icon-hamburger rect, .atl-wholly-pup-smokehouse-p9 .icon-heart circle, .atl-wholly-pup-smokehouse-p9 .icon-heart ellipse, .atl-wholly-pup-smokehouse-p9 .icon-heart g, .atl-wholly-pup-smokehouse-p9 .icon-heart line, .atl-wholly-pup-smokehouse-p9 .icon-heart path, .atl-wholly-pup-smokehouse-p9 .icon-heart polygon, .atl-wholly-pup-smokehouse-p9 .icon-heart polyline, .atl-wholly-pup-smokehouse-p9 .icon-heart rect, .atl-wholly-pup-smokehouse-p9 .icon-leaf circle, .atl-wholly-pup-smokehouse-p9 .icon-leaf ellipse, .atl-wholly-pup-smokehouse-p9 .icon-leaf g, .atl-wholly-pup-smokehouse-p9 .icon-leaf line, .atl-wholly-pup-smokehouse-p9 .icon-leaf path, .atl-wholly-pup-smokehouse-p9 .icon-leaf polygon, .atl-wholly-pup-smokehouse-p9 .icon-leaf polyline, .atl-wholly-pup-smokehouse-p9 .icon-leaf rect, .atl-wholly-pup-smokehouse-p9 .icon-lock circle, .atl-wholly-pup-smokehouse-p9 .icon-lock ellipse, .atl-wholly-pup-smokehouse-p9 .icon-lock g, .atl-wholly-pup-smokehouse-p9 .icon-lock line, .atl-wholly-pup-smokehouse-p9 .icon-lock path, .atl-wholly-pup-smokehouse-p9 .icon-lock polygon, .atl-wholly-pup-smokehouse-p9 .icon-lock polyline, .atl-wholly-pup-smokehouse-p9 .icon-lock rect, .atl-wholly-pup-smokehouse-p9 .icon-minus circle, .atl-wholly-pup-smokehouse-p9 .icon-minus ellipse, .atl-wholly-pup-smokehouse-p9 .icon-minus g, .atl-wholly-pup-smokehouse-p9 .icon-minus line, .atl-wholly-pup-smokehouse-p9 .icon-minus path, .atl-wholly-pup-smokehouse-p9 .icon-minus polygon, .atl-wholly-pup-smokehouse-p9 .icon-minus polyline, .atl-wholly-pup-smokehouse-p9 .icon-minus rect, .atl-wholly-pup-smokehouse-p9 .icon-package circle, .atl-wholly-pup-smokehouse-p9 .icon-package ellipse, .atl-wholly-pup-smokehouse-p9 .icon-package g, .atl-wholly-pup-smokehouse-p9 .icon-package line, .atl-wholly-pup-smokehouse-p9 .icon-package path, .atl-wholly-pup-smokehouse-p9 .icon-package polygon, .atl-wholly-pup-smokehouse-p9 .icon-package polyline, .atl-wholly-pup-smokehouse-p9 .icon-package rect, .atl-wholly-pup-smokehouse-p9 .icon-pencil circle, .atl-wholly-pup-smokehouse-p9 .icon-pencil ellipse, .atl-wholly-pup-smokehouse-p9 .icon-pencil g, .atl-wholly-pup-smokehouse-p9 .icon-pencil line, .atl-wholly-pup-smokehouse-p9 .icon-pencil path, .atl-wholly-pup-smokehouse-p9 .icon-pencil polygon, .atl-wholly-pup-smokehouse-p9 .icon-pencil polyline, .atl-wholly-pup-smokehouse-p9 .icon-pencil rect, .atl-wholly-pup-smokehouse-p9 .icon-phone circle, .atl-wholly-pup-smokehouse-p9 .icon-phone ellipse, .atl-wholly-pup-smokehouse-p9 .icon-phone g, .atl-wholly-pup-smokehouse-p9 .icon-phone line, .atl-wholly-pup-smokehouse-p9 .icon-phone path, .atl-wholly-pup-smokehouse-p9 .icon-phone polygon, .atl-wholly-pup-smokehouse-p9 .icon-phone polyline, .atl-wholly-pup-smokehouse-p9 .icon-phone rect, .atl-wholly-pup-smokehouse-p9 .icon-plus circle, .atl-wholly-pup-smokehouse-p9 .icon-plus ellipse, .atl-wholly-pup-smokehouse-p9 .icon-plus g, .atl-wholly-pup-smokehouse-p9 .icon-plus line, .atl-wholly-pup-smokehouse-p9 .icon-plus path, .atl-wholly-pup-smokehouse-p9 .icon-plus polygon, .atl-wholly-pup-smokehouse-p9 .icon-plus polyline, .atl-wholly-pup-smokehouse-p9 .icon-plus rect, .atl-wholly-pup-smokehouse-p9 .icon-ribbon circle, .atl-wholly-pup-smokehouse-p9 .icon-ribbon ellipse, .atl-wholly-pup-smokehouse-p9 .icon-ribbon g, .atl-wholly-pup-smokehouse-p9 .icon-ribbon line, .atl-wholly-pup-smokehouse-p9 .icon-ribbon path, .atl-wholly-pup-smokehouse-p9 .icon-ribbon polygon, .atl-wholly-pup-smokehouse-p9 .icon-ribbon polyline, .atl-wholly-pup-smokehouse-p9 .icon-ribbon rect, .atl-wholly-pup-smokehouse-p9 .icon-search circle, .atl-wholly-pup-smokehouse-p9 .icon-search ellipse, .atl-wholly-pup-smokehouse-p9 .icon-search g, .atl-wholly-pup-smokehouse-p9 .icon-search line, .atl-wholly-pup-smokehouse-p9 .icon-search path, .atl-wholly-pup-smokehouse-p9 .icon-search polygon, .atl-wholly-pup-smokehouse-p9 .icon-search polyline, .atl-wholly-pup-smokehouse-p9 .icon-search rect, .atl-wholly-pup-smokehouse-p9 .icon-shield circle, .atl-wholly-pup-smokehouse-p9 .icon-shield ellipse, .atl-wholly-pup-smokehouse-p9 .icon-shield g, .atl-wholly-pup-smokehouse-p9 .icon-shield line, .atl-wholly-pup-smokehouse-p9 .icon-shield path, .atl-wholly-pup-smokehouse-p9 .icon-shield polygon, .atl-wholly-pup-smokehouse-p9 .icon-shield polyline, .atl-wholly-pup-smokehouse-p9 .icon-shield rect, .atl-wholly-pup-smokehouse-p9 .icon-size-chart circle, .atl-wholly-pup-smokehouse-p9 .icon-size-chart ellipse, .atl-wholly-pup-smokehouse-p9 .icon-size-chart g, .atl-wholly-pup-smokehouse-p9 .icon-size-chart line, .atl-wholly-pup-smokehouse-p9 .icon-size-chart path, .atl-wholly-pup-smokehouse-p9 .icon-size-chart polygon, .atl-wholly-pup-smokehouse-p9 .icon-size-chart polyline, .atl-wholly-pup-smokehouse-p9 .icon-size-chart rect, .atl-wholly-pup-smokehouse-p9 .icon-tag circle, .atl-wholly-pup-smokehouse-p9 .icon-tag ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tag g, .atl-wholly-pup-smokehouse-p9 .icon-tag line, .atl-wholly-pup-smokehouse-p9 .icon-tag path, .atl-wholly-pup-smokehouse-p9 .icon-tag polygon, .atl-wholly-pup-smokehouse-p9 .icon-tag polyline, .atl-wholly-pup-smokehouse-p9 .icon-tag rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-bills rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-calendar rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-cart rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-charity rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-chat rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gears rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-gift rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-globe rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-open-envelope rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-package rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-phone rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-plant rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-recycle rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-ribbon rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-sales-tag rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-shield rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-stopwatch rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-store rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-thumbs-up rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-trophy rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-truck rect, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet circle, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet ellipse, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet g, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet line, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet path, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet polygon, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet polyline, .atl-wholly-pup-smokehouse-p9 .icon-tcwi-wallet rect, .atl-wholly-pup-smokehouse-p9 .icon-truck circle, .atl-wholly-pup-smokehouse-p9 .icon-truck ellipse, .atl-wholly-pup-smokehouse-p9 .icon-truck g, .atl-wholly-pup-smokehouse-p9 .icon-truck line, .atl-wholly-pup-smokehouse-p9 .icon-truck path, .atl-wholly-pup-smokehouse-p9 .icon-truck polygon, .atl-wholly-pup-smokehouse-p9 .icon-truck polyline, .atl-wholly-pup-smokehouse-p9 .icon-truck rect, .atl-wholly-pup-smokehouse-p9 .icon-user circle, .atl-wholly-pup-smokehouse-p9 .icon-user ellipse, .atl-wholly-pup-smokehouse-p9 .icon-user g, .atl-wholly-pup-smokehouse-p9 .icon-user line, .atl-wholly-pup-smokehouse-p9 .icon-user path, .atl-wholly-pup-smokehouse-p9 .icon-user polygon, .atl-wholly-pup-smokehouse-p9 .icon-user polyline, .atl-wholly-pup-smokehouse-p9 .icon-user rect { stroke-width: var(--iconWeight); stroke-linecap: var(--iconLinecaps); stroke-linejoin: var(--iconLinecaps); fill: none !important; stroke: currentcolor !important; }
+.atl-wholly-pup-smokehouse-p9 .icon__fallback-text { border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; width: 1px; }
+.atl-wholly-pup-smokehouse-p9 .site-footer { font-size: calc(var(--typeBaseSize) - 1px); background-color: var(--colorFooter); color: var(--colorFooterText); }
+.atl-wholly-pup-smokehouse-p9 .site-footer a { color: var(--colorFooterText); }
+.atl-wholly-pup-smokehouse-p9 .footer__section { padding: 30px 0px; border-top-width: 1px; border-top-style: solid; border-top-color: var(--colorBorder); }
+.atl-wholly-pup-smokehouse-p9 .site-footer .footer__section { border-top-color: var(--colorFooterBorder); }
+@media only screen and (min-width: 769px) { .atl-wholly-pup-smokehouse-p9 .footer__section--menus { padding-top: 50px; } }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 .footer__mobile-section { margin-top: 20px; margin-left: calc(var(--pageWidthPadding)*-1); margin-right: calc(var(--pageWidthPadding)*-1); padding: 20px var(--pageWidthPadding) 0; border-top-width: 1px; border-top-style: solid; border-top-color: var(--colorFooterBorder); } }
+.atl-wholly-pup-smokehouse-p9 .footer__title { margin-bottom: 15px; font-weight: 700; font-size: var(--typeBaseSize); }
+.atl-wholly-pup-smokehouse-p9 .footer__menu { margin: 0px 0px 20px; padding: 0px; list-style: none; }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 .footer__menu { margin-bottom: 0px; } }
+.atl-wholly-pup-smokehouse-p9 .footer__menu li { margin: 0px; }
+.atl-wholly-pup-smokehouse-p9 .footer__menu a { display: inline-block; padding: 4px 0px; }
+.atl-wholly-pup-smokehouse-p9 .footer__menu .icon { margin-right: 10px; }
+.atl-wholly-pup-smokehouse-p9 .footer__menu--underline a { text-decoration: underline; text-underline-offset: 2px; }
+.atl-wholly-pup-smokehouse-p9 .footer__blocks { display: flex; flex-wrap: wrap; justify-content: center; }
+.atl-wholly-pup-smokehouse-p9 .footer__block { flex: 0 1 25%; max-width: 210px; }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 .footer__blocks--mobile { display: flex; flex-wrap: wrap; justify-content: center; } }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 .footer__block, .atl-wholly-pup-smokehouse-p9 .footer__block--mobile { max-width: none; flex: 1 1 50%; } }
+@media only screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 .footer__block[data-type="contact"], .atl-wholly-pup-smokehouse-p9 .footer__block[data-type="payment"] { flex: 1 0 100%; } }
+.atl-wholly-pup-smokehouse-p9 .footer__social { margin: 0px; }
+.atl-wholly-pup-smokehouse-p9 .footer__social li { display: inline-block; margin: 0px 15px 15px 0px; }
+.atl-wholly-pup-smokehouse-p9 .footer__social a { display: block; }
+.atl-wholly-pup-smokehouse-p9 .footer__social .icon { width: 21px; height: 21px; }
+.atl-wholly-pup-smokehouse-p9 .footer__base-links { font-size: 13px; }
+.atl-wholly-pup-smokehouse-p9 .footer__base-links a, .atl-wholly-pup-smokehouse-p9 .footer__base-links span { display: inline-block; padding: 2px 20px 2px 0px; }
+.atl-wholly-pup-smokehouse-p9 .footer__base-links a { text-decoration: underline; text-underline-offset: 2px; }
+.atl-wholly-pup-smokehouse-p9.pswp-open-in-ios, .atl-wholly-pup-smokehouse-p9.pswp-open-in-ios body { background: rgb(68, 68, 68); height: var(--window-inner-height); overflow: hidden; box-sizing: border-box; }
+.atl-wholly-pup-smokehouse-p9 ::-webkit-input-placeholder { color: inherit; opacity: 0.5; }
+.atl-wholly-pup-smokehouse-p9 .feature-row__item--overlap-images > :first-child { z-index: 1; transform: translate(30px, 30px); }
+@media only screen and (min-width: 769px) { .atl-wholly-pup-smokehouse-p9 .feature-row__item--overlap-images > :first-child { transform: translate(50px, 50px); } }
+@keyframes inventory-pulse { 
+  0% { opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .background-media-text__text { text-align: right; }
+.atl-wholly-pup-smokehouse-p9[dir="rtl"] .product-single__meta .rte { text-align: right; }
+@media print { .atl-wholly-pup-smokehouse-p9, .atl-wholly-pup-smokehouse-p9 { background-color: rgb(255, 255, 255); } }
+.atl-wholly-pup-smokehouse-p9 { --typeHeaderPrimary: "DM Sans"; --typeHeaderFallback: sans-serif; --typeHeaderSize: 50px; --typeHeaderWeight: 400; --typeHeaderLineHeight: 1.1; --typeHeaderSpacing: 0em; --typeBasePrimary: "DM Sans"; --typeBaseFallback: sans-serif; --typeBaseSize: 17px; --typeBaseWeight: 400; --typeBaseSpacing: .025em; --typeBaseLineHeight: 1.5; --colorSmallImageBg: #ffffff; --colorSmallImageBgDark: #f7f7f7; --colorLargeImageBg: #e7e7e7; --colorLargeImageBgLight: #ffffff; --iconWeight: 4px; --iconLinecaps: miter; --buttonRadius: 0px; --btnPadding: 11px 20px; --roundness: 0px; --gridThickness: 1px; --productTileMargin: 5%; --collectionTileMargin: 5%; --swatchSize: 40px; }
+@media screen and (max-width: 768px) { .atl-wholly-pup-smokehouse-p9 { --typeBaseSize: 15px; --roundness: 0px; --btnPadding: 9px 17px; } }
+@keyframes shopify-rotator { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(270deg); }
+}
+@keyframes shopify-dash { 
+  0% { stroke-dashoffset: 280px; }
+  50% { stroke-dashoffset: 75px; transform: rotate(135deg); }
+  100% { stroke-dashoffset: 280px; transform: rotate(450deg); }
+}
+@keyframes acceleratedCheckoutLoadingSkeleton { 
+  50% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+  75% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-end,.5); }
+  100% { opacity: var(--shopify-accelerated-checkout-skeleton-animation-opacity-start,1); }
+}
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width >= 100px) and (width <= 500px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:first-of-type).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(2))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 210px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 210px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 210px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 210px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(2)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(3))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 320px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 320px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 320px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 320px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(3)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(4))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 430px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 430px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 430px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 430px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(4)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(5))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+@container wrapper (width <= 540px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) { flex-direction: column; justify-content: flex-start; margin: 0px; } }
+@container wrapper (width <= 540px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); margin: var(--shopify-accelerated-checkout-row-gap,8px) 0 0 0; } }
+@container wrapper (width <= 540px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button-container:first-child { margin: 8px 0px 0px; } }
+@container wrapper (width <= 540px) { .atl-wholly-pup-smokehouse-p9 .wallet-cart-grid:not(.wallet-cart-grid--horizontal):has(> .wallet-cart-button-container:nth-of-type(5)).wallet-cart-grid:not(:has(> .wallet-cart-button-container:nth-of-type(6))) .wallet-cart-button { width: 100%; height: clamp(25px,var(--shopify-accelerated-checkout-button-block-size,54px),55px); } }
+.atl-wholly-pup-smokehouse-p9 { --lxs-rating-icon-color: #44b44c; }
+.atl-wholly-pup-smokehouse-p9 { --delivery-country-image-url: none; }
+@font-face { font-family: Poppins-Klaviyo-Hosted; font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: Poppins-Klaviyo-Hosted; font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: Poppins-Klaviyo-Hosted; src: url("/imports/wholly-pup-smokehouse/assets/24007297008f-poppins_latin_regular_400_2.woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Poppins-Klaviyo-Hosted; font-weight: 700; font-style: normal; font-display: swap; }
+.atl-wholly-pup-smokehouse-p9 *, .atl-wholly-pup-smokehouse-p9 ::before, .atl-wholly-pup-smokehouse-p9 ::after { animation: auto ease 0s 1 normal none running none !important; transition: none !important; caret-color: transparent !important; }
+@keyframes go966318201 { 
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes go2757218945 { 
+  0% { opacity: 0; transform: translate3d(0px, 24px, 0px); }
+  100% { opacity: 1; transform: translateZ(0px); }
+}
+@keyframes go754900079 { 
+  0% { opacity: 0; transform: translate3d(0px, 48px, 0px); }
+  100% { opacity: 1; transform: translateZ(0px); }
+}
+@keyframes go814515624 { 
+  0% { opacity: 0; transform: translate3d(0px, -48px, 0px); }
+  100% { opacity: 1; transform: translateZ(0px); }
+}
+@keyframes go3954843876 { 
+  0% { opacity: 0; transform: translate3d(-48px, 0px, 0px); }
+  100% { opacity: 1; transform: translateZ(0px); }
+}
+@keyframes go3772274831 { 
+  0% { opacity: 0; transform: translate3d(48px, 0px, 0px); }
+  100% { opacity: 1; transform: translateZ(0px); }
+}
+@keyframes go674278489 { 
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes go721801061 { 
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.atl-wholly-pup-smokehouse-p9 .cls-1, .atl-wholly-pup-smokehouse-p9 .cls-2 { fill: none; stroke: rgb(0, 0, 0); stroke-width: 2px; }
+.atl-wholly-pup-smokehouse-p9 .cls-1 { stroke-miterlimit: 10; }
+@keyframes replo-marquee { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(calc(var(--replo-marquee-width,100%) * -1 / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-marquee-left { 
+  0% { transform: translate(0px); }
+  100% { transform: translate(calc(var(--replo-marquee-width,100%) * -1 / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-marquee-right { 
+  0% { transform: translate(-50%); }
+  100% { transform: translate(calc(-50% + var(--replo-marquee-width,100%) / var(--replo-marquee-repetitions,20))); }
+}
+@keyframes alchemy-fade { 
+  0% { opacity: var(--initial-opacity); }
+  100% { opacity: var(--final-opacity); }
+}
+@keyframes alchemy-slide-y { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px); }
+}
+@keyframes alchemy-slide-x { 
+  0% { opacity: var(--initial-opacity); transform: translate(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translate(0px); }
+}
+@keyframes alchemy-flip-y { 
+  0% { opacity: var(--initial-opacity); transform: rotateY(var(--angle)); }
+  100% { opacity: var(--final-opacity); transform: rotateY(0deg); }
+}
+@keyframes alchemy-flip-x { 
+  0% { opacity: var(--initial-opacity); transform: rotateX(var(--angle)); }
+  100% { opacity: var(--final-opacity); transform: rotateX(0deg); }
+}
+@keyframes alchemy-grow { 
+  0% { opacity: var(--initial-opacity); transform: scale(var(--initial-scale)); }
+  100% { opacity: var(--final-opacity); transform: scale(var(--final-scale)); }
+}
+@keyframes alchemy-spin { 
+  0% { opacity: var(--initial-opacity); transform: rotate(var(--initial-angle)); }
+  100% { opacity: var(--final-opacity); transform: rotate(var(--final-angle)); }
+}
+@keyframes alchemy-fly-y { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)) scale(0); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px) scale(1); }
+}
+@keyframes alchemy-fly-x { 
+  0% { opacity: var(--initial-opacity); transform: translate(var(--offset)) scale(0); }
+  100% { opacity: var(--final-opacity); transform: translate(0px) scale(1); }
+}
+@keyframes alchemy-drop { 
+  0% { opacity: var(--initial-opacity); transform: translateY(var(--offset)); }
+  100% { opacity: var(--final-opacity); transform: translateY(0px); }
+}
+@keyframes replo-spin { 
+  100% { transform: rotate(360deg); }
+}
+@keyframes slideDown { 
+  0% { height: 0px; }
+  100% { height: var(--radix-collapsible-content-height); }
+}
+@keyframes slideUp { 
+  0% { height: var(--radix-collapsible-content-height); }
+  100% { height: 0px; }
+}
+.atl-wholly-pup-smokehouse-p9, .atl-wholly-pup-smokehouse-p9 { zoom: unset !important; }
+.atl-wholly-pup-smokehouse-p9 { overflow-y: visible !important; }
+@font-face { font-family: Satoshi-Medium; }
+@font-face { font-family: CocogooseCondensed-Letterpress; }
+.atl-wholly-pup-smokehouse-p9 #mm.footer__block img { max-width: 85%; }
+.atl-wholly-pup-smokehouse-p9 .a { fill: none; stroke: rgb(0, 0, 0); stroke-width: 2px; }
+.atl-wholly-pup-smokehouse-p9 .cls-1 { fill: none; stroke: rgb(0, 0, 0); stroke-miterlimit: 10; stroke-width: 2px; }
+.atl-wholly-pup-smokehouse-p9 :host { color-scheme: initial; forced-color-adjust: initial; math-depth: initial; position: initial; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font-palette: initial; font-synthesis: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; animation-trigger: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-shape: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-animation: initial; caret-color: initial; caret-shape: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; rule-break: initial; rule: initial; rule-inset: initial; rule-visibility-items: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; corner-shape: initial; corner-block-end-shape: initial; corner-block-start-shape: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; display: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; flex-line-count: initial; float: initial; flood-color: initial; flood-opacity: initial; frame-sizing: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interactivity: initial; interest-delay: initial; interpolate-size: initial; isolation: initial; lighting-color: initial; line-break: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; margin-trim: initial; marker: initial; mask: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-margin-safety: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-overhang: initial; ruby-position: initial; rule-overlap: initial; rx: initial; ry: initial; scale: initial; scroll-axis-lock: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-target-group: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align-last: initial; text-anchor: initial; text-autospace: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-fit: initial; text-overflow: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; timeline-trigger: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; trigger-scope: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-group: initial; view-transition-name: initial; view-transition-scope: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; window-drag: initial; word-break: initial; x: initial; y: initial; z-index: initial; font: inherit; letter-spacing: inherit; text-align: inherit; text-indent: inherit; text-justify: inherit; text-shadow: inherit; text-transform: inherit; word-spacing: inherit; }
+@keyframes spin_tiered_button { 
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.atl-wholly-pup-smokehouse-p9 { --abra-sale-price-color: #282560; }
+.atl-wholly-pup-smokehouse-p9 { --abra-announcement-bar-background: #47b649; --abra-announcement-bar-border-color: #47b649; --abra-announcement-bar-border-radius: 0px; --abra-announcement-bar-color: #ffffff; --abra-announcement-bar-font-size: 14px; --abra-announcement-bar-icon-color: #ffffff; --abra-announcement-bar-icon-size: 16px; --abra-announcement-bar-padding-x: 10px; --abra-announcement-bar-padding-y: 10px; }
+.atl-wholly-pup-smokehouse-p9 { --abra-popup-background: #47b649; --abra-popup-border-color: #47b649; --abra-popup-border-radius: 4px; --abra-popup-border-width: 1px; --abra-popup-color: #ffffff; --abra-popup-font-size: 14px; --abra-popup-icon-color: #ffffff; --abra-popup-icon-size: 16px; --abra-popup-padding-x: 16px; --abra-popup-padding-y: 16px; }
+.atl-wholly-pup-smokehouse-p9 { --b-100: #F2F3F7; --s-700: #37546D; }
+.atl-wholly-pup-smokehouse-p9 #root > [role="dialog"][hidden], .atl-wholly-pup-smokehouse-p9 .demo-feedback[hidden] { display: none !important; }
+.atl-wholly-pup-smokehouse-p9 .demo-feedback { position: fixed; z-index: 80; right: 20px; bottom: 20px; max-width: min(360px, -40px + 100vw); padding: 12px 18px; background: rgb(17, 17, 17); color: rgb(255, 255, 255); border-radius: 4px; font: 14px / 1.4 Arial, sans-serif; box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 20px; }
+.atl-wholly-pup-smokehouse-p9 [data-atl-car="track"] { overflow-x: auto !important; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; position: relative; }
+.atl-wholly-pup-smokehouse-p9 [data-atl-car="track"]::-webkit-scrollbar { display: none; }
+.atl-wholly-pup-smokehouse-p9 [data-atl-car="track"] > * { transform: none !important; }
+.atl-wholly-pup-smokehouse-p9 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
+.atl-wholly-pup-smokehouse-p9 [data-atl-h] { display: none !important; }
+.atl-wholly-pup-smokehouse-p9 [data-atl-href] { cursor: pointer; }

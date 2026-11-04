@@ -148,6 +148,8 @@ export async function rebuildSection({ key, html, css, prompt, reference, rootCl
     "Garde tous les textes et toutes les images (mêmes valeurs src) sauf si la consigne dit autre chose.",
     "N'utilise que des balises HTML simples (div, section, h1-h4, p, span, strong, em, a, ul, li, img, button) ; pas de script, pas de style en ligne, pas d'autre ressource externe.",
     "Polices : var(--atl-font-heading, inherit) pour les titres, var(--atl-font-body, inherit) pour le texte.",
+    // Carrousel : réglable ensuite dans l'atelier (src/engine/carrousel.js).
+    'Si la section contient un carrousel (slider) : la piste qui défile porte data-atl-car="track" (display:flex; overflow-x:auto; scroll-snap-type:x mandatory), chaque diapo en est un enfant direct ; ni flèches ni points (l\'atelier les ajoute).',
     rules ? `Pour les textes que tu écris, suis ces règles :\n\n${rules}\n` : "",
     'Réponds uniquement en JSON : {"html":"…","css":"…"}.',
   ].filter(Boolean).join("\n");
