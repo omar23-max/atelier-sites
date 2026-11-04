@@ -16,7 +16,8 @@
 //    compilation (vite build) ;
 // 3. kimi-import.mjs : page, sections sans coupure (headless ; --coupe pour
 //    un thème Shopify, 50 éléments au plus par section), puis catalogue.
-// 4. fiche template, puis vérification complète (atelier + Copycat + PWC).
+// 4. réparation des défauts connus (reparer-miroir.mjs), fiche template,
+//    puis vérification complète (atelier + Copycat + PWC).
 // Une page en échec n'arrête pas le lot : le bilan final la signale.
 import { execFileSync, execSync } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
@@ -128,6 +129,14 @@ for (const [n, { slug, app }] of jobs.entries()) {
 const ok = results.filter((r) => r.ok).map((r) => r.slug);
 if (ok.length) {
   const origine = opt("--origine");
+  // CSS manquant dans le zip (icônes géantes, carrousels empilés…) : réparé
+  // avant la fiche et la vérification (scripts/reparer-miroir.mjs).
+  console.log("\n=== Réparation des défauts connus");
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "reparer-miroir.mjs"), ...ok], { cwd: root, stdio: "inherit", timeout: 3600000 });
+  } catch {
+    console.log(`  ⚠ Réparation interrompue. Plus tard : node scripts/reparer-miroir.mjs ${ok.join(" ")}`);
+  }
   console.log("\n=== Fiches template");
   execFileSync(process.execPath, [join(root, "scripts", "kimi-template.mjs"), ...ok, ...(origine ? ["--origine", origine] : [])], { cwd: root, stdio: "inherit" });
   if (args.includes("--verifier-a-part")) {
