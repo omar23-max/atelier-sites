@@ -2,7 +2,7 @@
 // zip de Kimi ou d'une autre IA) : lancé à la fin de advertorial-page.mjs et
 // de kimi-zip.mjs. Les trois outils passent TOUJOURS (demande du 2026-11-03).
 //
-//   node scripts/verifier-import.mjs <slug>
+//   node scripts/verifier-import.mjs <slug> [--pwc-seul]
 //
 // 1. Vérificateur maison (scripts/verifier-miroir.mjs) : score / 100, site
 //    changé ou non, diff visuel.
@@ -42,25 +42,34 @@ if (!up) {
 
 const node = (args, timeout) => execFileSync(process.execPath, args, { cwd: root, stdio: ["ignore", "pipe", "pipe"], timeout }).toString();
 
-console.log(`\nVérification de l'import « ${slug} »…`);
-try {
-  node([join(root, "scripts", "verifier-miroir.mjs"), slug, page], 600000);
-} catch (e) {
-  console.log(`  ✗ vérificateur : ${String(e.message).split("\n")[0]}`);
-}
-const report = existsSync(join(dir, "verification.json")) ? JSON.parse(await readFile(join(dir, "verification.json"), "utf8")) : {};
-const summary = {
-  date: new Date().toISOString(),
-  score: report.score ?? null,
-  visuel: report.visuel?.ecart ?? null,
-  siteChange: report.siteChange?.score ?? null,
-};
-console.log(`  Fidélité ${summary.score ?? "—"} / 100 · visuel ${summary.visuel ?? "—"} % de pixels différents`);
-
+// --pwc-seul : refait seulement PWC (rattrapage), le reste du résumé est gardé.
+const pwcSeul = process.argv.includes("--pwc-seul") && tpl.verification;
 const url = tpl.urlComplete ?? tpl.url;
-summary.outils = ["atelier"];
+let summary;
+console.log(`\nVérification de l'import « ${slug} »…`);
+if (pwcSeul) {
+  summary = { ...tpl.verification, outils: (tpl.verification.outils ?? []).filter((o) => o !== "pwc") };
+} else {
+  try {
+    node([join(root, "scripts", "verifier-miroir.mjs"), slug, page], 600000);
+  } catch (e) {
+    console.log(`  ✗ vérificateur : ${String(e.message).split("\n")[0]}`);
+  }
+  const report = existsSync(join(dir, "verification.json")) ? JSON.parse(await readFile(join(dir, "verification.json"), "utf8")) : {};
+  summary = {
+    date: new Date().toISOString(),
+    score: report.score ?? null,
+    visuel: report.visuel?.ecart ?? null,
+    siteChange: report.siteChange?.score ?? null,
+  };
+  console.log(`  Fidélité ${summary.score ?? "—"} / 100 · visuel ${summary.visuel ?? "—"} % de pixels différents`);
+  summary.outils = ["atelier"];
+}
+
 const copycat = join(root, ".claude", "skills", "copycat", "scripts");
-if (!url) {
+if (pwcSeul) {
+  // Copycat déjà passé.
+} else if (!url) {
   console.log("  ⚠ Pas d'adresse d'origine : Copycat et PWC sautés.");
 } else if (existsSync(join(copycat, "node_modules"))) {
   summary.outils.push("copycat");
@@ -102,7 +111,8 @@ if (url && existsSync(pwcExe)) {
     }
     const sourceDir = capture.summary?.storage_dir ?? join(sources, capture.source_id ?? "");
     const attempts = existsSync(join(sourceDir, "attempts")) ? (await readdir(join(sourceDir, "attempts"))).sort() : [];
-    const ref = attempts.map((a) => join(sourceDir, "attempts", a, "raw_full.png")).filter(existsSync).pop();
+    // Capture réussie du premier coup : evidence/ ; sinon la dernière tentative.
+    const ref = [join(sourceDir, "evidence", "raw_full.png"), ...attempts.map((a) => join(sourceDir, "attempts", a, "raw_full.png"))].filter(existsSync).pop();
     if (!ref) throw new Error(capture.error ?? "pas de capture de l'original");
 
     const browser = await chromium.launch({ channel: "msedge", headless: true });

@@ -1,0 +1,42 @@
+<div class="atl-scooch-accueil atl-scooch-accueil-sec-5" data-atl-root><div id="root" style="min-height:0"><main class="main">
+<section class="shopify-section" data-atelier-section="Section 4" id="shopify-section-template--26856611283324__vets"><section @resize.window="update()" @scroll.window.passive="update()" class="font-body text-16 leading-[normal] text-[#1a1a1a] antialiased box-content [:where(&amp;)_*]:box-content [:where(&amp;)_*::before]:box-content [:where(&amp;)_*::after]:box-content [&amp;_summary]:list-none [&amp;_summary]:cursor-pointer [&amp;_summary::-webkit-details-marker]:hidden [&amp;_strong]:font-bold [&amp;_b]:font-bold [&amp;_em]:not-italic [&amp;_em]:text-[color:var(--h26-em,inherit)] bg-[--bg]" style="--bg: #fdfbf7; --h26-em: #439cb4;" x-data="
+		{
+			words: [],
+			init() {
+				const root = this.$refs.quote;
+				if (!root) return;
+				const walk = (node) => {
+					[...node.childNodes].forEach((child) => {
+						if (child.nodeType === 3) {
+							const frag = document.createDocumentFragment();
+							child.textContent.split(/(\s+)/).forEach((part) => {
+								if (!part) return;
+								if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+								const span = document.createElement('span');
+								span.setAttribute('data-word', '');
+								span.textContent = part;
+								frag.appendChild(span);
+							});
+							child.replaceWith(frag);
+						} else if (child.nodeType === 1) {
+							walk(child);
+						}
+					});
+				};
+				walk(root);
+				this.words = [...root.querySelectorAll('[data-word]')];
+				this.update();
+			},
+			update() {
+				if (!this.words.length) return;
+				const vh = window.innerHeight;
+				const r = this.$refs.quote.getBoundingClientRect();
+				const t = Math.min(1, Math.max(0, (vh * 0.8 - r.top) / (r.height + vh * 0.3)));
+				this.words.forEach((w, i) => w.classList.toggle('is-on', i < t * this.words.length));
+			}
+		}
+	">
+{%- capture g296_0 -%}<h3 class="m-0 mb-[clamp(20px,2vw,28px)] font-body text-[length:clamp(28px,2.8vw,40px)] font-normal leading-[1.1] tracking-[-0.02em] [text-wrap:balance] min-[860px]:[&amp;_br]:hidden" data-atl-slot="s297" style="{%- for b in section.blocks -%}{%- if b.settings.slot == 's297' -%}{{ b.settings.style }}{%- endif -%}{%- endfor -%}">{%- for b in section.blocks -%}{%- if b.settings.slot == 's297' -%}{{ b.settings.text | newline_to_br }}{%- endif -%}{%- endfor -%}</h3>{%- endcapture -%}{%- capture g296_1 -%}{%- capture g300_0 -%}<div class="max-w-[60ch] text-[length:clamp(18px,1.6vw,22px)] font-normal leading-[1.5] tracking-normal [text-wrap:pretty] [&amp;_p]:inline [&amp;_p]:text-[length:inherit] [&amp;_p]:leading-[inherit] [&amp;_[data-word]]:text-[#cfcfcf] [&amp;_[data-word]]:transition-colors [&amp;_[data-word]]:duration-200 [&amp;_[data-word].is-on]:text-[#1a1a1a]" x-ref="quote"><p data-atl-slot="s302" style="{%- for b in section.blocks -%}{%- if b.settings.slot == 's302' -%}{{ b.settings.style }}{%- endif -%}{%- endfor -%}">{%- for b in section.blocks -%}{%- if b.settings.slot == 's302' -%}{{ b.settings.text | newline_to_br }}{%- endif -%}{%- endfor -%}</p></div>{%- endcapture -%}{%- capture g300_1 -%}{%- capture g307_0 -%}{%- for b in section.blocks -%}{%- if b.settings.slot == 'i308' -%}{%- if b.settings.image != blank -%}<img class="block h-[56px] w-[56px] max-w-none flex-none rounded-full object-cover object-[50%_30%]" decoding="sync" height="283" loading="eager" sizes="56px" width="168" data-atl-slot="i308" src="{{ b.settings.image | image_url: width: 112 }}" alt="{{ b.settings.text | escape }}" style="{{ b.settings.style }}">{%- else -%}<img class="block h-[56px] w-[56px] max-w-none flex-none rounded-full object-cover object-[50%_30%]" decoding="sync" height="283" loading="eager" sizes="56px" width="168" data-atl-slot="i308" alt="" style="visibility:hidden;">{%- endif -%}{%- endif -%}{%- endfor -%}{%- endcapture -%}{%- capture g307_1 -%}<div class="flex flex-col gap-2 text-15" data-atl-slot="s309" style="{%- for b in section.blocks -%}{%- if b.settings.slot == 's309' -%}{{ b.settings.style }}{%- endif -%}{%- endfor -%}">{%- for b in section.blocks -%}{%- if b.settings.slot == 's309' -%}{{ b.settings.text | newline_to_br }}{%- endif -%}{%- endfor -%}</div>{%- endcapture -%}<div class="flex items-center gap-14" data-atl-group="g307">{%- assign o = section.settings.ordres | default: '' | prepend: ';' -%}{%- if o contains ';g307=' -%}{%- assign ord = o | split: ';g307=' | last | split: ';' | first | split: ',' -%}{%- else -%}{%- assign ord = '0,1' | split: ',' -%}{%- endif -%}{%- for x in ord -%}{%- case x -%}{%- when '0' -%}{{ g307_0 }}{%- when '1' -%}{{ g307_1 }}{%- endcase -%}{%- endfor -%}</div>{%- endcapture -%}<div class="m-0 flex max-w-[880px] flex-col items-start gap-[clamp(20px,2.4vw,32px)] text-left min-[860px]:mx-auto min-[860px]:items-center min-[860px]:text-center" data-atl-group="g300">{%- assign o = section.settings.ordres | default: '' | prepend: ';' -%}{%- if o contains ';g300=' -%}{%- assign ord = o | split: ';g300=' | last | split: ';' | first | split: ',' -%}{%- else -%}{%- assign ord = '0,1' | split: ',' -%}{%- endif -%}{%- for x in ord -%}{%- case x -%}{%- when '0' -%}{{ g300_0 }}{%- when '1' -%}{{ g300_1 }}{%- endcase -%}{%- endfor -%}</div>{%- endcapture -%}<div class="mx-auto max-w-[1320px] px-16 pt-[clamp(24px,3vw,48px)]" data-atl-group="g296">{%- assign o = section.settings.ordres | default: '' | prepend: ';' -%}{%- if o contains ';g296=' -%}{%- assign ord = o | split: ';g296=' | last | split: ';' | first | split: ',' -%}{%- else -%}{%- assign ord = '0,1' | split: ',' -%}{%- endif -%}{%- for x in ord -%}{%- case x -%}{%- when '0' -%}{{ g296_0 }}{%- when '1' -%}{{ g296_1 }}{%- endcase -%}{%- endfor -%}</div>
+</section>
+</section>
+</main></div><script>(function(){if(window.__atlKimi)return;window.__atlKimi=1;window.__atlKr=window.__atlKr||{};var d=document;function q(k){return d.querySelector('[data-atl-k="'+k+'"]')}function apply(st){for(var k in st){var el=q(k),v=st[k];if(!el)continue;if(v.h){el.setAttribute('data-atl-h','');continue}el.removeAttribute('data-atl-h');for(var a in v){if(a==='h')continue;if(a==='class'){var keep=[].filter.call(el.classList,function(c){return/^atl-/.test(c)});el.setAttribute('class',((v[a]||'')+' '+keep.join(' ')).trim());continue}if(v[a]==null)el.removeAttribute(a);else el.setAttribute(a,v[a])}}}d.addEventListener('click',function(e){var t=e.target.closest&&e.target.closest('[data-atl-btn],[data-atl-href]');if(!t)return;var h=t.getAttribute('data-atl-href');if(h){e.preventDefault();if(h.charAt(0)==='#'){var x=d.getElementById(h.slice(1));if(x)x.scrollIntoView({behavior:'smooth'})}else location.href=h;return}var r=window.__atlKr[t.getAttribute('data-atl-btn')];if(!r)return;e.preventDefault();if(r.st){var i=t.__atlI||0;apply(r.st[i%r.st.length]);t.__atlI=i+1}(r.car||[]).forEach(function(m){var tr=q(m.track);if(!tr)return;if(m.dir)tr.scrollBy({left:m.dir*tr.clientWidth*0.8,behavior:'smooth'});else{var c=tr.firstElementChild,s=c&&c.children[m.index];if(s)tr.scrollTo({left:s.offsetLeft-c.offsetLeft,behavior:'smooth'})}})});function merge(dst,src){[].slice.call(src.childNodes).forEach(function(c){if(c.nodeType===1&&c.hasAttribute('data-atl-vide'))return;var id=c.nodeType===1&&c.getAttribute('data-atl-col');var t=id&&[].filter.call(dst.children,function(e){return e.getAttribute('data-atl-col')===id})[0];if(t)merge(t,c);else dst.appendChild(c)})}function run(){var seen={};d.querySelectorAll('[data-atl-suite]').forEach(function(x){var id=x.getAttribute('data-atl-suite');if(seen[id])return;seen[id]=1;var rows=d.querySelectorAll('[data-atl-suite="'+id+'"]'),top=rows[0].closest('[data-atl-root]');for(var i=1;i<rows.length;i++){var root=rows[i].closest('[data-atl-root]');if(root&&top&&root!==top)[].forEach.call(root.classList,function(c){if(/^atl-/.test(c))top.classList.add(c)});merge(rows[0],rows[i]);if(root&&!root.querySelector('[data-atl-slot],img,video,iframe'))(root.closest('.shopify-section')||root).style.display='none'}})}if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',run);else run()})();</script></div>

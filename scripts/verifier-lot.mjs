@@ -3,6 +3,7 @@
 //
 //   node scripts/verifier-lot.mjs <slug> [<slug> …] [--paralleles 3]
 //   node scripts/verifier-lot.mjs --kimi          (toutes les pages importées de Kimi)
+//   … --pwc-seul : refait seulement PWC (le reste du résumé est gardé)
 //
 // Chaque page : node scripts/verifier-import.mjs <slug> (journal dans
 // imports/<slug>/verification.log). L'atelier doit tourner.
@@ -16,6 +17,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const at = args.indexOf("--paralleles");
 const workers = at >= 0 ? Number(args.splice(at, 2)[1]) || 2 : 2;
+const pwcSeul = args.includes("--pwc-seul");
 let slugs = args.filter((a) => !a.startsWith("--"));
 if (args.includes("--kimi")) slugs = (await readdir(join(root, "imports"))).filter((s) => existsSync(join(root, "imports", s, "kimi.json")) && existsSync(join(root, "imports", s, "template.json")));
 if (!slugs.length) {
@@ -29,9 +31,9 @@ let done = 0;
 async function worker() {
   while (queue.length) {
     const slug = queue.shift();
-    const log = createWriteStream(join(root, "imports", slug, "verification.log"));
+    const log = createWriteStream(join(root, "imports", slug, "verification.log"), { flags: pwcSeul ? "a" : "w" });
     await new Promise((resolve) => {
-      const child = spawn(process.execPath, [join(root, "scripts", "verifier-import.mjs"), slug], { cwd: root, windowsHide: true });
+      const child = spawn(process.execPath, [join(root, "scripts", "verifier-import.mjs"), slug, ...(pwcSeul ? ["--pwc-seul"] : [])], { cwd: root, windowsHide: true });
       child.stdout.pipe(log);
       child.stderr.pipe(log);
       const timer = setTimeout(() => child.kill(), 3600000);
