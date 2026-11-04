@@ -65,8 +65,11 @@ function supabaseClient() {
 // de code après chaque changement). Gardées en mémoire, section par section :
 // un changement dans sections/<id>/ ne relit que ce dossier.
 //   /api/sections-data             toutes (catalogue)
-//   /api/sections-data?page=<nom>  sections du catalogue + parties copiées
-//                                  utilisées par cette page (atelier)
+//   /api/sections-data?page=<nom>  atelier : en entier les sections de cette
+//                                  page ; les autres du catalogue en version
+//                                  légère (sans template ni CSS : « leger »),
+//                                  complétées à l'ajout (src/engine/sections.js)
+//   /api/sections-data?ids=a,b     ces sections en entier
 function sectionsBundle() {
   const dir = join(root, "sections");
   const slash = (p) => p.split(String.fromCharCode(92)).join("/");
@@ -94,7 +97,11 @@ function sectionsBundle() {
       // Fichier en cours d'écriture ou illisible : visible comme tel.
       section = { id, schema: { name: id, settings: [] }, meta: { label: `${id} (illisible : ${e.message})` }, template: "", css: "", thumbnail: null };
     }
-    cache.set(id, { json: JSON.stringify(section), pageSpecific: Boolean(section.meta?.pageSpecific) });
+    cache.set(id, {
+      json: JSON.stringify(section),
+      light: JSON.stringify({ ...section, template: "", css: "", leger: true }),
+      pageSpecific: Boolean(section.meta?.pageSpecific),
+    });
   }
   async function loadAll() {
     const ids = await readdir(dir);
@@ -108,7 +115,14 @@ function sectionsBundle() {
       ensure();
       server.middlewares.use("/api/sections-data", async (req, res) => {
         await ensure();
-        const page = new URL(req.url ?? "/", "http://atelier").searchParams.get("page");
+        const params = new URL(req.url ?? "/", "http://atelier").searchParams;
+        const page = params.get("page");
+        if (params.get("ids")) {
+          const ids = params.get("ids").split(",");
+          res.setHeader("Content-Type", "application/json; charset=utf-8");
+          res.setHeader("Cache-Control", "no-store");
+          return res.end(`[${ids.filter((id) => cache.has(id)).map((id) => cache.get(id).json).join(",")}]`);
+        }
         let used = null;
         if (page && /^[a-z0-9-]+$/.test(page) && existsSync(join(root, "pages", `${page}.json`))) {
           try {
@@ -123,7 +137,7 @@ function sectionsBundle() {
           const parts = [...cache.entries()]
             .filter(([id, s]) => !used || !s.pageSpecific || used.has(id))
             .sort(([a], [b]) => (a < b ? -1 : 1))
-            .map(([, s]) => s.json);
+            .map(([id, s]) => (used && !used.has(id) ? s.light : s.json));
           body = gzipSync(`[${parts.join(",")}]`, { level: 1 });
           if (gz.size > 30) gz.clear();
           gz.set(key, body);
@@ -175,7 +189,7 @@ function atelierApi() {
         }
         try {
           const { renderPage } = await server.ssrLoadModule("/scripts/render-page.mjs");
-          const html = await renderPage(name, { withPhotos: true });
+          const html = await renderPage(name, { withPhotos: true, reperes: /[?&]reperes=1/.test(req.url ?? "") });
           res.setHeader("Content-Type", "text/html; charset=utf-8");
           res.end(html.replace("<head>", '<head><meta name="robots" content="noindex">'));
         } catch (e) {

@@ -111,10 +111,97 @@ export function useHoverPreview() {
 // Aperçu d'une page au-dessus du catalogue : la vraie page (/partage/<page>)
 // rendue à 1440 px et réduite à la fenêtre ; on la fait défiler, ✕, Échap ou
 // un clic à côté la ferme. Sans page, la capture pleine page (image).
-export function PagePreview({ page, image, title, onClose }) {
+// Copie la section n° index de la page « from » à la fin de la page « to »
+// (copie de sécurité de « to » avant), telle qu'elle est dans le template.
+async function takeSection(from, index, to) {
+  const get = async (name) => {
+    const res = await fetch(`/api/pages/${encodeURIComponent(name)}`);
+    if (!res.ok) throw new Error(`page « ${name} » illisible`);
+    return res.json();
+  };
+  const [source, target] = await Promise.all([get(from), get(to)]);
+  const item = source.content?.[index];
+  if (!item) throw new Error("section introuvable");
+  const id = `${item.type}-${Date.now().toString(36)}`;
+  const copy = structuredClone({ ...item, props: { ...item.props, id } });
+  await fetch(`/api/pages/${encodeURIComponent(to)}/snapshot`, { method: "POST" }).catch(() => {});
+  const res = await fetch(`/api/pages/${encodeURIComponent(to)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...target, content: [...(target.content ?? []), copy] }),
+  });
+  if (!res.ok) throw new Error("enregistrement refusé");
+  return id;
+}
+
+// Dans l'aperçu (même origine) : la section survolée est entourée, avec un
+// bouton « Prendre cette section ». Les sections sont repérées par les
+// <template data-atl-sec> de /partage/<page>?reperes=1 : une section va d'un
+// repère au suivant. Tailles divisées par scale : l'aperçu est réduit.
+function armSections(frame, scale, onTake) {
+  const doc = frame.contentDocument;
+  if (!doc?.body) return;
+  const marks = [...doc.querySelectorAll("template[data-atl-sec]")];
+  if (!marks.length) return;
+  const box = doc.createElement("div");
+  box.setAttribute("data-atl-take", "");
+  const z = 1 / scale;
+  box.style.cssText = `position:absolute;z-index:2147483646;pointer-events:none;display:none;outline:${3 * z}px solid #6d28d9;outline-offset:-${3 * z}px;background:rgba(109,40,217,.06)`;
+  const btn = doc.createElement("button");
+  btn.type = "button";
+  btn.textContent = "＋ Prendre cette section";
+  btn.style.cssText = `position:absolute;top:${10 * z}px;right:${70 * z}px;pointer-events:auto;cursor:pointer;border:0;border-radius:${999}px;background:#6d28d9;color:#fff;font:600 ${14 * z}px/1 system-ui,sans-serif;padding:${10 * z}px ${18 * z}px;box-shadow:0 ${4 * z}px ${14 * z}px rgba(0,0,0,.25)`;
+  box.append(btn);
+  doc.body.append(box);
+  let current = -1;
+  const rectOf = (i) => {
+    const range = doc.createRange();
+    range.setStartAfter(marks[i]);
+    if (marks[i + 1]) range.setEndBefore(marks[i + 1]);
+    else range.setEndBefore(box);
+    return range.getBoundingClientRect();
+  };
+  doc.addEventListener("mousemove", (e) => {
+    if (box.contains(e.target)) return;
+    for (let i = 0; i < marks.length; i++) {
+      const r = rectOf(i);
+      if (r.height > 4 && e.clientY >= r.top && e.clientY < r.bottom) {
+        if (i !== current || box.style.display === "none") {
+          current = i;
+          const y = r.top + doc.defaultView.scrollY;
+          Object.assign(box.style, { display: "block", top: `${y}px`, left: "0px", width: "100%", height: `${r.height}px` });
+          btn.textContent = "＋ Prendre cette section";
+          btn.disabled = false;
+        }
+        return;
+      }
+    }
+  });
+  doc.documentElement.addEventListener("mouseleave", () => (box.style.display = "none"));
+  btn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    btn.disabled = true;
+    btn.textContent = "Ajout…";
+    btn.textContent = (await onTake(Number(marks[current].dataset.atlSec))) ? "✓ Ajoutée" : "✗ Échec";
+  });
+}
+
+export function PagePreview({ page, image, title, onClose, target }) {
   const width = Math.min(1280, window.innerWidth * 0.92);
   const height = window.innerHeight * 0.9;
   const scale = width / 1440;
+  const [notice, setNotice] = useState(null);
+  const onTake = async (index) => {
+    try {
+      const id = await takeSection(page, index, target);
+      setNotice({ text: `Section ajoutée à la fin de « ${target} ».`, href: `/?page=${encodeURIComponent(target)}&section=${encodeURIComponent(id)}` });
+      return true;
+    } catch (e) {
+      setNotice({ text: `Échec : ${e.message}`, error: true });
+      return false;
+    }
+  };
   useEffect(() => {
     const before = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
@@ -131,10 +218,24 @@ export function PagePreview({ page, image, title, onClose }) {
         <button type="button" className="cat-pageview__close" onClick={onClose} aria-label="Fermer l'aperçu" title="Fermer (Échap)">
           ✕
         </button>
+        {page && (
+          <div className={`cat-pageview__bar${notice?.error ? " is-error" : ""}`}>
+            {notice ? (
+              <>
+                {notice.text} {notice.href && <a href={notice.href}>Ouvrir la page →</a>}
+              </>
+            ) : target ? (
+              <>Survole une section, puis « Prendre cette section » : elle est ajoutée à la fin de « {target} ».</>
+            ) : (
+              <>Pour prendre une section, ouvre d'abord la page qui doit la recevoir dans l'atelier, puis reviens ici.</>
+            )}
+          </div>
+        )}
         {page ? (
           <iframe
             title={title ?? "Aperçu"}
-            src={`/partage/${page}`}
+            src={`/partage/${page}${target ? "?reperes=1" : ""}`}
+            onLoad={(e) => target && armSections(e.currentTarget, scale, onTake)}
             style={{ width: 1440, height: height / scale, border: 0, transform: `scale(${scale})`, transformOrigin: "top left" }}
           />
         ) : (

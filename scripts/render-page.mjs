@@ -26,19 +26,22 @@ export function sectionsWithOriginalPhotos(page, sectionsById) {
 }
 
 // withPhotos : true pour un rendu local (comparaison), false pour un export.
-export async function renderPage(name, { withPhotos = true } = {}) {
+// reperes : un <template data-atl-sec="n"> avant chaque section (n = rang dans
+// la page), pour l'aperçu du catalogue (« Prendre cette section ») ; jamais à l'export.
+export async function renderPage(name, { withPhotos = true, reperes = false } = {}) {
   setPhotoResolver(withPhotos ? photoDataUrl : () => "");
   const page = await loadPage(name);
   const cache = new Map();
   const parts = [];
   const styles = [];
 
-  for (const item of page.content ?? []) {
+  for (const [n, item] of (page.content ?? []).entries()) {
     if (!cache.has(item.type)) {
       const section = await loadSection(item.type);
       cache.set(item.type, section);
       styles.push(section.css);
     }
+    if (reperes) parts.push(`<template data-atl-sec="${n}"></template>`);
     parts.push(renderSectionHtml(cache.get(item.type), item.props ?? {}, item.props?.id));
   }
 

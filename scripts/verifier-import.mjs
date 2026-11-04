@@ -16,7 +16,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdir, readdir } from "node:fs/promises";
 import { chromium } from "playwright-core";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -102,14 +102,30 @@ if (url && existsSync(pwcExe)) {
   await mkdir(out, { recursive: true });
   try {
     console.log("  PWC : capture de l'original (~2 min)…");
+    // Le rapport de PWC peut peser plusieurs Mo (d'où maxBuffer) ; illisible,
+    // on prend la capture la plus récente du dossier.
+    const startedAt = Date.now();
+    const parse = (text) => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return {};
+      }
+    };
     let capture = {};
     try {
-      capture = JSON.parse(execFileSync(pwcExe, ["extract", url], { env: { ...process.env, PWC_SOURCES_DIR: sources }, stdio: ["ignore", "pipe", "pipe"], timeout: 900000 }).toString());
+      capture = parse(execFileSync(pwcExe, ["extract", url], { env: { ...process.env, PWC_SOURCES_DIR: sources }, stdio: ["ignore", "pipe", "pipe"], timeout: 900000, maxBuffer: 512 * 1024 * 1024 }).toString());
     } catch (e) {
       // ok: false sort avec un code d'erreur, mais la capture est là.
-      capture = JSON.parse(String(e.stdout ?? "{}") || "{}");
+      capture = parse(String(e.stdout ?? ""));
     }
-    const sourceDir = capture.summary?.storage_dir ?? join(sources, capture.source_id ?? "");
+    let sourceDir = capture.summary?.storage_dir ?? (capture.source_id ? join(sources, capture.source_id) : null);
+    if (!sourceDir && existsSync(sources)) {
+      const dirs = (await readdir(sources)).map((d) => join(sources, d)).filter((d) => statSync(d).mtimeMs >= startedAt - 5000);
+      sourceDir = dirs.sort((a, b) => statSync(a).mtimeMs - statSync(b).mtimeMs).pop() ?? "";
+      if (sourceDir && existsSync(join(sourceDir, "capture_integrity.json"))) capture.summary = { capture_integrity: parse(await readFile(join(sourceDir, "capture_integrity.json"), "utf8")) };
+    }
+    sourceDir ??= "";
     const attempts = existsSync(join(sourceDir, "attempts")) ? (await readdir(join(sourceDir, "attempts"))).sort() : [];
     // Capture réussie du premier coup : evidence/ ; sinon la dernière tentative.
     const ref = [join(sourceDir, "evidence", "raw_full.png"), ...attempts.map((a) => join(sourceDir, "attempts", a, "raw_full.png"))].filter(existsSync).pop();

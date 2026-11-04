@@ -9,8 +9,27 @@ const page = location.pathname === "/" ? new URLSearchParams(location.search).ge
 const all = await fetch(`/api/sections-data${page ? `?page=${encodeURIComponent(page)}` : ""}`).then((r) => r.json());
 
 export const sections = all
-  .map((section) => ({ ...section, errors: validateSection(section) }))
+  .map((section) => ({ ...section, errors: section.leger ? [] : validateSection(section) }))
   .sort((a, b) => a.id.localeCompare(b.id));
+
+// Atelier : les sections que la page n'utilise pas arrivent sans template ni
+// CSS (« leger », 30 Mo de moins à l'ouverture). Complétées sur place au
+// moment de l'ajout ou du rendu ; le même objet sert partout (config Puck…).
+const byId = new Map(sections.map((s) => [s.id, s]));
+const pending = new Map();
+export function ensureFull(ids) {
+  const missing = ids.filter((id) => byId.get(id)?.leger && !pending.has(id));
+  if (missing.length) {
+    const job = fetch(`/api/sections-data?ids=${missing.map(encodeURIComponent).join(",")}`)
+      .then((r) => r.json())
+      .then((full) => {
+        for (const f of full) Object.assign(byId.get(f.id), f, { leger: false, errors: validateSection(f) });
+      })
+      .finally(() => missing.forEach((id) => pending.delete(id)));
+    missing.forEach((id) => pending.set(id, job));
+  }
+  return Promise.all(ids.map((id) => pending.get(id)));
+}
 
 // Sections du catalogue : sans les parties d'une copie de page (meta.pageSpecific),
 // qui n'ont de sens que dans la page importée dont elles viennent.

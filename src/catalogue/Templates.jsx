@@ -200,6 +200,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
             image={template.vignette?.replace(/vignette.png$/, "desktop.png")}
             title={template.nom}
             onClose={closePreview}
+            target={canReplace ? currentPage : null}
           />
         )}
         <div className={`cat-tpl__use${canReplace ? " has-more" : ""}`}>

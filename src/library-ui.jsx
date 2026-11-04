@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { createUsePuck, useGetPuck } from "@puckeditor/core";
 import { FAMILIES, familyOf } from "./engine/families.js";
-import { sections } from "./engine/sections.js";
+import { ensureFull, sections } from "./engine/sections.js";
 import { applyDesign } from "./engine/design.js";
 import { designById } from "./engine/designs.js";
 
@@ -200,7 +200,8 @@ function groupedSections() {
 
 // Insère une section après la section sélectionnée (ou en fin de page),
 // la sélectionne et fait défiler l'aperçu jusqu'à elle.
-export function insertSection(getPuck, type) {
+export async function insertSection(getPuck, type) {
+  await ensureFull([type]);
   const { appState, selectedItem, getSelectorForId, dispatch } = getPuck();
   const selector = selectedItem ? getSelectorForId(selectedItem.props.id) : null;
   const index = selector && selector.zone === ROOT_ZONE ? selector.index + 1 : appState.data.content.length;

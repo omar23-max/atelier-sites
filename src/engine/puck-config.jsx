@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createUsePuck } from "@puckeditor/core";
 import { brandCss, rootFields } from "./brand.js";
 import { FAMILIES, familyOf } from "./families.js";
 import { blocksKey, defaultPropsFor, defaultsFor, editableSettings, renderSectionHtml } from "./render.js";
 import { ROLES } from "./design.js";
 import { atlCarrousels } from "./carrousel.js";
+import { ensureFull } from "./sections.js";
 import {
   ColorSetting,
   HeaderField,
@@ -171,7 +172,12 @@ export function fieldsFor(settings, ctx) {
 const usePuckSelect = createUsePuck();
 
 function SectionView({ section, props }) {
-  const html = useMemo(() => renderSectionHtml(section, props, props.id), [section, props]);
+  // Section arrivée en version légère : complétée, puis rendue.
+  const [, setLoaded] = useState(0);
+  useEffect(() => {
+    if (section.leger) ensureFull([section.id]).then(() => setLoaded((n) => n + 1));
+  }, [section]);
+  const html = useMemo(() => (section.leger ? "" : renderSectionHtml(section, props, props.id)), [section, props, section.leger]);
   const selected = usePuckSelect((s) => s.selectedItem?.props?.id === props.id);
   return (
     <div className={`atl-shopify-section${selected ? " atl-is-selected" : ""}`} data-atl-id={props.id}>
