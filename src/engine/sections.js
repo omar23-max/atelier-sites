@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { validateSection } from "./shopify.js";
 
 // Chaque dossier sections/<id>/ devient une section : ajouter un dossier
@@ -6,15 +7,17 @@ import { validateSection } from "./shopify.js";
 // vite.config.js). Dans l'atelier (?page=…) : les sections du catalogue plus
 // les parties copiées de cette page seulement ; dans le catalogue : toutes.
 const page = location.pathname === "/" ? new URLSearchParams(location.search).get("page") : null;
-const all = await fetch(`/api/sections-data${page ? `?page=${encodeURIComponent(page)}` : ""}`).then((r) => r.json());
+const all = await fetch(`/api/sections-data${page ? `?page=${encodeURIComponent(page)}` : "?leger=1"}`).then((r) => r.json());
 
 export const sections = all
-  .map((section) => ({ ...section, errors: section.leger ? [] : validateSection(section) }))
+  .map((section) => ({ ...section, errors: section.leger ? (section.errors ?? []) : validateSection(section) }))
   .sort((a, b) => a.id.localeCompare(b.id));
 
 // Atelier : les sections que la page n'utilise pas arrivent sans template ni
-// CSS (« leger », 30 Mo de moins à l'ouverture). Complétées sur place au
-// moment de l'ajout ou du rendu ; le même objet sert partout (config Puck…).
+// CSS (« leger », 30 Mo de moins à l'ouverture) ; catalogue : toutes (67 Mo
+// de moins). Complétées sur place au moment de l'ajout, du rendu ou de
+// l'aperçu ; le même objet sert partout (config Puck…). useFull : la section,
+// complétée au besoin, pour un composant React.
 const byId = new Map(sections.map((s) => [s.id, s]));
 const pending = new Map();
 export function ensureFull(ids) {
@@ -62,4 +65,12 @@ if (import.meta.hot) {
     close.onclick = () => bar.remove();
     document.body.append(bar);
   });
+}
+
+export function useFull(section) {
+  const [, setLoaded] = useState(0);
+  useEffect(() => {
+    if (section?.leger) ensureFull([section.id]).then(() => setLoaded((n) => n + 1));
+  }, [section]);
+  return section && !section.leger ? section : null;
 }

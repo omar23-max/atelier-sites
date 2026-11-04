@@ -69,7 +69,9 @@ function supabaseClient() {
 //                                  page ; les autres du catalogue en version
 //                                  légère (sans template ni CSS : « leger »),
 //                                  complétées à l'ajout (src/engine/sections.js)
+//   /api/sections-data?leger=1     catalogue : toutes, en version légère
 //   /api/sections-data?ids=a,b     ces sections en entier
+// La version légère garde les erreurs de validation (calculées ici).
 function sectionsBundle() {
   const dir = join(root, "sections");
   const slash = (p) => p.split(String.fromCharCode(92)).join("/");
@@ -77,6 +79,7 @@ function sectionsBundle() {
   const cache = new Map(); // id → { json, pageSpecific }
   const gz = new Map(); // réponses compressées, vidées à chaque changement
   let ready = null;
+  let validate = null; // validateSection (src/engine/shopify.js), chargé par Vite
 
   async function readOne(id) {
     const d = join(dir, id);
@@ -99,7 +102,7 @@ function sectionsBundle() {
     }
     cache.set(id, {
       json: JSON.stringify(section),
-      light: JSON.stringify({ ...section, template: "", css: "", leger: true }),
+      light: JSON.stringify({ ...section, template: "", css: "", leger: true, errors: validate ? validate(section) : [] }),
       pageSpecific: Boolean(section.meta?.pageSpecific),
     });
   }
@@ -112,7 +115,11 @@ function sectionsBundle() {
   return {
     name: "atelier-sections",
     configureServer(server) {
-      ensure();
+      ready = server
+        .ssrLoadModule("/src/engine/shopify.js")
+        .then((m) => (validate = m.validateSection))
+        .catch(() => {})
+        .then(loadAll);
       server.middlewares.use("/api/sections-data", async (req, res) => {
         await ensure();
         const params = new URL(req.url ?? "/", "http://atelier").searchParams;
@@ -131,13 +138,14 @@ function sectionsBundle() {
             used = new Set();
           }
         }
-        const key = used ? `${page}:${[...used].sort().join(",")}` : "*";
+        const leger = !used && params.get("leger") === "1";
+        const key = used ? `${page}:${[...used].sort().join(",")}` : leger ? "*leger" : "*";
         let body = gz.get(key);
         if (!body) {
           const parts = [...cache.entries()]
             .filter(([id, s]) => !used || !s.pageSpecific || used.has(id))
             .sort(([a], [b]) => (a < b ? -1 : 1))
-            .map(([id, s]) => (used && !used.has(id) ? s.light : s.json));
+            .map(([id, s]) => (leger || (used && !used.has(id)) ? s.light : s.json));
           body = gzipSync(`[${parts.join(",")}]`, { level: 1 });
           if (gz.size > 30) gz.clear();
           gz.set(key, body);

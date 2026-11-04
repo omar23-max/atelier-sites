@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { renderSectionHtml } from "../engine/render.js";
+import { useFull } from "../engine/sections.js";
 
 const DELAY_MS = 450; // temps de survol avant l'ouverture de l'aperçu
 const CLOSE_MS = 250; // délai pour passer de la miniature à l'aperçu sans qu'il se ferme
@@ -27,7 +28,8 @@ function Floating({ item, onEnter, onLeave }) {
   const [imageFailed, setImageFailed] = useState(false);
   const width = Math.min(1180, window.innerWidth * 0.86);
   const maxHeight = window.innerHeight * 0.86;
-  const doc = useMemo(() => (item.kind === "section" ? sectionDocument(item.value) : null), [item]);
+  const full = useFull(item.kind === "section" ? item.value : null); // version légère : complétée ici
+  const doc = useMemo(() => (item.kind !== "section" ? null : full ? sectionDocument(full) : "<p style='font:14px system-ui;padding:20px'>Chargement…</p>"), [item, full]);
   const frame = { onMouseEnter: onEnter, onMouseLeave: onLeave };
 
   if (item.kind !== "section") {

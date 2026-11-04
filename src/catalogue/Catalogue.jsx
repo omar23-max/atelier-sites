@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { catalogueSections as allSections, sections as everySection } from "../engine/sections.js";
+import { catalogueSections as allSections, sections as everySection, useFull } from "../engine/sections.js";
 import { FAMILIES, familyOf } from "../engine/families.js";
 import { defaultPropsFor, renderSectionHtml } from "../engine/render.js";
 import { applyDesign } from "../engine/design.js";
@@ -107,7 +107,8 @@ function Preview({ section, onClose, onMessage }) {
   const [device, setDevice] = useState("desktop");
   const width = device === "desktop" ? 1440 : 390;
   const scale = device === "desktop" ? 0.62 : 1;
-  const doc = useMemo(() => previewDocument(section), [section]);
+  const full = useFull(section); // arrivée en version légère : complétée ici
+  const doc = useMemo(() => (full ? previewDocument(full) : "<p style='font:14px system-ui;padding:20px'>Chargement…</p>"), [full]);
   const [height, setHeight] = useState(600);
 
   return (
