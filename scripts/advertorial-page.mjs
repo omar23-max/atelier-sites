@@ -316,8 +316,9 @@ if (!process.env.ATL_SANS_MINIATURES) {
   }
 }
 
-// Contrôle de l'import, une seule fois : vérificateur maison, puis Copycat si
-// le score est bas (scripts/verifier-import.mjs). ATL_SANS_VERIF=1 pour sauter.
+// Contrôle de l'import : vérificateur maison, Copycat et PWC, toujours
+// (scripts/verifier-import.mjs). ATL_SANS_VERIF=1 seulement quand la
+// vérification est lancée à part (scripts/verifier-lot.mjs), jamais pour la sauter.
 if (!process.env.ATL_SANS_VERIF) {
   const { execFileSync } = await import("node:child_process");
   try {

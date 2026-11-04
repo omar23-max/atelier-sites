@@ -3,6 +3,7 @@
 //   node scripts/kimi-zip.mjs "<chemin du zip>"            (lot : un dossier par page)
 //   node scripts/kimi-zip.mjs "<chemin du zip>" <nom>      (une seule page)
 //   options : [--label "Marque"] [--url https://…] [--coupe] [--seulement nom1,nom2]
+//             [--origine daydreamer-vault] [--verifier-a-part]
 //
 // Lot (docs/templates-pour-kimi.md) : le zip contient un dossier par page, qui
 // porte le nom de la page dans l'atelier (alpha-lion-offre/…). Chaque dossier
@@ -15,6 +16,7 @@
 //    compilation (vite build) ;
 // 3. kimi-import.mjs : page, sections sans coupure (headless ; --coupe pour
 //    un thème Shopify, 50 éléments au plus par section), puis catalogue.
+// 4. fiche template, puis vérification complète (atelier + Copycat + PWC).
 // Une page en échec n'arrête pas le lot : le bilan final la signale.
 import { execFileSync, execSync } from "node:child_process";
 import { existsSync, readdirSync, statSync } from "node:fs";
@@ -29,7 +31,7 @@ const single = args[1] && !args[1].startsWith("--") ? args[1] : null;
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
 const SLUG = /^[a-z0-9][a-z0-9-]*$/;
 if (!zipArg || (single && !SLUG.test(single))) {
-  console.error('Usage : node scripts/kimi-zip.mjs "<chemin du zip>" [<nom>] [--label "Marque"] [--url https://…] [--coupe] [--seulement nom1,nom2]');
+  console.error('Usage : node scripts/kimi-zip.mjs "<chemin du zip>" [<nom>] [--label "Marque"] [--url https://…] [--coupe] [--seulement nom1,nom2] [--origine daydreamer-vault] [--verifier-a-part]');
   process.exit(1);
 }
 const zip = resolve(zipArg);
@@ -119,5 +121,27 @@ for (const [n, { slug, app }] of jobs.entries()) {
     results.push({ slug, ok: false });
   }
 }
+// Fiche template (catalogue → Templates) puis vérification complète
+// (atelier + Copycat + PWC, scripts/verifier-import.mjs) de chaque page
+// importée. --verifier-a-part : seulement la fiche ; la vérification est
+// alors lancée à part (plusieurs pages en parallèle), jamais sautée.
+const ok = results.filter((r) => r.ok).map((r) => r.slug);
+if (ok.length) {
+  const origine = opt("--origine");
+  console.log("\n=== Fiches template");
+  execFileSync(process.execPath, [join(root, "scripts", "kimi-template.mjs"), ...ok, ...(origine ? ["--origine", origine] : [])], { cwd: root, stdio: "inherit" });
+  if (args.includes("--verifier-a-part")) {
+    console.log(`\n⚠ Vérification à lancer : node scripts/verifier-lot.mjs ${ok.join(" ")}`);
+  } else {
+    for (const slug of ok) {
+      try {
+        execFileSync(process.execPath, [join(root, "scripts", "verifier-import.mjs"), slug], { cwd: root, stdio: "inherit", timeout: 3600000 });
+      } catch {
+        console.log(`  ⚠ Vérification interrompue. Plus tard : node scripts/verifier-import.mjs ${slug}`);
+      }
+    }
+  }
+}
+
 console.log("\n=== Bilan");
 for (const r of results) console.log(`  ${r.ok ? "✓" : "✗"} ${r.slug}${r.ok ? `  http://localhost:5180/?page=${r.slug}` : "  (à reprendre : node scripts/kimi-zip.mjs \"<zip>\" --seulement " + r.slug + ")"}`);
