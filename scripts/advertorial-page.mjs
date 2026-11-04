@@ -142,7 +142,8 @@ const LABELS = {
 // ---- Copie au design identique (structure et styles d'origine, lib/copie.mjs) ----
 const snap = JSON.parse(await readFile(join(dir, "snapshot.json"), "utf8"));
 const host0 = new URL(report.url).hostname.replace(/^www\./, "");
-const copy = buildCopy({ snap, slug, root, label: fiche.marque || host0, textes: process.argv.includes("--briefs") ? "briefs" : "origine" });
+// --par-sections : une section par section du site, sans limite de 45 emplacements.
+const copy = buildCopy({ snap, slug, root, label: fiche.marque || host0, textes: process.argv.includes("--briefs") ? "briefs" : "origine", coupe: process.argv.includes("--par-sections") ? "sections" : "emplacements" });
 // Les parties d'une ancienne copie de cette page sont remplacées.
 for (const old of await readdir(join(root, "sections"))) {
   if (old.startsWith(`${slug}-p`)) await rm(join(root, "sections", old), { recursive: true, force: true });

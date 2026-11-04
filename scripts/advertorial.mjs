@@ -48,7 +48,12 @@ async function dismissOverlays(page) {
         if (looksLikePopup) el.style.setProperty("display", "none", "important");
       } else if (cs.position === "fixed") {
         const covers = r.width * r.height > vw * vh * 0.25;
-        if (covers || looksLikePopup || r.top > vh * 0.5) el.style.setProperty("display", "none", "important");
+        // Petit bloc fixé qui ne fait pas toute la largeur (fenêtre « vous êtes
+        // au Canada », bulle de chat, badge) : ce n'est pas l'en-tête.
+        const floating = r.width > 0 && r.width < vw * 0.8 && !el.closest("header, nav");
+        if (covers || looksLikePopup || floating || r.top > vh * 0.5) el.style.setProperty("display", "none", "important");
+      } else if (el.matches("[role=dialog], [aria-modal=true], dialog[open]") && r.width * r.height > 0 && !el.closest("header, nav")) {
+        el.style.setProperty("display", "none", "important");
       } else if (looksLikePopup && cs.position === "absolute" && r.width * r.height > vw * vh * 0.25) {
         el.style.setProperty("display", "none", "important");
       }

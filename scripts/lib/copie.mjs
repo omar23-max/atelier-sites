@@ -110,7 +110,7 @@ const STICKY =
 // Ligne de grille nommée (« banner », « main-start »…), pas un nombre, auto ou span N.
 const isNamedLine = (v) => v != null && v !== "" && !/^(auto|-?\d+|span \d+)$/.test(v);
 
-export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
+export function buildCopy({ snap, slug, root, label, textes = "origine", coupe = "emplacements" }) {
   const nodes = snap.nodes;
   const mobile = snap.mobile;
   const byId = nodes;
@@ -297,8 +297,34 @@ export function buildCopy({ snap, slug, root, label, textes = "origine" }) {
     flush();
     return groups.map((g) => ({ n, kids: g }));
   }
+  // coupe « sections » : une section de l'atelier par section du site (thème
+  // Shopify, balise <section>, repérées par la capture : node.sec), jamais
+  // coupée à l'intérieur (carrousel, grille de produits gardés entiers ; pas de
+  // limite de 45 emplacements). Ce qui est entre deux sections reste groupé.
+  // Page sans repère : découpe habituelle.
+  const withSec = new Set();
+  for (const n of nodes) if (n.sec) for (let p = n.parent; p != null; p = byId[p].parent) withSec.add(p);
+  function bySections(n) {
+    if (n.sec || !withSec.has(n.id)) return [full(n)];
+    const groups = [];
+    let cur = [];
+    const flush = () => (cur.length && groups.push(cur), (cur = []));
+    for (const k of aliveKids(n)) {
+      if (k.text != null) {
+        cur.push(k);
+        continue;
+      }
+      const kn = byId[k.n];
+      if (kn.sec || withSec.has(kn.id)) {
+        flush();
+        for (const p of bySections(kn)) groups.push([p]);
+      } else cur.push(full(kn));
+    }
+    flush();
+    return groups.map((g) => ({ n, kids: g }));
+  }
   const body = nodes[0];
-  const pieces = split(body);
+  const pieces = coupe === "sections" && withSec.size ? bySections(body) : split(body);
   // Bords coupés entre deux sections : pas de marge ni de bordure répétée.
   function markEdges(pieceList) {
     const seen = new Map();
