@@ -38,7 +38,10 @@ if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
 }
 const db = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
-const readJson = async (p) => JSON.parse(await readFile(p, "utf8"));
+// Texte refusé par Postgres : moitié d'emoji orpheline (étiquette coupée au
+// milieu d'un emoji) et caractère nul. Retirés à la lecture.
+const LONE = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]|\u0000/g;
+const readJson = async (p) => JSON.parse(await readFile(p, "utf8"), (k, v) => (typeof v === "string" ? v.replace(LONE, "") : v));
 const list = async (dir) => (existsSync(dir) ? readdir(dir) : []);
 const stampToIso = (s) => {
   const m = /(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/.exec(s ?? "");
@@ -58,8 +61,19 @@ const saveState = () => writeFileSync(stateFile, JSON.stringify(state));
 async function upsert(table, rows, key = "id") {
   const known = (state[table] ??= {});
   const changed = rows.filter((r) => known[r[key]] !== fingerprint(r));
-  for (let i = 0; i < changed.length; i += 200) {
-    const batch = changed.slice(i, i + 200);
+  // Paquets de 200 lignes au plus et d'environ 2 Mo : un gros paquet de
+  // sections dépasse le délai de la base.
+  const batches = [];
+  let cur = [];
+  let size = 0;
+  for (const r of changed) {
+    const s = JSON.stringify(r).length;
+    if (cur.length && (cur.length >= 200 || size + s > 2e6)) batches.push(cur), (cur = []), (size = 0);
+    cur.push(r);
+    size += s;
+  }
+  if (cur.length) batches.push(cur);
+  for (const batch of batches) {
     const { error } = await db.from(table).upsert(batch, { onConflict: key });
     if (error) throw new Error(`${table} : ${error.message}`);
     for (const r of batch) known[r[key]] = fingerprint(r);
