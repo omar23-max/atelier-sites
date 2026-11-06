@@ -17,7 +17,7 @@ import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { Inspector } from "./inspector-ui.jsx";
-import { DeletePageButton, NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
+import { ClosePageButton, DeletePageButton, NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
 // « Enregistrer » (automatique, ou Ctrl + S) écrit dans ce fichier : c'est lui que lisent les exports.
@@ -246,6 +246,7 @@ export default function App() {
           <div className="atl-group">
             <PageSelect current={pageName} pages={pages} />
             <NewPageButton pages={pages} projects={projects} templates={templates} />
+            <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
             <DeletePageButton current={pageName} pages={pages} />
           </div>
           <div className="atl-group">

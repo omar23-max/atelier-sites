@@ -7,7 +7,7 @@ import { Enrichir, METHODS } from "./Enrichir.jsx";
 import { DesignsView } from "./Designs.jsx";
 import { designById, designs } from "../engine/designs.js";
 import { HoverPreviewProvider, SourceLink } from "./hover.jsx";
-import { OriginBar, originLabel, useOrigins } from "./origins.jsx";
+import { OriginBar, originLabel, templateOf, useOrigins } from "./origins.jsx";
 import { TemplatesView } from "./Templates.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
@@ -104,6 +104,7 @@ function AddToPageButton({ section, onMessage, short }) {
 }
 
 function Preview({ section, onClose, onMessage }) {
+  const sourceUrl = useSourceUrl(section);
   const [device, setDevice] = useState("desktop");
   const width = device === "desktop" ? 1440 : 390;
   const scale = device === "desktop" ? 0.62 : 1;
@@ -118,7 +119,7 @@ function Preview({ section, onClose, onMessage }) {
           <div>
             <h2>{section.meta.label ?? section.schema.name}</h2>
             <p className="cat-muted">
-              {familyOf(section).label} · <SourceLink url={section.meta.source?.url} prefix="inspirée de" />
+              {familyOf(section).label} · <SourceLink url={sourceUrl} prefix="inspirée de" />
             </p>
           </div>
           <div className="cat-seg">
@@ -165,8 +166,31 @@ function NavGroup({ label, count, active, open, onToggle, children }) {
   );
 }
 
+// Site d'origine d'une section : le sien, sinon celui du template d'où elle
+// vient (la plupart des sections importées n'ont pas gardé leur adresse).
+let templateUrls = null;
+let templateUrlsLoading = null;
+function useSourceUrl(section) {
+  const own = section.meta.source?.url;
+  const [, redraw] = useState(0);
+  useEffect(() => {
+    if (own || templateUrls) return;
+    templateUrlsLoading ??= listTemplates()
+      .then((list) => (templateUrls = Object.fromEntries(list.filter((t) => t.url).map((t) => [t.id, t.url]))))
+      .catch(() => (templateUrls = {}));
+    let alive = true;
+    templateUrlsLoading.then(() => alive && redraw((n) => n + 1));
+    return () => {
+      alive = false;
+    };
+  }, [own]);
+  return own || templateUrls?.[templateOf(section.id)] || null;
+}
+
 function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
+  const sourceUrl = useSourceUrl(section);
   const hidden = statusOf(section) === "masquee";
+  const { originOf } = useOrigins(); // origine (Replo, Whitelabeler…) du template d'où vient la section
   return (
     <article className={`cat-card${hidden ? " is-hidden" : ""}`}>
       {/* Image entière de la section : on la fait défiler dans la carte. */}
@@ -176,10 +200,11 @@ function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
       <div className="cat-card__body">
         <strong>{section.meta.label ?? section.schema.name}</strong>
         <span className="cat-muted cat-card__meta">
-          <SourceLink url={section.meta.source?.url} />
+          {sourceUrl || originOf(section.id) !== "whitelabeler" ? <SourceLink url={sourceUrl} /> : <span>Bibliothèque Whitelabeler</span>}
           {section.meta.source?.capturedAt ? ` · ${section.meta.source.capturedAt}` : ""}
         </span>
         <div className="cat-card__badges">
+          <span className="cat-badge cat-badge--blue" title="Origine">{originLabel(originOf(section.id))}</span>
           <span className={`cat-badge ${hidden ? "cat-badge--grey" : "cat-badge--green"}`}>{hidden ? "Masquée" : "Visible"}</span>
           {section.errors.length > 0 && <span className="cat-badge cat-badge--red">À corriger</span>}
           {section.meta.audit && (

@@ -68,11 +68,11 @@ textarea {
 .cat-layout {
   display: grid;
   /* Menu de gauche étroit : la place va aux cartes. */
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 16px;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 20px 16px;
 }
 
 .cat-nav {
@@ -90,11 +90,13 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 6px 8px;
   border: 0;
   border-radius: 8px;
   background: none;
   color: var(--cat-text);
+  font-size: 14px;
   text-align: left;
   cursor: pointer;
 }
@@ -131,7 +133,7 @@ textarea {
 }
 
 .cat-nav__title {
-  margin: 18px 12px 6px;
+  margin: 14px 8px 6px;
   color: var(--cat-muted);
   font-size: 12px;
   font-weight: 600;
@@ -287,7 +289,7 @@ textarea {
 
 .cat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
   gap: 12px;
 }
 
@@ -1338,10 +1340,15 @@ textarea {
   font-weight: 600;
   pointer-events: none;
 }
-.cat-tpl__more {
+/* ⋯ posé sur l'aperçu (sans le sélecteur doublé, .cat-menu le remettait sous l'image : 28 px vides). */
+.cat-tpl__more.cat-tpl__more {
   position: absolute;
   top: 14px;
   right: 14px;
+}
+/* Cartes de templates : chacune à sa hauteur, sans vide étiré sous les pastilles. */
+.cat-grid:has(> .cat-tpl) {
+  align-items: start;
 }
 .cat-tpl__more .cat-menu__trigger {
   width: 28px;
@@ -1364,7 +1371,7 @@ textarea {
   flex: 1;
   flex-direction: column;
   gap: 4px;
-  padding: 12px 14px 4px;
+  padding: 10px 10px 2px;
 }
 .cat-tpl__title {
   display: -webkit-box;
@@ -1408,7 +1415,7 @@ textarea {
 .cat-tpl__pill.is-info { background: var(--cat-blue-bg); color: var(--cat-blue); }
 .cat-tpl__pill.is-bad { background: #fde8e7; color: var(--cat-red); }
 .cat-tpl__actions {
-  padding: 10px 14px 14px;
+  padding: 8px 12px 12px;
 }
 .cat-tpl__use {
   display: flex;
@@ -1516,6 +1523,9 @@ textarea {
   margin-right: 12px;
   color: var(--cat-line);
 }
+.cat-h1-type span.is-filter {
+  color: var(--cat-red);
+}
 
 /* Menu de gauche : Sections et Templates se déplient en sous-menu */
 .cat-nav button.cat-nav__group > span {
@@ -1540,13 +1550,13 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  margin: 2px 0 6px 14px;
-  padding-left: 8px;
+  margin: 2px 0 6px 8px;
+  padding-left: 4px;
   border-left: 1px solid var(--cat-line);
 }
 .cat-nav__sub button {
-  padding: 6px 10px;
-  font-size: 13.5px;
+  padding: 5px 8px;
+  font-size: 13px;
 }
 
 /* Flèche des sous-menus dans la marge : « Templates », « Sections » et
@@ -1760,14 +1770,51 @@ textarea {
   gap: 8px;
   min-width: 0;
 }
-.cat-tpl__line .cat-tpl__meta {
+.cat-tpl__line .cat-tpl__title {
+  display: block;
+  flex: 1 1 auto;
   min-width: 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-tpl__line .cat-tpl__meta {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 50%;
 }
 .cat-tpl__line .cat-tpl__pill {
   flex: none;
 }
 .cat-tpl__pills:empty {
   display: none;
+}
+/* Pastilles sur une seule ligne (cartes de même hauteur) : la niche se raccourcit si la place manque. */
+.cat-tpl .cat-tpl__pills {
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow: hidden;
+}
+.cat-tpl .cat-tpl__pill {
+  flex: none;
+  padding: 2px 6px;
+}
+.cat-tpl__score {
+  position: absolute;
+  bottom: 10px;
+  left: 16px;
+  padding: 3px 9px;
+  border: 1px solid #c9d6f5;
+  border-radius: 999px;
+  background: rgba(238, 243, 255, 0.96);
+  color: var(--cat-blue);
+  font-size: 11px;
+  font-weight: 600;
+}
+.cat-tpl .cat-tpl__pill.is-niche {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---- Filtre « Origine » (sections, templates, designs) ---- */
@@ -1881,6 +1928,105 @@ textarea {
 .cat-badge--orange {
   background: #fff1dc;
   color: #8a5300;
+}
+
+/* Aperçu d'un template : barre d'actions en haut (← titre →, supprimer, ajouter, remplacer). */
+.cat-pv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--cat-line);
+  background: #fff;
+}
+.cat-pv__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.cat-pv__arrow {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+.cat-pv__arrow:hover:not(:disabled) {
+  background: #f1efea;
+}
+.cat-pv__arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.cat-pv__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+.cat-pv__title b {
+  overflow: hidden;
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-pv__title small {
+  color: var(--cat-muted);
+  font-size: 11px;
+}
+.cat-pv__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.cat-pv__btn {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: #fff;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cat-pv__btn:hover:not(:disabled) {
+  background: #f1efea;
+}
+.cat-pv__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.cat-pv__btn.is-primary {
+  border-color: var(--cat-black);
+  background: var(--cat-black);
+  color: #fff;
+}
+.cat-pv__btn.is-primary:hover {
+  background: #333;
+}
+.cat-pv__btn.is-danger {
+  color: var(--cat-red);
+}
+.cat-pv__close {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cat-pv__close:hover {
+  background: #333;
 }
 
 /* Aperçu d'un template : bandeau « Prendre cette section » */

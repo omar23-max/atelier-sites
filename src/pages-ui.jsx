@@ -166,6 +166,27 @@ export function NewPageButton({ pages, projects, templates }) {
   );
 }
 
+// « ✕ » : fermer la page sans la supprimer (elle reste dans son projet).
+// Enregistre d'abord, oublie la « dernière page ouverte », puis retour au
+// catalogue sur la fiche du projet.
+export function ClosePageButton({ current, pages, onSave }) {
+  async function close() {
+    const info = pages.find((p) => p.name === current);
+    try {
+      await onSave?.();
+    } catch {}
+    try {
+      if (localStorage.getItem("atl-last-page") === current) localStorage.removeItem("atl-last-page");
+    } catch {}
+    location.href = info?.projet ? `/catalogue.html#projet-${info.projet}` : "/catalogue.html#projets";
+  }
+  return (
+    <button type="button" onClick={close} title="Fermer cette page (elle reste dans le projet)" className="atl-plus atl-close-page" aria-label="Fermer cette page">
+      ✕
+    </button>
+  );
+}
+
 // « 🗑 » : la page ouverte part dans la corbeille (restaurable), puis retour au
 // catalogue (la fiche de son projet), sans ouvrir une autre page.
 export function DeletePageButton({ current, pages }) {

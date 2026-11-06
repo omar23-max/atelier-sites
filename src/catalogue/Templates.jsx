@@ -3,7 +3,7 @@ import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, mirrorIntoPage, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
 import { PagePreview, SourceLink } from "./hover.jsx";
-import { OriginBar, originLabel, useOrigins } from "./origins.jsx";
+import { OriginBar, originLabel, templateOf, useOrigins } from "./origins.jsx";
 
 // Adresse d'origine ramenée à « hôte sans www + chemin sans / final ».
 const sourceKey = (u) => {
@@ -21,10 +21,13 @@ const sourceKey = (u) => {
 let index = null;
 const sectionIndex = () => {
   if (!index) {
-    index = { bySource: new Map(), byId: new Map(), rank: new Map() };
+    index = { bySource: new Map(), byId: new Map(), rank: new Map(), byTemplate: new Map() };
     sections.forEach((s, i) => {
       index.byId.set(s.id, s);
       index.rank.set(s, i);
+      // « hard-chews-…-p3 » → template « hard-chews-… » (imports Kimi : sections sans adresse d'origine).
+      const tpl = templateOf(s.id);
+      if (tpl !== s.id) index.byTemplate.set(tpl, [...(index.byTemplate.get(tpl) ?? []), s]);
       const k = sourceKey(s.meta.source?.url);
       if (k) index.bySource.set(k, [...(index.bySource.get(k) ?? []), s]);
     });
@@ -32,11 +35,11 @@ const sectionIndex = () => {
   return index;
 };
 
-// Sections du catalogue tirées de ce template : listées dans template.json, ou
-// de même URL d'origine (dans l'ordre du catalogue).
+// Sections du catalogue tirées de ce template : listées dans template.json, de
+// même URL d'origine, ou nommées d'après lui (dans l'ordre du catalogue).
 export const sectionsFromTemplate = (t) => {
-  const { bySource, byId, rank } = sectionIndex();
-  const found = new Set(bySource.get(sourceKey(t.url)) ?? []);
+  const { bySource, byId, rank, byTemplate } = sectionIndex();
+  const found = new Set([...(bySource.get(sourceKey(t.url)) ?? []), ...(byTemplate.get(t.id) ?? [])]);
   for (const id of Array.isArray(t.sections) ? t.sections : []) byId.has(id) && found.add(byId.get(id));
   return [...found].sort((a, b) => rank.get(a) - rank.get(b));
 };
@@ -135,17 +138,35 @@ const shortTitle = (t) => {
   return m ? `${m[1]} — ${m[2]}` : p;
 };
 
+// Niche affichée sur la carte : courte, en français (les imports en anglais
+// disaient « Beauty », « Pet »…).
+const NICHES = {
+  "Alimentation et boissons": "Alimentation",
+  Beauty: "Beauté",
+  Pet: "Animaux",
+  Home: "Maison",
+  Apparel: "Vêtements",
+  Supplement: "Compléments",
+  "Compléments santé": "Compléments",
+  "Soins de la peau": "Soins peau",
+  "Soins et santé": "Santé",
+};
+const nicheLabel = (n) => {
+  const s = String(n ?? "").split(/\s+[—-]\s+/)[0].trim();
+  return NICHES[s] ?? s;
+};
+
 // Carte d'un template : un aperçu (clic = ouvrir la page modifiable), un titre
 // court, des pastilles, une seule action principale (avec ▾ pour remplacer la
 // page ouverte) et un menu ⋯ pour les actions rares.
-function TemplateCard({ template, onUse, onDelete, onMessage }) {
+function TemplateCard({ template, onUse, onDelete, onMessage, onPreview }) {
   // Carte compacte : clic sur l'aperçu = aperçu en grand ; un seul bouton.
-  // L'origine (Replo, Whitelabeler…) est remplie à l'import : filtre en haut, pas dans la carte.
+  // Origine (Replo, Whitelabeler…, remplie à l'import) et site d'origine affichés sur la carte.
+  const { originOf } = useOrigins();
   const type = pageTypeById[template.pageType];
   const extracted = sectionsFromTemplate(template).length;
   const [check, setCheck] = useState(template.controleSite ?? null);
-  const [preview, setPreview] = useState(false);
-  const closePreview = useCallback(() => setPreview(false), []);
+  const setPreview = () => onPreview(template);
   const host = (() => {
     try {
       return new URL(template.url).hostname.replace(/^www\./, "");
@@ -154,7 +175,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
     }
   })();
   const props = template.propositions;
-  const niche = String(template.niche ?? "").split(/\s+[—-]\s+/)[0];
+  const niche = nicheLabel(template.niche);
   const canReplace = currentPage && template.page && currentPage !== template.page;
   return (
     <article className="cat-card cat-tpl">
@@ -175,6 +196,12 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
           )}
         </div>
         {type && <span className="cat-tpl__type">{type.label}</span>}
+        {/* Note de vente posée sur l'aperçu (en bas à gauche) : les pastilles tiennent sur une ligne. */}
+        {props && (
+          <span className="cat-tpl__score" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
+            Vente {props.score}
+          </span>
+        )}
         <Menu
           className="cat-tpl__more"
           label="Plus d'actions"
@@ -187,10 +214,11 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
         />
       </div>
       <div className="cat-tpl__body">
-        <strong className="cat-tpl__title" title={template.nom}>
-          {shortTitle(template)}
-        </strong>
+        {/* Ligne 1 : titre + site ; ligne 2 : origine, niche, sections, note de vente. */}
         <span className="cat-tpl__line">
+          <strong className="cat-tpl__title" title={template.nom}>
+            {shortTitle(template)}
+          </strong>
           <span className="cat-tpl__meta">
             {host ? (
               <a href={template.url} target="_blank" rel="noreferrer noopener" title={template.url}>
@@ -200,33 +228,16 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
               template.marque
             )}
           </span>
-          {props && (
-            <span className="cat-tpl__pill is-info" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
-              Vente {props.score}
-            </span>
-          )}
         </span>
         <div className="cat-tpl__pills">
-          {niche && <span className="cat-tpl__pill">{niche}</span>}
-          {extracted > 0 && <span className="cat-tpl__pill">{extracted} sections</span>}
-          {check?.change && (
-            <span className="cat-tpl__pill is-bad" title={`${check.verdict} — contrôlé le ${String(check.date).slice(0, 10)}`}>
-              Site modifié
-            </span>
-          )}
+          <span className="cat-tpl__pill is-origin" title={`Origine : ${originLabel(originOf(template.id))}`}>
+            {originLabel(originOf(template.id)).replace(/^Daydreamer /, "DD ")}
+          </span>
+          {niche && <span className="cat-tpl__pill is-niche" title={niche}>{niche}</span>}
+          {extracted > 0 && <span className="cat-tpl__pill">{extracted} section{extracted > 1 ? "s" : ""}</span>}
         </div>
       </div>
       <div className="cat-tpl__actions">
-        {/* Aperçu (clic sur l'image) : la page du template, en lecture seule, par-dessus le catalogue. */}
-        {preview && (
-          <PagePreview
-            page={template.page}
-            image={template.vignette?.replace(/vignette.png$/, "desktop.png")}
-            title={template.nom}
-            onClose={closePreview}
-            target={canReplace ? currentPage : null}
-          />
-        )}
         <div className={`cat-tpl__use${canReplace ? " has-more" : ""}`}>
           <button type="button" className="cat-tpl__primary" disabled={!template.page} onClick={() => onUse(template)} title="Créer une page avec ce template, dans un projet">
             Utiliser ce template
@@ -375,6 +386,12 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
     (!origin || originOf(t.id) === origin) &&
     (!q.trim() || q.toLowerCase().split(/\s+/).every((w) => [t.id, t.nom, t.marque, t.niche, t.url, t.produit, originLabel(originOf(t.id))].join(" ").toLowerCase().includes(w)));
   const [using, setUsing] = useState(null);
+  // Aperçu ouvert : on circule dans les templates affichés (filtres compris).
+  const [previewId, setPreviewId] = useState(null);
+  const closePreview = useCallback(() => setPreviewId(null), []);
+  const visible = (templates ?? []).filter(shown);
+  const previewIndex = visible.findIndex((t) => t.id === previewId);
+  const previewed = previewIndex >= 0 ? visible[previewIndex] : null;
   const load = () => listTemplates().then(setTemplates).catch(() => setTemplates([]));
   useEffect(() => {
     load();
@@ -387,13 +404,15 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
     const details = [`Template « ${t.nom} »`, "Partent avec lui : sa capture, ses photos d'origine découpées et sa page mirror."];
     details.push(`Restent dans le catalogue : ses ${kept} section(s)${t.design ? ` et ${t.design}.md` : ""}.`);
     details.push("Les pages de projet créées à partir de ce template ne sont pas touchées, mais leurs photos d'origine ne s'afficheront plus.");
-    if (!confirmDelete("ce template", details)) return;
+    if (!confirmDelete("ce template", details)) return false;
     try {
       await trashItem("templates", t.id);
       onMessage({ text: `Template « ${t.nom} » déplacé dans la corbeille.` });
       load();
+      return true;
     } catch (e) {
       onMessage({ error: true, text: e.message });
+      return false;
     }
   }
 
@@ -402,7 +421,9 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
       <h1 className="cat-h1-type">
         Templates
         {/* Le type affiché (menu de gauche ou onglet), à côté du titre. */}
-        {type !== "tous" && <span>{typeLabels[type] ?? pageTypeById[type]?.label ?? type}</span>}
+        {/* Les filtres choisis (origine, type), à côté du titre. */}
+        {origin && <span className="is-filter">{originLabel(origin)}</span>}
+        {type !== "tous" && <span className="is-filter">{typeLabels[type] ?? pageTypeById[type]?.label ?? type}</span>}
       </h1>
       <p className="cat-lead">
         Chaque site ou page importé devient un template : la page reconstruite (« mirror »), ses sections ajoutées au catalogue, son
@@ -430,7 +451,7 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
         {templates.some(shown) ? (
           <div className="cat-grid">
             {templates.filter(shown).map((t) => (
-              <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} onMessage={onMessage} />
+              <TemplateCard key={t.id} template={t} onUse={setUsing} onDelete={remove} onMessage={onMessage} onPreview={(x) => setPreviewId(x.id)} />
             ))}
           </div>
         ) : (
@@ -441,7 +462,78 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
         )}
         </>
       )}
+      {previewed && (
+        <TemplatePreview
+          key={previewed.id}
+          template={previewed}
+          position={`${previewIndex + 1} / ${visible.length}`}
+          onPrev={previewIndex > 0 ? () => setPreviewId(visible[previewIndex - 1].id) : null}
+          onNext={previewIndex < visible.length - 1 ? () => setPreviewId(visible[previewIndex + 1].id) : null}
+          onClose={closePreview}
+          onUse={() => (setPreviewId(null), setUsing(previewed))}
+          onDelete={async () => {
+            const next = visible[previewIndex + 1] ?? visible[previewIndex - 1] ?? null;
+            if (await remove(previewed)) setPreviewId(next?.id ?? null);
+          }}
+          onMessage={onMessage}
+        />
+      )}
       {using && <UseTemplate template={using} onClose={() => setUsing(null)} onMessage={onMessage} />}
     </>
+  );
+}
+
+// Aperçu d'un template en grand, avec sa barre d'actions : template précédent /
+// suivant (flèches du clavier aussi), supprimer, nouvelle page dans un projet,
+// remplacer la page ouverte ; les sections se prennent en survolant la page.
+function TemplatePreview({ template, position, onPrev, onNext, onClose, onUse, onDelete, onMessage }) {
+  const canReplace = currentPage && template.page && currentPage !== template.page;
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target.closest?.("input, textarea, select")) return;
+      if (e.key === "ArrowLeft" && onPrev) (e.preventDefault(), onPrev());
+      if (e.key === "ArrowRight" && onNext) (e.preventDefault(), onNext());
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onPrev, onNext]);
+  const toolbar = (
+    <>
+      <div className="cat-pv__nav">
+        <button type="button" className="cat-pv__arrow" disabled={!onPrev} onClick={onPrev} title="Template précédent (←)" aria-label="Template précédent">
+          ←
+        </button>
+        <span className="cat-pv__title" title={template.nom}>
+          <b>{shortTitle(template)}</b>
+          <small>{position}</small>
+        </span>
+        <button type="button" className="cat-pv__arrow" disabled={!onNext} onClick={onNext} title="Template suivant (→)" aria-label="Template suivant">
+          →
+        </button>
+      </div>
+      <div className="cat-pv__actions">
+        <button type="button" className="cat-pv__btn is-danger" onClick={onDelete}>
+          Supprimer
+        </button>
+        <button type="button" className="cat-pv__btn" disabled={!template.page} onClick={onUse}>
+          + Nouvelle page dans un projet
+        </button>
+        {canReplace && (
+          <button type="button" className="cat-pv__btn is-primary" onClick={() => mirrorHere(template, onMessage)}>
+            Remplacer la page « {currentPage} »
+          </button>
+        )}
+      </div>
+    </>
+  );
+  return (
+    <PagePreview
+      page={template.page}
+      image={template.vignette?.replace(/vignette.png$/, "desktop.png")}
+      title={template.nom}
+      onClose={onClose}
+      target={canReplace ? currentPage : null}
+      toolbar={toolbar}
+    />
   );
 }

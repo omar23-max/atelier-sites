@@ -189,9 +189,11 @@ function armSections(frame, scale, onTake) {
   });
 }
 
-export function PagePreview({ page, image, title, onClose, target }) {
+export function PagePreview({ page, image, title, onClose, target, toolbar }) {
   const width = Math.min(1280, window.innerWidth * 0.92);
-  const height = window.innerHeight * 0.9;
+  const boxHeight = window.innerHeight * 0.9;
+  const TOOLBAR = 56; // barre d'actions en haut (aperçu d'un template)
+  const height = toolbar ? boxHeight - TOOLBAR : boxHeight;
   const scale = width / 1440;
   const [notice, setNotice] = useState(null);
   const onTake = async (index) => {
@@ -216,10 +218,19 @@ export function PagePreview({ page, image, title, onClose, target }) {
   }, [onClose]);
   return createPortal(
     <div className="cat-pageview" onClick={onClose}>
-      <div className="cat-pageview__box" style={{ width, height }} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="cat-pageview__close" onClick={onClose} aria-label="Fermer l'aperçu" title="Fermer (Échap)">
-          ✕
-        </button>
+      <div className="cat-pageview__box" style={{ width, height: boxHeight }} onClick={(e) => e.stopPropagation()}>
+        {toolbar ? (
+          <div className="cat-pv" style={{ height: TOOLBAR }}>
+            {toolbar}
+            <button type="button" className="cat-pv__close" onClick={onClose} aria-label="Fermer l'aperçu" title="Fermer (Échap)">
+              ✕
+            </button>
+          </div>
+        ) : (
+          <button type="button" className="cat-pageview__close" onClick={onClose} aria-label="Fermer l'aperçu" title="Fermer (Échap)">
+            ✕
+          </button>
+        )}
         {page && (
           <div className={`cat-pageview__bar${notice?.error ? " is-error" : ""}`}>
             {notice ? (
