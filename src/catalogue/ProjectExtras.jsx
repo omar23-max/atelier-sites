@@ -25,7 +25,7 @@ async function upload(projectId, file) {
   return body.url;
 }
 
-async function request(type, notes, details) {
+export async function request(type, notes, details) {
   const res = await fetch("/api/requests", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

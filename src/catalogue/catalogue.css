@@ -1798,6 +1798,258 @@ textarea {
   flex: none;
   padding: 2px 6px;
 }
+/* Barre d'avancement du projet : ① Fondations → … → ⑥ Résultats. */
+.cat-progress {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  margin: 4px 0 14px;
+  padding: 0;
+  list-style: none;
+}
+.cat-progress button {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  column-gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--cat-line);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cat-progress i {
+  display: grid;
+  grid-row: span 2;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ece9e2;
+  color: var(--cat-muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+.cat-progress b {
+  font-size: 13px;
+}
+.cat-progress small {
+  overflow: hidden;
+  color: var(--cat-muted);
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-progress .is-done i {
+  background: #1f7a3f;
+  color: #fff;
+}
+.cat-progress .is-doing i {
+  background: #e8590c;
+  color: #fff;
+}
+.cat-progress .is-done button {
+  border-color: #b9dcc4;
+}
+
+/* Étape « Angles » : une carte par angle. */
+.cat-angles__bar {
+  margin: 8px 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f1efea;
+  font-size: 13.5px;
+}
+.cat-angles__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.cat-angle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--cat-line);
+  border-radius: 12px;
+  background: #fff;
+  opacity: 0.75;
+}
+.cat-angle.is-on {
+  border-color: var(--cat-black);
+  opacity: 1;
+}
+.cat-angle.is-mere {
+  border-color: #c98a00;
+  box-shadow: 0 0 0 2px #f5c542;
+}
+.cat-angle header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cat-angle__pick {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cat-angle__star {
+  padding: 3px 9px;
+  border: 1px solid var(--cat-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+.cat-angle.is-mere .cat-angle__star {
+  border-color: #c98a00;
+  background: #fff6db;
+  color: #8a5300;
+  font-weight: 600;
+}
+.cat-angle__title {
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: 700 15px "Inter", system-ui, sans-serif;
+}
+.cat-angle__title:hover,
+.cat-angle__title:focus {
+  border-color: var(--cat-line);
+}
+.cat-angle__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cat-angle__field span {
+  color: var(--cat-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.cat-angle__field textarea,
+.cat-angle__field select {
+  padding: 5px 8px;
+  border: 1px solid var(--cat-line);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+.cat-angle footer {
+  margin-top: auto;
+}
+.cat-angle footer .cat-btn {
+  width: 100%;
+}
+
+/* Questionnaire « Fondations ». */
+.cat-fd .cat-panel h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+.cat-fd .cat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cat-fd__label {
+  color: var(--cat-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.cat-fd__cases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cat-fd__cases label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--cat-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cat-fd__cases label.is-on {
+  border-color: var(--cat-black);
+  background: var(--cat-black);
+  color: #fff;
+}
+.cat-fd__cases input {
+  display: none;
+}
+.cat-fd__preuves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+}
+.cat-fd__preuves > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: #fff;
+}
+.cat-fd__preuves > div.is-on {
+  border-color: #1f7a3f;
+}
+.cat-fd__preuves label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cat-fd__preuves input:not([type]) {
+  padding: 5px 8px;
+  border: 1px solid var(--cat-line);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12.5px;
+}
+.cat-fd__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.cat-fd__statut {
+  margin: 8px 0 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #f1efea;
+  font-size: 13.5px;
+}
+.cat-fd__statut.is-demandée {
+  background: #fff1dc;
+  color: #8a5300;
+}
+.cat-fd__statut.is-validée {
+  background: #e3f3e8;
+  color: #1f7a3f;
+}
+.cat-fd__res ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+}
+.cat-fd__res p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+}
+
 /* « Partir de » avec miniatures (fiche d'un projet). */
 .cat-source-btn {
   display: flex;

@@ -8,7 +8,9 @@ import { pageTexts } from "../engine/texts.js";
 import { confirmDelete, createPage, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
 import { NewProjectDialog } from "../pages-ui.jsx";
 import { nicheLabel } from "./Templates.jsx";
-import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf } from "./ProjectExtras.jsx";
+import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf, request } from "./ProjectExtras.jsx";
+import { FoundationsTab, ProjectProgress } from "./Fondations.jsx";
+import { AnglesTab } from "./Angles.jsx";
 import { ResultsTab } from "./ResultsTab.jsx";
 
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
@@ -137,6 +139,8 @@ export function ProjectsView({ onOpen, onMessage }) {
 
 // ---- Détail d'un projet ----
 const TABS = [
+  { id: "fondations", label: "Fondations" },
+  { id: "angles", label: "Angles" },
   { id: "pages", label: "Pages" },
   { id: "images-origine", label: "Images d'origine" },
   { id: "images-modifiees", label: "Images modifiées" },
@@ -222,7 +226,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   const [pages, setPages] = useState(null); // [{ info, data, score, medias, origin }]
   const [allPages, setAllPages] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [tab, setTab] = useState("pages");
+  const [tab, setTab] = useState(null); // ouvert sur Fondations tant qu'elles ne sont pas validées
 
   const load = async () => {
     try {
@@ -278,6 +282,9 @@ export function ProjectDetail({ id, onBack, onMessage }) {
 
   if (!pages) return <p className="cat-muted">Chargement du projet…</p>;
   if (!project) return <div className="cat-empty">Projet introuvable.</div>;
+  // Onglet d'ouverture : l'étape en cours (Fondations, puis Angles, puis Pages).
+  const currentTab =
+    tab ?? (project.fondations?.statut !== "validée" ? "fondations" : (project.angles ?? []).some((a) => a.choisi && a.mere) ? "pages" : "angles");
 
   return (
     <>
@@ -296,7 +303,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
           Supprimer le projet
         </button>
       </div>
-      <p className="cat-lead cat-project-lead">
+      <div className="cat-lead cat-project-lead">
         <ProjectProduct
           value={project.produit ?? ""}
           onSave={async (produit) => {
@@ -314,27 +321,30 @@ export function ProjectDetail({ id, onBack, onMessage }) {
         />
         {project.description ? ` · ${project.description}` : ""} · créé le{" "}
         {new Date(project.creeLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}
-      </p>
+      </div>
+      <ProjectProgress project={project} pages={pages} onGo={setTab} />
       <ProjectSummary project={project} pages={pages} />
 
       <div className="cat-seg cat-tabs">
         {TABS.map((t) => (
-          <button key={t.id} type="button" className={tab === t.id ? "is-on" : ""} onClick={() => setTab(t.id)}>
+          <button key={t.id} type="button" className={currentTab === t.id ? "is-on" : ""} onClick={() => setTab(t.id)}>
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} />}
-      {tab === "images-origine" && <OriginalImagesTab pages={pages} />}
-      {tab === "images-modifiees" && <EditedImagesTab pages={pages} />}
-      {tab === "textes-origine" && <OriginalTextsTab pages={pages} />}
-      {tab === "textes-corriges" && <EditedTextsTab pages={pages} />}
-      {tab === "marque" && <BrandTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}
-      {tab === "creatives" && <CreativesTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
-      {tab === "offre" && <OfferTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
-      {tab === "publication" && <PublicationTab project={project} pages={pages} onSave={saveProjectPatch} />}
-      {tab === "resultats" && <ResultsTab project={project} pages={pages} onMessage={onMessage} />}
+      {currentTab === "fondations" && <FoundationsTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} request={request} />}
+      {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} />}
+      {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} />}
+      {currentTab === "images-origine" && <OriginalImagesTab pages={pages} />}
+      {currentTab === "images-modifiees" && <EditedImagesTab pages={pages} />}
+      {currentTab === "textes-origine" && <OriginalTextsTab pages={pages} />}
+      {currentTab === "textes-corriges" && <EditedTextsTab pages={pages} />}
+      {currentTab === "marque" && <BrandTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}
+      {currentTab === "creatives" && <CreativesTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
+      {currentTab === "offre" && <OfferTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
+      {currentTab === "publication" && <PublicationTab project={project} pages={pages} onSave={saveProjectPatch} />}
+      {currentTab === "resultats" && <ResultsTab project={project} pages={pages} onMessage={onMessage} />}
     </>
   );
 }

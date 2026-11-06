@@ -437,6 +437,46 @@ Demandes liées à la fiche :
 - **offre** : travailler l'offre avec les skills Hormozi (`hormozi-offer`,
   `pricing-strategy`, `offer-angles`, `objection-destroyer`) à partir de la
   fiche, puis remplir `offre`.
+- **fondations** (2026-11-06) : phase 0 du projet, une seule fois par produit.
+  Le questionnaire est dans `fondations.reponses` (produit, clients, problème,
+  `preuves` cochées avec leur détail, concurrents, ton) et l'offre de base
+  dans `offre`. Procédure :
+  1. `market-research` (Hormozi) et `customer-research` (Corey Haines) :
+     avatars, douleurs, **mots exacts des clients**. Lire **d'abord** ce que
+     l'utilisateur a collé (`reponses.collecteAmazon`, `collecteReddit`,
+     `collecteSocial`, `collecteAutres` ; `collecte` sur les anciens
+     projets) et ses liens
+     (`reponses.liensRecherche`), puis chercher soi-même, sources dans cet
+     ordre : **avis Amazon** du produit et des concurrents (les 1-3 étoiles
+     surtout : ce qui déçoit = les objections), **Reddit** (fils où la
+     catégorie est discutée), **commentaires Instagram et TikTok** des
+     marques et créateurs, puis Trustpilot et les sites. Trustpilot seul ne
+     suffit pas. Noter la source de chaque phrase. **Constaté le
+     2026-11-06 :** Amazon refuse explicitement les agents IA (« Access
+     restricted… unauthorized AI agent ») et Reddit bloque l'accès
+     automatique : ne jamais contourner ces refus (pas de clic sur
+     « Continue », pas d'astuce). Ces avis viennent de l'utilisateur, collés
+     dans « Ce que tu as trouvé toi-même ». Si cette section est vide, le
+     dire dans `notes` et lui demander de la remplir ;
+     **WinningHunter** (quand l'utilisateur l'aura branché, MCP) : le Brand
+     Tracker des concurrents (personas, angles, landings), l'Ad Library
+     (pubs de la niche qui montent en puissance, leurs accroches) et la
+     recherche produit (marques qui vendent le même produit). Revenus =
+     estimations, jamais présentés comme exacts ;
+  2. `product-marketing-context` : la synthèse que les pages reliront ;
+  3. `hormozi-offer` + `objection-destroyer` : promesse, objections et
+     réponses ; `offer-angles` : 8 à 10 pistes d'angles (avatar + douleur +
+     promesse + type de page conseillé) ;
+  4. écrire `fondations.resultats` : `{ promesse, avatars: [], douleurs: [],
+     mots: [], objections: [], angles: [], notes }` (listes de phrases
+     courtes), et compléter `offre.promesse`, `offre.cible`,
+     `offre.objections` sans écraser ce que l'utilisateur a écrit ;
+  5. laisser `fondations.statut` à « demandée » : c'est l'utilisateur qui
+     valide dans l'onglet Fondations.
+  **Règle absolue** : aucune preuve, aucun chiffre, aucune garantie ni aucun
+  avis qui ne soit coché dans `fondations.reponses.preuves` ou écrit dans
+  `offre`. Ce qui manque est signalé dans `notes` (« [MANQUE : nombre
+  d'avis] »), jamais inventé.
 
 ## Publier sur Shopify : retiré (2026-10-30)
 
