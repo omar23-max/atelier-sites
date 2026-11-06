@@ -5,20 +5,41 @@ import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates
 import { PagePreview, SourceLink } from "./hover.jsx";
 import { ORIGINS, OriginBar, originLabel, useOrigins } from "./origins.jsx";
 
-const sameSource = (a, b) => {
+// Adresse d'origine ramenée à « hôte sans www + chemin sans / final ».
+const sourceKey = (u) => {
   try {
-    const x = new URL(a);
-    const y = new URL(b);
-    return x.hostname.replace(/^www\./, "") === y.hostname.replace(/^www\./, "") && x.pathname.replace(/\/$/, "") === y.pathname.replace(/\/$/, "");
+    const x = new URL(u);
+    return `${x.hostname.replace(/^www\./, "")}${x.pathname.replace(/\/$/, "")}`;
   } catch {
-    return false;
+    return null;
   }
 };
 
+// Index des sections par adresse d'origine, fait une seule fois : comparer
+// chaque template aux 2 500 sections (1,5 million de comparaisons) gelait le
+// catalogue au chargement.
+let index = null;
+const sectionIndex = () => {
+  if (!index) {
+    index = { bySource: new Map(), byId: new Map(), rank: new Map() };
+    sections.forEach((s, i) => {
+      index.byId.set(s.id, s);
+      index.rank.set(s, i);
+      const k = sourceKey(s.meta.source?.url);
+      if (k) index.bySource.set(k, [...(index.bySource.get(k) ?? []), s]);
+    });
+  }
+  return index;
+};
+
 // Sections du catalogue tirées de ce template : listées dans template.json, ou
-// de même URL d'origine.
-export const sectionsFromTemplate = (t) =>
-  sections.filter((s) => (t.sections ?? []).includes?.(s.id) || sameSource(s.meta.source?.url, t.url));
+// de même URL d'origine (dans l'ordre du catalogue).
+export const sectionsFromTemplate = (t) => {
+  const { bySource, byId, rank } = sectionIndex();
+  const found = new Set(bySource.get(sourceKey(t.url)) ?? []);
+  for (const id of Array.isArray(t.sections) ? t.sections : []) byId.has(id) && found.add(byId.get(id));
+  return [...found].sort((a, b) => rank.get(a) - rank.get(b));
+};
 
 // Page ouverte en dernier dans l'atelier (ou ?page=) : cible du miroring.
 const currentPage = new URLSearchParams(location.search).get("page") ?? (() => {
