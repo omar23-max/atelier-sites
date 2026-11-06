@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { PAGE_TYPES, pageTypeById } from "./engine/page-types.js";
-import { createPage, listProjects, listTemplates, pageNameFor, saveProject, slug, NAME } from "./projects.js";
+import { confirmDelete, createPage, listProjects, listTemplates, pageNameFor, saveProject, slug, trashItem, NAME } from "./projects.js";
 import { designById } from "./engine/designs.js";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 
@@ -163,6 +163,36 @@ export function NewPageButton({ pages, projects, templates }) {
       </button>
       {open && <NewPageDialog pages={pages} projects={projects} templates={templates} onClose={() => setOpen(false)} />}
     </>
+  );
+}
+
+// « 🗑 » : la page ouverte part dans la corbeille (restaurable), puis retour au
+// catalogue (la fiche de son projet), sans ouvrir une autre page.
+export function DeletePageButton({ current, pages }) {
+  async function remove() {
+    const info = pages.find((p) => p.name === current);
+    const title = info?.title ?? current;
+    const linked = pages.filter((p) => p.pageAchat === current).map((p) => `• ${p.title}`);
+    const details = [`« ${title} » (${current})`];
+    if (info?.importSource && !info.projet) details.push("C'est la page d'un template : le template ne pourra plus servir de point de départ.");
+    if (linked.length) details.push("Ces pages renvoient vers elle pour l'achat :", ...linked);
+    if (!confirmDelete("cette page", details)) return;
+    window.__atlPageDeleted = true; // l'enregistrement automatique ne la recrée pas
+    try {
+      await trashItem("pages", current);
+      try {
+        if (localStorage.getItem("atl-last-page") === current) localStorage.removeItem("atl-last-page");
+      } catch {}
+      location.replace(info?.projet ? `/catalogue.html#projet-${info.projet}` : "/catalogue.html#pages");
+    } catch (e) {
+      window.__atlPageDeleted = false;
+      alert(`Suppression impossible : ${e.message}`);
+    }
+  }
+  return (
+    <button type="button" onClick={remove} title="Supprimer cette page (corbeille du catalogue, restaurable)" className="atl-plus atl-trash" aria-label="Supprimer cette page">
+      🗑
+    </button>
   );
 }
 

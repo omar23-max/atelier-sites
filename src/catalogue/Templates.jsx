@@ -3,7 +3,7 @@ import { sections } from "../engine/sections.js";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { NAME, confirmDelete, createPage, listPages, listProjects, listTemplates, mirrorIntoPage, pageNameFor, saveProject, slug, trashItem } from "../projects.js";
 import { PagePreview, SourceLink } from "./hover.jsx";
-import { ORIGINS, OriginBar, originLabel, useOrigins } from "./origins.jsx";
+import { OriginBar, originLabel, useOrigins } from "./origins.jsx";
 
 // Adresse d'origine ramenée à « hôte sans www + chemin sans / final ».
 const sourceKey = (u) => {
@@ -139,9 +139,8 @@ const shortTitle = (t) => {
 // court, des pastilles, une seule action principale (avec ▾ pour remplacer la
 // page ouverte) et un menu ⋯ pour les actions rares.
 function TemplateCard({ template, onUse, onDelete, onMessage }) {
-  // Aperçu : la capture pleine page (nette), la vignette en secours.
-  const { originOf, setOrigin } = useOrigins();
-  const origin = originOf(template.id);
+  // Carte compacte : clic sur l'aperçu = aperçu en grand ; un seul bouton.
+  // L'origine (Replo, Whitelabeler…) est remplie à l'import : filtre en haut, pas dans la carte.
   const type = pageTypeById[template.pageType];
   const extracted = sectionsFromTemplate(template).length;
   const [check, setCheck] = useState(template.controleSite ?? null);
@@ -161,7 +160,14 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
     <article className="cat-card cat-tpl">
       <div className="cat-tpl__media">
         {/* Page entière en version légère (carte.jpg, tirée de desktop.png), à faire défiler dans la carte ; la vignette en secours. */}
-        <div className="cat-tpl__thumb cat-card__scroll">
+        <div
+          className="cat-tpl__thumb cat-card__scroll is-clickable"
+          role="button"
+          tabIndex={0}
+          title="Voir l'aperçu"
+          onClick={() => (template.page || template.vignette) && setPreview(true)}
+          onKeyDown={(e) => e.key === "Enter" && (template.page || template.vignette) && setPreview(true)}
+        >
           {template.vignette ? (
             <img src={template.vignette.replace(/vignette.png$/, "carte.jpg")} decoding="async" alt="" loading="lazy" onError={(e) => e.currentTarget.src !== new URL(template.vignette, location.href).href && (e.currentTarget.src = template.vignette)} />
           ) : (
@@ -176,7 +182,6 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
           items={[
             template.url && { label: "Voir l'original", href: `/api/original/${template.id}` },
             template.url && { label: "Vérifier si le site a changé", action: () => checkSite(template, onMessage, setCheck) },
-            ...ORIGINS.map((o) => ({ label: `${o.id === origin ? "✓ " : ""}Origine : ${o.label}`, action: () => setOrigin(template.id, o.id).catch((e) => onMessage({ error: true, text: e.message })) })),
             { label: "Supprimer", danger: true, action: () => onDelete(template) },
           ]}
         />
@@ -185,24 +190,25 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
         <strong className="cat-tpl__title" title={template.nom}>
           {shortTitle(template)}
         </strong>
-        <span className="cat-tpl__meta">
-          {template.marque}
-          {template.marque && host && " · "}
-          {host && (
-            <a href={template.url} target="_blank" rel="noreferrer noopener" title={template.url}>
-              {host} ↗
-            </a>
-          )}
-        </span>
-        <div className="cat-tpl__pills">
-          <span className="cat-tpl__pill is-origin">{originLabel(origin)}</span>
-          {niche && <span className="cat-tpl__pill">{niche}</span>}
-          {extracted > 0 && <span className="cat-tpl__pill">{extracted} sections</span>}
+        <span className="cat-tpl__line">
+          <span className="cat-tpl__meta">
+            {host ? (
+              <a href={template.url} target="_blank" rel="noreferrer noopener" title={template.url}>
+                {host} ↗
+              </a>
+            ) : (
+              template.marque
+            )}
+          </span>
           {props && (
             <span className="cat-tpl__pill is-info" title={props.manquantes.map((m) => `${m.section} (${m.ou}, +${m.gain} pts) : ${m.pourquoi}`).join("\n") || "Toutes les sections conseillées sont là"}>
               Vente {props.score}
             </span>
           )}
+        </span>
+        <div className="cat-tpl__pills">
+          {niche && <span className="cat-tpl__pill">{niche}</span>}
+          {extracted > 0 && <span className="cat-tpl__pill">{extracted} sections</span>}
           {check?.change && (
             <span className="cat-tpl__pill is-bad" title={`${check.verdict} — contrôlé le ${String(check.date).slice(0, 10)}`}>
               Site modifié
@@ -211,10 +217,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
         </div>
       </div>
       <div className="cat-tpl__actions">
-        {/* Aperçu : la page du template, en lecture seule, par-dessus le catalogue. */}
-        <button type="button" className="cat-btn cat-btn--ghost cat-tpl__preview" disabled={!template.page && !template.vignette} onClick={() => setPreview(true)}>
-          Aperçu
-        </button>
+        {/* Aperçu (clic sur l'image) : la page du template, en lecture seule, par-dessus le catalogue. */}
         {preview && (
           <PagePreview
             page={template.page}

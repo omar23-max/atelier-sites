@@ -17,23 +17,15 @@ import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { Inspector } from "./inspector-ui.jsx";
-import { NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
+import { DeletePageButton, NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
 // « Enregistrer » (automatique, ou Ctrl + S) écrit dans ce fichier : c'est lui que lisent les exports.
 const pageName = new URLSearchParams(location.search).get("page");
 
-// Sans page demandée : on ouvre la dernière page d'un projet, sinon le
-// catalogue des projets (une page n'existe jamais hors projet).
-if (!pageName) {
-  fetch("/api/pages?details=1")
-    .then((r) => r.json())
-    .then((list) => {
-      const first = list.find((p) => p.projet) ?? list.find((p) => p.importSource);
-      location.replace(first ? `/?page=${first.name}` : "/catalogue.html#projets");
-    })
-    .catch(() => location.replace("/catalogue.html#projets"));
-}
+// Sans page demandée : le catalogue des projets. On n'ouvre plus une autre
+// page au hasard (elles « réapparaissaient » après une suppression).
+if (!pageName) location.replace("/catalogue.html#projets");
 const EMPTY_PAGE = { root: { props: { title: "Nouvelle page" } }, content: [] };
 
 function withDefaults(data) {
@@ -174,7 +166,7 @@ export default function App() {
 
   const savePage = useCallback(async function savePage(next = latest.current ?? dataRef.current) {
     clearTimeout(saveTimer.current);
-    if (!next) return;
+    if (!next || window.__atlPageDeleted) return; // page mise à la corbeille : ne pas la recréer
     const json = JSON.stringify(next);
     if (json === savedJson.current && saveStore.state !== "error") return saveStore.set("saved");
     if (saving.current) {
@@ -219,7 +211,7 @@ export default function App() {
       }
     };
     const onLeave = (e) => {
-      if (!isDirty() && !saving.current) return;
+      if (window.__atlPageDeleted || (!isDirty() && !saving.current)) return;
       e.preventDefault();
       e.returnValue = "";
     };
@@ -254,6 +246,7 @@ export default function App() {
           <div className="atl-group">
             <PageSelect current={pageName} pages={pages} />
             <NewPageButton pages={pages} projects={projects} templates={templates} />
+            <DeletePageButton current={pageName} pages={pages} />
           </div>
           <div className="atl-group">
             <DesignSelect pageName={pageName} current={data?.root?.props?.design ?? null} getData={() => latest.current ?? data} />
