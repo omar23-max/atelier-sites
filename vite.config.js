@@ -206,7 +206,7 @@ function atelierApi() {
         }
       });
       // Aperçu léger des templates (/imports/<slug>/carte.jpg) : la capture
-      // pleine page réduite à 480 px de large, faite à la première demande puis
+      // pleine page réduite (scripts/carte.sh), faite à la première demande puis
       // gardée. Les captures d'origine (1,5 Mo en moyenne) gelaient le catalogue
       // une fois l'atelier en ligne. Sans vipsthumbnail, on renvoie la capture.
       server.middlewares.use("/imports", async (req, res, next) => {
@@ -224,7 +224,7 @@ function atelierApi() {
           const fresh = existsSync(out) && (await stat(out)).mtimeMs >= (await stat(src)).mtimeMs;
           if (!fresh) {
             const code = await new Promise((done) =>
-              spawn("vipsthumbnail", [src, "--size", "480x", "-o", `${out}[Q=78,strip]`], { stdio: "ignore", windowsHide: true })
+              spawn("sh", [join(root, "scripts", "carte.sh"), src, out], { stdio: "ignore", windowsHide: true })
                 .on("close", done)
                 .on("error", () => done(1)),
             );
