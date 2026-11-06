@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { PAGE_TYPES, pageTypeById } from "./engine/page-types.js";
-import { confirmDelete, createPage, listProjects, listTemplates, pageNameFor, saveProject, slug, trashItem, NAME } from "./projects.js";
+import { confirmDelete, createPage, listProjects, listTemplates, pageNameFor, saveProject, slug, trashItem, uniquePageName, NAME } from "./projects.js";
 import { designById } from "./engine/designs.js";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 
@@ -239,7 +239,7 @@ function NewPageDialog({ pages, projects, templates, onClose }) {
   const types = PAGE_TYPES.filter((t) => achat === null || t.achat === achat);
   const pagesAchat = pages.filter((p) => pageTypeById[p.pageType]?.achat && (!projet || p.projet === projet));
   const projectId = projet === NEW_PROJECT ? slug(newProject) : projet;
-  const finalName = name || pageNameFor(projectId, type, profil);
+  const finalName = name || uniquePageName(pageNameFor(projectId, type, profil), pages);
 
   async function create() {
     setError(null);
@@ -368,8 +368,8 @@ function NewPageDialog({ pages, projects, templates, onClose }) {
           </p>
         )}
         <label>
-          <span>Profil client visé</span>
-          <input value={profil} onChange={(e) => setProfil(e.target.value)} placeholder="ex. femmes 45+, cholestérol élevé" />
+          <span>Angle / profil client</span>
+          <input value={profil} onChange={(e) => setProfil(e.target.value)} placeholder="ex. anti-rides, prix, femmes 45+" />
         </label>
         {achat === false && (
           <label>
@@ -531,11 +531,47 @@ export function NewProjectButton({ pages, projects, templates }) {
   );
 }
 
+// Grille de miniatures pour choisir un template (nouveau projet), avec recherche.
+function TemplateGrid({ templates, value, onChange }) {
+  const [q, setQ] = useState("");
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const shown = templates.filter((t) => t.page && words.every((w) => [t.nom, t.marque, t.niche, t.url, pageTypeById[t.pageType]?.label].join(" ").toLowerCase().includes(w)));
+  return (
+    <div className="atl-tplgrid">
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher un template : marque, type, secteur, site…" />
+      <div className="atl-tplgrid__list">
+        {shown.map((t) => (
+          <button key={t.id} type="button" className={`atl-tplgrid__item${value === t.id ? " is-on" : ""}`} onClick={() => onChange(t.id)} title={t.nom}>
+            <span className="atl-tplgrid__thumb">{t.vignette && <img src={t.vignette.replace(/vignette\.png$/, "carte.jpg")} alt="" loading="lazy" decoding="async" />}</span>
+            <b>{t.nom}</b>
+            <small>{pageTypeById[t.pageType]?.label ?? t.pageType}</small>
+          </button>
+        ))}
+        {!shown.length && <p className="atl-newpage__hint">Aucun template ne correspond.</p>}
+      </div>
+    </div>
+  );
+}
+
+// Point de départ d'un nouveau projet : un site (URL ou captures), un
+// template, ou rien pour l'instant (les pages viendront plus tard).
+const STARTS = [
+  { id: "site", label: "À partir d'un site", hint: "URL ou captures d'écran : le site est reproduit page par page" },
+  { id: "template", label: "À partir d'un template", hint: "un template du catalogue, choisi par sa miniature" },
+  { id: "plus-tard", label: "Je créerai les pages plus tard", hint: "le projet seul, vide pour l'instant" },
+];
+
 export function NewProjectDialog({ pages, projects, templates, onClose, onCreated }) {
   const [nom, setNom] = useState("");
   const [produit, setProduit] = useState("");
   const [description, setDescription] = useState("");
+  const [start, setStart] = useState("site");
   const [site, setSite] = useState({ on: true, mode: "url", url: "", template: "", images: [] });
+  const chooseStart = (s) => {
+    setStart(s);
+    if (s === "plus-tard") setSite({ ...site, on: false });
+    else setSite({ ...site, on: true, mode: s === "template" ? "template" : site.mode === "template" ? "url" : site.mode });
+  };
   const [extras, setExtras] = useState(EXTRA_PAGES.map((pageType) => ({ pageType, checked: false, mode: "vide", template: "", url: "", images: [] })));
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -543,7 +579,7 @@ export function NewProjectDialog({ pages, projects, templates, onClose, onCreate
 
   const setExtra = (i, patch) => setExtras(extras.map((x, j) => (j === i ? { ...x, ...patch } : x)));
   const tplById = Object.fromEntries(templates.map((t) => [t.id, t]));
-  const chosen = extras.filter((x) => x.checked && !(site.on && SITE_PAGES.includes(x.pageType)));
+  const chosen = start === "plus-tard" ? [] : extras.filter((x) => x.checked && !(site.on && SITE_PAGES.includes(x.pageType)));
   const siteTemplate = site.on && site.mode === "template" ? tplById[site.template] : null;
   const count = chosen.length + (siteTemplate ? (siteTemplate.pages ?? [siteTemplate.page]).length : 0);
 
@@ -673,47 +709,47 @@ export function NewProjectDialog({ pages, projects, templates, onClose, onCreate
       </fieldset>
 
       <fieldset>
-        <legend>2. Créer tout le site</legend>
-        <div className={`atl-site${site.on ? " is-on" : ""}`}>
-          <label className="atl-site__toggle">
-            <input type="checkbox" checked={site.on} onChange={(e) => setSite({ ...site, on: e.target.checked })} />
-            <b>Créer tout le site</b>
-            <small>page d'accueil, page produit et les autres pages du site</small>
-          </label>
-          {site.on && (
+        <legend>2. Point de départ</legend>
+        <div className="atl-starts" role="radiogroup">
+          {STARTS.map((s) => (
+            <label key={s.id} className={`atl-start${start === s.id ? " is-on" : ""}`}>
+              <input type="radio" name="atl-start" checked={start === s.id} onChange={() => chooseStart(s.id)} />
+              <b>{s.label}</b>
+              <small>{s.hint}</small>
+            </label>
+          ))}
+        </div>
+        {start === "site" && (
+          <div className="atl-site is-on">
             <span className="atl-source atl-source--wrap">
               <select value={site.mode} onChange={(e) => setSite({ ...site, mode: e.target.value })}>
-                <option value="url">Depuis l'URL d'un site</option>
-                <option value="template">Depuis un template</option>
+                <option value="url">Depuis l'URL du site</option>
                 <option value="captures">Depuis des captures d'écran</option>
               </select>
               {site.mode === "captures" ? (
                 <ScreenshotDrop images={site.images} onChange={(images) => setSite({ ...site, images })} hint="les pages du site, dans l'ordre" />
-              ) : site.mode === "url" ? (
-                <input value={site.url} onChange={(e) => setSite({ ...site, url: e.target.value })} placeholder="https://site-a-reproduire.com" />
               ) : (
-                <select value={site.template} onChange={(e) => setSite({ ...site, template: e.target.value })}>
-                  <option value="">— Choisir un template —</option>
-                  {templates.filter((t) => t.page).map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.nom}
-                    </option>
-                  ))}
-                </select>
+                <input value={site.url} onChange={(e) => setSite({ ...site, url: e.target.value })} placeholder="https://site-a-reproduire.com" />
               )}
             </span>
-          )}
-          {site.on && site.mode !== "template" && (
             <p className="atl-newpage__hint">
               Le site sera reproduit page par page dans ce projet, et ajouté au catalogue (template, sections, design.md). Dis ensuite à
               Claude « traite les demandes ».
             </p>
-          )}
-        </div>
+          </div>
+        )}
+        {start === "template" && <TemplateGrid templates={templates} value={site.template} onChange={(template) => setSite({ ...site, template })} />}
+        {start === "plus-tard" && (
+          <p className="atl-newpage__hint">
+            Le projet est créé vide. Ajoute ses pages quand tu veux, depuis sa fiche dans le catalogue (« Ajouter une page au projet ») ou
+            avec « + » à côté de « Page ».
+          </p>
+        )}
       </fieldset>
 
+      {start !== "plus-tard" && (
       <fieldset>
-        <legend>3. Pages en plus</legend>
+        <legend>3. Pages en plus (facultatif)</legend>
         <ul className="atl-starters">
           {extras.map((x, i) => {
             const type = pageTypeById[x.pageType];
@@ -732,6 +768,7 @@ export function NewProjectDialog({ pages, projects, templates, onClose, onCreate
         </ul>
         <p className="atl-newpage__hint">Toutes ces pages sont rangées dans le projet. Tu pourras en ajouter d'autres plus tard (« + Nouvelle »).</p>
       </fieldset>
+      )}
     </Modal>
   );
 }

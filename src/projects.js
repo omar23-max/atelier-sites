@@ -33,6 +33,25 @@ export const listProjects = () => api("GET", "/api/projects");
 export const listTemplates = () => api("GET", "/api/templates");
 export const listMedias = (page) => api("GET", `/api/medias/${page}`);
 export const getPage = (name) => api("GET", `/api/pages/${name}`);
+
+// Nouveau produit d'un projet : ses pages prennent le nouveau nom (produit et
+// titre « Produit — Type — angle »). Un titre retouché à la main garde sa fin :
+// seul l'ancien nom du produit, en tête, est remplacé. Renvoie le nombre de pages.
+export async function renameProductInPages(names, oldProduit, newProduit) {
+  let n = 0;
+  for (const name of names) {
+    const page = await getPage(name);
+    const props = page.root?.props ?? {};
+    const type = pageTypeById[props.pageType];
+    const built = [newProduit, type?.label, props.profil].filter(Boolean).join(" — ");
+    const title = String(props.title ?? "");
+    const nextTitle = oldProduit && title.startsWith(oldProduit) ? newProduit + title.slice(oldProduit.length) : built;
+    page.root = { ...page.root, props: { ...props, produit: newProduit, title: nextTitle } };
+    await api("PUT", `/api/pages/${name}`, page);
+    n++;
+  }
+  return n;
+}
 export const saveProject = (project) => api("PUT", `/api/projects/${project.id}`, project);
 
 // Crée une page. source = nom d'une page à copier (page d'un projet ou page
@@ -81,6 +100,15 @@ export async function mirrorIntoPage(name, source) {
 
 // Nom de fichier proposé pour une page de projet.
 export const pageNameFor = (projet, pageType, profil) => slug([projet, pageType, profil].filter(Boolean).join(" "));
+
+// Nom libre pour une nouvelle page : « …-landing », sinon « …-landing-2 »,
+// « -3 »… (plusieurs pages du même type dans un projet, une par angle).
+export function uniquePageName(base, existing = []) {
+  const taken = new Set(existing.map((p) => p.name ?? p.info?.name));
+  let name = base;
+  for (let n = 2; taken.has(name); n++) name = `${base}-${n}`;
+  return name;
+}
 
 // Corbeille commune : kind = pages, projets, designs, templates, demandes.
 export const trashItem = (kind, id) => api("POST", `/api/corbeille/${kind}/${id}`);

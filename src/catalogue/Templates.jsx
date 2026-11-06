@@ -151,7 +151,7 @@ const NICHES = {
   "Soins de la peau": "Soins peau",
   "Soins et santé": "Santé",
 };
-const nicheLabel = (n) => {
+export const nicheLabel = (n) => {
   const s = String(n ?? "").split(/\s+[—-]\s+/)[0].trim();
   return NICHES[s] ?? s;
 };
@@ -357,8 +357,8 @@ function UseTemplate({ template, onClose, onMessage }) {
               </select>
             </label>
             <label className="cat-field">
-              <span>Profil client visé (facultatif)</span>
-              <input value={profil} onChange={(e) => setProfil(e.target.value)} placeholder="ex. femmes 45+" />
+              <span>Angle / profil client (facultatif)</span>
+              <input value={profil} onChange={(e) => setProfil(e.target.value)} placeholder="ex. anti-rides, prix, femmes 45+" />
             </label>
             <p className="cat-muted">
               La page reprend la mise en page et le design du template ; les photos et textes d'origine restent des repères à remplacer. La

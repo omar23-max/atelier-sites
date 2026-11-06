@@ -3712,6 +3712,90 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   border-radius: 7px;
   font: 600 18px/1 "Inter", system-ui, sans-serif;
 }
+/* Nouveau projet : 3 points de départ, et la grille de templates à miniatures. */
+.atl-starts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.atl-start {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid #ddd9d0;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+.atl-start input {
+  display: none;
+}
+.atl-start small {
+  color: #77736b;
+  font-size: 12px;
+}
+.atl-start.is-on {
+  border-color: #111;
+  box-shadow: 0 0 0 2px #111;
+}
+.atl-tplgrid input {
+  width: 100%;
+  margin-bottom: 8px;
+}
+.atl-tplgrid__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.atl-tplgrid__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid #ddd9d0;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-tplgrid__item:hover {
+  border-color: #111;
+}
+.atl-tplgrid__item.is-on {
+  border-color: #111;
+  box-shadow: 0 0 0 2px #111;
+}
+.atl-tplgrid__thumb {
+  display: block;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #f1efea;
+}
+.atl-tplgrid__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.atl-tplgrid__item b {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.atl-tplgrid__item small {
+  color: #77736b;
+  font-size: 11px;
+}
 .atl-topbar button.atl-close-page {
   font-size: 13px;
 }

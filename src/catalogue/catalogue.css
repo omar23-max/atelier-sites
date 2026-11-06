@@ -1798,6 +1798,177 @@ textarea {
   flex: none;
   padding: 2px 6px;
 }
+/* « Partir de » avec miniatures (fiche d'un projet). */
+.cat-source-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 4px 10px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cat-source-btn img {
+  flex: none;
+  width: 40px;
+  height: 30px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 4px;
+}
+.cat-source-btn span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-source-btn i {
+  font-style: normal;
+  font-size: 11px;
+}
+.cat-picker {
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+}
+.cat-picker__bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 4px;
+}
+.cat-picker__bar .cat-search {
+  flex: 1;
+  margin: 0 0 12px;
+}
+.cat-picker__type {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.cat-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.cat-picker__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--cat-line);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cat-picker__item:hover {
+  border-color: var(--cat-black);
+}
+.cat-picker__item.is-on {
+  border-color: var(--cat-black);
+  box-shadow: 0 0 0 2px var(--cat-black);
+}
+.cat-picker__thumb {
+  display: grid;
+  place-items: center;
+  height: 130px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #f1efea;
+  color: var(--cat-muted);
+  font-size: 30px;
+}
+.cat-picker__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.cat-picker__item b {
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.cat-picker__item small {
+  color: var(--cat-muted);
+  font-size: 11px;
+}
+
+/* Nom du projet + stylo ✎ (fiche d'un projet). */
+.cat-project-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+.cat-rename {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--cat-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cat-rename:hover {
+  border-color: var(--cat-black);
+  color: var(--cat-black);
+}
+.cat-project-name.is-small {
+  gap: 6px;
+  font-size: 15px;
+}
+.cat-project-name.is-editing.is-small input {
+  min-width: 0;
+  width: 100%;
+  font-size: 15px;
+}
+.cat-project-name.is-editing.is-small {
+  flex-wrap: wrap;
+}
+.cat-project-product {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+.cat-rename.is-small {
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+}
+.cat-project-product.is-editing input {
+  min-width: 300px;
+  padding: 5px 9px;
+  border: 1px solid var(--cat-black);
+  border-radius: 8px;
+  font: inherit;
+}
+.cat-project-name.is-editing input {
+  min-width: 280px;
+  padding: 6px 10px;
+  border: 1px solid var(--cat-black);
+  border-radius: 8px;
+  font: 700 28px "Inter", system-ui, sans-serif;
+}
 .cat-tpl__score {
   position: absolute;
   bottom: 10px;
