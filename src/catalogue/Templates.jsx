@@ -139,10 +139,10 @@ function TemplateCard({ template, onUse, onDelete, onMessage }) {
   return (
     <article className="cat-card cat-tpl">
       <div className="cat-tpl__media">
-        {/* Page entière (desktop.png), à faire défiler dans la carte ; la vignette en secours. */}
+        {/* Page entière en version légère (carte.jpg, tirée de desktop.png), à faire défiler dans la carte ; la vignette en secours. */}
         <div className="cat-tpl__thumb cat-card__scroll">
           {template.vignette ? (
-            <img src={template.vignette.replace(/vignette.png$/, "desktop.png")} alt="" loading="lazy" onError={(e) => e.currentTarget.src !== new URL(template.vignette, location.href).href && (e.currentTarget.src = template.vignette)} />
+            <img src={template.vignette.replace(/vignette.png$/, "carte.jpg")} decoding="async" alt="" loading="lazy" onError={(e) => e.currentTarget.src !== new URL(template.vignette, location.href).href && (e.currentTarget.src = template.vignette)} />
           ) : (
             <span>Pas de vignette</span>
           )}

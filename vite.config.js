@@ -205,6 +205,39 @@ function atelierApi() {
           res.end(`Rendu impossible : ${e.message}`);
         }
       });
+      // Aperçu léger des templates (/imports/<slug>/carte.jpg) : la capture
+      // pleine page réduite à 480 px de large, faite à la première demande puis
+      // gardée. Les captures d'origine (1,5 Mo en moyenne) gelaient le catalogue
+      // une fois l'atelier en ligne. Sans vipsthumbnail, on renvoie la capture.
+      server.middlewares.use("/imports", async (req, res, next) => {
+        const m = /^\/([a-z0-9][a-z0-9._-]*)\/carte\.jpg$/i.exec((req.url ?? "").split("?")[0]);
+        if (!m) return next();
+        const dir = join(root, "imports", m[1]);
+        const src = join(dir, "desktop.png");
+        const out = join(dir, "carte.jpg");
+        if (!existsSync(src)) {
+          res.statusCode = 404;
+          return res.end();
+        }
+        try {
+          const { stat } = await import("node:fs/promises");
+          const fresh = existsSync(out) && (await stat(out)).mtimeMs >= (await stat(src)).mtimeMs;
+          if (!fresh) {
+            const code = await new Promise((done) =>
+              spawn("vipsthumbnail", [src, "--size", "480x", "-o", `${out}[Q=78,strip]`], { stdio: "ignore", windowsHide: true })
+                .on("close", done)
+                .on("error", () => done(1)),
+            );
+            if (code !== 0 || !existsSync(out)) throw new Error("réduction impossible");
+          }
+          res.setHeader("Content-Type", "image/jpeg");
+          res.setHeader("Cache-Control", "private, max-age=3600");
+          res.end(await readFile(out));
+        } catch {
+          res.setHeader("Content-Type", "image/png");
+          res.end(await readFile(src));
+        }
+      });
       server.middlewares.use("/api", async (req, res, next) => {
         const [path] = (req.url ?? "/").split("?");
         const parts = path.split("/").filter(Boolean).map(decodeURIComponent);
