@@ -258,8 +258,16 @@ try {
 
   // Images : créées dans l'atelier (medias/) + miniatures du catalogue.
   // Seulement celles qui ont changé (comparées à la table « medias »).
-  const { data: known } = await db.from("medias").select("chemin, taille");
-  const sizes = new Map((known ?? []).map((m) => [m.chemin, Number(m.taille)]));
+  // Supabase renvoie 1000 lignes au plus par requête : on lit la table par pages,
+  // sinon les images au-delà des 1000 premières sont renvoyées à chaque fois.
+  const known = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db.from("medias").select("chemin, taille").order("chemin").range(from, from + 999);
+    if (error) throw new Error(`lecture des images connues : ${error.message}`);
+    known.push(...(data ?? []));
+    if (!data || data.length < 1000) break;
+  }
+  const sizes = new Map(known.map((m) => [m.chemin, Number(m.taille)]));
   const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif" };
   const files = [];
   for (const folder of await list(join(root, "medias"))) {
