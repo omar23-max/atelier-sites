@@ -52,6 +52,21 @@ export async function renameProductInPages(names, oldProduit, newProduit) {
   }
   return n;
 }
+// Une page reliée à un angle prend son nom comme profil, et son titre
+// « Produit — Type — angle » suit (la fin d'un titre retouché est remplacée
+// seulement si elle était l'ancien profil).
+export async function setPageProfile(name, profil) {
+  const page = await getPage(name);
+  const props = page.root?.props ?? {};
+  if (props.profil === profil) return false;
+  const old = String(props.profil ?? "");
+  const title = String(props.title ?? "");
+  const built = [props.produit, pageTypeById[props.pageType]?.label, profil].filter(Boolean).join(" — ");
+  const nextTitle = old && title.endsWith(old) ? title.slice(0, title.length - old.length) + profil : built;
+  page.root = { ...page.root, props: { ...props, profil, title: nextTitle } };
+  await api("PUT", `/api/pages/${name}`, page);
+  return true;
+}
 export const saveProject = (project) => api("PUT", `/api/projects/${project.id}`, project);
 
 // Crée une page. source = nom d'une page à copier (page d'un projet ou page
