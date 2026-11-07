@@ -7,6 +7,8 @@ import { normalizeProps } from "../engine/render.js";
 import { SourceLink } from "./hover.jsx";
 import { OriginBar, originLabel, useOrigins } from "./origins.jsx";
 import { confirmDelete } from "../projects.js";
+import { Menu } from "./Templates.jsx";
+import { PageSelect, Viewer } from "./Viewer.jsx";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 
@@ -60,23 +62,26 @@ function themeColors(design) {
   return [...new Set([...first, ...rest].map((v) => v.trim().toLowerCase()))].slice(0, 5);
 }
 
-function DesignCard({ design, isCurrent, onDetails, children }) {
+function DesignCard({ design, isCurrent, onDetails, menu, children }) {
   const [peek, setPeek] = useState(false);
   const colors = themeColors(design);
   const c = design.tokens.couleurs ?? {};
   return (
-    <article className={`cat-card cat-dcard cat-theme${isCurrent ? " is-current" : ""}`} onMouseEnter={() => setPeek(true)} onMouseLeave={() => setPeek(false)}>
-      <button type="button" className="cat-theme__tile" style={{ background: c.fond ?? "#fafafa" }} onClick={onDetails} title="Ouvrir la fiche du design">
-        <span className="cat-theme__strip">
-          {colors.map((col, i) => (
-            <span key={i} style={{ background: col }} />
-          ))}
-        </span>
-        <span className="cat-theme__name" style={{ color: c.texte ?? "#111" }}>
-          {design.title ?? design.id}
-          <i style={{ background: c.bouton ?? colors[0] ?? "#111" }} />
-        </span>
-      </button>
+    <article className={`cat-card cat-tpl cat-dcard cat-theme${isCurrent ? " is-current" : ""}`} onMouseEnter={() => setPeek(true)} onMouseLeave={() => setPeek(false)}>
+      <div className="cat-tpl__media">
+        <button type="button" className="cat-theme__tile" style={{ background: c.fond ?? "#fafafa" }} onClick={onDetails} title="Voir l'aperçu">
+          <span className="cat-theme__strip">
+            {colors.map((col, i) => (
+              <span key={i} style={{ background: col }} />
+            ))}
+          </span>
+          <span className="cat-theme__name" style={{ color: c.texte ?? "#111" }}>
+            {design.title ?? design.id}
+            <i style={{ background: c.bouton ?? colors[0] ?? "#111" }} />
+          </span>
+        </button>
+        {menu}
+      </div>
       {children}
       {peek &&
         createPortal(
@@ -307,35 +312,48 @@ function DesignInspect({ design }) {
   );
 }
 
-function DesignPreview({ design, onClose, onApply, targetPage }) {
+// Aperçu d'un design en grand, comme celui des templates : design précédent /
+// suivant (flèches du clavier aussi), fiche ou fichier, supprimer, et
+// « Appliquer à » une page choisie (la page ouverte par défaut).
+function DesignPreview({ design, position, onPrev, onNext, onClose, onApply, onDelete, page, onPage, busy }) {
   const c = design.tokens.couleurs ?? {};
   const f = design.tokens.polices ?? {};
   const [tab, setTab] = useState("inspect");
+  const actions = (
+    <>
+      <span className="cat-seg cat-pv__seg">
+        <button type="button" className={tab === "inspect" ? "is-on" : ""} onClick={() => setTab("inspect")}>
+          Inspecter
+        </button>
+        <button type="button" className={tab === "file" ? "is-on" : ""} onClick={() => setTab("file")}>
+          Fichier
+        </button>
+      </span>
+      <button type="button" className="cat-pv__btn is-danger" onClick={() => onDelete(design)}>
+        Supprimer
+      </button>
+      <span className="cat-pv__add">
+        <PageSelect value={page} onChange={onPage} placeholder="Appliquer à…" />
+        <button type="button" className="cat-pv__btn is-primary" disabled={!page || !!busy || !!design.error} onClick={() => onApply(design)} title={page ? `Appliquer ce design à « ${page} »` : "Choisis la page"}>
+          {busy === design.id ? "Application…" : "Appliquer"}
+        </button>
+      </span>
+    </>
+  );
   return (
-    <div className="cat-modal" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="cat-modal__panel">
-        <header className="cat-modal__head">
-          <div>
-            <h2>{design.id}.md</h2>
-            <p className="cat-muted">
-              <SourceLink url={design.source} prefix="Extrait de" />
-            </p>
-          </div>
-          <span className="cat-seg" style={{ marginLeft: "auto" }}>
-            <button type="button" className={tab === "inspect" ? "is-on" : ""} onClick={() => setTab("inspect")}>
-              Inspecter
-            </button>
-            <button type="button" className={tab === "file" ? "is-on" : ""} onClick={() => setTab("file")}>
-              Aperçu et fichier
-            </button>
-          </span>
-          <button type="button" className="cat-btn" disabled={!targetPage} title={targetPage ? "" : "Ouvre d'abord une page dans l'atelier"} onClick={() => onApply(design)}>
-            {targetPage ? `Appliquer dans la page courante (« ${targetPage} »)` : "Appliquer dans la page courante"}
-          </button>
-          <button type="button" className="cat-close" onClick={onClose} aria-label="Fermer">
-            ×
-          </button>
-        </header>
+    <Viewer
+      title={`${design.id}.md`}
+      subtitle={[f.titres, f.texte].filter(Boolean).join(" · ")}
+      position={position}
+      onPrev={onPrev}
+      onNext={onNext}
+      onClose={onClose}
+      actions={actions}
+    >
+      <div className="cat-viewer__pad">
+        <p className="cat-muted">
+          <SourceLink url={design.source} prefix="Extrait de" />
+        </p>
         {tab === "inspect" && <DesignInspect design={design} />}
         {tab === "file" && <>
         <div className="cat-design-detail">
@@ -367,12 +385,12 @@ function DesignPreview({ design, onClose, onApply, targetPage }) {
         </details>
         </>}
       </div>
-    </div>
+    </Viewer>
   );
 }
 
 export function DesignsView({ targetPage, onMessage }) {
-  const [preview, setPreview] = useState(null);
+  const [previewId, setPreviewId] = useState(null);
   const [origin, setOrigin] = useState("");
   const [q, setQ] = useState("");
   const { originOf } = useOrigins();
@@ -413,12 +431,28 @@ export function DesignsView({ targetPage, onMessage }) {
     if (!confirmDelete("ce design", details)) return;
     try {
       await api("POST", `/api/corbeille/designs/${design.id}`);
+      // Rouvert après le rechargement sur le design suivant, si on était dans l'aperçu.
+      const i = shownDesigns.findIndex((d) => d.id === design.id);
+      const next = previewId ? (shownDesigns[i + 1] ?? shownDesigns[i - 1])?.id : null;
+      try {
+        if (next) sessionStorage.setItem("atl-design-apercu", next);
+      } catch {}
       onMessage({ text: `${design.id}.md déplacé dans la corbeille. Le catalogue se recharge…` });
       setTimeout(() => location.reload(), 900);
     } catch (e) {
       onMessage({ error: true, text: `Échec : ${e.message}` });
     }
   }
+  // Après la suppression d'un design depuis l'aperçu : l'aperçu se rouvre sur le suivant.
+  useEffect(() => {
+    try {
+      const id = sessionStorage.getItem("atl-design-apercu");
+      sessionStorage.removeItem("atl-design-apercu");
+      if (id && designById[id]) setPreviewId(id);
+    } catch {}
+  }, []);
+  const previewIndex = shownDesigns.findIndex((d) => d.id === previewId);
+  const previewed = previewIndex >= 0 ? shownDesigns[previewIndex] : null;
 
   async function apply(design) {
     if (!chosenPage) return onMessage({ error: true, text: "Choisis d'abord la page à laquelle appliquer le design." });
@@ -471,36 +505,49 @@ export function DesignsView({ targetPage, onMessage }) {
         <input className="cat-search" placeholder="Rechercher un design : nom, police…" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="cat-grid cat-grid--designs">
           {shownDesigns.map((d) => (
-            <DesignCard key={d.id} design={d} isCurrent={d.id === currentDesign} onDetails={() => setPreview(d)}>
-              <div className="cat-card__body">
-                <strong>{d.id}.md</strong>
-                <span className="cat-muted cat-card__meta">
+            <DesignCard
+              key={d.id}
+              design={d}
+              isCurrent={d.id === currentDesign}
+              onDetails={() => setPreviewId(d.id)}
+              menu={
+                <Menu
+                  className="cat-tpl__more"
+                  label="Plus d'actions"
+                  icon="⋯"
+                  items={[d.source && { label: "Voir le site d'origine", href: d.source }, { label: "Supprimer", danger: true, action: () => remove(d) }]}
+                />
+              }
+            >
+              {/* Comme la carte d'un template : titre et polices, pastilles, une seule action (▾ pour une autre page). */}
+              <div className="cat-tpl__body">
+                <span className="cat-tpl__line">
+                  <strong className="cat-tpl__title" title={`${d.id}.md`}>
+                    {d.id}.md
+                  </strong>
+                </span>
+                <span className="cat-tpl__meta">
                   {d.tokens.polices?.titres ?? "?"} · {d.tokens.polices?.texte ?? "?"}
                 </span>
-                <span className="cat-muted cat-card__meta">
-                  <SourceLink url={d.source} prefix="Extrait de" />
-                </span>
-                <div className="cat-card__badges">
-                  {d.id === currentDesign && <span className="cat-badge cat-badge--green">Appliqué à cette page</span>}
-                  {d.error && <span className="cat-badge cat-badge--red">À corriger : {d.error}</span>}
+                <div className="cat-tpl__pills">
+                  <span className="cat-tpl__pill is-origin">{originLabel(originOf(d.id)).replace(/^Daydreamer /, "DD ")}</span>
+                  {d.id === currentDesign && <span className="cat-tpl__pill is-info">Appliqué à cette page</span>}
+                  {d.error && <span className="cat-tpl__pill is-bad" title={d.error}>À corriger</span>}
                 </div>
               </div>
-              <div className="cat-card__actions">
-                <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setPreview(d)}>
-                  Inspecter
-                </button>
-                <button
-                  type="button"
-                  className="cat-btn"
-                  disabled={!!busy || !!d.error}
-                  onClick={() => apply(d)}
-                  title={chosenPage ? `Appliquer ce design à « ${chosenPage} »` : "Appliquer ce design à une page"}
-                >
-                  {busy === d.id ? "Application…" : "Appliquer"}
-                </button>
-                <button type="button" className="cat-btn cat-btn--danger cat-btn--icon" disabled={!!busy} onClick={() => remove(d)} title="Supprimer ce design" aria-label="Supprimer ce design">
-                  🗑
-                </button>
+              <div className="cat-tpl__actions">
+                <div className="cat-tpl__use has-more">
+                  <button
+                    type="button"
+                    className="cat-tpl__primary"
+                    disabled={!!busy || !!d.error || !chosenPage}
+                    onClick={() => apply(d)}
+                    title={chosenPage ? `Appliquer ce design à « ${chosenPage} »` : "Choisis d'abord la page (en haut, ou avec ▾)"}
+                  >
+                    {busy === d.id ? "Application…" : chosenPage ? "Appliquer à la page" : "Appliquer à…"}
+                  </button>
+                  <Menu className="cat-tpl__usemore" label="Appliquer à une autre page" icon="▾" items={[{ label: "Appliquer à une autre page…", action: () => setPreviewId(d.id) }]} />
+                </div>
               </div>
             </DesignCard>
           ))}
@@ -508,15 +555,19 @@ export function DesignsView({ targetPage, onMessage }) {
         </>
       )}
 
-      {preview && (
+      {previewed && (
         <DesignPreview
-          design={preview}
-          targetPage={chosenPage}
-          onClose={() => setPreview(null)}
-          onApply={(d) => {
-            setPreview(null);
-            apply(d);
-          }}
+          key={previewed.id}
+          design={previewed}
+          position={`${previewIndex + 1} / ${shownDesigns.length}`}
+          onPrev={previewIndex > 0 ? () => setPreviewId(shownDesigns[previewIndex - 1].id) : null}
+          onNext={previewIndex < shownDesigns.length - 1 ? () => setPreviewId(shownDesigns[previewIndex + 1].id) : null}
+          onClose={() => setPreviewId(null)}
+          onApply={apply}
+          onDelete={remove}
+          page={chosenPage}
+          onPage={setChosenPage}
+          busy={busy}
         />
       )}
     </>

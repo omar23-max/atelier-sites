@@ -6,9 +6,10 @@ import { applyDesign } from "../engine/design.js";
 import { Enrichir, METHODS } from "./Enrichir.jsx";
 import { DesignsView } from "./Designs.jsx";
 import { designById, designs } from "../engine/designs.js";
-import { HoverPreviewProvider, SourceLink } from "./hover.jsx";
+import { HoverPreviewProvider } from "./hover.jsx";
 import { OriginBar, originLabel, templateOf, useOrigins } from "./origins.jsx";
-import { TemplatesView } from "./Templates.jsx";
+import { Menu, TemplatesView } from "./Templates.jsx";
+import { PageSelect, Viewer } from "./Viewer.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
 import { confirmDelete, listPages, listProjects, listTemplates } from "../projects.js";
@@ -62,10 +63,10 @@ async function api(method, url, body) {
   return data;
 }
 
-// Ajoute une section à la fin de la page courante (copie de sécurité avant),
-// aux couleurs de son design.md comme le bouton « + » de l'atelier.
-export async function addToCurrentPage(section) {
-  const url = `/api/pages/${targetPage}`;
+// Ajoute une section à la fin d'une page (la page courante par défaut ; copie
+// de sécurité avant), aux couleurs de son design.md comme le « + » de l'atelier.
+export async function addToCurrentPage(section, pageName = targetPage) {
+  const url = `/api/pages/${encodeURIComponent(pageName)}`;
   const page = await api("GET", url);
   let item = { type: section.id, props: { ...defaultPropsFor(section), id: `${section.id}-${Date.now().toString(36)}` } };
   const design = designById[page.root?.props?.design];
@@ -75,79 +76,121 @@ export async function addToCurrentPage(section) {
   return item.props.id;
 }
 
-function AddToPageButton({ section, onMessage, short }) {
+// Bouton principal de la carte, comme « Utiliser ce template » : ajouter à la
+// page ouverte ; ▾ (ou sans page ouverte) : l'aperçu, où l'on choisit la page.
+function AddToPageButton({ section, onMessage, onChoose }) {
   const [busy, setBusy] = useState(false);
-  if (!targetPage) return null;
+  if (!targetPage)
+    return (
+      <div className="cat-tpl__use">
+        <button type="button" className="cat-tpl__primary" onClick={onChoose} title="Choisir la page qui reçoit la section">
+          + Ajouter à une page…
+        </button>
+      </div>
+    );
   return (
-    <button
-      type="button"
-      className="cat-btn"
-      disabled={busy}
-      title={`Ajouter à la fin de « ${targetPage} »`}
-      onClick={async () => {
-        setBusy(true);
-        try {
-          const id = await addToCurrentPage(section);
-          // La page s'ouvre tout de suite, sur la section ajoutée (sélectionnée).
-          onMessage?.({ text: `« ${section.meta.label ?? section.id} » ajoutée à « ${targetPage} ». Ouverture de la page…` });
-          location.href = `/?page=${encodeURIComponent(targetPage)}&section=${encodeURIComponent(id)}`;
-        } catch (e) {
-          onMessage?.({ error: true, text: `Échec : ${e.message}` });
-        } finally {
-          setBusy(false);
-        }
-      }}
-    >
-      {busy ? "Ajout…" : short ? "+ Ajouter" : "+ Ajouter dans la page actuelle"}
-    </button>
+    <div className="cat-tpl__use has-more">
+      <button
+        type="button"
+        className="cat-tpl__primary"
+        disabled={busy}
+        title={`Ajouter à la fin de « ${targetPage} »`}
+        onClick={async () => {
+          setBusy(true);
+          try {
+            const id = await addToCurrentPage(section);
+            // La page s'ouvre tout de suite, sur la section ajoutée (sélectionnée).
+            onMessage?.({ text: `« ${section.meta.label ?? section.id} » ajoutée à « ${targetPage} ». Ouverture de la page…` });
+            location.href = `/?page=${encodeURIComponent(targetPage)}&section=${encodeURIComponent(id)}`;
+          } catch (e) {
+            onMessage?.({ error: true, text: `Échec : ${e.message}` });
+            setBusy(false);
+          }
+        }}
+      >
+        {busy ? "Ajout…" : "+ Ajouter à la page ouverte"}
+      </button>
+      <Menu className="cat-tpl__usemore" label="Ajouter à une autre page" icon="▾" items={[{ label: "Ajouter à une autre page…", action: onChoose }]} />
+    </div>
   );
 }
 
-function Preview({ section, onClose, onMessage }) {
+// Aperçu d'une section en grand, comme celui des templates : section
+// précédente / suivante (flèches du clavier aussi), ordinateur ou mobile,
+// masquer, supprimer, et « Ajouter à » une page choisie (la page ouverte par
+// défaut). On reste dans l'aperçu après l'ajout pour continuer à parcourir.
+function SectionViewer({ section, position, onPrev, onNext, onClose, onStatus, onTrash, page, onPage }) {
   const sourceUrl = useSourceUrl(section);
+  const hidden = statusOf(section) === "masquee";
   const [device, setDevice] = useState("desktop");
+  const [notice, setNotice] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const boxWidth = Math.min(1280, window.innerWidth * 0.92) - 28;
   const width = device === "desktop" ? 1440 : 390;
-  const scale = device === "desktop" ? 0.62 : 1;
+  const scale = device === "desktop" ? boxWidth / 1440 : 1;
   const full = useFull(section); // arrivée en version légère : complétée ici
   const doc = useMemo(() => (full ? previewDocument(full) : "<p style='font:14px system-ui;padding:20px'>Chargement…</p>"), [full]);
   const [height, setHeight] = useState(600);
+  useEffect(() => setNotice(null), [section.id]);
 
+  async function add() {
+    if (!page) return setNotice({ error: true, text: "Choisis d'abord la page qui reçoit la section." });
+    setBusy(true);
+    try {
+      const id = await addToCurrentPage(section, page);
+      setNotice({ text: `« ${section.meta.label ?? section.id} » ajoutée à la fin de « ${page} ».`, href: `/?page=${encodeURIComponent(page)}&section=${encodeURIComponent(id)}` });
+    } catch (e) {
+      setNotice({ error: true, text: `Échec : ${e.message}` });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const actions = (
+    <>
+      <span className="cat-seg cat-pv__seg">
+        <button type="button" className={device === "desktop" ? "is-on" : ""} onClick={() => setDevice("desktop")}>
+          Ordinateur
+        </button>
+        <button type="button" className={device === "mobile" ? "is-on" : ""} onClick={() => setDevice("mobile")}>
+          Mobile
+        </button>
+      </span>
+      <button type="button" className="cat-pv__btn" onClick={() => onStatus(section, hidden ? "visible" : "masquee")} title={hidden ? "Proposer de nouveau cette section dans l'atelier" : "Ne plus la proposer dans l'atelier (les pages qui l'utilisent ne changent pas)"}>
+        {hidden ? "Afficher" : "Masquer"}
+      </button>
+      <button type="button" className="cat-pv__btn is-danger" onClick={() => onTrash(section)}>
+        Supprimer
+      </button>
+      <span className="cat-pv__add">
+        <PageSelect value={page} onChange={onPage} placeholder="Ajouter à…" />
+        <button type="button" className="cat-pv__btn is-primary" disabled={busy || !page} onClick={add} title={page ? `Ajouter à la fin de « ${page} »` : "Choisis la page"}>
+          {busy ? "Ajout…" : "+ Ajouter"}
+        </button>
+      </span>
+    </>
+  );
   return (
-    <div className="cat-modal" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="cat-modal__panel cat-modal__panel--wide">
-        <header className="cat-modal__head">
-          <div>
-            <h2>{section.meta.label ?? section.schema.name}</h2>
-            <p className="cat-muted">
-              {familyOf(section).label} · <SourceLink url={sourceUrl} prefix="inspirée de" />
-            </p>
-          </div>
-          <div className="cat-seg">
-            <button type="button" className={device === "desktop" ? "is-on" : ""} onClick={() => setDevice("desktop")}>
-              Ordinateur
-            </button>
-            <button type="button" className={device === "mobile" ? "is-on" : ""} onClick={() => setDevice("mobile")}>
-              Mobile
-            </button>
-          </div>
-          <AddToPageButton section={section} onMessage={(m) => (onMessage?.(m), m.error || onClose())} />
-          <button type="button" className="cat-close" onClick={onClose} aria-label="Fermer">
-            ×
-          </button>
-        </header>
-        <div className="cat-preview">
-          <div style={{ width: width * scale, height: height * scale }}>
-            <iframe
-              title="Aperçu"
-              srcDoc={doc}
-              style={{ width, height, transform: `scale(${scale})` }}
-              onLoad={(e) => setHeight(Math.max(200, e.currentTarget.contentDocument.documentElement.scrollHeight))}
-            />
-          </div>
-        </div>
-        {section.meta.source?.note && <p className="cat-note">{section.meta.source.note}</p>}
+    <Viewer
+      title={section.meta.label ?? section.schema.name}
+      subtitle={`${familyOf(section).label}${hidden ? " · masquée" : ""}${sourceUrl ? ` · ${hostOf(sourceUrl)}` : ""}`}
+      position={position}
+      onPrev={onPrev}
+      onNext={onNext}
+      onClose={onClose}
+      actions={actions}
+      notice={notice}
+    >
+      <div className="cat-viewer__frame" style={{ width: width * scale, height: height * scale }}>
+        <iframe
+          title="Aperçu"
+          srcDoc={doc}
+          style={{ width, height, border: 0, transform: `scale(${scale})`, transformOrigin: "top left" }}
+          onLoad={(e) => setHeight(Math.max(200, e.currentTarget.contentDocument.documentElement.scrollHeight))}
+        />
       </div>
-    </div>
+      {section.meta.source?.note && <p className="cat-note">{section.meta.source.note}</p>}
+    </Viewer>
   );
 }
 
@@ -187,44 +230,66 @@ function useSourceUrl(section) {
   return own || templateUrls?.[templateOf(section.id)] || null;
 }
 
+// Carte d'une section, comme celle d'un template : l'image entière qu'on fait
+// défiler (clic = aperçu en grand), la famille posée dessus, un menu ⋯ pour
+// masquer ou supprimer ; titre et site sur une ligne, pastilles ; une seule
+// action principale (▾ pour l'ajouter à une autre page).
 function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
   const sourceUrl = useSourceUrl(section);
   const hidden = statusOf(section) === "masquee";
   const { originOf } = useOrigins(); // origine (Replo, Whitelabeler…) du template d'où vient la section
+  const host = hostOf(sourceUrl);
+  const open = () => onPreview(section);
   return (
-    <article className={`cat-card${hidden ? " is-hidden" : ""}`}>
-      {/* Image entière de la section : on la fait défiler dans la carte. */}
-      <div className="cat-card__thumb cat-card__scroll">
-        {section.thumbnail ? <img src={section.thumbnail} alt="" loading="lazy" /> : <span>Pas de miniature</span>}
+    <article className={`cat-card cat-tpl cat-sec${hidden ? " is-hidden" : ""}`}>
+      <div className="cat-tpl__media">
+        <div className="cat-tpl__thumb cat-card__scroll is-clickable" role="button" tabIndex={0} title="Voir l'aperçu" onClick={open} onKeyDown={(e) => e.key === "Enter" && open()}>
+          {section.thumbnail ? <img src={section.thumbnail} alt="" loading="lazy" /> : <span>Pas de miniature</span>}
+        </div>
+        <span className="cat-tpl__type">{familyOf(section).label}</span>
+        <Menu
+          className="cat-tpl__more"
+          label="Plus d'actions"
+          icon="⋯"
+          items={[
+            sourceUrl && { label: "Voir le site d'origine", href: sourceUrl },
+            { label: hidden ? "Afficher dans l'atelier" : "Masquer de l'atelier", action: () => onStatus(section, hidden ? "visible" : "masquee") },
+            { label: "Supprimer", danger: true, action: () => onTrash(section) },
+          ]}
+        />
       </div>
-      <div className="cat-card__body">
-        <strong>{section.meta.label ?? section.schema.name}</strong>
-        <span className="cat-muted cat-card__meta">
-          {sourceUrl || originOf(section.id) !== "whitelabeler" ? <SourceLink url={sourceUrl} /> : <span>Bibliothèque Whitelabeler</span>}
-          {section.meta.source?.capturedAt ? ` · ${section.meta.source.capturedAt}` : ""}
+      <div className="cat-tpl__body">
+        <span className="cat-tpl__line">
+          <strong className="cat-tpl__title" title={section.meta.label ?? section.schema.name}>
+            {section.meta.label ?? section.schema.name}
+          </strong>
+          <span className="cat-tpl__meta">
+            {host ? (
+              <a href={sourceUrl} target="_blank" rel="noreferrer noopener" title={sourceUrl}>
+                {host} ↗
+              </a>
+            ) : originOf(section.id) === "whitelabeler" ? (
+              "Whitelabeler"
+            ) : (
+              "Modèle de base"
+            )}
+          </span>
         </span>
-        <div className="cat-card__badges">
-          <span className="cat-badge cat-badge--blue" title="Origine">{originLabel(originOf(section.id))}</span>
-          <span className={`cat-badge ${hidden ? "cat-badge--grey" : "cat-badge--green"}`}>{hidden ? "Masquée" : "Visible"}</span>
-          {section.errors.length > 0 && <span className="cat-badge cat-badge--red">À corriger</span>}
+        <div className="cat-tpl__pills">
+          <span className="cat-tpl__pill is-origin" title={`Origine : ${originLabel(originOf(section.id))}`}>
+            {originLabel(originOf(section.id)).replace(/^Daydreamer /, "DD ")}
+          </span>
+          {hidden && <span className="cat-tpl__pill">Masquée</span>}
+          {section.errors.length > 0 && <span className="cat-tpl__pill is-bad">À corriger</span>}
           {section.meta.audit && (
-            <span className="cat-badge cat-badge--orange" title={section.meta.audit.raisons.join(" · ")}>
+            <span className="cat-tpl__pill is-bad" title={section.meta.audit.raisons.join(" · ")}>
               ⚠ {section.meta.audit.raisons[0]}
             </span>
           )}
         </div>
       </div>
-      <div className="cat-card__actions">
-        <button type="button" className="cat-btn cat-btn--ghost" onClick={() => onPreview(section)}>
-          Aperçu
-        </button>
-        <AddToPageButton section={section} onMessage={onMessage} short />
-        <button type="button" className="cat-btn cat-btn--ghost" onClick={() => onStatus(section, hidden ? "visible" : "masquee")}>
-          {hidden ? "Afficher" : "Masquer"}
-        </button>
-        <button type="button" className="cat-btn cat-btn--danger" onClick={() => onTrash(section)}>
-          Supprimer
-        </button>
+      <div className="cat-tpl__actions">
+        <AddToPageButton section={section} onMessage={onMessage} onChoose={open} />
       </div>
     </article>
   );
@@ -236,7 +301,9 @@ export default function Catalogue() {
   const [origin, setOrigin] = useState("");
   const [toCheck, setToCheck] = useState(false); // sections signalées par scripts/audit-sections.mjs
   const { originOf } = useOrigins();
-  const [preview, setPreview] = useState(null);
+  // Aperçu ouvert (id) et page qui reçoit les sections (la page ouverte par défaut).
+  const [previewId, setPreviewId] = useState(null);
+  const [addTarget, setAddTarget] = useState(targetPage ?? "");
   const [statusOverride, setStatusOverride] = useState({});
   const [trashed, setTrashed] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -329,14 +396,16 @@ export default function Catalogue() {
         "Pour la retirer du catalogue sans casser ces pages, choisis plutôt « Masquer ».",
       );
     } else lines.push("Aucune page ne l'utilise.");
-    if (!confirm([`Supprimer ${name} ?`, "", ...lines, "", "Elle part dans la corbeille et reste restaurable."].join("\n"))) return;
+    if (!confirm([`Supprimer ${name} ?`, "", ...lines, "", "Elle part dans la corbeille et reste restaurable."].join("\n"))) return false;
     try {
       await api("POST", `/api/sections/${section.id}/trash`);
       setTrashed((t) => [...t, section.id]);
       setMessage({ text: "Section déplacée dans la corbeille." });
       refresh();
+      return true;
     } catch (e) {
       setMessage({ error: true, text: e.message });
+      return false;
     }
   }
 
@@ -405,8 +474,13 @@ export default function Catalogue() {
     }
   }
 
-  const cardProps = { onPreview: setPreview, onStatus: changeStatus, onTrash: trashSection, onMessage: setMessage };
+  const cardProps = { onPreview: (s) => setPreviewId(s.id), onStatus: changeStatus, onTrash: trashSection, onMessage: setMessage };
   const currentFamily = FAMILIES.find((f) => f.id === view);
+  // Sections affichées, dans l'ordre de la page (filtres compris) : l'aperçu circule dedans.
+  const visibleSections =
+    view === "tout" ? FAMILIES.flatMap((f) => (grouped[f.id] ?? []).filter(matches)) : currentFamily ? (grouped[currentFamily.id] ?? []).filter(matches) : [];
+  const previewIndex = visibleSections.findIndex((s) => s.id === previewId);
+  const previewed = previewIndex >= 0 ? visibleSections[previewIndex] : null;
   // Menu de gauche : un seul sous-menu ouvert, celui de la vue affichée.
   const inSections = view === "tout" || Boolean(currentFamily);
   const [openGroup, setOpenGroup] = useState(() => (inSections ? "sections" : view.startsWith("templates") ? "templates" : null));
@@ -756,7 +830,22 @@ export default function Catalogue() {
         </main>
       </div>
 
-      {preview && <Preview section={preview} onClose={() => setPreview(null)} onMessage={setMessage} />}
+      {previewed && (
+        <SectionViewer
+          section={previewed}
+          position={`${previewIndex + 1} / ${visibleSections.length}`}
+          onPrev={previewIndex > 0 ? () => setPreviewId(visibleSections[previewIndex - 1].id) : null}
+          onNext={previewIndex < visibleSections.length - 1 ? () => setPreviewId(visibleSections[previewIndex + 1].id) : null}
+          onClose={() => setPreviewId(null)}
+          onStatus={changeStatus}
+          onTrash={async (s) => {
+            const next = visibleSections[previewIndex + 1] ?? visibleSections[previewIndex - 1] ?? null;
+            if (await trashSection(s)) setPreviewId(next?.id ?? null);
+          }}
+          page={addTarget}
+          onPage={setAddTarget}
+        />
+      )}
     </div>
     </HoverPreviewProvider>
   );

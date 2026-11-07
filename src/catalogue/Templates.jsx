@@ -84,7 +84,7 @@ async function checkSite(template, onMessage, onChecked) {
 }
 
 // Petit menu (⋯ de l'aperçu, ▾ du bouton) : se ferme au clic ailleurs ou sur Échap.
-function Menu({ className, label, icon, items }) {
+export function Menu({ className, label, icon, items }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {

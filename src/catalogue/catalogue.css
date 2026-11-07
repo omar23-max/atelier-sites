@@ -2479,3 +2479,72 @@ textarea {
 /* Angles : base d'un type de page */
 .cat-angle__base { align-self: flex-start; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #fff4d6; color: #8a5a00; }
 .cat-angle__field .cat-source-btn { width: 100%; }
+
+/* ---- 2026-11-06 : sections et designs sur le modèle des templates ----
+   Cartes : aperçu cliquable, étiquette et ⋯ posés dessus, une action principale (▾).
+   Aperçu : barre ← titre → , actions, « Ajouter à / Appliquer à » une page. */
+.cat-sec .cat-card__scroll {
+  height: 220px !important;
+}
+.cat-sec.is-hidden {
+  opacity: 0.65;
+}
+.cat-dcard.cat-tpl .cat-theme__tile {
+  border: 1px solid var(--cat-line);
+  border-radius: 10px;
+}
+.cat-dcard.cat-tpl .cat-tpl__more.cat-tpl__more {
+  top: 12px;
+  right: 12px;
+}
+.cat-dcard.cat-tpl .cat-tpl__meta {
+  display: block;
+}
+.cat-viewer .cat-pv {
+  position: relative;
+}
+.cat-viewer__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #f4f3ef;
+}
+.cat-viewer__frame {
+  margin: 14px auto;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.cat-viewer__body .cat-note {
+  margin: 0 14px 14px;
+}
+.cat-viewer__pad {
+  padding: 16px 22px 26px;
+  background: #fff;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+.cat-pv__seg {
+  margin-left: 0;
+  flex: none;
+}
+.cat-pv__seg button {
+  font: 600 12px "Inter", system-ui, sans-serif;
+}
+.cat-pv__add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cat-pv__select {
+  max-width: 230px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--cat-line);
+  border-radius: 8px;
+  background: #fff;
+  font: 500 13px "Inter", system-ui, sans-serif;
+}
+@media (max-width: 1100px) {
+  .cat-pv__seg { display: none; }
+  .cat-pv__select { max-width: 150px; }
+}
