@@ -822,6 +822,23 @@ function atelierApi() {
               await writeFile(metaFile, JSON.stringify(meta, null, 2) + "\n", "utf8");
               return json(res, 200, { ok: true });
             }
+            // Pages qui utilisent cette section (avertissement avant suppression).
+            if (parts[2] === "pages" && req.method === "GET") {
+              const files = existsSync(pagesDir) ? (await readdir(pagesDir)).filter((f) => f.endsWith(".json")) : [];
+              const used = [];
+              for (const f of files) {
+                let page;
+                try {
+                  page = JSON.parse(await readFile(join(pagesDir, f), "utf8"));
+                } catch {
+                  continue;
+                }
+                if (!(page.content ?? []).some((c) => c.type === parts[1])) continue;
+                const props = page.root?.props ?? {};
+                used.push({ name: f.slice(0, -5), title: props.title ?? "", projet: props.projet ?? "" });
+              }
+              return json(res, 200, used);
+            }
             // Suppression : déplacement vers la corbeille (restaurable).
             if (parts[2] === "trash" && req.method === "POST") {
               await mkdir(trashDir, { recursive: true });

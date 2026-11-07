@@ -309,7 +309,27 @@ export default function Catalogue() {
   }
 
   async function trashSection(section) {
-    if (!confirm(`Supprimer « ${section.meta.label ?? section.id} » ?\nElle part dans la corbeille et reste restaurable.\nAttention : les pages qui l'utilisent ne l'afficheront plus.`)) return;
+    // Avant de supprimer : les pages qui l'utilisent (pages de projets d'abord).
+    let used = [];
+    try {
+      used = await api("GET", `/api/sections/${section.id}/pages`);
+    } catch {
+      used = null;
+    }
+    const name = `« ${section.meta.label ?? section.id} »`;
+    const lines = [];
+    if (used === null) lines.push("⚠ Impossible de vérifier quelles pages l'utilisent.");
+    else if (used.length) {
+      const sorted = [...used].sort((a, b) => Number(!a.projet) - Number(!b.projet));
+      lines.push(
+        `⚠ ATTENTION : ${used.length} page(s) utilisent cette section. Elle disparaîtra de :`,
+        ...sorted.slice(0, 12).map((p) => `  • ${p.title || p.name}${p.projet ? ` (projet ${p.projet})` : " (template ou page sans projet)"}`),
+        ...(sorted.length > 12 ? [`  • … et ${sorted.length - 12} autre(s)`] : []),
+        "",
+        "Pour la retirer du catalogue sans casser ces pages, choisis plutôt « Masquer ».",
+      );
+    } else lines.push("Aucune page ne l'utilise.");
+    if (!confirm([`Supprimer ${name} ?`, "", ...lines, "", "Elle part dans la corbeille et reste restaurable."].join("\n"))) return;
     try {
       await api("POST", `/api/sections/${section.id}/trash`);
       setTrashed((t) => [...t, section.id]);
