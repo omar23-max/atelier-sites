@@ -8,19 +8,31 @@ const dry = process.argv.includes("--dry");
 const arg = (k) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const onlyPages = arg("--pages")?.split(",");
 const MAX = 45;
+const FAMS = new Set((arg("--familles") ?? "listicle").split(","));
 const J = (p) => JSON.parse(readFileSync(p, "utf8"));
 const rows = [];
 for (const id of readdirSync(A)) {
   if (!existsSync(`${A}/${id}/meta.json`)) continue;
   const m = J(`${A}/${id}/meta.json`);
-  if (m.family !== "listicle" || m.pageSpecific || m.regroupement) continue;
-  if (m.status === "masquee" && !m.regroupeeDans) continue;
+  if (!FAMS.has(m.family) || m.pageSpecific || m.regroupement) continue;
+  if (m.status === "masquee" || m.regroupeeDans) continue;
   const mm = id.match(/^(.*)-sec-(\d+)(?:-(\d+))?$/);
   if (!mm) continue;
   const tpl = readFileSync(`${A}/${id}/template.liquid`, "utf8");
   const slots = new Set(tpl.match(/data-atl-slot="[^"]+"/g) ?? []).size;
-  rows.push({ id, page: mm[1], n: +mm[2], k: +(mm[3] || 0), slots, m });
+  // signature : suite des types d'emplacements (i = image, s = texte, l = lien…)
+  const sig = [...new Set(tpl.match(/data-atl-slot="[^"]+"/g) ?? [])].map((x) => x.slice(15, 16)).join("");
+  rows.push({ id, page: mm[1], n: +mm[2], k: +(mm[3] || 0), slots, sig, m });
 }
+// structures proches : mêmes sortes d'emplacements, nombres voisins, petites sections
+const compte = (sig) => [...sig].reduce((o, c) => ((o[c] = (o[c] ?? 0) + 1), o), {});
+const proche = (a, b) => {
+  if (a.slots > 20 || b.slots > 20) return false;
+  const A = compte(a.sig), B = compte(b.sig), K = new Set([...Object.keys(A), ...Object.keys(B)]);
+  let inter = 0, uni = 0;
+  for (const k of K) { inter += Math.min(A[k] ?? 0, B[k] ?? 0); uni += Math.max(A[k] ?? 0, B[k] ?? 0); }
+  return uni > 0 && inter / uni >= 0.7;
+};
 const byPage = {};
 for (const r of rows) (byPage[r.page] ??= []).push(r);
 const groupes = [];
@@ -30,7 +42,9 @@ for (const [page, l] of Object.entries(byPage)) {
   // suites consécutives
   let run = [];
   const flush = () => { if (run.length > 1) groupes.push({ page, parts: run }); run = []; };
-  for (const r of l) { if (run.length && r.n - run.at(-1).n > 1) flush(); run.push(r); }
+  // même structure exigée (une section par élément répété), sauf --large
+  const large = process.argv.includes("--large");
+  for (const r of l) { if (run.length && (r.n - run.at(-1).n > 1 || r.m.family !== run.at(-1).m.family || (!large && !proche(r, run.at(-1))))) flush(); run.push(r); }
   flush();
 }
 // découpe à 45 emplacements
@@ -43,12 +57,16 @@ for (const g of groupes) {
   }
   if (cur.length) lots.push({ page: g.page, parts: cur });
 }
-const final = lots.filter((l) => l.parts.length > 1);
+let final = lots.filter((l) => l.parts.length > 1);
+// --dans fichier.json : seulement les lots inclus dans des regroupements déjà approuvés
+if (arg("--dans")) { const ok = JSON.parse(readFileSync(arg("--dans"), "utf8")).map((c) => new Set(c.ids)); final = final.filter((l) => ok.some((s) => l.parts.every((p) => s.has(p.id)))); }
+if (dry) writeFileSync("/home/ubuntu/apres-import/repasse/regroup-candidats.json", JSON.stringify(final.map((l) => ({ page: l.page, famille: l.parts[0].m.family, ids: l.parts.map((p) => p.id), emplacements: l.parts.reduce((s, p) => s + p.slots, 0) })), null, 1));
 const ROOT = /^<div class="([^"]*)" data-atl-root([^>]*)>/;
 let idx = {};
 for (const lot of final) {
   idx[lot.page] = (idx[lot.page] ?? 0) + 1;
-  const nid = `${lot.page}-raisons${idx[lot.page] > 1 ? "-" + idx[lot.page] : ""}`;
+  let nid = `${lot.page}-${lot.parts[0].m.family}${idx[lot.page] > 1 ? "-" + idx[lot.page] : ""}`;
+  while (existsSync(`${A}/${nid}`)) nid += "-b";
   const total = lot.parts.reduce((s, p) => s + p.slots, 0);
   console.log(`${nid}\t${lot.parts.length} morceaux, ${total} emplacements\t${lot.parts.map((p) => p.id.replace(lot.page + "-", "")).join(" ")}`);
   if (dry) continue;
