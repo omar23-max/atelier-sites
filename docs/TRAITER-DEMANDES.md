@@ -122,6 +122,11 @@ demande « en attente » (de la plus ancienne à la plus récente) :
         « tout » : réécrire aussi les textes déjà remplis. Ne jamais reprendre le
         texte du site d'origine ; ne pas inventer d'études, de chiffres ou d'avis
         clients absents des infos — laisser alors la consigne et le signaler ;
+     3 bis. si la page a un projet (`root.props.projet`) dont
+        `fondations.message` est rempli, la page **reprend ce message
+        central** : même promesse, même mécanisme, les 3 preuves et les 3
+        objections traitées, avec les mots de l'angle (`profil`) autour. Une
+        page peut ajouter une preuve vérifiée, jamais en contredire une ;
      4. respecter le type de page (`root.props.pageType`) : une page sans achat
         renvoie vers `pageAchat` ;
         **copie au design identique** (sections `<page>-pN`, blocs
@@ -471,7 +476,15 @@ Demandes liées à la fiche :
      mots: [], objections: [], angles: [], notes }` (listes de phrases
      courtes), et compléter `offre.promesse`, `offre.cible`,
      `offre.objections` sans écraser ce que l'utilisateur a écrit ;
-  5. laisser `fondations.statut` à « demandée » : c'est l'utilisateur qui
+  5. écrire `fondations.message` (le **message central**, 2026-11-07) :
+     `{ promesse, mecanisme, preuves: [3 phrases], objections: [{ objection,
+     reponse } ×3] }`. La promesse et le mécanisme en une phrase chacun ; les
+     3 preuves les plus fortes, prises **seulement** dans les preuves cochées
+     ou dans `offre` ; les 3 objections qui bloquent le plus l'achat, avec une
+     réponse tirée des faits. Ne pas écraser un message déjà corrigé par
+     l'utilisateur (le compléter seulement) ; ce qui manque est marqué
+     « [À VALIDER] » ou « [MANQUE] » ;
+  6. laisser `fondations.statut` à « demandée » : c'est l'utilisateur qui
      valide dans l'onglet Fondations.
   **Règle absolue** : aucune preuve, aucun chiffre, aucune garantie ni aucun
   avis qui ne soit coché dans `fondations.reponses.preuves` ou écrit dans

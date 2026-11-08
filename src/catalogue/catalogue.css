@@ -2548,3 +2548,77 @@ textarea {
   .cat-pv__seg { display: none; }
   .cat-pv__select { max-width: 150px; }
 }
+
+/* 2026-11-07 : « Message central » (Fondations) et son rappel (Angles). */
+.cat-fd__mc {
+  border-color: #1f1f1f;
+}
+.cat-fd__mc-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.cat-fd__mc-obj {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.cat-fd__mc-obj > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cat-fd__mc-list input,
+.cat-fd__mc-obj input,
+.cat-fd__mc-obj textarea {
+  padding: 7px 9px;
+  border: 1px solid var(--cat-line);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  background: #fff;
+  resize: vertical;
+}
+.cat-fd__mc-obj input {
+  font-weight: 600;
+}
+@media (max-width: 900px) {
+  .cat-fd__mc-list,
+  .cat-fd__mc-obj {
+    grid-template-columns: 1fr;
+  }
+}
+.cat-mc-recap {
+  margin: 10px 0 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--cat-line);
+  border-left: 4px solid #1f1f1f;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13.5px;
+}
+.cat-mc-recap.is-empty {
+  border-left-color: #c98a1a;
+  background: #fff8ea;
+}
+.cat-mc-recap summary {
+  cursor: pointer;
+}
+.cat-mc-recap dl {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 6px 14px;
+  margin: 10px 0 6px;
+}
+.cat-mc-recap dt {
+  color: var(--cat-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+.cat-mc-recap dd {
+  margin: 0;
+}
+.cat-mc-recap ol {
+  margin: 0;
+  padding-left: 18px;
+}

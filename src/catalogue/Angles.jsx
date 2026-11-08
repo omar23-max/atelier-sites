@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { createPage, pageNameFor, setPageProfile, slug, uniquePageName } from "../projects.js";
 import { SourcePicker } from "./SourcePicker.jsx";
+import { MessageRecap } from "./Fondations.jsx";
 
 // Étape ② Angles d'un projet : les pistes d'angles des Fondations deviennent
 // des cartes (avatar, douleur, promesse, type de page). L'utilisateur coche
@@ -59,7 +60,7 @@ export function anglesProgress(project, pageNames) {
   return { chosen: chosen.length, mere: chosen.some((a) => a.mere), withPage: withPage.length };
 }
 
-export function AnglesTab({ project, pages, allPages, templates = [], onSave, onChanged, onMessage }) {
+export function AnglesTab({ project, pages, allPages, templates = [], onSave, onChanged, onMessage, onGo }) {
   const [angles, setAngles] = useState(() => anglesOf(project));
   const [busy, setBusy] = useState(null);
   const [sources, setSources] = useState({});
@@ -159,6 +160,7 @@ export function AnglesTab({ project, pages, allPages, templates = [], onSave, on
         premier. Les pages vont par type : la première page d'un type sert de <b>base</b>, et les autres angles du même type en sont des
         copies qui ne changent que ce qui dépend de l'angle. Pour un type sans base, choisis un template.
       </p>
+      <MessageRecap project={project} onEdit={onGo ? () => onGo("fondations") : null} />
       <div className="cat-angles__bar">
         <b>{chosen.length}</b> angle(s) choisi(s) · page mère : <b>{mere ? mere.titre : "à choisir"}</b>
       </div>

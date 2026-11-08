@@ -334,7 +334,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
       </div>
 
       {currentTab === "fondations" && <FoundationsTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} request={request} />}
-      {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} />}
+      {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} />}
       {currentTab === "images-origine" && <OriginalImagesTab pages={pages} />}
       {currentTab === "images-modifiees" && <EditedImagesTab pages={pages} />}

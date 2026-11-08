@@ -12,7 +12,14 @@ import { anglesProgress } from "./Angles.jsx";
 // projets/<id>.json :
 //   fondations: { reponses: {…}, statut: "brouillon" | "demandée" | "validée",
 //                 demandeLe, valideLe, resultats: { avatars, douleurs, mots,
-//                 objections, promesse, angles, notes } }
+//                 objections, promesse, angles, notes },
+//                 message: { promesse, mecanisme, preuves: [3], objections:
+//                   [{ objection, reponse } ×3] } }
+//
+// « Message central » (2026-11-07) : le discours unique du projet, que toutes
+// les pages reprennent (promesse, mécanisme, 3 preuves fortes, 3 objections
+// principales avec leur réponse). Claude le prépare avec les résultats ;
+// l'utilisateur le corrige ici. Rappelé en haut de l'onglet Angles.
 
 const CHOIX = {
   genre: ["Femmes", "Hommes", "Les deux"],
@@ -94,6 +101,99 @@ function Champ({ label, placeholder, rows, value, onChange }) {
   );
 }
 
+// Message central : toujours 3 preuves et 3 objections (cases vides au besoin).
+export function normalizeMessage(m = {}) {
+  const preuves = [...(m.preuves ?? [])];
+  const objections = [...(m.objections ?? [])].map((o) => (typeof o === "string" ? { objection: o, reponse: "" } : { objection: o?.objection ?? "", reponse: o?.reponse ?? "" }));
+  while (preuves.length < 3) preuves.push("");
+  while (objections.length < 3) objections.push({ objection: "", reponse: "" });
+  return { promesse: m.promesse ?? "", mecanisme: m.mecanisme ?? "", preuves: preuves.slice(0, 3), objections: objections.slice(0, 3) };
+}
+
+export function messageFilled(project) {
+  const m = project.fondations?.message;
+  return Boolean(m?.promesse && m?.mecanisme);
+}
+
+function MessageEditor({ value, onChange }) {
+  const m = normalizeMessage(value);
+  const up = (patch) => onChange({ ...m, ...patch });
+  const setPreuve = (i, v) => up({ preuves: m.preuves.map((p, j) => (j === i ? v : p)) });
+  const setObj = (i, k, v) => up({ objections: m.objections.map((o, j) => (j === i ? { ...o, [k]: v } : o)) });
+  return (
+    <>
+      <Champ label="La promesse (le résultat, en une phrase)" rows={2} value={m.promesse} onChange={(v) => up({ promesse: v })} placeholder="ex. Une peau du cou plus ferme en 4 semaines, sans aiguille" />
+      <Champ label="Le mécanisme (pourquoi ça marche là où le reste a échoué)" rows={2} value={m.mecanisme} onChange={(v) => up({ mecanisme: v })} placeholder="ex. Un peptide qui agit sur…, là où les crèmes classiques restent en surface" />
+      <span className="cat-fd__label">Les 3 preuves fortes (seulement celles cochées en 4)</span>
+      <div className="cat-fd__mc-list">
+        {m.preuves.map((p, i) => (
+          <input key={i} value={p} onChange={(e) => setPreuve(i, e.target.value)} placeholder={`Preuve ${i + 1}`} aria-label={`Preuve ${i + 1}`} />
+        ))}
+      </div>
+      <span className="cat-fd__label">Les 3 objections principales et leur réponse</span>
+      <div className="cat-fd__mc-obj">
+        {m.objections.map((o, i) => (
+          <div key={i}>
+            <input value={o.objection} onChange={(e) => setObj(i, "objection", e.target.value)} placeholder={`Objection ${i + 1} (ce que pense le client)`} aria-label={`Objection ${i + 1}`} />
+            <textarea rows={2} value={o.reponse} onChange={(e) => setObj(i, "reponse", e.target.value)} placeholder="La réponse (avec les faits du questionnaire)" aria-label={`Réponse ${i + 1}`} />
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// Rappel en lecture seule (onglet Angles) : le même discours sur chaque page.
+export function MessageRecap({ project, onEdit }) {
+  const raw = project.fondations?.message;
+  if (!raw?.promesse && !raw?.mecanisme)
+    return (
+      <div className="cat-mc-recap is-empty">
+        <b>Message central</b> pas encore rempli.{" "}
+        {onEdit && (
+          <button type="button" className="cat-link" onClick={onEdit}>
+            Le remplir dans Fondations →
+          </button>
+        )}
+      </div>
+    );
+  const m = normalizeMessage(raw);
+  return (
+    <details className="cat-mc-recap" open>
+      <summary>
+        <b>Message central</b> — repris sur toutes les pages du projet
+      </summary>
+      <dl>
+        <dt>Promesse</dt>
+        <dd>{m.promesse}</dd>
+        <dt>Mécanisme</dt>
+        <dd>{m.mecanisme}</dd>
+        <dt>Preuves</dt>
+        <dd>
+          <ol>{m.preuves.filter(Boolean).map((p, i) => <li key={i}>{p}</li>)}</ol>
+        </dd>
+        <dt>Objections</dt>
+        <dd>
+          <ol>
+            {m.objections
+              .filter((o) => o.objection)
+              .map((o, i) => (
+                <li key={i}>
+                  <b>{o.objection}</b> {o.reponse && <>→ {o.reponse}</>}
+                </li>
+              ))}
+          </ol>
+        </dd>
+      </dl>
+      {onEdit && (
+        <button type="button" className="cat-link" onClick={onEdit}>
+          Modifier dans Fondations
+        </button>
+      )}
+    </details>
+  );
+}
+
 // Fondations remplies ? (pour la barre d'avancement et le bouton Claude)
 export function foundationsFilled(project) {
   const r = project.fondations?.reponses ?? {};
@@ -104,6 +204,7 @@ export function FoundationsTab({ project, onSave, onMessage, request }) {
   const f = project.fondations ?? {};
   const [rep, setRep] = useState(f.reponses ?? {});
   const [offre, setOffre] = useState(project.offre ?? {});
+  const [msg, setMsg] = useState(f.message ?? null);
   const [busy, setBusy] = useState(false);
   const set = (k, v) => setRep((r) => ({ ...r, [k]: v }));
   const preuves = rep.preuves ?? {};
@@ -111,7 +212,10 @@ export function FoundationsTab({ project, onSave, onMessage, request }) {
   const statut = f.statut ?? "brouillon";
   const res = f.resultats;
 
-  const patch = (extra = {}) => ({ fondations: { ...f, reponses: rep, ...extra }, offre: { ...(project.offre ?? {}), ...offre } });
+  const patch = (extra = {}) => ({
+    fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), ...extra },
+    offre: { ...(project.offre ?? {}), ...offre },
+  });
 
   async function save(silent) {
     await onSave(patch(), silent);
@@ -265,6 +369,16 @@ export function FoundationsTab({ project, onSave, onMessage, request }) {
           )}
         </section>
       )}
+
+      <section className="cat-panel cat-fd__mc">
+        <h3>8. Message central</h3>
+        <p className="cat-muted">
+          Le discours unique du projet : toutes les pages (listicle, advertorial, landing, page produit, homepage) le reprennent, avec les
+          mots de leur angle autour. Claude le prépare avec « Compléter avec Claude » ; tu le corriges ici. Aucune preuve qui ne soit cochée
+          en 4.
+        </p>
+        <MessageEditor value={msg} onChange={setMsg} />
+      </section>
 
       <div className="cat-actions">
         <button type="button" className="cat-btn cat-btn--ghost" onClick={() => save()}>
