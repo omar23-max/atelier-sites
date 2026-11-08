@@ -33,7 +33,8 @@ const page = await browser.newPage({ viewport: { width: WIDTH, height: 900 } });
 let flagged = 0;
 for (const id of ids) {
   const section = await loadSection(id);
-  if (section.meta.pageSpecific) continue;
+  // Masquées : hors du catalogue, donc pas « à revoir » (2026-11-08).
+  if (section.meta.pageSpecific || section.meta.status === "masquee") continue;
   await page.setContent(doc(section), { waitUntil: "load", timeout: 30000 }).catch(() => {});
   await page.evaluate(() => document.fonts.ready).catch(() => {});
   // Images « lazy » : chargées tout de suite, sinon elles comptent comme manquantes.
@@ -93,6 +94,10 @@ for (const id of ids) {
 
   const file = join(sectionsDir, id, "meta.json");
   const meta = JSON.parse(await readFile(file, "utf8"));
+  // Raisons acceptées après examen (meta.auditAccepte : « trop haute »,
+  // « presque vide »…) : la section n'est plus signalée pour elles (2026-11-08).
+  const accepte = meta.auditAccepte ?? [];
+  for (let i = raisons.length - 1; i >= 0; i--) if (accepte.some((a) => raisons[i].startsWith(a))) raisons.splice(i, 1);
   const before = JSON.stringify(meta.audit ?? null);
   if (raisons.length) meta.audit = { raisons, mesures: m, date: new Date().toISOString().slice(0, 10) };
   else delete meta.audit;

@@ -20,6 +20,8 @@ Avant tout : une sauvegarde
 | 8 | Reporter les nouvelles réponses dans les pages qui utilisent ces sections | `node pages-faq.mjs` |
 | 9 | Vide en haut (sections taillées dans une page à positions fixes, ex. Unbounce) — **catalogue seulement**, jamais les sections `-pN` d'un template (leur contenu est réassemblé à l'affichage) | `node rogner.mjs id1 id2` |
 | 9 bis | Sections « excentrées » : trier (colonne d'image vide ou vrai décalage), puis centrer sur ordinateur ; un décalage qui fait sortir un cadre de l'écran est refusé (2e essai `--marges`) | `node trier.mjs` puis `node centrer.mjs` (et `--marges --ids …`) |
+| 9 ter | « Sections à revoir » restantes : masquer les vides, accepter le reste (`meta.auditAccepte`, que l'audit respecte), couper les débordements (`atl-debord`). Décisions dans `~/apres-import/decisions-vide.json` | `node actions-revoir.mjs` |
+| 9 quater | « Raisons d'acheter » découpées en une section par raison : regrouper celles d'une même page qui se suivent (≤ 45 emplacements ; morceaux masqués, `regroupeeDans`) | `node regrouper.mjs --dry` puis `node regrouper.mjs` |
 | 10 | Classer les nouvelles sections du catalogue **d'après leur contenu** (Claude relit chaque section ; décisions `index:famille` dans `classes-*.txt`, ancienne famille gardée dans `familyAvant`) | `node reclasser.mjs` |
 | 11 | Miniatures des sections touchées | `node scripts/thumbs.mjs id1 id2 …` (depuis `~/atelier-sites`) |
 | 12 | Contrôle « Sections à revoir » | `node scripts/audit-sections.mjs id1 id2 …` |
