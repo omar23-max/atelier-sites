@@ -968,6 +968,11 @@ export function buildCopy({ snap, slug, root, label, textes = "origine", coupe =
       `/* Copie de ${label} — partie ${i + 1}. Styles relevés sur la page d'origine (ordinateur, puis mobile). */`,
       `${scope}{display:block;background:${opaque(snap.htmlBackground) ? themeColor({ tag: "div" }, "background-color", snap.htmlBackground) : "transparent"}}`,
       `${scope} :where(*:not(svg, svg *)){all:revert}`,
+      // Contrôles sans style relevé : pas de cadre gris du navigateur (2026-11-07).
+      `${scope} :where(button){border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-align:inherit}`,
+      `${scope} :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){font:inherit;color:inherit;background:#fff;border:1px solid #d6d6d6;border-radius:6px;padding:10px 12px;box-sizing:border-box;max-width:100%}`,
+      `${scope} :where(fieldset){border:0;padding:0;margin:0;min-width:0}`,
+      `${scope} :where(summary){cursor:pointer}`,
       `${scope} img{display:inline-block}`,
       // Accordéons refermés par le script ACCORDEONS (page publiée seulement).
       `${scope}[data-atl-acc-on] [data-atl-r]:not([data-atl-open]){display:none!important}`,

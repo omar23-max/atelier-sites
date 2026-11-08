@@ -119,9 +119,25 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
     });
   }
 
-  const html = keepChosenImages(renderLiquid(section.template, { section: { id: instanceId, settings, blocks } }));
+  let html = keepChosenImages(renderLiquid(section.template, { section: { id: instanceId, settings, blocks } }));
+  if (/data-atl-(q|acc)=/.test(html)) html += ACC_SCRIPT;
   return withSectionFrame(section, merged, instanceId, html);
 }
+
+// FAQ et accordéons des copies (2026-11-07) : question [data-atl-q=n], réponse
+// [data-atl-r=n]. Dans l'éditeur (le script ne s'exécute pas) les réponses
+// restent ouvertes pour être modifiées ; dans l'aperçu du catalogue et sur la
+// page publiée, elles se ferment et s'ouvrent au clic sur leur question.
+// Le style qui force l'affichage d'une réponse ouverte est dans le style.css
+// de chaque copie (bloc « atl-faq »).
+const ACC_SCRIPT =
+  "<script>(function(s){var r=s&&s.previousElementSibling;if(!r||!r.hasAttribute('data-atl-root')||r.__atlAcc)return;r.__atlAcc=1;" +
+  "r.setAttribute('data-atl-acc-on','');" +
+  "[].forEach.call(r.querySelectorAll('details[data-atl-acc=ferme]'),function(d){d.open=false});" +
+  "[].forEach.call(r.querySelectorAll('[data-atl-q]'),function(q){q.setAttribute('aria-expanded','false');" +
+  "q.addEventListener('click',function(e){var a=r.querySelector('[data-atl-r=\"'+q.getAttribute('data-atl-q')+'\"]');if(!a)return;" +
+  "e.preventDefault();e.stopPropagation();var o=a.hasAttribute('data-atl-open');if(o)a.removeAttribute('data-atl-open');else a.setAttribute('data-atl-open','');" +
+  "q.setAttribute('aria-expanded',o?'false':'true')})})})(document.currentScript)</script>";
 
 // Copies de sites (Replo, Kimi…) : beaucoup d'images sont dans un <picture>
 // dont les <source> (une par taille d'écran) pointent en dur vers les fichiers
@@ -154,7 +170,7 @@ function withSectionFrame(section, props, instanceId, html) {
   const anchor = safeAnchor(props.atl_ancre);
   // Carrousel réglé dans le panneau de droite (engine/carrousel.js) : le script
   // tourne sur la page publiée ; dans l'atelier, puck-config.jsx l'appelle.
-  const car = hasCarrouselTrack(section) ? carrouselAttr(props.atl_carrousel) : null;
+  const car = hasCarrouselTrack(section) ? carrouselAttr(props.atl_carrousel, true) : null;
   if (!css && !anchor && !car) return html;
   return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}${car ? ` data-atl-carrousel="${car}"` : ""}>${html}${css ? `<style>${css}</style>` : ""}${car ? CARROUSEL_SCRIPT : ""}</div>`;
 }

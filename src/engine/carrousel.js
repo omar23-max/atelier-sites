@@ -24,10 +24,15 @@ export const hasCarrouselTrack = (section) => section.template.includes('data-at
 export const looksLikeCarrousel = (section) => /swiper|slick|splide|flickity|glide__|carousel|carrousel|slider|slideshow|embla/i.test(section.template);
 
 // Attribut posé sur le cadre de la section ; null sans réglage.
-export function carrouselAttr(value) {
-  if (!value || typeof value !== "object") return null;
+// force : la section a une piste, le carrousel est actif même sans réglage
+// (flèches du site branchées, défilement par diapo ; 2026-11-07).
+export function carrouselAttr(value, force = false) {
+  if (!value || typeof value !== "object") {
+    if (!force) return null;
+    value = {};
+  }
   const o = { ...CAR_DEFAULTS, ...value };
-  if (JSON.stringify(o) === JSON.stringify(CAR_DEFAULTS)) return null;
+  if (!force && JSON.stringify(o) === JSON.stringify(CAR_DEFAULTS)) return null;
   return JSON.stringify(o).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 }
 
@@ -169,6 +174,26 @@ export function atlCarrousels(doc, inspect) {
     if (o.nav !== "origine")
       [].forEach.call(own, function (b) {
         imp(b, "display", "none");
+      });
+    // Flèches du site : branchées sur la piste la plus proche (aperçu de
+    // l'atelier, catalogue et page publiée).
+    if (o.nav === "origine")
+      [].forEach.call(own, function (b) {
+        if (b.__atlCarBound) return;
+        var p = b, near = null;
+        for (var k = 0; k < 8 && p && !near; k++) {
+          p = p.parentElement;
+          near = p && p.querySelector('[data-atl-car="track"]');
+        }
+        if (near !== t) return;
+        b.__atlCarBound = 1;
+        b.style.cursor = "pointer";
+        b.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          go(current() + (b.getAttribute("data-atl-car") === "prev" ? -1 : 1));
+          restart();
+        });
       });
     if (o.nav === "fleches" || o.nav === "les-deux") {
       [-1, 1].forEach(function (dir) {
