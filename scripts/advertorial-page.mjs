@@ -31,7 +31,6 @@ if (report.disparue) {
   process.exit(2);
 }
 
-const BLOCKS_PER_SECTION = 40; // Shopify : 50 blocs au plus par section
 const clamp = (n, min, max, step = 1) => Math.min(max, Math.max(min, Math.round(n / step) * step));
 function hex(color) {
   const m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(color ?? "");
@@ -142,8 +141,9 @@ const LABELS = {
 // ---- Copie au design identique (structure et styles d'origine, lib/copie.mjs) ----
 const snap = JSON.parse(await readFile(join(dir, "snapshot.json"), "utf8"));
 const host0 = new URL(report.url).hostname.replace(/^www\./, "");
-// --par-sections : une section par section du site, sans limite de 45 emplacements.
-const copy = buildCopy({ snap, slug, root, label: fiche.marque || host0, textes: process.argv.includes("--briefs") ? "briefs" : "origine", coupe: process.argv.includes("--par-sections") ? "sections" : "emplacements" });
+// Par défaut (2026-11-08, plus d'export Shopify) : une section par section du site,
+// sans limite d'emplacements. --par-emplacements : ancienne découpe en morceaux.
+const copy = buildCopy({ snap, slug, root, label: fiche.marque || host0, textes: process.argv.includes("--briefs") ? "briefs" : "origine", coupe: process.argv.includes("--par-emplacements") ? "emplacements" : "sections" });
 // Les parties d'une ancienne copie de cette page sont remplacées.
 for (const old of await readdir(join(root, "sections"))) {
   if (old.startsWith(`${slug}-p`)) await rm(join(root, "sections", old), { recursive: true, force: true });
