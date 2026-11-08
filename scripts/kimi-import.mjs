@@ -1,6 +1,6 @@
 // Import d'une page déjà reproduite par Kimi (application React + Vite) : on
 // garde SON HTML, SES classes et SON CSS, sans rien mesurer ni recopier.
-// Usage : node scripts/kimi-import.mjs <dossier app> <nom> [--label "Marque"] [--url https://…] [--coupe] [--sans-catalogue]
+// Usage : node scripts/kimi-import.mjs <dossier app> <nom> [--label "Marque"] [--url https://…] [--sans-coupe] [--sans-catalogue]
 // (<dossier app>/dist/index.html : page React de Kimi compilée, ou page HTML simple)
 //
 // Le dossier doit être compilé (dist/) : npm install --ignore-scripts puis
@@ -12,8 +12,8 @@
 //    fermer (classes, éléments ajoutés ou retirés), choisir une option,
 //    faire défiler un carrousel, aller à une ancre, ouvrir une fenêtre
 //    (panier, menu) — ce dernier devient un lien modifiable.
-// 3. Chaque <section> de Kimi devient une section de l'atelier (sans limite
-//    de blocs depuis 2026-11-08 ; --coupe pour l'ancienne découpe) : textes, images et liens sont des
+// 3. Chaque <section> de Kimi devient une ou plusieurs sections de l'atelier
+//    (50 blocs au plus par section Shopify) : textes, images et liens sont des
 //    éléments modifiables, comme dans les copies (sections/<nom>-pN).
 // 4. Le CSS de Kimi est gardé tel quel, rangé sous la classe de la page et
 //    réduit, pour chaque section, aux règles qui y servent.
@@ -39,9 +39,9 @@ if (!existsSync(join(dist, "index.html"))) {
   console.error(`✗ ${dist}\\index.html introuvable : compile d'abord le projet Kimi (npx vite build).`);
   process.exit(1);
 }
-// 2026-11-08 : plus d'export Shopify, donc plus de coupe par défaut ; --coupe
-// remet l'ancienne limite de 45 éléments (--sans-coupe reste accepté).
-const MAX_SLOTS = process.argv.includes("--coupe") ? 45 : Infinity;
+// Shopify : 50 blocs au plus par section. --sans-coupe : pas de limite (site
+// headless, la page reste en une section par section du site).
+const MAX_SLOTS = process.argv.includes("--sans-coupe") ? Infinity : 45;
 const scope = `atl-${slug}`;
 const assetBase = `/imports/${slug}/assets/`;
 

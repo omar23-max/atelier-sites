@@ -9,9 +9,8 @@
 //   (choix de l'utilisateur, 2026-10-24) ; avec --briefs, un brief de même longueur.
 // - Chaque photo devient un emplacement image (photo d'origine en repère, jamais
 //   exportée). Les petites icônes restent incrustées.
-// - Découpe (2026-11-08, plus d'export Shopify) : par défaut une section par
-//   section du site (coupe « sections », sans limite). Sans repère de section
-//   dans la capture, ou avec coupe « emplacements », morceaux de 45 emplacements. Une rangée article + barre latérale garde sa barre en
+// - La page est découpée en sections de 45 emplacements au plus (Shopify : 50
+//   blocs par section). Une rangée article + barre latérale garde sa barre en
 //   haut et la largeur de l'article dans les sections suivantes.
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -111,7 +110,7 @@ const STICKY =
 // Ligne de grille nommée (« banner », « main-start »…), pas un nombre, auto ou span N.
 const isNamedLine = (v) => v != null && v !== "" && !/^(auto|-?\d+|span \d+)$/.test(v);
 
-export function buildCopy({ snap, slug, root, label, textes = "origine", coupe = "sections" }) {
+export function buildCopy({ snap, slug, root, label, textes = "origine", coupe = "emplacements" }) {
   const nodes = snap.nodes;
   const mobile = snap.mobile;
   const byId = nodes;

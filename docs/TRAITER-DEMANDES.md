@@ -806,11 +806,9 @@ Passe de nuit sur le catalogue et les templates (outils dans `/tmp/nuit` du serv
 - Limite : sur Shopify (template.liquid), les scripts FAQ et carrousel de `render.js` ne sont pas
   repris.
 
-## Plus d'export Shopify : plus de découpe en morceaux (2026-11-08)
+## Plus d'export Shopify, découpe gardée (2026-11-08)
 
-On n'exporte plus vers un thème Shopify : la limite de 50 blocs par section ne compte plus.
-Les imports font désormais une section de l'atelier par section du site, sans limite
-(`buildCopy` coupe « sections » par défaut ; `advertorial-page.mjs --par-emplacements` et
-`kimi-import.mjs --coupe` redonnent l'ancienne découpe). Les mentions « 45 emplacements /
-50 blocs » plus haut dans ce document décrivent l'ancien fonctionnement. Les templates déjà
-importés restent en morceaux (p1, p2…), recollés à l'affichage.
+On n'exporte plus vers un thème Shopify, mais la découpe des imports en sections de
+45 emplacements au plus est **gardée** : elle évite d'éditer des sections trop grosses.
+Les mentions « limite Shopify » plus haut expliquent l'origine de cette taille, qui reste
+la règle.

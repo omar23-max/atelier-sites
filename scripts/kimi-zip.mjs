@@ -14,8 +14,8 @@
 //    remplacé par registry.npmjs.org (les empreintes des paquets restent) ;
 // 2. npm install --ignore-scripts (aucun script d'installation lancé), puis
 //    compilation (vite build) ;
-// 3. kimi-import.mjs : page, une section par section du site, sans coupure
-//    (--coupe : ancienne découpe en morceaux), puis catalogue.
+// 3. kimi-import.mjs : page, sections sans coupure (headless ; --coupe pour
+//    un thème Shopify, 50 éléments au plus par section), puis catalogue.
 // 4. réparation des défauts connus (reparer-miroir.mjs), fiche template,
 //    puis vérification complète (atelier + Copycat + PWC).
 // Une page en échec n'arrête pas le lot : le bilan final la signale.
@@ -114,7 +114,7 @@ for (const [n, { slug, app }] of jobs.entries()) {
     const importArgs = [join(root, "scripts", "kimi-import.mjs"), app, slug];
     if (opt("--label")) importArgs.push("--label", opt("--label"));
     if (opt("--url")) importArgs.push("--url", opt("--url"));
-    if (args.includes("--coupe")) importArgs.push("--coupe");
+    if (!args.includes("--coupe")) importArgs.push("--sans-coupe");
     execFileSync(process.execPath, importArgs, { cwd: root, stdio: "inherit" });
     results.push({ slug, ok: true });
   } catch (e) {

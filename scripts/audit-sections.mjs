@@ -57,7 +57,17 @@ for (const id of ids) {
     const texts = leaves.filter((e) => e.tagName !== "IMG");
     const imgs = [...document.images].filter(visible);
     let minX = Infinity, maxX = -Infinity;
-    for (const e of leaves) {
+    // Pour les marges (2026-11-08) : une case d'image, une image de fond ou un
+    // cadre coloré compte aussi comme du contenu (colonne d'image pas encore
+    // remplie dans une mise en page à deux colonnes : pas « excentrée »).
+    const blocks = [...document.body.querySelectorAll("*")].filter((e) => {
+      if (!visible(e)) return false;
+      const r = e.getBoundingClientRect();
+      if (r.width < 150 || r.height < 120 || r.width > W - 40) return false;
+      const cs = getComputedStyle(e);
+      return ["IMG", "PICTURE", "VIDEO"].includes(e.tagName) || cs.backgroundImage !== "none" || (cs.backgroundColor !== "rgba(0, 0, 0, 0)" && cs.backgroundColor !== "transparent");
+    });
+    for (const e of [...leaves, ...blocks]) {
       const r = e.getBoundingClientRect();
       minX = Math.min(minX, r.left);
       maxX = Math.max(maxX, r.right);
