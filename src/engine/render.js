@@ -119,8 +119,30 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
     });
   }
 
-  const html = renderLiquid(section.template, { section: { id: instanceId, settings, blocks } });
+  const html = keepChosenImages(renderLiquid(section.template, { section: { id: instanceId, settings, blocks } }));
   return withSectionFrame(section, merged, instanceId, html);
+}
+
+// Copies de sites (Replo, Kimi…) : beaucoup d'images sont dans un <picture>
+// dont les <source> (une par taille d'écran) pointent en dur vers les fichiers
+// du site d'origine. Le navigateur les préfère au src de l'<img> : une image
+// choisie dans l'atelier ne s'affichait donc pas. Règle (2026-11-07) : on garde
+// les <source> seulement si l'image vient du même import qu'elles (photo
+// d'origine) ; sinon on les retire et l'image choisie s'affiche partout.
+const importFolder = (url) => /^\/imports\/([^/]+)\//.exec(String(url ?? "").trim())?.[1] ?? null;
+export function keepChosenImages(html) {
+  if (!html.includes("<source")) return html;
+  return html.replace(/<picture\b[^>]*>[\s\S]*?<\/picture>/g, (pic) => {
+    const src = /<img\b[^>]*\bsrc="([^"]*)"/.exec(pic)?.[1];
+    if (!src) return pic;
+    const folder = importFolder(src);
+    const sources = [...pic.matchAll(/<source\b[^>]*\bsrcset="([^"]*)"[^>]*>/g)];
+    if (!sources.length) return pic;
+    if (folder && sources.some((m) => importFolder(m[1]) === folder)) return pic;
+    if (!folder && /^(https?:)?\/\//.test(src)) return pic; // image d'origine restée en ligne
+
+    return pic.replace(/<source\b[^>]*>/g, "");
+  });
 }
 
 // Fond et marges choisis dans l'éditeur (fond_section, marge_haut, marge_bas)
