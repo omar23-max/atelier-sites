@@ -7,7 +7,7 @@ import { anglesProgress } from "./Angles.jsx";
 // client, l'offre et les objections avec les skills (docs/TRAITER-DEMANDES.md,
 // type « fondations ») et range ses résultats dans fondations.resultats.
 // L'utilisateur relit et valide. Les prix, packs, garantie et bonus sont ceux
-// de l'onglet Offre (project.offre) : une seule source.
+// du formulaire Offre (project.offre), affiché en partie 5 : une seule source.
 //
 // projets/<id>.json :
 //   fondations: { reponses: {…}, statut: "brouillon" | "demandée" | "validée",
@@ -67,13 +67,6 @@ const TEXTES = {
     ["liensRecherche", "Liens à fouiller (un par ligne)", "https://www.amazon.com/…\nhttps://www.reddit.com/r/…", 3],
   ],
 };
-
-const OFFRE = [
-  ["prix", "Prix et prix barré", "ex. 39 $ (au lieu de 59 $)"],
-  ["packs", "Lots", "ex. 1 pot = 39 $ ; 2 = 69 $ ; 3 = 89 $"],
-  ["garantie", "Garantie", "ex. 60 jours satisfaite ou remboursée"],
-  ["bonus", "Bonus, livraison", "ex. Livraison gratuite dès 2 pots"],
-];
 
 function Cases({ options, value = [], onChange }) {
   return (
@@ -200,10 +193,9 @@ export function foundationsFilled(project) {
   return Boolean(r.role && r.douleur && (r.genre?.length || r.qui));
 }
 
-export function FoundationsTab({ project, onSave, onMessage, request }) {
+export function FoundationsTab({ project, onSave, onMessage, request, offer }) {
   const f = project.fondations ?? {};
   const [rep, setRep] = useState(f.reponses ?? {});
-  const [offre, setOffre] = useState(project.offre ?? {});
   const [msg, setMsg] = useState(f.message ?? null);
   const [busy, setBusy] = useState(false);
   const set = (k, v) => setRep((r) => ({ ...r, [k]: v }));
@@ -214,7 +206,6 @@ export function FoundationsTab({ project, onSave, onMessage, request }) {
 
   const patch = (extra = {}) => ({
     fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), ...extra },
-    offre: { ...(project.offre ?? {}), ...offre },
   });
 
   async function save(silent) {
@@ -309,14 +300,11 @@ export function FoundationsTab({ project, onSave, onMessage, request }) {
         </div>
       </section>
 
+      {/* 5. L'offre : un seul formulaire (OfferTab), avec son propre bouton
+          Enregistrer — plus de doublon avec un onglet Offre séparé (2026-11-08). */}
       <section className="cat-panel">
         <h3>5. L'offre</h3>
-        <p className="cat-muted">Repris tel quel dans l'onglet Offre.</p>
-        <div className="cat-fd__grid">
-          {OFFRE.map(([k, l, p]) => (
-            <Champ key={k} label={l} placeholder={p} value={offre[k]} onChange={(v) => setOffre((o) => ({ ...o, [k]: v }))} />
-          ))}
-        </div>
+        {offer}
       </section>
 
       <section className="cat-panel">
@@ -397,26 +385,28 @@ export function FoundationsTab({ project, onSave, onMessage, request }) {
 
 // Barre d'avancement du projet : ① Fondations → ② Angles → ③ Pages → ④ Pubs →
 // ⑤ Audit → ⑥ Résultats. Chaque étape dit où elle en est.
-export function ProjectProgress({ project, pages, onGo }) {
+export function ProjectProgress({ project, pages, onGo, current }) {
   const fd = project.fondations?.statut;
-  // Angles : faits quand des angles sont choisis ET la page mère désignée ;
-  // Pages : quand chaque angle choisi a sa page.
+  // Angles : faits quand des angles sont choisis ET la page mère désignée.
+  // Pages : chaque angle choisi a sa page, et chaque page passe l'audit (≥ 80).
   const ang = anglesProgress(project, pages.map((p) => p.info?.name));
   const creatives = project.creatives ?? [];
   const audites = pages.filter((p) => p.score?.type && p.score.score >= 80).length;
+  const exported = Object.values(project.publication ?? {}).filter((p) => p.html).length;
+  const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
   const steps = [
     ["fondations", "Fondations", fd === "validée" ? "done" : fd === "demandée" ? "doing" : foundationsFilled(project) ? "doing" : "todo", fd === "validée" ? "validées" : fd === "demandée" ? "chez Claude" : "à faire"],
     ["angles", "Angles", ang.chosen && ang.mere ? "done" : ang.chosen ? "doing" : "todo", ang.chosen ? `${ang.chosen} choisi(s)${ang.mere ? "" : ", page mère à choisir"}` : "à choisir"],
-    ["angles", "Pages", ang.chosen && ang.withPage === ang.chosen ? "done" : ang.withPage ? "doing" : "todo", ang.chosen ? `${ang.withPage}/${ang.chosen} angle(s) avec sa page` : `${pages.length} page(s)`],
+    ["pages", "Pages", pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     ["creatives", "Pubs", creatives.length ? "done" : "todo", creatives.length ? `${creatives.length} créative(s)` : "à faire"],
-    ["pages", "Audit", pages.length && audites === pages.length ? "done" : audites ? "doing" : "todo", pages.length ? `${audites}/${pages.length} page(s) ≥ 80` : "—"],
+    ["publication", "Publication", pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],
     ["resultats", "Résultats", "todo", "après la mise en ligne"],
   ];
   return (
-    <ol className="cat-progress">
+    <ol className="cat-progress" role="tablist">
       {steps.map(([tab, label, state, detail], i) => (
-        <li key={label} className={`is-${state}`}>
-          <button type="button" onClick={() => onGo(tab)}>
+        <li key={label} className={`is-${state}${current === tab ? " is-current" : ""}`}>
+          <button type="button" role="tab" aria-selected={current === tab} onClick={() => onGo(tab)}>
             <i>{state === "done" ? "✓" : i + 1}</i>
             <b>{label}</b>
             <small>{detail}</small>

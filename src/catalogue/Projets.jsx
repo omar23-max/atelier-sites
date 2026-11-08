@@ -138,20 +138,16 @@ export function ProjectsView({ onOpen, onMessage }) {
 }
 
 // ---- Détail d'un projet ----
-const TABS = [
-  { id: "fondations", label: "Fondations" },
-  { id: "angles", label: "Angles" },
-  { id: "pages", label: "Pages" },
-  { id: "images-origine", label: "Images d'origine" },
-  { id: "images-modifiees", label: "Images modifiées" },
-  { id: "textes-origine", label: "Textes d'origine" },
-  { id: "textes-corriges", label: "Textes corrigés" },
-  { id: "marque", label: "Marque" },
-  { id: "creatives", label: "Créatives" },
-  { id: "offre", label: "Offre" },
-  { id: "publication", label: "Publication" },
-  { id: "resultats", label: "Résultats" },
+// Menu du projet (2026-11-08) : les étapes ① → ⑥ (ProjectProgress) sont le menu
+// principal ; en dessous, une petite ligne de ressources du projet. Plus de
+// doublons : l'offre est dans Fondations, la publication est une étape, les
+// images et les textes ont chacun un seul onglet (d'origine / modifiés).
+const RESSOURCES = [
+  { id: "marque", label: "Marque & design" },
+  { id: "images", label: "Images" },
+  { id: "textes", label: "Textes" },
 ];
+const OLD_TABS = { offre: "fondations", "images-origine": "images", "images-modifiees": "images", "textes-origine": "textes", "textes-corriges": "textes" };
 
 // Nom du projet avec un stylo ✎ pour le modifier sur place (Entrée = enregistrer,
 // Échap = annuler). Seul le nom change : l'identifiant et les pages restent.
@@ -284,7 +280,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   if (!project) return <div className="cat-empty">Projet introuvable.</div>;
   // Onglet d'ouverture : l'étape en cours (Fondations, puis Angles, puis Pages).
   const currentTab =
-    tab ?? (project.fondations?.statut !== "validée" ? "fondations" : (project.angles ?? []).some((a) => a.choisi && a.mere) ? "pages" : "angles");
+    OLD_TABS[tab] ?? tab ?? (project.fondations?.statut !== "validée" ? "fondations" : (project.angles ?? []).some((a) => a.choisi && a.mere) ? "pages" : "angles");
 
   return (
     <>
@@ -322,28 +318,27 @@ export function ProjectDetail({ id, onBack, onMessage }) {
         {project.description ? ` · ${project.description}` : ""} · créé le{" "}
         {new Date(project.creeLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}
       </div>
-      <ProjectProgress project={project} pages={pages} onGo={setTab} />
-      <ProjectSummary project={project} pages={pages} />
-
-      <div className="cat-seg cat-tabs">
-        {TABS.map((t) => (
+      <ProjectProgress project={project} pages={pages} onGo={setTab} current={currentTab} />
+      <nav className="cat-res" aria-label="Ressources du projet">
+        <span>Ressources</span>
+        {RESSOURCES.map((t) => (
           <button key={t.id} type="button" className={currentTab === t.id ? "is-on" : ""} onClick={() => setTab(t.id)}>
             {t.label}
           </button>
         ))}
-      </div>
+      </nav>
 
-      {currentTab === "fondations" && <FoundationsTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} request={request} />}
+      {currentTab === "fondations" && (
+        <FoundationsTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} request={request} offer={<OfferTab key={`o-${project.id}`} project={project} onSave={saveProjectPatch} onMessage={onMessage} />} />
+      )}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} />}
-      {currentTab === "images-origine" && <OriginalImagesTab pages={pages} />}
-      {currentTab === "images-modifiees" && <EditedImagesTab pages={pages} />}
-      {currentTab === "textes-origine" && <OriginalTextsTab pages={pages} />}
-      {currentTab === "textes-corriges" && <EditedTextsTab pages={pages} />}
+      {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} />]} />}
+      {currentTab === "textes" && <TwoViews labels={["D'origine", "Corrigés"]} views={[<OriginalTextsTab key="o" pages={pages} />, <EditedTextsTab key="c" pages={pages} />]} />}
+      {currentTab === "marque" && <ProjectSummary project={project} pages={pages} />}
       {currentTab === "marque" && <BrandTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}
       {currentTab === "creatives" && <CreativesTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
-      {currentTab === "offre" && <OfferTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
-      {currentTab === "publication" && <PublicationTab project={project} pages={pages} onSave={saveProjectPatch} />}
+            {currentTab === "publication" && <PublicationTab project={project} pages={pages} onSave={saveProjectPatch} />}
       {currentTab === "resultats" && <ResultsTab project={project} pages={pages} onMessage={onMessage} />}
     </>
   );
@@ -680,19 +675,30 @@ function EditedTextsTab({ pages }) {
 }
 
 // Résumé en tête de fiche : design, produits Shopify, marque, créatives, offre, publication.
+// Deux vues d'un même onglet (d'origine / modifiées), au choix.
+function TwoViews({ labels, views }) {
+  const [i, setI] = useState(0);
+  return (
+    <>
+      <div className="cat-seg cat-twoviews">
+        {labels.map((l, k) => (
+          <button key={l} type="button" className={i === k ? "is-on" : ""} onClick={() => setI(k)}>
+            {l}
+          </button>
+        ))}
+      </div>
+      {views[i]}
+    </>
+  );
+}
+
+// En-tête de « Marque & design » : design.md des pages et produit Shopify.
 function ProjectSummary({ project, pages }) {
   const design = projectDesignOf(pages);
   const products = [...new Set(pages.flatMap((p) => (p.data?.content ?? []).map((c) => c.props?.product).filter(Boolean)))];
-  const pub = Object.values(project.publication ?? {});
-  const creatives = project.creatives ?? [];
-  const offre = project.offre ?? {};
   const items = [
     ["Design", design ? `${design.id}.md` : "aucun"],
     ["Produit Shopify", products.length ? products.join(", ") : "aucun"],
-    ["Marque", project.marque?.logos?.length ? `${project.marque.logos.length} logo(s), ${project.marque.palette?.length ?? 0} couleur(s)` : "à faire"],
-    ["Créatives", creatives.length ? `${creatives.length} (${creatives.filter((c) => c.statut === "en ligne").length} en ligne)` : "aucune"],
-    ["Offre", offre.promesse ? "rédigée" : "à faire"],
-    ["Publication", `${pub.filter((p) => p.html).length} / ${pages.length} page(s) exportée(s)`],
   ];
   return (
     <div className="cat-summary">

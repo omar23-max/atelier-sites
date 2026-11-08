@@ -782,3 +782,26 @@ La règle : **l'endroit où on clique décide de ce qu'on change**.
   `/api/ia/audit`, qui suit la grille de `references/audit-cro.md`. Il rend : le
   verdict, les 5 croyances, les gains rapides (avec « voir »), les changements
   à fort impact, des titres et boutons à copier, et des tests A/B.
+
+## Sections : cadres, FAQ, carrousels, vide en haut, familles (2026-11-07)
+
+Passe de nuit sur le catalogue et les templates (outils dans `/tmp/nuit` du serveur ; sauvegarde
+`~/sauvegardes/avant-nuit-sections-pages-20261107.tgz`).
+- **Cadres carrés** : les copies remettent tout au style du navigateur (`all:revert`). Un bouton,
+  un champ ou une question de FAQ sans style relevé prenait la bordure grise du navigateur. Bloc
+  `/* atl-controles */` juste après le revert dans chaque style.css (même règle dans
+  `scripts/lib/copie.mjs` pour les prochains imports) : poids nul, un style relevé passe devant.
+- **FAQ** : question `[data-atl-q=n]`, réponse `[data-atl-r=n]`. `render.js` ajoute `ACC_SCRIPT`
+  (fermé au départ, ouvert au clic) dans l'aperçu du catalogue et sur la page publiée ; dans
+  l'éditeur le script ne tourne pas et le bloc `/* atl-faq */` du style.css garde les réponses
+  ouvertes pour les modifier. FAQ sans réponse relevée : réponse-consigne « [Réponse : 2-3
+  phrases] » ajoutée (emplacement modifiable, aussi ajouté dans les pages qui utilisent la section).
+- **Carrousels** : toute section avec une piste `data-atl-car="track"` a son carrousel actif
+  (`carrouselAttr(…, true)`), et les flèches du site (`data-atl-car=prev/next`) sont branchées par
+  `atlCarrousels` en mode « origine ». Flèches non reconnues à l'import : marquées après coup.
+- **Vide en haut** (sections taillées dans une page à positions fixes, Unbounce) : bloc
+  `/* atl-rogner */` (hauteur + marge négative + `position: relative`), par écran.
+- **Familles** : 1 120 sections reclassées à la main d'après leur contenu ; l'ancienne valeur est
+  dans `meta.familyAvant` / `meta.labelAvant` (`familyRevue: "2026-11-07"`).
+- Limite : sur Shopify (template.liquid), les scripts FAQ et carrousel de `render.js` ne sont pas
+  repris.

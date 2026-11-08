@@ -131,7 +131,8 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
 // Le style qui force l'affichage d'une réponse ouverte est dans le style.css
 // de chaque copie (bloc « atl-faq »).
 const ACC_SCRIPT =
-  "<script>(function(s){var r=s&&s.previousElementSibling;if(!r||!r.hasAttribute('data-atl-root')||r.__atlAcc)return;r.__atlAcc=1;" +
+  "<script>(function(s){var r=s&&s.previousElementSibling;while(r&&!r.hasAttribute('data-atl-root'))r=r.previousElementSibling;" +
+  "if(!r&&s&&s.parentElement)r=s.parentElement.querySelector('[data-atl-root]');if(!r||r.__atlAcc)return;r.__atlAcc=1;" +
   "r.setAttribute('data-atl-acc-on','');" +
   "[].forEach.call(r.querySelectorAll('details[data-atl-acc=ferme]'),function(d){d.open=false});" +
   "[].forEach.call(r.querySelectorAll('[data-atl-q]'),function(q){q.setAttribute('aria-expanded','false');" +
