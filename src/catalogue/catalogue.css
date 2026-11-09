@@ -2979,3 +2979,139 @@ textarea {
   margin: 0;
   font-size: 12.5px;
 }
+
+/* « Partir de » : le champ sur la même ligne que Type et Page mère ; les 3
+   choix d'origine en dessous (2026-11-08) */
+.cat-addpage .cat-depuis {
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 2px;
+  font-size: 12.5px;
+}
+.cat-addpage .cat-addpage__vide {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px dashed #d9d6cf;
+  border-radius: 8px;
+  color: var(--cat-muted);
+  font-size: 12.5px;
+}
+
+/* Tableaux des cartes par type : mêmes colonnes partout, lignes nettes (2026-11-08) */
+.cat-typecard > .cat-table {
+  table-layout: fixed;
+  width: 100%;
+  font-size: 13px;
+}
+.cat-typecard > .cat-table th {
+  padding: 8px 12px;
+  background: var(--cat-bg);
+  color: var(--cat-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cat-typecard > .cat-table td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  overflow: hidden;
+}
+/* Page · Angle · Origine · Achat · Score · Textes · actions */
+.cat-typecard > .cat-table th:nth-child(1) { width: 26%; }
+.cat-typecard > .cat-table th:nth-child(2) { width: 15%; }
+.cat-typecard > .cat-table th:nth-child(3) { width: 18%; }
+.cat-typecard > .cat-table th:nth-child(4) { width: 7%; }
+.cat-typecard > .cat-table th:nth-child(5) { width: 9%; }
+.cat-typecard > .cat-table th:nth-child(6) { width: 12%; }
+.cat-typecard > .cat-table th:nth-child(7) { width: 172px; }
+.cat-typecard > .cat-table td:first-child b {
+  display: block;
+  font-size: 13px;
+}
+.cat-typecard > .cat-table td:first-child small {
+  display: block;
+  overflow: hidden;
+  font-size: 11.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-typecard > .cat-table tr:last-child td {
+  border-bottom: 0;
+}
+.cat-typecard > .cat-table tr.is-mere td {
+  background: #fffaf0;
+}
+.cat-typecard > .cat-table tr.is-mere td:first-child {
+  box-shadow: inset 3px 0 0 #f5c542;
+}
+/* Cellule d'actions : une vraie cellule de tableau (le fond suit la ligne) */
+.cat-typecard > .cat-table td.cat-table__actions {
+  display: table-cell;
+  text-align: right;
+  white-space: nowrap;
+}
+.cat-typecard > .cat-table td.cat-table__actions .cat-btn {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+.cat-typecard > .cat-table td.cat-table__actions .cat-btn + .cat-btn {
+  margin-left: 6px;
+}
+.cat-typecard .cat-origin {
+  max-width: none;
+}
+.cat-typecard .cat-origin .cat-linkbtn {
+  margin-top: 2px;
+}
+@media (max-width: 900px) {
+  .cat-typecard > .cat-table {
+    display: block;
+    overflow-x: auto;
+    table-layout: auto;
+  }
+}
+
+/* En-tête unique au-dessus des cartes : mêmes colonnes que les tableaux (2026-11-08) */
+.cat-typehead {
+  margin: 0 0 6px;
+  border: 1px solid transparent; /* même largeur intérieure que les cartes */
+}
+.cat-typehead > .cat-table {
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  border: 0;
+}
+.cat-typehead > .cat-table th {
+  padding: 4px 12px;
+  border: 0;
+  background: none;
+  color: var(--cat-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* largeurs : sur l'en-tête ET sur les cellules des cartes (qui n'ont plus d'en-tête) */
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(1) { width: 26%; }
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(2) { width: 15%; }
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(3) { width: 18%; }
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(4) { width: 7%; }
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(5) { width: 9%; }
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(6) { width: 12%; }
+:is(.cat-typehead > .cat-table th, .cat-typecard > .cat-table tr:first-child td):nth-child(7) { width: 172px; }
+@media (max-width: 900px) {
+  .cat-typehead {
+    display: none;
+  }
+}

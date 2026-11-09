@@ -863,3 +863,25 @@ Une page mère ★ par TYPE de page (2026-11-08) : dans Angles, l’étoile ne r
 Onglet Angles = CHOIX seulement (2026-11-08) : cocher les angles, une ★ par type de page, rien d’autre (plus de création de page, de lien, de template ; une carte reliée montre « Page : … · Ouvrir »). Tout se crée dans l’onglet Pages : « ★ Page mère · <angle ★ du type> » relie la page à cet angle ; « Angle N » ne propose que les angles cochés de ce type encore sans page ; « Nouvel angle… » retiré (on ajoute un angle dans l’onglet Angles).
 
 Correction (2026-11-08, même soir) : l’onglet Angles ne garde QUE le choix des angles (case « À tester », titre, avatar, douleur, promesse) : plus d’étoile ni de type de page. L’étape Angles est faite dès qu’un angle est coché. Dans Pages → « Ajouter une page » : Type, puis « ★ Page mère · Angle N » (la page mère du type, pour l’angle choisi ; `meresParType`), « ★ Page mère sans angle », ou, quand le type a sa mère, « Angle N » (copie de la mère par défaut, affichée dans « Partir de »), ou « Autre ». Plus de page vide pour une mère ni pour un angle.
+
+## Origine des pages (2026-11-08)
+
+Une page part de trois origines : un **template** (ou une page du projet,
+recopiée), un **lien** (page d'un site reproduite par Claude : la page est
+créée vide et une demande d'import la remplit) ou une **page vide**. Choix
+dans Pages → « Ajouter une page » (« Partir de » : Template ou page / Lien /
+Page vide ; une page d'angle part par défaut d'une copie de la page mère).
+
+- Enregistrée à la création : `root.props.origine = { type: "template" |
+  "page" | "lien" | "vide", source, url, le, empreinte }` (`createPage`,
+  `empreinte()` dans `src/projects.js`).
+- Pages plus anciennes : origine déduite (demande d'import avec `details.page`
+  et `url` → lien ; `importSource` → template ; sans contenu → vide).
+- Colonne « Origine » de l'onglet Pages ; « modifiée dans l'éditeur » quand
+  l'empreinte du contenu a changé (ou, pour un template, quand le contenu
+  diffère de la page du template).
+- « Changer » (`OriginDialog`, `changePageOrigin`) : remplace tout le contenu
+  (copie de sécurité dans l'Historique avant) ; avertit que les modifications
+  faites dans l'éditeur seront perdues. Lien → page vidée + demande d'import.
+- Retour sur la règle précédente : une page mère peut de nouveau partir d'une
+  page vide (demande de l'utilisateur, 2026-11-08).

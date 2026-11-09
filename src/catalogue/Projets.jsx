@@ -467,7 +467,24 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
         // Une carte par type de page (même ordre que le menu « Page » de
         // l'éditeur) : fermée, elle montre la page mère ; ouverte, la mère (★)
         // puis les pages des angles, puis les autres pages du type.
-        pageMenuGroups(pages.map((p) => p.info), project).map((g) => {
+        <>
+          {/* En-tête des colonnes, une seule fois au-dessus des cartes (2026-11-08) */}
+          <div className="cat-typehead" aria-hidden="true">
+            <table className="cat-table">
+              <thead>
+                <tr>
+                  <th>Page</th>
+                  <th>Angle / profil client</th>
+                  <th>Origine</th>
+                  <th>Achat</th>
+                  <th title="Score de vente">Score</th>
+                  <th>Textes</th>
+                  <th />
+                </tr>
+              </thead>
+            </table>
+          </div>
+          {pageMenuGroups(pages.map((p) => p.info), project).map((g) => {
           const mother = g.items.find((i) => i.mere);
           const angles = g.items.filter((i) => i.angle && !i.mere).length;
           const byName = Object.fromEntries(pages.map((p) => [p.info.name, p]));
@@ -479,17 +496,6 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
                 <span className="cat-typecard__mere">{mother ? `★ Mère : ${mother.detail}` : "Pas de page mère"}{angles ? ` · ${angles} angle${angles > 1 ? "s" : ""}` : ""}</span>
               </summary>
         <table className="cat-table">
-          <thead>
-            <tr>
-              <th>Page</th>
-              <th>Angle / profil client</th>
-              <th>Origine</th>
-              <th>Achat</th>
-              <th>Score de vente</th>
-              <th>Textes</th>
-              <th />
-            </tr>
-          </thead>
           <tbody>
             {g.items.map((item) => byName[item.name]).filter(Boolean).map((entry) => {
               const { info, data, score } = entry;
@@ -549,7 +555,8 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
         </table>
             </details>
           );
-        })
+        })}
+        </>
       )}
 
       <section className="cat-panel">
@@ -594,25 +601,23 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
             {!freeAngles.length && <small className="cat-muted">Tous les angles cochés ont leur page : coche-en d'autres dans l'onglet Angles.</small>}
           </label>
           <div className="cat-field">
-            <div className="cat-addpage__label">
-              <span>Partir de</span>
-              <div className="cat-depuis" role="radiogroup" aria-label="Origine de la page">
-                {[
-                  ["page", "Template ou page"],
-                  ["lien", "Lien"],
-                  ["vide", "Page vide"],
-                ].map(([v, l]) => (
-                  <label key={v}>
-                    <input type="radio" checked={form.depuis === v} onChange={() => setForm({ ...form, depuis: v })} /> {l}
-                  </label>
-                ))}
-              </div>
-            </div>
+            <span>Partir de</span>
             {form.depuis === "lien" && <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://… page à reproduire" />}
             {form.depuis === "page" && (
               <SourcePicker value={form.source || (isAngleRole ? motherOf(form.pageType) : "")} onChange={(source) => setForm({ ...form, source })} templates={templates} pages={pages} pageType={form.pageType} noBlank />
             )}
-            {form.depuis === "vide" && <p className="cat-muted cat-addpage__vide">La page sera créée sans section : tu la construis dans l'éditeur.</p>}
+            {form.depuis === "vide" && <div className="cat-addpage__vide">Page vide : tu la construis dans l'éditeur.</div>}
+            <div className="cat-depuis" role="radiogroup" aria-label="Origine de la page">
+              {[
+                ["page", "Template ou page"],
+                ["lien", "Lien"],
+                ["vide", "Page vide"],
+              ].map(([v, l]) => (
+                <label key={v}>
+                  <input type="radio" checked={form.depuis === v} onChange={() => setForm({ ...form, depuis: v })} /> {l}
+                </label>
+              ))}
+            </div>
             {form.depuis === "page" && isAngleRole && !form.source && hasMother && <small className="cat-muted">Par défaut : copie de la page mère de ce type.</small>}
           </div>
           <button type="button" className="cat-btn" disabled={busy} onClick={add}>
