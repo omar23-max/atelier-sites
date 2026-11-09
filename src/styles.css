@@ -6181,3 +6181,73 @@ html[data-atl-edit] [class*="Sidebar--right"] {
     min-width: 0;
   }
 }
+
+/* ---- Socle / zones d'angle (Structure) ---- */
+.atl-zones {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: var(--atl-radius);
+  border: 1px solid var(--atl-line);
+  background: var(--atl-bg-subtle);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--atl-ink-2);
+}
+.atl-zones--angle {
+  border-color: #fcd9a8;
+  background: #fff8ee;
+}
+.atl-zones p {
+  margin: 0 0 8px;
+}
+.atl-zones button {
+  padding: 5px 10px;
+  border: 1px solid var(--atl-line-strong);
+  border-radius: var(--atl-radius);
+  background: var(--atl-bg);
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-zones button:hover {
+  border-color: var(--atl-accent);
+}
+.atl-zone-tag {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--atl-line-strong);
+  border-radius: 999px;
+  background: var(--atl-bg);
+  color: var(--atl-ink-2);
+  font: 600 10px/1.6 "Inter", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+button.atl-zone-tag {
+  width: auto;
+  height: auto;
+  cursor: pointer;
+}
+.atl-zone-tag.is-angle {
+  border-color: #f59e0b;
+  background: #fff3dc;
+  color: #92400e;
+}
+.atl-structure li.is-angle {
+  box-shadow: inset 3px 0 0 #f59e0b;
+}
+/* l'étiquette Socle / Angle reste visible ; les flèches au survol seulement */
+.atl-structure__tools {
+  opacity: 1;
+}
+.atl-structure__tools > button:not(.atl-zone-tag) {
+  opacity: 0;
+}
+.atl-structure li:hover .atl-structure__tools > button,
+.atl-structure li.is-active .atl-structure__tools > button {
+  opacity: 1;
+}
+.atl-structure__tools > button.atl-zone-tag {
+  align-self: center;
+  margin-right: 2px;
+}

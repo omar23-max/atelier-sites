@@ -11,6 +11,8 @@ import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } fro
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
 import { scorePage } from "./engine/page-score.js";
+import { isAngleZone, pageRole, zonesFromMother } from "./angle-zones.js";
+import { getPage } from "./projects.js";
 
 // Panneau de droite, façon éditeur de thème Shopify :
 //   - en haut, l'arbre de la page : sections, sous-sections (groupes,
@@ -2604,7 +2606,7 @@ function BrandSheet({ root, onChange }) {
 // ---- Outils IA de toute la page (menu ✨ IA du rail de gauche) ----
 function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClose }) {
   const [state, setState] = useState(null);
-  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page" };
+  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page", decliner: "🎯 Décliner pour cet angle" };
   return createPortal(
     <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && !state?.busy && onClose()}>
       <div className="atl-modal__panel atl-aidlg">
@@ -2616,6 +2618,7 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClos
         </header>
         <div className="atl-aidlg__body">
           {tool === "reecrire" && <RewritePage content={content} root={root} onApply={onApply} onRoot={onRoot} />}
+          {tool === "decliner" && <DeclinePage content={content} root={root} onApply={onApply} />}
           {tool === "auditer" && <AuditPage content={content} root={root} onClose={onClose} />}
           {tool === "traduire" && <TranslatePage content={content} root={root} onApply={onApply} onLangue={(code) => onRoot({ langue: code })} />}
           {tool === "adapter" && (
@@ -2831,6 +2834,119 @@ function RewritePage({ content, root, onApply, onRoot }) {
       <textarea rows={5} value={form.infos} onChange={(e) => setForm({ ...form, infos: e.target.value })} placeholder={`Ce que tu sais de ${root.produit || "ton produit"}…`} disabled={state?.busy} />
       <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
         {state?.busy ? "Réécriture en cours…" : "Réécrire toute la page"}
+      </button>
+      {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
+      {state?.done && <p className="atl-topbar__ok">{state.done}</p>}
+      {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+    </div>
+  );
+}
+
+// ---- Décliner pour cet angle : seules les zones d'angle sont réécrites ----
+// (sections marquées « Angle » dans Structure ; le socle ne bouge pas). Brief :
+// la carte de l'angle (avatar, douleur, promesse) + le message central des
+// Fondations du projet.
+function DeclinePage({ content, root, onApply }) {
+  const [info, setInfo] = useState(null);
+  const [angleId, setAngleId] = useState("");
+  const [state, setState] = useState(null);
+  useEffect(() => {
+    pageRole(pageName, root)
+      .then((r) => {
+        setInfo(r);
+        setAngleId(r.angle?.id ?? "");
+      })
+      .catch((e) => setInfo({ error: e.message }));
+  }, [root.projet]);
+  const angles = (info?.project?.angles ?? []).filter((a) => a.choisi);
+  const angle = angles.find((a) => a.id === angleId);
+  const zones = content.filter(isAngleZone);
+  const message = info?.project?.fondations?.message ?? {};
+
+  async function run() {
+    if (!angle) return setState({ error: "Choisis l'angle de cette page." });
+    let items = zones;
+    // Page copiée avant le marquage de la mère : on reprend ses zones.
+    if (!items.length && info.motherName && info.motherName !== pageName) {
+      const mother = await getPage(info.motherName).catch(() => null);
+      const ids = mother ? zonesFromMother(content, mother.content ?? []) : new Set();
+      items = content.filter((it) => ids.has(it.props.id));
+    }
+    if (!items.length) return setState({ error: "Aucune zone d'angle : marque-les d'abord dans Structure (bouton Socle / Angle de chaque section)." });
+    const jobs = items.map((item) => ({ id: item.props.id, texts: byId[item.type] ? aiTargets(item).texts : [] })).filter((j) => j.texts.length);
+    const total = jobs.reduce((n, j) => n + j.texts.length, 0);
+    if (!total) return setState({ error: "Aucun texte dans les zones d'angle." });
+    if (!confirm(`Décliner les ${total} textes des ${jobs.length} zones d'angle pour « ${angle.titre} » ? Le socle ne change pas.`)) return;
+    const contexte = {
+      marque: root.marque ?? "",
+      produit: root.produit ?? "",
+      typeDePage: root.pageType ?? "",
+      infosProduit: (root.infos ?? "").slice(0, 6000),
+      angle: { titre: angle.titre, lentille: angle.lentille, avatar: angle.avatar, douleur: angle.douleur, promesse: angle.promesse },
+      messageCentral: {
+        promesse: message.promesse ?? "",
+        mecanisme: message.mecanisme ?? "",
+        preuves: (message.preuves ?? []).filter(Boolean),
+        objections: (message.objections ?? []).filter((o) => o?.objection),
+      },
+    };
+    let done = 0;
+    try {
+      for (const job of jobs) {
+        for (let i = 0; i < job.texts.length; i += 40) {
+          const batch = job.texts.slice(i, i + 40);
+          setState({ busy: true, step: `${done} / ${total} textes déclinés…` });
+          const res = await fetch("/api/ia/textes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: batch,
+              prompt:
+                "Décline chaque texte pour l'ANGLE du contexte. Ces textes sont les zones d'angle de la page (titre, accroche, ouverture, problème, bénéfices, avis mis en avant, boutons) : parle directement à l'avatar de l'angle et à sa douleur, et mène vers la promesse de l'angle, en restant fidèle au message central (même produit, même mécanisme, même offre). Garde le rôle du texte dans la page, sa longueur et ses balises de mise en forme. Ne change ni les prix, ni l'offre, ni la garantie, ni les chiffres ; n'invente aucune preuve, étude ou avis. " +
+                consigneLangue(root),
+              contexte,
+            }),
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error);
+          onApply(job.id, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
+          done += batch.length;
+        }
+      }
+      setState({ done: `${done} textes déclinés pour « ${angle.titre} ». Ctrl+Z pour annuler, Publish pour enregistrer.` });
+    } catch (e) {
+      setState({ error: `${e.message} (${done} / ${total} déjà déclinés)` });
+    }
+  }
+
+  if (!info) return <p className="atl-aibox__hint">Chargement du projet…</p>;
+  if (info.error || !info.project) return <p className="atl-topbar__error">{info.error ?? "Cette page n'est rattachée à aucun projet : pas d'angle à décliner."}</p>;
+  return (
+    <div className="atl-aibox">
+      <p className="atl-aibox__title">🎯 Décliner pour cet angle</p>
+      <p className="atl-aibox__hint">
+        Réécrit seulement les zones d'angle ({zones.length || "à reprendre de la page mère"}) : hero, ouverture, problème, bénéfices, avis mis en avant, boutons. Le socle (offre, preuves, garantie, FAQ, bloc d'achat) ne change pas. Brief : la carte de l'angle et le message central des Fondations.
+      </p>
+      {info.role === "mere" && <p className="atl-topbar__error">C'est la page mère : décliner la réécrit pour un autre angle. En général, on décline plutôt ses copies (pages d'angle).</p>}
+      <select value={angleId} onChange={(e) => setAngleId(e.target.value)} disabled={state?.busy}>
+        <option value="">— Choisir l'angle —</option>
+        {angles.map((a) => (
+          <option key={a.id} value={a.id}>
+            {a.titre}
+            {a.page === pageName ? " (cette page)" : ""}
+          </option>
+        ))}
+      </select>
+      {angle && (
+        <p className="atl-aibox__hint">
+          {angle.avatar && <><b>Avatar :</b> {angle.avatar}<br /></>}
+          {angle.douleur && <><b>Douleur :</b> {angle.douleur}<br /></>}
+          {angle.promesse && <><b>Promesse :</b> {angle.promesse}</>}
+        </p>
+      )}
+      {!message.promesse && <p className="atl-aibox__hint">Message central vide dans les Fondations : la déclinaison sera moins précise.</p>}
+      <button type="button" className="atl-aibox__go" disabled={state?.busy || !angle} onClick={run}>
+        {state?.busy ? "Déclinaison en cours…" : "Décliner les zones d'angle"}
       </button>
       {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
       {state?.done && <p className="atl-topbar__ok">{state.done}</p>}

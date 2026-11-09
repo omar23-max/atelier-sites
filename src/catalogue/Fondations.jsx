@@ -95,7 +95,9 @@ function Champ({ label, placeholder, rows, value, onChange }) {
 }
 
 // Message central : toujours 3 preuves et 3 objections (cases vides au besoin).
-export function normalizeMessage(m = {}) {
+export function normalizeMessage(m) {
+  // Projet neuf : pas encore de message central (null ou absent).
+  m = m ?? {};
   const preuves = [...(m.preuves ?? [])];
   const objections = [...(m.objections ?? [])].map((o) => (typeof o === "string" ? { objection: o, reponse: "" } : { objection: o?.objection ?? "", reponse: o?.reponse ?? "" }));
   while (preuves.length < 3) preuves.push("");

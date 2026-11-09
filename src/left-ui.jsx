@@ -10,6 +10,8 @@ import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
 import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
+import { isAngleZone, pageRole, suggestAngleZones, zonesFromMother } from "./angle-zones.js";
+import { getPage } from "./projects.js";
 
 // Colonne de gauche : un rail d'icônes et l'outil choisi.
 //   Structure · Ajouter une section · Palette · ✨ IA · Score
@@ -91,9 +93,45 @@ function StructureTool({ onAdd }) {
   const content = usePuckSelect((s) => s.appState.data.content);
   const selectedId = usePuckSelect((s) => s.selectedItem?.props?.id ?? null);
   const dispatch = usePuckSelect((s) => s.dispatch);
+  const projet = usePuckSelect((s) => s.appState.data.root?.props?.projet ?? "");
   const [q, setQ] = useState("");
   const [drag, setDrag] = useState(null);
+  const [role, setRole] = useState(null);
   const listRef = useRef(null);
+
+  // Rôle de la page (mère ou angle) : affiche le bandeau socle / zones d'angle.
+  useEffect(() => {
+    if (!projet) return setRole(null);
+    pageRole(pageName, { projet }).then(setRole).catch(() => setRole(null));
+  }, [projet]);
+  const anyZone = content.some(isAngleZone);
+  // Section zone d'angle (props.atl_zone = "angle") ou socle (réglage retiré).
+  function setZones(ids) {
+    content.forEach((item, index) => {
+      const on = ids.has(item.props.id);
+      if (on === isAngleZone(item)) return;
+      const props = { ...item.props };
+      if (on) props.atl_zone = "angle";
+      else delete props.atl_zone;
+      dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT_ZONE, data: { ...item, props } });
+    });
+  }
+  const toggleZone = (item) => {
+    const ids = new Set(content.filter(isAngleZone).map((it) => it.props.id));
+    if (ids.has(item.props.id)) ids.delete(item.props.id);
+    else ids.add(item.props.id);
+    setZones(ids);
+  };
+  async function fromMother() {
+    try {
+      const mother = await getPage(role.motherName);
+      const ids = zonesFromMother(content, mother.content ?? []);
+      if (!ids.size) return alert("La page mère n'a pas encore de zones d'angle marquées.");
+      setZones(ids);
+    } catch (e) {
+      alert(e.message);
+    }
+  }
 
   useEffect(() => {
     if (selectedId) listRef.current?.querySelector(`[data-item="${CSS.escape(selectedId)}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -113,6 +151,29 @@ function StructureTool({ onAdd }) {
   const needle = q.trim().toLowerCase();
   return (
     <>
+      {(role?.role === "mere" || role?.role === "angle") && (
+        <div className={`atl-zones atl-zones--${role.role}`}>
+          {role.role === "mere" ? (
+            <p>
+              <b>★ Page mère.</b> Marque les <span className="atl-zone-tag is-angle">Angle</span> : les sections qui changent d'un angle à l'autre. Le reste est le <span className="atl-zone-tag">Socle</span>, commun à toutes les pages d'angle.
+            </p>
+          ) : (
+            <p>
+              <b>Page d'angle{role.angle ? ` « ${role.angle.titre} »` : ""}.</b> Ne retouche que les sections <span className="atl-zone-tag is-angle">Angle</span> ; le <span className="atl-zone-tag">Socle</span> vient de la page mère. ✨ IA → « Décliner pour cet angle ».
+            </p>
+          )}
+          {role.role === "mere" && (
+            <button type="button" onClick={() => (!anyZone || confirm("Remplacer les zones d'angle actuelles par la proposition ?")) && setZones(suggestAngleZones(content))}>
+              Proposer les zones d'angle
+            </button>
+          )}
+          {role.role === "angle" && !anyZone && role.motherName && (
+            <button type="button" onClick={fromMother}>
+              Reprendre les zones de la page mère
+            </button>
+          )}
+        </div>
+      )}
       <input className="atl-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher une section" />
       {content.length === 0 && <p className="atl-tool-panel__empty">Page vide. Ajoute une première section.</p>}
       <ol className="atl-structure" ref={listRef}>
@@ -125,7 +186,7 @@ function StructureTool({ onAdd }) {
             <li
               key={id}
               data-item={id}
-              className={`${id === selectedId ? "is-active" : ""}${drag === index ? " is-drag" : ""}`}
+              className={`${id === selectedId ? "is-active" : ""}${drag === index ? " is-drag" : ""}${isAngleZone(item) ? " is-angle" : ""}`}
               draggable
               onDragStart={() => setDrag(index)}
               onDragOver={(e) => e.preventDefault()}
@@ -140,6 +201,16 @@ function StructureTool({ onAdd }) {
                 {variant && <small>{variant}</small>}
               </button>
               <span className="atl-structure__tools">
+                {role?.role && (
+                  <button
+                    type="button"
+                    className={`atl-zone-tag${isAngleZone(item) ? " is-angle" : ""}`}
+                    title={isAngleZone(item) ? "Zone d'angle : change d'un angle à l'autre. Clic : remettre dans le socle." : "Socle : commun à tous les angles. Clic : en faire une zone d'angle."}
+                    onClick={() => toggleZone(item)}
+                  >
+                    {isAngleZone(item) ? "Angle" : "Socle"}
+                  </button>
+                )}
                 <button type="button" title="Monter" disabled={index === 0} onClick={() => move(index, index - 1, id)}>
                   ↑
                 </button>
@@ -614,6 +685,10 @@ function AiTool() {
       <p className="atl-tool-panel__group">Analyse</p>
       <div className="atl-choices">
         {item("Auditer la page", "La grille de la méthode : 5 croyances, 5 premières secondes, confiance, bloc d'achat. Gains rapides et textes prêts à coller.", () => open("atl-ai-page", "auditer"))}
+      </div>
+      <p className="atl-tool-panel__group">Angle</p>
+      <div className="atl-choices">
+        {item("Décliner pour cet angle", "Page d'angle : réécrit seulement les zones d'angle (hero, ouverture, problème, bénéfices, avis, boutons) pour son avatar et sa promesse. Le socle ne bouge pas.", () => open("atl-ai-page", "decliner"))}
       </div>
       <p className="atl-tool-panel__group">Textes</p>
       <div className="atl-choices">

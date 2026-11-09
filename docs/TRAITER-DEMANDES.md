@@ -834,3 +834,24 @@ Dans le catalogue, onglet Pages du projet : une carte par type de page (fermée 
 « Ajouter une page au projet » : le champ « Page mère ou angle » remplace le profil libre. ★ Page mère → enregistrée comme mère de son type (`projet.meresParType[type]`, prioritaire dans `pageMenuGroups`) ; Angle N → la page est reliée à cet angle (angles sans page seulement) ; Nouvel angle… → angle ajouté au projet ; Autre → page simple. Une page d’angle part par défaut d’une copie de la page mère de son type.
 
 Règle : pas de page d’angle (Angle N, Nouvel angle) tant que le type n’a pas sa page mère (options grisées + message). Une page mère part toujours d’une page du même type, d’un template, ou d’un lien (URL → page créée puis demande d’import) ; jamais d’une page vide (`SourcePicker noBlank`).
+
+## Socle et zones d'angle (2026-11-08)
+
+Méthode : projet → Fondations → Angles → **page mère** par type (socle + zones
+d'angle, Score ≥ 80) → pages d'angle = copies de la mère dont on ne réécrit que
+les zones d'angle → Pubs → Publication → Résultats.
+
+- Chaque section porte `props.atl_zone = "angle"` si elle change d'un angle à
+  l'autre (hero, ouverture / problème, bénéfices, avis mis en avant, CTA) ; sans
+  ce réglage elle est dans le **socle** (offre, mécanisme, preuves, garantie,
+  FAQ, bloc d'achat, design). Code : `src/angle-zones.js`.
+- Éditeur → **Structure** : bandeau « Page mère » ou « Page d'angle » selon le
+  projet, étiquette Socle / Angle cliquable sur chaque section, bouton
+  « Proposer les zones d'angle » (mère : hero, problème, histoire, avantages,
+  CTA + 1er bloc d'avis) et « Reprendre les zones de la page mère » (page
+  d'angle copiée avant le marquage : même type de section, même rang).
+- Éditeur → ✨ IA → **Décliner pour cet angle** (`DeclinePage` dans
+  `inspector-ui.jsx`) : réécrit seulement les zones d'angle, avec la carte de
+  l'angle (avatar, douleur, promesse) et le message central des Fondations.
+  Ne touche ni prix, ni offre, ni garantie, ni chiffres.
+- À venir : « Valider la page mère » et « Reporter le socle » (mère → angles).
