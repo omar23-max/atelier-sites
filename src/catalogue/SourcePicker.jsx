@@ -6,14 +6,16 @@ import { nicheLabel } from "./Templates.jsx";
 // une page vide, une copie d'une page du projet, ou un template (filtré par le
 // type de page choisi, avec recherche).
 const thumbOf = (t) => t.vignette?.replace(/vignette\.png$/, "carte.jpg");
-export function SourcePicker({ value, onChange, templates, pages, pageType }) {
+// noBlank : pas de « page vide » (page mère : on part d'une page ou d'un template).
+export function SourcePicker({ value, onChange, templates, pages, pageType, noBlank = false }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [sameType, setSameType] = useState(true);
   const usable = templates.filter((t) => t.page);
   const chosenTpl = usable.find((t) => t.page === value);
   const chosenPage = pages.find((p) => p.info.name === value);
-  const label = chosenTpl ? chosenTpl.nom : chosenPage ? `Copie de « ${chosenPage.info.title} »` : "Une page vide";
+  const label = chosenTpl ? chosenTpl.nom : chosenPage ? `Copie de « ${chosenPage.info.title} »` : noBlank ? "Choisir une page ou un template…" : "Une page vide";
+  const shownPages = noBlank && sameType ? pages.filter((p) => p.info.pageType === pageType) : pages;
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
   const shown = usable.filter(
     (t) => (!sameType || t.pageType === pageType) && words.every((w) => [t.nom, t.marque, t.niche, t.url].join(" ").toLowerCase().includes(w)),
@@ -52,11 +54,13 @@ export function SourcePicker({ value, onChange, templates, pages, pageType }) {
               </label>
             </div>
             <div className="cat-picker__grid">
-              <button type="button" className={`cat-picker__item is-blank${!value ? " is-on" : ""}`} onClick={() => pick("")}>
-                <span className="cat-picker__thumb">＋</span>
-                <b>Une page vide</b>
-              </button>
-              {pages.map((p) => (
+              {!noBlank && (
+                <button type="button" className={`cat-picker__item is-blank${!value ? " is-on" : ""}`} onClick={() => pick("")}>
+                  <span className="cat-picker__thumb">＋</span>
+                  <b>Une page vide</b>
+                </button>
+              )}
+              {shownPages.map((p) => (
                 <button key={p.info.name} type="button" className={`cat-picker__item${value === p.info.name ? " is-on" : ""}`} onClick={() => pick(p.info.name)}>
                   <span className="cat-picker__thumb">
                     <img src={`/medias/_vignettes/${p.info.name}.png`} alt="" loading="lazy" />

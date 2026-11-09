@@ -1,9 +1,13 @@
-// Regroupe les « Raisons d'acheter » (famille listicle) d'une même page, qui se
-// suivent, en une seule section du catalogue (≤ 45 emplacements par section).
+// Regroupe les sections découpées en un élément par section (raisons, avis,
+// produits…) : morceaux d'une même page qui se suivent, de MÊME famille et de
+// structure presque identique, en une seule section (≤ 45 emplacements).
 // Les morceaux restent sur le disque, masqués (status "masquee", regroupeeDans).
-//   node regrouper.mjs [--dry] [--pages a,b]
+//   node regrouper.mjs [--dry] [--familles a,b] [--pages a,b] [--dans approuves.json]
+// Après coup, en cas de souci : node reparer-regroupes.mjs (nom, famille, CSS).
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
 const A = "/home/ubuntu/atelier-sites/sections";
+const { FONCTION_BY_FAMILY } = await import("/home/ubuntu/atelier-sites/src/engine/fonctions.js");
+const NOMS = { ...Object.fromEntries(Object.entries(FONCTION_BY_FAMILY).map(([k, v]) => [k, v.nom])), hero: "Hero", collection: "Grille de produits", entete: "En-tête", galerie: "Galerie photos", cta: "Appel à l'action", histoire: "Histoire", slogan: "Slogan", bonus: "Bonus offerts", livraison: "Livraison et retours", article: "Article", espace: "Espace", "sticky-atc": "Barre d'achat", autres: "Contenu" };
 const dry = process.argv.includes("--dry");
 const arg = (k) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : null; };
 const onlyPages = arg("--pages")?.split(",");
@@ -84,12 +88,17 @@ for (const lot of final) {
     inner += `<div data-atl-morceau="${p.id}">${t}</div>`;
   }
   const tpl = `<div class="${[...classes].join(" ")}" data-atl-root${extra}>${inner}${[...scripts].join("")}</div>\n`;
-  const css = lot.parts.map((p) => `/* ── ${p.id} ── */\n` + readFileSync(`${A}/${p.id}/style.css`, "utf8").trim()).join("\n\n") + "\n";
+  // règles des morceaux préfixées par la classe de la section regroupée (même
+  // racine) : l'atelier exige que le style.css contienne .atl-<id> (2026-11-08)
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const css = lot.parts.map((p) => `/* ── ${p.id} ── */\n` + readFileSync(`${A}/${p.id}/style.css`, "utf8").trim().replace(new RegExp(`\\.atl-${esc(p.id)}(?![\\w-])`, "g"), `.atl-${nid}.atl-${p.id}`)).join("\n\n") + "\n";
   const s0 = J(`${A}/${lot.parts[0].id}/schema.json`);
-  const schema = { ...s0, name: "Raisons d'acheter (regroupées)", blocks: s0.blocks, presets: [{ name: "Raisons d'acheter", blocks: lot.parts.flatMap((p) => J(`${A}/${p.id}/schema.json`).presets?.[0]?.blocks ?? []) }] };
+  const fam = lot.parts[0].m.family;
+  const nom = (NOMS[fam] ?? "Section").slice(0, 25); // limite de 25 caractères
+  const schema = { ...s0, name: nom, blocks: s0.blocks, presets: [{ name: nom, blocks: lot.parts.flatMap((p) => J(`${A}/${p.id}/schema.json`).presets?.[0]?.blocks ?? []) }] };
   const m0 = lot.parts[0].m;
   const meta = {
-    label: `Raisons d'acheter — ${lot.page}`, fonction: "Raisons d'acheter", family: "listicle",
+    label: `${nom} — ${lot.page}`, fonction: nom, family: fam,
     source: { ...m0.source, note: `Regroupement (2026-11-08) de ${lot.parts.length} sections consécutives : ${lot.parts.map((p) => p.id).join(", ")}.` },
     preview: {}, previewBlocks: Object.assign({}, ...lot.parts.map((p) => p.m.previewBlocks ?? {})),
     arbre: { group: true, kind: "groupe", label: "Raisons", children: lot.parts.map((p) => p.m.arbre).filter(Boolean) },

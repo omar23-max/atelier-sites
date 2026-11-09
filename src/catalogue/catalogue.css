@@ -2670,3 +2670,112 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ---- Pages du projet : une carte par type, mère puis angles (2026-11-08) ---- */
+.cat-typecard {
+  margin-bottom: 10px;
+  border: 1px solid var(--cat-line);
+  border-radius: 12px;
+  background: var(--cat-card);
+}
+.cat-typecard > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.cat-typecard > summary::-webkit-details-marker {
+  display: none;
+}
+.cat-typecard > summary::before {
+  content: "›";
+  display: inline-block;
+  width: 12px;
+  color: var(--cat-muted);
+  font-weight: 700;
+  transition: transform 0.15s;
+}
+.cat-typecard[open] > summary::before {
+  transform: rotate(90deg);
+}
+.cat-typecard__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cat-text);
+}
+.cat-typecard__count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--cat-bg);
+  color: var(--cat-muted);
+  font-size: 12px;
+}
+.cat-typecard__mere {
+  flex: 1;
+  min-width: 0;
+  color: var(--cat-muted);
+  font-size: 13px;
+}
+.cat-typecard > .cat-table {
+  margin: 0;
+  border-top: 1px solid var(--cat-line);
+}
+.cat-typecard tr.is-mere td {
+  background: var(--cat-amber-bg);
+}
+@media (max-width: 700px) {
+  .cat-typecard > .cat-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Page mère : partir d'une page / d'un template, ou d'un lien */
+.cat-depuis {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.cat-depuis label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+/* « Ajouter une page au projet » : libellés et champs sur la même ligne */
+.cat-addpage {
+  align-items: start;
+}
+.cat-addpage .cat-field > :first-child {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+.cat-addpage__label {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cat-addpage .cat-depuis {
+  margin: 0;
+  font-weight: 400;
+}
+.cat-addpage .cat-field > select,
+.cat-addpage .cat-field > input,
+.cat-addpage .cat-source-btn {
+  box-sizing: border-box;
+  height: 42px;
+  min-height: 42px;
+}
+.cat-addpage > .cat-btn {
+  height: 42px;
+  margin-top: 27px;
+}
+.cat-addpage .cat-field small {
+  font-size: 12px;
+  line-height: 1.4;
+}

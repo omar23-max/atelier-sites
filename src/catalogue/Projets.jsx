@@ -6,7 +6,7 @@ import { scorePage } from "../engine/page-score.js";
 import { originalPhotoTargets } from "../engine/photos.js";
 import { pageTexts } from "../engine/texts.js";
 import { confirmDelete, createPage, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
-import { NewProjectDialog } from "../pages-ui.jsx";
+import { NewProjectDialog, isUrl, pageMenuGroups, requestImport } from "../pages-ui.jsx";
 import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf, request } from "./ProjectExtras.jsx";
 import { FoundationsTab, ProjectProgress } from "./Fondations.jsx";
 import { AnglesTab } from "./Angles.jsx";
@@ -332,7 +332,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
         <FoundationsTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} request={request} offer={<OfferTab key={`o-${project.id}`} project={project} onSave={saveProjectPatch} onMessage={onMessage} />} />
       )}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
-      {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} />}
+      {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}
       {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} />]} />}
       {currentTab === "textes" && <TwoViews labels={["D'origine", "Corrigés"]} views={[<OriginalTextsTab key="o" pages={pages} />, <EditedTextsTab key="c" pages={pages} />]} />}
       {currentTab === "marque" && <ProjectSummary project={project} pages={pages} />}
@@ -344,28 +344,61 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   );
 }
 
-function PagesTab({ project, pages, allPages, templates, onChanged, onMessage }) {
-  const [form, setForm] = useState({ pageType: "produit", profil: "", source: "" });
+function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, onSave }) {
+  // role : "mere" (page mère de ce type), id d'un angle du projet, "nouveau"
+  // (nouvel angle, titre dans profil) ou "" (page simple, profil libre).
+  // depuis : "page" (page ou template, via SourcePicker) ou "lien" (URL à
+  // reproduire : demande d'import). Une page mère ne part jamais d'une page vide.
+  const [form, setForm] = useState({ pageType: "produit", role: "mere", profil: "", source: "", depuis: "page", url: "" });
   const [busy, setBusy] = useState(false);
   const buyPages = pages.filter((p) => pageTypeById[p.info.pageType]?.achat);
+  const angles = project.angles ?? [];
+  const pageNames = pages.map((p) => p.info.name);
+  const freeAngles = angles.map((a, i) => ({ ...a, n: i + 1 })).filter((a) => !a.page || !pageNames.includes(a.page));
+  const motherOf = (type) => pageMenuGroups(pages.map((p) => p.info), project).find((g) => g.id === type)?.items.find((i) => i.mere)?.name ?? "";
+  // Pas de page d'angle tant que le type n'a pas sa page mère.
+  const hasMother = !!motherOf(form.pageType);
+  const isAngleRole = form.role !== "mere" && form.role !== "";
+  useEffect(() => {
+    if (!hasMother && isAngleRole) setForm((f) => ({ ...f, role: "mere" }));
+  }, [hasMother, isAngleRole]);
 
   async function add() {
+    const angle = angles.find((a) => a.id === form.role);
+    const profil = form.role === "mere" ? "" : angle ? angle.titre : form.profil.trim();
+    const mereRole = form.role === "mere";
+    const fromUrl = mereRole && form.depuis === "lien";
+    if (!hasMother && (angle || form.role === "nouveau")) return onMessage({ error: true, text: "Crée d'abord la page mère de ce type : les angles en sont des copies." });
+    if (form.role === "nouveau" && !profil) return onMessage({ error: true, text: "Donne un titre au nouvel angle." });
+    if (mereRole && !fromUrl && !form.source) return onMessage({ error: true, text: "Une page mère part d'une page existante, d'un template ou d'un lien : choisis le point de départ." });
+    if (fromUrl && !isUrl(form.url)) return onMessage({ error: true, text: "Indique le lien de la page à reproduire (https://…)." });
+    // un angle part de la page mère de son type (copie), sauf autre choix
+    const source = fromUrl ? "" : form.source || (!mereRole ? motherOf(form.pageType) : "");
     setBusy(true);
     try {
+      const name = uniquePageName(pageNameFor(project.id, form.pageType, form.role === "mere" ? "mere" : profil), allPages);
       await createPage(
         {
-          name: uniquePageName(pageNameFor(project.id, form.pageType, form.profil), allPages),
+          name,
           projet: project.id,
           produit: project.produit || project.nom,
           pageType: form.pageType,
-          profil: form.profil,
-          source: form.source,
+          profil,
+          source,
           pageAchat: buyPages[0]?.info.name ?? "",
         },
         allPages,
       );
-      setForm({ ...form, profil: "" });
-      onMessage({ text: "Page ajoutée au projet." });
+      // Lien : la page est créée vide et une demande d'import la remplira
+      // (imports un par un, par l'atelier).
+      if (fromUrl) await requestImport({ url: form.url.trim(), projet: project.id, page: name, pageType: form.pageType });
+      if (form.role === "mere") await onSave({ meresParType: { ...(project.meresParType ?? {}), [form.pageType]: name } }, true);
+      else if (angle) await onSave({ angles: angles.map((a) => (a.id === angle.id ? { ...a, page: name, choisi: true, pageType: form.pageType } : a)) }, true);
+      else if (form.role === "nouveau")
+        await onSave({ angles: [...angles, { id: `angle-${Date.now()}`, titre: profil, lentille: "", avatar: "", douleur: "", promesse: "", pageType: form.pageType, choisi: true, mere: false, page: name }] }, true);
+      setForm({ ...form, profil: "", source: "", url: "" });
+      const label = pageTypeById[form.pageType]?.label ?? form.pageType;
+      onMessage({ text: fromUrl ? `Page mère « ${label} » créée ; demande d'import envoyée pour ${form.url.trim()}.` : form.role === "mere" ? `Page mère « ${label} » ajoutée au projet.` : `Page ajoutée au projet${profil ? ` pour l'angle « ${profil} »` : ""}${source && source === motherOf(form.pageType) ? " (copie de la page mère)" : ""}.` });
       onChanged();
     } catch (e) {
       onMessage({ error: true, text: e.message });
@@ -379,6 +412,20 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage })
       {pages.length === 0 ? (
         <div className="cat-empty">Ce projet n'a pas encore de page.</div>
       ) : (
+        // Une carte par type de page (même ordre que le menu « Page » de
+        // l'éditeur) : fermée, elle montre la page mère ; ouverte, la mère (★)
+        // puis les pages des angles, puis les autres pages du type.
+        pageMenuGroups(pages.map((p) => p.info), project).map((g) => {
+          const mother = g.items.find((i) => i.mere);
+          const angles = g.items.filter((i) => i.angle && !i.mere).length;
+          const byName = Object.fromEntries(pages.map((p) => [p.info.name, p]));
+          return (
+            <details key={g.id} className="cat-typecard">
+              <summary>
+                <span className="cat-typecard__title">{g.label}</span>
+                <span className="cat-typecard__count">{g.items.length} page{g.items.length > 1 ? "s" : ""}</span>
+                <span className="cat-typecard__mere">{mother ? `★ Mère : ${mother.detail}` : "Pas de page mère"}{angles ? ` · ${angles} angle${angles > 1 ? "s" : ""}` : ""}</span>
+              </summary>
         <table className="cat-table">
           <thead>
             <tr>
@@ -391,14 +438,15 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage })
             </tr>
           </thead>
           <tbody>
-            {pages.map(({ info, data, score }) => {
+            {g.items.map((item) => byName[item.name]).filter(Boolean).map(({ info, data, score }) => {
               const type = pageTypeById[info.pageType];
               const texts = pageTexts(data);
               const briefs = texts.filter((t) => isBrief(t.text)).length;
+              const item = g.items.find((i) => i.name === info.name);
               return (
-                <tr key={info.name}>
+                <tr key={info.name} className={item?.mere ? "is-mere" : ""}>
                   <td>
-                    <b>{type?.label ?? info.title}</b>
+                    <b>{item?.mere ? `★ ${g.label} mère` : item?.angle ? `${g.label} angle` : type?.label ?? info.title}</b>
                     <small className="cat-muted">{info.name}</small>
                   </td>
                   <td>{info.profil || <span className="cat-muted">—</span>}</td>
@@ -434,13 +482,16 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage })
             })}
           </tbody>
         </table>
+            </details>
+          );
+        })
       )}
 
       <section className="cat-panel">
         <div className="cat-panel__head">
           <strong>Ajouter une page au projet</strong>
         </div>
-        <div className="cat-use__row">
+        <div className="cat-use__row cat-addpage">
           <label className="cat-field">
             <span>Type</span>
             <select value={form.pageType} onChange={(e) => setForm({ ...form, pageType: e.target.value })}>
@@ -452,12 +503,44 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage })
             </select>
           </label>
           <label className="cat-field">
-            <span>Angle / profil client</span>
-            <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder="ex. anti-rides, prix, cadeau" />
+            <span>Page mère ou angle</span>
+            <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+              <option value="mere">★ Page mère{hasMother ? " (remplace l'actuelle)" : ""}</option>
+              {freeAngles.map((a) => (
+                <option key={a.id} value={a.id} disabled={!hasMother}>
+                  Angle {a.n} · {a.titre}
+                </option>
+              ))}
+              <option value="nouveau" disabled={!hasMother}>
+                Nouvel angle…
+              </option>
+              <option value="">Autre (sans angle)</option>
+            </select>
+            {(form.role === "nouveau" || form.role === "") && (
+              <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder={form.role === "nouveau" ? "Titre de l'angle" : "Profil client (facultatif)"} />
+            )}
+            {!hasMother && <small className="cat-muted">Pas encore de page mère pour ce type : crée-la d'abord, les angles en seront des copies.</small>}
           </label>
           <div className="cat-field">
-            <span>Partir de</span>
-            <SourcePicker value={form.source} onChange={(source) => setForm({ ...form, source })} templates={templates} pages={pages} pageType={form.pageType} />
+            <div className="cat-addpage__label">
+              <span>Partir de</span>
+              {form.role === "mere" && (
+                <div className="cat-depuis" role="radiogroup" aria-label="Point de départ de la page mère">
+                  <label>
+                    <input type="radio" checked={form.depuis === "page"} onChange={() => setForm({ ...form, depuis: "page" })} /> Page ou template
+                  </label>
+                  <label>
+                    <input type="radio" checked={form.depuis === "lien"} onChange={() => setForm({ ...form, depuis: "lien" })} /> Lien
+                  </label>
+                </div>
+              )}
+            </div>
+            {form.role === "mere" && form.depuis === "lien" ? (
+              <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://… page à reproduire" />
+            ) : (
+              <SourcePicker value={form.source} onChange={(source) => setForm({ ...form, source })} templates={templates} pages={pages} pageType={form.pageType} noBlank={form.role === "mere"} />
+            )}
+            {isAngleRole && !form.source && hasMother && <small className="cat-muted">Par défaut : copie de la page mère de ce type.</small>}
           </div>
           <button type="button" className="cat-btn" disabled={busy} onClick={add}>
             {busy ? "Création…" : "Ajouter"}

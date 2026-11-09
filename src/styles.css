@@ -3808,6 +3808,14 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   filter: none;
   opacity: 1;
 }
+/* × et corbeille : icône centrée dans son bouton (2026-11-08) */
+.atl-topbar button.atl-close-page,
+.atl-topbar button.atl-trash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
 #atl-topbar-tools {
   display: contents;
 }
@@ -6056,4 +6064,120 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-car__ia:hover {
   background: #ede2ff;
+}
+
+/* ---- Menu « Page » à deux niveaux : types, puis pages mère et angles ---- */
+.atl-pagemenu {
+  position: relative;
+}
+.atl-topbar button.atl-pagemenu__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-pagemenu__cur {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-pagemenu__caret {
+  flex: none;
+  color: var(--atl-ink-3);
+  font-size: 11px;
+}
+.atl-pagemenu__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  max-width: min(720px, calc(100vw - 32px));
+  max-height: 70vh;
+  border: 1px solid var(--atl-line-strong);
+  border-radius: var(--atl-radius-lg);
+  background: var(--atl-bg);
+  box-shadow: var(--atl-shadow-lg);
+  overflow: hidden;
+}
+.atl-pagemenu__panel ul {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+}
+.atl-pagemenu__types {
+  flex: none;
+  width: 190px;
+  border-right: 1px solid var(--atl-line);
+  background: var(--atl-bg-subtle);
+}
+.atl-pagemenu__pages {
+  flex: 1;
+  min-width: 260px;
+}
+.atl-topbar .atl-pagemenu__panel button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--atl-radius);
+  background: transparent;
+  box-shadow: none;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-topbar .atl-pagemenu__panel button:hover,
+.atl-topbar .atl-pagemenu__panel button.is-active {
+  background: var(--atl-accent-soft);
+  color: var(--atl-accent-strong);
+}
+.atl-pagemenu__types button > span:first-child {
+  flex: 1;
+  font-weight: 600;
+}
+.atl-pagemenu__types small {
+  color: var(--atl-ink-3);
+  font-size: 11px;
+}
+.atl-topbar .atl-pagemenu__pages button {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+.atl-pagemenu__pages b {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--atl-ink-2);
+}
+.atl-pagemenu__pages button span {
+  max-width: 380px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-topbar .atl-pagemenu__pages button.is-current {
+  background: var(--atl-accent-soft);
+  box-shadow: inset 3px 0 0 var(--atl-accent);
+}
+@media (max-width: 640px) {
+  .atl-pagemenu__panel {
+    flex-direction: column;
+  }
+  .atl-pagemenu__types {
+    width: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--atl-line);
+  }
+  .atl-pagemenu__pages {
+    min-width: 0;
+  }
 }

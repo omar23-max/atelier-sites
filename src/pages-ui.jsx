@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PAGE_TYPES, pageTypeById } from "./engine/page-types.js";
 import { confirmDelete, createPage, listProjects, listTemplates, pageNameFor, saveProject, slug, trashItem, uniquePageName, NAME } from "./projects.js";
@@ -77,25 +77,113 @@ export function ProjectSelect({ current, pages, projects }) {
   );
 }
 
-// « Page ▾ » : les pages du projet en cours.
-export function PageSelect({ current, pages }) {
+// « Page ▾ » : menu à deux niveaux. 1er niveau : les types de page du projet
+// (Landing page, Listicle, Advertorial…). 2e niveau : les pages de ce type, la
+// page mère d'abord (★), puis les pages des angles, puis les autres.
+// Page mère d'un type : la page mère du projet si elle est de ce type, sinon
+// la page du premier angle choisi de ce type (même règle que l'onglet Angles).
+const TYPE_MENU = { landing: "Landing page", listicle: "Listicle", advertorial: "Advertorial", produit: "Product page", accueil: "Homepage", offre: "Offer page", collection: "Collection", autre: "Autre" };
+const NO_TYPE = "__sans-type";
+
+export function pageMenuGroups(own, project) {
+  const angles = (project?.angles ?? []).filter((a) => a.choisi && a.page);
+  const mere = angles.find((a) => a.mere);
+  const angleOf = (name) => angles.find((a) => a.page === name);
+  const typeIds = [...PAGE_TYPES.map((t) => t.id), NO_TYPE];
+  const groups = [];
+  for (const t of typeIds) {
+    const list = own.filter((p) => (pageTypeById[p.pageType] ? p.pageType : NO_TYPE) === t);
+    if (!list.length) continue;
+    const names = list.map((p) => p.name);
+    // mère choisie pour ce type (catalogue, « Ajouter une page » → Page mère),
+    // sinon la mère du projet si elle est de ce type, sinon le 1er angle du type
+    const fixed = project?.meresParType?.[t];
+    const motherName = fixed && names.includes(fixed) ? fixed : mere && names.includes(mere.page) ? mere.page : angles.find((a) => names.includes(a.page))?.page ?? null;
+    const rank = (p) => (p.name === motherName ? 0 : angleOf(p.name) ? 1 + angles.indexOf(angleOf(p.name)) / 1000 : 2);
+    const items = [...list]
+      .sort((a, b) => rank(a) - rank(b) || String(a.title).localeCompare(String(b.title)))
+      .map((p) => {
+        const angle = angleOf(p.name);
+        const detail = angle?.titre || p.profil || (!p.projet && p.importSource ? p.produit || p.importSource : "") || p.title;
+        return { name: p.name, mere: p.name === motherName, angle: !!angle, detail };
+      });
+    groups.push({ id: t, label: TYPE_MENU[t] ?? "Sans type", items });
+  }
+  return groups;
+}
+
+export function PageSelect({ current, pages, projects = [] }) {
   const currentInfo = pages.find((p) => p.name === current);
-  const list = useMemo(() => {
-    const own = pages.filter((p) => groupOf(p) === groupOf(currentInfo));
-    return currentInfo ? own : [{ name: current, title: current }, ...own];
-  }, [pages, current, currentInfo]);
+  const group = groupOf(currentInfo);
+  const project = projects.find((p) => p.id === group);
+  const groups = useMemo(() => {
+    const own = pages.filter((p) => groupOf(p) === group);
+    return pageMenuGroups(currentInfo ? own : [{ name: current, title: current }, ...own], project);
+  }, [pages, current, currentInfo, group, project]);
+  const currentType = groups.find((g) => g.items.some((i) => i.name === current))?.id ?? groups[0]?.id;
+  const currentItem = groups.flatMap((g) => g.items).find((i) => i.name === current);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(currentType);
+  const ref = useRef(null);
+  // Le menu se referme quand la souris le quitte (petit délai pour franchir
+  // l'espace entre le bouton et le panneau).
+  const leaveTimer = useRef(null);
+  const onLeave = () => { leaveTimer.current = setTimeout(() => setOpen(false), 250); };
+  const onEnter = () => clearTimeout(leaveTimer.current);
+  useEffect(() => () => clearTimeout(leaveTimer.current), []);
+
+  useEffect(() => {
+    if (!open) return;
+    setActive(currentType);
+    const close = (e) => { if (e.type === "keydown" ? e.key === "Escape" : !ref.current?.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", close); };
+  }, [open, currentType]);
+
+  const go = (name) => { setOpen(false); if (name !== current) location.search = `?page=${name}`; };
+  const shown = groups.find((g) => g.id === active) ?? groups[0];
+  const typeLabel = groups.find((g) => g.id === currentType)?.label;
 
   return (
-    <label className="atl-topbar__field">
+    <div className="atl-topbar__field atl-pagemenu" ref={ref} onMouseLeave={onLeave} onMouseEnter={onEnter}>
       <span>Page</span>
-      <select value={current} onChange={(e) => (location.search = `?page=${e.target.value}`)} className="atl-topbar__pages" title="Pages du projet">
-        {list.map((p) => (
-          <option key={p.name} value={p.name}>
-            {pageLabel(p)}
-          </option>
-        ))}
-      </select>
-    </label>
+      <button type="button" className="atl-topbar__pages atl-pagemenu__btn" onClick={() => setOpen((o) => !o)} aria-haspopup="true" aria-expanded={open} title="Pages du projet, par type">
+        <span className="atl-pagemenu__cur">
+          {typeLabel ? `${typeLabel} · ` : ""}
+          {currentItem?.mere ? "★ " : ""}
+          {currentItem?.detail ?? current}
+        </span>
+        <span className="atl-pagemenu__caret" aria-hidden="true">▾</span>
+      </button>
+      {open && (
+        <div className="atl-pagemenu__panel" role="menu">
+          <ul className="atl-pagemenu__types">
+            {groups.map((g) => (
+              <li key={g.id}>
+                <button type="button" className={g.id === shown?.id ? "is-active" : ""} onMouseEnter={() => setActive(g.id)} onFocus={() => setActive(g.id)} onClick={() => setActive(g.id)}>
+                  <span>{g.label}</span>
+                  <small>{g.items.length}</small>
+                  <span aria-hidden="true">›</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {shown && (
+            <ul className="atl-pagemenu__pages">
+              {shown.items.map((i) => (
+                <li key={i.name}>
+                  <button type="button" role="menuitem" className={i.name === current ? "is-current" : ""} onClick={() => go(i.name)} title={i.name}>
+                    <b>{i.mere ? `★ ${shown.label} mère` : i.angle ? `${shown.label} angle` : shown.label}</b>
+                    <span>{i.detail}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -422,11 +510,11 @@ function NewPageDialog({ pages, projects, templates, onClose }) {
 // ou une URL. Toutes les pages créées appartiennent au projet.
 const EXTRA_PAGES = ["accueil", "produit", "landing", "advertorial", "listicle", "autre"];
 const SITE_PAGES = ["accueil", "produit"]; // couvertes par « tout le site »
-const isUrl = (s) => /^https?:\/\/\S+\.\S+/.test(String(s ?? "").trim());
+export const isUrl = (s) => /^https?:\/\/\S+\.\S+/.test(String(s ?? "").trim());
 
 // Demande d'import pour un projet : depuis une URL (type « site ») ou depuis
 // des captures d'écran (type « capture », images jointes).
-async function requestImport({ url, images, projet, page, pageType, siteComplet }) {
+export async function requestImport({ url, images, projet, page, pageType, siteComplet }) {
   const fromShots = Array.isArray(images) && images.length > 0;
   const what = fromShots ? "ces captures d'écran" : siteComplet ? "tout le site" : "cette page";
   const res = await fetch("/api/requests", {

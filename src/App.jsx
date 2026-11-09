@@ -10,14 +10,16 @@ import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
 import { BoardButton } from "./board-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
-import { DesignSelect, NewDesignButton } from "./design-ui.jsx";
+// Plus de boutons « + » (projet, page, design) dans la barre : on les crée
+// depuis le projet, dans le catalogue (2026-11-08).
+import { DesignSelect } from "./design-ui.jsx";
 import { ProposalsBanner } from "./proposals-ui.jsx";
 import { PreviewBarLanguage, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { Inspector } from "./inspector-ui.jsx";
-import { ClosePageButton, DeletePageButton, NewPageButton, NewProjectButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
+import { ClosePageButton, DeletePageButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
 // « Enregistrer » (automatique, ou Ctrl + S) écrit dans ce fichier : c'est lui que lisent les exports.
@@ -115,7 +117,7 @@ export default function App() {
   const [pages, setPages] = useState([]);
   // Dernier état de la page dans l'éditeur (pour l'enregistrer avant d'appliquer un design).
   const latest = useRef(null);
-  const { projects, templates } = useProjectsAndTemplates();
+  const { projects } = useProjectsAndTemplates();
   const invalid = sections.filter((s) => s.errors.length > 0);
 
   useEffect(() => {
@@ -241,17 +243,14 @@ export default function App() {
         <div className="atl-topbar__groups">
           <div className="atl-group">
             <ProjectSelect current={pageName} pages={pages} projects={projects} />
-            <NewProjectButton pages={pages} projects={projects} templates={templates} />
           </div>
           <div className="atl-group">
-            <PageSelect current={pageName} pages={pages} />
-            <NewPageButton pages={pages} projects={projects} templates={templates} />
+            <PageSelect current={pageName} pages={pages} projects={projects} />
             <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
             <DeletePageButton current={pageName} pages={pages} />
           </div>
           <div className="atl-group">
             <DesignSelect pageName={pageName} current={data?.root?.props?.design ?? null} getData={() => latest.current ?? data} />
-            <NewDesignButton />
           </div>
           <OriginalSwitch
             importSource={data?.root?.props?.importSource ?? null}

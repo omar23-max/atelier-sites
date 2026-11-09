@@ -812,3 +812,25 @@ On n'exporte plus vers un thème Shopify, mais la découpe des imports en sectio
 45 emplacements au plus est **gardée** : elle évite d'éditer des sections trop grosses.
 Les mentions « limite Shopify » plus haut expliquent l'origine de cette taille, qui reste
 la règle.
+
+## Menu « Page » à deux niveaux (2026-11-08)
+
+Dans l'éditeur, le bouton « Page ▾ » ouvre un menu à deux colonnes
+(`PageSelect` dans `src/pages-ui.jsx`, styles `.atl-pagemenu` dans `src/styles.css`) :
+
+- à gauche, les types de page du projet (Landing page, Listicle, Advertorial,
+  Product page, Homepage, Offer page, Collection…) avec leur nombre de pages ;
+- à droite, au survol ou au clic d'un type, ses pages : **la page mère d'abord (★)**,
+  puis les pages des angles (« … angle »), puis les autres pages de ce type.
+
+Page mère d'un type : la page mère du projet (angle ★ dans l'onglet Angles) si elle
+est de ce type, sinon la page du premier angle choisi de ce type (même règle que
+`Angles.jsx`). Le texte affiché est le titre de l'angle, sinon le profil de la page.
+
+Le menu se referme dès que la souris le quitte (délai de 250 ms pour passer du bouton au panneau). Plus de boutons « + » dans la barre (projet, page, design) : on crée depuis le projet, dans le catalogue. Les boutons × et corbeille ont leur icône centrée.
+
+Dans le catalogue, onglet Pages du projet : une carte par type de page (fermée : la page mère ; ouverte : la mère ★ surlignée, puis les angles, puis les autres pages du type). Même regroupement que le menu (`pageMenuGroups`).
+
+« Ajouter une page au projet » : le champ « Page mère ou angle » remplace le profil libre. ★ Page mère → enregistrée comme mère de son type (`projet.meresParType[type]`, prioritaire dans `pageMenuGroups`) ; Angle N → la page est reliée à cet angle (angles sans page seulement) ; Nouvel angle… → angle ajouté au projet ; Autre → page simple. Une page d’angle part par défaut d’une copie de la page mère de son type.
+
+Règle : pas de page d’angle (Angle N, Nouvel angle) tant que le type n’a pas sa page mère (options grisées + message). Une page mère part toujours d’une page du même type, d’un template, ou d’un lien (URL → page créée puis demande d’import) ; jamais d’une page vide (`SourcePicker noBlank`).
