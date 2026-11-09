@@ -80,14 +80,15 @@ export function ProjectSelect({ current, pages, projects }) {
 // « Page ▾ » : menu à deux niveaux. 1er niveau : les types de page du projet
 // (Landing page, Listicle, Advertorial…). 2e niveau : les pages de ce type, la
 // page mère d'abord (★), puis les pages des angles, puis les autres.
-// Page mère d'un type : la page mère du projet si elle est de ce type, sinon
-// la page du premier angle choisi de ce type (même règle que l'onglet Angles).
+// Page mère d'un type : celle choisie dans Pages (meresParType), sinon l'angle
+// ★ de ce type, sinon la page du premier angle choisi de ce type.
 const TYPE_MENU = { landing: "Landing page", listicle: "Listicle", advertorial: "Advertorial", produit: "Product page", accueil: "Homepage", offre: "Offer page", collection: "Collection", autre: "Autre" };
 const NO_TYPE = "__sans-type";
 
 export function pageMenuGroups(own, project) {
   const angles = (project?.angles ?? []).filter((a) => a.choisi && a.page);
-  const mere = angles.find((a) => a.mere);
+  // une ★ par type de page (2026-11-08) : plusieurs angles peuvent être « mère »
+  const meres = angles.filter((a) => a.mere);
   const angleOf = (name) => angles.find((a) => a.page === name);
   const typeIds = [...PAGE_TYPES.map((t) => t.id), NO_TYPE];
   const groups = [];
@@ -98,7 +99,8 @@ export function pageMenuGroups(own, project) {
     // mère choisie pour ce type (catalogue, « Ajouter une page » → Page mère),
     // sinon la mère du projet si elle est de ce type, sinon le 1er angle du type
     const fixed = project?.meresParType?.[t];
-    const motherName = fixed && names.includes(fixed) ? fixed : mere && names.includes(mere.page) ? mere.page : angles.find((a) => names.includes(a.page))?.page ?? null;
+    const starred = meres.find((a) => names.includes(a.page))?.page;
+    const motherName = fixed && names.includes(fixed) ? fixed : starred ?? angles.find((a) => names.includes(a.page))?.page ?? null;
     const rank = (p) => (p.name === motherName ? 0 : angleOf(p.name) ? 1 + angles.indexOf(angleOf(p.name)) / 1000 : 2);
     const items = [...list]
       .sort((a, b) => rank(a) - rank(b) || String(a.title).localeCompare(String(b.title)))

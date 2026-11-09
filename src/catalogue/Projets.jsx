@@ -345,8 +345,8 @@ export function ProjectDetail({ id, onBack, onMessage }) {
 }
 
 function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, onSave }) {
-  // role : "mere" (page mère de ce type), id d'un angle du projet, "nouveau"
-  // (nouvel angle, titre dans profil) ou "" (page simple, profil libre).
+  // role : "mere" (page mère de ce type, reliée à son angle ★), id d'un angle
+  // choisi dans l'onglet Angles, ou "" (page simple, profil libre).
   // depuis : "page" (page ou template, via SourcePicker) ou "lien" (URL à
   // reproduire : demande d'import). Une page mère ne part jamais d'une page vide.
   const [form, setForm] = useState({ pageType: "produit", role: "mere", profil: "", source: "", depuis: "page", url: "" });
@@ -354,22 +354,28 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
   const buyPages = pages.filter((p) => pageTypeById[p.info.pageType]?.achat);
   const angles = project.angles ?? [];
   const pageNames = pages.map((p) => p.info.name);
-  const freeAngles = angles.map((a, i) => ({ ...a, n: i + 1 })).filter((a) => !a.page || !pageNames.includes(a.page));
   const motherOf = (type) => pageMenuGroups(pages.map((p) => p.info), project).find((g) => g.id === type)?.items.find((i) => i.mere)?.name ?? "";
   // Pas de page d'angle tant que le type n'a pas sa page mère.
   const hasMother = !!motherOf(form.pageType);
+  // Angles choisis dans l'onglet Angles, pour le type choisi, encore sans page
+  // (2026-11-08) : l'angle ★ de ce type est celui de la page mère.
+  const noPage = (a) => !a.page || !pageNames.includes(a.page);
+  const starAngle = !hasMother ? angles.find((a) => a.choisi && a.mere && a.pageType === form.pageType && noPage(a)) : null;
+  const freeAngles = angles
+    .map((a, i) => ({ ...a, n: i + 1 }))
+    .filter((a) => a.choisi && a.pageType === form.pageType && noPage(a) && a.id !== starAngle?.id);
   const isAngleRole = form.role !== "mere" && form.role !== "";
   useEffect(() => {
     if (!hasMother && isAngleRole) setForm((f) => ({ ...f, role: "mere" }));
   }, [hasMother, isAngleRole]);
 
   async function add() {
-    const angle = angles.find((a) => a.id === form.role);
-    const profil = form.role === "mere" ? "" : angle ? angle.titre : form.profil.trim();
     const mereRole = form.role === "mere";
+    // page mère : reliée à l'angle ★ de ce type s'il existe
+    const angle = mereRole ? starAngle : angles.find((a) => a.id === form.role);
+    const profil = angle ? angle.titre : mereRole ? "" : form.profil.trim();
     const fromUrl = mereRole && form.depuis === "lien";
-    if (!hasMother && (angle || form.role === "nouveau")) return onMessage({ error: true, text: "Crée d'abord la page mère de ce type : les angles en sont des copies." });
-    if (form.role === "nouveau" && !profil) return onMessage({ error: true, text: "Donne un titre au nouvel angle." });
+    if (!hasMother && !mereRole && angle) return onMessage({ error: true, text: "Crée d'abord la page mère de ce type : les angles en sont des copies." });
     if (mereRole && !fromUrl && !form.source) return onMessage({ error: true, text: "Une page mère part d'une page existante, d'un template ou d'un lien : choisis le point de départ." });
     if (fromUrl && !isUrl(form.url)) return onMessage({ error: true, text: "Indique le lien de la page à reproduire (https://…)." });
     // un angle part de la page mère de son type (copie), sauf autre choix
@@ -392,13 +398,12 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
       // Lien : la page est créée vide et une demande d'import la remplira
       // (imports un par un, par l'atelier).
       if (fromUrl) await requestImport({ url: form.url.trim(), projet: project.id, page: name, pageType: form.pageType });
-      if (form.role === "mere") await onSave({ meresParType: { ...(project.meresParType ?? {}), [form.pageType]: name } }, true);
-      else if (angle) await onSave({ angles: angles.map((a) => (a.id === angle.id ? { ...a, page: name, choisi: true, pageType: form.pageType } : a)) }, true);
-      else if (form.role === "nouveau")
-        await onSave({ angles: [...angles, { id: `angle-${Date.now()}`, titre: profil, lentille: "", avatar: "", douleur: "", promesse: "", pageType: form.pageType, choisi: true, mere: false, page: name }] }, true);
+      const linked = angle ? angles.map((a) => (a.id === angle.id ? { ...a, page: name, choisi: true, pageType: form.pageType } : a)) : null;
+      if (mereRole) await onSave({ meresParType: { ...(project.meresParType ?? {}), [form.pageType]: name }, ...(linked ? { angles: linked } : {}) }, true);
+      else if (linked) await onSave({ angles: linked }, true);
       setForm({ ...form, profil: "", source: "", url: "" });
       const label = pageTypeById[form.pageType]?.label ?? form.pageType;
-      onMessage({ text: fromUrl ? `Page mère « ${label} » créée ; demande d'import envoyée pour ${form.url.trim()}.` : form.role === "mere" ? `Page mère « ${label} » ajoutée au projet.` : `Page ajoutée au projet${profil ? ` pour l'angle « ${profil} »` : ""}${source && source === motherOf(form.pageType) ? " (copie de la page mère)" : ""}.` });
+      onMessage({ text: fromUrl ? `Page mère « ${label} » créée ; demande d'import envoyée pour ${form.url.trim()}.` : mereRole ? `Page mère « ${label} » ajoutée au projet${angle ? ` (angle « ${angle.titre} »)` : ""}.` : `Page ajoutée au projet${profil ? ` pour l'angle « ${profil} »` : ""}${source && source === motherOf(form.pageType) ? " (copie de la page mère)" : ""}.` });
       onChanged();
     } catch (e) {
       onMessage({ error: true, text: e.message });
@@ -505,21 +510,25 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
           <label className="cat-field">
             <span>Page mère ou angle</span>
             <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-              <option value="mere">★ Page mère{hasMother ? " (remplace l'actuelle)" : ""}</option>
+              <option value="mere">
+                ★ Page mère{starAngle ? ` · ${starAngle.titre}` : ""}
+                {hasMother ? " (remplace l'actuelle)" : ""}
+              </option>
               {freeAngles.map((a) => (
                 <option key={a.id} value={a.id} disabled={!hasMother}>
                   Angle {a.n} · {a.titre}
                 </option>
               ))}
-              <option value="nouveau" disabled={!hasMother}>
-                Nouvel angle…
-              </option>
               <option value="">Autre (sans angle)</option>
             </select>
-            {(form.role === "nouveau" || form.role === "") && (
-              <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder={form.role === "nouveau" ? "Titre de l'angle" : "Profil client (facultatif)"} />
+            {form.role === "" && <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder="Profil client (facultatif)" />}
+            {!hasMother && (
+              <small className="cat-muted">
+                Pas encore de page mère pour ce type : crée-la d'abord, les angles en seront des copies.
+                {!starAngle && " Aucun angle ★ de ce type dans l'onglet Angles."}
+              </small>
             )}
-            {!hasMother && <small className="cat-muted">Pas encore de page mère pour ce type : crée-la d'abord, les angles en seront des copies.</small>}
+            {hasMother && !freeAngles.length && <small className="cat-muted">Aucun autre angle de ce type à créer : coche-les dans l'onglet Angles.</small>}
           </label>
           <div className="cat-field">
             <div className="cat-addpage__label">

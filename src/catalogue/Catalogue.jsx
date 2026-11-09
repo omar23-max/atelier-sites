@@ -310,6 +310,13 @@ export default function Catalogue() {
   const [trash, setTrash] = useState([]);
   const [bin, setBin] = useState([]);
   const [message, setMessage] = useState(null);
+  // Le message (« Enregistré », erreurs…) s'affiche en bas de l'écran, visible
+  // même quand on a défilé, et disparaît seul (2026-11-08).
+  useEffect(() => {
+    if (!message) return;
+    const t = setTimeout(() => setMessage(null), message.error ? 9000 : 4000);
+    return () => clearTimeout(t);
+  }, [message]);
 
   const sections = allSections
     .filter((s) => !trashed.includes(s.id))
@@ -612,7 +619,8 @@ export default function Catalogue() {
 
         <main className="cat-main">
           {message && (
-            <div className={`cat-flash${message.error ? " is-error" : ""}`} onClick={() => setMessage(null)}>
+            <div className={`cat-flash${message.error ? " is-error" : ""}`} role="status" aria-live="polite" onClick={() => setMessage(null)}>
+              {message.error ? "⚠ " : "✓ "}
               {message.text}
             </div>
           )}

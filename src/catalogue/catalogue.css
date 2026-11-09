@@ -2779,3 +2779,114 @@ textarea {
   font-size: 12px;
   line-height: 1.4;
 }
+
+/* Angles : pas de page d'angle sans page mère du type */
+.cat-angle__hint {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--cat-amber-bg);
+  color: var(--cat-amber);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Message de retour (Enregistré, erreurs) : fixé en bas de l'écran */
+.cat-flash {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 2000;
+  max-width: min(640px, calc(100vw - 32px));
+  margin: 0;
+  transform: translateX(-50%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  animation: cat-flash-in 0.2s ease-out;
+}
+@keyframes cat-flash-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Cartes d'angle plus compactes (2026-11-08) */
+.cat-angles__grid {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+.cat-angle {
+  gap: 5px;
+  padding: 10px;
+  font-size: 12.5px;
+}
+.cat-angle__pick,
+.cat-angle__star {
+  font-size: 11.5px;
+}
+.cat-angle__star {
+  padding: 2px 8px;
+}
+.cat-angle__title {
+  padding: 2px 4px;
+  font-size: 14px;
+}
+.cat-angle > small.cat-muted {
+  margin: -3px 0 0 4px;
+  font-size: 11px;
+}
+.cat-angle__field {
+  gap: 2px;
+}
+.cat-angle__field span {
+  font-size: 10.5px;
+}
+.cat-angle__field textarea,
+.cat-angle__field select,
+.cat-angle__field input {
+  padding: 3px 6px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.cat-angle__field textarea {
+  min-height: 0;
+  field-sizing: content;
+  max-height: 72px;
+}
+.cat-angle .cat-source-btn {
+  min-height: 32px;
+  font-size: 12px;
+}
+.cat-angle footer .cat-btn {
+  padding: 6px 10px;
+  font-size: 12.5px;
+}
+.cat-angle .cat-depuis {
+  gap: 10px;
+  font-size: 12px;
+}
+
+/* Angles : choix seulement ; lien vers la page déjà créée */
+.cat-angle__page {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--cat-line);
+  color: var(--cat-muted);
+  font-size: 11.5px;
+}
+.cat-angle__page span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cat-linkbtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cat-blue);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

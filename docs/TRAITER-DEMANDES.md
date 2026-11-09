@@ -855,3 +855,7 @@ les zones d'angle → Pubs → Publication → Résultats.
   l'angle (avatar, douleur, promesse) et le message central des Fondations.
   Ne touche ni prix, ni offre, ni garantie, ni chiffres.
 - À venir : « Valider la page mère » et « Reporter le socle » (mère → angles).
+
+Onglet Angles (2026-11-08) : mêmes règles que « Ajouter une page ». Un angle dont le type n’a pas de page mère : seul l’angle ★ peut créer sa page, qui devient la page mère du type (`meresParType`), à partir d’un template, d’une page du même type ou d’un lien ; les autres angles du type affichent « Pas encore de page mère » et leur bouton est grisé. Un type qui a sa mère : la page d’angle part par défaut d’une copie de la mère. Plus de « Créer une page vide ».
+
+Une page mère ★ par TYPE de page (2026-11-08) : dans Angles, l’étoile ne retire que celle des angles du même type (recliquer l’enlève) ; la barre liste les mères par type ; `pageMenuGroups` prend l’angle ★ de chaque type. Message de retour du catalogue (`.cat-flash`) fixé en bas de l’écran, disparaît seul (4 s, erreurs 9 s). Cartes d’angle compactes (5 par rangée sur grand écran).
