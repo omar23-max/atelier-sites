@@ -277,14 +277,36 @@ function atelierApi() {
             const base = join(importsDir, parts[1]);
             const file = join(base, "page.html");
             if (!/^[a-z0-9-]+$/.test(parts[1]) || !existsSync(file)) return json(res, 404, { error: "Pas de page d'origine pour cet import." });
+            const liveFile = join(base, "live.html");
+            const liveInfoFile = join(base, "live.json");
+            const liveInfo = existsSync(liveInfoFile) ? JSON.parse(await readFile(liveInfoFile, "utf8")) : null;
             if (parts[2] === "info") {
               const report = ["advertorial.json", "capture.json"].map((f) => join(base, f)).find((f) => existsSync(f));
               const r = report ? JSON.parse(await readFile(report, "utf8")) : {};
-              return json(res, 200, { url: r.url ?? null, capturedAt: r.capturedAt ?? null, desktop: existsSync(join(base, "desktop.png")), mobile: existsSync(join(base, "mobile.png")) });
+              return json(res, 200, { url: r.url ?? null, capturedAt: r.capturedAt ?? null, liveAt: liveInfo?.le ?? null, desktop: existsSync(join(base, "desktop.png")), mobile: existsSync(join(base, "mobile.png")) });
             }
             const report = ["advertorial.json", "capture.json"].map((f) => join(base, f)).find((f) => existsSync(f));
-            const url = report ? JSON.parse(await readFile(report, "utf8")).url : null;
-            let html = await readFile(file, "utf8");
+            let url = report ? JSON.parse(await readFile(report, "utf8")).url : null;
+            let source = file;
+            // « /live » (2026-11-08) : la page EN LIGNE, rendue par Edge sur le
+            // serveur (scripts/original-live.mjs), refaite au plus toutes les
+            // 6 h ou sur « ?refresh=1 ». Échec (site injoignable) : la capture.
+            if (parts[2] === "live" && url) {
+              const stale = !liveInfo || Date.now() - Date.parse(liveInfo.le) > 6 * 3600e3;
+              if (stale || /[?&]refresh=1/.test(req.url ?? "")) {
+                await new Promise((done) => {
+                  const child = spawn(process.execPath, [join(root, "scripts", "original-live.mjs"), parts[1], url], { cwd: root, stdio: "ignore", windowsHide: true });
+                  const timer = setTimeout(() => child.kill(), 90000);
+                  child.on("close", () => (clearTimeout(timer), done())).on("error", () => (clearTimeout(timer), done()));
+                });
+              }
+              if (existsSync(liveFile) && existsSync(liveInfoFile)) {
+                source = liveFile;
+                url = JSON.parse(await readFile(liveInfoFile, "utf8")).url ?? url;
+                res.setHeader("X-Atl-Live", JSON.parse(await readFile(liveInfoFile, "utf8")).le);
+              }
+            }
+            let html = await readFile(source, "utf8");
             html = html
               .replace(/<script\b[\s\S]*?<\/script>/gi, "")
               .replace(/<base\b[^>]*>/gi, "")

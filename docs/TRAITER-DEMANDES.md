@@ -885,3 +885,35 @@ Page vide ; une page d'angle part par défaut d'une copie de la page mère).
   faites dans l'éditeur seront perdues. Lien → page vidée + demande d'import.
 - Retour sur la règle précédente : une page mère peut de nouveau partir d'une
   page vide (demande de l'utilisateur, 2026-11-08).
+
+## « Original » = la page en ligne (2026-11-09)
+
+Dans l'éditeur, la bascule « Original / Modifiable » montre comme Original la
+page **telle qu'elle est aujourd'hui sur internet, à son adresse web** (plus la
+capture de l'import). Les sites refusent d'être affichés dans un cadre d'une
+autre adresse (Shopify : `frame-ancestors 'none'`) et un cadre d'une autre
+adresse empêcherait la règle « les deux pages s'ouvrent au même endroit » : le
+serveur ouvre donc la page dans Edge (`scripts/original-live.mjs` : popups
+fermés, défilement pour les images différées), enregistre
+`imports/<import>/live.html` + `live.json`, et l'atelier la sert sur
+`/api/original/<import>/live` (scripts coupés, `<base>` = adresse du site).
+Refaite au plus toutes les 6 h, ou avec « ↻ Actualiser » (`?refresh=1`) ;
+site injoignable → la capture. « Voir la capture » montre la capture de
+l'import. Défilement lié vérifié : Modifiable 50 % → Original 50 % ;
+Original 80 % → retour Modifiable 80 %.
+
+## Classement par score de vente, section IA depuis une capture (2026-11-09)
+
+- **Templates** rangés par score de vente (`propositions.score`), du plus haut
+  au plus faible, partout : `listTemplates()` trie à la source (catalogue,
+  « Partir de… », nouveau projet). `templateScore()` exporté.
+- **Sections** : pas de score propre ; rangées par le score de vente du
+  template dont elles viennent (l'id de la section commence par celui de
+  l'import, préfixe le plus long). Sans template : à la fin. Dans le catalogue
+  (`Catalogue.jsx`) et dans la galerie « Ajouter une section » de l'éditeur.
+- **Créer une section avec l'IA** (éditeur → Ajouter une section) : trois
+  départs, « Description » (questions), « Lien vers un site » (`url` de la
+  demande + précisions) et « Capture + description » (captures dans `images`
+  de la demande, `details.source = "capture"`). Demande de type `ia` ; la
+  traiter comme avant (concevoir la section, l'ajouter au catalogue et à la
+  page), en partant du lien ou des captures quand ils sont donnés.

@@ -30,7 +30,11 @@ async function api(method, url, body) {
 
 export const listPages = () => api("GET", "/api/pages?details=1");
 export const listProjects = () => api("GET", "/api/projects");
-export const listTemplates = () => api("GET", "/api/templates");
+// Templates rangés par score de vente, du plus haut au plus faible (2026-11-09) :
+// partout où on les liste (catalogue, « Partir de… », nouveau projet).
+const scoreOf = (t) => (typeof t?.propositions?.score === "number" ? t.propositions.score : -1);
+export const listTemplates = () => api("GET", "/api/templates").then((list) => [...list].sort((a, b) => scoreOf(b) - scoreOf(a)));
+export const templateScore = scoreOf;
 export const listMedias = (page) => api("GET", `/api/medias/${page}`);
 export const getPage = (name) => api("GET", `/api/pages/${name}`);
 

@@ -326,10 +326,29 @@ function usePreviewSize(canvas) {
 const ratioOf = (w) => w.scrollY / Math.max(1, w.document.documentElement.scrollHeight - w.innerHeight);
 const scrollToRatio = (w, r) => w.scrollTo(0, r * Math.max(0, w.document.documentElement.scrollHeight - w.innerHeight));
 
+// « Original » = la page EN LIGNE, à son adresse web (2026-11-08) : rendue par
+// le serveur (scripts/original-live.mjs, les sites refusent d'être affichés
+// dans un cadre) puis servie par l'atelier, scripts coupés. Refaite au plus
+// toutes les 6 h, ou avec « Actualiser ». La capture faite à l'import reste
+// visible avec « Voir la capture ».
 function OriginalView({ importSource, info, canvas }) {
   const { width, scale, height } = usePreviewSize(canvas);
   const frameHeight = (height - 40) / scale;
   const frameRef = useRef(null);
+  const [mode, setMode] = useState(info.url ? "live" : "capture");
+  const [nonce, setNonce] = useState(0); // « Actualiser » : nouveau rendu de la page en ligne
+  const [loading, setLoading] = useState(true);
+  const [liveAt, setLiveAt] = useState(info.liveAt ?? null);
+  const src = mode === "live" ? `/api/original/${importSource}/live${nonce ? `?refresh=1&n=${nonce}` : ""}` : `/api/original/${importSource}`;
+  const onLoad = () => {
+    setLoading(false);
+    if (mode === "live")
+      fetch(`/api/original/${importSource}/info`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((i) => i?.liveAt && setLiveAt(i.liveAt))
+        .catch(() => {});
+  };
+  const when = liveAt ? new Date(liveAt).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" }) : null;
 
   // Défilement lié : l'original s'ouvre à l'endroit où l'on était dans la
   // copie, et le faire défiler fait défiler la copie (cachée dessous) — au
@@ -370,28 +389,43 @@ function OriginalView({ importSource, info, canvas }) {
       };
     }, 150);
     return () => (clearInterval(timer), detach());
-  }, [canvas]);
+  }, [canvas, src]);
   return (
     <div className="atl-original-pane">
       <div className="atl-original-pane__note">
-        Page d'origine, en lecture seule
+        {mode === "live" ? "Page en ligne, telle qu'elle apparaît sur internet (lecture seule)" : "Capture faite à l'import (lecture seule)"}
         {info.url && (
           <>
             {" · "}
-            <a href={info.url} target="_blank" rel="noreferrer noopener">
-              {new URL(info.url).hostname.replace(/^www\./, "")} ↗
+            <a href={info.url} target="_blank" rel="noreferrer noopener" title={info.url}>
+              {new URL(info.url).hostname.replace(/^www\./, "")}
+              {new URL(info.url).pathname !== "/" ? new URL(info.url).pathname : ""} ↗
             </a>
           </>
         )}
-        {info.capturedAt && ` · capturée le ${info.capturedAt}`}
+        {mode === "live" && when && ` · relevée le ${when}`}
+        {mode === "capture" && info.capturedAt && ` · capturée le ${info.capturedAt}`}
+        {info.url && mode === "live" && (
+          <button type="button" className="atl-original-pane__btn" disabled={loading} onClick={() => (setLoading(true), setNonce(Date.now()))} title="Recharger la page en ligne maintenant">
+            ↻ Actualiser
+          </button>
+        )}
+        {info.url && (
+          <button type="button" className="atl-original-pane__btn" onClick={() => (setLoading(true), setMode(mode === "live" ? "capture" : "live"))}>
+            {mode === "live" ? "Voir la capture" : "Voir la page en ligne"}
+          </button>
+        )}
       </div>
       <div className="atl-original-pane__frame" style={{ width: width * scale, height: frameHeight * scale }}>
+        {loading && <div className="atl-original-pane__loading">{mode === "live" ? "Chargement de la page en ligne… (jusqu'à 15 s la première fois)" : "Chargement…"}</div>}
         <iframe
+          key={src}
           ref={frameRef}
           title="Page d'origine"
-          src={`/api/original/${importSource}`}
+          src={src}
           sandbox="allow-same-origin"
           referrerPolicy="no-referrer"
+          onLoad={onLoad}
           style={{ width, height: frameHeight, transform: `scale(${scale})` }}
         />
       </div>

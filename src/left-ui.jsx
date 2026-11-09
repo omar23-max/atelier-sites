@@ -11,7 +11,8 @@ import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "
 import { ScorePanel } from "./score-ui.jsx";
 import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
 import { isAngleZone, pageRole, suggestAngleZones, zonesFromMother } from "./angle-zones.js";
-import { getPage } from "./projects.js";
+import { getPage, listTemplates, templateScore } from "./projects.js";
+import { ScreenshotDrop } from "./pages-ui.jsx";
 
 // Colonne de gauche : un rail d'icônes et l'outil choisi.
 //   Structure · Ajouter une section · Palette · ✨ IA · Score
@@ -306,11 +307,26 @@ function AddTool() {
   const [peek, setPeek] = useState(null); // modèle survolé, montré en grand
   const [answers, setAnswers] = useState({});
   const [state, setState] = useState(null);
+  // D'où part l'IA (2026-11-09) : une description (questions), le lien d'un
+  // site, ou des captures d'écran + une description.
+  const [from, setFrom] = useState("description");
+  const [link, setLink] = useState("");
+  const [shots, setShots] = useState([]);
+  // Galerie rangée par score de vente du template d'origine de chaque section
+  // (même règle que le catalogue).
+  const [tplScores, setTplScores] = useState([]);
+  useEffect(() => {
+    listTemplates()
+      .then((t) => setTplScores(t.map((x) => [x.id, templateScore(x)]).sort((a, b) => b[0].length - a[0].length)))
+      .catch(() => {});
+  }, []);
   const grouped = useMemo(() => {
     const g = Object.fromEntries(FAMILIES.map((f) => [f.id, []]));
     for (const s of visible) (g[familyOf(s).id] ??= []).push(s);
+    const score = (s) => tplScores.find(([id]) => s.id.startsWith(`${id}-`))?.[1] ?? -1;
+    for (const list of Object.values(g)) list.sort((a, b) => score(b) - score(a));
     return g;
-  }, []);
+  }, [tplScores]);
   const current = FAMILIES.find((f) => f.id === family);
   const variants = family ? grouped[family] ?? [] : [];
   const questions = [...(AI_QUESTIONS[family] ?? GENERIC_Q), { id: "reference", label: "Une référence (URL ou description) — facultatif", ph: "https://… ou « comme la FAQ de tel site »" }];
@@ -319,6 +335,14 @@ function AddTool() {
     const { appState, selectedItem, getSelectorForId } = getPuck();
     const sel = selectedItem ? getSelectorForId(selectedItem.props.id) : null;
     const after = sel ? appState.data.content[sel.index] : null;
+    if (from === "lien" && !/^https?:\/\/\S+\.\S+/.test(link.trim())) return setState({ error: "Colle le lien de la page où se trouve la section (https://…)." });
+    if (from === "capture" && !shots.length) return setState({ error: "Ajoute au moins une capture d'écran de la section." });
+    const notes =
+      from === "description"
+        ? questions.map((q) => (answers[q.id] ? `${q.label} : ${answers[q.id]}` : null)).filter(Boolean).join("\n")
+        : from === "lien"
+          ? `Reproduire la section « ${current?.label ?? family} » de cette page : ${link.trim()}${answers.consigne ? `\nPrécisions : ${answers.consigne}` : ""}`
+          : `Concevoir la section « ${current?.label ?? family} » d'après les captures jointes.${answers.consigne ? `\nDescription : ${answers.consigne}` : ""}`;
     setState({ busy: true });
     try {
       const res = await fetch("/api/requests", {
@@ -328,14 +352,18 @@ function AddTool() {
           type: "ia",
           family,
           page: pageName,
-          notes: questions.map((q) => (answers[q.id] ? `${q.label} : ${answers[q.id]}` : null)).filter(Boolean).join("\n"),
-          details: { page: pageName, famille: family, reponses: answers, apres: after ? after.props.id : null },
+          url: from === "lien" ? link.trim() : undefined,
+          images: from === "capture" ? shots : undefined,
+          notes,
+          details: { page: pageName, famille: family, source: from, lien: from === "lien" ? link.trim() : null, reponses: answers, apres: after ? after.props.id : null },
         }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
       setState({ done: body.dossier });
       setAnswers({});
+      setLink("");
+      setShots([]);
     } catch (e) {
       setState({ error: e.message });
     }
@@ -423,12 +451,47 @@ function AddTool() {
               askAI();
             }}
           >
-            {questions.map((q) => (
-              <label key={q.id}>
-                <span>{q.label}</span>
-                <textarea rows={2} value={answers[q.id] ?? ""} placeholder={q.ph} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} />
+            <div className="atl-ai-from" role="radiogroup" aria-label="L'IA part de">
+              {[
+                ["description", "Description"],
+                ["lien", "Lien vers un site"],
+                ["capture", "Capture + description"],
+              ].map(([v, l]) => (
+                <label key={v} className={from === v ? "is-on" : ""}>
+                  <input type="radio" checked={from === v} onChange={() => (setFrom(v), setState(null))} /> {l}
+                </label>
+              ))}
+            </div>
+            {from === "description" &&
+              questions.map((q) => (
+                <label key={q.id}>
+                  <span>{q.label}</span>
+                  <textarea rows={2} value={answers[q.id] ?? ""} placeholder={q.ph} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} />
+                </label>
+              ))}
+            {from === "lien" && (
+              <label>
+                <span>Lien de la page où se trouve la section</span>
+                <input type="url" value={link} placeholder="https://…" onChange={(e) => setLink(e.target.value)} />
               </label>
-            ))}
+            )}
+            {from === "capture" && (
+              <div className="atl-ai-shots">
+                <span>Capture(s) d'écran de la section</span>
+                <ScreenshotDrop images={shots} onChange={setShots} hint="la section qui te plaît" />
+              </div>
+            )}
+            {from !== "description" && (
+              <label>
+                <span>{from === "lien" ? "Quelle section, et ce qu'il faut changer (facultatif)" : "Description : ce que la section doit dire et faire"}</span>
+                <textarea
+                  rows={3}
+                  value={answers.consigne ?? ""}
+                  placeholder={from === "lien" ? "ex. la FAQ en bas de page, avec mes couleurs" : "ex. 3 avantages avec icône, titre court et une phrase, sur fond crème"}
+                  onChange={(e) => setAnswers({ ...answers, consigne: e.target.value })}
+                />
+              </label>
+            )}
             {state?.error && <span className="atl-topbar__error">{state.error}</span>}
             <button type="submit" className="atl-left__cta" disabled={state?.busy}>
               {state?.busy ? "Envoi…" : "Demander la section"}

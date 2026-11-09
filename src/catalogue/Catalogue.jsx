@@ -12,7 +12,7 @@ import { Menu, TemplatesView } from "./Templates.jsx";
 import { PageSelect, Viewer } from "./Viewer.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
-import { confirmDelete, listPages, listProjects, listTemplates } from "../projects.js";
+import { confirmDelete, listPages, listProjects, listTemplates, templateScore } from "../projects.js";
 import { PAGE_TYPES } from "../engine/page-types.js";
 
 // Libellés courts du menu « Templates par type ».
@@ -310,6 +310,7 @@ export default function Catalogue() {
   const [trash, setTrash] = useState([]);
   const [bin, setBin] = useState([]);
   const [message, setMessage] = useState(null);
+  const [tplScores, setTplScores] = useState([]); // [id du template, score de vente], ids les plus longs d'abord
   // Le message (« Enregistré », erreurs…) s'affiche en bas de l'écran, visible
   // même quand on a défilé, et disparaît seul (2026-11-08).
   useEffect(() => {
@@ -326,12 +327,13 @@ export default function Catalogue() {
     // Nombres affichés dans le menu : projets, pages, templates.
     Promise.all([listProjects(), listPages(), listTemplates()])
       .then(([p, pg, t]) =>
+        (setTplScores(t.map((x) => [x.id, templateScore(x)]).sort((a, b) => b[0].length - a[0].length)),
         setCounts({
           projets: p.length,
           pages: pg.filter((p) => p.projet).length,
           templates: t.length,
           parType: Object.fromEntries(PAGE_TYPES.map((x) => [x.id, t.filter((tp) => tp.pageType === x.id).length])),
-        }),
+        })),
       )
       .catch(() => {});
     api("GET", "/api/requests").then(setRequests).catch(() => {});
@@ -354,6 +356,15 @@ export default function Catalogue() {
 
   const grouped = Object.fromEntries(FAMILIES.map((f) => [f.id, []]));
   for (const s of sections) (grouped[familyOf(s).id] ??= []).push(s);
+  // Sections rangées par le score de vente du template dont elles viennent
+  // (2026-11-09) : l'id d'une section commence par celui de son import
+  // (« replo-dr-squatch-landing-sec-3 »). Sans template (Whitelabeler, faites
+  // à la main…) : à la fin, dans leur ordre habituel.
+  const sectionScore = (s) => tplScores.find(([id]) => s.id.startsWith(`${id}-`))?.[1] ?? -1;
+  for (const list of Object.values(grouped)) {
+    const score = new Map(list.map((s) => [s.id, sectionScore(s)]));
+    list.sort((a, b) => score.get(b.id) - score.get(a.id));
+  }
 
   const q = query.trim().toLowerCase();
   // Recherche : nom, fonction, famille, site et template d'origine, mots du

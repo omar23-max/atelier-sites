@@ -6251,3 +6251,82 @@ button.atl-zone-tag {
   align-self: center;
   margin-right: 2px;
 }
+
+/* Original = page en ligne : boutons Actualiser / capture, chargement (2026-11-08) */
+.atl-original-pane__note {
+  gap: 4px;
+  white-space: nowrap;
+}
+.atl-original-pane__btn {
+  margin-left: 10px;
+  padding: 3px 9px;
+  border: 1px solid #cfcfd6;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font: 600 11.5px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-original-pane__btn:hover:not(:disabled) {
+  border-color: #4f46e5;
+  color: #4338ca;
+}
+.atl-original-pane__btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.atl-original-pane__frame {
+  position: relative;
+}
+.atl-original-pane__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  color: #555;
+  font: 600 13px "Inter", system-ui, sans-serif;
+}
+
+/* Créer une section avec l'IA : description, lien ou capture + description (2026-11-09) */
+.atl-ai-from {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.atl-ai-from label {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 4px !important;
+  padding: 4px 8px;
+  border: 1px solid var(--atl-line-strong);
+  border-radius: 999px;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.atl-ai-from label.is-on {
+  border-color: var(--atl-accent);
+  background: var(--atl-accent-soft);
+  color: var(--atl-accent-strong);
+}
+.atl-ai-from input {
+  margin: 0;
+}
+.atl-ai-form input[type="url"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+.atl-ai-shots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
