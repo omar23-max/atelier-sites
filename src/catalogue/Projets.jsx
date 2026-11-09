@@ -5,7 +5,7 @@ import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { scorePage } from "../engine/page-score.js";
 import { originalPhotoTargets } from "../engine/photos.js";
 import { pageTexts } from "../engine/texts.js";
-import { confirmDelete, createPage, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
+import { changePageOrigin, confirmDelete, createPage, empreinte, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
 import { NewProjectDialog, isUrl, pageMenuGroups, requestImport } from "../pages-ui.jsx";
 import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf, request } from "./ProjectExtras.jsx";
 import { FoundationsTab, ProjectProgress } from "./Fondations.jsx";
@@ -280,7 +280,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   if (!project) return <div className="cat-empty">Projet introuvable.</div>;
   // Onglet d'ouverture : l'étape en cours (Fondations, puis Angles, puis Pages).
   const currentTab =
-    OLD_TABS[tab] ?? tab ?? (project.fondations?.statut !== "validée" ? "fondations" : (project.angles ?? []).some((a) => a.choisi && a.mere) ? "pages" : "angles");
+    OLD_TABS[tab] ?? tab ?? (project.fondations?.statut !== "validée" ? "fondations" : (project.angles ?? []).some((a) => a.choisi) ? "pages" : "angles");
 
   return (
     <>
@@ -345,44 +345,85 @@ export function ProjectDetail({ id, onBack, onMessage }) {
 }
 
 function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, onSave }) {
-  // role : "mere" (page mère de ce type, reliée à son angle ★), id d'un angle
-  // choisi dans l'onglet Angles, ou "" (page simple, profil libre).
-  // depuis : "page" (page ou template, via SourcePicker) ou "lien" (URL à
-  // reproduire : demande d'import). Une page mère ne part jamais d'une page vide.
+  // role : "mere:<id angle>" (page mère de ce type, pour cet angle), "mere"
+  // (page mère sans angle), id d'un angle choisi dans l'onglet Angles (copie de
+  // la mère), ou "" (page simple, profil libre). Le type de page et la page
+  // mère de chaque type se choisissent ICI, pas dans l'onglet Angles (2026-11-08).
+  // depuis : l'origine de la page (2026-11-08) : "page" (un template ou une de
+  // mes pages, via SourcePicker), "lien" (URL à reproduire : demande d'import)
+  // ou "vide" (page vide). Une page d'angle part par défaut d'une copie de la
+  // page mère de son type. L'origine est enregistrée (root.props.origine) et
+  // peut être changée ensuite (bouton « Changer » de la colonne Origine).
   const [form, setForm] = useState({ pageType: "produit", role: "mere", profil: "", source: "", depuis: "page", url: "" });
   const [busy, setBusy] = useState(false);
+  const [requests, setRequests] = useState([]);
+  const [originFor, setOriginFor] = useState(null); // page dont on change l'origine
+  useEffect(() => {
+    fetch("/api/requests")
+      .then((r) => r.json())
+      .then(setRequests)
+      .catch(() => {});
+  }, [pages.length]);
   const buyPages = pages.filter((p) => pageTypeById[p.info.pageType]?.achat);
   const angles = project.angles ?? [];
   const pageNames = pages.map((p) => p.info.name);
   const motherOf = (type) => pageMenuGroups(pages.map((p) => p.info), project).find((g) => g.id === type)?.items.find((i) => i.mere)?.name ?? "";
   // Pas de page d'angle tant que le type n'a pas sa page mère.
   const hasMother = !!motherOf(form.pageType);
-  // Angles choisis dans l'onglet Angles, pour le type choisi, encore sans page
-  // (2026-11-08) : l'angle ★ de ce type est celui de la page mère.
+  // Angles cochés dans l'onglet Angles et encore sans page.
   const noPage = (a) => !a.page || !pageNames.includes(a.page);
-  const starAngle = !hasMother ? angles.find((a) => a.choisi && a.mere && a.pageType === form.pageType && noPage(a)) : null;
-  const freeAngles = angles
-    .map((a, i) => ({ ...a, n: i + 1 }))
-    .filter((a) => a.choisi && a.pageType === form.pageType && noPage(a) && a.id !== starAngle?.id);
-  const isAngleRole = form.role !== "mere" && form.role !== "";
+  const freeAngles = angles.map((a, i) => ({ ...a, n: i + 1 })).filter((a) => a.choisi && noPage(a));
+  // Origine d'une page : enregistrée à la création (root.props.origine), sinon
+  // déduite (demande d'import avec lien, ou template d'import). « edited » :
+  // la page a-t-elle été modifiée dans l'éditeur depuis (null = inconnu) ?
+  const tplName = (s) => templates.find((t) => t.page === s || t.id === s)?.nom ?? s;
+  const titleOfPage = (n) => allPages.find((p) => p.name === n)?.title ?? n;
+  const reqOf = (name) => requests.find((r) => r.details?.page === name && r.url);
+  function originOf({ info, data, originData }) {
+    const o = data?.root?.props?.origine;
+    const content = data?.content ?? [];
+    if (o?.type) {
+      const edited = o.empreinte ? empreinte(content) !== o.empreinte : null;
+      const req = reqOf(info.name);
+      if (o.type === "lien") return { type: o.type, label: `Lien : ${o.url}`, detail: req?.statut === "traitée" ? "importé" : "import en attente", edited };
+      if (o.type === "vide") return { type: o.type, label: "Page vide", edited };
+      if (o.type === "page") return { type: o.type, label: `Copie de « ${titleOfPage(o.source)} »`, edited };
+      return { type: "template", label: `Template : ${tplName(o.source)}`, edited };
+    }
+    const req = reqOf(info.name);
+    if (req) return { type: "lien", label: `Lien : ${req.url}`, detail: req.statut === "traitée" ? "importé" : "import en attente", edited: null };
+    if (info.importSource) {
+      const edited = originData?.content ? JSON.stringify(content) !== JSON.stringify(originData.content) : null;
+      return { type: "template", label: `Template : ${tplName(info.importSource)}`, edited };
+    }
+    return content.length ? { type: "?", label: "Inconnue", edited: null } : { type: "vide", label: "Page vide", edited: false };
+  }
+  const mereRoleOf = (role) => role === "mere" || role.startsWith("mere:");
+  const isAngleRole = !mereRoleOf(form.role) && form.role !== "";
+  // Choix par défaut, à chaque changement de type : sans page mère, la page
+  // mère pour le premier angle coché ; avec, la page de ce premier angle.
   useEffect(() => {
-    if (!hasMother && isAngleRole) setForm((f) => ({ ...f, role: "mere" }));
-  }, [hasMother, isAngleRole]);
+    const first = freeAngles[0]?.id;
+    setForm((f) => ({ ...f, role: hasMother ? (first ?? "") : first ? `mere:${first}` : "mere" }));
+  }, [form.pageType, hasMother, freeAngles[0]?.id]);
 
   async function add() {
-    const mereRole = form.role === "mere";
-    // page mère : reliée à l'angle ★ de ce type s'il existe
-    const angle = mereRole ? starAngle : angles.find((a) => a.id === form.role);
+    const mereRole = mereRoleOf(form.role);
+    // page mère : pour l'angle choisi dans la liste (mere:<id>)
+    const angle = angles.find((a) => a.id === (mereRole ? form.role.slice(5) : form.role));
     const profil = angle ? angle.titre : mereRole ? "" : form.profil.trim();
-    const fromUrl = mereRole && form.depuis === "lien";
+    const fromUrl = form.depuis === "lien";
+    const blank = form.depuis === "vide";
     if (!hasMother && !mereRole && angle) return onMessage({ error: true, text: "Crée d'abord la page mère de ce type : les angles en sont des copies." });
-    if (mereRole && !fromUrl && !form.source) return onMessage({ error: true, text: "Une page mère part d'une page existante, d'un template ou d'un lien : choisis le point de départ." });
     if (fromUrl && !isUrl(form.url)) return onMessage({ error: true, text: "Indique le lien de la page à reproduire (https://…)." });
     // un angle part de la page mère de son type (copie), sauf autre choix
-    const source = fromUrl ? "" : form.source || (!mereRole ? motherOf(form.pageType) : "");
+    const source = fromUrl || blank ? "" : form.source || (isAngleRole ? motherOf(form.pageType) : "");
+    if (form.depuis === "page" && !source) return onMessage({ error: true, text: "Choisis le template ou la page de départ (ou « Page vide », ou « Lien »)." });
+    const isTemplate = source && !pageNames.includes(source);
+    const origine = fromUrl ? { type: "lien", url: form.url.trim() } : blank ? { type: "vide" } : { type: isTemplate ? "template" : "page", source };
     setBusy(true);
     try {
-      const name = uniquePageName(pageNameFor(project.id, form.pageType, form.role === "mere" ? "mere" : profil), allPages);
+      const name = uniquePageName(pageNameFor(project.id, form.pageType, profil || (mereRole ? "mere" : "")), allPages);
       await createPage(
         {
           name,
@@ -392,6 +433,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
           profil,
           source,
           pageAchat: buyPages[0]?.info.name ?? "",
+          origine,
         },
         allPages,
       );
@@ -403,7 +445,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
       else if (linked) await onSave({ angles: linked }, true);
       setForm({ ...form, profil: "", source: "", url: "" });
       const label = pageTypeById[form.pageType]?.label ?? form.pageType;
-      onMessage({ text: fromUrl ? `Page mère « ${label} » créée ; demande d'import envoyée pour ${form.url.trim()}.` : mereRole ? `Page mère « ${label} » ajoutée au projet${angle ? ` (angle « ${angle.titre} »)` : ""}.` : `Page ajoutée au projet${profil ? ` pour l'angle « ${profil} »` : ""}${source && source === motherOf(form.pageType) ? " (copie de la page mère)" : ""}.` });
+      onMessage({ text: fromUrl ? `Page « ${label} » créée ; demande d'import envoyée pour ${form.url.trim()}.` : blank ? `Page vide « ${label} » ajoutée au projet.` : mereRole ? `Page mère « ${label} » ajoutée au projet${angle ? ` (angle « ${angle.titre} »)` : ""}.` : `Page ajoutée au projet${profil ? ` pour l'angle « ${profil} »` : ""}${source && source === motherOf(form.pageType) ? " (copie de la page mère)" : ""}.` });
       onChanged();
     } catch (e) {
       onMessage({ error: true, text: e.message });
@@ -414,6 +456,11 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
 
   return (
     <>
+      <p className="cat-muted cat-pages__intro">
+        Une page peut partir de trois origines : <b>un template</b> (ou une de tes pages, recopiée), <b>un lien</b> (la page d'un site,
+        reproduite par Claude) ou <b>une page vide</b>. L'origine de chaque page est indiquée dans la colonne « Origine » ; « Changer » la
+        remplace, mais efface alors le contenu de la page (une copie de sécurité est gardée dans son Historique).
+      </p>
       {pages.length === 0 ? (
         <div className="cat-empty">Ce projet n'a pas encore de page.</div>
       ) : (
@@ -436,6 +483,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
             <tr>
               <th>Page</th>
               <th>Angle / profil client</th>
+              <th>Origine</th>
               <th>Achat</th>
               <th>Score de vente</th>
               <th>Textes</th>
@@ -443,7 +491,9 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
             </tr>
           </thead>
           <tbody>
-            {g.items.map((item) => byName[item.name]).filter(Boolean).map(({ info, data, score }) => {
+            {g.items.map((item) => byName[item.name]).filter(Boolean).map((entry) => {
+              const { info, data, score } = entry;
+              const origin = originOf(entry);
               const type = pageTypeById[info.pageType];
               const texts = pageTexts(data);
               const briefs = texts.filter((t) => isBrief(t.text)).length;
@@ -455,6 +505,16 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
                     <small className="cat-muted">{info.name}</small>
                   </td>
                   <td>{info.profil || <span className="cat-muted">—</span>}</td>
+                  <td className="cat-origin">
+                    <span className="cat-origin__label" title={origin.label}>
+                      {origin.label}
+                    </span>
+                    {origin.detail && <small className="cat-muted">{origin.detail}</small>}
+                    {origin.edited && <small className="cat-origin__edited">modifiée dans l'éditeur</small>}
+                    <button type="button" className="cat-linkbtn" onClick={() => setOriginFor({ info, origin })}>
+                      Changer
+                    </button>
+                  </td>
                   <td>{type ? (type.achat ? "Oui" : `Non → ${info.pageAchat || "à lier"}`) : "?"}</td>
                   <td>{score.type ? `${score.score} / 100` : "—"}</td>
                   <td>{briefs ? `${briefs} consigne(s) à remplir` : "Remplis"}</td>
@@ -510,53 +570,159 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
           <label className="cat-field">
             <span>Page mère ou angle</span>
             <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-              <option value="mere">
-                ★ Page mère{starAngle ? ` · ${starAngle.titre}` : ""}
-                {hasMother ? " (remplace l'actuelle)" : ""}
-              </option>
-              {freeAngles.map((a) => (
-                <option key={a.id} value={a.id} disabled={!hasMother}>
-                  Angle {a.n} · {a.titre}
-                </option>
-              ))}
+              <optgroup label={hasMother ? "★ Page mère (remplace l'actuelle)" : "★ Page mère de ce type"}>
+                {freeAngles.map((a) => (
+                  <option key={`m${a.id}`} value={`mere:${a.id}`}>
+                    ★ Page mère · Angle {a.n} · {a.titre}
+                  </option>
+                ))}
+                <option value="mere">★ Page mère sans angle</option>
+              </optgroup>
+              {hasMother && freeAngles.length > 0 && (
+                <optgroup label="Page d'angle (copie de la page mère)">
+                  {freeAngles.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      Angle {a.n} · {a.titre}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
               <option value="">Autre (sans angle)</option>
             </select>
             {form.role === "" && <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder="Profil client (facultatif)" />}
-            {!hasMother && (
-              <small className="cat-muted">
-                Pas encore de page mère pour ce type : crée-la d'abord, les angles en seront des copies.
-                {!starAngle && " Aucun angle ★ de ce type dans l'onglet Angles."}
-              </small>
-            )}
-            {hasMother && !freeAngles.length && <small className="cat-muted">Aucun autre angle de ce type à créer : coche-les dans l'onglet Angles.</small>}
+            {!hasMother && <small className="cat-muted">Pas encore de page mère pour ce type : choisis l'angle de la page mère. Les autres angles de ce type en seront des copies.</small>}
+            {!freeAngles.length && <small className="cat-muted">Tous les angles cochés ont leur page : coche-en d'autres dans l'onglet Angles.</small>}
           </label>
           <div className="cat-field">
             <div className="cat-addpage__label">
               <span>Partir de</span>
-              {form.role === "mere" && (
-                <div className="cat-depuis" role="radiogroup" aria-label="Point de départ de la page mère">
-                  <label>
-                    <input type="radio" checked={form.depuis === "page"} onChange={() => setForm({ ...form, depuis: "page" })} /> Page ou template
+              <div className="cat-depuis" role="radiogroup" aria-label="Origine de la page">
+                {[
+                  ["page", "Template ou page"],
+                  ["lien", "Lien"],
+                  ["vide", "Page vide"],
+                ].map(([v, l]) => (
+                  <label key={v}>
+                    <input type="radio" checked={form.depuis === v} onChange={() => setForm({ ...form, depuis: v })} /> {l}
                   </label>
-                  <label>
-                    <input type="radio" checked={form.depuis === "lien"} onChange={() => setForm({ ...form, depuis: "lien" })} /> Lien
-                  </label>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-            {form.role === "mere" && form.depuis === "lien" ? (
-              <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://… page à reproduire" />
-            ) : (
-              <SourcePicker value={form.source} onChange={(source) => setForm({ ...form, source })} templates={templates} pages={pages} pageType={form.pageType} noBlank={form.role === "mere"} />
+            {form.depuis === "lien" && <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://… page à reproduire" />}
+            {form.depuis === "page" && (
+              <SourcePicker value={form.source || (isAngleRole ? motherOf(form.pageType) : "")} onChange={(source) => setForm({ ...form, source })} templates={templates} pages={pages} pageType={form.pageType} noBlank />
             )}
-            {isAngleRole && !form.source && hasMother && <small className="cat-muted">Par défaut : copie de la page mère de ce type.</small>}
+            {form.depuis === "vide" && <p className="cat-muted cat-addpage__vide">La page sera créée sans section : tu la construis dans l'éditeur.</p>}
+            {form.depuis === "page" && isAngleRole && !form.source && hasMother && <small className="cat-muted">Par défaut : copie de la page mère de ce type.</small>}
           </div>
           <button type="button" className="cat-btn" disabled={busy} onClick={add}>
             {busy ? "Création…" : "Ajouter"}
           </button>
         </div>
       </section>
+      {originFor && (
+        <OriginDialog
+          info={originFor.info}
+          origin={originFor.origin}
+          templates={templates}
+          pages={pages}
+          onClose={() => setOriginFor(null)}
+          onDone={(text) => {
+            setOriginFor(null);
+            onMessage({ text });
+            onChanged();
+          }}
+          onError={(text) => onMessage({ error: true, text })}
+        />
+      )}
     </>
+  );
+}
+
+// « Changer l'origine » d'une page : template / page, lien ou page vide. Le
+// contenu actuel est remplacé ; si la page a été modifiée dans l'éditeur, on
+// prévient que ces modifications seront perdues (copie dans l'Historique).
+function OriginDialog({ info, origin, templates, pages, onClose, onDone, onError }) {
+  const [depuis, setDepuis] = useState("page");
+  const [source, setSource] = useState("");
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function run() {
+    if (depuis === "page" && !source) return onError("Choisis le template ou la page de départ.");
+    if (depuis === "lien" && !isUrl(url)) return onError("Indique le lien de la page à reproduire (https://…).");
+    const warn =
+      origin.edited === false
+        ? ""
+        : origin.edited
+          ? "\n\nCette page a été modifiée dans l'éditeur : ces modifications seront perdues."
+          : "\n\nSi cette page a été modifiée dans l'éditeur, ces modifications seront perdues.";
+    if (!confirm(`Remplacer tout le contenu de « ${info.title} » ?${warn}\n\nUne copie de sécurité est gardée dans l'Historique de la page.`)) return;
+    setBusy(true);
+    try {
+      const isPage = pages.some((p) => p.info.name === source);
+      const type = depuis === "lien" ? "lien" : depuis === "vide" ? "vide" : isPage ? "page" : "template";
+      await changePageOrigin(info.name, { type, source: depuis === "page" ? source : "", url: depuis === "lien" ? url.trim() : "" });
+      if (depuis === "lien") await requestImport({ url: url.trim(), projet: info.projet, page: info.name, pageType: info.pageType });
+      onDone(
+        depuis === "lien"
+          ? `« ${info.title} » vidée ; demande d'import envoyée pour ${url.trim()}.`
+          : depuis === "vide"
+            ? `« ${info.title} » est maintenant une page vide.`
+            : `« ${info.title} » reprend maintenant ${isPage ? "la page choisie" : "le template choisi"}.`,
+      );
+    } catch (e) {
+      onError(e.message);
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="cat-modal" onMouseDown={(e) => e.target === e.currentTarget && !busy && onClose()}>
+      <div className="cat-modal__panel cat-origin-dlg">
+        <header className="cat-modal__head">
+          <div>
+            <h2>Changer l'origine</h2>
+            <p className="cat-muted">{info.title}</p>
+          </div>
+          <button type="button" className="cat-close" onClick={onClose} aria-label="Fermer">
+            ×
+          </button>
+        </header>
+        <p>
+          Origine actuelle : <b>{origin.label}</b>
+          {origin.detail ? ` (${origin.detail})` : ""}
+        </p>
+        {origin.edited !== false && (
+          <p className="cat-origin__warn">
+            {origin.edited
+              ? "⚠ Cette page a été modifiée dans l'éditeur. Changer son origine remplace tout son contenu : ces modifications seront perdues."
+              : "⚠ Changer l'origine remplace tout le contenu de la page. Si elle a été modifiée dans l'éditeur, ces modifications seront perdues."}{" "}
+            Une copie de sécurité est gardée dans son Historique.
+          </p>
+        )}
+        <div className="cat-depuis" role="radiogroup" aria-label="Nouvelle origine">
+          {[
+            ["page", "Template ou page"],
+            ["lien", "Lien"],
+            ["vide", "Page vide"],
+          ].map(([v, l]) => (
+            <label key={v}>
+              <input type="radio" checked={depuis === v} onChange={() => setDepuis(v)} /> {l}
+            </label>
+          ))}
+        </div>
+        {depuis === "page" && <SourcePicker value={source} onChange={setSource} templates={templates} pages={pages.filter((p) => p.info.name !== info.name)} pageType={info.pageType} noBlank />}
+        {depuis === "lien" && <input className="cat-origin-dlg__url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://… page à reproduire" />}
+        {depuis === "vide" && <p className="cat-muted">La page sera vidée : tu la reconstruis dans l'éditeur.</p>}
+        <div className="cat-actions">
+          <button type="button" className="cat-btn cat-btn--ghost" onClick={onClose} disabled={busy}>
+            Annuler
+          </button>
+          <button type="button" className="cat-btn cat-btn--danger" onClick={run} disabled={busy}>
+            {busy ? "Remplacement…" : "Remplacer le contenu"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

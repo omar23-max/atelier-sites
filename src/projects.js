@@ -71,7 +71,18 @@ export const saveProject = (project) => api("PUT", `/api/projects/${project.id}`
 
 // Crée une page. source = nom d'une page à copier (page d'un projet ou page
 // mirror d'un template) : mêmes sections, même design, même import d'origine.
-export async function createPage({ name, projet = "", produit = "", pageType, profil = "", pageAchat = "", source = "" }, existing = []) {
+// Empreinte du contenu d'une page : sert à savoir si elle a été modifiée dans
+// l'éditeur depuis sa création (ou depuis le dernier changement d'origine).
+export function empreinte(content = []) {
+  const s = JSON.stringify(content ?? []);
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return `${s.length}-${(h >>> 0).toString(36)}`;
+}
+
+// Origine d'une page (2026-11-08) : root.props.origine = { type: "vide" |
+// "template" | "page" | "lien", source, url, le, empreinte }.
+export async function createPage({ name, projet = "", produit = "", pageType, profil = "", pageAchat = "", source = "", origine = null }, existing = []) {
   if (!pageType) throw new Error("Choisis le type de page.");
   if (!projet) throw new Error("Une page appartient toujours à un projet : choisis-le ou crée-le.");
   if (!NAME.test(name)) throw new Error("Nom de page invalide : minuscules, chiffres et tirets.");
@@ -89,10 +100,27 @@ export async function createPage({ name, projet = "", produit = "", pageType, pr
       produit,
       profil,
       pageAchat: type.achat ? "" : pageAchat,
+      ...(origine ? { origine: { ...origine, le: new Date().toISOString(), empreinte: empreinte(page.content) } } : {}),
     },
   };
   await api("PUT", `/api/pages/${name}`, page);
   return name;
+}
+
+// Changer l'origine d'une page : son contenu est remplacé (copie de sécurité
+// avant, dans l'Historique). « template » / « page » : reprend la page source
+// (mirrorIntoPage garde titre, projet, produit, type) ; « vide » et « lien » :
+// page vidée (le lien est rempli ensuite par la demande d'import).
+export async function changePageOrigin(name, { type, source = "", url = "" }) {
+  if (type === "template" || type === "page") await mirrorIntoPage(name, source);
+  else await api("POST", `/api/pages/${name}/snapshot`).catch(() => {});
+  const page = await getPage(name);
+  if (type === "vide" || type === "lien") page.content = [];
+  page.root = {
+    ...page.root,
+    props: { ...page.root?.props, origine: { type, source, url, le: new Date().toISOString(), empreinte: empreinte(page.content) } },
+  };
+  await api("PUT", `/api/pages/${name}`, page);
 }
 
 // « Miroring dans la page actuelle » : la page reprend toutes les sections, le

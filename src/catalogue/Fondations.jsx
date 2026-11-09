@@ -398,7 +398,7 @@ export function ProjectProgress({ project, pages, onGo, current }) {
   const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
   const steps = [
     ["fondations", "Fondations", fd === "validée" ? "done" : fd === "demandée" ? "doing" : foundationsFilled(project) ? "doing" : "todo", fd === "validée" ? "validées" : fd === "demandée" ? "chez Claude" : "à faire"],
-    ["angles", "Angles", ang.chosen && ang.mere ? "done" : ang.chosen ? "doing" : "todo", ang.chosen ? `${ang.chosen} choisi(s)${ang.mere ? "" : ", page mère à choisir"}` : "à choisir"],
+    ["angles", "Angles", ang.chosen ? "done" : "todo", ang.chosen ? `${ang.chosen} choisi(s)` : "à choisir"],
     ["pages", "Pages", pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     ["creatives", "Pubs", creatives.length ? "done" : "todo", creatives.length ? `${creatives.length} créative(s)` : "à faire"],
     ["publication", "Publication", pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],

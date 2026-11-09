@@ -4,10 +4,10 @@ import { slug } from "../projects.js";
 import { MessageRecap } from "./Fondations.jsx";
 
 // Étape ② Angles d'un projet : les pistes d'angles des Fondations deviennent
-// des cartes (avatar, douleur, promesse, type de page). On y CHOISIT seulement
-// les angles (2026-11-08) : cocher ceux à tester, et une ★ par type de page =
-// l'angle de la page mère de ce type. Aucune création de page ici : tout se
-// fait dans l'onglet Pages (page mère d'abord, puis copies pour les angles).
+// des cartes (avatar, douleur, promesse). On y CHOISIT seulement les angles à
+// tester (2026-11-08) : ni type de page, ni page mère, ni création de page.
+// Tout cela se fait dans l'onglet Pages : on y choisit le type, la page mère
+// de chaque type (et son angle), puis les pages des autres angles (copies).
 //
 // projets/<id>.json : angles: [{ id, titre, lentille, avatar, douleur,
 //   promesse, pageType, choisi, mere, page }]
@@ -54,32 +54,19 @@ export const anglesOf = (project) =>
 export function anglesProgress(project, pageNames) {
   const chosen = (project.angles ?? []).filter((a) => a.choisi);
   const withPage = chosen.filter((a) => a.page && pageNames.includes(a.page));
-  return { chosen: chosen.length, mere: chosen.some((a) => a.mere), withPage: withPage.length };
+  return { chosen: chosen.length, withPage: withPage.length };
 }
 
 export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
   const [angles, setAngles] = useState(() => anglesOf(project));
   const pageNames = pages.map((p) => p.info.name);
   const set = (id, patch) => setAngles((list) => list.map((a) => (a.id === id ? { ...a, ...patch } : a)));
-  // Une ★ PAR TYPE de page (landing, listicle, page produit…) : marquer un
-  // angle retire l'étoile des autres angles du même type seulement ; recliquer
-  // sur l'étoile la retire. L'angle ★ d'un type sera celui de sa page mère,
-  // créée dans l'onglet Pages (2026-11-08).
-  const setMere = (id) =>
-    setAngles((list) => {
-      const target = list.find((a) => a.id === id);
-      return list.map((a) =>
-        a.id === id ? { ...a, mere: !a.mere, choisi: true } : a.pageType === target.pageType ? { ...a, mere: false } : a,
-      );
-    });
-  const meres = angles.filter((a) => a.mere);
   const chosen = angles.filter((a) => a.choisi);
   const isLinked = (a) => a.page && pageNames.includes(a.page);
-  const titleOf = (name) => pages.find((p) => p.info.name === name)?.info.title ?? name;
 
   async function save(list = angles) {
     await onSave({ angles: list }, true);
-    onMessage({ text: `Angles enregistrés : ${list.filter((a) => a.choisi).length} à tester, ${list.filter((a) => a.mere).length} page(s) mère(s) ★.` });
+    onMessage({ text: `Angles enregistrés : ${list.filter((a) => a.choisi).length} à tester.` });
   }
 
   function addAngle() {
@@ -102,42 +89,30 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
   return (
     <div className="cat-angles">
       <p className="cat-muted">
-        Ici, on choisit seulement les angles : coche ceux à tester (3 ou 4 suffisent) et marque une <b>★ par type de page</b> (landing,
-        listicle, page produit…) : c'est l'angle de la <b>page mère</b> de ce type. Les pages se créent ensuite dans l'onglet{" "}
+        Ici, on choisit seulement les angles à tester (3 ou 4 suffisent) : coche-les, corrige leurs mots si besoin, puis enregistre. Le type de
+        page et la page mère de chaque type se choisissent à l'étape suivante,{" "}
         {onGo ? (
           <button type="button" className="cat-linkbtn" onClick={() => onGo("pages")}>
             Pages
           </button>
         ) : (
           "Pages"
-        )}{" "}
-        : d'abord la page mère de chaque type, puis les pages des autres angles, qui en sont des copies.
+        )}
+        .
       </p>
       <MessageRecap project={project} onEdit={onGo ? () => onGo("fondations") : null} />
       <div className="cat-angles__bar">
-        <b>{chosen.length}</b> angle(s) choisi(s) · pages mères :{" "}
-        {meres.length ? (
-          meres.map((m, i) => (
-            <span key={m.id}>
-              {i ? " · " : ""}
-              <b>{pageTypeById[m.pageType]?.label ?? m.pageType}</b> ★ {m.titre}
-            </span>
-          ))
-        ) : (
-          <b>à choisir (une ★ par type de page)</b>
-        )}
+        <b>{chosen.length}</b> angle(s) choisi(s) à tester
       </div>
       <div className="cat-angles__grid">
         {angles.map((a) => (
-          <article key={a.id} className={`cat-angle${a.choisi ? " is-on" : ""}${a.mere ? " is-mere" : ""}`}>
+          <article key={a.id} className={`cat-angle${a.choisi ? " is-on" : ""}`}>
             <header>
               <label className="cat-angle__pick">
-                <input type="checkbox" checked={a.choisi} onChange={(e) => set(a.id, { choisi: e.target.checked, mere: e.target.checked ? a.mere : false })} />
+                <input type="checkbox" checked={a.choisi} onChange={(e) => set(a.id, { choisi: e.target.checked })} />
                 À tester
               </label>
-              <button type="button" className="cat-angle__star" onClick={() => setMere(a.id)} title="Angle de la page mère de ce type de page">
-                {a.mere ? "★ Page mère" : "☆ Page mère"}
-              </button>
+              {isLinked(a) && <span className="cat-angle__has">a sa page</span>}
             </header>
             <input className="cat-angle__title" value={a.titre} onChange={(e) => set(a.id, { titre: e.target.value })} aria-label="Titre de l'angle" />
             {a.lentille && <small className="cat-muted">{a.lentille}</small>}
@@ -151,29 +126,6 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
                 <textarea rows={1} value={a[k]} onChange={(e) => set(a.id, { [k]: e.target.value })} />
               </label>
             ))}
-            <label className="cat-angle__field">
-              <span>Type de page</span>
-              <select
-                value={a.pageType}
-                onChange={(e) => {
-                  // changer de type : l'étoile ne suit que s'il n'y a pas déjà une mère de ce type
-                  const taken = angles.some((x) => x.id !== a.id && x.mere && x.pageType === e.target.value);
-                  set(a.id, { pageType: e.target.value, ...(taken ? { mere: false } : {}) });
-                }}
-              >
-                {PAGE_TYPES.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {isLinked(a) && (
-              <footer className="cat-angle__page">
-                <span>Page : {titleOf(a.page)}</span>
-                <a href={`/?page=${a.page}`}>Ouvrir</a>
-              </footer>
-            )}
           </article>
         ))}
       </div>
