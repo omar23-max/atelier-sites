@@ -435,19 +435,24 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
         <div className="cat-empty">Aucun template. Importe un site depuis « Enrichir le catalogue ».</div>
       ) : (
         <>
-          <div className="cat-seg cat-tabs">
-            {[{ id: "tous", label: "Tous" }, ...PAGE_TYPES].map((t) => {
-              const n = t.id === "tous" ? templates.length : templates.filter((x) => x.pageType === t.id).length;
-              if (!n) return null;
-              return (
-                <button key={t.id} type="button" className={type === t.id ? "is-on" : ""} onClick={() => setType(t.id)}>
-                  {t.id === "tous" ? "Tous" : t.label} ({n})
-                </button>
-              );
-            })}
+          {/* Filtres rangés dans une seule carte (2026-11-09) : recherche, puis
+              une ligne par filtre (Type, Origine), étiquettes alignées. */}
+          <div className="cat-filters">
+            <input className="cat-search" placeholder="Rechercher un template : marque, produit, niche, site…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <div className="cat-origins" role="group" aria-label="Type">
+              <span>Type</span>
+              {[{ id: "tous", label: "Tous" }, ...PAGE_TYPES].map((t) => {
+                const n = t.id === "tous" ? templates.length : templates.filter((x) => x.pageType === t.id).length;
+                if (!n) return null;
+                return (
+                  <button key={t.id} type="button" className={type === t.id ? "is-on" : ""} onClick={() => setType(t.id)}>
+                    {t.id === "tous" ? "Tous" : t.label} <em>{n}</em>
+                  </button>
+                );
+              })}
+            </div>
+            <OriginBar ids={templates.map((t) => t.id)} value={origin} onChange={setOriginFilter} />
           </div>
-          <OriginBar ids={templates.map((t) => t.id)} value={origin} onChange={setOriginFilter} />
-          <input className="cat-search" placeholder="Rechercher un template : marque, produit, niche, site…" value={q} onChange={(e) => setQ(e.target.value)} />
         {templates.some(shown) ? (
           <div className="cat-grid">
             {templates.filter(shown).map((t) => (

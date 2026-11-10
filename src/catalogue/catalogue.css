@@ -3115,3 +3115,164 @@ textarea {
     display: none;
   }
 }
+
+/* ---- En-têtes Templates et Sections rangés (2026-11-09) ----
+   Une carte de filtres : la recherche en haut, puis une ligne par filtre
+   (Type, Origine) avec l'étiquette dans une colonne fixe ; les puces passent
+   à la ligne au lieu de déborder ; le nombre est une petite pastille. */
+.cat-filters {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--cat-line);
+  border-radius: 14px;
+  background: var(--cat-card);
+}
+.cat-filters .cat-search {
+  margin: 0;
+}
+.cat-filters .cat-origins {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding-left: 80px;
+}
+.cat-filters .cat-origins > span {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  margin: 0;
+  font-size: 11px;
+}
+.cat-origins button em {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #f0eeea;
+  color: var(--cat-muted);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+.cat-origins button.is-on em {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+.cat-origins button {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 10px 0 12px;
+  white-space: nowrap;
+}
+.cat-origins button:not(.is-on):hover {
+  border-color: #bdbdbd;
+}
+.cat-origins .cat-check {
+  margin: 0 0 0 auto;
+  border-color: #f0c27a;
+  background: #fff7e8;
+  color: #8a5300;
+}
+.cat-origins .cat-check em {
+  background: #fde6bf;
+  color: #8a5300;
+}
+.cat-origins .cat-check.is-on {
+  border-color: #8a5300;
+  background: #8a5300;
+  color: #fff;
+}
+
+/* Sections : chiffres et « Ajouter au catalogue » dans une seule carte. */
+.cat-overview {
+  display: grid;
+  gap: 12px;
+  margin: 4px 0 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--cat-line);
+  border-radius: 14px;
+  background: var(--cat-card);
+}
+.cat-overview__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  color: var(--cat-muted);
+  font-size: 13px;
+}
+.cat-overview__stats b {
+  margin-right: 4px;
+  color: var(--cat-ink, #111);
+  font-size: 18px;
+}
+.cat-overview__stats .is-pending b {
+  color: #b45309;
+}
+.cat-overview__add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cat-line);
+}
+.cat-overview__add > span {
+  margin-right: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cat-overview__add button {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--cat-line);
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.cat-overview__add button:hover {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+.cat-overview .cat-muted {
+  margin: -4px 0 0;
+  font-size: 12px;
+}
+
+/* Titre en fil des sections : Sections › origine › type (2026-11-09). */
+.cat-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 4px;
+}
+.cat-path button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cat-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.cat-path button:hover {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.cat-path i {
+  color: #c4c0b8;
+  font-style: normal;
+  font-weight: 400;
+}

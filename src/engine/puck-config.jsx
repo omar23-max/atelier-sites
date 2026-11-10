@@ -6,6 +6,7 @@ import { blocksKey, defaultPropsFor, defaultsFor, editableSettings, renderSectio
 import { ROLES } from "./design.js";
 import { atlCarrousels } from "./carrousel.js";
 import { ensureFull } from "./sections.js";
+import { MissingSlots, SLOT_CSS } from "./missing-slots.jsx";
 import {
   ColorSetting,
   HeaderField,
@@ -179,11 +180,18 @@ function SectionView({ section, props }) {
   }, [section]);
   const html = useMemo(() => (section.leger ? "" : renderSectionHtml(section, props, props.id)), [section, props, section.leger]);
   const selected = usePuckSelect((s) => s.selectedItem?.props?.id === props.id);
+  // Emplacements de sections manquantes (Score de vente) avant la première
+  // section et après celle-ci : hors du bloc data-atl-id, pour qu'un clic
+  // dessus ne sélectionne pas la section.
   return (
-    <div className={`atl-shopify-section${selected ? " atl-is-selected" : ""}`} data-atl-id={props.id}>
-      <style>{section.css}</style>
-      <div dangerouslySetInnerHTML={{ __html: html }} />
-    </div>
+    <>
+      <MissingSlots sectionId={props.id} where="before" />
+      <div className={`atl-shopify-section${selected ? " atl-is-selected" : ""}`} data-atl-id={props.id}>
+        <style>{section.css}</style>
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
+      <MissingSlots sectionId={props.id} where="after" />
+    </>
   );
 }
 
@@ -293,7 +301,7 @@ export function buildPuckConfig(sections) {
       defaultProps: { title: "Nouvelle page", font_heading: "", font_body: "" },
       render: ({ children, font_heading, font_body, fond_page }) => (
         <>
-          <style>{brandCss({ font_heading, font_body, fond_page }) + EDITOR_CSS}</style>
+          <style>{brandCss({ font_heading, font_body, fond_page }) + EDITOR_CSS + SLOT_CSS}</style>
           <StickySuites />
           <Carrousels />
           {children}

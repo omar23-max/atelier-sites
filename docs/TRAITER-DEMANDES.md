@@ -917,3 +917,26 @@ Original 80 % → retour Modifiable 80 %.
   de la demande, `details.source = "capture"`). Demande de type `ia` ; la
   traiter comme avant (concevoir la section, l'ajouter au catalogue et à la
   page), en partant du lien ou des captures quand ils sont donnés.
+
+## Emplacements des sections manquantes (2026-11-09)
+
+- Le Score de vente reste calculé comme avant (règles Jeffrey + Arsh par type
+  de page, textes à reprendre, 5 croyances). En plus, chaque section manquante
+  est dessinée dans l'aperçu de l'éditeur, à son rang : un rectangle en
+  pointillés « + Ajouter une section « … » ici » (plusieurs au même endroit :
+  un seul rectangle). Code : `src/engine/missing-slots.jsx` (rectangles,
+  rendus par `SectionView` hors du bloc `data-atl-id`) et `src/slot-picker.jsx`
+  (choix du modèle, trié par score de vente, inséré au rang du rectangle).
+- Jamais publié : seul l'éditeur les dessine. Interrupteur « Montrer les
+  emplacements dans la page » dans le panneau Score (localStorage
+  `atl-emplacements`). « voir l'emplacement » dans la liste du Score fait
+  défiler jusqu'au rectangle.
+- Page d'un projet : étiquette Socle / Angle (`src/engine/zones.js`, la même
+  liste que `angle-zones.js`). Page d'angle : une section du socle manquante
+  s'affiche « À ajouter dans la page mère » avec un lien vers la mère (on peut
+  quand même l'ajouter ici).
+- Les clics dans l'aperçu n'arrivent pas aux gestionnaires React : écouteurs
+  natifs posés sur le rectangle.
+- Le serveur ne renvoie plus jamais toutes les sections en entier pour une
+  page introuvable (`/api/sections-data?page=` d'une page supprimée) : version
+  légère. Avant, cela le faisait planter en boucle (chaîne trop longue).

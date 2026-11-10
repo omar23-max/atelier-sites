@@ -5,6 +5,7 @@ import { sections } from "./engine/sections.js";
 import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
 import { FullscreenButton } from "./library-ui.jsx";
+import { SlotPicker } from "./slot-picker.jsx";
 import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
@@ -304,6 +305,8 @@ export default function App() {
                 <RewriteButton hidden />
                 <StudioButton hidden />
                 <BoardButton />
+                {/* Choix d'un modèle pour un emplacement de section manquante. */}
+                <SlotPicker />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
                 <FullscreenButton />

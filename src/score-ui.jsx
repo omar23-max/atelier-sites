@@ -6,6 +6,9 @@ import { PAGE_TYPES } from "./engine/page-types.js";
 import { familyById, familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { adaptInstructionFor, rebuildSectionWith, savePageWith } from "./inspector-ui.jsx";
+import { showSlot } from "./slot-picker.jsx";
+import { slotStore, useSlotStore } from "./engine/missing-slots.jsx";
+import { zoneOfFamilies } from "./engine/zones.js";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
@@ -60,12 +63,16 @@ function ChooseType() {
 
 function Recommendation({ item, onAdd }) {
   const [open, setOpen] = useState(false);
+  const { role } = useSlotStore();
   const variants = item.rule.families ? variantsFor(item.rule.families) : [];
   const shown = open ? variants : variants.slice(0, 1);
   return (
     <li className="atl-score__item">
       <div className="atl-score__item-head">
         <strong>{ruleLabel(item.rule)}</strong>
+        {role && item.rule.families && (
+          <span className={`atl-score__zone is-${zoneOfFamilies(item.rule.families)}`}>{zoneOfFamilies(item.rule.families) === "angle" ? "Angle" : "Socle"}</span>
+        )}
         <em>+{item.gain}</em>
       </div>
       <p>{item.rule.why}</p>
@@ -80,7 +87,13 @@ function Recommendation({ item, onAdd }) {
         </p>
       ) : (
         <>
-          <p className="atl-score__where">À placer {item.where}</p>
+          <p className="atl-score__where">
+            À placer {item.where}
+            {" · "}
+            <button type="button" className="atl-linkbtn" onClick={() => showSlot(item.index)}>
+              voir l'emplacement
+            </button>
+          </p>
           <div className="atl-score__variants">
             {shown.map((s) => (
               <button type="button" key={s.id} onClick={() => onAdd(s.id, item.index)} title={`Ajouter « ${s.meta.label} »`}>
@@ -195,6 +208,7 @@ export function ScorePanel() {
   const data = usePuckSelect((s) => s.appState.data);
   const result = scorePage(data, sectionsById);
   const [showPresent, setShowPresent] = useState(false);
+  const { visible: slotsVisible } = useSlotStore();
 
   // Ajoute un modèle pour chaque famille manquante qui en a un, une à une,
   // en recalculant l'emplacement après chaque ajout.
@@ -260,6 +274,13 @@ export function ScorePanel() {
               </span>
             </div>
           </div>
+          {result.missing.some((m) => m.rule.families) && (
+            <label className="atl-score__slots">
+              <input type="checkbox" checked={slotsVisible} onChange={(e) => slotStore.setVisible(e.target.checked)} />
+              Montrer les emplacements dans la page
+              <small>Un rectangle en pointillés là où chaque section conseillée doit aller. Jamais publié.</small>
+            </label>
+          )}
           <Beliefs result={result} onAdd={(type, index) => insertAt(getPuck, type, index)} />
           <TextChecks items={result.texts} />
           {addable.length > 0 && (

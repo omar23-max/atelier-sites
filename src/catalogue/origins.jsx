@@ -49,7 +49,8 @@ export function OriginProvider({ children }) {
 export const useOrigins = () => useContext(OriginContext) ?? { originOf: () => "autres", setOrigin: async () => {} };
 
 // Barre « Origine » : Toutes, puis chaque origine présente, avec son nombre.
-export function OriginBar({ ids, value, onChange }) {
+// children : éléments ajoutés au bout de la ligne (ex. « Sections à revoir »).
+export function OriginBar({ ids, value, onChange, children }) {
   const { originOf } = useOrigins();
   const counts = {};
   for (const id of ids) counts[originOf(id)] = (counts[originOf(id)] ?? 0) + 1;
@@ -57,13 +58,14 @@ export function OriginBar({ ids, value, onChange }) {
     <div className="cat-origins" role="group" aria-label="Origine">
       <span>Origine</span>
       <button type="button" className={!value ? "is-on" : ""} onClick={() => onChange("")}>
-        Toutes ({ids.length})
+        Toutes <em>{ids.length}</em>
       </button>
       {ORIGINS.filter((o) => counts[o.id]).map((o) => (
         <button key={o.id} type="button" className={value === o.id ? "is-on" : ""} onClick={() => onChange(value === o.id ? "" : o.id)}>
-          {o.label} ({counts[o.id]})
+          {o.label} <em>{counts[o.id]}</em>
         </button>
       ))}
+      {children}
     </div>
   );
 }

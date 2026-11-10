@@ -138,7 +138,10 @@ function sectionsBundle() {
             used = new Set();
           }
         }
-        const leger = !used && params.get("leger") === "1";
+        // Page demandée mais introuvable (supprimée, à la corbeille) : version
+        // légère, jamais toutes les sections en entier (2026-11-09 : un onglet
+        // resté sur une page supprimée faisait planter le serveur en boucle).
+        const leger = !used && (params.get("leger") === "1" || params.has("page"));
         const key = used ? `${page}:${[...used].sort().join(",")}` : leger ? "*leger" : "*";
         let body = gz.get(key);
         if (!body) {
@@ -146,7 +149,12 @@ function sectionsBundle() {
             .filter(([id, s]) => !used || !s.pageSpecific || used.has(id))
             .sort(([a], [b]) => (a < b ? -1 : 1))
             .map(([id, s]) => (leger || (used && !used.has(id)) ? s.light : s.json));
-          body = gzipSync(`[${parts.join(",")}]`, { level: 1 });
+          // En octets, pas en une seule chaîne : toutes les sections en entier
+          // dépassent la taille maximale d'une chaîne JavaScript.
+          const bufs = [Buffer.from("[")];
+          parts.forEach((p, i) => bufs.push(Buffer.from(i ? `,${p}` : p)));
+          bufs.push(Buffer.from("]"));
+          body = gzipSync(Buffer.concat(bufs), { level: 1 });
           if (gz.size > 30) gz.clear();
           gz.set(key, body);
         }

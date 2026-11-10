@@ -8,6 +8,7 @@
 import { sections } from "./engine/sections.js";
 import { listPages } from "./projects.js";
 import { pageMenuGroups } from "./pages-ui.jsx";
+import { ANGLE_FAMILIES } from "./engine/zones.js";
 
 const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
 export const familyIdOf = (item) => byId[item?.type]?.meta?.family ?? "autres";
@@ -15,7 +16,7 @@ export const isAngleZone = (item) => item?.props?.atl_zone === "angle";
 
 // Proposition par défaut : hero, problème, histoire, bénéfices, grand CTA et
 // le premier bloc d'avis de la page.
-const ANGLE_FAMILIES = new Set(["hero", "probleme", "histoire", "avantages", "cta"]);
+// (liste commune avec les emplacements de sections manquantes : engine/zones.js)
 export function suggestAngleZones(content) {
   const ids = new Set();
   let reviews = false;

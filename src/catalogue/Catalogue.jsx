@@ -513,6 +513,46 @@ export default function Catalogue() {
     setView(allView);
   };
 
+  // Filtres des sections (2026-11-09), les mêmes sur « Toutes les sections » et
+  // sur une famille : recherche et Origine (le type de section se choisit dans
+  // le menu de gauche ; la ligne « Type » a été retirée à la demande). En JSX
+  // simple (pas un composant) : la recherche garde le curseur pendant la frappe.
+  const sectionFilters = (
+    <div className="cat-filters">
+      <input className="cat-search" placeholder="Rechercher une section : nom, fonction (avis, FAQ…), site ou template d'origine, mot-clé…" value={query} onChange={(e) => setQuery(e.target.value)} />
+      <OriginBar ids={(currentFamily ? grouped[currentFamily.id] ?? [] : sections).map((s) => s.id)} value={origin} onChange={setOrigin}>
+        {sections.some((s) => s.meta.audit) && (
+          <button type="button" className={`cat-check${toCheck ? " is-on" : ""}`} onClick={() => setToCheck(!toCheck)} title="Sections trop hautes, qui débordent, excentrées, presque vides ou avec des images manquantes">
+            ⚠ À revoir <em>{sections.filter((s) => s.meta.audit).length}</em>
+          </button>
+        )}
+      </OriginBar>
+    </div>
+  );
+  // Titre en fil : Sections › origine › type de section. « Sections » enlève
+  // les deux filtres ; l'origine ramène à toutes les sections de cette origine.
+  const sectionsPath = (
+    <h1 className="cat-path">
+      {currentFamily || origin ? (
+        <button type="button" onClick={() => (setOrigin(""), setView("tout"))}>Sections</button>
+      ) : (
+        <span>Sections</span>
+      )}
+      {origin && (
+        <>
+          <i>›</i>
+          {currentFamily ? <button type="button" onClick={() => setView("tout")}>{originLabel(origin)}</button> : <span>{originLabel(origin)}</span>}
+        </>
+      )}
+      {currentFamily && (
+        <>
+          <i>›</i>
+          <span>{currentFamily.label}</span>
+        </>
+      )}
+    </h1>
+  );
+
   function FamilyBlock({ family }) {
     const list = (grouped[family.id] ?? []).filter(matches);
     if ((q || origin || toCheck) && list.length === 0) return null;
@@ -639,7 +679,7 @@ export default function Catalogue() {
           {view === "tout" && (
             <>
               <div className="cat-intro">
-              <h1>Sections</h1>
+              {sectionsPath}
               <p className="cat-lead">
                 Toutes tes sections, rangées par famille. Ce qui est visible ici est proposé dans l'atelier (« + Ajouter »). Les
                 designs (fichiers design.md) sont dans{" "}
@@ -648,33 +688,19 @@ export default function Catalogue() {
                 </button>
                 .
               </p>
-              <div className="cat-stats">
-                <div>
-                  <strong>{sections.length}</strong>
-                  <span>sections</span>
+              {/* Chiffres et « Ajouter » dans une seule carte (2026-11-09). */}
+              <section className="cat-overview">
+                <div className="cat-overview__stats">
+                  <span><b>{sections.length}</b> sections</span>
+                  <span><b>{filledFamilies} / {FAMILIES.length}</b> familles remplies</span>
+                  <span className={pending ? "is-pending" : ""}><b>{pending}</b> demande{pending > 1 ? "s" : ""} en attente</span>
                 </div>
-                <div>
-                  <strong>
-                    {filledFamilies} / {FAMILIES.length}
-                  </strong>
-                  <span>familles remplies</span>
-                </div>
-                <div>
-                  <strong>{pending}</strong>
-                  <span>demandes en attente</span>
-                </div>
-              </div>
-              <section className="cat-panel">
-                <div className="cat-panel__head">
-                  <h3>Ajouter au catalogue</h3>
-                </div>
-                <p className="cat-muted">Quatre façons d'enrichir le catalogue. Chaque demande est enregistrée ; je la traite quand tu me dis « traite les demandes du catalogue ».</p>
-                <div className="cat-actions">
-                  {METHODS.map((m, i) => (
+                <div className="cat-overview__add">
+                  <span>Ajouter au catalogue</span>
+                  {METHODS.map((m) => (
                     <button
                       type="button"
                       key={m.id}
-                      className={`cat-btn ${i === 0 ? "" : "cat-btn--ghost"}`}
                       onClick={() => {
                         setView("enrichir");
                         setTimeout(() => document.getElementById(`m-${m.id}`)?.scrollIntoView({ behavior: "smooth" }), 50);
@@ -684,15 +710,10 @@ export default function Catalogue() {
                     </button>
                   ))}
                 </div>
+                <p className="cat-muted">Chaque demande est enregistrée ; je la traite quand tu me dis « traite les demandes du catalogue ».</p>
               </section>
               </div>
-              <OriginBar ids={sections.map((s) => s.id)} value={origin} onChange={setOrigin} />
-              {sections.some((s) => s.meta.audit) && (
-                <button type="button" className={`cat-check${toCheck ? " is-on" : ""}`} onClick={() => setToCheck(!toCheck)} title="Sections trop hautes, qui débordent, excentrées, presque vides ou avec des images manquantes">
-                  ⚠ Sections à revoir ({sections.filter((s) => s.meta.audit).length})
-                </button>
-              )}
-              <input className="cat-search" placeholder="Rechercher une section : nom, fonction (avis, FAQ…), site ou template d'origine, mot-clé…" value={query} onChange={(e) => setQuery(e.target.value)} />
+              {sectionFilters}
               {FAMILIES.filter((f) => grouped[f.id]?.length || !(q || origin || toCheck)).map((f) => (
                 <FamilyBlock key={f.id} family={f} />
               ))}
@@ -701,8 +722,9 @@ export default function Catalogue() {
 
           {currentFamily && (
             <>
-              <h1>{currentFamily.label}</h1>
+              {sectionsPath}
               <p className="cat-lead">{currentFamily.hint}</p>
+              {sectionFilters}
               <FamilyBlock family={currentFamily} />
             </>
           )}
