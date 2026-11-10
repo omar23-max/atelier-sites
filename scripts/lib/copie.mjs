@@ -584,12 +584,40 @@ export function buildCopy({ snap, slug, root, label, textes = "origine", coupe =
     // colonne et la ligne où l'élément se trouve parmi ses voisins.
     const gridProps = ["grid-column-start", "grid-column-end", "grid-row-start", "grid-row-end"];
     if (p && gridProps.some((g) => isNamedLine(out[g]))) {
-      const sibs = p.kids.filter((k) => k.text == null).map((k) => boxIn(byId[k.n], mode)).filter(Boolean);
-      const xs = [...new Set(sibs.map((b) => Math.round(b.x)))].sort((a, b) => a - b);
-      const ys = [...new Set(sibs.map((b) => Math.round(b.y)))].sort((a, b) => a - b);
+      // Seulement les voisins vraiment placés dans la grille à cet écran : un
+      // voisin caché (bouton menu mobile en ordinateur, boîte 0×0 en 0,0) ou
+      // absolu (trait sous l'en-tête) décalait tous les numéros d'une case
+      // (en-tête Bro Glo : logo, menu et icônes dans les mauvaises cases).
+      const sibs = p.kids
+        .filter((k) => k.text == null)
+        .map((k) => byId[k.n])
+        .filter((s) => {
+          const sst = s && styleIn(s, mode);
+          const sb = s && boxIn(s, mode);
+          return sst && sb && sst.display !== "none" && !["absolute", "fixed"].includes(sst.position) && (sb.w > 0 || sb.h > 0);
+        })
+        .map((s) => boxIn(s, mode));
+      // Rangées et colonnes par chevauchement, pas par position exacte : des
+      // blocs centrés verticalement (logo plus petit que le menu) commencent à
+      // des hauteurs différentes mais sont dans la même rangée.
+      const bands = (lo, len) => {
+        const spans = sibs.map((b) => [b[lo], b[lo] + Math.max(b[len], 1)]).sort((a, b) => a[0] - b[0]);
+        const out2 = [];
+        for (const [a, z] of spans) {
+          const last = out2[out2.length - 1];
+          if (last && a < last[1] - 1) last[1] = Math.max(last[1], z);
+          else out2.push([a, z]);
+        }
+        return out2;
+      };
+      const indexIn = (list, v, size) => list.findIndex(([a, z]) => v + Math.max(size, 1) / 2 >= a && v + Math.max(size, 1) / 2 <= z) + 1;
       for (const g of gridProps) delete out[g];
-      out["grid-column-start"] = String(xs.indexOf(Math.round(box.x)) + 1);
-      out["grid-row-start"] = String(ys.indexOf(Math.round(box.y)) + 1);
+      if (sibs.includes(box) || (box.w > 0 || box.h > 0)) {
+        const col = indexIn(bands("x", "w"), box.x, box.w);
+        const row = indexIn(bands("y", "h"), box.y, box.h);
+        if (col > 0) out["grid-column-start"] = String(col);
+        if (row > 0) out["grid-row-start"] = String(row);
+      }
     }
     // Carrousel : la piste défile au lieu d'être décalée par le script d'origine
     // (transform), et chaque diapo reste visible à sa largeur.
