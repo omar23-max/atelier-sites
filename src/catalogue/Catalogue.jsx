@@ -464,6 +464,38 @@ export default function Catalogue() {
     }
   }
 
+  // Demandes cochées (vue Demandes) : envoyées ensemble à la corbeille.
+  const [reqChecked, setReqChecked] = useState(() => new Set());
+  const reqKeys = requests.map((r) => r.dossier);
+  const reqDone = requests.filter((r) => r.statut === "traitée").map((r) => r.dossier);
+  const toggleReq = (key) =>
+    setReqChecked((s) => {
+      const next = new Set(s);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  async function removeRequests() {
+    const keys = [...reqChecked].filter((k) => reqKeys.includes(k));
+    if (!keys.length) return;
+    const waiting = requests.filter((r) => keys.includes(r.dossier) && r.statut !== "traitée").length;
+    const lines = [`${keys.length} demande(s) iront dans la corbeille (restaurables depuis la Corbeille).`];
+    if (waiting) lines.push(`Dont ${waiting} pas encore traitée(s) : elle(s) ne le sera(ont) pas.`);
+    if (!confirm(lines.join("\n\n"))) return;
+    let ok = 0;
+    for (const k of keys) {
+      try {
+        await api("POST", `/api/corbeille/demandes/${k.replace(/^demandes\//, "")}`);
+        ok++;
+      } catch (e) {
+        setMessage({ error: true, text: `Échec pour ${k} : ${e.message}` });
+      }
+    }
+    setReqChecked(new Set());
+    if (ok) setMessage({ text: `${ok} demande(s) déplacée(s) dans la corbeille.` });
+    refresh();
+  }
+
   // Corbeille commune (pages, projets, templates, designs, demandes).
   async function binRemove(kind, id, what, details) {
     if (!confirmDelete(what, details)) return;
@@ -798,11 +830,31 @@ export default function Catalogue() {
               {requests.length === 0 ? (
                 <div className="cat-empty">Aucune demande pour l'instant.</div>
               ) : (
+                <>
+                <div className="cat-binbar">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={reqChecked.size > 0 && reqChecked.size === reqKeys.length}
+                      ref={(el) => el && (el.indeterminate = reqChecked.size > 0 && reqChecked.size < reqKeys.length)}
+                      onChange={(e) => setReqChecked(new Set(e.target.checked ? reqKeys : []))}
+                    />
+                    Tout cocher
+                  </label>
+                  <button type="button" className="cat-btn" style={{ marginLeft: 0 }} disabled={!reqDone.length} onClick={() => setReqChecked(new Set(reqDone))}>
+                    Cocher les traitées ({reqDone.length})
+                  </button>
+                  <span className="cat-muted">{reqChecked.size ? `${reqChecked.size} demande(s) cochée(s)` : `${reqKeys.length} demande(s)`}</span>
+                  <button type="button" className="cat-btn cat-btn--danger" disabled={!reqChecked.size} onClick={removeRequests}>
+                    Supprimer{reqChecked.size ? ` (${reqChecked.size})` : ""}
+                  </button>
+                </div>
                 <div className="cat-list">
                   {requests.map((r) => {
                     const method = METHODS.find((m) => m.id === r.type);
                     return (
-                      <article key={r.dossier} className="cat-request">
+                      <article key={r.dossier} className={`cat-request${reqChecked.has(r.dossier) ? " is-checked" : ""}`}>
+                        <input type="checkbox" className="cat-bincheck" aria-label="Cocher cette demande" checked={reqChecked.has(r.dossier)} onChange={() => toggleReq(r.dossier)} />
                         <div>
                           <strong>{method?.title ?? { textes: "Réécrire les textes d'une page", images: "Studio d'images" }[r.type] ?? r.type}{r.page ? ` — ${r.page}` : ""}</strong>
                           <span className="cat-muted">
@@ -841,6 +893,7 @@ export default function Catalogue() {
                     );
                   })}
                 </div>
+                </>
               )}
             </>
           )}

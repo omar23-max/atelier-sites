@@ -246,6 +246,24 @@ Les couleurs écrites dans les textes (`style="color:…"`) suivent au rendu
 - Les accordéons en JavaScript ne sont repris qu'aux **nouveaux imports**
   (capture nécessaire) ; les `<details>` des copies existantes ont été refaits.
 
+## Blocs qui apparaissent au défilement (piège des pages Kimi, 2026-11-10)
+
+Beaucoup de sites font apparaître leurs blocs en fondu quand on fait défiler
+(`.reveal { opacity: 0 }`, puis une classe `in` ajoutée par leur script). Dans
+l'atelier ce script ne tourne pas : le bloc reste **transparent**. Il est dans
+la page, il prend sa place, mais on ne le voit pas, et la note de fidélité ne
+le signale pas. Exemple : la section « Tested, not just claimed / Light Labs »
+de `paleo-pro-paleo-protein-powder`, et 41 blocs de `paleo-pro-accueil`.
+
+- Les copies faites par `copie.mjs` relèvent les styles après le défilement :
+  pas concernées.
+- Les pages Kimi (et toute section écrite à la main) : après l'import, ouvrir
+  `/partage/<page>`, faire défiler, et compter les éléments avec du texte dont
+  `opacity` vaut 0. Correctif sûr, ajouté en fin de `style.css` de la section :
+  `.atl-<id> .reveal { opacity: 1 !important; transform: none !important; }`.
+- Les règles `.aos-initialized [data-aos…]` ne jouent pas (la classe n'est
+  jamais posée) ; `.is-hidden` est un vrai état caché : ne pas y toucher.
+
 ## Carrousels, sliders et vidéos dans les copies
 
 - Capture (`lib/snapshot.mjs` → `mediaOf`, installée dans la page avant le
