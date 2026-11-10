@@ -1,0 +1,228 @@
+<section class="atl-orbite-produits-21st" data-atl-orbite data-autoplay="{{ section.settings.autoplay }}" tabindex="0" role="region" aria-roledescription="carrousel" style="--atl-bg: {{ section.settings.color_bg }}; --atl-text: {{ section.settings.color_text }}; --atl-muted: {{ section.settings.color_muted }}; --atl-button: {{ section.settings.color_button }};">
+  {%- if section.settings.backdrop != blank -%}
+    <img class="atl-orbite-produits-21st__bd" src="{{ section.settings.backdrop | image_url: width: 1600 }}" alt="" loading="lazy">
+    <div class="atl-orbite-produits-21st__wash"></div>
+  {%- endif -%}
+  <div class="atl-orbite-produits-21st__canvas">
+    <svg class="atl-orbite-produits-21st__arc" viewBox="0 0 960 520" aria-hidden="true"><path></path></svg>
+
+    <div class="atl-orbite-produits-21st__pager" role="tablist">
+      {%- for block in section.blocks -%}
+        <button type="button" class="atl-orbite-produits-21st__dot{% if forloop.first %} is-on{% endif %}" data-go="{{ forloop.index0 }}" aria-label="{{ block.settings.title | escape }} {{ block.settings.subtitle | escape }}"><i></i></button>
+      {%- endfor -%}
+    </div>
+
+    <div class="atl-orbite-produits-21st__plates">
+      {%- for block in section.blocks -%}
+        <div class="atl-orbite-produits-21st__orbit{% if forloop.first %} is-on{% endif %}" data-accent="{{ block.settings.accent }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            <img src="{{ block.settings.image | image_url: width: 800 }}" alt="{{ block.settings.name | escape }}" draggable="false">
+          {%- else -%}
+            <span>[ Photo du produit détourée ]</span>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="atl-orbite-produits-21st__head" aria-live="polite">
+      {%- for block in section.blocks -%}
+        <div class="atl-orbite-produits-21st__hd{% if forloop.first %} is-on{% endif %}">
+          <p class="atl-orbite-produits-21st__eye">{{ block.settings.eyebrow }}</p>
+          <h2>
+            <span class="atl-orbite-produits-21st__t1">{{ block.settings.title }}</span>
+            <span class="atl-orbite-produits-21st__t2">{{ block.settings.subtitle }}</span>
+          </h2>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="atl-orbite-produits-21st__card">
+      <div class="atl-orbite-produits-21st__tabs" role="tablist">
+        <button type="button" class="atl-orbite-produits-21st__tab is-on" data-tab="1">{{ section.settings.tab_1 }}</button>
+        <button type="button" class="atl-orbite-produits-21st__tab" data-tab="2">{{ section.settings.tab_2 }}</button>
+      </div>
+      <div class="atl-orbite-produits-21st__bodies">
+        {%- for block in section.blocks -%}
+          <div class="atl-orbite-produits-21st__body{% if forloop.first %} is-on{% endif %}">
+            <div class="atl-orbite-produits-21st__rate">
+              <div class="atl-orbite-produits-21st__badge" style="background: {{ block.settings.accent }};">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>
+              </div>
+              <span class="atl-orbite-produits-21st__num">{{ block.settings.rating }}</span>
+            </div>
+            <p class="atl-orbite-produits-21st__name">{{ block.settings.name }}</p>
+            <p class="atl-orbite-produits-21st__meta">{{ block.settings.meta }}</p>
+            <p class="atl-orbite-produits-21st__desc">{{ block.settings.description }}</p>
+            <ul class="atl-orbite-produits-21st__ing">
+              {%- assign ings = block.settings.ingredients | split: ',' -%}
+              {%- for ing in ings -%}<li>{{ ing | strip }}</li>{%- endfor -%}
+            </ul>
+            {%- if block.settings.button != blank -%}
+              <a class="atl-orbite-produits-21st__btn" href="{{ block.settings.link | default: '#' }}">{{ block.settings.button }}</a>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="atl-orbite-produits-21st__strip">
+      <button type="button" class="atl-orbite-produits-21st__arrow" data-step="-1" aria-label="Précédent"><svg viewBox="0 0 12 16" aria-hidden="true"><path d="M11 0v16L0 8z"/></svg></button>
+      <div class="atl-orbite-produits-21st__win">
+        <div class="atl-orbite-produits-21st__track">
+          {%- for block in section.blocks -%}
+            <div class="atl-orbite-produits-21st__th">
+              <button type="button" class="{% if forloop.first %}is-on{% endif %}" data-go="{{ forloop.index0 }}">
+                {%- if block.settings.image != blank -%}<img src="{{ block.settings.image | image_url: width: 160 }}" alt="" draggable="false">{%- else -%}<i></i>{%- endif -%}
+                <span>{{ block.settings.label }}</span>
+              </button>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+      <button type="button" class="atl-orbite-produits-21st__arrow" data-step="1" aria-label="Suivant"><svg viewBox="0 0 12 16" aria-hidden="true"><path d="M1 0v16l11-8z"/></svg></button>
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  if (window.__atlOrbite) { window.__atlOrbite(); return; }
+  var P = "atl-orbite-produits-21st";
+  var OX = 299, OY = -450, OR = 650, SWING = 50, ITEM = 118, VISIBLE = 4;
+  var REST = [[50, 98], [46, 124], [60, 126], [40, 100]], SWEEP = [38, 146];
+  var EIN = "cubic-bezier(.55,0,1,.45)", EOUT = "cubic-bezier(.22,1,.36,1)";
+  var H1 = "inset(0% 0% 0% 100%)", H2 = "inset(0% 100% 0% 0%)", SHOW = "inset(0% 0% 0% 0%)";
+
+  function arcPath(a0, a1, w) {
+    var o = [], n = [], s = 48;
+    for (var i = 0; i <= s; i++) {
+      var t = i / s, a = ((a0 + (a1 - a0) * t) * Math.PI) / 180, h = (w / 2) * Math.pow(Math.sin(Math.PI * t), 0.45);
+      var c = Math.cos(a), si = Math.sin(a);
+      o.push((OX + c * (OR + h)).toFixed(1) + " " + (OY + si * (OR + h)).toFixed(1));
+      n.push((OX + c * (OR - h)).toFixed(1) + " " + (OY + si * (OR - h)).toFixed(1));
+    }
+    return "M" + o.join("L") + "L" + n.reverse().join("L") + "Z";
+  }
+  function q(r, s) { return [].slice.call(r.querySelectorAll("." + P + "__" + s)); }
+  function anim(el, kf, opt) { return el && el.animate ? el.animate(kf, Object.assign({ fill: "both" }, opt)) : null; }
+
+  function setup(root) {
+    if (root.__orb) return;
+    var st = (root.__orb = { cur: 0, arc: { a0: REST[0][0], a1: REST[0][1] }, raf: 0, timer: 0 });
+    var orbits = q(root, "orbit"), heads = q(root, "hd"), bodies = q(root, "body");
+    var dots = q(root, "dot"), thumbs = [].slice.call(root.querySelectorAll("." + P + "__th button"));
+    var track = q(root, "track")[0], path = root.querySelector("." + P + "__arc path"), card = q(root, "card")[0];
+    var n = orbits.length;
+    var reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function draw() { path.setAttribute("d", arcPath(st.arc.a0, st.arc.a1, 118)); }
+    function tweenArc(a0, a1, ms, ease, done) {
+      cancelAnimationFrame(st.raf);
+      var f0 = st.arc.a0, f1 = st.arc.a1, t0 = performance.now();
+      (function step(now) {
+        var t = Math.min(1, (now - t0) / ms), e = ease(t);
+        st.arc.a0 = f0 + (a0 - f0) * e; st.arc.a1 = f1 + (a1 - f1) * e; draw();
+        if (t < 1) st.raf = requestAnimationFrame(step); else if (done) done();
+      })(t0);
+    }
+    var inOut = function (t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; };
+    var out3 = function (t) { return 1 - Math.pow(1 - t, 3); };
+    function rest(i) { return REST[i % REST.length]; }
+    function marks(to) {
+      [dots, thumbs].forEach(function (l) { l.forEach(function (b, i) { b.classList.toggle("is-on", i === to); }); });
+      var start = n <= VISIBLE ? 0 : Math.max(0, Math.min(to - 1, n - VISIBLE));
+      if (track) track.style.transform = "translateX(" + -start * ITEM + "px)";
+      path.style.fill = orbits[to].getAttribute("data-accent") || "transparent";
+    }
+    function show(i, on) { [orbits[i], heads[i], bodies[i]].forEach(function (el) { el.classList.toggle("is-on", on); }); }
+
+    function go(to, dir) {
+      if (n < 2) return;
+      to = ((to % n) + n) % n;
+      var from = st.cur;
+      if (to === from) return;
+      if (!dir) { var fwd = (((to - from) % n) + n) % n; dir = fwd <= n - fwd ? 1 : -1; }
+      st.cur = to;
+      (st.anims || []).forEach(function (a) { a && a.finish(); });
+      orbits.forEach(function (o, i) { if (i !== from && i !== to) show(i, false); });
+      marks(to);
+      var r = rest(to);
+      if (reduced) { show(from, false); show(to, true); st.arc.a0 = r[0]; st.arc.a1 = r[1]; draw(); return; }
+      var a = { o: orbits[from], h: heads[from], b: bodies[from] }, b = { o: orbits[to], h: heads[to], b: bodies[to] };
+      var sel = function (el, s) { return el.querySelector("." + P + "__" + s); };
+      b.o.classList.add("is-on"); b.h.classList.add("is-on"); b.b.classList.add("is-on");
+      var list = [
+        anim(a.o, [{ transform: "rotate(0deg)" }, { transform: "rotate(" + SWING * dir + "deg)", visibility: "hidden" }], { duration: 620, easing: EIN }),
+        anim(b.o, [{ transform: "rotate(" + -SWING * dir + "deg)" }, { transform: "rotate(0deg)" }], { duration: 950, delay: 300, easing: EOUT }),
+        anim(sel(a.h, "t1"), [{ clipPath: SHOW }, { clipPath: H1 }], { duration: 420, easing: EIN }),
+        anim(sel(a.h, "t2"), [{ clipPath: SHOW }, { clipPath: H2 }], { duration: 420, delay: 60, easing: EIN }),
+        anim(sel(a.h, "eye"), [{ opacity: 1 }, { opacity: 0 }], { duration: 250 }),
+        anim(b.h, [{ visibility: "hidden" }, { visibility: "visible" }], { duration: 1, delay: 500 }),
+        anim(sel(b.h, "eye"), [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 400, delay: 550, easing: EOUT }),
+        anim(sel(b.h, "t1"), [{ clipPath: H1 }, { clipPath: SHOW }], { duration: 700, delay: 550, easing: EOUT }),
+        anim(sel(b.h, "t2"), [{ clipPath: H2 }, { clipPath: SHOW }], { duration: 700, delay: 620, easing: EOUT }),
+        anim(a.b, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-6px)" }], { duration: 300, delay: 50 }),
+        anim(b.b, [{ visibility: "hidden" }, { visibility: "visible" }], { duration: 1, delay: 400 })
+      ];
+      [].slice.call(b.b.children).forEach(function (c, i) {
+        list.push(anim(c, [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: 500, delay: 400 + i * 60, easing: EOUT }));
+      });
+      st.anims = list;
+      var t = setTimeout(function () {
+        if (st.cur !== to) return;
+        show(from, false);
+        list.forEach(function (x) { x && x.cancel(); });
+        st.anims = [];
+      }, 1400);
+      tweenArc(SWEEP[0], SWEEP[1], 600, inOut, function () { tweenArc(r[0], r[1], 850, out3); });
+      restart();
+    }
+
+    function restart() {
+      clearInterval(st.timer);
+      var s = +root.getAttribute("data-autoplay") || 0;
+      if (s > 0) st.timer = setInterval(function () { if (!root.matches(":hover") && document.contains(root)) go(st.cur + 1, 1); else if (!document.contains(root)) clearInterval(st.timer); }, s * 1000);
+    }
+
+    root.addEventListener("click", function (e) {
+      var t = e.target.closest("[data-go],[data-step],[data-tab]");
+      if (!t || !root.contains(t)) return;
+      if (t.hasAttribute("data-tab")) {
+        card.classList.toggle("is-tab2", t.getAttribute("data-tab") === "2");
+        q(root, "tab").forEach(function (x) { x.classList.toggle("is-on", x === t); });
+      } else if (t.hasAttribute("data-step")) go(st.cur + +t.getAttribute("data-step"), +t.getAttribute("data-step"));
+      else go(+t.getAttribute("data-go"));
+    });
+    root.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); go(st.cur + 1, 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); go(st.cur - 1, -1); }
+    });
+    var sw = null, plates = q(root, "plates")[0];
+    plates.addEventListener("pointerdown", function (e) { sw = { x: e.clientX, y: e.clientY }; });
+    plates.addEventListener("pointerup", function (e) {
+      if (!sw) return;
+      var dx = e.clientX - sw.x, dy = e.clientY - sw.y; sw = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4) go(st.cur + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    });
+
+    function fit() {
+      root.style.setProperty("--s", String(Math.min(root.clientWidth / 960, 1.6)));
+      root.classList.toggle("is-narrow", root.clientWidth < 640);
+    }
+    fit();
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(root);
+    // Titre long : la taille baisse pour tenir sur la largeur (330 px).
+    heads.forEach(function (h) {
+      [["t1", 54, 330, 0.56], ["t2", 60, 320, 0.66]].forEach(function (c) {
+        var el = h.querySelector("." + P + "__" + c[0]);
+        if (el) el.style.fontSize = Math.min(c[1], c[2] / (Math.max(1, el.textContent.trim().length) * c[3])) + "px";
+      });
+    });
+    draw(); marks(0); restart();
+  }
+
+  window.__atlOrbite = function () { [].forEach.call(document.querySelectorAll("[data-atl-orbite]"), setup); };
+  window.__atlOrbite();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", window.__atlOrbite);
+  if (window.MutationObserver) new MutationObserver(function () { window.__atlOrbite(); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
