@@ -167,7 +167,7 @@ function ProjectName({ name, onRename, small }) {
       <Tag className={`cat-project-name${small ? " is-small" : ""}`}>
         {name}
         <button type="button" className={`cat-rename${small ? " is-small" : ""}`} onClick={start} title="Modifier le nom du projet" aria-label="Modifier le nom du projet">
-          ✎
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M11.2 2.6l2.2 2.2-7.6 7.6-2.9.7.7-2.9z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
         </button>
       </Tag>
     );
@@ -200,7 +200,7 @@ function ProjectProduct({ value, onSave }) {
       <span className="cat-project-product">
         {value || <i className="cat-muted">Produit à définir</i>}
         <button type="button" className="cat-rename is-small" onClick={() => (setText(value), setEditing(true))} title="Modifier le produit du projet" aria-label="Modifier le produit du projet">
-          ✎
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M11.2 2.6l2.2 2.2-7.6 7.6-2.9.7.7-2.9z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
         </button>
       </span>
     );

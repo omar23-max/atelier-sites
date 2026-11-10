@@ -6626,3 +6626,32 @@ body.atl-rail-only .atl-left {
   background: var(--tk-accent-soft);
   color: var(--tk-accent-strong);
 }
+
+/* ---- Languettes des panneaux : un chevron dessiné au lieu des caractères
+   ▾ ▸ ◂ › (2026-11-10, règle « pas de glyphes Unicode comme icônes »). ---- */
+.atl-topbar::after,
+.atl-left::after,
+[class*="Sidebar--right"]::after,
+.atl-sx__part > summary::after {
+  content: "";
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+.atl-topbar::after {
+  background-color: var(--tk-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%2367635b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.atl-left::after {
+  background-color: var(--tk-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4.5 3l3 3-3 3' fill='none' stroke='%2367635b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+[class*="Sidebar--right"]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M7.5 3l-3 3 3 3' fill='none' stroke='%2367635b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.atl-sx__part > summary::after {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4.5 3l3 3-3 3' fill='none' stroke='%2367635b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}

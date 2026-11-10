@@ -135,3 +135,30 @@ Pistes suivantes, si besoin : remplacer les infobulles par de vraies
 étiquettes (/impeccable clarify), adapter le catalogue aux écrans étroits
 (/impeccable adapt), une police de titres pour donner une identité
 (/impeccable typeset).
+
+# Deuxième passe (2026-11-10)
+
+- Rail de l'éditeur : étiquette visible sous chaque icône.
+- Catalogue sur écran étroit : menu replié derrière « Menu », en-tête sur une
+  ligne, filtres empilés (testé à 375, 768 et 1440 px, sans défilement
+  horizontal).
+- Police de titres Instrument Sans (`--tk-font-display`) ; Inter chargée aussi
+  dans le catalogue (avant : police du système).
+- Languettes des panneaux et stylo « modifier » : icônes dessinées au lieu des
+  caractères ▾ ▸ ◂ › ✎.
+- Pastille orange des étapes : contraste 3,6:1 → 5,2:1.
+
+| # | Dimension | 2026-11-09 | Après passe 1 | Après passe 2 |
+|---|-----------|-----------|---------------|---------------|
+| 1 | Accessibilité | 2 | 3 | 3 |
+| 2 | Performance | 2 | 3 | 3 |
+| 3 | Thème | 1 | 3 | 3 |
+| 4 | Écrans | 2 | 2 | 3 |
+| 5 | Cohérence | 2 | 3 | 3 |
+| **Total** | | **9/20** | **14/20** | **15/20 (Bon)** |
+
+Détecteur sur 10 écrans (catalogue : toutes les vues ; éditeur) et en
+téléphone : seule alerte commune, « Inter, police très répandue » — choix
+assumé pour le texte courant d'un outil, les titres ont désormais leur propre
+police. Reste la couleur propre d'un design dans son aperçu (Designs), qui est
+la donnée du design et non l'interface.
