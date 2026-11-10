@@ -161,16 +161,23 @@ async function upload(file) {
 }
 
 function MediaPicker({ onPick, onClose }) {
-  // Deux sources : tes images (medias/<page>/) et les captures du site
-  // d'origine (imports/<slug>/images/) quand la page vient d'un import.
-  const [tab, setTab] = useState("mes");
-  const [medias, setMedias] = useState(null);
+  // Trois sources (2026-11-09) : images créées par l'IA, images téléversées
+  // (pour une page de projet : celles de tout le projet, rangées dans
+  // medias/projets/<projet>/), et captures du site d'origine
+  // (imports/<slug>/images/, jamais modifiées) quand la page vient d'un import.
+  const [tab, setTab] = useState("ia");
+  const [all, setAll] = useState(null);
   const [origin, setOrigin] = useState(null);
   useEffect(() => {
-    fetch(`/api/medias/${pageName()}`)
+    fetch(`/api/medias/${pageName()}?detail=1`)
       .then((r) => r.json())
-      .then(setMedias)
-      .catch(() => setMedias([]));
+      .then((list) => {
+        const imgs = list.filter((x) => x.kind !== "video");
+        setAll(imgs);
+        // Onglet ouvert : le premier qui a des images.
+        if (!imgs.some((x) => x.kind === "ia")) setTab(imgs.length ? "televersee" : "ia");
+      })
+      .catch(() => setAll([]));
     fetch(`/api/pages/${pageName()}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((page) => page?.root?.props?.importSource ?? null)
@@ -179,7 +186,9 @@ function MediaPicker({ onPick, onClose }) {
       .catch(() => setOrigin([]));
   }, []);
   const hasOrigin = (origin?.length ?? 0) > 0;
-  const shown = tab === "origine" ? origin : medias;
+  const created = all?.filter((x) => x.kind === "ia").map((x) => x.url) ?? null;
+  const uploaded = all?.filter((x) => x.kind === "televersee").map((x) => x.url) ?? null;
+  const shown = tab === "origine" ? origin : tab === "televersee" ? uploaded : created;
   return createPortal(
     <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="atl-modal__panel atl-newpage">
@@ -190,22 +199,27 @@ function MediaPicker({ onPick, onClose }) {
           </button>
         </header>
         <div className="atl-newpage__body">
-          {hasOrigin && (
-            <div className="atl-mediatabs" role="tablist">
-              <button type="button" role="tab" aria-selected={tab === "mes"} className={tab === "mes" ? "is-on" : ""} onClick={() => setTab("mes")}>
-                Mes images ({medias?.length ?? 0})
+          <div className="atl-mediatabs" role="tablist">
+            {[
+              ["ia", "Créées par l'IA", created?.length ?? 0],
+              ["televersee", "Téléversées", uploaded?.length ?? 0],
+              ...(hasOrigin ? [["origine", "Site d'origine", origin.length]] : []),
+            ].map(([id, label, n]) => (
+              <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? "is-on" : ""} onClick={() => setTab(id)}>
+                {label} ({n})
               </button>
-              <button type="button" role="tab" aria-selected={tab === "origine"} className={tab === "origine" ? "is-on" : ""} onClick={() => setTab("origine")}>
-                Site d'origine ({origin.length})
-              </button>
-            </div>
-          )}
+            ))}
+          </div>
           {tab === "origine" && <p className="atl-newpage__hint">Photos de l'inspiration importée : à reprendre, jamais à publier telles quelles.</p>}
           {shown == null ? (
             <p>Chargement…</p>
           ) : shown.length === 0 ? (
             <p className="atl-newpage__hint">
-              {tab === "origine" ? "Aucune capture d'origine pour cette page." : "Aucune image pour cette page. Téléverse-en une, ou crée-les avec le Studio d'images."}
+              {tab === "origine"
+                ? "Aucune capture d'origine pour cette page."
+                : tab === "televersee"
+                  ? "Aucune image téléversée. Utilise « Téléverser » dans le menu de l'image."
+                  : "Aucune image créée par l'IA pour l'instant. Refais une image avec l'IA ou le Studio d'images."}
             </p>
           ) : (
             <div className="atl-media-grid">

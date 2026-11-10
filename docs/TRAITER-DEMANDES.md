@@ -153,8 +153,10 @@ demande « en attente » (de la plus ancienne à la plus récente) :
         d'origine) ; pour en refaire une, supprimer son `resultats/<clé>.png`
         et relancer ; « une par une » : montrer chaque image avant la suivante ;
      3. `node scripts/studio.mjs appliquer demandes/<dossier>` → copie dans
-        `medias/<page>/` et pose dans la page (copie de sécurité avant) ; en
-        mode pub : rangé dans `medias/<page>/pubs/`, la page ne change pas.
+        `medias/projets/<projet>/images-creees/` (page d'un projet, nom préfixé
+        par la page) ou `medias/<page>/` (hors projet), et pose dans la page
+        (copie de sécurité avant) ; en mode pub : rangé dans `…/pubs/` de ce
+        dossier, la page ne change pas.
         L'avancement (`progression` de demande.json) s'affiche dans le Studio ;
      4. noter dans `resultat` les images faites et celles à refaire.
      Ancienne voie (si OpenAI indisponible) : `planches` puis
@@ -940,3 +942,32 @@ Original 80 % → retour Modifiable 80 %.
 - Le serveur ne renvoie plus jamais toutes les sections en entier pour une
   page introuvable (`/api/sections-data?page=` d'une page supprimée) : version
   légère. Avant, cela le faisait planter en boucle (chaîne trop longue).
+
+## Pages d'angle selon le type de page (2026-11-09)
+
+- `src/engine/page-types.js` : `parAngle` sur chaque type. `true` (landing,
+  advertorial, page d'offre) : une page mère puis une page par angle. `false`
+  (listicle, page d'accueil, page produit, collection, à propos) : une seule
+  page « tous les angles » (profil « Tous les angles »), sans page d'angle.
+  Helper `declineParAngle(type)`.
+- Onglet Pages du projet : pour un type `parAngle: false`, le choix est
+  « ★ Page unique · tous les angles » ou « Autre » ; les cartes l'affichent ainsi.
+- « Réécrire pour mon produit » sur un listicle d'un projet : les angles cochés
+  vont dans le contexte, chaque raison numérotée porte un angle (raison 1 =
+  angle 1…). Page d'accueil : les angles deviennent les profils servis.
+
+## Dossiers des médias (2026-11-09)
+
+- Page d'un projet : `medias/projets/<projet>/images-creees/` (images de l'IA :
+  Refaire avec l'IA, Studio, pubs dans `pubs/`), `televersees/` (ajoutées à la
+  main, et fichiers de la fiche projet), `videos-creees/` (vidéos à venir).
+  Page hors projet : `medias/<page>/` comme avant. Images du site d'origine :
+  `imports/<slug>/images/`, jamais modifiées ni déplacées.
+- Code : `mediaPlace(page, kind)` dans `vite.config.js` ; `reworkImage(...folder)`
+  dans `scripts/lib/ia.mjs` ; `createdPlace` dans `scripts/studio.mjs`.
+  `/api/medias/<page>?detail=1` renvoie `[{ url, kind }]` (toutes les images du
+  projet) ; le sélecteur d'images a 3 onglets : Créées par l'IA, Téléversées,
+  Site d'origine.
+- Rangement des anciennes images : COPIE dans le dossier du projet (les
+  fichiers d'origine restent), puis adresses remplacées dans les pages et
+  projets (script `ranger_medias.py`, jamais pendant qu'une page est ouverte).

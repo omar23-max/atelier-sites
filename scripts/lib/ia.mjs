@@ -104,7 +104,9 @@ function sizeFor(width, height) {
   return "1024x1024";
 }
 
-export async function reworkImage({ key, root, page, source, prompt, references = [], width, height }) {
+// folder (2026-11-09) : { dir, url } du dossier où ranger l'image (dossier
+// « images-creees » du projet) ; sans lui, medias/<page>/ comme avant.
+export async function reworkImage({ key, root, page, source, prompt, references = [], width, height, folder = null }) {
   const fd = new FormData();
   fd.append("model", IMAGE_MODEL);
   fd.append(
@@ -125,11 +127,11 @@ export async function reworkImage({ key, root, page, source, prompt, references 
   const res = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: headers(key), body: fd });
   if (!res.ok) throw await openaiError(res);
   const body = await res.json();
-  const dir = join(root, "medias", page);
+  const dir = folder?.dir ?? join(root, "medias", page);
   await mkdir(dir, { recursive: true });
   const file = `ia-${new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14)}-${Math.random().toString(36).slice(2, 6)}.png`;
   await writeFile(join(dir, file), Buffer.from(body.data[0].b64_json, "base64"));
-  return { url: `/medias/${page}/${file}` };
+  return { url: `${folder?.url ?? `/medias/${page}`}/${file}` };
 }
 
 // « Reconstruire avec l'IA » : la section redessinée selon la consigne (et une

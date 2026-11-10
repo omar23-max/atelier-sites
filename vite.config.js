@@ -72,6 +72,24 @@ function supabaseClient() {
 //   /api/sections-data?leger=1     catalogue : toutes, en version légère
 //   /api/sections-data?ids=a,b     ces sections en entier
 // La version légère garde les erreurs de validation (calculées ici).
+// Dossier où ranger un média créé ou ajouté pour une page (2026-11-09).
+// kind : "images-creees" | "televersees" | "videos-creees". Page d'un projet
+// (root.props.projet), ou « projet-<id> » (fichiers de la fiche projet) :
+// medias/projets/<projet>/<kind>/. Sinon : medias/<page>/ (comme avant).
+async function mediaPlace(page, kind) {
+  let projet = null;
+  const pageFile = join(root, "pages", `${page}.json`);
+  if (existsSync(pageFile)) {
+    try {
+      projet = JSON.parse(await readFile(pageFile, "utf8")).root?.props?.projet || null;
+    } catch {}
+  } else if (/^projet-/.test(page) && existsSync(join(root, "projets", `${page.slice(7)}.json`))) {
+    projet = page.slice(7);
+  }
+  if (projet && /^[a-z0-9][a-z0-9-]*$/.test(projet)) return { projet, dir: join(root, "medias", "projets", projet, kind), url: `/medias/projets/${projet}/${kind}` };
+  return { projet: null, dir: join(root, "medias", page), url: `/medias/${page}` };
+}
+
 function sectionsBundle() {
   const dir = join(root, "sections");
   const slash = (p) => p.split(String.fromCharCode(92)).join("/");
@@ -798,7 +816,9 @@ function atelierApi() {
                 return json(res, 200, { items });
               }
               if (parts[1] === "image" && NAME.test(b.page ?? "")) {
-                return json(res, 200, await reworkImage({ key: env.OPENAI_API_KEY, root, ...b }));
+                // Image refaite : dossier « images-creees » du projet (2026-11-09).
+                const folder = await mediaPlace(b.page, "images-creees");
+                return json(res, 200, await reworkImage({ key: env.OPENAI_API_KEY, root, ...b, folder }));
               }
               if (parts[1] === "section") {
                 const { rebuildSection } = await import("./scripts/lib/ia.mjs");
@@ -810,7 +830,11 @@ function atelierApi() {
             return json(res, 400, { error: "Demande IA invalide." });
           }
 
-          // ---- Tes images (studio ou ajoutées à la main) : medias/<page>/ ----
+          // ---- Tes images (studio ou ajoutées à la main) ----
+          // Page d'un projet (2026-11-09) : medias/projets/<projet>/ avec
+          // images-creees/ (IA), televersees/ (ajoutées à la main) et
+          // videos-creees/. Page hors projet : medias/<page>/ comme avant. Les
+          // images du site d'origine restent à part (imports/<slug>/images/).
           // Téléverser une image depuis le panneau de droite.
           if (parts[0] === "medias" && NAME.test(parts[1] ?? "") && req.method === "POST") {
             const { name: fileName, dataUrl } = await readBody(req);
@@ -818,16 +842,34 @@ function atelierApi() {
             if (!m) return json(res, 400, { error: "Image invalide (png, jpg, webp ou gif)." });
             const ext = m[1] === "jpeg" ? "jpg" : m[1];
             const base = String(fileName ?? "image").replace(/\.[a-z0-9]+$/i, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "image";
-            const dir = join(mediasDir, parts[1]);
+            const { dir, url } = await mediaPlace(parts[1], "televersees");
             await mkdir(dir, { recursive: true });
             const file = `${base}-${stamp()}.${ext}`;
             await writeFile(join(dir, file), Buffer.from(m[2], "base64"));
-            return json(res, 200, { ok: true, url: `/medias/${parts[1]}/${file}` });
+            return json(res, 200, { ok: true, url: `${url}/${file}` });
           }
+          // Liste : les images de la page et, pour une page de projet, celles de
+          // tout le projet. ?detail=1 : [{ url, kind }] (kind « ia »,
+          // « televersee » ou « video ») ; sinon une liste d'adresses d'images.
           if (parts[0] === "medias" && NAME.test(parts[1] ?? "") && req.method === "GET") {
-            const dir = join(mediasDir, parts[1]);
-            const files = existsSync(dir) ? await readdir(dir) : [];
-            return json(res, 200, files.filter((f) => /\.(png|jpe?g|webp|gif)$/i.test(f)).map((f) => `/medias/${parts[1]}/${f}`));
+            const isImg = (f) => /\.(png|jpe?g|webp|gif)$/i.test(f);
+            const isVid = (f) => /\.(mp4|webm|mov)$/i.test(f);
+            const out = [];
+            const add = async (dir, url, kindOf) => {
+              const files = existsSync(dir) ? await readdir(dir) : [];
+              for (const f of files) if (isImg(f) || isVid(f)) out.push({ url: `${url}/${f}`, kind: kindOf(f) });
+            };
+            await add(join(mediasDir, parts[1]), `/medias/${parts[1]}`, (f) => (isVid(f) ? "video" : /^ia-/.test(f) ? "ia" : "televersee"));
+            const place = await mediaPlace(parts[1], "images-creees");
+            if (place.projet) {
+              const base = join(mediasDir, "projets", place.projet);
+              const baseUrl = `/medias/projets/${place.projet}`;
+              await add(join(base, "images-creees"), `${baseUrl}/images-creees`, () => "ia");
+              await add(join(base, "televersees"), `${baseUrl}/televersees`, () => "televersee");
+              await add(join(base, "videos-creees"), `${baseUrl}/videos-creees`, () => "video");
+            }
+            const detail = new URL(req.url ?? "/", "http://atelier").searchParams.get("detail") === "1";
+            return json(res, 200, detail ? out : out.filter((x) => x.kind !== "video").map((x) => x.url));
           }
 
           // ---- Images du site d'origine : imports/<slug>/images/ ----

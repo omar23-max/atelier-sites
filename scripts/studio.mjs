@@ -177,19 +177,34 @@ if (command === "generer") {
   console.log(`\n${done} image(s) créée(s) avec gpt-image-2 ; ${todo.length - done} restante(s). Ensuite : node scripts/studio.mjs appliquer ${folderArg}`);
 }
 
-// Mode pub : les visuels sont rangés à part (medias/<page>/pubs/), la page
-// garde ses photos.
+// Dossier des images créées (2026-11-09) : page d'un projet →
+// medias/projets/<projet>/images-creees/ (noms préfixés par la page : plusieurs
+// pages partagent ce dossier) ; sinon medias/<page>/ comme avant. Les images
+// d'origine (imports/<slug>/images/) ne sont jamais touchées.
+async function createdPlace(page) {
+  let projet = null;
+  try {
+    projet = JSON.parse(await readFile(join(root, "pages", `${page}.json`), "utf8")).root?.props?.projet || null;
+  } catch {}
+  if (projet && /^[a-z0-9][a-z0-9-]*$/.test(projet)) {
+    return { dir: join(root, "medias", "projets", projet, "images-creees"), url: `/medias/projets/${projet}/images-creees`, prefix: `${page}-` };
+  }
+  return { dir: join(root, "medias", page), url: `/medias/${page}`, prefix: "" };
+}
+const place = command === "appliquer" ? await createdPlace(demande.page) : null;
+
+// Mode pub : les visuels sont rangés à part (…/pubs/), la page garde ses photos.
 if (command === "appliquer" && details.mode === "pub") {
-  const pubsDir = join(root, "medias", demande.page, "pubs");
+  const pubsDir = join(place.dir, "pubs");
   await mkdir(pubsDir, { recursive: true });
   let n = 0;
   for (const cible of details.cibles) {
     const result = join(dir, "resultats", `${cible.key}.png`);
     if (!existsSync(result)) continue;
-    await copyFile(result, join(pubsDir, `${cible.key}-${(details.format ?? "4:5").replace(":", "x")}.png`));
+    await copyFile(result, join(pubsDir, `${place.prefix}${cible.key}-${(details.format ?? "4:5").replace(":", "x")}.png`));
     n++;
   }
-  console.log(`✓ ${n} pub(s) dans medias/${demande.page}/pubs/ (la page n'est pas modifiée).`);
+  console.log(`✓ ${n} pub(s) dans ${place.url}/pubs/ (la page n'est pas modifiée).`);
 }
 
 if (command === "appliquer" && details.mode !== "pub") {
@@ -199,7 +214,7 @@ if (command === "appliquer" && details.mode !== "pub") {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
   await copyFile(pageFile, join(root, "pages", "_historique", `${demande.page}__${stamp}.json`));
 
-  const mediaDir = join(root, "medias", demande.page);
+  const mediaDir = place.dir;
   await mkdir(mediaDir, { recursive: true });
   let applied = 0;
   for (const cible of details.cibles) {
@@ -208,13 +223,13 @@ if (command === "appliquer" && details.mode !== "pub") {
       console.warn(`… pas encore d'image pour ${cible.key}`);
       continue;
     }
-    await copyFile(result, join(mediaDir, `${cible.key}.png`));
+    await copyFile(result, join(mediaDir, `${place.prefix}${cible.key}.png`));
     const item = pageData.content.find((c) => c.props?.id === cible.sectionId);
     if (!item) {
       console.warn(`✗ section ${cible.sectionId} introuvable dans la page`);
       continue;
     }
-    const url = `/medias/${demande.page}/${cible.key}.png`;
+    const url = `${place.url}/${place.prefix}${cible.key}.png`;
     if (cible.blockType) {
       const key = `blocks_${cible.blockType}`;
       item.props[key] ??= [];

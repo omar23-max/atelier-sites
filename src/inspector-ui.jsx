@@ -2799,6 +2799,24 @@ function RewritePage({ content, root, onApply, onRoot }) {
     if (!confirm(`Réécrire les ${total} textes de la page pour ${form.marque || root.produit || "ton produit"} ?`)) return;
     // Ce qui est tapé ici complète la fiche « Ma marque et mon produit ».
     if (form.marque !== (root.marque ?? "") || form.infos !== (root.infos ?? "")) onRoot?.({ marque: form.marque, infos: form.infos });
+    // Listicle ou page d'accueil d'un projet (une seule page pour tous les
+    // angles, 2026-11-09) : les angles cochés dans le projet vont dans le
+    // contexte ; dans un listicle, chaque raison porte un angle.
+    let anglesCtx = null;
+    let anglesPrompt = "";
+    if (root.projet && (root.pageType === "listicle" || root.pageType === "accueil")) {
+      const project = await fetch(`/api/projects/${encodeURIComponent(root.projet)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+      const chosen = (project?.angles ?? []).filter((a) => a.choisi);
+      if (chosen.length) {
+        anglesCtx = chosen.map((a, i) => ({ rang: i + 1, angle: a.titre ?? "", avatar: a.avatar ?? "", douleur: a.douleur ?? "", promesse: a.promesse ?? "" }));
+        anglesPrompt =
+          root.pageType === "listicle"
+            ? " Cette page est un listicle qui sert TOUS les angles du contexte : chaque raison numérotée porte un angle, dans l'ordre (raison 1 = angle de rang 1, raison 2 = rang 2…), en parlant à son avatar, de sa douleur et en menant vers sa promesse. Repère le numéro de la raison dans le texte ou dans son titre. S'il y a plus de raisons que d'angles, les raisons en plus parlent du mécanisme, de l'offre ou de la garantie. Le titre principal et l'introduction restent généraux (ils annoncent les raisons pour tous)."
+            : " Cette page d'accueil sert TOUS les angles du contexte : le titre et l'ouverture portent le message central du produit ; les angles apparaissent comme les profils que le produit aide (blocs « Pour qui », bénéfices, avis), sans en privilégier un.";
+      }
+    }
     let done = 0;
     try {
       for (const job of jobs) {
@@ -2811,8 +2829,8 @@ function RewritePage({ content, root, onApply, onRoot }) {
             body: JSON.stringify({
               items: batch,
               prompt:
-                "Réécris chaque texte pour MON produit et MA marque (voir contexte), en gardant le rôle du texte dans la page (titre, accroche, liste, avis, bouton…), sa longueur et ses balises de mise en forme. Remplace tout nom de marque, de produit, prix ou chiffre de la page d'origine par les miens ; si une information manque, reste général plutôt que d'inventer. " + consigneLangue(root),
-              contexte: { marque: form.marque || "", produit: root.produit ?? "", profilClient: root.profil ?? "", infosProduit: form.infos.slice(0, 8000), typeDePage: root.pageType ?? "" },
+                "Réécris chaque texte pour MON produit et MA marque (voir contexte), en gardant le rôle du texte dans la page (titre, accroche, liste, avis, bouton…), sa longueur et ses balises de mise en forme. Remplace tout nom de marque, de produit, prix ou chiffre de la page d'origine par les miens ; si une information manque, reste général plutôt que d'inventer." + anglesPrompt + " " + consigneLangue(root),
+              contexte: { marque: form.marque || "", produit: root.produit ?? "", profilClient: anglesCtx ? "tous les angles" : root.profil ?? "", infosProduit: form.infos.slice(0, 8000), typeDePage: root.pageType ?? "", ...(anglesCtx ? { angles: anglesCtx } : {}) },
             }),
           });
           const body = await res.json();

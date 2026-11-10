@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { normalizeProps } from "../engine/render.js";
-import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
+import { PAGE_TYPES, declineParAngle, pageTypeById } from "../engine/page-types.js";
 import { scorePage } from "../engine/page-score.js";
 import { originalPhotoTargets } from "../engine/photos.js";
 import { pageTexts } from "../engine/texts.js";
@@ -402,18 +402,23 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
   const isAngleRole = !mereRoleOf(form.role) && form.role !== "";
   // Choix par défaut, à chaque changement de type : sans page mère, la page
   // mère pour le premier angle coché ; avec, la page de ce premier angle.
+  // Type sans pages d'angle (listicle, accueil, produit… : parAngle false) :
+  // une seule page, qui sert tous les angles (2026-11-09).
+  const parAngle = declineParAngle(form.pageType);
   useEffect(() => {
     const first = freeAngles[0]?.id;
+    if (!parAngle) return setForm((f) => ({ ...f, role: "mere" }));
     setForm((f) => ({ ...f, role: hasMother ? (first ?? "") : first ? `mere:${first}` : "mere" }));
-  }, [form.pageType, hasMother, freeAngles[0]?.id]);
+  }, [form.pageType, hasMother, freeAngles[0]?.id, parAngle]);
 
   async function add() {
     const mereRole = mereRoleOf(form.role);
     // page mère : pour l'angle choisi dans la liste (mere:<id>)
     const angle = angles.find((a) => a.id === (mereRole ? form.role.slice(5) : form.role));
-    const profil = angle ? angle.titre : mereRole ? "" : form.profil.trim();
+    const profil = !parAngle && mereRole ? "Tous les angles" : angle ? angle.titre : mereRole ? "" : form.profil.trim();
     const fromUrl = form.depuis === "lien";
     const blank = form.depuis === "vide";
+    if (!parAngle && angle && !mereRole) return onMessage({ error: true, text: "Ce type de page ne se décline pas par angle : une seule page sert tous les angles." });
     if (!hasMother && !mereRole && angle) return onMessage({ error: true, text: "Crée d'abord la page mère de ce type : les angles en sont des copies." });
     if (fromUrl && !isUrl(form.url)) return onMessage({ error: true, text: "Indique le lien de la page à reproduire (https://…)." });
     // un angle part de la page mère de son type (copie), sauf autre choix
@@ -493,7 +498,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
               <summary>
                 <span className="cat-typecard__title">{g.label}</span>
                 <span className="cat-typecard__count">{g.items.length} page{g.items.length > 1 ? "s" : ""}</span>
-                <span className="cat-typecard__mere">{mother ? `★ Mère : ${mother.detail}` : "Pas de page mère"}{angles ? ` · ${angles} angle${angles > 1 ? "s" : ""}` : ""}</span>
+                <span className="cat-typecard__mere">{mother ? (declineParAngle(g.id) ? `★ Mère : ${mother.detail}` : `★ Page unique · tous les angles`) : declineParAngle(g.id) ? "Pas de page mère" : "Pas encore de page"}{angles ? ` · ${angles} angle${angles > 1 ? "s" : ""}` : ""}</span>
               </summary>
         <table className="cat-table">
           <tbody>
@@ -507,7 +512,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
               return (
                 <tr key={info.name} className={item?.mere ? "is-mere" : ""}>
                   <td>
-                    <b>{item?.mere ? `★ ${g.label} mère` : item?.angle ? `${g.label} angle` : type?.label ?? info.title}</b>
+                    <b>{item?.mere ? (declineParAngle(g.id) ? `★ ${g.label} mère` : `★ ${g.label} · tous les angles`) : item?.angle ? `${g.label} angle` : type?.label ?? info.title}</b>
                     <small className="cat-muted">{info.name}</small>
                   </td>
                   <td>{info.profil || <span className="cat-muted">—</span>}</td>
@@ -576,6 +581,21 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
           </label>
           <label className="cat-field">
             <span>Page mère ou angle</span>
+            {!parAngle ? (
+              <>
+                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+                  <option value="mere">{hasMother ? "★ Page unique · tous les angles (remplace l'actuelle)" : "★ Page unique · tous les angles"}</option>
+                  <option value="">Autre (sans angle)</option>
+                </select>
+                {form.role === "" && <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder="Profil client (facultatif)" />}
+                <small className="cat-muted">
+                  {form.pageType === "listicle"
+                    ? "Un listicle ne se décline pas par angle : une seule page, où chaque angle choisi devient une raison."
+                    : "Ce type de page ne se décline pas par angle : une seule page, qui sert tous les angles."}
+                </small>
+              </>
+            ) : (
+            <>
             <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
               <optgroup label={hasMother ? "★ Page mère (remplace l'actuelle)" : "★ Page mère de ce type"}>
                 {freeAngles.map((a) => (
@@ -599,6 +619,8 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
             {form.role === "" && <input value={form.profil} onChange={(e) => setForm({ ...form, profil: e.target.value })} placeholder="Profil client (facultatif)" />}
             {!hasMother && <small className="cat-muted">Pas encore de page mère pour ce type : choisis l'angle de la page mère. Les autres angles de ce type en seront des copies.</small>}
             {!freeAngles.length && <small className="cat-muted">Tous les angles cochés ont leur page : coche-en d'autres dans l'onglet Angles.</small>}
+            </>
+            )}
           </label>
           <div className="cat-field">
             <span>Partir de</span>
@@ -771,7 +793,7 @@ function EditedImagesTab({ pages }) {
   const total = pages.reduce((n, p) => n + p.medias.length, 0);
   return (
     <>
-      <p className="cat-muted">{total} image(s) à toi (Studio d'images ou ajoutées), rangées dans medias/&lt;page&gt;/.</p>
+      <p className="cat-muted">{total} image(s) à toi (Studio d'images ou ajoutées), rangées dans le dossier du projet (medias/projets/&lt;projet&gt;/ : images-creees, televersees, videos-creees). Les images d'origine restent à part, jamais modifiées.</p>
       {total === 0 && <div className="cat-empty">Aucune image modifiée pour l'instant.</div>}
       {pages.map(({ info, medias }) =>
         medias.length ? (
