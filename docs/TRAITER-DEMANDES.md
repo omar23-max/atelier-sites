@@ -971,3 +971,33 @@ Original 80 % → retour Modifiable 80 %.
 - Rangement des anciennes images : COPIE dans le dossier du projet (les
   fichiers d'origine restent), puis adresses remplacées dans les pages et
   projets (script `ranger_medias.py`, jamais pendant qu'une page est ouverte).
+
+## Base commune du design de l'atelier (2026-11-09)
+
+- `src/tokens.css`, chargé en premier par l'éditeur (`src/main.jsx`) et le
+  catalogue (`src/catalogue/main.jsx`) : couleurs par rôle (`--tk-ink`…`-4`,
+  `--tk-line`, `--tk-bg`, `--tk-surface`, `--tk-accent`, états), échelle de
+  texte (`--tk-text-xs` 11 px → `--tk-text-2xl` 26 px), 3 arrondis + pastille,
+  espaces (multiples de 4), 3 ombres, anneau de focus, durées. Focus clavier
+  visible partout, sélection et barres de défilement aux couleurs de l'atelier,
+  animations raccourcies si « moins de mouvement ».
+- Les anciennes variables `--atl-*` (éditeur) et `--cat-*` (catalogue) pointent
+  vers ces jetons. Les gris, blancs, noirs et violets écrits en dur ont été
+  remplacés selon leur usage (texte, bord, fond) ; tailles de texte ramenées
+  sur l'échelle (plus de 10 / 10,5 / 11,5 / 12,5 px). Toute nouvelle règle :
+  utiliser `--tk-*`, jamais une couleur en dur.
+- Audit de départ : `docs/audit-design-2026-11-09.md` (9/20). Étapes
+  suivantes prévues : alléger « Toutes les sections », titres et vrais
+  boutons, cadres doublés, largeur des textes, puis passe finale.
+- Étapes faites le 2026-11-09 après la base : « Toutes les sections » =
+  8 modèles par famille + « Voir les N » (vue d'une famille : 48 par 48,
+  masquées à la fin) ; titres h1 → h2 (familles, méthodes d'Enrichir) ;
+  cadres doublés enlevés (familles sans carte, vignettes à bord perdu, lot
+  d'Enrichir) ; textes d'aide limités à 75 caractères. Détecteur Impeccable :
+  plus aucune alerte sur Toutes les sections, Templates et Projets.
+- Éditeur (2026-11-09) : plus de sur-titre « Outil » au-dessus du nom de
+  l'outil ; listes d'actions (IA…) en lignes simples au lieu de cartes
+  empilées ; fiche « Ma marque et mon produit » sans cadre dans le panneau ;
+  champs de Puck (étiquette, hauteur, bord, focus) alignés sur la base. Rappel :
+  l'éditeur est en plein écran, rail et panneaux glissent au survol des
+  languettes (règle « REFONTE PLEIN ÉCRAN » de styles.css), ce n'est pas un bug.

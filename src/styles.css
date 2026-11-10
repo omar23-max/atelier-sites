@@ -22,7 +22,7 @@ body {
 [class*="Puck-fields"] textarea,
 [class*="Puck-fields"] select,
 [class*="_Input-input"] {
-  font-size: 12.5px !important;
+  font-size: var(--tk-text-md) !important;
 }
 
 /* La barre d'icônes verticale de Puck est remplacée par des onglets en haut
@@ -44,8 +44,8 @@ body {
   gap: 4px;
   margin: 0;
   padding: 8px 10px;
-  border-bottom: 1px solid #ececec;
-  background: #fff;
+  border-bottom: 1px solid var(--tk-line);
+  background: var(--tk-surface);
 }
 
 .atl-panel-tabs button {
@@ -53,14 +53,14 @@ body {
   padding: 6px 8px;
   border: 0;
   border-radius: 6px;
-  background: #f3f3f3;
-  color: #555;
+  background: var(--tk-hover);
+  color: var(--tk-ink-2);
   font: 600 12px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
 
 .atl-panel-tabs button.is-on {
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
 }
 
@@ -69,7 +69,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 
 .atl-page-sections__head {
@@ -77,8 +77,8 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 12px 8px;
-  color: #6b6b6b;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -90,7 +90,7 @@ body {
 
 .atl-page-sections__empty {
   margin: 4px 12px;
-  color: #888;
+  color: var(--tk-ink-3);
 }
 
 .atl-page-sections ol {
@@ -106,7 +106,7 @@ body {
   position: relative;
   border: 1px solid #e7e7e7;
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   transition: border-color 0.15s, box-shadow 0.2s;
 }
 
@@ -138,7 +138,7 @@ body {
   align-items: baseline;
   gap: 4px;
   padding-right: 40px;
-  color: #1b1b1b;
+  color: var(--tk-ink);
   font-weight: 600;
   line-height: 1.25;
 }
@@ -151,8 +151,8 @@ body {
 .atl-page-sections__label small {
   width: 100%;
   overflow: hidden;
-  color: #8a8a8a;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   font-weight: 400;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -170,11 +170,11 @@ body {
   width: 20px;
   height: 20px;
   padding: 0;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 4px;
-  background: #fff;
-  color: #555;
-  font-size: 11px;
+  background: var(--tk-surface);
+  color: var(--tk-ink-2);
+  font-size: var(--tk-text-xs);
   line-height: 1;
   cursor: pointer;
 }
@@ -189,21 +189,21 @@ body {
   bottom: 0;
   margin-top: auto;
   padding: 10px;
-  background: linear-gradient(transparent, #fff 30%);
+  background: linear-gradient(transparent, var(--tk-surface) 30%);
 }
 
 /* Onglet « Ajouter » */
 .atl-library {
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 
 .atl-library__back {
   padding: 3px 8px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   text-transform: none;
   letter-spacing: 0;
   cursor: pointer;
@@ -211,8 +211,8 @@ body {
 
 .atl-library__where {
   margin: 0 12px 8px;
-  color: #8a8a8a;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 
 .atl-library__title {
@@ -234,7 +234,7 @@ body {
   border: 0;
   border-radius: 6px;
   background: none;
-  color: #1b1b1b;
+  color: var(--tk-ink);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -271,7 +271,7 @@ body {
   padding: 6px;
   border: 1px solid #e7e7e7;
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -287,8 +287,8 @@ body {
 }
 
 .atl-library__variants small {
-  color: #8a8a8a;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 
 /* Plein écran : plus de barre du haut ni de panneaux latéraux. */
@@ -296,15 +296,15 @@ body {
   padding: 8px 12px;
   border: 1px solid #dcdcdc;
   border-radius: 6px;
-  background: #fff;
-  color: #111;
+  background: var(--tk-surface);
+  color: var(--tk-ink);
   font: 600 12.5px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
 
 .atl-full-btn.is-on {
-  border-color: #111;
-  background: #111;
+  border-color: var(--tk-black);
+  background: var(--tk-black);
   color: #fff;
 }
 
@@ -318,7 +318,7 @@ body.atl-fullscreen .atl-errors {
 }
 
 .atl-plugin-icon {
-  font-size: 16px;
+  font-size: var(--tk-text-lg);
   line-height: 1;
 }
 
@@ -327,23 +327,23 @@ body.atl-fullscreen .atl-errors {
   align-items: center;
   gap: 12px;
   padding: 6px 14px;
-  border-bottom: 1px solid #e5e5e5;
-  background: #fafafa;
-  font-size: 13px;
+  border-bottom: 1px solid var(--tk-line);
+  background: var(--tk-surface-2);
+  font-size: var(--tk-text-md);
 }
 
 .atl-topbar select,
 .atl-topbar button {
   padding: 4px 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   cursor: pointer;
 }
 
 .atl-topbar__link {
-  color: #111;
+  color: var(--tk-ink);
   font-weight: 600;
 }
 
@@ -357,25 +357,25 @@ body.atl-fullscreen .atl-errors {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #555;
+  color: var(--tk-ink-2);
 }
 
 .atl-topbar__design img {
   width: 38px;
   height: 24px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 4px;
   object-fit: cover;
 }
 
 .atl-topbar__design b {
-  color: #111;
+  color: var(--tk-ink);
 }
 
 .atl-topbar__btn {
   padding: 4px 10px;
   border-radius: 6px;
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
   font-weight: 600;
   text-decoration: none;
@@ -398,7 +398,7 @@ body.atl-fullscreen .atl-errors {
   min-height: 14px;
   max-height: 96px;
   overflow: hidden;
-  border: 1px solid #ececec;
+  border: 1px solid var(--tk-line);
   border-radius: 4px;
   background: #f6f6f6;
 }
@@ -418,8 +418,8 @@ body.atl-fullscreen .atl-errors {
 }
 
 .atl-thumb__empty {
-  color: #999;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 
 .atl-drawer-item {
@@ -430,7 +430,7 @@ body.atl-fullscreen .atl-errors {
 }
 
 .atl-drawer-item__label {
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 
 /* Bouton et fenêtre « Ajouter une section » */
@@ -438,7 +438,7 @@ body.atl-fullscreen .atl-errors {
   padding: 8px 14px;
   border: 0;
   border-radius: 6px;
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
   font: 600 13px system-ui, sans-serif;
   cursor: pointer;
@@ -461,7 +461,7 @@ body.atl-fullscreen .atl-errors {
   max-height: calc(100vh - 96px);
   overflow: auto;
   border-radius: 12px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
 }
 
@@ -473,8 +473,8 @@ body.atl-fullscreen .atl-errors {
   align-items: center;
   gap: 14px;
   padding: 16px 20px;
-  border-bottom: 1px solid #eee;
-  background: #fff;
+  border-bottom: 1px solid var(--tk-line);
+  background: var(--tk-surface);
 }
 
 .atl-modal__head h2 {
@@ -484,28 +484,28 @@ body.atl-fullscreen .atl-errors {
 
 .atl-modal__where {
   margin-left: auto;
-  color: #777;
-  font-size: 12px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 
 .atl-modal__back,
 .atl-modal__close {
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   cursor: pointer;
 }
 
 .atl-modal__back {
   padding: 5px 10px;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 
 .atl-modal__close {
   width: 32px;
   height: 32px;
-  font-size: 20px;
+  font-size: var(--tk-text-xl);
   line-height: 1;
 }
 
@@ -526,9 +526,9 @@ body.atl-fullscreen .atl-errors {
   flex-direction: column;
   gap: 6px;
   padding: 10px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -537,19 +537,19 @@ body.atl-fullscreen .atl-errors {
 
 .atl-family:hover:not(:disabled),
 .atl-variant:hover {
-  border-color: #111;
+  border-color: var(--tk-black);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .atl-family strong,
 .atl-variant strong {
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 
 .atl-family span:last-child,
 .atl-variant span:last-child {
-  color: #777;
-  font-size: 12px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 
 .atl-family .atl-thumb {
@@ -574,7 +574,7 @@ body.atl-fullscreen .atl-errors {
   color: #8a1111;
   border: 1px solid #f3b6b6;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
   line-height: 1.4;
 }
 
@@ -582,18 +582,18 @@ body.atl-fullscreen .atl-errors {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 
 .atl-field__label {
   font-weight: 600;
-  color: #333;
+  color: var(--tk-ink-2);
 }
 
 .atl-input,
 .atl-color input[type="text"] {
   padding: 6px 9px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
 }
@@ -608,7 +608,7 @@ body.atl-fullscreen .atl-errors {
   width: 40px;
   height: 36px;
   padding: 0;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   background: none;
 }
@@ -623,7 +623,7 @@ body.atl-fullscreen .atl-errors {
   max-height: 120px;
   object-fit: contain;
   border-radius: 6px;
-  background: #f4f4f4;
+  background: var(--tk-hover);
 }
 
 /* Champ image vide : la photo d'origine du site d'inspiration est affichée. */
@@ -634,7 +634,7 @@ body.atl-fullscreen .atl-errors {
   background: #fff7e6;
   border: 1px solid #f5c26b;
   color: #6b4a00;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
   line-height: 1.4;
 }
 
@@ -669,7 +669,7 @@ body.atl-fullscreen .atl-errors {
 .atl-newpage legend {
   margin-bottom: 8px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-newpage__choice,
 .atl-newpage__types {
@@ -687,9 +687,9 @@ body.atl-fullscreen .atl-errors {
   flex-direction: column;
   gap: 3px;
   padding: 10px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -697,8 +697,8 @@ body.atl-fullscreen .atl-errors {
 .atl-newpage__choice button small,
 .atl-newpage__types button small,
 .atl-score__choose button small {
-  color: #666;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
   line-height: 1.35;
 }
 .atl-newpage__choice button.is-on,
@@ -719,22 +719,22 @@ body.atl-fullscreen .atl-errors {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 12px;
-  color: #555;
+  font-size: var(--tk-text-sm);
+  color: var(--tk-ink-2);
 }
 .atl-newpage__grid input,
 .atl-newpage__grid select {
   padding: 7px 9px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
-  color: #111;
+  color: var(--tk-ink);
 }
 .atl-newpage__hint {
   grid-column: 1 / -1;
   margin: 0;
-  color: #666;
-  font-size: 12px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-newpage__foot {
   display: flex;
@@ -742,19 +742,19 @@ body.atl-fullscreen .atl-errors {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 22px 18px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--tk-line);
 }
 .atl-newpage__foot button {
   padding: 7px 14px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   cursor: pointer;
 }
 .atl-newpage__foot .atl-newpage__create {
-  border-color: #111;
-  background: #111;
+  border-color: var(--tk-black);
+  background: var(--tk-black);
   color: #fff;
   font-weight: 600;
 }
@@ -767,7 +767,7 @@ body.atl-fullscreen .atl-errors {
 .atl-score {
   display: flex;
   flex-direction: column;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-score__top {
   display: flex;
@@ -779,11 +779,11 @@ body.atl-fullscreen .atl-errors {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  color: #666;
+  color: var(--tk-ink-3);
 }
 .atl-score__top b {
-  color: #111;
-  font-size: 14px;
+  color: var(--tk-ink);
+  font-size: var(--tk-text-base);
 }
 .atl-score__ring {
   display: grid;
@@ -799,7 +799,7 @@ body.atl-fullscreen .atl-errors {
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--tk-surface);
   font-weight: 800;
   font-size: 17px;
 }
@@ -822,9 +822,9 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-score__item {
   padding: 10px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-score__item-head {
   display: flex;
@@ -838,7 +838,7 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-score__item p {
   margin: 4px 0 0;
-  color: #555;
+  color: var(--tk-ink-2);
   line-height: 1.4;
 }
 .atl-score__where {
@@ -855,9 +855,9 @@ body.atl-fullscreen .atl-errors {
   flex-direction: column;
   gap: 4px;
   padding: 6px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 6px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -888,8 +888,8 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-score__note {
   margin: 12px;
-  color: #888;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   line-height: 1.4;
 }
 .atl-score__choose {
@@ -903,7 +903,7 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-score__choose h4 {
   margin: 6px 0 4px;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-score__choose div {
   display: grid;
@@ -919,10 +919,10 @@ body.atl-fullscreen .atl-errors {
 
 .atl-copy__infos {
   padding: 8px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
-  color: #111;
+  color: var(--tk-ink);
   resize: vertical;
 }
 
@@ -945,7 +945,7 @@ body.atl-fullscreen .atl-errors {
   padding: 10px;
   border: 1.5px dashed #c9c9c9;
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-studio__ref {
   position: relative;
@@ -960,12 +960,12 @@ body.atl-fullscreen .atl-errors {
   height: 90px;
   object-fit: contain;
   border-radius: 6px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--tk-surface);
+  border: 1px solid var(--tk-line);
 }
 .atl-studio__ref select {
   font: inherit;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-studio__ref button {
   position: absolute;
@@ -988,14 +988,14 @@ body.atl-fullscreen .atl-errors {
   height: 90px;
   padding: 8px;
   border-radius: 6px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--tk-surface);
+  border: 1px solid var(--tk-line);
   cursor: pointer;
   text-align: center;
 }
 .atl-studio__add small {
-  color: #777;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 .atl-studio__targets {
   display: grid;
@@ -1007,7 +1007,7 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-studio__targets li {
   padding: 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
   opacity: 0.55;
 }
@@ -1028,17 +1028,17 @@ body.atl-fullscreen .atl-errors {
   height: 56px;
   object-fit: cover;
   border-radius: 4px;
-  background: #eee;
+  background: var(--tk-hover);
 }
 .atl-studio__targets span {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-studio__targets small {
-  color: #666;
+  color: var(--tk-ink-3);
 }
 .atl-studio__brief {
   color: #6b4a00 !important;
@@ -1047,10 +1047,10 @@ body.atl-fullscreen .atl-errors {
   width: 100%;
   margin-top: 6px;
   padding: 5px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   box-sizing: border-box;
 }
 
@@ -1061,7 +1061,7 @@ body.atl-fullscreen .atl-errors {
   padding: 0 14px;
   box-sizing: border-box;
   font: 500 13px "Inter", system-ui, sans-serif;
-  color: #444;
+  color: var(--tk-ink-2);
 }
 .atl-topbar select,
 .atl-topbar button,
@@ -1073,8 +1073,8 @@ body.atl-fullscreen .atl-errors {
   box-sizing: border-box;
   border: 1px solid #d9d9d9;
   border-radius: 6px;
-  background: #fff;
-  color: #111;
+  background: var(--tk-surface);
+  color: var(--tk-ink);
   font: 500 13px "Inter", system-ui, sans-serif;
   text-decoration: none;
   white-space: nowrap;
@@ -1089,7 +1089,7 @@ body.atl-fullscreen .atl-errors {
   gap: 6px;
 }
 .atl-topbar__field > span {
-  color: #777;
+  color: var(--tk-ink-3);
 }
 .atl-topbar__type {
   display: inline-flex;
@@ -1097,7 +1097,7 @@ body.atl-fullscreen .atl-errors {
   height: 30px;
   padding: 0 10px;
   box-sizing: border-box;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-topbar__design {
   white-space: nowrap;
@@ -1109,7 +1109,7 @@ body.atl-fullscreen .atl-errors {
 .atl-topbar__ok,
 .atl-topbar__error {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1145,8 +1145,8 @@ body.atl-fullscreen .atl-errors {
   align-items: center;
   gap: 6px;
   padding: 0 10px;
-  border-left: 1px solid #e5e5e5;
-  border-right: 1px solid #e5e5e5;
+  border-left: 1px solid var(--tk-line);
+  border-right: 1px solid var(--tk-line);
 }
 .atl-tool {
   display: inline-flex;
@@ -1157,19 +1157,19 @@ body.atl-fullscreen .atl-errors {
   box-sizing: border-box;
   border: 1px solid #dcdcdc;
   border-radius: 6px;
-  background: #fff;
-  color: #111;
+  background: var(--tk-surface);
+  color: var(--tk-ink);
   font: 600 13px "Inter", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
 }
 .atl-tool:hover {
   border-color: #b5b5b5;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-tool.is-on {
-  border-color: #111;
-  background: #111;
+  border-color: var(--tk-black);
+  background: var(--tk-black);
   color: #fff;
 }
 .atl-tool svg {
@@ -1192,24 +1192,24 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-rebrand__row input {
   padding: 7px 9px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
 }
 .atl-rebrand__row button {
   width: 26px;
   height: 26px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
 }
 .atl-rebrand__case {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  color: #555;
+  font-size: var(--tk-text-sm);
+  color: var(--tk-ink-2);
 }
 .atl-history {
   display: grid;
@@ -1224,7 +1224,7 @@ body.atl-fullscreen .atl-errors {
   justify-content: space-between;
   gap: 10px;
   padding: 8px 10px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
 }
 .atl-history span {
@@ -1233,24 +1233,24 @@ body.atl-fullscreen .atl-errors {
   gap: 2px;
 }
 .atl-history small {
-  color: #777;
+  color: var(--tk-ink-3);
 }
 .atl-history button {
   padding: 5px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   cursor: pointer;
 }
 
 .atl-topbar__project {
-  color: #555;
+  color: var(--tk-ink-2);
   text-decoration: none;
   white-space: nowrap;
 }
 .atl-topbar__project b {
-  color: #111;
+  color: var(--tk-ink);
 }
 .atl-starters {
   display: grid;
@@ -1265,7 +1265,7 @@ body.atl-fullscreen .atl-errors {
   flex-direction: column;
   gap: 6px;
   padding: 8px 10px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
 }
 .atl-starters li.is-on {
@@ -1280,14 +1280,14 @@ body.atl-fullscreen .atl-errors {
 }
 .atl-starters small {
   margin-left: auto;
-  color: #777;
+  color: var(--tk-ink-3);
 }
 .atl-starters select {
   padding: 5px 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 
 /* En-tête de l'éditeur collé à gauche : Puck garde un retrait pour sa barre
@@ -1315,16 +1315,16 @@ body.atl-fullscreen .atl-errors {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #333;
+  color: var(--tk-ink-2);
   font: 600 12.5px "Inter", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
 }
 .atl-viewport-btn:hover {
-  background: #f0f0f0;
+  background: var(--tk-hover);
 }
 .atl-viewport-btn.is-on {
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
 }
 
@@ -1363,9 +1363,9 @@ a.atl-tool {
   height: 42px;
   padding: 0 8px 0 12px;
   box-sizing: border-box;
-  border: 1.5px solid #cfcfcf;
+  border: 1.5px solid var(--tk-line-strong);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-group .atl-topbar__field {
   flex: 1;
@@ -1374,7 +1374,7 @@ a.atl-tool {
 }
 .atl-group .atl-topbar__field > span,
 .atl-group__label {
-  color: #111;
+  color: var(--tk-ink);
   font: 700 15px "Inter", system-ui, sans-serif;
   white-space: nowrap;
 }
@@ -1422,7 +1422,7 @@ a.atl-tool {
   flex: none;
   width: 38px;
   height: 24px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 4px;
   object-fit: cover;
 }
@@ -1437,8 +1437,8 @@ a.atl-tool {
   gap: 8px 10px;
   align-items: center;
   padding: 12px 14px;
-  border-bottom: 1px solid #ececec;
-  background: #fff;
+  border-bottom: 1px solid var(--tk-line);
+  background: var(--tk-surface);
 }
 .atl-fields__head .atl-thumb {
   max-height: 40px;
@@ -1454,8 +1454,8 @@ a.atl-tool {
 }
 .atl-fields__title small {
   overflow: hidden;
-  color: #777;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1469,12 +1469,12 @@ a.atl-tool {
   height: 28px;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
-  background: #fff;
-  font-size: 13px;
+  background: var(--tk-surface);
+  font-size: var(--tk-text-md);
   cursor: pointer;
 }
 .atl-fields__actions button:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--tk-surface-2);
 }
 .atl-fields__actions button:disabled {
   opacity: 0.35;
@@ -1515,9 +1515,9 @@ a.atl-tool {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #222;
+  color: var(--tk-ink);
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-f__brief,
 .atl-f__role {
@@ -1525,7 +1525,7 @@ a.atl-tool {
   border-radius: 999px;
   font-style: normal;
   font-weight: 600;
-  font-size: 10.5px;
+  font-size: var(--tk-text-xs);
 }
 .atl-f__brief {
   background: #fff1dc;
@@ -1540,10 +1540,10 @@ a.atl-tool {
   width: 100%;
   padding: 7px 9px;
   box-sizing: border-box;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
-  color: #111;
+  background: var(--tk-surface);
+  color: var(--tk-ink);
   font: 13px/1.45 "Inter", system-ui, sans-serif;
   resize: none;
 }
@@ -1557,8 +1557,8 @@ a.atl-tool {
   color: #8a5300;
 }
 .atl-f__info {
-  color: #777;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
   line-height: 1.4;
 }
 .atl-f__error {
@@ -1567,8 +1567,8 @@ a.atl-tool {
 .atl-f__group {
   margin: 10px 0 -2px;
   padding-top: 12px;
-  border-top: 1px solid #ececec;
-  color: #111;
+  border-top: 1px solid var(--tk-line);
+  color: var(--tk-ink);
   font: 700 13px "Inter", system-ui, sans-serif;
 }
 
@@ -1592,12 +1592,12 @@ a.atl-tool {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   transition: transform 0.15s;
 }
 .atl-switch.is-on {
-  background: #111;
+  background: var(--tk-black);
 }
 .atl-switch.is-on span {
   transform: translateX(16px);
@@ -1621,14 +1621,14 @@ a.atl-tool {
 .atl-range__value input {
   width: 58px;
   padding: 4px 6px;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: 12.5px "Inter", system-ui, sans-serif;
 }
 .atl-range__value em {
-  color: #777;
+  color: var(--tk-ink-3);
   font-style: normal;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
 }
 
 /* Image */
@@ -1645,11 +1645,11 @@ a.atl-tool {
   min-height: 90px;
   max-height: 170px;
   overflow: hidden;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #f5f5f5;
-  color: #999;
-  font-size: 12px;
+  background: var(--tk-surface-2);
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-img__thumb img {
   display: block;
@@ -1670,7 +1670,7 @@ a.atl-tool {
   color: #fff;
   font-style: normal;
   font-weight: 700;
-  font-size: 10.5px;
+  font-size: var(--tk-text-xs);
 }
 .atl-img__actions {
   position: relative;
@@ -1678,9 +1678,9 @@ a.atl-tool {
 .atl-img__btn {
   width: 100%;
   height: 32px;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 600 12.5px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
@@ -1698,7 +1698,7 @@ a.atl-tool {
   padding: 4px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 .atl-img__menu button {
@@ -1711,7 +1711,7 @@ a.atl-tool {
   cursor: pointer;
 }
 .atl-img__menu button:hover {
-  background: #f3f4f6;
+  background: var(--tk-hover);
 }
 .atl-img__menu .is-danger {
   color: #c0392b;
@@ -1726,9 +1726,9 @@ a.atl-tool {
   flex-direction: column;
   gap: 4px;
   padding: 6px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
 }
 .atl-media-grid button:hover {
@@ -1738,12 +1738,12 @@ a.atl-tool {
   width: 100%;
   height: 110px;
   object-fit: contain;
-  background: #f5f5f5;
+  background: var(--tk-surface-2);
 }
 .atl-media-grid small {
   overflow: hidden;
-  color: #666;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1755,9 +1755,9 @@ a.atl-tool {
   gap: 10px;
   min-height: 52px;
   padding: 8px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-product img,
 .atl-product .atl-products__noimg {
@@ -1766,7 +1766,7 @@ a.atl-tool {
   height: 44px;
   border-radius: 6px;
   object-fit: cover;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-product span {
   display: flex;
@@ -1774,8 +1774,8 @@ a.atl-tool {
   min-width: 0;
 }
 .atl-product small {
-  color: #777;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-product__actions {
   display: flex;
@@ -1793,9 +1793,9 @@ a.atl-tool {
   flex-direction: column;
   gap: 4px;
   padding: 8px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 12.5px "Inter", system-ui, sans-serif;
   text-align: left;
   cursor: pointer;
@@ -1808,24 +1808,24 @@ a.atl-tool {
   width: 100%;
   height: 110px;
   object-fit: contain;
-  background: #f5f5f5;
+  background: var(--tk-surface-2);
 }
 .atl-products small {
-  color: #777;
+  color: var(--tk-ink-3);
 }
 .atl-products__noimg {
   display: grid;
   place-items: center;
   height: 110px;
-  background: #f5f5f5;
-  color: #999;
-  font-size: 11px;
+  background: var(--tk-surface-2);
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 .atl-products__empty {
   padding: 18px;
-  border: 1px dashed #d5d5d5;
+  border: 1px dashed var(--tk-line-strong);
   border-radius: 8px;
-  color: #555;
+  color: var(--tk-ink-2);
   line-height: 1.5;
 }
 .atl-products__opts {
@@ -1833,14 +1833,14 @@ a.atl-tool {
   gap: 6px;
   margin: 0;
   padding: 10px 12px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
 }
 .atl-products__opts label {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 
 /* Nouveau projet : tout le site, sources de page */
@@ -1848,7 +1848,7 @@ a.atl-tool {
   display: grid;
   gap: 8px;
   padding: 10px 12px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
 }
 .atl-site.is-on {
@@ -1862,7 +1862,7 @@ a.atl-tool {
   cursor: pointer;
 }
 .atl-site__toggle small {
-  color: #666;
+  color: var(--tk-ink-3);
 }
 .atl-source {
   display: flex;
@@ -1873,10 +1873,10 @@ a.atl-tool {
 .atl-source input {
   min-width: 0;
   padding: 5px 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-source input,
 .atl-source select + select {
@@ -1898,7 +1898,7 @@ a.atl-tool {
   padding: 6px;
   border: 1.5px dashed #c9c9c9;
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-shots figure {
   position: relative;
@@ -1910,7 +1910,7 @@ a.atl-tool {
   height: 64px;
   object-fit: cover;
   object-position: top;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 4px;
 }
 .atl-shots figure button {
@@ -1924,7 +1924,7 @@ a.atl-tool {
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   line-height: 18px;
   cursor: pointer;
 }
@@ -1939,8 +1939,8 @@ a.atl-tool {
   cursor: pointer;
 }
 .atl-shots__add small {
-  color: #777;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 
 /* Page hors projet */
@@ -1962,12 +1962,12 @@ a.atl-tool {
   padding: 0 10px;
   border: 1px solid #d9b46a;
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
 }
 .atl-orphan button {
-  border-color: #111;
-  background: #111;
+  border-color: var(--tk-black);
+  background: var(--tk-black);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -1992,8 +1992,8 @@ select.is-missing {
   gap: 6px;
   height: calc(100vh - 120px);
   padding: 10px 0;
-  border-right: 1px solid #ececec;
-  background: #fafafa;
+  border-right: 1px solid var(--tk-line);
+  background: var(--tk-surface-2);
 }
 .atl-rail button {
   display: grid;
@@ -2003,7 +2003,7 @@ select.is-missing {
   border: 0;
   border-radius: 8px;
   background: none;
-  color: #555;
+  color: var(--tk-ink-2);
   cursor: pointer;
 }
 .atl-rail button svg {
@@ -2016,8 +2016,8 @@ select.is-missing {
   height: 24px;
 }
 .atl-rail button:hover {
-  background: #eee;
-  color: #111;
+  background: var(--tk-hover);
+  color: var(--tk-ink);
 }
 .atl-rail button.is-on {
   background: #ecebff;
@@ -2038,8 +2038,8 @@ select.is-missing {
   flex-direction: column;
 }
 .atl-tool-panel__head small {
-  color: #999;
-  font-size: 10.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -2049,18 +2049,18 @@ select.is-missing {
 .atl-tool-panel__hint,
 .atl-tool-panel__empty {
   margin: 0;
-  color: #666;
-  font-size: 12px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
   line-height: 1.45;
 }
 .atl-tool-panel__title {
   margin: 0;
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 .atl-search {
   padding: 7px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: inherit;
 }
@@ -2080,7 +2080,7 @@ select.is-missing {
   border-radius: 6px;
 }
 .atl-structure li:hover {
-  background: #f4f4f4;
+  background: var(--tk-hover);
 }
 .atl-structure li.is-active {
   background: #ecebff;
@@ -2089,8 +2089,8 @@ select.is-missing {
   opacity: 0.4;
 }
 .atl-structure__grip {
-  color: #bbb;
-  font-size: 11px;
+  color: var(--tk-ink-4);
+  font-size: var(--tk-text-xs);
   letter-spacing: -2px;
   cursor: grab;
 }
@@ -2108,14 +2108,14 @@ select.is-missing {
 .atl-structure__name b {
   overflow: hidden;
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .atl-structure__name small {
   overflow: hidden;
-  color: #888;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -2131,10 +2131,10 @@ select.is-missing {
 .atl-structure__tools button {
   width: 22px;
   height: 22px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 5px;
-  background: #fff;
-  font-size: 11px;
+  background: var(--tk-surface);
+  font-size: var(--tk-text-xs);
   cursor: pointer;
 }
 .atl-left__cta {
@@ -2143,16 +2143,16 @@ select.is-missing {
   padding: 9px;
   border: 0;
   border-radius: 8px;
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
   font: 600 13px "Inter", system-ui, sans-serif;
   text-align: center;
   cursor: pointer;
 }
 .atl-left__cta--ghost {
-  border: 1px solid #d5d5d5;
-  background: #fff;
-  color: #111;
+  border: 1px solid var(--tk-line-strong);
+  background: var(--tk-surface);
+  color: var(--tk-ink);
 }
 .atl-left__cta:disabled {
   opacity: 0.5;
@@ -2170,7 +2170,7 @@ select.is-missing {
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
   cursor: pointer;
 }
@@ -2184,19 +2184,19 @@ select.is-missing {
   min-width: 0;
 }
 .atl-families b {
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-families small {
   overflow: hidden;
-  color: #888;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .atl-families em {
-  color: #999;
+  color: var(--tk-ink-3);
   font-style: normal;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
 }
 .atl-back {
   align-self: flex-start;
@@ -2216,9 +2216,9 @@ select.is-missing {
   flex-direction: column;
   gap: 3px;
   padding: 10px 12px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -2233,8 +2233,8 @@ select.is-missing {
   cursor: default;
 }
 .atl-choices small {
-  color: #666;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
   line-height: 1.4;
 }
 .atl-variants {
@@ -2250,11 +2250,11 @@ select.is-missing {
   gap: 4px;
   width: 100%;
   padding: 6px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   text-align: left;
   cursor: pointer;
 }
@@ -2270,11 +2270,11 @@ select.is-missing {
   flex-direction: column;
   gap: 4px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-ai-form textarea {
   padding: 6px 8px;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: 12.5px "Inter", system-ui, sans-serif;
   resize: vertical;
@@ -2286,7 +2286,7 @@ select.is-missing {
   border-radius: 8px;
   background: #eef9f1;
   color: #1f5f34;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-swatches {
   display: flex;
@@ -2311,7 +2311,7 @@ select.is-missing {
   justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
 }
 .atl-palettes li.is-current {
@@ -2326,20 +2326,20 @@ select.is-missing {
 }
 .atl-palettes b {
   overflow: hidden;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .atl-palettes small {
-  color: #888;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 .atl-palettes li > button {
   flex: none;
   padding: 5px 10px;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 600 12px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
@@ -2362,7 +2362,7 @@ select.is-missing {
   height: 24px;
   border: 1px dashed #bbb;
   border-radius: 50%;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
 }
 .atl-logo {
@@ -2374,10 +2374,10 @@ select.is-missing {
   max-width: 100%;
   max-height: 110px;
   padding: 8px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
   object-fit: contain;
-  background: #fff;
+  background: var(--tk-surface);
 }
 
 /* Barre de droite : HTML, Publier sur Shopify, Publish */
@@ -2407,7 +2407,7 @@ select.is-missing {
 }
 .atl-save.is-dirty,
 .atl-save.is-saving {
-  background: #141414;
+  background: var(--tk-black);
   color: #fff;
 }
 .atl-save.is-saving {
@@ -2431,11 +2431,11 @@ select.is-missing {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  color: #555;
+  color: var(--tk-ink-2);
 }
 .atl-rail a:hover {
-  background: #eee;
-  color: #111;
+  background: var(--tk-hover);
+  color: var(--tk-ink);
 }
 .atl-rail a svg {
   width: 19px;
@@ -2456,9 +2456,9 @@ body.atl-rail-only .atl-left {
 .atl-original__seg {
   display: inline-flex;
   padding: 2px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   gap: 2px;
 }
 
@@ -2468,7 +2468,7 @@ body.atl-rail-only .atl-left {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #555;
+  color: var(--tk-ink-2);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -2476,7 +2476,7 @@ body.atl-rail-only .atl-left {
 
 .atl-topbar .atl-switch button.is-on,
 .atl-original__seg button.is-on {
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
 }
 
@@ -2489,7 +2489,7 @@ body.atl-rail-only .atl-left {
   display: flex;
   flex-direction: column;
   background: #e9e9ec;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 
 .atl-original__bar {
@@ -2499,7 +2499,7 @@ body.atl-rail-only .atl-left {
   gap: 12px;
   min-height: 44px;
   padding: 6px 16px;
-  background: #fff;
+  background: var(--tk-surface);
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -2508,7 +2508,7 @@ body.atl-rail-only .atl-left {
 }
 
 .atl-original__muted {
-  color: #777;
+  color: var(--tk-ink-3);
 }
 
 .atl-original__back {
@@ -2516,7 +2516,7 @@ body.atl-rail-only .atl-left {
   padding: 6px 14px;
   border: 0;
   border-radius: 6px;
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -2533,19 +2533,19 @@ body.atl-rail-only .atl-left {
 
 .atl-original__frame {
   overflow: hidden;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 
 .atl-original__frame iframe {
   border: 0;
   transform-origin: 0 0;
-  background: #fff;
+  background: var(--tk-surface);
 }
 
 .atl-original__shot {
   overflow-y: auto;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 
@@ -2587,20 +2587,20 @@ body.atl-rail-only .atl-left {
   display: flex;
   align-items: center;
   font: 500 12px "Inter", system-ui, sans-serif;
-  color: #666;
+  color: var(--tk-ink-3);
 }
 .atl-original-pane__note a {
   color: #0b57d0;
 }
 .atl-original-pane__frame {
   overflow: hidden;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 .atl-original-pane__frame iframe {
   border: 0;
   transform-origin: 0 0;
-  background: #fff;
+  background: var(--tk-surface);
 }
 /* Puck impose 36 px de large aux éléments de sa barre : la bascule garde sa taille. */
 .atl-switch-host,
@@ -2613,19 +2613,19 @@ body.atl-rail-only .atl-left {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #555;
+  color: var(--tk-ink-2);
   font: 600 13px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
 .atl-switch-host .atl-switch button.is-on {
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
 }
 
 /* ---- Panneau de droite façon Shopify (inspector-ui) ---- */
 .atl-insp {
   font: 13px "Inter", system-ui, sans-serif;
-  color: #303030;
+  color: var(--tk-ink);
 }
 .atl-insp__head {
   display: flex;
@@ -2635,12 +2635,12 @@ body.atl-rail-only .atl-left {
   border-bottom: 1px solid #ebebeb;
 }
 .atl-insp__head b {
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 .atl-insp__head small,
 .atl-insp__bartitle small {
-  color: #8a8a8a;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-insp__tree {
   padding-bottom: 24px;
@@ -2668,7 +2668,7 @@ body.atl-rail-only .atl-left {
   color: inherit;
 }
 .atl-insp__row:hover {
-  background: #f3f3f3;
+  background: var(--tk-hover);
 }
 .atl-insp__row--page {
   cursor: pointer;
@@ -2682,10 +2682,10 @@ body.atl-rail-only .atl-left {
   flex: 0 0 18px;
   border: 0;
   background: none;
-  color: #8a8a8a;
+  color: var(--tk-ink-3);
   cursor: pointer;
   padding: 0;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-insp__ico {
   flex: 0 0 20px;
@@ -2694,9 +2694,9 @@ body.atl-rail-only .atl-left {
   align-items: center;
   justify-content: center;
   border-radius: 5px;
-  background: #f1f1f1;
-  color: #616161;
-  font-size: 11px;
+  background: var(--tk-hover);
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   font-weight: 700;
 }
 .atl-insp__ico--titre { background: #e8f0fe; color: #1a56c4; }
@@ -2709,7 +2709,7 @@ body.atl-rail-only .atl-left {
   height: 20px;
   object-fit: cover;
   border-radius: 4px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
 }
 .atl-insp__name {
   flex: 1;
@@ -2743,7 +2743,7 @@ body.atl-rail-only .atl-left {
   border: 0;
   background: none;
   cursor: pointer;
-  color: #616161;
+  color: var(--tk-ink-3);
   font-size: 15px;
   padding: 0 4px;
 }
@@ -2761,7 +2761,7 @@ body.atl-rail-only .atl-left {
   border-bottom: 1px solid #ebebeb;
   position: sticky;
   top: 0;
-  background: #fff;
+  background: var(--tk-surface);
   z-index: 2;
 }
 .atl-insp__back {
@@ -2771,10 +2771,10 @@ body.atl-rail-only .atl-left {
   border-radius: 8px;
   background: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--tk-text-lg);
 }
 .atl-insp__back:hover {
-  background: #f1f1f1;
+  background: var(--tk-hover);
 }
 .atl-insp__bartitle {
   flex: 1;
@@ -2786,7 +2786,7 @@ body.atl-rail-only .atl-left {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 .atl-insp__aibtn {
   border: 0;
@@ -2804,7 +2804,7 @@ body.atl-rail-only .atl-left {
   border-radius: 8px;
   padding: 5px 8px;
   background: #fff5f4;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
   line-height: 1;
   cursor: pointer;
 }
@@ -2825,19 +2825,19 @@ body.atl-rail-only .atl-left {
 }
 .atl-insp__link span {
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-insp__link input {
   padding: 8px 10px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: inherit;
 }
 .atl-insp__hint,
 .atl-insp__empty {
   margin: 14px 12px 0;
-  color: #8a8a8a;
-  font-size: 12px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-insp__remove {
   margin: 18px 12px 0;
@@ -2857,8 +2857,8 @@ body.atl-rail-only .atl-left {
   z-index: 10000;
   min-width: 220px;
   padding: 6px;
-  background: #fff;
-  border: 1px solid #e3e3e3;
+  background: var(--tk-surface);
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
   font: 13px "Inter", system-ui, sans-serif;
@@ -2875,11 +2875,11 @@ body.atl-rail-only .atl-left {
   cursor: pointer;
 }
 .atl-ctx button:hover:not(:disabled) {
-  background: #f1f1f1;
+  background: var(--tk-hover);
 }
 .atl-ctx button:first-child {
   font-weight: 600;
-  color: #5b3fd6;
+  color: var(--tk-accent);
 }
 .atl-ctx button.is-danger {
   color: #b42318;
@@ -2907,7 +2907,7 @@ body.atl-rail-only .atl-left {
 }
 .atl-aidlg__target {
   margin: 0;
-  color: #616161;
+  color: var(--tk-ink-3);
 }
 .atl-aidlg__prompt {
   display: flex;
@@ -2917,7 +2917,7 @@ body.atl-rail-only .atl-left {
 }
 .atl-aidlg__prompt textarea {
   padding: 10px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 400 13px "Inter", system-ui, sans-serif;
   resize: vertical;
@@ -2931,7 +2931,7 @@ body.atl-rail-only .atl-left {
   padding: 4px 10px;
   border: 1px solid #d9d9d9;
   border-radius: 999px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
   font: 12px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
@@ -2942,9 +2942,9 @@ body.atl-rail-only .atl-left {
 }
 .atl-aidlg__refs {
   padding: 10px;
-  border: 1.5px dashed #c9cccf;
+  border: 1.5px dashed var(--tk-line-strong);
   border-radius: 10px;
-  color: #616161;
+  color: var(--tk-ink-3);
 }
 .atl-aidlg__refs > div {
   display: flex;
@@ -2977,7 +2977,7 @@ body.atl-rail-only .atl-left {
   cursor: pointer;
 }
 .atl-aidlg__step {
-  color: #5b3fd6;
+  color: var(--tk-accent);
   font-weight: 600;
 }
 
@@ -2986,20 +2986,20 @@ body.atl-rail-only .atl-left {
   display: block;
   margin-bottom: 6px;
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-rte {
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   overflow: hidden;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-rte__bar {
   display: flex;
   gap: 2px;
   padding: 4px;
   border-bottom: 1px solid #ebebeb;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-rte__bar button {
   min-width: 28px;
@@ -3025,7 +3025,7 @@ body.atl-rail-only .atl-left {
 
 /* Choix, glisser-déposer, réglages en bas (inspector-ui) */
 .atl-insp__tree {
-  border-bottom: 1px solid #e3e3e3;
+  border-bottom: 1px solid var(--tk-line);
 }
 .atl-insp__row.is-chosen {
   background: #e3ecff;
@@ -3048,7 +3048,7 @@ body.atl-rail-only .atl-left {
 .atl-insp__grip {
   opacity: 0;
   color: #9a9a9a;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   letter-spacing: -2px;
   padding: 0 4px;
 }
@@ -3069,14 +3069,14 @@ body.atl-rail-only .atl-left {
 .atl-insp__moves button {
   flex: 1;
   padding: 7px 10px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 600 12.5px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
 .atl-insp__moves button:hover {
-  background: #f3f3f3;
+  background: var(--tk-hover);
 }
 
 /* Style d'un élément, onglets de section, IA de section, barre flottante */
@@ -3086,7 +3086,7 @@ body.atl-rail-only .atl-left {
 .atl-style__title {
   margin: 14px 0 6px;
   font: 700 12.5px "Inter", system-ui, sans-serif;
-  color: #303030;
+  color: var(--tk-ink);
 }
 .atl-style__row {
   display: flex;
@@ -3094,7 +3094,7 @@ body.atl-rail-only .atl-left {
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 8px;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
   color: #4a4a4a;
 }
 .atl-style__row select,
@@ -3102,7 +3102,7 @@ body.atl-rail-only .atl-left {
 .atl-style__two input {
   width: 110px;
   padding: 6px 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
 }
@@ -3110,7 +3110,7 @@ body.atl-rail-only .atl-left {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #8a8a8a;
+  color: var(--tk-ink-3);
 }
 .atl-style__px input {
   width: 70px !important;
@@ -3124,13 +3124,13 @@ body.atl-rail-only .atl-left {
   width: 30px;
   height: 30px;
   padding: 0;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   background: none;
 }
 .atl-style__color code {
-  font-size: 11px;
-  color: #8a8a8a;
+  font-size: var(--tk-text-xs);
+  color: var(--tk-ink-3);
 }
 .atl-style__color button,
 .atl-style__reset {
@@ -3149,7 +3149,7 @@ body.atl-rail-only .atl-left {
   align-items: center;
   gap: 8px;
   margin-top: 14px;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-style__two {
   display: grid;
@@ -3160,14 +3160,14 @@ body.atl-rail-only .atl-left {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 12px;
-  color: #616161;
+  font-size: var(--tk-text-sm);
+  color: var(--tk-ink-3);
 }
 .atl-seg2 {
   display: inline-flex;
   padding: 2px;
   border-radius: 8px;
-  background: #f1f1f1;
+  background: var(--tk-hover);
   gap: 2px;
 }
 .atl-seg2 button {
@@ -3177,12 +3177,12 @@ body.atl-rail-only .atl-left {
   border-radius: 6px;
   background: none;
   font: 600 12px "Inter", system-ui, sans-serif;
-  color: #616161;
+  color: var(--tk-ink-3);
   cursor: pointer;
 }
 .atl-seg2 button.is-on {
-  background: #fff;
-  color: #5b3fd6;
+  background: var(--tk-surface);
+  color: var(--tk-accent);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 .atl-tabs2 {
@@ -3197,12 +3197,12 @@ body.atl-rail-only .atl-left {
   border-bottom: 2px solid transparent;
   background: none;
   font: 600 13px "Inter", system-ui, sans-serif;
-  color: #616161;
+  color: var(--tk-ink-3);
   cursor: pointer;
 }
 .atl-tabs2 button.is-on {
-  color: #5b3fd6;
-  border-bottom-color: #5b3fd6;
+  color: var(--tk-accent);
+  border-bottom-color: var(--tk-accent);
 }
 .atl-aibox {
   margin: 16px 12px 0;
@@ -3219,8 +3219,8 @@ body.atl-rail-only .atl-left {
 }
 .atl-aibox__hint {
   margin: 0;
-  font-size: 12px;
-  color: #616161;
+  font-size: var(--tk-text-sm);
+  color: var(--tk-ink-3);
 }
 .atl-aibox textarea {
   padding: 8px;
@@ -3234,7 +3234,7 @@ body.atl-rail-only .atl-left {
   padding: 8px;
   border: 1.5px dashed #cfc6f3;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   color: #6b5bb5;
   cursor: pointer;
   text-align: center;
@@ -3265,7 +3265,7 @@ body.atl-rail-only .atl-left {
   padding: 7px;
   border: 1px solid #d6d0f5;
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 600 12px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
@@ -3277,14 +3277,14 @@ body.atl-rail-only .atl-left {
   gap: 2px;
   padding: 3px 4px 3px 10px;
   border-radius: 8px;
-  background: #fff;
-  border: 1px solid #e3e3e3;
+  background: var(--tk-surface);
+  border: 1px solid var(--tk-line);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
   font: 12px "Inter", system-ui, sans-serif;
 }
 .atl-float b {
   margin-right: 6px;
-  color: #5b3fd6;
+  color: var(--tk-accent);
   font-weight: 600;
 }
 .atl-float button {
@@ -3294,17 +3294,17 @@ body.atl-rail-only .atl-left {
   border-radius: 6px;
   background: none;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-float button:hover {
-  background: #f1f1f1;
+  background: var(--tk-hover);
 }
 .atl-aibox select {
   padding: 7px 8px;
   border: 1px solid #d6d0f5;
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
-  background: #fff;
+  background: var(--tk-surface);
 }
 
 /* ---- Menu « ⋯ » de la page (repartir de l'original, supprimer) ---- */
@@ -3322,7 +3322,7 @@ body.atl-rail-only .atl-left {
   border-left: 1px solid #e2e2e2;
   border-radius: 0 6px 6px 0;
   background: transparent;
-  color: #555;
+  color: var(--tk-ink-2);
   font-weight: 700;
   cursor: pointer;
 }
@@ -3333,9 +3333,9 @@ body.atl-rail-only .atl-left {
   flex-direction: column;
   min-width: 210px;
   padding: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 .atl-pagemenu__list button {
@@ -3343,7 +3343,7 @@ body.atl-rail-only .atl-left {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #222;
+  color: var(--tk-ink);
   font-weight: 500;
   text-align: left;
   white-space: nowrap;
@@ -3358,7 +3358,7 @@ body.atl-rail-only .atl-left {
 .atl-pagemenu__note {
   max-width: 240px;
   margin: 4px 10px 6px;
-  color: #666;
+  color: var(--tk-ink-3);
   font: 12px/1.4 "Inter", system-ui, sans-serif;
 }
 
@@ -3372,7 +3372,7 @@ body.atl-rail-only .atl-left {
   padding: 10px 12px 12px;
   border: 1px solid #e4e4e4;
   border-radius: 10px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-studio__boxtitle {
   margin: 0 0 2px;
@@ -3383,8 +3383,8 @@ body.atl-rail-only .atl-left {
   padding: 0 6px;
   border-radius: 999px;
   background: #eef0ff;
-  color: #5a4bd6;
-  font-size: 11px;
+  color: var(--tk-accent);
+  font-size: var(--tk-text-xs);
   font-style: normal;
 }
 .atl-studio__box .atl-studio__drop {
@@ -3392,19 +3392,19 @@ body.atl-rail-only .atl-left {
 }
 .atl-studio__auto {
   display: block;
-  color: #5a4bd6;
-  font-size: 10px;
+  color: var(--tk-accent);
+  font-size: var(--tk-text-xs);
 }
 .atl-studio__cost {
   margin-right: auto;
-  color: #555;
-  font-size: 13px;
+  color: var(--tk-ink-2);
+  font-size: var(--tk-text-md);
 }
 .atl-studio__progress {
   display: grid;
   gap: 8px;
   margin-top: 12px;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-studio__progress > div {
   position: relative;
@@ -3416,7 +3416,7 @@ body.atl-rail-only .atl-left {
   bottom: 0;
   height: 3px;
   border-radius: 2px;
-  background: #5a4bd6;
+  background: var(--tk-accent);
 }
 @media (max-width: 700px) {
   .atl-studio__boxes {
@@ -3429,9 +3429,9 @@ body.atl-rail-only .atl-left {
   width: 100%;
   margin: 4px 0 8px;
   padding: 9px 10px;
-  border: 1px solid #cfcfcf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   color: #2f2f2f;
   /* Même police que le menu de Whitelabeler : Inter, normal. */
   font: 400 14.5px/1.4 "Inter", system-ui, sans-serif;
@@ -3459,10 +3459,10 @@ body.atl-rail-only .atl-left {
   display: grid;
   gap: 6px;
   margin: 10px 0;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 .atl-intensity small {
-  color: #777;
+  color: var(--tk-ink-3);
 }
 .atl-intensity__seg {
   display: flex;
@@ -3471,9 +3471,9 @@ body.atl-rail-only .atl-left {
 .atl-intensity__seg button {
   flex: 1;
   padding: 6px 0;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 7px;
-  background: #fff;
+  background: var(--tk-surface);
   font-weight: 600;
   cursor: pointer;
 }
@@ -3495,7 +3495,7 @@ body.atl-rail-only .atl-left {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--tk-line);
 }
 .atl-board__refs figure {
   position: relative;
@@ -3517,18 +3517,18 @@ body.atl-rail-only .atl-left {
   border-radius: 50%;
   background: #222;
   color: #fff;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   cursor: pointer;
 }
 .atl-board__refs small {
   flex-basis: 100%;
-  color: #777;
+  color: var(--tk-ink-3);
 }
 .atl-board__add {
   padding: 16px 12px;
   border: 1.5px dashed #c9c1f5;
   border-radius: 8px;
-  color: #5a4bd6;
+  color: var(--tk-accent);
   font-weight: 600;
   cursor: pointer;
 }
@@ -3543,7 +3543,7 @@ body.atl-rail-only .atl-left {
 .atl-board__grid li {
   display: grid;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-board__img {
   position: relative;
@@ -3552,7 +3552,7 @@ body.atl-rail-only .atl-left {
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: 8px;
-  background: #f3f3f3;
+  background: var(--tk-hover);
 }
 .atl-board__img img {
   max-width: 100%;
@@ -3565,12 +3565,12 @@ body.atl-rail-only .atl-left {
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.75);
-  color: #5a4bd6;
+  color: var(--tk-accent);
   font-weight: 700;
 }
 .atl-board__grid input {
   padding: 6px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
 }
@@ -3595,22 +3595,22 @@ body.atl-rail-only .atl-left {
   align-self: center;
   gap: 2px;
   padding: 3px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 9px;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-devices button {
   padding: 6px 12px;
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: #444;
+  color: var(--tk-ink-2);
   font: 600 13px "Inter", system-ui, sans-serif;
   white-space: nowrap;
   cursor: pointer;
 }
 .atl-devices button.is-on {
-  background: #111;
+  background: var(--tk-black);
   color: #fff;
 }
 /* Glisser une section dans l'aperçu */
@@ -3651,8 +3651,8 @@ html:not([data-atl-edit]) [class*="Sidebar--right"] {
 }
 [class*="Sidebar--right"] {
   border-left: 0 !important;
-  border-right: 1px solid #e5e5e5;
-  background: #fff;
+  border-right: 1px solid var(--tk-line);
+  background: var(--tk-surface);
 }
 /* Pas de poignée de redimensionnement ni de fil d'Ariane « Page › … » de Puck. */
 [class*="Sidebar--right"] + [class*="Sidebar-resizeHandle"],
@@ -3699,7 +3699,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-group .atl-topbar__field > span,
 .atl-group__label {
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 .atl-group .atl-topbar__field {
   gap: 6px;
@@ -3726,7 +3726,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   padding: 10px 12px;
   border: 1px solid #ddd9d0;
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
 }
 .atl-start input {
@@ -3734,10 +3734,10 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-start small {
   color: #77736b;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-start.is-on {
-  border-color: #111;
+  border-color: var(--tk-black);
   box-shadow: 0 0 0 2px #111;
 }
 .atl-tplgrid input {
@@ -3759,16 +3759,16 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   padding: 6px;
   border: 1px solid #ddd9d0;
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 .atl-tplgrid__item:hover {
-  border-color: #111;
+  border-color: var(--tk-black);
 }
 .atl-tplgrid__item.is-on {
-  border-color: #111;
+  border-color: var(--tk-black);
   box-shadow: 0 0 0 2px #111;
 }
 .atl-tplgrid__thumb {
@@ -3776,7 +3776,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   height: 100px;
   overflow: hidden;
   border-radius: 5px;
-  background: #f1efea;
+  background: var(--tk-hover);
 }
 .atl-tplgrid__thumb img {
   width: 100%;
@@ -3787,20 +3787,20 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 .atl-tplgrid__item b {
   display: -webkit-box;
   overflow: hidden;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   line-height: 1.3;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 .atl-tplgrid__item small {
   color: #77736b;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-topbar button.atl-close-page {
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-topbar button.atl-trash {
-  font-size: 14px;
+  font-size: var(--tk-text-base);
   filter: grayscale(1);
   opacity: 0.75;
 }
@@ -3830,14 +3830,14 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-tools .atl-devices button {
   padding: 5px 9px;
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 .atl-topbar .atl-tools button {
   border: 0;
 }
 .atl-topbar .atl-tools .atl-publish button,
 .atl-topbar .atl-tools .atl-publish a {
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
 }
 /* Annuler / Rétablir dans la barre de l'aperçu */
 .atl-undo {
@@ -3851,12 +3851,12 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #333;
+  color: var(--tk-ink-2);
   font-size: 18px;
   cursor: pointer;
 }
 .atl-undo button:hover:not(:disabled) {
-  background: #f0f0f0;
+  background: var(--tk-hover);
 }
 .atl-undo button:disabled {
   color: #c4c4c4;
@@ -3868,7 +3868,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 .atl-switch-host { order: -2; }
 .atl-lang-host { order: -1; display: inline-flex; align-items: center; margin-right: 8px; }
 .atl-lang-host .atl-devices { padding: 2px; }
-.atl-lang-host .atl-devices button { padding: 4px 9px; font-size: 13px; }
+.atl-lang-host .atl-devices button { padding: 4px 9px; font-size: var(--tk-text-md); }
 .atl-undo { order: 10; }
 
 /* Bandeau « sections proposées » juste après un import */
@@ -3895,7 +3895,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-proposals button.atl-proposals__later {
   border-color: #c9c2ff;
-  background: #fff;
+  background: var(--tk-surface);
   color: #2d2566;
 }
 
@@ -3903,8 +3903,8 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 .atl-insp__name .atl-insp__kind {
   display: block;
   margin-bottom: 1px;
-  color: #8a8a8a;
-  font-size: 10.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -3912,16 +3912,16 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 
 /* Contenu d'un groupe dans l'éditeur (FAQ : une carte par question) */
 .atl-gc { display: grid; gap: 8px; padding: 4px 14px 10px; }
-.atl-gc__title { margin: 6px 0 0; color: #111; font: 600 12.5px "Inter", system-ui, sans-serif; }
-.atl-gc__card { display: grid; gap: 6px; padding: 8px; border: 1px solid #e3e3e3; border-radius: 8px; background: #fafafa; }
-.atl-gc__head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
-.atl-gc__head button { width: 24px; height: 22px; border: 1px solid #ddd; border-radius: 5px; background: #fff; cursor: pointer; }
+.atl-gc__title { margin: 6px 0 0; color: var(--tk-ink); font: 600 12.5px "Inter", system-ui, sans-serif; }
+.atl-gc__card { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--tk-line); border-radius: 8px; background: var(--tk-surface-2); }
+.atl-gc__head { display: flex; align-items: center; justify-content: space-between; font-size: var(--tk-text-sm); }
+.atl-gc__head button { width: 24px; height: 22px; border: 1px solid var(--tk-line-strong); border-radius: 5px; background: var(--tk-surface); cursor: pointer; }
 .atl-gc__head button:disabled { opacity: 0.35; cursor: default; }
 .atl-gc__row { display: grid; gap: 3px; }
-.atl-gc__label { justify-self: start; padding: 0; border: 0; background: none; color: #8a8a8a; font: 600 10.5px "Inter", system-ui, sans-serif; letter-spacing: 0.02em; text-transform: uppercase; cursor: pointer; }
+.atl-gc__label { justify-self: start; padding: 0; border: 0; background: none; color: var(--tk-ink-3); font: 600 10.5px "Inter", system-ui, sans-serif; letter-spacing: 0.02em; text-transform: uppercase; cursor: pointer; }
 .atl-gc__label:hover { color: #6c5ce7; }
-.atl-gc input, .atl-gc textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #d9d9d9; border-radius: 6px; background: #fff; font: 13px/1.4 "Inter", system-ui, sans-serif; resize: vertical; }
-.atl-gc__img { width: 100%; height: 70px; padding: 0; overflow: hidden; border: 1px dashed #ccc; border-radius: 6px; background: #f1f1f1; color: #888; font-size: 11px; cursor: pointer; }
+.atl-gc input, .atl-gc textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #d9d9d9; border-radius: 6px; background: var(--tk-surface); font: 13px/1.4 "Inter", system-ui, sans-serif; resize: vertical; }
+.atl-gc__img { width: 100%; height: 70px; padding: 0; overflow: hidden; border: 1px dashed var(--tk-line-strong); border-radius: 6px; background: var(--tk-hover); color: var(--tk-ink-3); font-size: var(--tk-text-xs); cursor: pointer; }
 .atl-gc__img img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ---- Panneau de style par écran (style-editor-ui.jsx) ---- */
@@ -3935,32 +3935,32 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   margin: 6px 12px 8px;
   padding: 2px;
   border-radius: 9px;
-  background: #f1f1f1;
+  background: var(--tk-hover);
 }
 .atl-sx__device button {
   padding: 6px 4px;
   border: 0;
   border-radius: 7px;
   background: none;
-  color: #555;
+  color: var(--tk-ink-2);
   font: 600 11.5px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
 .atl-sx__device button.is-on {
-  background: #fff;
-  color: #111;
+  background: var(--tk-surface);
+  color: var(--tk-ink);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 .atl-sx > .atl-insp__hint {
   margin: 0 12px 6px;
 }
 .atl-sx__part {
-  border-top: 1px solid #ececec;
+  border-top: 1px solid var(--tk-line);
 }
 .atl-sx__part > summary {
   padding: 10px 12px;
   font: 700 12.5px "Inter", system-ui, sans-serif;
-  color: #303030;
+  color: var(--tk-ink);
   cursor: pointer;
   list-style: none;
 }
@@ -3970,7 +3970,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 .atl-sx__part > summary::after {
   content: "›";
   float: right;
-  color: #999;
+  color: var(--tk-ink-3);
   transition: transform 0.15s;
 }
 .atl-sx__part[open] > summary::after {
@@ -3981,7 +3981,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-sx__sides {
   margin-bottom: 10px;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
   color: #4a4a4a;
 }
 .atl-sx__sides > div {
@@ -3999,26 +3999,26 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 .atl-sx__sides input {
   width: 100%;
   padding: 5px 4px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 7px;
   font: 12px "Inter", system-ui, sans-serif;
   text-align: center;
 }
 .atl-sx__sides small {
-  font-size: 10px;
-  color: #999;
+  font-size: var(--tk-text-xs);
+  color: var(--tk-ink-3);
 }
 .atl-style__px input[type="text"] {
   width: 96px !important;
   padding: 6px 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
 }
 .atl-style__row > input:not([type]) {
   width: 120px;
   padding: 6px 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
 }
@@ -4031,9 +4031,9 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   width: 16px;
   height: 16px;
   padding: 0;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 4px;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
 }
 .atl-sx__focus button.is-on {
@@ -4049,7 +4049,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   width: 30px;
   height: 30px;
   padding: 0;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   background: none;
 }
@@ -4070,9 +4070,9 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-sx__actions button {
   padding: 6px 10px;
-  border: 1px solid #d5d5d5;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 600 12px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
@@ -4082,9 +4082,9 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-insp__link select {
   padding: 7px 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 12.5px "Inter", system-ui, sans-serif;
 }
 
@@ -4095,26 +4095,27 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
    ========================================================================== */
 
 :root {
-  --atl-accent: #4f46e5;
-  --atl-accent-strong: #4338ca;
-  --atl-accent-soft: #eef2ff;
-  --atl-accent-border: #c7d2fe;
-  --atl-ink: #111318;
-  --atl-ink-2: #4b5563;
-  --atl-ink-3: #9ca3af;
-  --atl-line: #e5e7eb;
-  --atl-line-strong: #d1d5db;
-  --atl-bg: #ffffff;
-  --atl-bg-subtle: #f7f8fa;
-  --atl-bg-hover: #f3f4f6;
-  --atl-danger: #dc2626;
-  --atl-ok: #047857;
-  --atl-radius: 8px;
-  --atl-radius-lg: 12px;
-  --atl-shadow-sm: 0 1px 2px rgba(17, 19, 24, 0.06);
-  --atl-shadow-md: 0 6px 16px rgba(17, 19, 24, 0.08);
-  --atl-shadow-lg: 0 16px 40px rgba(17, 19, 24, 0.16);
-  --atl-ring: 0 0 0 3px rgba(79, 70, 229, 0.18);
+  /* Anciennes variables de l'éditeur → base commune (src/tokens.css). */
+  --atl-accent: var(--tk-accent);
+  --atl-accent-strong: var(--tk-accent-strong);
+  --atl-accent-soft: var(--tk-accent-soft);
+  --atl-accent-border: var(--tk-accent-border);
+  --atl-ink: var(--tk-ink);
+  --atl-ink-2: var(--tk-ink-2);
+  --atl-ink-3: var(--tk-ink-3);
+  --atl-line: var(--tk-line);
+  --atl-line-strong: var(--tk-line-strong);
+  --atl-bg: var(--tk-surface);
+  --atl-bg-subtle: var(--tk-surface-2);
+  --atl-bg-hover: var(--tk-hover);
+  --atl-danger: var(--tk-danger);
+  --atl-ok: var(--tk-ok);
+  --atl-radius: var(--tk-radius-sm);
+  --atl-radius-lg: var(--tk-radius-md);
+  --atl-shadow-sm: var(--tk-shadow-sm);
+  --atl-shadow-md: var(--tk-shadow-md);
+  --atl-shadow-lg: var(--tk-shadow-lg);
+  --atl-ring: var(--tk-focus);
 }
 
 /* ---- Barre du haut ---- */
@@ -4158,7 +4159,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 .atl-topbar__field > span {
   color: var(--atl-ink-3);
   font-weight: 600;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -4257,11 +4258,11 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   font-weight: 600;
 }
 .atl-tool-panel__head b {
-  font-size: 14px;
+  font-size: var(--tk-text-base);
   letter-spacing: -0.01em;
 }
 .atl-tool-panel__title {
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 
 /* Onglets du panneau de gauche */
@@ -4304,7 +4305,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-f__info {
   color: var(--atl-ink-3);
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
 }
 .atl-f__brief {
   color: var(--atl-accent);
@@ -4367,14 +4368,14 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   transition: background 0.18s;
 }
 .atl-switch span {
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: var(--atl-shadow-sm);
 }
 .atl-switch.is-on {
   background: var(--atl-accent);
 }
 .atl-switch.is-on span {
-  background: #fff;
+  background: var(--tk-surface);
 }
 
 /* Curseur */
@@ -4403,7 +4404,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
   border-radius: var(--atl-radius-lg);
   background: var(--atl-bg-subtle);
   color: var(--atl-ink-3);
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-img__thumb em {
   color: #b45309;
@@ -4460,7 +4461,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-media-grid small {
   color: var(--atl-ink-3);
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 
 /* Onglets du sélecteur de médias */
@@ -4533,7 +4534,7 @@ body:not(.atl-rail-only) [class*="PuckLayout"] {
 }
 .atl-newpage__hint {
   color: var(--atl-ink-2);
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
   line-height: 1.5;
 }
 .atl-family,
@@ -4748,7 +4749,7 @@ html[data-atl-edit] [class*="PuckLayout-inner"] {
   border-top: 0;
   border-radius: 0 0 10px 10px;
   color: var(--atl-ink-3);
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   box-shadow: var(--atl-shadow-md);
   cursor: pointer;
 }
@@ -4806,7 +4807,7 @@ html[data-atl-edit] [class*="PuckLayout-inner"] {
   border-left: 0;
   border-radius: 0 10px 10px 0;
   color: var(--atl-ink-3);
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   box-shadow: var(--atl-shadow-md);
   cursor: pointer;
 }
@@ -4862,7 +4863,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   align-items: center;
   justify-content: center;
   color: var(--atl-ink-3);
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   cursor: pointer;
 }
 
@@ -5058,7 +5059,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-insp__collapse:hover {
   background: var(--atl-accent-soft, #efecff);
   border-color: var(--atl-accent-border, #c9bdfb);
-  color: var(--atl-accent, #5b3fd6);
+  color: var(--atl-accent, var(--tk-accent));
 }
 /* Ligne qui s'illumine entre les sections au survol du « + ». */
 .atl-chip__line {
@@ -5067,7 +5068,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-chip:hover .atl-chip__line {
   border-top-style: solid;
-  border-top-color: var(--atl-accent, #5b3fd6);
+  border-top-color: var(--atl-accent, var(--tk-accent));
   filter: drop-shadow(0 0 7px rgba(109, 74, 255, 0.65));
 }
 /* Petit cercle « + » toujours visible, plus discret qu'avant. */
@@ -5076,8 +5077,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-chip:hover::after {
   opacity: 1;
-  border-color: var(--atl-accent, #5b3fd6);
-  color: var(--atl-accent, #5b3fd6);
+  border-color: var(--atl-accent, var(--tk-accent));
+  color: var(--atl-accent, var(--tk-accent));
 }
 /* Pilule du bas : zone de survol fixe (créée en JS) — ne bouge pas avec
    la pilule, donc plus d'alternance affichage/masquage. */
@@ -5128,9 +5129,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-panel-error button {
   padding: 8px 10px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
 }
 
@@ -5146,18 +5147,18 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   scrollbar-width: thin;
 }
 [class*="Sidebar--right"] .atl-insp {
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 [class*="Sidebar--right"] .atl-insp h3,
 [class*="Sidebar--right"] .atl-insp h4,
 [class*="Sidebar--right"] .atl-insp b {
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
 }
 [class*="Sidebar--right"] .atl-insp input,
 [class*="Sidebar--right"] .atl-insp select,
 [class*="Sidebar--right"] .atl-insp textarea,
 [class*="Sidebar--right"] .atl-insp button {
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 [class*="Sidebar--right"] .atl-insp input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
 [class*="Sidebar--right"] .atl-insp select {
@@ -5172,7 +5173,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 [class*="Sidebar--right"] .atl-seg2 button {
   min-width: 0;
   padding: 4px 7px;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
 }
 
 /* ---- Fond : couleurs du style, autre couleur, image ---- */
@@ -5182,8 +5183,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   gap: 6px;
 }
 .atl-bg__label {
-  color: var(--atl-ink-3, #616161);
-  font-size: 11.5px;
+  color: var(--atl-ink-3, var(--tk-ink-3));
+  font-size: var(--tk-text-sm);
 }
 .atl-bg__swatches {
   display: flex;
@@ -5199,21 +5200,21 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   cursor: pointer;
 }
 .atl-bg__swatches button.is-on {
-  outline: 2px solid #5b3fd6;
+  outline: 2px solid var(--tk-accent);
   outline-offset: 1px;
 }
 .atl-bg__swatches em {
-  color: #8a8a8a;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 .atl-bg__remove {
   align-self: flex-start;
   padding: 4px 8px;
   border: 1px solid #f1c4c4;
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   color: #b42318;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 
@@ -5225,8 +5226,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 /* ---- IA : menu de la page, fiche marque, fenêtre Retravailler ---- */
 .atl-tool-panel__group {
   margin: 6px 0 -4px;
-  color: var(--atl-ink-3, #6b6b6b);
-  font-size: 11px;
+  color: var(--atl-ink-3, var(--tk-ink-3));
+  font-size: var(--tk-text-xs);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -5234,10 +5235,10 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-tool-panel__link {
   align-self: flex-start;
   padding: 6px 10px;
-  border: 1px solid var(--atl-line, #e5e5e5);
+  border: 1px solid var(--atl-line, var(--tk-line));
   border-radius: 8px;
-  background: #fff;
-  font-size: 12px;
+  background: var(--tk-surface);
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 .atl-aibtn-wide {
@@ -5256,9 +5257,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   cursor: pointer;
 }
 .atl-aibtn-wide small {
-  color: #6b6b6b;
+  color: var(--tk-ink-3);
   font-weight: 400;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
 }
 .atl-aidlg__tabs {
   padding: 0;
@@ -5270,8 +5271,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-aidlg__how {
   margin: 0;
-  color: #6b6b6b;
-  font-size: 12px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-aidlg__design {
   display: flex;
@@ -5284,7 +5285,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   padding: 6px 12px;
   border: 0;
   border-radius: 8px;
-  background: #5b3fd6;
+  background: var(--tk-accent);
   color: #fff;
   font: 600 12.5px "Inter", system-ui, sans-serif;
   cursor: pointer;
@@ -5295,35 +5296,35 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   gap: 8px;
   margin: 12px;
   padding: 12px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
 }
 .atl-brand__title {
   margin: 0;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-brand__hint {
   margin: -4px 0 2px;
-  color: #6b6b6b;
-  font-size: 11.5px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
 }
 .atl-brand__field {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-brand__field > span {
-  color: #555;
+  color: var(--tk-ink-2);
 }
 .atl-brand__field input,
 .atl-brand__field textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 6px 8px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: 12px "Inter", system-ui, sans-serif;
   resize: vertical;
@@ -5338,9 +5339,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   width: 46px;
   height: 46px;
   padding: 0;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   overflow: hidden;
   cursor: pointer;
 }
@@ -5353,8 +5354,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
-  font-size: 20px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xl);
 }
 
 /* Fenêtre des outils IA de la page : le titre est déjà dans l'en-tête. */
@@ -5383,7 +5384,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   padding: 4px 10px;
   border: 0;
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   color: #1f1f1f;
   cursor: pointer;
 }
@@ -5402,9 +5403,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   max-height: calc(100vh - 110px);
   overflow: hidden;
   padding: 10px;
-  border: 1px solid var(--atl-line, #e5e5e5);
+  border: 1px solid var(--atl-line, var(--tk-line));
   border-radius: 12px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
   pointer-events: none;
 }
@@ -5427,9 +5428,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   gap: 6px;
   margin: 12px 12px 0;
   padding: 10px 12px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
   font: 12px "Inter", system-ui, sans-serif;
 }
 .atl-savesec > span {
@@ -5442,10 +5443,10 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-savesec button {
   flex: 1;
   padding: 6px 8px;
-  border: 1px solid #d6d6d6;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 7px;
-  background: #fff;
-  font-size: 12px;
+  background: var(--tk-surface);
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 .atl-savesec button:disabled {
@@ -5457,19 +5458,19 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-score__block {
   margin: 10px 0;
   padding: 10px 12px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-score__block h4 {
   display: flex;
   justify-content: space-between;
   margin: 0 0 4px;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-score__block h4 em {
   font-style: normal;
-  color: #5b3fd6;
+  color: var(--tk-accent);
 }
 .atl-beliefs,
 .atl-textchecks {
@@ -5483,7 +5484,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-beliefs li {
   display: flex;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
 }
 .atl-beliefs li > div {
   display: flex;
@@ -5491,7 +5492,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   gap: 2px;
 }
 .atl-beliefs small {
-  color: #6b6b6b;
+  color: var(--tk-ink-3);
 }
 .atl-beliefs__mark {
   flex: none;
@@ -5500,7 +5501,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   font-weight: 700;
 }
 .atl-beliefs li.is-ok .atl-beliefs__mark {
@@ -5519,7 +5520,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   border-radius: 6px;
   background: #f6f3ff;
   color: #4a32c4;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 .atl-linkbtn {
@@ -5538,9 +5539,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   padding: 6px;
   border: 0;
   border-radius: 6px;
-  background: #fafafa;
+  background: var(--tk-surface-2);
   text-align: left;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 .atl-textchecks button:hover {
@@ -5558,13 +5559,13 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   white-space: nowrap;
 }
 .atl-textchecks small {
-  color: #6b6b6b;
+  color: var(--tk-ink-3);
 }
 .atl-textchecks__icon {
   flex: none;
   width: 22px;
   color: #8a5300;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   font-weight: 700;
 }
 
@@ -5577,7 +5578,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-audit h4 {
   margin: 8px 0 2px;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-audit__verdict {
   margin: 0;
@@ -5593,7 +5594,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   padding-left: 18px;
 }
 .atl-audit__list small {
-  color: #6b6b6b;
+  color: var(--tk-ink-3);
 }
 .atl-audit__list .atl-linkbtn {
   margin-left: 6px;
@@ -5604,7 +5605,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-audit__state.is-ok {
   background: #e6f6ea;
@@ -5626,8 +5627,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-f__lab {
   display: block;
   margin-bottom: 4px;
-  font-size: 11.5px;
-  color: #616161;
+  font-size: var(--tk-text-sm);
+  color: var(--tk-ink-3);
 }
 .atl-f__ctl {
   display: flex;
@@ -5648,16 +5649,16 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   flex: none;
   width: 28px;
   height: 30px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
-  color: #616161;
+  background: var(--tk-surface);
+  color: var(--tk-ink-3);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
 }
 .atl-f__split.is-on {
-  border-color: #5b3fd6;
-  color: #5b3fd6;
+  border-color: var(--tk-accent);
+  color: var(--tk-accent);
   background: #f3f0ff;
 }
 .atl-f__select {
@@ -5665,31 +5666,31 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   min-width: 0;
   height: 30px;
   padding: 0 6px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-pre {
   position: relative;
   display: flex;
   align-items: center;
   height: 30px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
 }
 .atl-pre:focus-within,
 .atl-pre.is-open {
-  border-color: #5b3fd6;
+  border-color: var(--tk-accent);
   box-shadow: 0 0 0 2px rgba(91, 63, 214, 0.15);
 }
 .atl-pre__icon {
   flex: none;
   padding-left: 7px;
   font-style: normal;
-  font-size: 12px;
-  color: #8a8a8a;
+  font-size: var(--tk-text-sm);
+  color: var(--tk-ink-3);
 }
 .atl-pre input {
   flex: 1 1 auto;
@@ -5708,9 +5709,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   height: 100%;
   border: 0;
   background: none;
-  color: #8a8a8a;
+  color: var(--tk-ink-3);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-pre__list {
   position: absolute;
@@ -5721,9 +5722,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   max-height: 230px;
   overflow-y: auto;
   padding: 4px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
 }
 .atl-pre__list button {
@@ -5735,16 +5736,16 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   border-radius: 6px;
   background: none;
   font: 12.5px "Inter", system-ui, sans-serif;
-  color: #303030;
+  color: var(--tk-ink);
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
 }
 .atl-pre__list button:hover {
-  background: #f3f3f3;
+  background: var(--tk-hover);
 }
 .atl-pre__list button.is-on {
-  color: #5b3fd6;
+  color: var(--tk-accent);
   font-weight: 600;
 }
 .atl-f .atl-seg2 {
@@ -5760,7 +5761,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   width: 30px;
   height: 30px;
   padding: 0;
-  border: 1px solid #d0d0d0 !important;
+  border: 1px solid var(--tk-line-strong) !important;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -5768,9 +5769,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   flex: 0 0 100%;
   margin-top: 6px;
   padding: 8px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 .atl-cp__tabs {
@@ -5779,7 +5780,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   margin-bottom: 8px;
   padding: 2px;
   border-radius: 8px;
-  background: #f1f1f1;
+  background: var(--tk-hover);
 }
 .atl-cp__tabs button {
   flex: 1;
@@ -5788,12 +5789,12 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   border-radius: 6px;
   background: none;
   font: 600 11.5px "Inter", system-ui, sans-serif;
-  color: #616161 !important;
+  color: var(--tk-ink-3) !important;
   cursor: pointer;
 }
 .atl-cp__tabs button.is-on {
-  background: #fff;
-  color: #5b3fd6 !important;
+  background: var(--tk-surface);
+  color: var(--tk-accent) !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 .atl-cp__tabs .atl-cp__close {
@@ -5813,15 +5814,15 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   align-items: center;
   gap: 2px;
   padding: 5px 2px;
-  border: 1px solid #ececec;
+  border: 1px solid var(--tk-line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   cursor: pointer;
-  color: #303030 !important;
+  color: var(--tk-ink) !important;
   font-weight: 400 !important;
 }
 .atl-cp__grid button.is-on {
-  border-color: #5b3fd6;
+  border-color: var(--tk-accent);
 }
 .atl-cp__grid i {
   width: 34px;
@@ -5838,12 +5839,12 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-cp__grid small {
   font: 10px ui-monospace, monospace;
-  color: #8a8a8a;
+  color: var(--tk-ink-3);
 }
 .atl-cp__grid em {
   grid-column: 1 / -1;
-  font-size: 11px;
-  color: #8a8a8a;
+  font-size: var(--tk-text-xs);
+  color: var(--tk-ink-3);
 }
 .atl-cp__perso {
   display: flex;
@@ -5854,7 +5855,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   width: 40px;
   height: 32px;
   padding: 0;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
 }
 .atl-cp__perso input:not([type]) {
@@ -5862,7 +5863,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   min-width: 0;
   height: 32px;
   padding: 0 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px ui-monospace, monospace;
 }
@@ -5879,23 +5880,23 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   min-width: 0;
   height: 30px;
   padding: 0 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
-  background: #fff;
+  background: var(--tk-surface);
   font: 12.5px "Inter", system-ui, sans-serif;
-  color: #303030;
+  color: var(--tk-ink);
   text-align: left;
   cursor: pointer;
 }
 .atl-ts__btn span {
   font-weight: 700;
-  color: #8a8a8a;
+  color: var(--tk-ink-3);
 }
 .atl-ts__btn i {
   margin-left: auto;
   font-style: normal;
-  color: #8a8a8a;
-  font-size: 11px;
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-xs);
 }
 .atl-ts__list {
   position: absolute;
@@ -5904,16 +5905,16 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   left: 0;
   right: 0;
   padding: 6px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--tk-surface);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
 }
 .atl-ts__list input {
   width: 100%;
   margin-bottom: 4px;
   padding: 6px 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
   box-sizing: border-box;
@@ -5931,7 +5932,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   cursor: pointer;
 }
 .atl-ts__list button:hover {
-  background: #f3f3f3;
+  background: var(--tk-hover);
 }
 .atl-ts__list button > b {
   flex: none;
@@ -5939,30 +5940,30 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   height: 28px;
   display: grid;
   place-items: center;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 7px;
   font: 700 11px "Inter", system-ui, sans-serif;
-  color: #616161;
+  color: var(--tk-ink-3);
 }
 .atl-ts__list button > span {
   display: flex;
   flex-direction: column;
   min-width: 0;
   font: 600 12.5px "Inter", system-ui, sans-serif;
-  color: #303030;
+  color: var(--tk-ink);
 }
 .atl-ts__list small {
   overflow: hidden;
   font-weight: 400;
-  font-size: 11px;
-  color: #8a8a8a;
+  font-size: var(--tk-text-xs);
+  color: var(--tk-ink-3);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .atl-ts__list em {
   margin-left: auto;
   font-style: normal;
-  color: #5b3fd6;
+  color: var(--tk-accent);
 }
 
 /* ---- Barre « Demander une modification » en bas du panneau de droite ---- */
@@ -5975,8 +5976,8 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   gap: 6px;
   margin: 12px 0 0;
   padding: 8px;
-  border-top: 1px solid #ececec;
-  background: #fff;
+  border-top: 1px solid var(--tk-line);
+  background: var(--tk-surface);
   box-shadow: 0 -6px 14px rgba(0, 0, 0, 0.05);
 }
 .atl-ask__chip {
@@ -5988,7 +5989,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   border: 1px solid #d9ccff;
   border-radius: 6px;
   background: #f3f0ff;
-  color: #5b3fd6;
+  color: var(--tk-accent);
   font: 600 11px "Inter", system-ui, sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -5997,12 +5998,12 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   min-width: 0;
   resize: none;
   padding: 6px 8px;
-  border: 1px solid #c9cccf;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 8px;
   font: 12.5px "Inter", system-ui, sans-serif;
 }
 .atl-ask textarea:focus {
-  border-color: #5b3fd6;
+  border-color: var(--tk-accent);
   outline: none;
 }
 .atl-ask button {
@@ -6025,9 +6026,9 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-car select {
   max-width: 60%;
   padding: 4px 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
-  background: #fff;
+  background: var(--tk-surface);
   font: inherit;
 }
 .atl-car .atl-style__two select {
@@ -6049,7 +6050,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-car__add input {
   width: 52px;
   padding: 4px 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
 }
 .atl-car__ia {
@@ -6059,7 +6060,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   background: #f6f0ff;
   color: #4b2a8a;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 .atl-car__ia:hover {
@@ -6088,7 +6089,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 .atl-pagemenu__caret {
   flex: none;
   color: var(--atl-ink-3);
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-pagemenu__panel {
   position: absolute;
@@ -6146,7 +6147,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
 }
 .atl-pagemenu__types small {
   color: var(--atl-ink-3);
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
 }
 .atl-topbar .atl-pagemenu__pages button {
   flex-direction: column;
@@ -6154,7 +6155,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   gap: 1px;
 }
 .atl-pagemenu__pages b {
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   font-weight: 600;
   color: var(--atl-ink-2);
 }
@@ -6189,7 +6190,7 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   border-radius: var(--atl-radius);
   border: 1px solid var(--atl-line);
   background: var(--atl-bg-subtle);
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   line-height: 1.45;
   color: var(--atl-ink-2);
 }
@@ -6262,14 +6263,14 @@ button.atl-zone-tag {
   padding: 3px 9px;
   border: 1px solid #cfcfd6;
   border-radius: 6px;
-  background: #fff;
-  color: #333;
+  background: var(--tk-surface);
+  color: var(--tk-ink-2);
   font: 600 11.5px "Inter", system-ui, sans-serif;
   cursor: pointer;
 }
 .atl-original-pane__btn:hover:not(:disabled) {
-  border-color: #4f46e5;
-  color: #4338ca;
+  border-color: var(--tk-accent);
+  color: var(--tk-accent-strong);
 }
 .atl-original-pane__btn:disabled {
   opacity: 0.5;
@@ -6286,7 +6287,7 @@ button.atl-zone-tag {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.9);
-  color: #555;
+  color: var(--tk-ink-2);
   font: 600 13px "Inter", system-ui, sans-serif;
 }
 
@@ -6304,7 +6305,7 @@ button.atl-zone-tag {
   padding: 4px 8px;
   border: 1px solid var(--atl-line-strong);
   border-radius: 999px;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
   cursor: pointer;
 }
 .atl-ai-from label.is-on {
@@ -6319,7 +6320,7 @@ button.atl-zone-tag {
   box-sizing: border-box;
   width: 100%;
   padding: 7px 9px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--tk-line-strong);
   border-radius: 6px;
   font: inherit;
 }
@@ -6327,7 +6328,7 @@ button.atl-zone-tag {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   font-weight: 600;
 }
 
@@ -6342,20 +6343,20 @@ button.atl-zone-tag {
   border: 1px dashed #8ea2ff;
   border-radius: 10px;
   background: rgba(91, 124, 255, 0.05);
-  font-size: 13px;
+  font-size: var(--tk-text-md);
   font-weight: 600;
   cursor: pointer;
 }
 .atl-score__slots small {
   grid-column: 2;
   color: #6b7080;
-  font-size: 11.5px;
+  font-size: var(--tk-text-sm);
   font-weight: 400;
 }
 .atl-score__zone {
   padding: 1px 7px;
   border-radius: 99px;
-  font-size: 10px;
+  font-size: var(--tk-text-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -6375,7 +6376,7 @@ button.atl-zone-tag {
 }
 .atl-slotpick__why {
   margin: 0 0 6px;
-  font-size: 14px;
+  font-size: var(--tk-text-base);
 }
 .atl-slotpick__why em {
   margin-left: 6px;
@@ -6383,7 +6384,7 @@ button.atl-zone-tag {
   border-radius: 99px;
   background: #e3e8ff;
   color: #3949ab;
-  font-size: 12px;
+  font-size: var(--tk-text-sm);
   font-style: normal;
   font-weight: 700;
 }
@@ -6397,12 +6398,12 @@ button.atl-zone-tag {
   display: grid;
   gap: 6px;
   padding: 8px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--tk-line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--tk-surface);
   text-align: left;
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--tk-text-md);
   cursor: pointer;
 }
 .atl-slotpick__grid button:hover {
@@ -6415,7 +6416,7 @@ button.atl-zone-tag {
   border-radius: 99px;
   background: #eef7ee;
   color: #2f7a35;
-  font-size: 11px;
+  font-size: var(--tk-text-xs);
   font-style: normal;
   font-weight: 700;
 }
@@ -6439,5 +6440,137 @@ button.atl-zone-tag {
 .atl-slotpick .atl-muted {
   margin: 4px 0 0;
   color: #6b7080;
-  font-size: 13px;
+  font-size: var(--tk-text-md);
+}
+
+/* ==========================================================================
+   Éditeur : passe design sur la base commune (2026-11-09, audit Impeccable)
+   ========================================================================== */
+
+/* Nom de l'outil ouvert : un vrai titre, sans sur-titre. */
+.atl-tool-panel__head b {
+  color: var(--tk-ink);
+  font-size: var(--tk-text-lg);
+  font-weight: var(--tk-weight-strong);
+  letter-spacing: -0.01em;
+}
+
+/* Listes d'actions (IA, Score…) : une liste, pas une pile de cartes.
+   Chaque action est une ligne qui s'éclaire au survol. */
+.atl-choices {
+  gap: 2px;
+}
+.atl-choices button {
+  gap: 2px;
+  padding: var(--tk-space-2) var(--tk-space-3);
+  border-color: transparent;
+  border-radius: var(--tk-radius-md);
+  background: none;
+  transition: background var(--tk-fast) var(--tk-ease);
+}
+.atl-choices button b {
+  color: var(--tk-ink);
+  font-size: var(--tk-text-base);
+  font-weight: var(--tk-weight-strong);
+}
+.atl-choices button:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--tk-hover);
+}
+.atl-choices button.is-on {
+  border-color: var(--tk-accent-border);
+  background: var(--tk-accent-soft);
+}
+
+/* Fiche « Ma marque et mon produit » (panneau de droite) : une zone du
+   panneau séparée par un trait, plus une carte dans le panneau. */
+.atl-brand {
+  margin: 0;
+  padding: var(--tk-space-4) var(--tk-space-3);
+  border: 0;
+  border-bottom: 1px solid var(--tk-line);
+  border-radius: 0;
+  background: none;
+}
+
+/* Champs de Puck (panneau de droite) : même étiquette, même champ partout. */
+[class*="_Input-label_"] {
+  color: var(--tk-ink-2);
+  font-size: var(--tk-text-sm);
+  font-weight: var(--tk-weight-strong);
+}
+[class*="_Input-input_"] {
+  min-height: 34px;
+  border-color: var(--tk-line-strong);
+  border-radius: var(--tk-radius-sm);
+  background: var(--tk-surface);
+  transition: border-color var(--tk-fast) var(--tk-ease), box-shadow var(--tk-fast) var(--tk-ease);
+}
+[class*="_Input-input_"]:hover {
+  border-color: var(--tk-ink-4);
+}
+[class*="_Input-input_"]:focus {
+  border-color: var(--tk-accent);
+  box-shadow: 0 0 0 3px var(--tk-accent-soft);
+  outline: none;
+}
+
+/* ---- Finition (2026-11-09) : panneau Score, boutons, bandeau d'import ---- */
+
+/* Blocs du Score : des zones séparées par un trait, plus des cartes dans
+   le panneau. Recommandations : lignes, pas cartes. */
+.atl-score__block,
+.atl-score__item {
+  padding: var(--tk-space-3) 0;
+  border: 0;
+  border-top: 1px solid var(--tk-line);
+  border-radius: 0;
+  background: none;
+}
+.atl-score__block h4 {
+  color: var(--tk-ink);
+  font-size: var(--tk-text-base);
+}
+.atl-textchecks button {
+  background: none;
+  border-radius: var(--tk-radius-sm);
+}
+.atl-textchecks button:hover {
+  background: var(--tk-hover);
+}
+
+/* Un seul accent : l'action principale en indigo plein (plus de dégradé
+   violet), l'action secondaire en bouton contour. */
+.atl-score__all--ia {
+  background: var(--tk-accent) !important;
+  color: var(--tk-on-accent) !important;
+}
+.atl-score__all--ia:hover:not(:disabled) {
+  background: var(--tk-accent-strong) !important;
+}
+.atl-score__all {
+  min-height: 36px;
+  border-radius: var(--tk-radius-md);
+  font-size: var(--tk-text-md);
+  font-weight: var(--tk-weight-strong);
+}
+.atl-score__all:not(.atl-score__all--ia) {
+  border: 1px solid var(--tk-line-strong);
+  background: var(--tk-surface);
+  color: var(--tk-ink);
+}
+.atl-score__all:not(.atl-score__all--ia):hover:not(:disabled) {
+  border-color: var(--tk-ink);
+}
+.atl-score__slots {
+  border-color: var(--tk-accent-border);
+  border-radius: var(--tk-radius-md);
+  background: var(--tk-accent-soft);
+}
+
+/* Bandeau « Import terminé » : bouton à l'accent de l'atelier. */
+.atl-proposals button:not(.atl-proposals__later) {
+  background: var(--tk-accent);
+  border-color: var(--tk-accent);
+  color: var(--tk-on-accent);
 }

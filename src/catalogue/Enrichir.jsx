@@ -225,7 +225,7 @@ function Method({ method, children, onSubmit, busy, submitLabel }) {
   return (
     <section className="cat-panel" id={`m-${method.id}`}>
       <div className="cat-panel__head">
-        <h3>{method.title}</h3>
+        <h2>{method.title}</h2>
       </div>
       <p className="cat-muted">{method.text}</p>
       <form

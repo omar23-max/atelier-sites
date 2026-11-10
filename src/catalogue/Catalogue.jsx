@@ -108,7 +108,7 @@ function AddToPageButton({ section, onMessage, onChoose }) {
           }
         }}
       >
-        {busy ? "Ajout…" : "+ Ajouter à la page ouverte"}
+        {busy ? "Ajout…" : "+ Ajouter à la page"}
       </button>
       <Menu className="cat-tpl__usemore" label="Ajouter à une autre page" icon="▾" items={[{ label: "Ajouter à une autre page…", action: onChoose }]} />
     </div>
@@ -299,6 +299,8 @@ export default function Catalogue() {
   const [view, setView] = useState(() => location.hash.slice(1) || (location.search.includes("page=") ? "designs" : "tout"));
   const [query, setQuery] = useState("");
   const [origin, setOrigin] = useState("");
+  // Cartes affichées par famille (vue d'une famille : 48, puis +48).
+  const [moreBy, setMoreBy] = useState({});
   const [toCheck, setToCheck] = useState(false); // sections signalées par scripts/audit-sections.mjs
   const { originOf } = useOrigins();
   // Aperçu ouvert (id) et page qui reçoit les sections (la page ouverte par défaut).
@@ -553,24 +555,54 @@ export default function Catalogue() {
     </h1>
   );
 
-  function FamilyBlock({ family }) {
-    const list = (grouped[family.id] ?? []).filter(matches);
+  // « Toutes les sections » (overview) : les 8 premiers modèles de chaque
+  // famille, puis « Voir les N » qui ouvre la famille (filtres gardés). Dans
+  // une famille : 48 cartes, puis « Afficher 48 de plus ». Avant : 2 014
+  // cartes et 38 000 éléments d'un coup (audit design 2026-11-09).
+  function FamilyBlock({ family, overview = false }) {
+    // (moreBy : voir l'état « cartes affichées par famille » plus haut)
+    // Sections masquées à la fin : les premières cartes montrées sont celles
+    // proposées dans l'atelier.
+    const matching = (grouped[family.id] ?? []).filter(matches);
+    const list = [...matching.filter((s) => s.meta.status !== "masquee"), ...matching.filter((s) => s.meta.status === "masquee")];
+    const step = overview ? 8 : 48;
+    // Nombre affiché gardé par le Catalogue (FamilyBlock est recréé à chaque
+    // rendu : un état local repartirait de zéro).
+    const shownCount = overview ? step : (moreBy[family.id] ?? step);
+    const setShownCount = (f) => setMoreBy((m) => ({ ...m, [family.id]: f(shownCount) }));
     if ((q || origin || toCheck) && list.length === 0) return null;
+    const shownList = list.slice(0, shownCount);
+    const rest = list.length - shownList.length;
     return (
-      <section className="cat-panel">
+      <section className="cat-panel cat-family">
         <div className="cat-panel__head">
-          <h3>{family.label}</h3>
+          <h2>{family.label}</h2>
           <span className="cat-badge cat-badge--grey">
             {list.length} modèle{list.length > 1 ? "s" : ""}
           </span>
           <span className="cat-muted cat-panel__hint">{family.hint}</span>
         </div>
         {list.length ? (
-          <div className="cat-grid">
-            {list.map((s) => (
-              <SectionCard key={s.id} section={s} {...cardProps} />
-            ))}
-          </div>
+          <>
+            <div className="cat-grid">
+              {shownList.map((s) => (
+                <SectionCard key={s.id} section={s} {...cardProps} />
+              ))}
+            </div>
+            {rest > 0 && (
+              <div className="cat-more">
+                {overview ? (
+                  <button type="button" className="cat-more__btn" onClick={() => setView(family.id)}>
+                    Voir les {list.length} modèles « {family.label} »
+                  </button>
+                ) : (
+                  <button type="button" className="cat-more__btn" onClick={() => setShownCount((n) => n + step)}>
+                    Afficher {Math.min(step, rest)} de plus <em>{rest} restant{rest > 1 ? "s" : ""}</em>
+                  </button>
+                )}
+              </div>
+            )}
+          </>
         ) : (
           <div className="cat-empty">
             Aucun modèle pour l'instant.{" "}
@@ -715,7 +747,7 @@ export default function Catalogue() {
               </div>
               {sectionFilters}
               {FAMILIES.filter((f) => grouped[f.id]?.length || !(q || origin || toCheck)).map((f) => (
-                <FamilyBlock key={f.id} family={f} />
+                <FamilyBlock key={f.id} family={f} overview />
               ))}
             </>
           )}

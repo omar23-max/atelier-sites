@@ -1,0 +1,128 @@
+/* ==========================================================================
+   Base commune de l'atelier (2026-11-09) — éditeur ET catalogue.
+   Une seule source pour les couleurs, le texte, les arrondis, les espaces,
+   les ombres, le focus et les durées. Les anciennes variables (--atl-*,
+   --cat-*) pointent ici ; les nouvelles règles utilisent --tk-* directement.
+
+   Couleurs par rôle, pas par teinte :
+     --tk-ink      texte principal
+     --tk-ink-2    texte secondaire (descriptions, aides)        ≥ 7:1
+     --tk-ink-3    texte discret (compteurs, notes)              ≥ 4.5:1 sur --tk-bg
+     --tk-ink-4    texte désactivé, repères non textuels         (pas pour lire)
+     --tk-line / --tk-line-strong   traits, bords de champs
+     --tk-bg       fond de l'application (papier chaud)
+     --tk-surface  cartes, panneaux, champs
+     --tk-surface-2  zones en retrait, survol léger
+     --tk-hover    survol d'une ligne, d'un bouton fantôme
+     --tk-accent   action principale, sélection, focus (indigo)
+   Jamais utilisé dans les pages publiées : l'aperçu (iframe) et l'export ont
+   leurs propres styles.
+   ========================================================================== */
+
+:root {
+  /* ---- Neutres (légèrement chauds, une seule famille) ---- */
+  --tk-ink: #1c1b18;
+  --tk-ink-2: #46433d;
+  --tk-ink-3: #67635b;
+  --tk-ink-4: #9a958c;
+  --tk-line: #e6e3dc;
+  --tk-line-strong: #d2cec5;
+  --tk-bg: #f6f5f2;
+  --tk-surface: #ffffff;
+  --tk-surface-2: #faf9f6;
+  --tk-hover: #f0eee9;
+  --tk-black: #161513;
+
+  /* ---- Accent (indigo) ---- */
+  --tk-accent: #4f46e5;
+  --tk-accent-strong: #4338ca;
+  --tk-accent-soft: #eef0ff;
+  --tk-accent-border: #c9cdfb;
+  --tk-on-accent: #ffffff;
+
+  /* ---- États ---- */
+  --tk-danger: #b42318;
+  --tk-danger-soft: #fde8e7;
+  --tk-ok: #1f7a3a;
+  --tk-ok-soft: #e3f6e8;
+  --tk-warn: #8a5300;
+  --tk-warn-soft: #fff3df;
+  --tk-info: var(--tk-accent);
+  --tk-info-soft: var(--tk-accent-soft);
+
+  /* ---- Texte : une échelle, pas de demi-pixels ---- */
+  --tk-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --tk-text-xs: 11px; /* badges, étiquettes en capitales seulement */
+  --tk-text-sm: 12px; /* compteurs, aides, métadonnées */
+  --tk-text-md: 13px; /* texte courant des panneaux */
+  --tk-text-base: 14px; /* champs, boutons, listes */
+  --tk-text-lg: 16px; /* titres de bloc */
+  --tk-text-xl: 20px; /* titres de panneau */
+  --tk-text-2xl: 26px; /* titres de page */
+  --tk-leading-tight: 1.25;
+  --tk-leading: 1.45;
+  --tk-weight-medium: 500;
+  --tk-weight-strong: 600;
+  --tk-weight-heavy: 700;
+
+  /* ---- Arrondis : trois tailles et la pastille ---- */
+  --tk-radius-sm: 6px; /* champs, petits boutons, badges carrés */
+  --tk-radius-md: 10px; /* boutons, listes, menus */
+  --tk-radius-lg: 14px; /* cartes, panneaux, fenêtres */
+  --tk-radius-pill: 999px;
+
+  /* ---- Espaces (multiples de 4) ---- */
+  --tk-space-1: 4px;
+  --tk-space-2: 8px;
+  --tk-space-3: 12px;
+  --tk-space-4: 16px;
+  --tk-space-5: 24px;
+  --tk-space-6: 32px;
+  --tk-space-7: 48px;
+
+  /* ---- Ombres (décalées et floues, une teinte) ---- */
+  --tk-shadow-sm: 0 1px 2px rgba(28, 27, 24, 0.06);
+  --tk-shadow-md: 0 6px 16px rgba(28, 27, 24, 0.08);
+  --tk-shadow-lg: 0 18px 44px rgba(28, 27, 24, 0.16);
+
+  /* ---- Focus ---- */
+  --tk-focus: 0 0 0 2px var(--tk-surface), 0 0 0 4px var(--tk-accent);
+
+  /* ---- Mouvement ---- */
+  --tk-fast: 120ms;
+  --tk-base: 200ms;
+  --tk-slow: 320ms;
+  --tk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Surfaces du navigateur aux couleurs de l'atelier. */
+::selection {
+  background: var(--tk-accent-soft);
+  color: var(--tk-ink);
+}
+html {
+  accent-color: var(--tk-accent);
+  caret-color: var(--tk-accent);
+  scrollbar-color: var(--tk-line-strong) transparent;
+}
+
+/* Focus clavier visible partout (souris : aucun anneau). */
+:where(button, a, input, select, textarea, summary, [role="button"], [role="tab"], [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--tk-focus);
+}
+
+/* Moins de mouvement demandé : les changements d'état restent, raccourcis,
+   et les défilements ne glissent plus. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 80ms !important;
+  }
+}

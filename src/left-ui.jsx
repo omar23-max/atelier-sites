@@ -74,7 +74,7 @@ export function LeftPanel() {
       <div className="atl-tool-panel">
         {tool !== "score" && (
           <div className="atl-tool-panel__head">
-            <small>Outil</small>
+            {/* Plus de sur-titre « Outil » au-dessus du nom (audit design 2026-11-09). */}
             <b>{current.label}</b>
           </div>
         )}
