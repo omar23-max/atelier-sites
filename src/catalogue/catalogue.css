@@ -3364,7 +3364,8 @@ textarea {
 .cat-info,
 .cat-lead,
 .cat-panel > p.cat-muted {
-  max-width: 75ch;
+  /* 62ch ≈ 78 caractères réels en Inter (« ch » = largeur du zéro). */
+  max-width: 62ch;
 }
 
 /* ---- Finition des boutons (2026-11-09) : une famille, une hauteur ----
@@ -3412,4 +3413,82 @@ textarea {
 }
 .cat-tpl__use:hover {
   background: #2e2c29;
+}
+
+/* ---- Catalogue sur écran étroit (2026-11-10) ----
+   Le menu se replie derrière « Menu » ; l'en-tête tient sur une ligne. */
+.cat-menu-toggle {
+  display: none;
+}
+@media (max-width: 860px) {
+  .cat-top {
+    flex-wrap: wrap;
+    gap: var(--tk-space-2) var(--tk-space-3);
+    padding: var(--tk-space-3) var(--tk-space-4);
+  }
+  .cat-top__brand strong {
+    font-size: var(--tk-text-base);
+  }
+  .cat-top__brand .cat-badge {
+    display: none;
+  }
+  .cat-top__back {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
+    overflow: hidden;
+    justify-content: flex-start;
+    text-overflow: ellipsis;
+  }
+  .cat-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tk-space-2);
+    margin-left: auto;
+    min-height: 40px;
+    padding: 0 var(--tk-space-3);
+    border: 1px solid var(--tk-line-strong);
+    border-radius: var(--tk-radius-md);
+    background: var(--tk-surface);
+    color: var(--tk-ink);
+    font: inherit;
+    font-size: var(--tk-text-md);
+    font-weight: var(--tk-weight-strong);
+    cursor: pointer;
+  }
+  .cat-nav {
+    display: none;
+  }
+  .cat-nav.is-open {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: var(--tk-space-2);
+    border: 1px solid var(--tk-line);
+    border-radius: var(--tk-radius-lg);
+    background: var(--tk-surface);
+    box-shadow: var(--tk-shadow-md);
+  }
+  .cat-nav.is-open button,
+  .cat-nav.is-open a {
+    min-height: 40px;
+  }
+  .cat-layout {
+    padding: var(--tk-space-3);
+  }
+  .cat-main h1,
+  .cat-path {
+    font-size: var(--tk-text-2xl);
+  }
+  /* Filtres : l'étiquette passe au-dessus des puces. */
+  .cat-filters .cat-origins {
+    padding-left: 0;
+    padding-top: 22px;
+  }
+  .cat-filters .cat-origins > span {
+    top: 0;
+  }
+  .cat-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  }
 }

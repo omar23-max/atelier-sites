@@ -112,3 +112,26 @@ L'atelier n'a pas de système de design commun. L'éditeur (`src/styles.css`, 6 
 6. **[P2] `/impeccable distill`** : enlever les cadres doublés.
 7. **[P2] `/impeccable layout`** : largeur des textes, espacements.
 8. **`/impeccable polish`** : passe finale.
+
+---
+
+# Après les corrections (2026-11-10)
+
+| # | Dimension | Avant | Après | Ce qui a changé |
+|---|-----------|-------|-------|-----------------|
+| 1 | Accessibilité | 2 | 3 | Focus clavier visible partout, contrastes ≥ 4,5:1 (menu, compteurs), titres h1 → h2, mouvement réduit respecté. Reste : 191 infobulles `title` |
+| 2 | Performance | 2 | 3 | « Toutes les sections » : 2 014 → 259 cartes, 38 417 → 5 362 éléments ; familles par 48 |
+| 3 | Thème | 1 | 3 | Base commune `src/tokens.css` (couleurs par rôle, texte, arrondis, espaces, ombres, focus) ; ~800 couleurs et ~290 tailles ramenées aux jetons |
+| 4 | Écrans | 2 | 2 | Inchangé : outil pensé pour l'ordinateur |
+| 5 | Cohérence | 2 | 3 | Un seul accent (indigo), une famille de boutons, plus de cartes dans des cartes, plus de sur-titre « Outil » |
+| **Total** | | **9/20** | **14/20** | **Bon** |
+
+Détecteur Impeccable sur Toutes les sections, Templates, une famille,
+Enrichir et Projets : aucune alerte. Restent, volontairement : la couleur
+propre d'un design dans son aperçu (Designs) et la police Inter de l'éditeur
+(choix d'outil).
+
+Pistes suivantes, si besoin : remplacer les infobulles par de vraies
+étiquettes (/impeccable clarify), adapter le catalogue aux écrans étroits
+(/impeccable adapt), une police de titres pour donner une identité
+(/impeccable typeset).

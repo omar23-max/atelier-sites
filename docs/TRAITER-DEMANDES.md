@@ -1001,3 +1001,12 @@ Original 80 % → retour Modifiable 80 %.
   champs de Puck (étiquette, hauteur, bord, focus) alignés sur la base. Rappel :
   l'éditeur est en plein écran, rail et panneaux glissent au survol des
   languettes (règle « REFONTE PLEIN ÉCRAN » de styles.css), ce n'est pas un bug.
+- 2026-11-10 : rail de gauche de l'éditeur avec une étiquette sous chaque
+  icône (68 px de large) ; catalogue sur écran étroit (≤ 860 px) : menu replié
+  derrière « Menu » (refermé à chaque changement de vue), en-tête sur une
+  ligne, filtres empilés, grille adaptée. Testé à 375 et 768 px, sans
+  défilement horizontal.
+- 2026-11-10 : police de titres de l'interface = Instrument Sans (choix de
+  l'utilisateur), jeton `--tk-font-display` ; texte courant en Inter. Les deux
+  polices sont chargées par `src/tokens.css` (le catalogue n'en chargeait
+  aucune avant).

@@ -6574,3 +6574,55 @@ button.atl-zone-tag {
   border-color: var(--tk-accent);
   color: var(--tk-on-accent);
 }
+
+/* ---- Rail de gauche : icône + étiquette visible (2026-11-10) ----
+   Plus d'icônes muettes : chaque outil dit son nom sous l'icône. */
+.atl-left {
+  grid-template-columns: 68px minmax(0, 1fr);
+}
+body.atl-rail-only .atl-left {
+  grid-template-columns: 68px;
+}
+.atl-rail {
+  gap: 2px;
+  padding: var(--tk-space-2) 0;
+}
+.atl-rail button,
+.atl-rail a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 60px;
+  height: auto;
+  min-height: 50px;
+  padding: 6px 2px;
+  border-radius: var(--tk-radius-md);
+  color: var(--tk-ink-2);
+  text-decoration: none;
+}
+.atl-rail button svg,
+.atl-rail a svg,
+.atl-rail button.atl-rail__settings svg {
+  width: 20px;
+  height: 20px;
+}
+.atl-rail__label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--tk-text-xs);
+  font-weight: var(--tk-weight-medium);
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-rail button:hover,
+.atl-rail a:hover {
+  background: var(--tk-hover);
+  color: var(--tk-ink);
+}
+.atl-rail button.is-on {
+  background: var(--tk-accent-soft);
+  color: var(--tk-accent-strong);
+}

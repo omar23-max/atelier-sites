@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
 /* ==========================================================================
    Base commune de l'atelier (2026-11-09) — éditeur ET catalogue.
    Une seule source pour les couleurs, le texte, les arrondis, les espaces,
@@ -52,6 +54,8 @@
 
   /* ---- Texte : une échelle, pas de demi-pixels ---- */
   --tk-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Titres (page, outil, panneau, fenêtre) : Instrument Sans, choisie le 2026-11-10. */
+  --tk-font-display: "Instrument Sans", "Inter", system-ui, sans-serif;
   --tk-text-xs: 11px; /* badges, étiquettes en capitales seulement */
   --tk-text-sm: 12px; /* compteurs, aides, métadonnées */
   --tk-text-md: 13px; /* texte courant des panneaux */
@@ -125,4 +129,17 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 80ms !important;
   }
+}
+
+/* Titres de l'interface en Instrument Sans (le texte courant reste en Inter). */
+.cat-main h1,
+.cat-path,
+.cat-panel__head h2,
+.cat-panel__head h3,
+.cat-top__brand strong,
+.atl-tool-panel__head b,
+.atl-modal__head h2,
+.atl-score__top b {
+  font-family: var(--tk-font-display);
+  letter-spacing: -0.015em;
 }

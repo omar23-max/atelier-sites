@@ -23,11 +23,13 @@ const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pa
 const nameOf = (s, fallback) => (s?.meta.label ?? fallback).split(" — ");
 
 const TOOLS = [
-  { id: "structure", label: "Structure", icon: IconList },
-  { id: "ajouter", label: "Ajouter une section", icon: IconPlusSquare },
-  { id: "palette", label: "Palette", icon: IconPalette },
-  { id: "ia", label: "IA — toute la page", icon: IconSparkles },
-  { id: "score", label: "Score de vente", icon: IconGauge },
+  // short : l'étiquette visible sous l'icône du rail (2026-11-10 : plus
+  // d'icônes muettes qui ne se comprennent qu'au survol).
+  { id: "structure", label: "Structure", short: "Structure", icon: IconList },
+  { id: "ajouter", label: "Ajouter une section", short: "Ajouter", icon: IconPlusSquare },
+  { id: "palette", label: "Palette", short: "Palette", icon: IconPalette },
+  { id: "ia", label: "IA — toute la page", short: "IA", icon: IconSparkles },
+  { id: "score", label: "Score de vente", short: "Score", icon: IconGauge },
 ];
 
 // Un clic sur un outil déroule son panneau ; un second clic le referme et il
@@ -53,21 +55,25 @@ export function LeftPanel() {
   return (
     <div className="atl-left">
       <nav className="atl-rail" aria-label="Outils">
-        {TOOLS.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" title={label} aria-label={label} className={tool === id ? "is-on" : ""} onClick={() => toggle(id)}>
+        {TOOLS.map(({ id, label, short, icon: Icon }) => (
+          <button key={id} type="button" title={label} aria-label={label} aria-pressed={tool === id} className={tool === id ? "is-on" : ""} onClick={() => toggle(id)}>
             <Icon />
+            <span className="atl-rail__label" aria-hidden="true">{short}</span>
           </button>
         ))}
         <button type="button" className="atl-rail__settings" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
           <IconSettings />
+          <span className="atl-rail__label" aria-hidden="true">Réglages</span>
         </button>
         {/* En bas : le catalogue et l'historique de la page. */}
         <span className="atl-rail__sep" />
         <a href={`/catalogue.html${location.search}#tout`} title="Catalogue" aria-label="Catalogue">
           <IconGrid />
+          <span className="atl-rail__label" aria-hidden="true">Catalogue</span>
         </a>
         <button type="button" title="Historique de la page" aria-label="Historique" onClick={() => window.dispatchEvent(new CustomEvent("atl-open-history"))}>
           <IconHistory />
+          <span className="atl-rail__label" aria-hidden="true">Historique</span>
         </button>
       </nav>
       {tool && (

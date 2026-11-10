@@ -298,6 +298,8 @@ function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
 export default function Catalogue() {
   const [view, setView] = useState(() => location.hash.slice(1) || (location.search.includes("page=") ? "designs" : "tout"));
   const [query, setQuery] = useState("");
+  // Menu replié sur écran étroit ; refermé à chaque changement de vue.
+  const [navOpen, setNavOpen] = useState(false);
   const [origin, setOrigin] = useState("");
   // Cartes affichées par famille (vue d'une famille : 48, puis +48).
   const [moreBy, setMoreBy] = useState({});
@@ -353,6 +355,7 @@ export default function Catalogue() {
   }, []);
   useEffect(() => {
     location.hash = view;
+    setNavOpen(false);
     window.scrollTo(0, 0);
   }, [view]);
 
@@ -624,13 +627,21 @@ export default function Catalogue() {
           <strong>Atelier — Catalogue</strong>
           <span className="cat-badge cat-badge--blue">Local</span>
         </div>
-        <a className="cat-btn cat-btn--ghost" href={targetPage ? `/?page=${encodeURIComponent(targetPage)}` : "/"}>
+        <a className="cat-btn cat-btn--ghost cat-top__back" href={targetPage ? `/?page=${encodeURIComponent(targetPage)}` : "/"}>
           {targetPage ? `← Retour à « ${targetPage} »` : "Ouvrir l'atelier"}
         </a>
+        {/* Écran étroit (tablette, téléphone) : le menu se replie derrière ce
+            bouton au lieu de s'étaler au-dessus du contenu (2026-11-10). */}
+        <button type="button" className="cat-menu-toggle" aria-expanded={navOpen} aria-controls="cat-nav" onClick={() => setNavOpen((o) => !o)}>
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+            <path d={navOpen ? "M5 5l10 10M15 5L5 15" : "M3 6h14M3 10h14M3 14h14"} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+          Menu
+        </button>
       </header>
 
       <div className="cat-layout">
-        <nav className="cat-nav">
+        <nav className={`cat-nav${navOpen ? " is-open" : ""}`} id="cat-nav">
           <p className="cat-nav__title cat-nav__title--first">Catalogue</p>
           <button type="button" className={view === "projets" || view.startsWith("projet-") ? "is-on" : ""} onClick={() => setView("projets")}>
             Projets <em>{counts.projets ?? "…"}</em>
