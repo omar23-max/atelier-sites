@@ -115,13 +115,41 @@ const TOOLS = () => {
     }
     return list;
   };
+  // Virgules qui séparent vraiment les sélecteurs : ni échappées (« \, » dans
+  // une classe Tailwind comme grid-cols-[repeat(auto-fill,minmax(52px,1fr))]),
+  // ni dans des parenthèses (:is(a, b)) ou des crochets ([data-x="a,b"]).
+  const splitSel = (sel) => {
+    const out = [];
+    let cur = "";
+    let depth = 0;
+    for (let i = 0; i < sel.length; i++) {
+      const c = sel[i];
+      if (c === "\\") {
+        cur += c + (sel[i + 1] ?? "");
+        i++;
+        continue;
+      }
+      if (c === "(" || c === "[") depth++;
+      else if ((c === ")" || c === "]") && depth > 0) depth--;
+      if (c === "," && depth === 0) {
+        out.push(cur);
+        cur = "";
+      } else cur += c;
+    }
+    out.push(cur);
+    return out;
+  };
   window.__atlMatch = (acc) => {
     window.__atlRules().forEach((r, i) => {
       const keys = (acc[i] ??= []);
       if (keys === "all") return;
-      const sel = r.selectorText
-        .split(",")
-        .map((s) => s.replace(/::?[a-zA-Z-]+(\((?:[^()]|\([^()]*\))*\))?/g, (m) => (/^:(not|is|where|has)\(/.test(m) ? m : "")).trim() || "*")
+      const sel = splitSel(r.selectorText)
+        // (?<!\\) : un deux-points échappé fait partie du nom de classe
+        // (Tailwind « .lg\:flex-row », « .hover\:underline ») ; le prendre pour
+        // une pseudo-classe donnait « .lg\ », qui ne touche rien : toutes les
+        // règles lg: / md: étaient jetées et la page s'affichait en mobile sur
+        // ordinateur (2026-11-11, page Scooch faite par ChatGPT).
+        .map((s) => s.replace(/(?<!\\)::?[a-zA-Z-]+(\((?:[^()]|\([^()]*\))*\))?/g, (m) => (/^:(not|is|where|has)\(/.test(m) ? m : "")).trim() || "*")
         .join(",");
       let els;
       try {
@@ -738,7 +766,8 @@ const built = await page.evaluate(
         walk(s.cssRules, []);
       } catch {}
     }
-    return { parts: out, css, sheetBase: document.styleSheets[0]?.href ?? origin + "/" };
+    // Taille de texte de la racine (html) : sert à convertir les rem plus bas.
+    return { parts: out, css, sheetBase: document.styleSheets[0]?.href ?? origin + "/", rootPx: parseFloat(getComputedStyle(document.documentElement).fontSize) || 16 };
   },
   { recipes, keep: [...keep], tracks: [...tracks], MAX_SLOTS, origin, assetBase },
 );
@@ -747,9 +776,34 @@ server.close();
 
 // ---- 3. CSS de chaque partie, rangé sous la classe de sa section ----
 // html, body et :root deviennent la section elle-même.
+// Virgules qui séparent vraiment les sélecteurs (2026-11-11) : pas celles
+// échappées dans une classe Tailwind (« grid-cols-[repeat(auto-fill,minmax(52px,1fr))] »
+// s'écrit « …auto-fill\,minmax… ») ni celles entre parenthèses ou crochets.
+// Couper à ces virgules-là cassait la règle : grille des photos d'avis de la
+// page Scooch faite par ChatGPT, 18 vignettes empilées sur 17 800 px.
+const splitSel = (sel) => {
+  const out = [];
+  let cur = "";
+  let depth = 0;
+  for (let i = 0; i < sel.length; i++) {
+    const c = sel[i];
+    if (c === "\\") {
+      cur += c + (sel[i + 1] ?? "");
+      i++;
+      continue;
+    }
+    if (c === "(" || c === "[") depth++;
+    else if ((c === ")" || c === "]") && depth > 0) depth--;
+    if (c === "," && depth === 0) {
+      out.push(cur);
+      cur = "";
+    } else cur += c;
+  }
+  out.push(cur);
+  return out;
+};
 const scopeSel = (sel, scope) =>
-  sel
-    .split(",")
+  splitSel(sel)
     .map((s) => {
       s = s.trim();
       if (/^(html|:root|body)\b/.test(s)) return s.replace(/^(html\s*body|html|:root|body)/, `.${scope}`);
@@ -767,6 +821,30 @@ const urlFix = (text) =>
       return m;
     }
   });
+// rem → px (2026-11-11) : un site qui règle la racine (Scooch : html { font-size:
+// 62,5 % }, soit 1 rem = 10 px) perdait ce réglage dans l'atelier, où la règle
+// html devient celle de la section : les rem y valent 16 px, tout était 1,6 fois
+// trop grand (titres sur plus de lignes, page 6 600 px trop haute). On écrit
+// donc les rem en pixels, à la taille réelle de la racine relevée à l'import.
+// Les blocs @media / @container gardent leurs rem (ils se mesurent toujours
+// sur 16 px, comme sur l'original).
+const remFix = (text) => {
+  const px = built.rootPx;
+  if (!px || Math.abs(px - 16) < 0.01) return text;
+  let out = "";
+  let i = 0;
+  // Conditions des @media / @container : laissées telles quelles.
+  const re = /@(media|container)[^{]*\{/g;
+  let m;
+  while ((m = re.exec(text))) {
+    out += convert(text.slice(i, m.index)) + m[0];
+    i = m.index + m[0].length;
+  }
+  return out + convert(text.slice(i));
+  function convert(s) {
+    return s.replace(/(-?(?:\d+\.?\d*|\.\d+))rem\b/g, (all, n) => `${+(Number(n) * px).toFixed(3)}px`);
+  }
+};
 // Rangé sous la classe de la section (exigé par l'export Shopify) ; une partie
 // recollée dans une autre lui apporte sa classe (script de la page).
 const cssFor = (keys, scope) => {
@@ -782,7 +860,7 @@ const cssFor = (keys, scope) => {
       // Règles de la page entière (html, body, :root : police, couleur, variables) :
       // gardées partout, la section en tient lieu ; ces balises ne sont pas
       // numérotées et ne seraient jamais « utilisées ».
-      const pageRule = r.sel.split(",").every((s) => /^(html|body|:root)\b/.test(s.trim()));
+      const pageRule = splitSel(r.sel).every((s) => /^(html|body|:root)\b/.test(s.trim()));
       if (!pageRule && use !== "all" && !(use ?? []).some((k) => set.has(k))) continue;
       // La page entière (html, body) : sans hauteur ni largeur mini (une section
       // n'est pas un écran).
@@ -792,7 +870,7 @@ const cssFor = (keys, scope) => {
       text = `${scopeSel(r.sel, scope)} { ${body} }`;
     }
     for (const w of [...r.wrap].reverse()) text = `${w} { ${text} }`;
-    out += urlFix(text) + "\n";
+    out += remFix(urlFix(text)) + "\n";
   }
   // Comportements : pistes de carrousel qui défilent au doigt, éléments
   // ajoutés par un bouton cachés au départ.
