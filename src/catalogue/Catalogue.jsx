@@ -856,7 +856,7 @@ export default function Catalogue() {
                       <article key={r.dossier} className={`cat-request${reqChecked.has(r.dossier) ? " is-checked" : ""}`}>
                         <input type="checkbox" className="cat-bincheck" aria-label="Cocher cette demande" checked={reqChecked.has(r.dossier)} onChange={() => toggleReq(r.dossier)} />
                         <div>
-                          <strong>{method?.title ?? { textes: "Réécrire les textes d'une page", images: "Studio d'images" }[r.type] ?? r.type}{r.page ? ` — ${r.page}` : ""}</strong>
+                          <strong>{method?.title ?? { textes: "Réécrire les textes d'une page", images: "Studio d'images", fondations: "Fondations du projet", auditdesign: "Audit du design d'une page" }[r.type] ?? r.type}{r.page ? ` — ${r.page}` : ""}</strong>
                           <span className="cat-muted">
                             {new Date(r.creeLe).toLocaleString("fr-CA")} · {r.famille ? FAMILIES.find((f) => f.id === r.famille)?.label : "famille au choix"}
                           </span>

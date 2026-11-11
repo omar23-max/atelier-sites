@@ -516,6 +516,32 @@ Demandes liées à la fiche :
   `offre`. Ce qui manque est signalé dans `notes` (« [MANQUE : nombre
   d'avis] »), jamais inventé.
 
+### Audit du design d'une page (2026-11-11)
+
+Dernière étape avant l'export, après le contenu : sections manquantes →
+« Remplir depuis les Fondations » → fidélité aux Fondations → **design**.
+
+- **Contrôle immédiat, sans IA** : outil Score → bloc « Design » → « Contrôler
+  le design » (`src/engine/design-check.js`, `DesignCheck` dans
+  `src/score-ui.jsx`). La page enregistrée est rendue comme à la publication
+  (`/partage/<page>?reperes=1`) dans deux cadres cachés, 1440 × 900 et
+  390 × 844. Constats, chacun avec sa section : page qui dépasse à droite,
+  texte coupé, image qui ne s'affiche pas, contraste trop faible, texte de
+  moins de 12 px, bouton de moins de 40 px au téléphone, premier bouton sous la
+  ligne de flottaison, grand titre sur plus de 4 lignes au téléphone, plus de 3
+  polices. Note sur 100 (poids et plafonds par type : `WEIGHT`). Limites : un
+  texte posé sur une photo n'a pas de contraste calculable (sauté) ; survols et
+  menus ouverts non vus.
+- **Demande « auditdesign »** (bouton « Demander l'audit approfondi à Claude »,
+  `details.page`) : avec le tunnel ouvert, lancer Impeccable sur la page
+  partagée, aux deux largeurs :
+  `sh ~/.claude/skills/impeccable/scripts/impeccable detect --json --viewport 1440x900 http://localhost:5181/partage/<page>`
+  puis `--viewport 390x844` ; lire aussi la page (capture) pour la hiérarchie,
+  les espacements et la cohérence avec le design.md du projet. Écrire dans
+  `resultat` : la note sur 20, les problèmes par gravité (P1 à P3) en français
+  simple, chacun avec la section et quoi changer. Ne rien modifier dans la page
+  sans l'accord de l'utilisateur.
+
 ### Contenu par type de page (Fondations, partie 9 — 2026-11-10)
 
 `fondations.contenus[<type>][<section>][<champ>]` : ce que chaque section doit

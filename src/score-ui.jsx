@@ -10,6 +10,7 @@ import { showSlot } from "./slot-picker.jsx";
 import { slotStore, useSlotStore } from "./engine/missing-slots.jsx";
 import { zoneOfFamilies } from "./engine/zones.js";
 import { localFidelity } from "./engine/fidelite.js";
+import { runDesignCheck, KIND_LABEL } from "./engine/design-check.js";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
@@ -293,6 +294,117 @@ function FoundationsCheck({ data }) {
   );
 }
 
+// Contrôle du design (2026-11-11) : la page enregistrée, rendue comme à la
+// publication à deux largeurs (ordinateur 1440, mobile 390), sans IA. Voir
+// src/engine/design-check.js. Dernière étape avant l'export.
+const pageNameOf = () => new URLSearchParams(location.search).get("page");
+const VUE = { ordi: "ordinateur", mobile: "mobile" };
+function DesignCheck({ data }) {
+  const getPuck = useGetPuck();
+  const [state, setState] = useState(null);
+  const name = pageNameOf();
+  if (!name) return null;
+  async function run() {
+    setState({ busy: true, step: "Préparation…" });
+    try {
+      const result = await runDesignCheck(name, (step) => setState({ busy: true, step }));
+      setState({ result });
+    } catch (e) {
+      setState({ error: `Contrôle impossible : ${e.message}` });
+    }
+  }
+  // Audit approfondi : Claude passe la page au skill Impeccable (accessibilité,
+  // hiérarchie, espacements, cohérence, mobile) et rend ses constats dans la
+  // demande (Catalogue → Demandes). Demande « auditdesign ».
+  const [asked, setAsked] = useState(null);
+  async function askDeep() {
+    setAsked({ busy: true });
+    try {
+      const res = await fetch("/api/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "auditdesign",
+          page: name,
+          notes: `Audit approfondi du design de la page « ${name} » avec Impeccable, sur ordinateur et mobile.`,
+          details: { page: name, controleLocal: state?.result ? { note: state.result.note, parType: state.result.parType } : null },
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error);
+      setAsked({ done: `Demande enregistrée (${body.dossier}). Dis à Claude « traite les demandes » : le résultat apparaîtra dans Catalogue → Demandes.` });
+    } catch (e) {
+      setAsked({ error: e.message });
+    }
+  }
+  const r = state?.result;
+  const kinds = r ? Object.keys(KIND_LABEL).filter((k) => r.parType[k]) : [];
+  const idOf = (index) => (index == null ? null : data.content[index]?.props?.id ?? null);
+  return (
+    <div className="atl-score__block">
+      <h4>
+        Design {r && <em>{r.issues.length}</em>}
+      </h4>
+      {!r && (
+        <p className="atl-score__note">
+          Dernier contrôle avant l'export : la page enregistrée est affichée comme un client la verra, sur ordinateur et sur téléphone. Textes
+          coupés ou trop pâles, images absentes, page qui dépasse, boutons trop petits, premier bouton invisible sans défiler. Environ 15 s,
+          sans IA.
+        </p>
+      )}
+      <button type="button" className="atl-score__all" disabled={state?.busy} onClick={run}>
+        {state?.busy ? `Contrôle en cours… ${state.step ?? ""}` : r ? "Refaire le contrôle du design" : "Contrôler le design (ordinateur et mobile)"}
+      </button>
+      {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+      <button type="button" className="atl-score__all" disabled={asked?.busy || Boolean(asked?.done)} onClick={askDeep}>
+        {asked?.busy ? "Envoi…" : "Demander l'audit approfondi à Claude"}
+      </button>
+      <p className="atl-score__note">
+        {asked?.done ?? "Pour aller plus loin que ce contrôle : hiérarchie, espacements, cohérence, accessibilité, jugés par Claude avec son outil de design (Impeccable)."}
+      </p>
+      {asked?.error && <p className="atl-topbar__error">{asked.error}</p>}
+      {r && (
+        <>
+          <p className="atl-score__note">
+            <b>Design : {r.note} / 100.</b>{" "}
+            {r.issues.length ? `${r.issues.length} point(s) à voir, du plus gênant au moins gênant.` : "✓ Rien à signaler sur ordinateur ni sur mobile."} Page enregistrée
+            contrôlée (les changements non enregistrés ne sont pas vus).
+          </p>
+          {kinds.map((kind) => {
+            const list = r.issues.filter((i) => i.kind === kind);
+            return (
+              <div key={kind}>
+                <p className="atl-score__note">
+                  <b>
+                    {KIND_LABEL[kind]} ({list.length})
+                  </b>
+                </p>
+                <ul className="atl-textchecks">
+                  {list.slice(0, 8).map((i, n) => (
+                    <li key={n}>
+                      <button type="button" disabled={!idOf(i.section)} onClick={() => idOf(i.section) && showSection(getPuck, idOf(i.section))} title={idOf(i.section) ? "Voir la section" : ""}>
+                        <span className="atl-textchecks__icon">{i.vue === "mobile" ? "📱" : "🖥"}</span>
+                        <span>
+                          <b>{i.text ? `« ${i.text.slice(0, 60)} »` : VUE[i.vue]}{i.n > 1 ? ` × ${i.n}` : ""}</b>
+                          <small>
+                            {i.detail} · {VUE[i.vue]}
+                            {i.section != null ? ` · section ${i.section + 1}` : ""}
+                          </small>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {list.length > 8 && <p className="atl-score__note">… et {list.length - 8} autre(s) du même type.</p>}
+              </div>
+            );
+          })}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function ScorePanel() {
   const getPuck = useGetPuck();
   const data = usePuckSelect((s) => s.appState.data);
@@ -374,6 +486,7 @@ export function ScorePanel() {
           <Beliefs result={result} onAdd={(type, index) => insertAt(getPuck, type, index)} />
           <TextChecks items={result.texts} />
           <FoundationsCheck data={data} />
+          <DesignCheck data={data} />
           {addable.length > 0 && (
             <>
               <button type="button" className="atl-score__all atl-score__all--ia" disabled={ai?.step} onClick={addAllWithAi}>
