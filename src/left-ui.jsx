@@ -761,6 +761,7 @@ function AiTool() {
       </div>
       <p className="atl-tool-panel__group">Textes</p>
       <div className="atl-choices">
+        {item("Remplir depuis les Fondations", "Chaque section reçoit le contenu préparé dans les Fondations du projet pour ce type de page (partie 9). Une section ou toute la page.", () => open("atl-ai-page", "fondations"))}
         {item("Réécrire pour mon produit", "Tous les textes, consignes entre crochets comprises, pour ta marque et ton produit.", () => open("atl-ai-page", "reecrire"))}
         {item("Traduire", "Toute la page dans une autre langue, mise en forme gardée.", () => open("atl-ai-page", "traduire"))}
         {item("Remplacer un mot", "Ex. Aurivita → Clearflow, partout dans la page. Annulable avec ↶.", () => open("atl-open-rebrand"))}

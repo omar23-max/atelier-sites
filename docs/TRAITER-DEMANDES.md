@@ -532,8 +532,32 @@ puis ses champs dans `BASE` ou `PAR_TYPE`.
   questionnaire : `reponses.curiosite` et `reponses.aggravation` (blocs
   « Curiosity » et « Corruption » de la recherche psychographique de Jeffrey).
 - Étape 2 (faite) : « Remplir avec Claude » (voir ci-dessous).
-- À venir : « Remplir depuis les Fondations » dans l'éditeur ; audit de
-  fidélité aux Fondations.
+- Étape 3 (faite) : dans l'éditeur, ✨ IA → Textes → **« Remplir depuis les
+  Fondations »** (`FillFromFoundations`, `src/inspector-ui.jsx`). Liste les
+  sections de la page ; pour chacune, `familiesOf` (la détection du Page Score)
+  donne ses familles et `briefFor(type, familles, contenus)` le contenu des
+  Fondations qui lui correspond. On coche une section, plusieurs ou toutes ;
+  l'IA de l'atelier (`/api/ia/textes`) répartit le contenu dans les textes, à
+  leur longueur, dans la langue de la page. En-tête et pied de page ne sont
+  jamais remplis. Les notes « [MANQUE …] » et « [À VALIDER …] » sont retirées
+  avant l'envoi (`sansNotes`). Sur une page d'angle, les zones d'angle reçoivent
+  aussi la carte de l'angle. « Réécrire pour mon produit » reste l'outil libre.
+- Étape 4 (faite) : audit de fidélité aux Fondations, en deux temps
+  (`src/engine/fidelite.js`) :
+  1. **contrôle immédiat, sans IA** — bloc « Fidélité aux Fondations » de l'outil
+     Score (`FoundationsCheck`, `localFidelity`) : chiffres « qui engagent »
+     (prix, %, durées, nombres d'avis, doses) écrits sur la page mais absents
+     des Fondations ; notes « [MANQUE] » / « [À VALIDER] » restées dans la page ;
+     contenu prêt dans les Fondations sans section pour le recevoir ; nombre de
+     sections qui ont un contenu prévu. Marche quelle que soit la langue de la
+     page (on compare des nombres). Un clic mène à la section ;
+  2. **audit IA** — ✨ IA → Auditer la page : pour une page d'un projet dont le
+     message central est rempli, la page envoie aussi `fondations`
+     (`fondationsPourAudit` : message central, preuves cochées, offre, interdits,
+     contenu prévu, et les chiffres relevés par le contrôle local). L'IA rend
+     `fondations: { note, points[promesse, mecanisme, preuves, objections,
+     offre, allegations], nonAutorise[] }` (`AUDIT_FONDATIONS`, `scripts/lib/ia.mjs`).
+  Les sections manquantes et leurs cadres en pointillés ne changent pas.
 
 **Demande « fondations » avec `details.contenus` (liste de types)** — bouton
 « Remplir avec Claude » de la partie 9. Sur le serveur, depuis `~/atelier-sites` :

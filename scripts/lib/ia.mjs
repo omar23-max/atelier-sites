@@ -209,14 +209,32 @@ D. Circulation : une idée par section ; le test des titres seuls (les titres ra
 E. Bloc d'achat (produit, offre, landing) : étoiles et nombre d'avis, titre orienté résultat, description en puces, packs avec l'option recommandée mise en avant, réassurance sous le bouton.
 Ne réclame pas une section inutile pour ce type de page. N'invente aucun chiffre ni avis : propose des emplacements à compléter.`;
 
+// Fidélité aux Fondations (2026-11-10) : seulement si la page envoie
+// « fondations » (page d'un projet dont le message central est rempli).
+const AUDIT_FONDATIONS = `F. Fidélité aux Fondations du projet (champ « fondations » : messageCentral, preuvesAutorisees, offre, interdits, contenuPrevu). Les Fondations peuvent être dans une autre langue que la page : compare le sens, pas les mots.
+- promesse : le haut de page porte-t-il la promesse du message central (ou celle de l'angle, sans la contredire) ?
+- mecanisme : le mécanisme est-il expliqué, le même que dans les Fondations ?
+- preuves : les 3 preuves du message central sont-elles utilisées ? Lesquelles manquent ?
+- objections : les 3 objections sont-elles traitées (FAQ, garantie, texte) avec la réponse prévue ?
+- offre : prix, packs, garantie et bonus de la page sont-ils ceux de l'offre ? Signale tout écart de chiffre.
+- allegations : la page respecte-t-elle les « interdits » (formulations à ne jamais écrire, prudence des allégations) ?
+nonAutorise : chaque chiffre, étude, avis, label, expert, garantie ou urgence écrit sur la page qui n'est ni dans preuvesAutorisees, ni dans offre, ni dans messageCentral (une preuve marquée manque: true n'est pas disponible). Cite le texte de la page tel quel, et dis pourquoi. Liste vide si tout est couvert.
+chiffresHorsFondations : nombres relevés automatiquement sur la page et absents de toutes les Fondations (prix, %, durées, nombres d'avis ou de clients). Chacun est un écart à juger : un prix dans une autre monnaie, un nombre d'avis ou de clients d'une autre marque, une garantie d'une autre durée sont des restes du site d'origine. S'il y en a, le critère « offre » ne peut pas être « ok » si des prix ou une garantie en font partie, et les plus graves vont dans nonAutorise.
+note : 100 = page entièrement fidèle ; retire des points pour chaque critère faible ou absent et pour chaque affirmation non autorisée.`;
+
 export async function auditPage({ key, page }) {
   const rules = await copyRules();
+  const fd = Boolean(page?.fondations);
   const system = [
     "Tu es expert en conversion (CRO) et rédacteur direct response pour l'e-commerce, méthode Jeffrey Park (Daydreamers) + Arsh, avec Hormozi et Corey Haines.",
     "On te donne une page de l'atelier : son type, la fiche de la marque, le résultat du Score de vente calculé localement, et ses sections avec leurs principaux textes.",
     "Fais l'audit de la page, en français, concret et court, en nommant les sections par leur nom et en disant où agir.",
     AUDIT_GRID,
+    fd ? AUDIT_FONDATIONS : "",
     rules ? `Règles d'écriture à appliquer dans tes propositions :\n\n${rules}` : "",
+    (fd
+      ? 'Réponds uniquement en JSON, avec en plus de ce qui suit le champ "fondations":{"note":0,"points":[{"critere":"promesse|mecanisme|preuves|objections|offre|allegations","etat":"ok|faible|absente|ecart","comment":"…","ou":"nom de la section","sectionId":"… ou null"}],"nonAutorise":[{"texte":"…","pourquoi":"…","sectionId":"… ou null"}]}. '
+      : "") +
     'Réponds uniquement en JSON : {"verdict":"2 phrases","croyances":[{"n":1,"etat":"ok|faible|absente","comment":"…"}],"gainsRapides":[{"quoi":"…","ou":"…","sectionId":"… ou null"}],"fortImpact":[{"quoi":"…","pourquoi":"…","ou":"…"}],"titres":["3 propositions de titre principal"],"boutons":["3 propositions de texte de bouton"],"tests":["3 idées de tests A/B, dans l\'ordre de priorité"]}',
   ]
     .filter(Boolean)

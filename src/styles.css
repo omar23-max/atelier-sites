@@ -6655,3 +6655,53 @@ body.atl-rail-only .atl-left {
   height: 12px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M4.5 3l3 3-3 3' fill='none' stroke='%2367635b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
+
+/* ---- Remplir depuis les Fondations : liste des sections (2026-11-10) ---- */
+.atl-fill {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 46vh;
+  overflow: auto;
+  border: 1px solid var(--tk-line);
+  border-radius: var(--tk-radius-md);
+  background: var(--tk-surface);
+}
+.atl-fill li + li {
+  border-top: 1px solid var(--tk-line);
+}
+.atl-fill label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tk-space-3);
+  padding: var(--tk-space-2) var(--tk-space-3);
+  cursor: pointer;
+}
+.atl-fill input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--tk-accent);
+}
+.atl-fill span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.atl-fill b {
+  font-size: var(--tk-text-md);
+  font-weight: 600;
+}
+.atl-fill small {
+  color: var(--tk-ink-3);
+  font-size: var(--tk-text-sm);
+}
+.atl-fill li.is-off label {
+  cursor: default;
+}
+.atl-fill li.is-off b {
+  color: var(--tk-ink-3);
+  font-weight: 500;
+}

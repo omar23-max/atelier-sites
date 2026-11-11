@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetPuck } from "@puckeditor/core";
 import { sections } from "./engine/sections.js";
 import { scorePage, ruleLabel } from "./engine/page-score.js";
@@ -9,6 +9,7 @@ import { adaptInstructionFor, rebuildSectionWith, savePageWith } from "./inspect
 import { showSlot } from "./slot-picker.jsx";
 import { slotStore, useSlotStore } from "./engine/missing-slots.jsx";
 import { zoneOfFamilies } from "./engine/zones.js";
+import { localFidelity } from "./engine/fidelite.js";
 
 const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
 const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
@@ -203,6 +204,95 @@ function TextChecks({ items }) {
   );
 }
 
+// Fidélité aux Fondations du projet (2026-11-10) : contrôle immédiat, sans IA.
+// Chiffres de la page absents des Fondations, notes [MANQUE] oubliées, contenu
+// prêt dans les Fondations sans section pour le recevoir. Le fond (promesse,
+// mécanisme, objections) est jugé par ✨ IA → Auditer la page.
+function FoundationsCheck({ data }) {
+  const getPuck = useGetPuck();
+  const projet = data.root?.props?.projet ?? null;
+  const [project, setProject] = useState(null);
+  useEffect(() => {
+    setProject(null);
+    if (!projet) return;
+    let alive = true;
+    fetch(`/api/projects/${encodeURIComponent(projet)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => alive && setProject(p))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [projet]);
+  if (!projet || !project) return null;
+  const f = localFidelity(data, sectionsById, project);
+  const total = f.chiffres.length + f.notes.length + f.sansSection.length;
+  return (
+    <div className="atl-score__block">
+      <h4>
+        Fidélité aux Fondations {total > 0 && <em>{total}</em>}
+      </h4>
+      {!f.aCarte ? (
+        <p className="atl-score__note">Ce type de page n'a pas de carte dans les Fondations.</p>
+      ) : !f.carteRemplie ? (
+        <p className="atl-score__note">La carte de ce type de page est vide dans les Fondations du projet (partie 9) : remplis-la, puis ✨ IA → Remplir depuis les Fondations.</p>
+      ) : (
+        <p className="atl-score__note">
+          {f.couverture.avecContenu} section(s) sur {f.couverture.total} ont un contenu prévu dans les Fondations.
+          {total === 0 ? " ✓ Aucun chiffre hors Fondations, aucune note oubliée." : ""}
+        </p>
+      )}
+      {f.chiffres.length > 0 && (
+        <>
+          <p className="atl-score__note">
+            <b>{f.chiffres.length} chiffre(s) absent(s) des Fondations.</b> À vérifier un par un : s'il est vrai, ajoute-le aux Fondations ; sinon, retire-le de la page.
+          </p>
+          <ul className="atl-textchecks">
+            {f.chiffres.slice(0, 15).map((c, i) => (
+              <li key={i}>
+                <button type="button" onClick={() => showSection(getPuck, c.sectionId)} title="Voir la section">
+                  <span className="atl-textchecks__icon">#</span>
+                  <span>
+                    <b>{c.valeur}</b>
+                    <small>
+                      {c.extrait} — {c.name}
+                    </small>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {f.notes.length > 0 && (
+        <>
+          <p className="atl-score__note">
+            <b>{f.notes.length} note(s) [MANQUE] ou [À VALIDER] restée(s) dans la page.</b> À remplacer par un vrai texte ou à retirer.
+          </p>
+          <ul className="atl-textchecks">
+            {f.notes.slice(0, 10).map((n, i) => (
+              <li key={i}>
+                <button type="button" onClick={() => showSection(getPuck, n.sectionId)} title="Voir la section">
+                  <span className="atl-textchecks__icon">[ ]</span>
+                  <span>
+                    <b>« {n.text} »</b>
+                    <small>{n.name}</small>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {f.sansSection.length > 0 && (
+        <p className="atl-score__note">
+          <b>Contenu prêt, mais pas de section pour le recevoir :</b> {f.sansSection.join(", ")}. Ajoute ces sections (liste ci-dessous), puis remplis-les depuis les Fondations.
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function ScorePanel() {
   const getPuck = useGetPuck();
   const data = usePuckSelect((s) => s.appState.data);
@@ -283,6 +373,7 @@ export function ScorePanel() {
           )}
           <Beliefs result={result} onAdd={(type, index) => insertAt(getPuck, type, index)} />
           <TextChecks items={result.texts} />
+          <FoundationsCheck data={data} />
           {addable.length > 0 && (
             <>
               <button type="button" className="atl-score__all atl-score__all--ia" disabled={ai?.step} onClick={addAllWithAi}>

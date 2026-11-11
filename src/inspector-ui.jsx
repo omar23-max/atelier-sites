@@ -10,7 +10,10 @@ import { CarrouselPanel } from "./carrousel-ui.jsx";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
-import { scorePage } from "./engine/page-score.js";
+import { scorePage, familiesOf } from "./engine/page-score.js";
+import { TYPES_CONTENU, briefFor } from "./engine/page-blueprints.js";
+import { pageTypeById } from "./engine/page-types.js";
+import { fondationsPourAudit, localFidelity, knownNumbers, hasUnknownFigure } from "./engine/fidelite.js";
 import { isAngleZone, pageRole, zonesFromMother } from "./angle-zones.js";
 import { getPage } from "./projects.js";
 
@@ -2606,7 +2609,7 @@ function BrandSheet({ root, onChange }) {
 // ---- Outils IA de toute la page (menu ✨ IA du rail de gauche) ----
 function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClose }) {
   const [state, setState] = useState(null);
-  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page", decliner: "🎯 Décliner pour cet angle" };
+  const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page", decliner: "🎯 Décliner pour cet angle", fondations: "📐 Remplir depuis les Fondations" };
   return createPortal(
     <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && !state?.busy && onClose()}>
       <div className="atl-modal__panel atl-aidlg">
@@ -2619,6 +2622,7 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClos
         <div className="atl-aidlg__body">
           {tool === "reecrire" && <RewritePage content={content} root={root} onApply={onApply} onRoot={onRoot} />}
           {tool === "decliner" && <DeclinePage content={content} root={root} onApply={onApply} />}
+          {tool === "fondations" && <FillFromFoundations content={content} root={root} onApply={onApply} />}
           {tool === "auditer" && <AuditPage content={content} root={root} onClose={onClose} />}
           {tool === "traduire" && <TranslatePage content={content} root={root} onApply={onApply} onLangue={(code) => onRoot({ langue: code })} />}
           {tool === "adapter" && (
@@ -2662,10 +2666,22 @@ function AuditPage({ content, root, onClose }) {
     try {
       const data = getPuck().appState.data;
       const score = scorePage(data, byId);
+      // Page d'un projet : l'audit juge aussi la fidélité aux Fondations
+      // (2026-11-10) ; il lui faut alors plus de texte par section.
+      const project = root.projet
+        ? await fetch(`/api/projects/${encodeURIComponent(root.projet)}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null)
+        : null;
+      const fondations = project?.fondations?.message?.promesse ? fondationsPourAudit(project, root.pageType ?? "") : null;
+      // Le contrôle local (chiffres absents des Fondations) est donné à l'IA :
+      // elle ne peut pas passer à côté d'un prix ou d'un nombre d'avis resté
+      // du site d'origine.
+      if (fondations) fondations.chiffresHorsFondations = localFidelity(data, byId, project).chiffres.slice(0, 30).map((c) => ({ valeur: c.valeur, extrait: c.extrait, sectionId: c.sectionId }));
       const sectionsOut = data.content.map((item) => {
         const section = byId[item.type];
-        const texts = aiTargets(item).texts.map((t) => ({ role: t.role ?? "", text: plain(t.text).slice(0, 160) })).filter((t) => t.text);
-        const important = [...texts.filter((t) => /Titre|Bouton/.test(t.role)), ...texts.filter((t) => !/Titre|Bouton/.test(t.role))].slice(0, 10);
+        const texts = aiTargets(item).texts.map((t) => ({ role: t.role ?? "", text: plain(t.text).slice(0, fondations ? 260 : 160) })).filter((t) => t.text);
+        const important = [...texts.filter((t) => /Titre|Bouton/.test(t.role)), ...texts.filter((t) => !/Titre|Bouton/.test(t.role))].slice(0, fondations ? 24 : 10);
         return { id: item.props.id, famille: section?.meta.family ?? "", nom: (section?.meta.label ?? item.type).split(" — ")[0], textes: important };
       });
       const page = {
@@ -2680,6 +2696,7 @@ function AuditPage({ content, root, onClose }) {
             }
           : null,
         sections: sectionsOut,
+        ...(fondations ? { fondations } : {}),
       };
       const res = await fetch("/api/ia/audit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page }) });
       const body = await res.json();
@@ -2703,7 +2720,8 @@ function AuditPage({ content, root, onClose }) {
       {!r && (
         <div className="atl-aibox">
           <p className="atl-aibox__hint">
-            L'IA passe la page à la grille de la méthode (5 croyances, règle des 5 secondes, confiance, circulation, bloc d'achat) et liste
+            L'IA passe la page à la grille de la méthode (5 croyances, règle des 5 secondes, confiance, circulation, bloc d'achat), vérifie
+            sa fidélité aux Fondations du projet (promesse, mécanisme, preuves, objections, offre, affirmations sans preuve) et liste
             les gains rapides, les changements à fort impact et des titres et boutons prêts à coller. Environ 30 s, un appel OpenAI.
           </p>
           <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
@@ -2715,6 +2733,41 @@ function AuditPage({ content, root, onClose }) {
       {r && (
         <>
           <p className="atl-audit__verdict">{r.verdict}</p>
+          {r.fondations && (
+            <>
+              <h4>Fidélité aux Fondations{r.fondations.note != null ? ` · ${r.fondations.note} / 100` : ""}</h4>
+              <ul className="atl-audit__list">
+                {(r.fondations.points ?? []).map((p, i) => (
+                  <li key={i}>
+                    <b className={`atl-audit__state is-${p.etat === "ok" ? "ok" : p.etat === "absente" || p.etat === "ecart" ? "absente" : "faible"}`}>{p.etat === "ok" ? "✓" : "!"}</b> <b>{p.critere} :</b> {p.comment}{" "}
+                    {p.ou && <small>{p.ou}</small>}
+                    {p.sectionId && content.some((c) => c.props.id === p.sectionId) && (
+                      <button type="button" className="atl-linkbtn" onClick={() => go(p.sectionId)}>
+                        voir
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {r.fondations.nonAutorise?.length > 0 && (
+                <>
+                  <h4>Affirmations sans preuve dans les Fondations</h4>
+                  <ul className="atl-audit__list">
+                    {r.fondations.nonAutorise.map((n, i) => (
+                      <li key={i}>
+                        « {n.texte} » <small>{n.pourquoi}</small>
+                        {n.sectionId && content.some((c) => c.props.id === n.sectionId) && (
+                          <button type="button" className="atl-linkbtn" onClick={() => go(n.sectionId)}>
+                            voir
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </>
+          )}
           {r.croyances?.length > 0 && (
             <>
               <h4>Les 5 croyances</h4>
@@ -2852,6 +2905,192 @@ function RewritePage({ content, root, onApply, onRoot }) {
       <textarea rows={5} value={form.infos} onChange={(e) => setForm({ ...form, infos: e.target.value })} placeholder={`Ce que tu sais de ${root.produit || "ton produit"}…`} disabled={state?.busy} />
       <button type="button" className="atl-aibox__go" disabled={state?.busy} onClick={run}>
         {state?.busy ? "Réécriture en cours…" : "Réécrire toute la page"}
+      </button>
+      {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
+      {state?.done && <p className="atl-topbar__ok">{state.done}</p>}
+      {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+    </div>
+  );
+}
+
+// ---- Remplir depuis les Fondations (2026-11-10) ----
+// Chaque section de la page reçoit le contenu validé dans les Fondations du
+// projet pour ce type de page (fondations.contenus, partie 9). Le lien se fait
+// par la famille de la section (la même détection que le Page Score). On coche
+// les sections à remplir : une seule, quelques-unes ou toute la page. Sur une
+// page d'angle, les zones d'angle reçoivent aussi la carte de l'angle.
+// Une information marquée « [MANQUE …] » ou « [À VALIDER …] » dans les
+// Fondations n'est pas utilisable : la ligne (ou le morceau séparé par « · »)
+// qui porte la marque n'est pas envoyé à l'IA. Retirer seulement la marque
+// ferait passer un chiffre non validé pour un fait (essai du 2026-11-10 :
+// « 4,9/5 sur 115 avis [À VALIDER] » écrit comme une vraie note).
+const NOTE_FD = /\[\s*(MANQUE|À VALIDER|A VALIDER)/i;
+// Une ligne faite seulement d'une marque « [À VALIDER …] » porte sur tout le
+// champ (ex. « vérifier que ces avis portent bien sur ce produit ») : le champ
+// entier attend alors la validation de l'utilisateur.
+const CHAMP_A_VALIDER = /(^|\n)\s*\[\s*(À VALIDER|A VALIDER)[^\]]*\]\s*(\n|$)/i;
+const sansNotes = (v) =>
+  CHAMP_A_VALIDER.test(String(v ?? "")) ? "" :
+  String(v ?? "")
+    .split(/\r?\n/)
+    .map((line) =>
+      line
+        .split(" · ")
+        .filter((part) => !NOTE_FD.test(part))
+        .join(" · ")
+        .replace(/[ \t]+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean)
+    .join("\n");
+
+function FillFromFoundations({ content, root, onApply }) {
+  const [info, setInfo] = useState(null);
+  const [picked, setPicked] = useState(null);
+  const [state, setState] = useState(null);
+  useEffect(() => {
+    pageRole(pageName, root)
+      .then(setInfo)
+      .catch((e) => setInfo({ error: e.message }));
+  }, [root.projet]);
+  const type = root.pageType ?? "";
+  const fd = info?.project?.fondations ?? {};
+  const rows = content.map((item, i) => {
+    const label = byId[item.type]?.meta?.label ?? byId[item.type]?.schema?.name ?? item.type;
+    // En-tête et pied de page : jamais remplis (dans une copie de page, leurs
+    // liens de menu ressemblent à des titres de sections et trompent la détection).
+    const nav = ["entete", "pied-de-page"].includes(byId[item.type]?.meta?.family) || /^(header|footer|en-?t[êe]te|pied de page|menu)/i.test(label);
+    const all = info?.project && !nav ? briefFor(type, familiesOf(item, i, byId), fd.contenus) : [];
+    // Règles dures (2026-11-10, après un essai où l'IA a réécrit de faux avis) :
+    // 1. les avis clients ne sont jamais écrits par l'IA (à placer à la main) ;
+    // 2. un contenu encore marqué [À VALIDER] ou [MANQUE] n'est pas envoyé.
+    const briefs = all
+      .filter((b) => b.key !== "temoignages")
+      .map((b) => ({ ...b, champs: b.champs.map((c) => ({ ...c, valeur: sansNotes(c.valeur) })).filter((c) => c.valeur) }))
+      .filter((b) => b.champs.length);
+    const pourquoi = briefs.length ? "" : !all.length ? "" : all.every((b) => b.key === "temoignages") ? "avis clients : à placer à la main, jamais écrits par l'IA" : "contenu encore marqué [À VALIDER] ou [MANQUE] dans les Fondations";
+    const texts = byId[item.type] ? aiTargets(item).texts : [];
+    return { id: item.props.id, item, label, nav, briefs, pourquoi, texts };
+  });
+  // Nombres connus du projet : tout chiffre « qui engage » écrit par l'IA et
+  // absent de cette liste est remplacé par une consigne entre crochets.
+  const known = info?.project ? knownNumbers(info.project, root) : new Set();
+  const ready = rows.filter((r) => r.briefs.length && r.texts.length);
+  const chosen = picked ?? new Set(ready.map((r) => r.id));
+  const toggle = (id) => {
+    const next = new Set(chosen);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setPicked(next);
+  };
+  const message = fd.message ?? {};
+  const angle = info?.angle ?? null;
+
+  async function run() {
+    const jobs = ready.filter((r) => chosen.has(r.id));
+    const total = jobs.reduce((n, j) => n + j.texts.length, 0);
+    if (!total) return setState({ error: "Coche au moins une section." });
+    if (!confirm(`Remplir ${jobs.length} section(s) (${total} textes) avec le contenu des Fondations ? Les textes actuels de ces sections seront remplacés (Ctrl+Z pour annuler).`)) return;
+    let done = 0;
+    let guarded = 0;
+    try {
+      for (const job of jobs) {
+        const enAngle = angle && isAngleZone(job.item);
+        const contexte = {
+          marque: root.marque ?? "",
+          produit: root.produit ?? "",
+          typeDePage: root.pageType ?? "",
+          section: job.briefs.map((b) => ({ section: b.label, role: b.why, contenu: Object.fromEntries(b.champs.map((c) => [c.label, c.valeur])) })),
+          messageCentral: {
+            promesse: message.promesse ?? "",
+            mecanisme: message.mecanisme ?? "",
+            preuves: (message.preuves ?? []).filter(Boolean),
+            objections: (message.objections ?? []).filter((o) => o?.objection),
+          },
+          ...(enAngle ? { angle: { titre: angle.titre, avatar: angle.avatar, douleur: angle.douleur, promesse: angle.promesse } } : {}),
+        };
+        for (let i = 0; i < job.texts.length; i += 40) {
+          const batch = job.texts.slice(i, i + 40);
+          setState({ busy: true, step: `${done} / ${total} textes écrits…` });
+          const res = await fetch("/api/ia/textes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: batch,
+              prompt:
+                "Écris chaque texte de cette section à partir du BRIEF du contexte (« section » → « contenu ») : c'est le contenu validé dans les Fondations du projet pour cette section de la page. Répartis ce contenu dans les textes selon leur rôle (titre, sous-titre, liste, avis, bouton…), en gardant la longueur de chaque texte et ses balises de mise en forme. N'ajoute aucune information, aucun chiffre, aucune preuve ni aucun avis absent du brief ou du message central. Un passage du brief entre crochets (« [MANQUE … ] », « [À VALIDER … ] ») n'est pas une information : ne le recopie pas et n'invente rien à la place ; à cet endroit, reste général. Ne recopie pas les notes destinées à l'équipe (« coché d'avance », « en petit dessous », « ne pas écrire… »). Garde les signes † et * des allégations. La page d'origine vend UN AUTRE produit, d'une autre marque : n'en garde aucun nom de marque ou de produit, aucun prix, aucune monnaie, aucun chiffre, aucun avis, aucun ingrédient, aucun animal ni aucune promesse. Avis clients : recopie chaque avis du brief mot pour mot, avec son auteur, un avis par emplacement ; ne mélange pas deux avis, ne les complète pas, n'en crée pas ; n'écris ni « achat vérifié », ni note moyenne, ni nombre d'avis, ni répartition par étoiles si le brief ne les donne pas. S'il y a moins de contenu que de textes : un texte en trop qui est un simple libellé (« Quantité », « Voir plus », un intertitre neutre) est adapté au produit ; un texte en trop qui portait une information de la page d'origine (nom, prix, chiffre, avis, promesse, caractéristique) devient une consigne courte entre crochets qui dit quoi écrire, par exemple « [Avis client à ajouter] », « [Prix à compléter] », « [Bénéfice à compléter] ». Mieux vaut une consigne entre crochets qu'une information non prouvée." +
+                (enAngle ? " Cette section est une zone d'angle : parle à l'avatar de l'angle du contexte, de sa douleur, vers sa promesse, sans contredire le brief." : "") +
+                " " +
+                consigneLangue(root),
+              contexte,
+            }),
+          });
+          const body = await res.json();
+          if (!res.ok) throw new Error(body.error);
+          // Garde-fou : un chiffre qui engage (prix, %, durée, nombre d'avis…)
+          // absent du projet ne passe pas, quoi qu'ait écrit l'IA.
+          const safe = body.items.map((x) => {
+            if (!hasUnknownFigure(x.text, known)) return x;
+            guarded++;
+            return { ...x, text: "[À compléter : chiffre absent des Fondations]" };
+          });
+          onApply(job.id, Object.fromEntries(safe.map((x) => [x.id, { text: x.text }])));
+          done += batch.length;
+        }
+      }
+      setState({
+        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre absent des Fondations)` : ""}. Vérifie avec l'outil Score → Fidélité aux Fondations. Ctrl+Z pour annuler, Publish pour enregistrer.`,
+      });
+    } catch (e) {
+      setState({ error: `${e.message} (${done} / ${total} déjà écrits)` });
+    }
+  }
+
+  if (!info) return <p className="atl-aibox__hint">Chargement du projet…</p>;
+  if (info.error || !info.project) return <p className="atl-topbar__error">{info.error ?? "Cette page n'est rattachée à aucun projet : pas de Fondations à reprendre."}</p>;
+  const typeLabel = pageTypeById[type]?.label ?? "type non réglé";
+  return (
+    <div className="atl-aibox">
+      <p className="atl-aibox__title">📐 Remplir depuis les Fondations</p>
+      <p className="atl-aibox__hint">
+        Chaque section cochée reçoit le contenu préparé dans les Fondations du projet « {info.project.nom} » pour ce type de page ({typeLabel}), partie 9. Rien n'est inventé : ce qui est marqué [MANQUE] n'est pas écrit.
+        {angle ? ` Page de l'angle « ${angle.titre} » : ses zones d'angle parlent à cet avatar.` : ""}
+      </p>
+      {!TYPES_CONTENU.includes(type) && <p className="atl-topbar__error">Ce type de page ({typeLabel}) n'a pas de carte dans les Fondations. Règle le type de page (⚙ Réglages de la page).</p>}
+      {TYPES_CONTENU.includes(type) && !ready.length && (
+        <p className="atl-topbar__error">Aucune section de cette page n'a de contenu prêt : remplis d'abord la carte « {typeLabel} » dans les Fondations du projet (partie 9).</p>
+      )}
+      <ul className="atl-fill">
+        {rows.map((r, i) => {
+          const ok = r.briefs.length && r.texts.length;
+          return (
+            <li key={r.id} className={ok ? "" : "is-off"}>
+              <label>
+                <input type="checkbox" disabled={!ok || state?.busy} checked={Boolean(ok) && chosen.has(r.id)} onChange={() => toggle(r.id)} />
+                <span>
+                  <b>
+                    {i + 1}. {r.label}
+                  </b>
+                  <small>{ok ? `${r.briefs.map((b) => b.label).join(" + ")} · ${r.texts.length} texte(s)` : r.nav ? "en-tête ou pied de page : laissé tel quel" : !r.texts.length ? "pas de texte" : r.pourquoi || "pas de contenu dans les Fondations pour cette section"}</small>
+                </span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      {ready.length > 0 && (
+        <p className="atl-aibox__hint">
+          <button type="button" className="atl-linkbtn" onClick={() => setPicked(new Set(ready.map((r) => r.id)))}>
+            tout cocher
+          </button>{" "}
+          ·{" "}
+          <button type="button" className="atl-linkbtn" onClick={() => setPicked(new Set())}>
+            tout décocher
+          </button>
+        </p>
+      )}
+      <button type="button" className="atl-aibox__go" disabled={state?.busy || !ready.some((r) => chosen.has(r.id))} onClick={run}>
+        {state?.busy ? "Écriture en cours…" : `Remplir ${ready.filter((r) => chosen.has(r.id)).length} section(s)`}
       </button>
       {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
       {state?.done && <p className="atl-topbar__ok">{state.done}</p>}

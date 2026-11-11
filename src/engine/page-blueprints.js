@@ -286,6 +286,22 @@ export function blueprintOf(type) {
     });
 }
 
+// Brief d'une section de page, tiré des Fondations (étape 3, 2026-11-10) :
+// les sections du plan de ce type de page qui correspondent aux familles de la
+// section (une copie de page peut en couvrir plusieurs), avec leurs champs
+// remplis. Vide si le type n'a pas de carte, si aucune famille ne correspond ou
+// si rien n'est rempli. contenus = fondations.contenus du projet.
+export function briefFor(type, families = [], contenus = {}) {
+  const c = contenus?.[type] ?? {};
+  const out = [];
+  for (const s of blueprintOf(type)) {
+    if (!s.families.some((f) => families.includes(f))) continue;
+    const champs = s.champs.map((ch) => ({ label: ch.label, valeur: String(c[s.key]?.[ch.k] ?? "").trim() })).filter((ch) => ch.valeur);
+    if (champs.length) out.push({ key: s.key, label: s.label, why: s.why, zone: s.zone, champs });
+  }
+  return out;
+}
+
 // Avancement d'une carte : champs remplis / champs à remplir.
 export function contenuProgress(contenus, type) {
   const c = contenus?.[type] ?? {};

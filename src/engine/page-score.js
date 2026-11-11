@@ -161,7 +161,7 @@ function verdictOf(score) {
 // Une partie copiée d'une vraie page (famille « article ») mélange plusieurs
 // sujets : on devine ce qu'elle contient d'après ses textes (fonctions.js).
 // Une même partie peut compter pour plusieurs familles.
-function familiesOf(item, index, sectionsById) {
+export function familiesOf(item, index, sectionsById) {
   const section = sectionsById[item.type];
   const family = section?.meta?.family ?? null;
   if (!section?.meta?.pageSpecific) return family ? [family] : [];
