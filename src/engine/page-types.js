@@ -22,6 +22,10 @@ export const PAGE_TYPES = [
   { id: "accueil", label: "Page d'accueil", achat: false, parAngle: false, hint: "Présente la marque et mène vers les produits." },
   { id: "advertorial", label: "Advertorial (article)", achat: false, parAngle: true, hint: "Article qui raconte un problème et renvoie vers la page d'achat." },
   { id: "listicle", label: "Listicle", achat: false, parAngle: false, hint: "« 7 raisons de… » : une liste qui renvoie vers la page d'achat." },
+  // Page comparatif (2026-11-10, « Compare landing page » et « Compare advertorial »
+  // de la formation de Jeffrey) : pour le visiteur qui hésite entre plusieurs
+  // solutions. Une seule page (tous les angles), qui renvoie vers la page d'achat.
+  { id: "comparatif", label: "Page comparatif", achat: false, parAngle: false, hint: "« Pourquoi ce produit plutôt que les autres » : un tableau face aux autres solutions, puis renvoi vers la page d'achat." },
   { id: "autre", label: "À propos ou autre", achat: false, parAngle: false, hint: "Histoire de la marque, contact, page informative." },
 ];
 

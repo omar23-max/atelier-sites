@@ -82,7 +82,7 @@ export function ProjectSelect({ current, pages, projects }) {
 // page mère d'abord (★), puis les pages des angles, puis les autres.
 // Page mère d'un type : celle choisie dans Pages (meresParType), sinon l'angle
 // ★ de ce type, sinon la page du premier angle choisi de ce type.
-const TYPE_MENU = { landing: "Landing page", listicle: "Listicle", advertorial: "Advertorial", produit: "Product page", accueil: "Homepage", offre: "Offer page", collection: "Collection", autre: "Autre" };
+const TYPE_MENU = { landing: "Landing page", listicle: "Listicle", advertorial: "Advertorial", produit: "Product page", accueil: "Homepage", offre: "Offer page", collection: "Collection", comparatif: "Comparatif", autre: "Autre" };
 const NO_TYPE = "__sans-type";
 
 export function pageMenuGroups(own, project) {

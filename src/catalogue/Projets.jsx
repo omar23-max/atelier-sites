@@ -329,7 +329,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
       </nav>
 
       {currentTab === "fondations" && (
-        <FoundationsTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} request={request} offer={<OfferTab key={`o-${project.id}`} project={project} onSave={saveProjectPatch} onMessage={onMessage} />} />
+        <FoundationsTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} request={request} offer={<OfferTab key={`o-${project.id}`} project={project} onSave={saveProjectPatch} onMessage={onMessage} />} />
       )}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}

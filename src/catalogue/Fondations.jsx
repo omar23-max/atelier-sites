@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { anglesProgress } from "./Angles.jsx";
+import { TYPES_CONTENU, FICHES, blueprintOf, contenuProgress } from "../engine/page-blueprints.js";
+import { pageTypeById } from "../engine/page-types.js";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
 // questionnaire de faits que seul l'utilisateur connaît (surtout des cases),
@@ -14,7 +16,13 @@ import { anglesProgress } from "./Angles.jsx";
 //                 demandeLe, valideLe, resultats: { avatars, douleurs, mots,
 //                 objections, promesse, angles, notes },
 //                 message: { promesse, mecanisme, preuves: [3], objections:
-//                   [{ objection, reponse } ×3] } }
+//                   [{ objection, reponse } ×3] },
+//                 contenus: { <type de page>: { <section>: { <champ>: "…" } } } }
+//
+// « Contenu par type de page » (2026-11-10) : pour chaque type (advertorial,
+// listicle, comparatif, landing, offre, produit, accueil), ce que chaque section
+// doit dire pour CE projet. La liste des sections et des champs vient de
+// src/engine/page-blueprints.js (la même liste que le Page Score).
 //
 // « Message central » (2026-11-07) : le discours unique du projet, que toutes
 // les pages reprennent (promesse, mécanisme, 3 preuves fortes, 3 objections
@@ -54,6 +62,12 @@ const TEXTES = {
     ["douleur", "Le problème principal qu'il règle", "ex. Peau qui se relâche, rides du cou", 2],
     ["echec", "Pourquoi ce qu'ils ont essayé n'a pas marché", "ex. Les crèmes chères ne changent rien, le botox fait peur", 2],
   ],
+  // Deux blocs de la recherche psychographique de Jeffrey (2026-11-10) : la
+  // matière des mécanismes uniques et des accroches « découverte ». Facultatif.
+  recherche: [
+    ["curiosite", "Curiosité : quelqu'un a-t-il déjà réglé ce problème d'une façon inhabituelle ? Une solution ancienne, oubliée ?", "ex. Avant 1960, les esthéticiennes utilisaient… ; au Japon, on fait…", 3],
+    ["aggravation", "Ce qui a aggravé le problème : était-il moins fréquent avant ? Quelles causes extérieures les clients accusent-ils ?", "ex. Les écrans (tête penchée), le soleil, l'industrie qui vend des crèmes trop diluées", 3],
+  ],
   concurrents: [["sites", "Concurrents (un lien par ligne)", "https://…", 3]],
   // Ce que l'utilisateur a trouvé lui-même : la matière la plus précieuse
   // (vrais mots des clients). Claude la lit en premier.
@@ -91,6 +105,82 @@ function Champ({ label, placeholder, rows, value, onChange }) {
         <input value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
       )}
     </label>
+  );
+}
+
+// Contenu par type de page : une carte par type, repliée sauf pour les types
+// que le projet utilise déjà. Chaque section de la carte : pourquoi elle est là
+// (la raison du Page Score), puis les champs à remplir pour ce projet.
+function ContenusEditor({ value, onChange, pages = [] }) {
+  const used = {};
+  for (const p of pages) {
+    const t = p.info?.pageType;
+    if (t) used[t] = (used[t] ?? 0) + 1;
+  }
+  const set = (type, key, k, v) => onChange({ ...value, [type]: { ...value[type], [key]: { ...value[type]?.[key], [k]: v } } });
+  return (
+    <div className="cat-fd__types">
+      {TYPES_CONTENU.map((type) => {
+        const fiche = FICHES[type];
+        const sections = blueprintOf(type);
+        const { done, total } = contenuProgress(value, type);
+        const info = pageTypeById[type];
+        return (
+          <details key={type} className="cat-fd__type" open={used[type] ? true : undefined}>
+            <summary>
+              <b>{info?.label ?? type}</b>
+              <span className="cat-muted">{fiche.famille}</span>
+              {used[type] ? <span className="cat-badge cat-badge--blue">{used[type]} page(s) dans ce projet</span> : null}
+              <span className={`cat-fd__count${done === total && total ? " is-done" : ""}`}>
+                {done} / {total} remplis
+              </span>
+            </summary>
+            <div className="cat-fd__fiche">
+              <p>
+                <b>Pour qui :</b> {fiche.trafic}
+              </p>
+              <p>
+                <b>Sa mission :</b> {fiche.mission}
+              </p>
+              <ul>
+                {fiche.regles.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+              {info?.parAngle ? (
+                <p className="cat-muted">
+                  Une page par angle : remplis ici la version de base. Les sections marquées « Angle » seront réécrites pour chaque angle (onglet
+                  Angles) ; celles marquées « Socle » restent les mêmes sur toutes les pages.
+                </p>
+              ) : null}
+            </div>
+            <ol className="cat-fd__sections">
+              {sections.map((s) => (
+                <li key={s.key}>
+                  <div className="cat-fd__sechead">
+                    <strong>{s.label}</strong>
+                    {info?.parAngle ? <span className={`cat-badge ${s.zone === "angle" ? "cat-badge--amber" : "cat-badge--grey"}`}>{s.zone === "angle" ? "Angle" : "Socle"}</span> : null}
+                  </div>
+                  <p className="cat-muted">{s.why}</p>
+                  {s.champs.map((ch) => (
+                    <label key={ch.k} className="cat-field">
+                      <span>{ch.label}</span>
+                      {ch.rows > 1 ? (
+                        <textarea rows={ch.rows} value={value[type]?.[s.key]?.[ch.k] ?? ""} onChange={(e) => set(type, s.key, ch.k, e.target.value)} />
+                      ) : (
+                        <input value={value[type]?.[s.key]?.[ch.k] ?? ""} onChange={(e) => set(type, s.key, ch.k, e.target.value)} />
+                      )}
+                      {ch.hint ? <small className="cat-fd__hint">{ch.hint}</small> : null}
+                    </label>
+                  ))}
+                  {!s.champs.length ? <p className="cat-fd__hint">Pas de texte à préparer : la section vient du catalogue.</p> : null}
+                </li>
+              ))}
+            </ol>
+          </details>
+        );
+      })}
+    </div>
   );
 }
 
@@ -195,10 +285,11 @@ export function foundationsFilled(project) {
   return Boolean(r.role && r.douleur && (r.genre?.length || r.qui));
 }
 
-export function FoundationsTab({ project, onSave, onMessage, request, offer }) {
+export function FoundationsTab({ project, onSave, onMessage, request, offer, pages }) {
   const f = project.fondations ?? {};
   const [rep, setRep] = useState(f.reponses ?? {});
   const [msg, setMsg] = useState(f.message ?? null);
+  const [cont, setCont] = useState(f.contenus ?? {});
   const [busy, setBusy] = useState(false);
   const set = (k, v) => setRep((r) => ({ ...r, [k]: v }));
   const preuves = rep.preuves ?? {};
@@ -207,7 +298,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer }) {
   const res = f.resultats;
 
   const patch = (extra = {}) => ({
-    fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), ...extra },
+    fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: cont, ...extra },
   });
 
   async function save(silent) {
@@ -283,6 +374,10 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer }) {
         <span className="cat-fd__label">Ce qu'ils ont déjà essayé</span>
         <Cases options={CHOIX.essaye} value={rep.essaye} onChange={(v) => set("essaye", v)} />
         {TEXTES.probleme.slice(1).map(([k, l, p, r]) => (
+          <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
+        ))}
+        <span className="cat-fd__label">Pour aller plus loin (facultatif)</span>
+        {TEXTES.recherche.map(([k, l, p, r]) => (
           <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
         ))}
       </section>
@@ -368,6 +463,16 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer }) {
           en 4.
         </p>
         <MessageEditor value={msg} onChange={setMsg} />
+      </section>
+
+      <section className="cat-panel">
+        <h3>9. Contenu par type de page</h3>
+        <p className="cat-muted">
+          Ce que chaque page doit dire, section par section, pour ce produit. Les sections sont celles que le Score attend sur ce type de
+          page, dans l'ordre. Écris seulement ce qui est vrai : une preuve ou un chiffre que tu n'as pas se note [MANQUE]. Les cartes des
+          types de page déjà présents dans le projet sont ouvertes.
+        </p>
+        <ContenusEditor value={cont} onChange={setCont} pages={pages} />
       </section>
 
       <div className="cat-actions">

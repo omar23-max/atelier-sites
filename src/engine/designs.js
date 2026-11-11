@@ -12,3 +12,16 @@ export const designs = Object.entries(files)
   .sort((a, b) => a.title.localeCompare(b.title, "fr"));
 
 export const designById = Object.fromEntries(designs.map((d) => [d.id, d]));
+
+// Chaque import écrit un nouveau designs/*.md : sans ceci, la mise à jour
+// remontait à tous les écrans (catalogue, éditeur) et l'atelier demandait à
+// être rechargé à chaque import (2026-11-10). La liste est mise à jour sur
+// place ; les écrans la voient au prochain affichage.
+if (import.meta.hot) {
+  import.meta.hot.accept((mod) => {
+    if (!mod) return;
+    designs.splice(0, designs.length, ...mod.designs);
+    for (const k of Object.keys(designById)) delete designById[k];
+    Object.assign(designById, mod.designById);
+  });
+}

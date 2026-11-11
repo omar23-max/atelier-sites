@@ -921,7 +921,7 @@ for (const s of content) {
 // « produit », ancienne valeur imposée), sinon celui du meta.json de Kimi
 // (produit, offre, collection, listicle, advertorial, landing, accueil,
 // autre), sinon « produit ».
-const TYPES_PAGE = ["produit", "offre", "landing", "collection", "accueil", "advertorial", "listicle", "autre"];
+const TYPES_PAGE = ["produit", "offre", "landing", "collection", "accueil", "advertorial", "listicle", "comparatif", "autre"];
 const kimiMeta = [join(app, "meta.json"), join(app, "src", "data", "meta.json")].filter(existsSync).map((f) => {
   try {
     return JSON.parse(readFileSync(f, "utf8"));

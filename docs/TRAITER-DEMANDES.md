@@ -295,7 +295,12 @@ de `paleo-pro-paleo-protein-powder`, et 41 blocs de `paleo-pro-accueil`.
 `grid-template-areas` n'est pas relevé : un `grid-area: banner` ne désigne
 rien dans la copie et crée une colonne fantôme (hero d'Elevate hors écran).
 `copie.mjs` remplace ces noms par la colonne et la ligne réelles de l'élément
-parmi ses voisins.
+parmi ses voisins. Depuis le 2026-11-10 : seuls les voisins visibles et non
+absolus comptent (un bouton de menu mobile caché décalait tout d'une case), et
+rangées/colonnes se calculent par chevauchement (un logo centré plus bas que
+le menu reste dans la même rangée). Les copies faites avant cette date peuvent
+avoir l'en-tête en escalier : les refaire avec `advertorial-page.mjs <copie>
+--par-sections` (sans recapture).
 
 ## Sections proposées juste après l'import
 
@@ -510,6 +515,28 @@ Demandes liées à la fiche :
   avis qui ne soit coché dans `fondations.reponses.preuves` ou écrit dans
   `offre`. Ce qui manque est signalé dans `notes` (« [MANQUE : nombre
   d'avis] »), jamais inventé.
+
+### Contenu par type de page (Fondations, partie 9 — 2026-11-10)
+
+`fondations.contenus[<type>][<section>][<champ>]` : ce que chaque section doit
+dire pour ce projet, pour 7 types de page (advertorial, listicle, comparatif,
+landing, offre, produit, accueil). La liste des sections et des champs est dans
+`src/engine/page-blueprints.js` : `blueprintOf(type)` reprend les règles du
+Page Score (`RULES`, même ordre, mêmes raisons) et y ajoute les champs à
+écrire ; `FICHES` donne pour chaque type son trafic, sa mission et ses règles.
+Une seule liste : pour ajouter une section attendue à un type, on l'ajoute dans
+`RULES` (le Score, les cadres « section manquante » et les Fondations suivent),
+puis ses champs dans `BASE` ou `PAR_TYPE`.
+
+- Étape 1 (faite) : les cartes dans l'onglet Fondations, remplies à la main ;
+  questionnaire : `reponses.curiosite` et `reponses.aggravation` (blocs
+  « Curiosity » et « Corruption » de la recherche psychographique de Jeffrey).
+- À venir : Claude remplit les cartes (demande « fondations ») ; « Remplir
+  depuis les Fondations » dans l'éditeur ; audit de fidélité aux Fondations.
+- Nouveau type de page : `comparatif` (Compare landing page de Jeffrey).
+- Quand Claude remplira ces champs : mêmes règles que le message central
+  (aucune preuve non cochée, « [MANQUE] » sinon, ne pas écraser un champ déjà
+  rempli par l'utilisateur).
 
 ## Publier sur Shopify : retiré (2026-10-30)
 
