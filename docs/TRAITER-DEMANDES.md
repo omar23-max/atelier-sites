@@ -853,6 +853,28 @@ contenu d'origine comme contenu par défaut, et sa miniature. Les anciennes
 Une page en échec n'arrête pas le lot. Le bilan donne la commande pour la
 reprendre (`--seulement nom`).
 
+**Corrigé le 2026-11-11** (import de la page Scooch livrée par ChatGPT, prompt
+`docs/prompt-chatgpt-convertir-clone.md`) :
+- `kimi-zip.mjs` marche aussi sur le serveur (décompression dans `~/kimi-pages`
+  avec Python ; avant, chemin et `tar` du PC en dur) ;
+- `kimi-import.mjs`, sélecteurs : on ne coupe plus aux virgules échappées
+  (classes Tailwind `grid-cols-[repeat(auto-fill,minmax(52px,1fr))]`), et un
+  deux-points échappé (`.lg\:flex-row`) n'est plus pris pour une pseudo-classe :
+  toutes les règles `lg:` / `md:` étaient jetées (page en mobile sur ordinateur) ;
+- rem → px à la taille réelle de la racine (`html { font-size: 62,5 % }`) :
+  tout était 1,6 fois trop grand dans l'atelier.
+- **rôles du design.md** : comme le copieur de l'atelier, l'import relève les
+  couleurs qui jouent un rôle (fond, surface, fond sombre, texte, texte sur
+  sombre, accent, bouton, texte des boutons) et les polices des titres et du
+  texte, puis écrit `var(--atl-<rôle>, couleur)` et `var(--atl-font-heading /
+  body, police)` dans le CSS et les styles du HTML ; chaque section reçoit ses
+  réglages `role_*` et `meta.designRoles`. Une palette ou un design.md repeint
+  donc la page (essai Scooch : 57 % des couleurs de texte et 71 % des polices
+  changent ; les fonds pastel propres au site, hors rôles, restent).
+Les pages Kimi importées avant cette date peuvent avoir ces défauts : les
+réimporter depuis leur zip si besoin. Durée : 15 à 20 min par page avec la
+vérification (Copycat ≈ 6 min) ; `--verifier-a-part` pour la sauter.
+
 ## Enregistrement d'une page (atelier)
 
 La page s'enregistre seule, 2 s après la dernière modification. Ctrl + S (aussi

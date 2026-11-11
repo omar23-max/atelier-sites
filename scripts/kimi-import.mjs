@@ -771,8 +771,155 @@ const built = await page.evaluate(
   },
   { recipes, keep: [...keep], tracks: [...tracks], MAX_SLOTS, origin, assetBase },
 );
+// ---- Rôles du design.md (2026-11-11) ----
+// Comme le copieur de l'atelier (scripts/lib/copie.mjs) : les couleurs qui
+// jouent un rôle dans la page (fond, surface, fond sombre, texte, texte sur
+// fond sombre, accent des liens, bouton, texte des boutons) et les polices des
+// titres et du texte, relevées sur la page affichée. Le CSS les écrit ensuite
+// var(--atl-<rôle>, couleur d'origine) : appliquer une palette ou un design.md
+// repeint la page. Avant, une page Kimi / ChatGPT gardait ses couleurs.
+const theme = await page.evaluate(() => {
+  const rgbOf = (v) => {
+    const m = /rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)/.exec(v ?? "");
+    if (!m) return null;
+    let a = m[4] == null ? 1 : m[4].endsWith("%") ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+    return a < 0.98 ? null : `rgb(${Math.round(+m[1])}, ${Math.round(+m[2])}, ${Math.round(+m[3])})`;
+  };
+  const lum = (c) => {
+    const m = /(\d+), (\d+), (\d+)/.exec(c ?? "");
+    if (!m) return 1;
+    const f = (x) => {
+      x /= 255;
+      return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * f(+m[1]) + 0.7152 * f(+m[2]) + 0.0722 * f(+m[3]);
+  };
+  const tally = () => new Map();
+  const add = (t, k, w) => k && t.set(k, (t.get(k) ?? 0) + w);
+  const best = (t, ok = () => true) => [...t.entries()].filter(([k]) => ok(k)).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const vis = (el) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    return r.width > 1 && r.height > 1 && s.display !== "none" && s.visibility !== "hidden" && Number(s.opacity) > 0.05;
+  };
+  const ownText = (el) => [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join("").replace(/\s+/g, " ").trim();
+  const bgUnder = (el) => {
+    for (let x = el; x; x = x.parentElement) {
+      const c = rgbOf(getComputedStyle(x).backgroundColor);
+      if (c) return c;
+    }
+    return "rgb(255, 255, 255)";
+  };
+  // Un bouton : un lien ou un bouton coloré, au texte court.
+  const buttonOf = (el) => {
+    for (let x = el, i = 0; x && i < 4; x = x.parentElement, i++) {
+      if (!/^(A|BUTTON)$/.test(x.tagName) && !x.querySelector?.(":scope > a, :scope > button")) continue;
+      const r = x.getBoundingClientRect();
+      const words = (x.innerText || "").trim().split(/\s+/).length;
+      if (rgbOf(getComputedStyle(x).backgroundColor) && r.height <= 140 && words <= 12) return x;
+    }
+    return null;
+  };
+  const bgArea = tally(), text = tally(), links = tally(), btnBg = tally(), btnText = tally(), dark = tally(), bodyF = tally(), headF = tally();
+  const root = document.getElementById("root") ?? document.body;
+  for (const el of root.querySelectorAll("*")) {
+    if (!vis(el)) continue;
+    const s = getComputedStyle(el);
+    const bg = rgbOf(s.backgroundColor);
+    const btn = buttonOf(el);
+    if (bg) {
+      const r = el.getBoundingClientRect();
+      add(btn === el ? btnBg : bgArea, bg, btn === el ? 1 : r.width * r.height);
+    }
+    const t = ownText(el);
+    if (!t) continue;
+    const w = t.split(" ").length;
+    const fam = s.fontFamily.split(",")[0].replace(/["']/g, "").trim();
+    add(/^H[1-3]$/.test(el.tagName) ? headF : bodyF, fam, w);
+    const col = rgbOf(s.color);
+    if (!col) continue;
+    if (btn) {
+      add(btnText, col, 1);
+      continue;
+    }
+    if (el.closest("a")) add(links, col, w);
+    add(lum(bgUnder(el)) < 0.35 ? dark : text, col, w);
+  }
+  const roles = {};
+  roles.fond = best(bgArea, (c) => lum(c) >= 0.35) ?? "rgb(255, 255, 255)";
+  roles.surface = best(bgArea, (c) => lum(c) >= 0.35 && c !== roles.fond);
+  roles["fond-sombre"] = best(bgArea, (c) => lum(c) < 0.35);
+  roles.texte = best(text);
+  roles["texte-sur-sombre"] = best(dark, (c) => lum(c) >= 0.6);
+  roles.accent = best(links, (c) => c !== roles.texte);
+  roles.bouton = best(btnBg);
+  roles["bouton-texte"] = best(btnText, (c) => Math.abs(lum(c) - lum(roles.bouton)) > 0.3);
+  for (const r of Object.keys(roles)) if (!roles[r]) delete roles[r];
+  const bodyFont = best(bodyF);
+  return { roles, bodyFont, headingFont: best(headF) ?? bodyFont };
+});
+console.log(`  Rôles du design : ${Object.entries(theme.roles).map(([r, c]) => `${r} ${c}`).join(" · ")} · polices ${theme.headingFont} / ${theme.bodyFont}`);
+
 await browser.close();
 server.close();
+
+// Couleur écrite dans le CSS → « r, g, b » (opaque seulement), pour la
+// comparer aux rôles. Formes : #rgb, #rrggbb, rgb(…) / rgba(…) avec virgules
+// ou espaces, opacité Tailwind « / var(--tw-…-opacity) » comptée comme 1.
+const keyOf = (tok) => {
+  let m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(tok);
+  if (m) {
+    const h = m[1].length === 3 ? [...m[1]].map((c) => c + c).join("") : m[1];
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)).join(", ");
+  }
+  // L'opacité peut contenir des parenthèses : « / var(--tw-text-opacity) ».
+  m = /^rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)\s*(?:[,/]\s*(.+))?\)$/i.exec(tok);
+  if (!m) return null;
+  const a = m[4]?.trim();
+  if (a && !/^var\(/.test(a) && !(parseFloat(a) >= (a.endsWith("%") ? 98 : 0.98))) return null;
+  return [m[1], m[2], m[3]].map((x) => Math.round(+x)).join(", ");
+};
+const roleKeys = {};
+for (const [r, c] of Object.entries(theme.roles)) {
+  const k = keyOf(c);
+  if (k) (roleKeys[k] ??= []).push(r);
+}
+const ROLE_ORDER = {
+  bg: ["fond", "surface", "fond-sombre", "bouton"],
+  color: ["texte", "texte-sur-sombre", "accent", "bouton-texte"],
+  other: ["texte", "surface", "accent", "fond", "fond-sombre"],
+};
+const COLOR_TOKEN = /#(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b|rgba?\((?:[^()]|\([^()]*\))*\)/g;
+const firstFamily = (v) => v.split(",")[0].replace(/["']/g, "").trim().toLowerCase();
+// Une déclaration « propriété: valeur » → la même avec les rôles.
+const themeDecl = (prop, value) => {
+  prop = prop.trim().toLowerCase();
+  if (prop.startsWith("--") || /var\(--atl-/.test(value)) return value;
+  if (prop === "font-family") {
+    const f = firstFamily(value);
+    if (theme.headingFont && f === theme.headingFont.toLowerCase() && theme.headingFont !== theme.bodyFont) return ` var(--atl-font-heading, ${value.trim()})`;
+    if (theme.bodyFont && f === theme.bodyFont.toLowerCase()) return ` var(--atl-font-body, ${value.trim()})`;
+    return value;
+  }
+  const kind = /^background(-color)?$/.test(prop) ? "bg" : prop === "color" ? "color" : /^(border(-(top|right|bottom|left))?(-color)?|outline(-color)?|fill|stroke|text-decoration-color|caret-color)$/.test(prop) ? "other" : null;
+  if (!kind) return value;
+  return value.replace(COLOR_TOKEN, (tok) => {
+    const roles = roleKeys[keyOf(tok)];
+    if (!roles) return tok;
+    const role = ROLE_ORDER[kind].find((r) => roles.includes(r)) ?? roles[0];
+    return `var(--atl-${role}, ${tok})`;
+  });
+};
+// Toutes les déclarations d'un texte CSS (règles et blocs imbriqués).
+const themeCss = (css) => (Object.keys(roleKeys).length || theme.bodyFont ? css.replace(/([{;]\s*)(-?[a-zA-Z-]+)\s*:([^;{}]+)/g, (all, pre, prop, value) => `${pre}${prop}:${themeDecl(prop, value)}`) : css);
+// Attributs style="…" du HTML de la page (fond de la barre d'annonce…).
+const themeInline = (html) =>
+  html.replace(/ style="([^"]*)"/g, (all, st) => ` style="${st.replace(/(^|;)(\s*)(-?[a-zA-Z-]+)\s*:([^;]+)/g, (m, sep, sp, prop, value) => `${sep}${sp}${prop}:${themeDecl(prop, value.replace(/&quot;/g, '"')).replace(/"/g, "&quot;")}`)}"`);
+const hexOf = (c) => {
+  const m = /(\d+), (\d+), (\d+)/.exec(c ?? "");
+  return m ? `#${[m[1], m[2], m[3]].map((v) => Number(v).toString(16).padStart(2, "0")).join("")}` : "#000000";
+};
+const ROLE_LABELS = { fond: "Fond de page", surface: "Surface (encadrés)", "fond-sombre": "Fond sombre", texte: "Texte", "texte-sur-sombre": "Texte sur fond sombre", accent: "Accent (liens)", bouton: "Bouton", "bouton-texte": "Texte des boutons" };
 
 // ---- 3. CSS de chaque partie, rangé sous la classe de sa section ----
 // html, body et :root deviennent la section elle-même.
@@ -870,7 +1017,7 @@ const cssFor = (keys, scope) => {
       text = `${scopeSel(r.sel, scope)} { ${body} }`;
     }
     for (const w of [...r.wrap].reverse()) text = `${w} { ${text} }`;
-    out += remFix(urlFix(text)) + "\n";
+    out += themeCss(remFix(urlFix(text))) + "\n";
   }
   // Comportements : pistes de carrousel qui défilent au doigt, éléments
   // ajoutés par un bouton cachés au départ.
@@ -942,13 +1089,24 @@ built.parts.forEach((p, i) => {
   const id = `${slug}-p${i + 1}`;
   const data = recipeData(p.keys);
   const script = Object.keys(data).length ? `<script>window.__atlKr=Object.assign(window.__atlKr||{},${JSON.stringify(data).replace(/</g, "\\u003c")});</script>` : "";
-  const template = `<div class="${scope} atl-${id}" data-atl-root>${p.html}${script}${RUNTIME}</div>`;
+  // Couleurs des rôles : réglages de la section (valeur d'origine au départ),
+  // posées en variables sur sa racine ; appliquer un design.md les change.
+  const roleVars = Object.keys(theme.roles)
+    .map((r) => `--atl-${r}: {{ section.settings.role_${r.replace(/-/g, "_")} }};`)
+    .join(" ");
+  const template = `<div class="${scope} atl-${id}" data-atl-root${roleVars ? ` style="${roleVars}"` : ""}>${themeInline(p.html)}${script}${RUNTIME}</div>`;
   const name = p.title || p.cls;
   const schema = {
     name: `Kimi · ${slug.slice(0, 12)} ${i + 1}`,
     tag: "section",
     settings: [
       { type: "paragraph", content: "Page importée, gardée telle quelle. Chaque bloc est un emplacement de la page : modifie son texte, son image ou son lien." },
+      ...(Object.keys(theme.roles).length
+        ? [
+            { type: "header", content: "Couleurs (suivent le design.md)" },
+            ...Object.entries(theme.roles).map(([r, c]) => ({ type: "color", id: `role_${r.replace(/-/g, "_")}`, label: ROLE_LABELS[r] ?? r, default: hexOf(c) })),
+          ]
+        : []),
       { type: "text", id: "ordres", label: "Ordre (réglé par l'atelier en déplaçant les éléments)" },
     ],
     blocks: [
@@ -977,6 +1135,7 @@ built.parts.forEach((p, i) => {
     preview: {},
     previewBlocks: {},
     arbre: { group: true, kind: "groupe", label: name, children: p.tree },
+    ...(Object.keys(theme.roles).length ? { designRoles: Object.fromEntries(Object.keys(theme.roles).map((r) => [`role_${r.replace(/-/g, "_")}`, r])) } : {}),
   };
   content.push({ id, schema, template, css: cssFor(p.keys, `atl-${id}`), meta, blocks: p.blocks });
 });
