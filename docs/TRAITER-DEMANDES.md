@@ -539,9 +539,25 @@ puis ses champs dans `BASE` ou `PAR_TYPE`.
   Fondations qui lui correspond. On coche une section, plusieurs ou toutes ;
   l'IA de l'atelier (`/api/ia/textes`) répartit le contenu dans les textes, à
   leur longueur, dans la langue de la page. En-tête et pied de page ne sont
-  jamais remplis. Les notes « [MANQUE …] » et « [À VALIDER …] » sont retirées
-  avant l'envoi (`sansNotes`). Sur une page d'angle, les zones d'angle reçoivent
-  aussi la carte de l'angle. « Réécrire pour mon produit » reste l'outil libre.
+  jamais remplis. Sur une page d'angle, les zones d'angle reçoivent aussi la
+  carte de l'angle. « Réécrire pour mon produit » reste l'outil libre.
+  **Règles dures, dans le code et pas seulement dans la consigne** (essai du
+  2026-11-10 sur la page produit de « projet test menu » : l'IA a réécrit les
+  avis du site d'origine en faux avis et repris un chiffre marqué [À VALIDER]) :
+  1. les avis clients ne sont jamais écrits par l'IA : la section d'avis est
+     sautée, le champ « avis » n'est pas envoyé ; à placer à la main ;
+  2. une ligne (ou un morceau séparé par « · ») marquée [MANQUE] ou
+     [À VALIDER] n'est pas envoyée ; une ligne faite seulement d'un
+     [À VALIDER] bloque tout le champ (`sansNotes`) ; une section dont tout le
+     contenu est ainsi marqué est sautée ;
+  3. chaque texte rendu par l'IA est contrôlé (`hasUnknownFigure`) : un prix,
+     un %, une durée, une note ou un nombre d'avis absent du projet est
+     remplacé par « [À compléter : chiffre absent des Fondations] ».
+  L'éditeur enregistre tout seul : faire une copie de sécurité avant
+  (`POST /api/pages/<page>/snapshot`) et essayer d'abord sur une copie jetable.
+  Limites connues : les textes que l'IA ne peut pas atteindre (cellules d'un
+  tableau comparatif) et les libellés repris de la page d'origine restent ; le
+  bloc « Fidélité aux Fondations » du Score les montre.
 - Étape 4 (faite) : audit de fidélité aux Fondations, en deux temps
   (`src/engine/fidelite.js`) :
   1. **contrôle immédiat, sans IA** — bloc « Fidélité aux Fondations » de l'outil
