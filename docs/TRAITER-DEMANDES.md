@@ -531,8 +531,36 @@ puis ses champs dans `BASE` ou `PAR_TYPE`.
 - Étape 1 (faite) : les cartes dans l'onglet Fondations, remplies à la main ;
   questionnaire : `reponses.curiosite` et `reponses.aggravation` (blocs
   « Curiosity » et « Corruption » de la recherche psychographique de Jeffrey).
-- À venir : Claude remplit les cartes (demande « fondations ») ; « Remplir
-  depuis les Fondations » dans l'éditeur ; audit de fidélité aux Fondations.
+- Étape 2 (faite) : « Remplir avec Claude » (voir ci-dessous).
+- À venir : « Remplir depuis les Fondations » dans l'éditeur ; audit de
+  fidélité aux Fondations.
+
+**Demande « fondations » avec `details.contenus` (liste de types)** — bouton
+« Remplir avec Claude » de la partie 9. Sur le serveur, depuis `~/atelier-sites` :
+
+1. `statut` → « en cours » ; lire `projets/<projet>.json` : `fondations.reponses`,
+   `resultats`, `message`, `offre`, `angles` (les angles cochés).
+2. `node scripts/fondations-contenus.mjs lister <projet> <types>` : le plan de
+   rédaction (sections, raisons, champs, aides, ce qui est déjà rempli) ;
+   `… modele <projet> <types> > /tmp/<projet>-contenus.json` : le fichier à
+   remplir, avec seulement les champs encore vides.
+3. Écrire chaque champ avec le skill `landing-page-jeffrey-arsh` (référence du
+   type de page) : dans la langue du projet, aux longueurs demandées par l'aide
+   du champ, avec les mots des clients (`resultats.mots`, collecte). Toutes les
+   pages reprennent le message central (même promesse, même mécanisme, les 3
+   preuves, les 3 objections). Listicle et page d'accueil : tous les angles
+   (une raison par angle coché). Landing, offre, advertorial : la version de
+   base ; les sections « Angle » seront déclinées par angle ensuite.
+   **Aucune preuve, aucun chiffre, aucun avis, aucune garantie** qui ne soit
+   coché dans `reponses.preuves` ou écrit dans `offre` : sinon « [MANQUE : …] ».
+   Les avis : seulement ceux collés par l'utilisateur (collecte), jamais inventés.
+4. `node scripts/fondations-contenus.mjs ecrire <projet> /tmp/<projet>-contenus.json`
+   (`--dry` pour voir avant) : un champ déjà rempli n'est jamais remplacé, un
+   champ hors plan est refusé, copie du projet dans `projets/_historique/`.
+   Le script pose `fondations.contenusRemplisLe`.
+5. `statut` → « traitée », `resultat` : nombre de champs écrits par type, liste
+   des [MANQUE]. L'onglet Fondations relit le projet avant d'enregistrer : un
+   onglet resté ouvert n'efface pas ce travail (il faut recharger pour le voir).
 - Nouveau type de page : `comparatif` (Compare landing page de Jeffrey).
 - Quand Claude remplira ces champs : mêmes règles que le message central
   (aucune preuve non cochée, « [MANQUE] » sinon, ne pas écraser un champ déjà

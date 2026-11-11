@@ -290,6 +290,9 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [rep, setRep] = useState(f.reponses ?? {});
   const [msg, setMsg] = useState(f.message ?? null);
   const [cont, setCont] = useState(f.contenus ?? {});
+  // Types de page à faire remplir par Claude : ceux du projet, sinon tous.
+  const typesUsed = [...new Set((pages ?? []).map((p) => p.info?.pageType).filter((t) => TYPES_CONTENU.includes(t)))];
+  const [askTypes, setAskTypes] = useState(typesUsed.length ? typesUsed : TYPES_CONTENU);
   const [busy, setBusy] = useState(false);
   const set = (k, v) => setRep((r) => ({ ...r, [k]: v }));
   const preuves = rep.preuves ?? {};
@@ -301,8 +304,37 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: cont, ...extra },
   });
 
+  // Avant d'enregistrer : relire le projet sur le serveur. Claude a pu écrire
+  // entre-temps (résultats, cartes de la partie 9) pendant que cet onglet
+  // restait ouvert ; sans cela, enregistrer ici effacerait son travail. Un champ
+  // de carte que cet onglet n'a jamais vu rempli et qui est vide ici reprend la
+  // valeur du serveur ; un champ que l'utilisateur a vidé lui-même reste vide.
+  async function patchFresh(extra = {}) {
+    let fresh = f;
+    try {
+      const r = await fetch(`/api/projects/${project.id}`);
+      if (r.ok) fresh = (await r.json()).fondations ?? f;
+    } catch {}
+    const merged = JSON.parse(JSON.stringify(cont));
+    let changed = false;
+    for (const [type, sections] of Object.entries(fresh.contenus ?? {})) {
+      for (const [key, champs] of Object.entries(sections ?? {})) {
+        for (const [k, v] of Object.entries(champs ?? {})) {
+          const seen = String(f.contenus?.[type]?.[key]?.[k] ?? "").trim();
+          const here = String(merged[type]?.[key]?.[k] ?? "").trim();
+          if (!seen && !here && String(v ?? "").trim()) {
+            ((merged[type] ??= {})[key] ??= {})[k] = v;
+            changed = true;
+          }
+        }
+      }
+    }
+    if (changed) setCont(merged);
+    return { fondations: { ...fresh, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: merged, ...extra } };
+  }
+
   async function save(silent) {
-    await onSave(patch(), silent);
+    await onSave(await patchFresh(), silent);
   }
 
   async function askClaude() {
@@ -310,13 +342,39 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       return onMessage({ error: true, text: "Remplis au moins : ce que fait le produit, le problème principal, et qui achète." });
     setBusy(true);
     try {
-      await onSave(patch(), true); // la demande lit le questionnaire enregistré
+      await onSave(await patchFresh(), true); // la demande lit le questionnaire enregistré
       const dossier = await request(
         "fondations",
         `Projet « ${project.nom} » : poser les fondations (recherche client, avatars, douleurs et mots des clients, promesse, objections, pistes d'angles) à partir du questionnaire Fondations, puis remplir fondations.resultats et l'onglet Offre.`,
         { projet: project.id },
       );
-      await onSave(patch({ statut: "demandée", demandeLe: new Date().toISOString(), demande: dossier }), true);
+      await onSave(await patchFresh({ statut: "demandée", demandeLe: new Date().toISOString(), demande: dossier }), true);
+      onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
+    } catch (e) {
+      onMessage({ error: true, text: e.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // « Remplir avec Claude » (partie 9) : une demande « fondations » avec
+  // details.contenus = les types cochés. Claude écrit seulement les champs
+  // vides (scripts/fondations-contenus.mjs) ; rien de ce qui est écrit ici
+  // n'est remplacé.
+  async function askContenus() {
+    if (!askTypes.length) return onMessage({ error: true, text: "Coche au moins un type de page." });
+    if (!messageFilled({ fondations: { message: msg } }))
+      return onMessage({ error: true, text: "Remplis d'abord le message central (partie 8) : la promesse et le mécanisme. Les cartes en découlent." });
+    setBusy(true);
+    try {
+      await onSave(await patchFresh(), true);
+      const labels = askTypes.map((t) => pageTypeById[t]?.label ?? t).join(", ");
+      const dossier = await request(
+        "fondations",
+        `Projet « ${project.nom} » : remplir les cartes « Contenu par type de page » (Fondations, partie 9) pour : ${labels}. Seulement les champs vides, à partir du questionnaire, du message central, de l'offre et des angles.`,
+        { projet: project.id, contenus: askTypes },
+      );
+      await onSave(await patchFresh({ contenusDemande: { le: new Date().toISOString(), dossier, types: askTypes } }), true);
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
       onMessage({ error: true, text: e.message });
@@ -326,7 +384,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   }
 
   async function validate() {
-    await onSave(patch({ statut: "validée", valideLe: new Date().toISOString() }), true);
+    await onSave(await patchFresh({ statut: "validée", valideLe: new Date().toISOString() }), true);
     onMessage({ text: "Fondations validées. Étape suivante : l'onglet Angles." });
   }
 
@@ -472,6 +530,29 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           page, dans l'ordre. Écris seulement ce qui est vrai : une preuve ou un chiffre que tu n'as pas se note [MANQUE]. Les cartes des
           types de page déjà présents dans le projet sont ouvertes.
         </p>
+        <div className="cat-fd__ask">
+          <span className="cat-fd__label">Faire remplir par Claude les cartes de :</span>
+          <div className="cat-fd__cases">
+            {TYPES_CONTENU.map((t) => (
+              <label key={t} className={askTypes.includes(t) ? "is-on" : ""}>
+                <input type="checkbox" checked={askTypes.includes(t)} onChange={(e) => setAskTypes(e.target.checked ? [...askTypes, t] : askTypes.filter((x) => x !== t))} />
+                {pageTypeById[t]?.label ?? t}
+              </label>
+            ))}
+          </div>
+          <button type="button" className="cat-btn" disabled={busy} onClick={askContenus}>
+            {busy ? "Envoi…" : `Remplir avec Claude (${askTypes.length})`}
+          </button>
+          <p className="cat-fd__hint">
+            Claude écrit seulement les champs vides, à partir du questionnaire, du message central, de l'offre et des angles. Ce que tu as
+            déjà écrit n'est jamais remplacé.
+            {f.contenusRemplisLe && (!f.contenusDemande || f.contenusRemplisLe >= f.contenusDemande.le)
+              ? ` Cartes remplies par Claude le ${new Date(f.contenusRemplisLe).toLocaleDateString("fr-CA", { dateStyle: "long" })} : relis et corrige.`
+              : f.contenusDemande
+                ? ` Demande envoyée le ${new Date(f.contenusDemande.le).toLocaleDateString("fr-CA", { dateStyle: "long" })} : dis à Claude « traite les demandes », puis recharge cette page.`
+                : ""}
+          </p>
+        </div>
         <ContenusEditor value={cont} onChange={setCont} pages={pages} />
       </section>
 
