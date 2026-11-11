@@ -24,6 +24,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -40,16 +41,31 @@ if (!existsSync(zip)) {
   console.error(`✗ Zip introuvable : ${zip}`);
   process.exit(1);
 }
-const pagesDir = "C:/Users/HP/Desktop/kimi-pages";
+// Dossier de décompression, hors de l'atelier. Sur le serveur (2026-11-11) :
+// ~/kimi-pages (avant, le chemin du PC était écrit en dur et l'import échouait).
+const pagesDir = process.env.KIMI_PAGES ?? (process.platform === "win32" ? "C:/Users/HP/Desktop/kimi-pages" : join(homedir(), "kimi-pages"));
 
 // Décompression (hors de l'atelier). tar de Windows (bsdtar, sait lire les
-// zip) ; celui de Git Bash ne le sait pas.
+// zip) ; celui de Git Bash ne le sait pas. Sur le serveur (Linux), ni tar ni
+// unzip ne lisent les zip : Python (module zipfile, refuse les chemins qui
+// sortiraient du dossier).
 const lot = join(pagesDir, `_lot-${basename(zip).replace(/\.zip$/i, "").replace(/[^a-zA-Z0-9-]+/g, "-").slice(0, 40)}`);
 console.log(`Décompression dans ${lot}`);
 await rm(lot, { recursive: true, force: true });
 await mkdir(lot, { recursive: true });
-const tar = process.platform === "win32" ? "C:/Windows/System32/tar.exe" : "tar";
-execFileSync(tar, ["-xf", zip, "-C", lot], { stdio: "inherit" });
+if (process.platform === "win32") execFileSync("C:/Windows/System32/tar.exe", ["-xf", zip, "-C", lot], { stdio: "inherit" });
+else
+  execFileSync(
+    "python3",
+    [
+      "-I",
+      "-c",
+      "import sys,zipfile,os\nz=zipfile.ZipFile(sys.argv[1]);d=os.path.realpath(sys.argv[2])\nfor n in z.namelist():\n  p=os.path.realpath(os.path.join(d,n))\n  if not (p==d or p.startswith(d+os.sep)): sys.exit('chemin refusé : '+n)\nz.extractall(d)",
+      zip,
+      lot,
+    ],
+    { stdio: "inherit" },
+  );
 
 // Dossier de l'application : celui qui contient package.json (lui-même, ou
 // un sous-dossier comme « app »).
