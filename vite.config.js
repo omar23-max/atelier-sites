@@ -820,6 +820,15 @@ function atelierApi() {
                 const folder = await mediaPlace(b.page, "images-creees");
                 return json(res, 200, await reworkImage({ key: env.OPENAI_API_KEY, root, ...b, folder }));
               }
+              // Studio d'images en direct (2026-11-11) : une image à la fois, la
+              // consigne est construite ici (studioPrompt), rangée dans
+              // « images-creees » du projet. Modèle : gpt-image-2 ou Nano Banana.
+              if (parts[1] === "studio" && NAME.test(b.page ?? "")) {
+                const { studioImage, studioPrompt } = await import("./scripts/lib/ia.mjs");
+                const folder = await mediaPlace(b.page, "images-creees");
+                const prompt = studioPrompt(b);
+                return json(res, 200, await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: b.source, references: b.references ?? [], prompt, width: b.width, height: b.height, format: b.mode === "pub" ? b.format : null, model: b.modele, folder }));
+              }
               if (parts[1] === "section") {
                 const { rebuildSection } = await import("./scripts/lib/ia.mjs");
                 return json(res, 200, await rebuildSection({ key: env.OPENAI_API_KEY, ...b }));

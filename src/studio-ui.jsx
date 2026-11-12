@@ -1,9 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { IconImage } from "./icons.jsx";
 import { originalPhotoTargets } from "./engine/photos.js";
 import { designById } from "./engine/designs.js";
+import { sections } from "./engine/sections.js";
+import { blocksKey, normalizeProps } from "./engine/render.js";
+import { ROOT_ZONE } from "./library-ui.jsx";
+
+const sectionsById = Object.fromEntries(sections.map((x) => [x.id, x]));
 
 export { originalPhotoTargets };
 
@@ -140,291 +145,568 @@ function Progress() {
   );
 }
 
+// ---- Studio d'images en direct (2026-11-11) : la page « Image Mirror » de
+// Whitelabeler, dans l'atelier. À gauche quatre cartes numérotées (1 ton
+// produit, 2 tes images, 3 images à refaire, 4 images générées) ; à droite le
+// panneau Réglages (coût, mode Miroir / Pub, pilote automatique, bouton
+// Lancer, modèle, réglages du pilote, « Que se passe-t-il »). Chaque image est
+// faite par le serveur de l'atelier (/api/ia/studio, gpt-image-2 ou Nano
+// Banana), une à la fois, puis installée à sa place dans la page, une par une.
+// Les versions sont gardées dans le navigateur (localStorage) par page.
+const MODELES = {
+  auto: { label: "Auto", prix: 0.05, aide: "GPT Image 2 : fiable, clé OpenAI de l'atelier." },
+  "nano-banana": { label: "Nano Banana", prix: 0.04, aide: "Google : très fidèle au produit. Demande la facturation activée sur ton projet Google." },
+  "gpt-image-2": { label: "GPT Image 2", prix: 0.05, aide: "OpenAI : fiable, bonne gestion des textes." },
+  "nano-banana-pro": { label: "Nano Banana Pro", prix: 0.13, aide: "Google, la meilleure qualité, plus cher." },
+};
+const modeleReel = (m) => (m === "auto" ? "gpt-image-2" : m);
+const LS = `atl-studio-${pageName}`;
+const loadSaved = () => {
+  try {
+    return JSON.parse(localStorage.getItem(LS) ?? "{}");
+  } catch {
+    return {};
+  }
+};
+const sizeOf = (src) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve([img.naturalWidth || 1024, img.naturalHeight || 1024]);
+    img.onerror = () => resolve([1024, 1024]);
+    img.src = src;
+  });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 function StudioDialog({ onClose }) {
   const getPuck = useGetPuck();
   const data = getPuck().appState.data;
   const root = data.root?.props ?? {};
-  const targets = useMemo(() => originalPhotoTargets(data.content ?? []), [data]);
-  const [refs, setRefs] = useState([]); // { groupe, dataUrl, tag, name, auto? }
+  // Emplacements d'image à refaire : relevés à l'ouverture (une image installée
+  // ne doit pas disparaître de la liste).
+  const [targets, setTargets] = useState(() => originalPhotoTargets(data.content ?? []));
   const [chosen, setChosen] = useState(() => new Set(targets.map((t) => t.key)));
+  const [refs, setRefs] = useState([]);
   const [notes, setNotes] = useState({});
-  // Accroche proposée en mode pub : le premier titre de la page.
-  const firstTitle = useMemo(() => {
-    for (const item of data.content ?? []) {
-      for (const b of item.props?.blocks_element ?? []) if (/^Grand titre/.test(b.repere ?? "") && plain(b.text)) return plain(b.text).slice(0, 90);
-    }
-    return "";
-  }, [data]);
-  const [form, setForm] = useState({
-    produit: root.produit ?? "",
-    description: root.infos ?? "",
-    mode: "fidele",
-    rythme: "tout",
-    n: 8,
-    format: "4:5",
-    accroche: firstTitle,
-    cta: "",
-    textes: "",
-  });
-  const [state, setState] = useState(null);
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  const [form, setForm] = useState({ produit: root.produit ?? "", description: root.infos ?? "", mode: "fidele", format: "4:5", accroche: "", cta: "", textes: "", modele: "auto", autopilot: true, rythme: "tout", n: 8 });
+  const [results, setResults] = useState(loadSaved); // { [cle]: { versions: [{url, modele, note, consigne}], sel, installee } }
+  const [status, setStatus] = useState({}); // { [cle]: "attente" | "encours" | "erreur" }
+  const [errors, setErrors] = useState({});
+  const [current, setCurrent] = useState(null); // clé affichée en 4
+  const [run, setRun] = useState(null); // { state: "marche" | "pause" | "demande", faites }
+  const [refine, setRefine] = useState("");
+  const [placeTo, setPlaceTo] = useState("");
+  const [flash, setFlash] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const stopRef = useRef(false);
+  const continueRef = useRef(null);
   const design = designById[root.design];
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
+  const pub = form.mode === "pub";
 
-  // Fiche « Ma marque et mon produit » de la page : ses photos du produit et
-  // son logo arrivent tout seuls dans les deux boîtes.
+  useEffect(() => {
+    try {
+      localStorage.setItem(LS, JSON.stringify(results));
+    } catch {}
+  }, [results]);
+
+  // Taille minimale (comme le filtre « Min size » de Whitelabeler) : les
+  // icônes, logos et pictos de moins de 150 px ne sont pas cochés au départ.
+  const [dims, setDims] = useState({});
+  const MIN_PX = 150;
+  useEffect(() => {
+    let alive = true;
+    Promise.all(targets.map(async (t) => [t.key, await sizeOf(t.source)])).then((list) => {
+      if (!alive) return;
+      const d = Object.fromEntries(list);
+      setDims(d);
+      setChosen((c) => new Set([...c].filter((k) => !d[k] || Math.max(...d[k]) >= MIN_PX)));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const small = (k) => dims[k] && Math.max(...dims[k]) < MIN_PX;
+
+  // Photos du produit et logo de la page, kit de marque et description du projet.
   useEffect(() => {
     const urls = [...(Array.isArray(root.photos_produit) ? root.photos_produit : []).map((u) => [u, "produit", "Produit"]), ...(root.logo ? [[root.logo, "marque", "Logo"]] : [])];
-    if (!urls.length) return;
     Promise.all(urls.map(([u, groupe, tag]) => urlToDataUrl(u).then((dataUrl) => ({ groupe, tag, name: u.split("/").pop(), dataUrl, auto: true })).catch(() => null))).then((auto) =>
       setRefs((r) => [...auto.filter(Boolean), ...r].slice(0, MAX_REFS)),
     );
-  }, []);
-
-  // La boîte « marque » se remplit avec le kit de marque du projet (logos,
-  // brand board) ; la description du produit avec celle du projet.
-  useEffect(() => {
     if (!root.projet) return;
-    fetch("/api/projects")
-      .then((r) => r.json())
-      .then(async (list) => {
-        const project = list.find((p) => p.id === root.projet);
+    fetch(`/api/projects/${encodeURIComponent(root.projet)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then(async (project) => {
         if (!project) return;
-        if (project.description) setForm((f) => ({ ...f, description: f.description || project.description }));
+        const fd = project.fondations?.reponses ?? {};
+        setForm((f) => ({ ...f, produit: f.produit || project.produit || project.nom || "", description: f.description || project.description || fd.role || "" }));
         const brand = project.marque ?? {};
-        const urls = [...(brand.logos ?? []).map((u) => [u, "Logo"]), ...(brand.brandBoard ? [[brand.brandBoard, "Brand board"]] : [])].slice(0, 4);
-        const auto = await Promise.all(
-          urls.map(([u, tag]) =>
-            urlToDataUrl(u)
-              .then((dataUrl) => ({ groupe: "marque", tag, name: u.split("/").pop(), dataUrl, auto: true }))
-              .catch(() => null),
-          ),
-        );
+        const list = [...(brand.logos ?? []).map((u) => [u, "Logo"]), ...(brand.brandBoard ? [[brand.brandBoard, "Brand board"]] : [])].slice(0, 4);
+        const auto = await Promise.all(list.map(([u, tag]) => urlToDataUrl(u).then((dataUrl) => ({ groupe: "marque", tag, name: u.split("/").pop(), dataUrl, auto: true })).catch(() => null)));
         setRefs((r) => [...r, ...auto.filter(Boolean)].slice(0, MAX_REFS));
       })
       .catch(() => {});
-  }, [root.projet]);
+  }, []);
 
-  function toggle(key) {
-    const next = new Set(chosen);
-    next.has(key) ? next.delete(key) : next.add(key);
-    setChosen(next);
-  }
+  const ordered = [...refs.filter((r) => r.groupe === "produit"), ...refs.filter((r) => r.groupe === "marque")];
+  const prix = MODELES[form.modele]?.prix ?? 0.05;
+  const queue = targets.filter((t) => chosen.has(t.key) && !results[t.key]?.versions?.length);
+  const done = targets.filter((t) => results[t.key]?.versions?.length).length;
+  const room = MAX_REFS - refs.length;
+  const cur = targets.find((t) => t.key === current) ?? targets.find((t) => results[t.key]?.versions?.length) ?? null;
+  const curRes = cur ? results[cur.key] : null;
+  const curVer = curRes?.versions?.[curRes.sel ?? curRes.versions.length - 1] ?? null;
 
-  const count = chosen.size;
-  const runs = form.rythme === "5" ? Math.min(5, count) : form.rythme === "n" ? Math.min(Number(form.n) || 1, count) : form.rythme === "une-par-une" ? Math.min(1, count) : count;
-  const cost = (count * PRIX_IMAGE).toFixed(2).replace(".", ",");
-
-  async function send() {
-    if (!refs.some((r) => r.groupe === "produit")) return setState({ error: "Ajoute au moins une photo de ton produit." });
-    if (count === 0) return setState({ error: "Choisis au moins une photo." });
-    setState({ busy: true });
+  async function generate(t, affiner = null) {
+    setStatus((s) => ({ ...s, [t.key]: "encours" }));
+    setErrors((e) => ({ ...e, [t.key]: null }));
     try {
-      const save = await fetch(`/api/pages/${pageName}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(getPuck().appState.data),
-      });
-      if (!save.ok) throw new Error((await save.json()).error);
-      const cibles = targets.filter((t) => chosen.has(t.key)).map((t) => ({ ...t, consigne: notes[t.key] ?? "" }));
-      // Produit d'abord, marque ensuite : l'ordre des images envoyées.
-      const ordered = [...refs.filter((r) => r.groupe === "produit"), ...refs.filter((r) => r.groupe === "marque")];
-      const res = await fetch("/api/requests", {
+      const prev = results[t.key]?.versions ?? [];
+      const source = affiner ? prev[results[t.key]?.sel ?? prev.length - 1]?.url : t.source;
+      const [w, h] = await sizeOf(source);
+      const res = await fetch("/api/ia/studio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "images",
           page: pageName,
-          images: ordered.map((r) => r.dataUrl),
-          details: {
-            ...form,
-            n: Number(form.n) || 1,
-            references: ordered.map((r, i) => ({ ordre: i + 1, groupe: r.groupe, etiquette: r.tag, nom: r.name })),
-            marque: { couleurs: design?.tokens?.couleurs ?? null, polices: design?.tokens?.polices ?? null },
-            prixEstime: Number((count * PRIX_IMAGE).toFixed(2)),
-            cibles,
-          },
+          source,
+          references: ordered.map((r) => r.dataUrl),
+          refs: ordered.map((r) => ({ groupe: r.groupe, etiquette: r.tag })),
+          produit: form.produit,
+          description: form.description,
+          mode: form.mode,
+          format: form.format,
+          accroche: form.accroche,
+          cta: form.cta,
+          textes: form.textes,
+          brief: t.brief,
+          consigne: notes[t.key] ?? "",
+          affiner,
+          marque: { couleurs: design?.tokens?.couleurs ?? null, polices: design?.tokens?.polices ?? null },
+          width: w,
+          height: h,
+          modele: modeleReel(form.modele),
         }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
-      setState({ done: body.dossier, count: cibles.length });
+      setResults((r) => {
+        const versions = [...(r[t.key]?.versions ?? []), { url: body.url, modele: body.modele, note: body.note, consigne: affiner || notes[t.key] || "" }];
+        return { ...r, [t.key]: { ...(r[t.key] ?? {}), versions, sel: versions.length - 1 } };
+      });
+      setStatus((s) => ({ ...s, [t.key]: null }));
+      setCurrent(t.key);
+      return true;
     } catch (e) {
-      setState({ error: `Échec : ${e.message}` });
+      setStatus((s) => ({ ...s, [t.key]: "erreur" }));
+      setErrors((x) => ({ ...x, [t.key]: e.message }));
+      return false;
     }
   }
 
-  const room = MAX_REFS - refs.length;
-  const pub = form.mode === "pub";
+  // Lancer : une image (pilote automatique coupé), ou toute la file selon les
+  // réglages du pilote (tout, s'arrêter après 5 ou N, demander avant chaque image).
+  async function start() {
+    if (!ordered.some((r) => r.groupe === "produit")) return setFlash({ error: "Ajoute au moins une photo de ton produit (carte 2)." });
+    const todo = [...queue];
+    if (!todo.length) return setFlash({ error: "Rien à générer : coche des images en 3." });
+    stopRef.current = false;
+    const limit = !form.autopilot ? 1 : form.rythme === "5" ? 5 : form.rythme === "n" ? Math.max(1, Number(form.n) || 1) : todo.length;
+    setStatus((s) => ({ ...s, ...Object.fromEntries(todo.map((t) => [t.key, "attente"])) }));
+    let faites = 0;
+    for (const t of todo) {
+      if (stopRef.current || faites >= limit) break;
+      if (form.autopilot && form.rythme === "demander" && faites > 0) {
+        setRun({ state: "demande", faites, next: t.sectionLabel });
+        const go = await new Promise((resolve) => (continueRef.current = resolve));
+        if (!go) break;
+      }
+      setRun({ state: "marche", faites, total: Math.min(limit, todo.length) });
+      await generate(t);
+      faites++;
+      await sleep(50);
+    }
+    setStatus((s) => Object.fromEntries(Object.entries(s).filter(([, v]) => v !== "attente")));
+    setRun(null);
+  }
+  function stop() {
+    stopRef.current = true;
+    continueRef.current?.(false);
+  }
+
+  // Installer l'image affichée dans la page : à la place de la photo d'origine
+  // de son emplacement, ou dans un autre emplacement choisi. Ctrl+Z l'annule.
+  function install(t, url, toKey) {
+    const target = targets.find((x) => x.key === (toKey || t.key)) ?? t;
+    const { appState, dispatch } = getPuck();
+    const index = appState.data.content.findIndex((c) => c.props.id === target.sectionId);
+    if (index < 0) return setFlash({ error: "Section introuvable dans la page." });
+    const item = appState.data.content[index];
+    const section = sectionsById[item.type];
+    const props = { ...item.props };
+    if (target.blockType) {
+      const k = blocksKey(target.blockType);
+      const full = normalizeProps(section, item.props)[k] ?? [];
+      const list = [...(props[k] ?? full)];
+      list[target.blockIndex] = { ...(full[target.blockIndex] ?? {}), ...(list[target.blockIndex] ?? {}), [target.settingId]: url };
+      props[k] = list;
+    } else props[target.settingId] = url;
+    dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT_ZONE, data: { ...item, props } });
+    setResults((r) => ({ ...r, [t.key]: { ...(r[t.key] ?? {}), installee: target.key } }));
+    setFlash({ ok: `Installée dans « ${target.sectionLabel} ». Ctrl+Z pour annuler ; la page s'enregistre toute seule.` });
+  }
+
+  async function addSources(files) {
+    const list = await Promise.all([...files].filter((f) => f?.type?.startsWith("image/")).slice(0, 20).map(readAsDataUrl));
+    const added = list.map((src, i) => ({ key: `ajout-${Date.now()}-${i}`, sectionId: null, sectionLabel: "Image ajoutée", settingLabel: "à installer où tu veux", source: src, brief: "" }));
+    setTargets((t) => [...t, ...added]);
+    setChosen((c) => new Set([...c, ...added.map((a) => a.key)]));
+  }
+  const pageSlots = targets.filter((t) => t.sectionId);
+  const download = (url, name) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   return (
-    <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="atl-modal__panel atl-newpage atl-studio">
-        <header className="atl-modal__head">
+    <div className="atl-mirror" role="dialog" aria-modal="true" aria-label="Studio d'images">
+      <header className="atl-mirror__top">
+        <div>
           <h2>Studio d'images</h2>
-          <button type="button" className="atl-modal__close" onClick={onClose} aria-label="Fermer">
-            ×
-          </button>
-        </header>
+          <span>Chaque photo d'origine refaite avec ton produit et ta marque, puis installée dans la page.</span>
+        </div>
+        <button type="button" className="atl-modal__close" onClick={() => (stop(), onClose())} aria-label="Fermer">
+          ×
+        </button>
+      </header>
+      <div className="atl-mirror__layout">
+        <div className="atl-mirror__main">
+          {/* 1. Le produit */}
+          <section className="atl-mirror__card">
+            <h3>
+              <i>1</i> Parle-nous de ton produit {form.produit.trim() && <em className="atl-mirror__ready">✓ PRÊT</em>}
+            </h3>
+            <p className="atl-mirror__sub">C'est ce qui rend les images justes.</p>
+            <label className="atl-mirror__field">
+              <span>Nom du produit</span>
+              <input value={form.produit} onChange={set("produit")} placeholder="ex. Chinup Face Sculpt Wrap" />
+              <small>Sert à réécrire tout texte visible dans les images.</small>
+            </label>
+            <label className="atl-mirror__field">
+              <span>Ce que c'est, ce qu'il contient</span>
+              <textarea rows={3} value={form.description} onChange={set("description")} placeholder="Une courte description. Ex. « Bandeau en tissu respirant, réutilisable, à porter la nuit. »" />
+            </label>
+          </section>
 
-        {state?.done ? (
-          <div className="atl-newpage__body">
-            <p>
-              <b>Demande enregistrée</b> dans <code>{state.done}</code> : {state.count} image(s). La page a été enregistrée.
+          {/* 2. Les références */}
+          <section className="atl-mirror__card">
+            <h3>
+              <i>2</i> Tes images
+            </h3>
+            <p className="atl-mirror__sub">Les photos de ton produit et ce qui montre ta marque. Tout est construit à partir de là.</p>
+            <div className="atl-studio__boxes">
+              <RefBox title="Ton produit" hint="Quelques photos : face, dos, en main, emballage (fournisseur ou les tiennes)." group="produit" refs={refs} setRefs={setRefs} room={room} />
+              <RefBox title="Ta marque" hint={`Logo, brand board, couleurs.${design ? ` Couleurs et polices de ${design.id}.` : ""}`} group="marque" refs={refs} setRefs={setRefs} room={room} />
+            </div>
+          </section>
+
+          {/* 3. Les images à refaire */}
+          <section className="atl-mirror__card">
+            <h3>
+              <i>3</i> Images à refaire
+              <span className="atl-mirror__headtools">
+                <label className="atl-mirror__linkbtn">
+                  <input type="file" accept="image/*" multiple hidden onChange={(e) => addSources(e.target.files)} />+ Ajouter des images
+                </label>
+                <button type="button" className="atl-mirror__linkbtn" onClick={() => setChosen(chosen.size ? new Set() : new Set(targets.map((t) => t.key)))}>
+                  {chosen.size ? "Tout décocher" : "Tout cocher"}
+                </button>
+              </span>
+            </h3>
+            <p className="atl-mirror__sub">
+              Les photos d'origine de la page, dans l'ordre. Décoche celles à garder telles quelles. Les images de moins de {MIN_PX} px (icônes, logos) ne sont pas cochées.
             </p>
-            <p>
-              Dis à Claude <b>« traite les demandes »</b>. Chaque image est créée avec gpt-image-2 (OpenAI) à partir de la photo d'origine et de tes
-              références ; {pub ? "les pubs sont rangées dans medias/" + pageName + "/pubs/." : "elle est posée à sa place dans la page. Recharge ensuite l'atelier."}
-            </p>
-            <Progress />
-          </div>
-        ) : (
-          <div className="atl-newpage__body">
-            <fieldset>
-              <legend>1. Ton produit</legend>
-              <div className="atl-newpage__grid">
-                <label>
-                  <span>Nom du produit</span>
-                  <input value={form.produit} onChange={set("produit")} placeholder="ex. Clearflow Cayenne Complex" />
-                  <small className="atl-newpage__hint">Il remplace tout texte ou nom de marque visible dans les images.</small>
-                </label>
-                <label>
-                  <span>Ce que c'est, ce qu'il contient</span>
-                  <textarea rows={2} value={form.description} onChange={set("description")} placeholder="ex. Complément au piment de Cayenne, 60 gélules, pour la circulation." />
-                </label>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend>2. Tes images ({refs.length} / {MAX_REFS})</legend>
-              <div className="atl-studio__boxes">
-                <RefBox title="Ton produit" hint="Quelques photos : face avant, dos, emballage, en main." group="produit" refs={refs} setRefs={setRefs} room={room} />
-                <RefBox
-                  title="Ta marque"
-                  hint={`Logo, brand board, style.${design ? ` Couleurs et polices prises dans ${design.id}.` : ""}${root.projet ? " Rempli depuis le kit de marque du projet." : ""}`}
-                  group="marque"
-                  refs={refs}
-                  setRefs={setRefs}
-                  room={room}
-                />
-              </div>
-            </fieldset>
-
-            <fieldset className="atl-newpage__grid">
-              <legend>3. Réglages</legend>
-              <label>
-                <span>Mode</span>
-                <select value={form.mode} onChange={set("mode")}>
-                  <option value="fidele">Miroir : la même photo, avec ton produit</option>
-                  <option value="pub">Pub : un visuel publicitaire à partir de la photo</option>
-                </select>
-              </label>
-              {pub && (
-                <>
-                  <label>
-                    <span>Format</span>
-                    <select value={form.format} onChange={set("format")}>
-                      {Object.entries(FORMATS).map(([v, l]) => (
-                        <option key={v} value={v}>
-                          {l}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    <span>Accroche écrite sur le visuel</span>
-                    <input value={form.accroche} onChange={set("accroche")} placeholder="ex. Fini les nuits sans sommeil" />
-                  </label>
-                  <label>
-                    <span>Bouton (facultatif)</span>
-                    <input value={form.cta} onChange={set("cta")} placeholder="ex. Essayer -50 %" />
-                  </label>
-                </>
-              )}
-              <label>
-                <span>Rythme</span>
-                <select value={form.rythme} onChange={set("rythme")}>
-                  <option value="tout">Tout générer d'un coup</option>
-                  <option value="5">S'arrêter après 5 images</option>
-                  <option value="n">S'arrêter après un nombre choisi</option>
-                  <option value="une-par-une">Demander avant chaque image</option>
-                </select>
-              </label>
-              {form.rythme === "n" && (
-                <label>
-                  <span>Nombre d'images avant l'arrêt</span>
-                  <input type="number" min={1} max={count || 1} value={form.n} onChange={set("n")} />
-                </label>
-              )}
-              <label>
-                <span>Textes précis à changer (facultatif)</span>
-                <input value={form.textes} onChange={set("textes")} placeholder="ex. Aurivita → Clearflow ; 60 softgels → 90 softgels" />
-              </label>
-            </fieldset>
-
-            <fieldset>
-              <legend>
-                4. {pub ? "Photos d'où partir" : "Photos d'origine à refaire"} ({count} / {targets.length})
-                {targets.length > 0 && (
-                  <button
-                    type="button"
-                    className="atl-score__more"
-                    onClick={() => setChosen(count === targets.length ? new Set() : new Set(targets.map((t) => t.key)))}
-                  >
-                    {count === targets.length ? "Tout décocher" : "Tout cocher"}
-                  </button>
-                )}
-              </legend>
-              {targets.length === 0 ? (
-                <p className="atl-newpage__hint">Cette page n'affiche plus aucune photo d'origine : tout est déjà remplacé.</p>
-              ) : (
-                <ul className="atl-studio__targets">
-                  {targets.map((t) => (
-                    <li key={t.key} className={chosen.has(t.key) ? "is-on" : ""}>
-                      <label>
-                        <input type="checkbox" checked={chosen.has(t.key)} onChange={() => toggle(t.key)} />
-                        <img src={t.source} alt="" />
-                        <span>
-                          <b>{t.sectionLabel}</b>
-                          <small>
-                            {t.settingLabel}
-                            {t.blockType ? ` · bloc ${t.blockIndex + 1}` : ""}
-                          </small>
-                          {t.brief && <small className="atl-studio__brief">{t.brief}</small>}
-                        </span>
+            {targets.length === 0 ? (
+              <div className="atl-mirror__empty">Rien ici : la page n'affiche plus de photo d'origine. Ajoute des images pour les refaire.</div>
+            ) : (
+              <ul className="atl-mirror__strip">
+                {targets.map((t, i) => {
+                  const r = results[t.key];
+                  const st = status[t.key];
+                  const label = st === "encours" ? "En cours" : st === "attente" ? "En attente" : st === "erreur" ? "Erreur" : r?.installee ? "Installée" : r?.versions?.length ? "Fait" : chosen.has(t.key) ? "À faire" : small(t.key) ? "Petite" : "Gardée";
+                  return (
+                    <li key={t.key} className={`${chosen.has(t.key) ? "is-on" : ""}${cur?.key === t.key ? " is-current" : ""}`}>
+                      <button type="button" onClick={() => setCurrent(t.key)} title={`${t.sectionLabel} · ${t.settingLabel ?? ""}`}>
+                        <span className="atl-mirror__num">{i + 1}</span>
+                        <img src={r?.versions?.length ? r.versions[r.sel ?? r.versions.length - 1].url : t.source} alt="" />
+                        {st === "encours" && <span className="atl-mirror__spin" aria-hidden="true" />}
+                      </button>
+                      <label className={`atl-mirror__chip is-${st ?? (r?.installee ? "installee" : r?.versions?.length ? "fait" : "idle")}`}>
+                        <input type="checkbox" checked={chosen.has(t.key)} onChange={() => setChosen((c) => (c.has(t.key) ? new Set([...c].filter((x) => x !== t.key)) : new Set([...c, t.key])))} />
+                        {label}
                       </label>
-                      {chosen.has(t.key) && (
-                        <input
-                          className="atl-studio__note"
-                          value={notes[t.key] ?? ""}
-                          onChange={(e) => setNotes({ ...notes, [t.key]: e.target.value })}
-                          placeholder="Consigne pour cette image (facultatif)"
-                        />
-                      )}
                     </li>
-                  ))}
-                </ul>
-              )}
-            </fieldset>
-            <Progress />
-          </div>
-        )}
+                  );
+                })}
+              </ul>
+            )}
+            <div className="atl-mirror__bar">
+              <span>
+                {done} sur {targets.length} générée(s)
+              </span>
+              <i style={{ width: `${targets.length ? (100 * done) / targets.length : 0}%` }} />
+              <span>{run?.state === "marche" ? "En cours…" : run?.state === "demande" ? "En pause" : queue.length ? `${queue.length} à faire` : "Tout est fait"}</span>
+            </div>
+          </section>
 
-        <footer className="atl-newpage__foot">
-          {state?.error && <span className="atl-topbar__error">{state.error}</span>}
-          {!state?.done && count > 0 && (
-            <span className="atl-studio__cost" title="Estimation : gpt-image-2, qualité moyenne. Le prix réel dépend du tarif OpenAI.">
-              {count} image(s) × ≈ {String(PRIX_IMAGE).replace(".", ",")} $ ≈ <b>{cost} $</b>
-              {runs < count ? ` · ${runs} au premier lancement` : ""}
-            </span>
-          )}
-          <button type="button" onClick={onClose}>
-            {state?.done ? "Fermer" : "Annuler"}
-          </button>
-          {!state?.done && (
-            <button type="button" className="atl-newpage__create" disabled={state?.busy || targets.length === 0} onClick={send}>
-              {state?.busy ? "Envoi…" : `Enregistrer et demander ${count} ${pub ? "pub(s)" : "image(s)"}`}
+          {/* 4. Les images générées */}
+          <section className="atl-mirror__card">
+            <h3>
+              <i>4</i> Tes images générées
+              <span className="atl-mirror__headtools">
+                <button type="button" className="atl-mirror__linkbtn" onClick={() => setShowAll(!showAll)}>
+                  {showAll ? "Une à la fois" : "Voir toutes les images"}
+                </button>
+                <button
+                  type="button"
+                  className="atl-mirror__linkbtn"
+                  disabled={!done}
+                  onClick={async () => {
+                    for (const t of targets) {
+                      const r = results[t.key];
+                      if (!r?.versions?.length) continue;
+                      download(r.versions[r.sel ?? r.versions.length - 1].url, `${pageName}-${t.key}.png`);
+                      await sleep(300);
+                    }
+                  }}
+                >
+                  Tout télécharger ({done})
+                </button>
+              </span>
+            </h3>
+            <p className="atl-mirror__sub">Faites à partir de tes références et de chaque photo d'origine.</p>
+            {showAll ? (
+              <ul className="atl-mirror__all">
+                {targets
+                  .filter((t) => results[t.key]?.versions?.length)
+                  .map((t) => {
+                    const r = results[t.key];
+                    return (
+                      <li key={t.key}>
+                        <button type="button" onClick={() => (setCurrent(t.key), setShowAll(false))}>
+                          <img src={r.versions[r.sel ?? r.versions.length - 1].url} alt="" />
+                        </button>
+                        <small>
+                          {t.sectionLabel}
+                          {r.installee ? " · installée" : ""}
+                        </small>
+                      </li>
+                    );
+                  })}
+              </ul>
+            ) : !cur || !curVer ? (
+              <div className="atl-mirror__placeholder">
+                <span>🖼</span>
+                Ton image arrive ici. Quelques secondes à une minute chacune.
+              </div>
+            ) : (
+              <div className="atl-mirror__result">
+                <figure>
+                  <div className="atl-mirror__vbar">
+                    <button type="button" disabled={(curRes.sel ?? 0) <= 0} onClick={() => setResults((r) => ({ ...r, [cur.key]: { ...curRes, sel: (curRes.sel ?? 0) - 1 } }))} aria-label="Version précédente">
+                      ‹
+                    </button>
+                    <span>
+                      Version {(curRes.sel ?? curRes.versions.length - 1) + 1} / {curRes.versions.length} · {cur.sectionLabel}
+                    </span>
+                    <button type="button" disabled={(curRes.sel ?? 0) >= curRes.versions.length - 1} onClick={() => setResults((r) => ({ ...r, [cur.key]: { ...curRes, sel: (curRes.sel ?? 0) + 1 } }))} aria-label="Version suivante">
+                      ›
+                    </button>
+                    <button type="button" className="atl-mirror__dl" onClick={() => download(curVer.url, `${pageName}-${cur.key}.png`)}>
+                      ⬇ Télécharger
+                    </button>
+                  </div>
+                  <img src={curVer.url} alt="" />
+                  {status[cur.key] === "encours" && <span className="atl-mirror__overlay">En cours…</span>}
+                </figure>
+                <div className="atl-mirror__side">
+                  <div className="atl-mirror__about">
+                    <b>À propos de cette version</b>
+                    <p>
+                      {curVer.note || (curVer.consigne ? `Retouche : ${curVer.consigne}` : `Photo d'origine refaite avec ${form.produit || "ton produit"}, ${MODELES[curVer.modele]?.label ?? curVer.modele}.`)}
+                    </p>
+                    <div className="atl-mirror__orig">
+                      <img src={cur.source} alt="" />
+                      <small>
+                        L'originale · {cur.sectionLabel}
+                        {cur.settingLabel ? ` · ${cur.settingLabel}` : ""}
+                      </small>
+                    </div>
+                  </div>
+                  <textarea rows={2} value={refine} onChange={(e) => setRefine(e.target.value)} placeholder="Ce qu'il faut changer. Ex. « plus lumineux », « le produit plus grand », « garde l'emballage »" />
+                  <button type="button" className="atl-mirror__refine" disabled={!refine.trim() || status[cur.key] === "encours"} onClick={async () => (await generate(cur, refine.trim())) && setRefine("")}>
+                    ✦ Affiner cette image
+                  </button>
+                  <button type="button" className="atl-mirror__redo" disabled={status[cur.key] === "encours"} onClick={() => generate(cur)}>
+                    ↻ Refaire depuis l'originale
+                  </button>
+                  {!pub && (
+                    <div className="atl-mirror__place">
+                      <select value={placeTo || (cur.sectionId ? cur.key : "")} onChange={(e) => setPlaceTo(e.target.value)} aria-label="Emplacement dans la page">
+                        {!cur.sectionId && <option value="">Choisir l'emplacement…</option>}
+                        {pageSlots.map((s, i) => (
+                          <option key={s.key} value={s.key}>
+                            {i + 1}. {s.sectionLabel}
+                            {s.key === cur.key ? " (son emplacement)" : ""}
+                          </option>
+                        ))}
+                      </select>
+                      <button type="button" className="atl-mirror__export" disabled={!(placeTo || cur.sectionId)} onClick={() => install(cur, curVer.url, placeTo || cur.key)}>
+                        {curRes.installee ? "✓ Installée · réinstaller" : "Installer dans la page"}
+                      </button>
+                    </div>
+                  )}
+                  {errors[cur.key] && <p className="atl-topbar__error">{errors[cur.key]}</p>}
+                </div>
+              </div>
+            )}
+            {flash && <p className={flash.error ? "atl-topbar__error" : "atl-topbar__ok"}>{flash.error ?? flash.ok}</p>}
+          </section>
+        </div>
+
+        {/* Panneau Réglages */}
+        <aside className="atl-mirror__settings">
+          <div className="atl-mirror__panel">
+            <h4>Réglages</h4>
+            <div className="atl-mirror__credits">
+              <b>≈ {(queue.length * prix).toFixed(2).replace(".", ",")} $</b>
+              <span>
+                pour {queue.length} image(s) à faire · environ {String(prix).replace(".", ",")} $ l'image ({MODELES[form.modele].label})
+              </span>
+            </div>
+            <span className="atl-mirror__label">Mode</span>
+            <div className="atl-mirror__seg">
+              <button type="button" className={!pub ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "fidele" })}>
+                Miroir
+              </button>
+              <button type="button" className={pub ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "pub" })}>
+                Pub
+              </button>
+            </div>
+            <small>{pub ? "Fait un visuel publicitaire à partir de chaque photo ; rangé à part, la page ne change pas." : "Refait chaque photo fidèlement, avec ton produit et ta marque à la place."}</small>
+            {pub && (
+              <div className="atl-mirror__pub">
+                <select value={form.format} onChange={set("format")} aria-label="Format">
+                  {Object.entries(FORMATS).map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+                <input value={form.accroche} onChange={set("accroche")} placeholder="Accroche écrite sur le visuel" />
+                <input value={form.cta} onChange={set("cta")} placeholder="Bouton (facultatif)" />
+              </div>
+            )}
+            <label className="atl-mirror__toggle">
+              <span>
+                <b>Pilote automatique</b>
+                <small>Activé : chaque image démarre dès que la précédente est finie.</small>
+              </span>
+              <input type="checkbox" checked={form.autopilot} onChange={set("autopilot")} />
+              <i aria-hidden="true" />
+            </label>
+            {run ? (
+              run.state === "demande" ? (
+                <div className="atl-mirror__ask">
+                  <span>
+                    {run.faites} faite(s). Suivante : <b>{run.next}</b>
+                  </span>
+                  <button type="button" className="atl-mirror__go" onClick={() => continueRef.current?.(true)}>
+                    Continuer
+                  </button>
+                  <button type="button" className="atl-mirror__stop" onClick={stop}>
+                    Arrêter
+                  </button>
+                </div>
+              ) : (
+                <button type="button" className="atl-mirror__stop" onClick={stop}>
+                  ■ Arrêter après l'image en cours ({run.faites} / {run.total})
+                </button>
+              )
+            ) : (
+              <button type="button" className="atl-mirror__go" disabled={!queue.length} onClick={start}>
+                ✦ Lancer la génération · {form.autopilot ? queue.length : Math.min(1, queue.length)} image(s)
+              </button>
+            )}
+            <small className="atl-mirror__center">{queue.length ? `${queue.length} image(s) en attente en 3.` : "Rien en attente. Coche ou ajoute des images en 3."}</small>
+
+            <span className="atl-mirror__label">Modèle</span>
+            <div className="atl-mirror__seg atl-mirror__seg--grid">
+              {Object.entries(MODELES).map(([id, m]) => (
+                <button key={id} type="button" className={form.modele === id ? "is-on" : ""} onClick={() => setForm({ ...form, modele: id })}>
+                  {m.label}
+                </button>
+              ))}
+            </div>
+            <small>{MODELES[form.modele].aide}</small>
+
+            {form.autopilot && (
+              <>
+                <span className="atl-mirror__label">Réglages du pilote</span>
+                <div className="atl-mirror__radios">
+                  {[
+                    ["tout", "Tout générer dans la file"],
+                    ["5", "S'arrêter après 5 images"],
+                    ["n", "S'arrêter après N images"],
+                    ["demander", "Demander avant chaque image"],
+                  ].map(([v, l]) => (
+                    <label key={v} className={form.rythme === v ? "is-on" : ""}>
+                      <input type="radio" name="rythme" value={v} checked={form.rythme === v} onChange={set("rythme")} />
+                      {v === "n" ? (
+                        <>
+                          S'arrêter après <input type="number" min={1} value={form.n} onChange={set("n")} className="atl-mirror__n" /> images
+                        </>
+                      ) : (
+                        l
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
+            <label className="atl-mirror__field">
+              <span>Textes précis à changer (facultatif)</span>
+              <input value={form.textes} onChange={set("textes")} placeholder="ex. Skult → Chinup ; 4,7 → (retirer)" />
+            </label>
+            <button
+              type="button"
+              className="atl-mirror__linkbtn"
+              onClick={() => {
+                if (confirm("Effacer toutes les versions gardées pour cette page ? Les fichiers restent dans le dossier du projet.")) setResults({});
+              }}
+            >
+              ↺ Tout effacer
             </button>
+          </div>
+          <div className="atl-mirror__panel atl-mirror__how">
+            <h4>Que se passe-t-il quand je lance ?</h4>
+            <ol>
+              <li>On lit les infos de ton produit et les références de la carte 2.</li>
+              <li>Chaque image de la carte 3 est refaite avec ton produit et ta marque.</li>
+              <li>Les images finies arrivent en 4 : affine celles que tu veux, puis installe-les une par une.</li>
+            </ol>
+          </div>
+          {cur && (
+            <label className="atl-mirror__field atl-mirror__panel">
+              <span>Consigne pour « {cur.sectionLabel} » (facultatif)</span>
+              <input value={notes[cur.key] ?? ""} onChange={(e) => setNotes({ ...notes, [cur.key]: e.target.value })} placeholder="ex. une femme de 50 ans, lumière du matin" />
+            </label>
           )}
-        </footer>
+        </aside>
       </div>
     </div>
   );

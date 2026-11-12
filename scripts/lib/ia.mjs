@@ -196,6 +196,118 @@ export async function editImageFiles({ key, files, prompt, size = "1024x1024", q
 
 export { sizeFor };
 
+// ---- Studio d'images en direct (2026-11-11, comme « Image Mirror » de
+// Whitelabeler) : l'atelier appelle ce module image par image, sans passer par
+// une demande traitée par Claude. Deux modèles : gpt-image-2 (OpenAI) et Nano
+// Banana (Gemini « gemini-3.1-flash-image », clé GEMINI_API_KEY).
+export const STUDIO_MODELS = {
+  "gpt-image-2": { label: "GPT Image 2 (OpenAI)", prix: 0.05 },
+  "nano-banana": { label: "Nano Banana (Google)", prix: 0.04, id: "gemini-3.1-flash-image" },
+  "nano-banana-pro": { label: "Nano Banana Pro (Google)", prix: 0.13, id: "gemini-3-pro-image" },
+};
+
+// Consigne d'une image : la photo d'origine (image 1) refaite avec le produit
+// et la marque de l'utilisateur (images suivantes), ou transformée en pub.
+// refs : [{ groupe: "produit" | "marque", etiquette }] dans l'ordre d'envoi.
+export function studioPrompt(o) {
+  const product = o.produit || "the product";
+  const refs = (o.refs ?? []).map((r, i) => `#${i + 2} = ${r.groupe === "marque" ? "Brand" : "Product"} · ${r.etiquette ?? ""}`).join(", ");
+  const colors = o.marque?.couleurs ? Object.entries(o.marque.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
+  const fonts = o.marque?.polices ? Object.values(o.marque.polices).filter(Boolean).join(" / ") : "";
+  const pub = o.mode === "pub";
+  if (o.affiner) {
+    return [
+      "Edit image #1 (an image already made for this product) following the instruction below. Keep everything else exactly as it is: composition, people, setting, product, text.",
+      refs ? `Images after #1 are the user's references (${refs}): the product must keep looking exactly like the Product references.` : "",
+      `Instruction: ${o.affiner}.`,
+      "Output ONLY the edited image, same aspect ratio. No board, no labels, no split screen.",
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
+  return [
+    "Image #1 is the ORIGINAL photo from another brand's sales page.",
+    refs ? `The next images are the user's own references: ${refs}.` : "",
+    pub
+      ? `Turn image #1 into a scroll-stopping social media AD (${o.format ?? "4:5"}), keeping its idea: bold, clean layout, product as the hero.`
+      : "Recreate image #1 faithfully: same composition, framing, pose, setting, lighting and mood. People may look different but must play the same role.",
+    `Replace the product shown in the original with the user's product "${product}" exactly as it looks in the Product references (shape, colours, label, packaging).`,
+    // Essai du 2026-11-11 : sur une photo sans produit, le modèle en ajoutait
+    // un à la place d'une vignette.
+    pub ? "" : "If image #1 shows no product or packaging at all, do NOT add one: keep every element, only replace brand names and logos.",
+    o.description ? `What the product is: ${o.description}.` : "",
+    "Brand: use the logo and style of the Brand references; never keep the original brand name, logo or packaging.",
+    colors ? `Brand colours: ${colors}.` : "",
+    fonts ? `Brand fonts (for any text): ${fonts}.` : "",
+    `Rewrite EVERY piece of visible text (labels, packaging, signs, captions) so it names "${product}" or is neutral; no other brand name may stay readable.`,
+    o.textes ? `Exact text changes: ${o.textes}.` : "",
+    pub && o.accroche ? `Headline written on the ad, large and legible: "${o.accroche}".` : "",
+    pub && o.cta ? `Call-to-action button on the ad: "${o.cta}".` : "",
+    o.brief ? `Purpose of this image on the page: ${o.brief}.` : "",
+    o.consigne ? `Extra instruction: ${o.consigne}.` : "",
+    "Never add a rating, a number of reviews, a price, a certification or a medical claim that is not already in image #1.",
+    pub
+      ? "Output ONLY the finished ad, as one single image. No board, no labels, no split screen."
+      : "Output ONLY the recreated photo, as one single image with the same aspect ratio as image #1. No board, no labels, no split screen.",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+// Format Gemini le plus proche (rapports acceptés par le modèle).
+function aspectFor(width, height) {
+  const ratios = { "1:1": 1, "4:5": 0.8, "5:4": 1.25, "3:4": 0.75, "4:3": 4 / 3, "2:3": 2 / 3, "3:2": 1.5, "9:16": 9 / 16, "16:9": 16 / 9, "21:9": 21 / 9 };
+  const r = width && height ? width / height : 1;
+  return Object.entries(ratios).sort((a, b) => Math.abs(a[1] - r) - Math.abs(b[1] - r))[0][0];
+}
+
+// Une image du Studio. source : image à refaire (/imports/…, /medias/… ou data
+// URL) ; references : idem, produit d'abord puis marque. Range le résultat dans
+// folder ({ dir, url }) et rend { url, modele, note }.
+export async function studioImage({ openaiKey, geminiKey, root, source, references = [], prompt, width, height, format, model = "gpt-image-2", folder }) {
+  const all = [source, ...references].filter(Boolean).slice(0, 8);
+  const blobs = await Promise.all(all.map((s) => blobOf(root, s)));
+  let png;
+  let note = "";
+  const PUB = { "1:1": [1024, 1024], "4:5": [1024, 1280], "9:16": [1024, 1820] };
+  const [w, h] = format && PUB[format] ? PUB[format] : [width, height];
+  if (model.startsWith("nano-banana")) {
+    if (!geminiKey) throw new Error("Clé Google absente : ajoute GEMINI_API_KEY dans .env.local.");
+    const parts = [{ text: prompt }];
+    for (const b of blobs) parts.push({ inline_data: { mime_type: b.type || "image/png", data: Buffer.from(await b.arrayBuffer()).toString("base64") } });
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${STUDIO_MODELS[model].id}:generateContent`, {
+      method: "POST",
+      headers: { "x-goog-api-key": geminiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseModalities: ["TEXT", "IMAGE"], imageConfig: { aspectRatio: aspectFor(w, h) } } }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = body.error?.message ?? "erreur inconnue";
+      throw new Error(/quota|billing|limit: 0/i.test(msg) ? "Google refuse : la génération d'images demande la facturation activée sur ton projet Google (AI Studio → Billing)." : `Google (${res.status}) : ${msg.slice(0, 200)}`);
+    }
+    const out = body.candidates?.[0]?.content?.parts ?? [];
+    const img = out.find((p) => p.inline_data || p.inlineData);
+    note = out.map((p) => p.text ?? "").join(" ").trim().slice(0, 400);
+    if (!img) throw new Error(`Google n'a pas rendu d'image${note ? ` : ${note.slice(0, 160)}` : " (refus du modèle ?)"}.`);
+    png = Buffer.from((img.inline_data ?? img.inlineData).data, "base64");
+  } else {
+    const fd = new FormData();
+    fd.append("model", IMAGE_MODEL);
+    fd.append("prompt", prompt);
+    fd.append("size", sizeFor(w, h));
+    fd.append("quality", "medium");
+    for (const [i, b] of blobs.entries()) fd.append("image[]", b, `image-${i}.png`);
+    const res = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: headers(openaiKey), body: fd });
+    if (!res.ok) throw await openaiError(res);
+    const body = await res.json();
+    png = Buffer.from(body.data[0].b64_json, "base64");
+  }
+  await mkdir(folder.dir, { recursive: true });
+  const file = `studio-${new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14)}-${Math.random().toString(36).slice(2, 6)}.png`;
+  await writeFile(join(folder.dir, file), png);
+  return { url: `${folder.url}/${file}`, modele: model, note };
+}
+
 // ---- Auditer la page (menu ✨ IA) ----
 // page : { type, achat, fiche (marque, produit, profil, infos), score (note,
 // sections manquantes, croyances, textes à reprendre — calcul local du Score
