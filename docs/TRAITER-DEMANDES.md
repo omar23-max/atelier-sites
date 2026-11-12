@@ -211,6 +211,19 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      Canvas » et « Exporter vers une page » ; en tête de la carte 4 : Voir
      toutes les images, Tout télécharger (n), Tout envoyer dans le Canvas (n).
      Deux onglets sur le même tableau : le dernier qui enregistre gagne.
+     **Images du projet (2026-11-12)** : catalogue → projet → Images →
+     « Modifiées » : une seule liste pour tout le projet (images IA, téléversées,
+     vidéos), cases à cocher, « Mettre à la corbeille » → `POST
+     /api/medias-corbeille` (fichiers dans `corbeille/medias/`, index
+     `_index.json`, rien n'est effacé). Un fichier encore utilisé dans une page
+     ou un tableau du Canvas demande une confirmation (liste des endroits).
+     « Corbeille des images » plus bas : Restaurer / Tout restaurer. Le Studio
+     retire de ses versions les fichiers mis à la corbeille. Synchro : les
+     images d'origine viennent partout de `originalPhotoTargets` (catalogue
+     « D'origine », carte 3 du Studio, onglet « Site d'origine » de Tes
+     images) ; les images modifiées viennent partout de `/api/medias/<page>`
+     (dossier du projet). Étapes Pubs et Résultats retirées de la barre du
+     projet pour l'instant (lignes commentées dans `Fondations.jsx`).
      Ancienne voie, gardée pour les anciennes demandes :
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =
      références de l'utilisateur dans l'ordre (produit puis marque), `details` =
