@@ -9,7 +9,7 @@ import { brandRoles, designMarkdown, extractPalette } from "./engine/palette.js"
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
-import { IconGauge, IconGrid, IconHistory, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
+import { IconGauge, IconGrid, IconHistory, IconImage, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
 import { isAngleZone, pageRole, suggestAngleZones, zonesFromMother } from "./angle-zones.js";
 import { getPage, listTemplates, templateScore } from "./projects.js";
 import { ScreenshotDrop } from "./pages-ui.jsx";
@@ -29,6 +29,8 @@ const TOOLS = [
   { id: "ajouter", label: "Ajouter une section", short: "Ajouter", icon: IconPlusSquare },
   { id: "palette", label: "Palette", short: "Palette", icon: IconPalette },
   { id: "ia", label: "IA — toute la page", short: "IA", icon: IconSparkles },
+  // Images (2026-11-12) : Studio d'images, Canvas.
+  { id: "images", label: "Images", short: "Images", icon: IconImage },
   { id: "score", label: "Score de vente", short: "Score", icon: IconGauge },
 ];
 
@@ -88,6 +90,7 @@ export function LeftPanel() {
         {tool === "ajouter" && <AddTool />}
         {tool === "palette" && <PaletteTool />}
         {tool === "ia" && <AiTool />}
+        {tool === "images" && <ImagesTool />}
         {tool === "score" && <ScorePanel />}
       </div>
       )}
@@ -736,6 +739,26 @@ function PaletteTool() {
   );
 }
 
+// ---- Images : Studio d'images, Canvas (Planche des images retirée le 2026-11-12) ----
+function ImagesTool() {
+  const open = (name) => window.dispatchEvent(new CustomEvent(name));
+  const item = (title, hint, onClick) => (
+    <button type="button" onClick={onClick}>
+      <b>{title}</b>
+      <small>{hint}</small>
+    </button>
+  );
+  return (
+    <>
+      <p className="atl-tool-panel__hint">Les images de la page et du projet. Tout ce que tu crées est rangé dans les images du projet (catalogue → projet → Images).</p>
+      <div className="atl-choices">
+        {item("Studio d'images", "Comme « Image Mirror » de Whitelabeler : chaque photo d'origine de la page refaite avec ton produit et ta marque, puis installée dans la page ou envoyée dans le Canvas.", () => open("atl-open-studio"))}
+        {item("Canvas", "Le grand tableau du projet : toutes tes images, créer une image à partir de références, Section images, retirer un fond, exporter vers une page.", () => open("atl-open-canvas"))}
+      </div>
+    </>
+  );
+}
+
 // ---- ✨ IA : les outils qui changent TOUTE la page ----
 // (une section ou un élément : clic droit → Retravailler avec l'IA.)
 function AiTool() {
@@ -765,11 +788,6 @@ function AiTool() {
         {item("Réécrire pour mon produit", "Tous les textes, consignes entre crochets comprises, pour ta marque et ton produit.", () => open("atl-ai-page", "reecrire"))}
         {item("Traduire", "Toute la page dans une autre langue, mise en forme gardée.", () => open("atl-ai-page", "traduire"))}
         {item("Remplacer un mot", "Ex. Aurivita → Clearflow, partout dans la page. Annulable avec ↶.", () => open("atl-open-rebrand"))}
-      </div>
-      <p className="atl-tool-panel__group">Images</p>
-      <div className="atl-choices">
-        {item("Canvas", "Le grand tableau du projet : toutes tes images, créer une image à partir de références, retirer un fond, installer dans la page.", () => open("atl-open-canvas"))}
-        {item("Planche des images", "Toutes les images côte à côte : en refaire une avec une consigne, ou toutes avec ton produit.", () => open("atl-open-board"))}
       </div>
       <p className="atl-tool-panel__group">Style</p>
       <div className="atl-choices">

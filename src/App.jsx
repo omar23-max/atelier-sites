@@ -9,7 +9,6 @@ import { SlotPicker } from "./slot-picker.jsx";
 import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
-import { BoardButton } from "./board-ui.jsx";
 import { CanvasButton } from "./canvas-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
 // Plus de boutons « + » (projet, page, design) dans la barre : on les crée
@@ -305,7 +304,6 @@ export default function App() {
                 <RebrandButton hidden />
                 <RewriteButton hidden />
                 <StudioButton hidden />
-                <BoardButton />
                 <CanvasButton />
                 {/* Choix d'un modèle pour un emplacement de section manquante. */}
                 <SlotPicker />

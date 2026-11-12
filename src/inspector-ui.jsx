@@ -741,8 +741,9 @@ export function Inspector({ children }) {
     const onImage = () => {
       const cur = selRef.current;
       if (cur?.sectionId && cur.key) setAi({ sectionId: cur.sectionId, keys: [cur.key], tab: "images" });
-      // Image hors d'un élément (fond de section…) : la planche des images.
-      else window.dispatchEvent(new CustomEvent("atl-open-board"));
+      // Image hors d'un élément (fond de section…) : le Studio d'images
+      // (la planche des images a été retirée le 2026-11-12).
+      else window.dispatchEvent(new CustomEvent("atl-open-studio"));
     };
     window.addEventListener("atl-ai-page", onPage);
     window.addEventListener("atl-ai-image", onImage);
