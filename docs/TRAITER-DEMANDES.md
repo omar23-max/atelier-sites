@@ -153,38 +153,64 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      annule, enregistrement automatique). Versions gardées dans le navigateur
      (`localStorage` « atl-studio-<page> »). Aucune demande à traiter par Claude.
      Les deux modèles marchent (clés OPENAI_API_KEY et GEMINI_API_KEY).
-   - **Canvas (depuis le 2026-11-11, phase 2)** : grand tableau par projet,
-     comme le « Canvas » de Whitelabeler (`src/canvas-ui.jsx`, styles
-     `.atl-canvas*`). S'ouvre depuis ✨ IA → Images → « Canvas », ou depuis le
-     Studio (« Tout envoyer dans le Canvas »). Enregistré tout seul dans
-     `medias/projets/<projet>/canvas.json` (page hors projet :
-     `medias/<page>/canvas.json`) par `GET/PUT /api/canvas/<page>` ;
-     `POST /api/canvas/<page>/ajouter` pose des images à droite des autres.
-     Outils : Sélection, Main (ou espace), Texte, Ajouter des images (ou
-     glisser-déposer), zoom (Ctrl + molette), « Tout voir », « + Images du
-     projet ». Sur une image : Utiliser comme référence, Retirer le fond
-     (`/api/ia/detourer`, `detourerImage` : gpt-image-2 refuse la transparence,
-     il rend un fond blanc que le navigateur rend transparent, remplissage
-     depuis les bords), Installer dans la page (clic sur l'image de la page à
-     remplacer ; Ctrl+Z annule), Détails, Télécharger, Retirer du tableau (le
-     fichier reste). « Créer une image » : références prises sur le tableau
-     (8 au plus), consigne, Image / Infographie, format, modèle →
-     `/api/ia/canvas-image` (`canvasPrompt` ajoute les garde-fous : produit
-     fidèle aux références, aucune preuve inventée ; sans référence, GPT Image 2
-     passe par images/generations). « Créer une vidéo » est grisé.
-     **Section images (phase 3)** : panneau du Canvas (`SectionImages`). Liste
-     les sections de la page OUVERTE qui ont une image (nom de famille si le
-     nom est un code d'import, premier texte en dessous). Pour chaque section
-     cochée : image à remplacer, format (celui de l'image actuelle au départ),
-     consigne. « Écrire les consignes » → `/api/ia/section-prompts`
-     (`sectionImagePrompts`, gpt-5.4-mini : rôle de la section, ses textes,
-     produit, type de page, Fondations via `fondationsPourAudit`, nombre de
-     références ; consignes en anglais, aucune preuve inventée). « Créer » /
-     « Créer les images » passent par `/api/ia/canvas-image` ; l'image est
-     posée sur le tableau avec le nom de la section au-dessus. « Placer dans la
-     page » remplace l'image choisie (Ctrl+Z annule). Image / Infographie et le
-     modèle valent pour toutes les sections. Deux onglets ouverts sur le même Canvas :
-     le dernier qui enregistre gagne.
+   - **Canvas (2026-11-11, refait sur Excalidraw le 2026-11-12 pour suivre
+     Whitelabeler à l'identique)** : `src/canvas-ui.jsx`, styles `.atl-cv*`,
+     paquet `@excalidraw/excalidraw@0.18.1` (installé avec --ignore-scripts,
+     sauvegarde de package.json dans `~/sauvegardes`). Le Canvas de
+     Whitelabeler EST Excalidraw : mêmes outils (verrou, main, sélection 1,
+     rectangle 2, losange 3, ellipse 4, flèche 5, ligne 6, dessin 7, texte 8,
+     image 9, gomme 0, autres outils : cadre, intégration web, pointeur laser,
+     Mermaid), panneau de style à gauche, menu ☰, zoom et annuler en bas à
+     gauche, en français. Polices servies par l'atelier
+     (`window.EXCALIDRAW_ASSET_PATH = /node_modules/@excalidraw/excalidraw/dist/prod/`).
+     En haut à droite, comme chez lui : Tes images (images du projet et du site
+     d'origine), Créer une image (violet), Créer une vidéo (grisé : pas de Veo),
+     Section images, nom du tableau (clic : renommer) et « Enregistré ».
+     **Menu ☰ comme Whitelabeler** (2026-11-12) : Tous les tableaux (fenêtre
+     façon page « Canvas » : cartes, Nouveau tableau), Tes images (fenêtre :
+     cocher une ou plusieurs images, Annuler / Ajouter au tableau ; aussi le
+     1er bouton en haut à droite), Ajouter une vidéo (mp4, webm, mov, 70 Mo au
+     plus : envoyée dans le projet, posée en élément intégré qui la lit ;
+     adresse recalculée à l'ouverture), Exporter l'image (PNG, SVG,
+     presse-papiers), Aide, Supprimer ce tableau (déplacé dans
+     `canvas/_corbeille/`, rien n'est effacé ; `DELETE /api/canvas/<page>/<id>`).
+     Le nom du tableau se renomme d'un clic en haut à droite.
+     **Plusieurs tableaux par projet** : `medias/projets/<projet>/canvas/<id>.json` (page hors projet :
+     `medias/<page>/canvas/<id>.json`). Routes : `GET /api/canvas/<page>`
+     (liste), `POST` (nouveau), `GET/PUT /api/canvas/<page>/<id>`,
+     `POST /api/canvas/<page>/<id|dernier>/ajouter` (images du Studio, mises
+     en file `aAjouter` et posées à l'ouverture). Une image du tableau = un
+     fichier Excalidraw dont la « dataURL » est son adresse `/medias/…` (pas de
+     copie) ; une image collée ou glissée est envoyée dans le projet à
+     l'enregistrement. L'ancien `canvas.json` devient « Tableau 1 »
+     (`canvas-avant-excalidraw.json` gardé).
+     **Nouvelle image** (panneau en bas, comme « New picture ») : Ajouter une
+     image + « Clique des images du tableau pour les ajouter » (tant que le
+     panneau est ouvert, toute image sélectionnée devient une référence),
+     consigne (Ctrl + Entrée), Modèle (Nano Banana, GPT Image 2, Nano Banana
+     Pro), Qualité (Haute / Moyenne / Basse → `quality` d'OpenAI), Images 1 à
+     4, Format, « Générer · ~x $ ». Un cadre pointillé « Ton image arrive ici… »
+     est posé puis remplacé. Route `/api/ia/canvas-image` (`canvasPrompt` :
+     produit fidèle aux références, aucune preuve inventée).
+     **Sur une image sélectionnée** : Utiliser comme référence, Retirer le fond
+     (gpt-image-2 refuse la transparence : fond blanc rendu transparent dans
+     le navigateur), Exporter vers une page, Détails, Télécharger, Retirer.
+     **Exporter vers une page** (`ExportToPage`, aussi dans le Studio) : 3
+     étapes Images / Page (recherche, pages du projet, sinon toutes) / Placer
+     (clic sur l'image de la page à remplacer). Page ouverte : par Puck (Ctrl+Z).
+     Autre page : copie de sécurité (`/api/pages/<p>/snapshot`) puis
+     enregistrement. Les pages `zz-` ne sont proposées que depuis une page `zz-`.
+     **Section images** : Ajouter une image (Téléverser / Choisir sur le
+     tableau), « Choisir une page » (liste), aperçu de la page
+     (`/partage/<page>?reperes=1`) où l'on clique les sections (contour bleu),
+     Image / Infographie, « Écrire les consignes » → `/api/ia/section-prompts`
+     (`sectionImagePrompts`, gpt-5.4-mini : rôle, textes, produit, type de
+     page, Fondations, nombre de références). Puis par section : format, image
+     à remplacer, consigne, Créer / Nouvelle, Placer dans la page.
+     **Studio d'images** : sous « Affiner cette image » : « Envoyer dans le
+     Canvas » et « Exporter vers une page » ; en tête de la carte 4 : Voir
+     toutes les images, Tout télécharger (n), Tout envoyer dans le Canvas (n).
+     Deux onglets sur le même tableau : le dernier qui enregistre gagne.
      Ancienne voie, gardée pour les anciennes demandes :
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =
      références de l'utilisateur dans l'ordre (produit puis marque), `details` =

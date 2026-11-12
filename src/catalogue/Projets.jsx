@@ -333,7 +333,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
       )}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}
-      {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} />]} />}
+      {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} project={project} onMessage={onMessage} />]} />}
       {currentTab === "textes" && <TwoViews labels={["D'origine", "Corrigés"]} views={[<OriginalTextsTab key="o" pages={pages} />, <EditedTextsTab key="c" pages={pages} />]} />}
       {currentTab === "marque" && <ProjectSummary project={project} pages={pages} />}
       {currentTab === "marque" && <BrandTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}
@@ -789,30 +789,126 @@ function OriginalImagesTab({ pages }) {
   );
 }
 
-function EditedImagesTab({ pages }) {
-  const total = pages.reduce((n, p) => n + p.medias.length, 0);
+// « Modifiées » : les images et vidéos du projet (Studio, Canvas, ajoutées),
+// une seule fois chacune (elles sont communes à toutes les pages du projet).
+// Cocher puis « Mettre à la corbeille » : rien n'est effacé
+// (corbeille/medias/, « Restaurer » plus bas). Un fichier encore utilisé
+// dans une page ou un tableau du Canvas demande une confirmation.
+const KIND_TITLE = { ia: "Créées par l'IA (Studio, Canvas)", televersee: "Téléversées", video: "Vidéos" };
+function EditedImagesTab({ pages, project, onMessage }) {
+  const [list, setList] = useState(null); // [{ url, kind }]
+  const [checked, setChecked] = useState(() => new Set());
+  const [bin, setBin] = useState([]);
+  const [busy, setBusy] = useState(false);
+  async function load() {
+    const seen = new Map();
+    for (const { info } of pages) {
+      const l = await fetch(`/api/medias/${info.name}?detail=1`).then((r) => (r.ok ? r.json() : [])).catch(() => []);
+      for (const m of l) if (!seen.has(m.url)) seen.set(m.url, /\.(mp4|webm|mov)$/i.test(m.url) ? { ...m, kind: "video" } : m);
+    }
+    setList([...seen.values()].reverse());
+    const q = project?.id ? `projet=${encodeURIComponent(project.id)}` : "";
+    setBin(await fetch(`/api/medias-corbeille?${q}`).then((r) => (r.ok ? r.json() : [])).catch(() => []));
+  }
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages]);
+  const toggle = (u) => setChecked((c) => (c.has(u) ? new Set([...c].filter((x) => x !== u)) : new Set([...c, u])));
+  async function trash(force = false) {
+    const urls = [...checked];
+    if (!urls.length) return;
+    setBusy(true);
+    try {
+      const r = await fetch("/api/medias-corbeille", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls, force }) }).then((x) => x.json());
+      if (r.utilisees?.length) {
+        const lines = r.utilisees.map((u) => `• ${u.url.split("/").pop()} : ${[u.pages.length ? `page(s) ${u.pages.join(", ")}` : "", u.tableaux.length ? `tableau(x) du Canvas ${u.tableaux.join(", ")}` : ""].filter(Boolean).join(" ; ")}`);
+        if (confirm(`Ces fichiers sont encore utilisés :\n${lines.join("\n")}\n\nLes mettre quand même à la corbeille ? Leurs emplacements afficheront une image manquante (Restaurer les remet).`)) return trash(true);
+        return;
+      }
+      onMessage({ text: `${r.deplacees} fichier(s) mis à la corbeille des images (récupérables plus bas).` });
+      setChecked(new Set());
+      load();
+    } catch (e) {
+      onMessage({ error: true, text: e.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function restore(entrees) {
+    const r = await fetch("/api/medias-corbeille/restaurer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ entrees }) }).then((x) => x.json());
+    onMessage({ text: `${r.restaurees} fichier(s) remis à leur place.` });
+    load();
+  }
+  if (!list) return <p className="cat-muted">Chargement…</p>;
+  const groups = ["ia", "televersee", "video"].map((k) => [k, list.filter((m) => (m.kind === "video" ? "video" : m.kind === "ia" ? "ia" : "televersee") === k)]).filter(([, l]) => l.length);
   return (
     <>
-      <p className="cat-muted">{total} image(s) à toi (Studio d'images ou ajoutées), rangées dans le dossier du projet (medias/projets/&lt;projet&gt;/ : images-creees, televersees, videos-creees). Les images d'origine restent à part, jamais modifiées.</p>
-      {total === 0 && <div className="cat-empty">Aucune image modifiée pour l'instant.</div>}
-      {pages.map(({ info, medias }) =>
-        medias.length ? (
-          <section key={info.name} className="cat-panel">
-            <div className="cat-panel__head">
-              <strong>{info.title}</strong>
-            </div>
-            <div className="cat-gallery">
-              {medias.map((m) => (
-                <figure key={m}>
-                  <a href={m} target="_blank" rel="noreferrer">
-                    <img src={m} alt="" loading="lazy" />
-                  </a>
-                  <figcaption>{m.split("/").pop()}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </section>
-        ) : null,
+      <p className="cat-muted">
+        {list.length} fichier(s) à toi, communs à toutes les pages du projet (medias/projets/&lt;projet&gt;/). Ce sont les mêmes que dans le Studio
+        d'images et dans « Tes images » du Canvas. Les images d'origine restent à part, jamais modifiées.
+      </p>
+      {list.length > 0 && (
+        <div className="cat-medias-bar">
+          <label>
+            <input
+              type="checkbox"
+              checked={checked.size > 0 && checked.size === list.length}
+              ref={(el) => el && (el.indeterminate = checked.size > 0 && checked.size < list.length)}
+              onChange={() => setChecked(checked.size === list.length ? new Set() : new Set(list.map((m) => m.url)))}
+            />{" "}
+            Tout cocher
+          </label>
+          <button type="button" className="cat-btn cat-btn--danger" disabled={!checked.size || busy} onClick={() => trash()}>
+            {busy ? "Déplacement…" : `Mettre à la corbeille${checked.size ? ` (${checked.size})` : ""}`}
+          </button>
+        </div>
+      )}
+      {list.length === 0 && <div className="cat-empty">Aucune image ni vidéo à toi pour l'instant.</div>}
+      {groups.map(([k, l]) => (
+        <section key={k} className="cat-panel">
+          <div className="cat-panel__head">
+            <strong>
+              {KIND_TITLE[k]} · {l.length}
+            </strong>
+          </div>
+          <div className="cat-gallery">
+            {l.map((m) => (
+              <figure key={m.url} className={`cat-media${checked.has(m.url) ? " is-checked" : ""}`}>
+                <label className="cat-media__check" title="Cocher">
+                  <input type="checkbox" checked={checked.has(m.url)} onChange={() => toggle(m.url)} />
+                </label>
+                <a href={m.url} target="_blank" rel="noreferrer">
+                  {m.kind === "video" ? <video src={m.url} muted preload="metadata" /> : <img src={m.url} alt="" loading="lazy" />}
+                </a>
+                <figcaption>{m.url.split("/").pop()}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      ))}
+      {bin.length > 0 && (
+        <details className="cat-panel cat-medias-bin">
+          <summary>
+            Corbeille des images · {bin.length} fichier(s)
+            <button type="button" className="cat-btn cat-btn--ghost" onClick={(e) => (e.preventDefault(), restore(bin.map((b) => b.entree)))}>
+              Tout restaurer
+            </button>
+          </summary>
+          <div className="cat-gallery">
+            {bin.map((b) => (
+              <figure key={b.entree} className="cat-media">
+                {/\.(mp4|webm|mov)$/i.test(b.url) ? <video src={b.apercu} muted preload="metadata" /> : <img src={b.apercu} alt="" loading="lazy" />}
+                <figcaption>
+                  {b.url.split("/").pop()}{" "}
+                  <button type="button" className="cat-link" onClick={() => restore([b.entree])}>
+                    Restaurer
+                  </button>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </details>
       )}
     </>
   );

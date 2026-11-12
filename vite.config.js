@@ -5,7 +5,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -866,9 +866,10 @@ function atelierApi() {
           // Téléverser une image depuis le panneau de droite.
           if (parts[0] === "medias" && NAME.test(parts[1] ?? "") && req.method === "POST") {
             const { name: fileName, dataUrl } = await readBody(req);
-            const m = /^data:image\/(png|jpe?g|webp|gif);base64,(.+)$/.exec(dataUrl ?? "");
-            if (!m) return json(res, 400, { error: "Image invalide (png, jpg, webp ou gif)." });
-            const ext = m[1] === "jpeg" ? "jpg" : m[1];
+            // Images, et vidéos depuis le 2026-11-12 (« Ajouter une vidéo » du Canvas).
+            const m = /^data:(?:image|video)\/(png|jpe?g|webp|gif|mp4|webm|quicktime);base64,(.+)$/.exec(dataUrl ?? "");
+            if (!m) return json(res, 400, { error: "Fichier invalide (image png, jpg, webp, gif ou vidéo mp4, webm, mov)." });
+            const ext = m[1] === "jpeg" ? "jpg" : m[1] === "quicktime" ? "mov" : m[1];
             const base = String(fileName ?? "image").replace(/\.[a-z0-9]+$/i, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "image";
             const { dir, url } = await mediaPlace(parts[1], "televersees");
             await mkdir(dir, { recursive: true });
@@ -893,7 +894,7 @@ function atelierApi() {
               const base = join(mediasDir, "projets", place.projet);
               const baseUrl = `/medias/projets/${place.projet}`;
               await add(join(base, "images-creees"), `${baseUrl}/images-creees`, () => "ia");
-              await add(join(base, "televersees"), `${baseUrl}/televersees`, () => "televersee");
+              await add(join(base, "televersees"), `${baseUrl}/televersees`, (f) => (isVid(f) ? "video" : "televersee"));
               await add(join(base, "videos-creees"), `${baseUrl}/videos-creees`, () => "video");
             }
             const detail = new URL(req.url ?? "/", "http://atelier").searchParams.get("detail") === "1";
@@ -983,12 +984,107 @@ function atelierApi() {
               await writeBoard(board);
               return json(res, 200, { ok: true });
             }
+            // « Supprimer ce tableau » : déplacé dans canvas/_corbeille/ (récupérable).
+            if (req.method === "DELETE" && !parts[3]) {
+              await mkdir(join(dir, "_corbeille"), { recursive: true });
+              await rename(file, join(dir, "_corbeille", `${id}__${stamp()}.json`));
+              return json(res, 200, { ok: true });
+            }
             if (req.method === "POST" && parts[3] === "ajouter") {
               const b = await readBody(req);
               const cur = (await readJson(file)) ?? {};
               const imgs = (b.images ?? []).filter((x) => /^\/(medias|imports)\//.test(x?.url ?? "")).slice(0, 200);
               await writeBoard({ ...cur, modifie: new Date().toISOString(), aAjouter: [...(cur.aAjouter ?? []), ...imgs] });
               return json(res, 200, { ok: true, id, ajoutees: imgs.length });
+            }
+            return json(res, 405, { error: "Méthode non permise." });
+          }
+
+          // ---- Corbeille des images et vidéos du projet (2026-11-12) ----
+          // POST /api/medias-corbeille { urls, force } : chaque fichier de
+          // medias/ part dans corbeille/medias/ (rien n'est effacé). Sans force,
+          // les fichiers encore utilisés (pages, tableaux du Canvas) ne sont pas
+          // déplacés : la réponse les liste ({ utilisees }).
+          // GET  /api/medias-corbeille?projet=<id>|page=<nom> : ce qui y est.
+          // POST /api/medias-corbeille/restaurer { entrees } : remis à sa place.
+          if (parts[0] === "medias-corbeille") {
+            const BIN = join(root, "corbeille", "medias");
+            const INDEX = join(BIN, "_index.json");
+            const readIndex = async () => {
+              try {
+                return JSON.parse(await readFile(INDEX, "utf8"));
+              } catch {
+                return {};
+              }
+            };
+            const fileOf = (url) => {
+              if (!/^\/medias\/[a-z0-9/._-]+$/i.test(url ?? "") || url.includes("..")) return null;
+              const f = normalize(join(root, url));
+              return f.startsWith(normalize(mediasDir)) && existsSync(f) ? f : null;
+            };
+            if (req.method === "GET" && !parts[1]) {
+              const q = new URL(req.url ?? "/", "http://atelier").searchParams;
+              const prefix = q.get("projet") ? `/medias/projets/${q.get("projet")}/` : q.get("page") ? `/medias/${q.get("page")}/` : "/medias/";
+              const idx = await readIndex();
+              return json(res, 200, Object.entries(idx).filter(([, v]) => v.url.startsWith(prefix)).map(([entree, v]) => ({ entree, ...v, apercu: `/corbeille/medias/${entree}` })).sort((a, b) => String(b.quand).localeCompare(String(a.quand))));
+            }
+            if (req.method === "POST" && parts[1] === "restaurer") {
+              const { entrees } = await readBody(req);
+              const idx = await readIndex();
+              let n = 0;
+              for (const e of Array.isArray(entrees) ? entrees : []) {
+                const v = idx[e];
+                if (!v || !/^[a-z0-9._-]+$/i.test(e)) continue;
+                const dest = normalize(join(root, v.url));
+                if (!dest.startsWith(normalize(mediasDir)) || existsSync(dest)) continue;
+                await mkdir(dirname(dest), { recursive: true });
+                await rename(join(BIN, e), dest);
+                delete idx[e];
+                n++;
+              }
+              await writeFile(INDEX, JSON.stringify(idx, null, 1), "utf8");
+              return json(res, 200, { ok: true, restaurees: n });
+            }
+            if (req.method === "POST" && !parts[1]) {
+              const { urls, force } = await readBody(req);
+              const list = (Array.isArray(urls) ? urls : []).slice(0, 500).filter((u) => fileOf(u));
+              // Où sert chaque fichier : pages (pages/*.json) et tableaux du Canvas.
+              const pageTexts = [];
+              for (const f of existsSync(pagesDir) ? (await readdir(pagesDir)).filter((x) => x.endsWith(".json")) : []) pageTexts.push([f.slice(0, -5), await readFile(join(pagesDir, f), "utf8")]);
+              const boardTexts = [];
+              const scanBoards = async (dir) => {
+                for (const f of existsSync(dir) ? (await readdir(dir)).filter((x) => x.endsWith(".json")) : []) {
+                  const t = await readFile(join(dir, f), "utf8");
+                  let nom = f;
+                  try {
+                    nom = JSON.parse(t).nom ?? f;
+                  } catch {}
+                  boardTexts.push([nom, t]);
+                }
+              };
+              const projDirs = existsSync(join(mediasDir, "projets")) ? await readdir(join(mediasDir, "projets")) : [];
+              for (const p of projDirs) await scanBoards(join(mediasDir, "projets", p, "canvas"));
+              for (const p of await readdir(mediasDir)) if (p !== "projets") await scanBoards(join(mediasDir, p, "canvas"));
+              const utilisees = [];
+              const ok = [];
+              for (const u of list) {
+                const pages = pageTexts.filter(([, t]) => t.includes(u)).map(([n]) => n);
+                const tableaux = boardTexts.filter(([, t]) => t.includes(u)).map(([n]) => n);
+                if ((pages.length || tableaux.length) && !force) utilisees.push({ url: u, pages, tableaux });
+                else ok.push(u);
+              }
+              if (utilisees.length && !force) return json(res, 200, { ok: false, utilisees });
+              await mkdir(BIN, { recursive: true });
+              const idx = await readIndex();
+              const when = stamp();
+              for (const u of ok) {
+                const f = fileOf(u);
+                const entree = `${when}-${Math.random().toString(36).slice(2, 6)}-${u.split("/").pop()}`.replace(/[^a-z0-9._-]/gi, "-");
+                await rename(f, join(BIN, entree));
+                idx[entree] = { url: u, quand: new Date().toISOString() };
+              }
+              await writeFile(INDEX, JSON.stringify(idx, null, 1), "utf8");
+              return json(res, 200, { ok: true, deplacees: ok.length });
             }
             return json(res, 405, { error: "Méthode non permise." });
           }

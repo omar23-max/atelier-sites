@@ -209,6 +209,25 @@ function StudioDialog({ onClose }) {
       localStorage.setItem(LS, JSON.stringify(results));
     } catch {}
   }, [results]);
+  // Versions dont le fichier a été mis à la corbeille (catalogue) : retirées.
+  useEffect(() => {
+    const urls = Object.values(results).flatMap((r) => (r.versions ?? []).map((v) => v.url));
+    Promise.all(urls.map((u) => fetch(u, { method: "HEAD" }).then((r) => [u, r.ok && !/text\/html/.test(r.headers.get("content-type") ?? "")]).catch(() => [u, true]))).then((list) => {
+      const gone = new Set(list.filter(([, ok]) => !ok).map(([u]) => u));
+      if (!gone.size) return;
+      setResults((rs) =>
+        Object.fromEntries(
+          Object.entries(rs)
+            .map(([k, r]) => {
+              const versions = (r.versions ?? []).filter((v) => !gone.has(v.url));
+              return [k, { ...r, versions, sel: Math.min(r.sel ?? versions.length - 1, versions.length - 1) }];
+            })
+            .filter(([, r]) => r.versions.length),
+        ),
+      );
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Taille minimale (comme le filtre « Min size » de Whitelabeler) : les
   // icônes, logos et pictos de moins de 150 px ne sont pas cochés au départ.

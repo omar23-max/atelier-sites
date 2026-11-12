@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { Excalidraw, MainMenu, convertToExcalidrawElements, CaptureUpdateAction } from "@excalidraw/excalidraw";
+import { Excalidraw, MainMenu, convertToExcalidrawElements, CaptureUpdateAction, restoreElements } from "@excalidraw/excalidraw";
 import "@excalidraw/excalidraw/index.css";
 import { sections } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
@@ -10,6 +10,7 @@ import { familiesOf } from "./engine/page-score.js";
 import { FAMILIES } from "./engine/families.js";
 import { fondationsPourAudit } from "./engine/fidelite.js";
 import { pageTypeOf } from "./engine/page-types.js";
+import { originalPhotoTargets } from "./engine/photos.js";
 
 // ---- Canvas (2026-11-11 ; refait sur Excalidraw le 2026-11-12) ----
 // Le Canvas de Whitelabeler est un tableau Excalidraw : mêmes outils
@@ -160,6 +161,9 @@ function Canvas({ onClose }) {
   const [busy, setBusy] = useState({});
   const [renaming, setRenaming] = useState(false);
   const [empty, setEmpty] = useState(false);
+  const [boardsOpen, setBoardsOpen] = useState(false);
+  const [imagesOpen, setImagesOpen] = useState(false);
+  const videoRef = useRef(null);
   const sig = useRef("");
   const saveTimer = useRef(null);
   const uploaded = useRef({}); // fileId → adresse /medias/… (images collées ou glissées)
@@ -187,16 +191,20 @@ function Canvas({ onClose }) {
     await flushSave();
     const b = await fetch(`/api/canvas/${pageName}/${id}`).then((r) => r.json());
     sig.current = "";
-    setApi(null);
     setSel(null);
-    setBoard({ id: b.id, nom: b.nom, initial: b });
+    // Pas de remise à zéro de l'API : si c'est le même tableau (ouverture en
+    // double au démarrage), Excalidraw n'est pas remonté et ne la renverrait pas.
+    setBoard((cur) => (cur?.id === b.id ? cur : { id: b.id, nom: b.nom, initial: b }));
   }
   async function newBoard(nom) {
     const r = await fetch(`/api/canvas/${pageName}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom }) }).then((x) => x.json());
     await refreshBoards();
     await openBoard(r.id);
   }
+  const started = useRef(false);
   useEffect(() => {
+    if (started.current) return; // une seule fois (React l'appelle deux fois en développement)
+    started.current = true;
     refreshBoards().then((list) => (list.length ? openBoard(list[0].id) : newBoard("Tableau 1")));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -403,6 +411,38 @@ function Canvas({ onClose }) {
     setTimeout(() => save(true), 50);
   }
 
+  // « Delete this board » : le tableau va dans canvas/_corbeille/ (rien
+  // n'est effacé), puis le plus récent des autres s'ouvre.
+  async function deleteBoard() {
+    if (!confirm(`Mettre le tableau « ${board.nom} » à la corbeille du Canvas ?`)) return;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "DELETE" });
+    const list = await refreshBoards();
+    if (list.length) await openBoard(list[0].id);
+    else await newBoard("Tableau 1");
+    setFlash({ ok: "Tableau mis à la corbeille du Canvas (récupérable)." });
+  }
+  // « Add a video » : la vidéo est envoyée dans le projet puis posée sur le
+  // tableau (élément intégré d'Excalidraw qui la lit).
+  async function addVideo(file) {
+    if (!file) return;
+    if (file.size > 70 * 1024 * 1024) return setFlash({ error: "Vidéo trop lourde (70 Mo au plus : limite du tunnel Cloudflare)." });
+    setFlash({ ok: "Envoi de la vidéo…" });
+    try {
+      const url = await uploadDataUrl(await readAsDataUrl(file), file.name);
+      const [cx, cy] = viewCenter();
+      const w = 480;
+      const h = 270;
+      const spot = freeSpot(cx - w / 2, cy - h / 2, w, h);
+      const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}`, x: spot.x, y: spot.y, width: w, height: h, link: `${location.origin}${url}`, customData: { url, origine: { source: "Vidéo ajoutée" } } }], null);
+      api.updateScene({ elements: [...api.getSceneElements(), el], captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+      setFlash({ ok: "Vidéo posée sur le tableau (clique-la pour la lire)." });
+    } catch (e) {
+      setFlash({ error: e.message });
+    }
+  }
+
   const savedLabel = saved === "ok" ? "Enregistré" : saved === "encours" ? "Enregistrement…" : "Non enregistré";
   const togglePanel = (p) => {
     setPicking(false);
@@ -417,16 +457,18 @@ function Canvas({ onClose }) {
           excalidrawAPI={setApi}
           langCode="fr-FR"
           initialData={{
-            elements: board.initial.elements ?? [],
+            // Vidéos : adresse recalculée pour le site ouvert (PC, tunnel ou atelier.nive.ca).
+            elements: (board.initial.elements ?? []).map((e) => (e.type === "embeddable" && e.customData?.url ? { ...e, link: `${location.origin}${e.customData.url}` } : e)),
             files: board.initial.files ?? {},
             appState: { viewBackgroundColor: board.initial.appState?.viewBackgroundColor ?? "transparent", currentItemFontFamily: 5, ...(board.initial.appState ? { scrollX: board.initial.appState.scrollX, scrollY: board.initial.appState.scrollY, zoom: { value: board.initial.appState.zoom ?? 1 } } : {}) },
           }}
           onChange={onChange}
+          validateEmbeddable={(link) => (link.startsWith(`${location.origin}/medias/`) ? true : undefined)}
           UIOptions={{ canvasActions: { loadScene: false, saveToActiveFile: false, export: { saveFileToDisk: true } }, tools: { image: true } }}
           renderTopRightUI={() => (
             <div className="atl-cv__right">
               <div className="atl-cv__ai">
-                <button type="button" className={panel === "images" ? "is-on" : ""} onClick={() => togglePanel("images")} title="Tes images" aria-label="Tes images">
+                <button type="button" className={imagesOpen ? "is-on" : ""} onClick={() => setImagesOpen(true)} title="Tes images" aria-label="Tes images">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 5h16v14H4z" fill="currentColor" opacity=".9" />
                     <path d="M4 16l4.5-5 3.5 4 2.5-3L20 17v2H4z" fill="#fff" />
@@ -469,26 +511,14 @@ function Canvas({ onClose }) {
           )}
         >
           <MainMenu>
-            <MainMenu.Group title={projet ? `Tableaux du projet ${projet}` : "Tableaux"}>
-              {boards.map((b) => (
-                <MainMenu.Item key={b.id} onSelect={() => b.id !== board.id && openBoard(b.id)}>
-                  {b.id === board.id ? "● " : ""}
-                  {b.nom} · {b.nb} élément{b.nb > 1 ? "s" : ""} · {ago(b.modifie)}
-                </MainMenu.Item>
-              ))}
-              <MainMenu.Item onSelect={() => newBoard(`Tableau ${boards.length + 1}`)}>＋ Nouveau tableau</MainMenu.Item>
-              <MainMenu.Item onSelect={() => setRenaming(true)}>✎ Renommer ce tableau</MainMenu.Item>
-            </MainMenu.Group>
+            <MainMenu.Item onSelect={async () => (await flushSave(), await refreshBoards(), setBoardsOpen(true))}>Tous les tableaux</MainMenu.Item>
             <MainMenu.Separator />
+            <MainMenu.Item onSelect={() => setImagesOpen(true)}>Tes images</MainMenu.Item>
+            <MainMenu.Item onSelect={() => videoRef.current?.click()}>Ajouter une vidéo</MainMenu.Item>
             <MainMenu.DefaultItems.SaveAsImage />
-            <MainMenu.DefaultItems.SearchMenu />
             <MainMenu.DefaultItems.Help />
-            <MainMenu.DefaultItems.ClearCanvas />
             <MainMenu.Separator />
-            <MainMenu.DefaultItems.ToggleTheme />
-            <MainMenu.DefaultItems.ChangeCanvasBackground />
-            <MainMenu.Separator />
-            <MainMenu.Item onSelect={async () => (await flushSave(), onClose())}>Fermer le Canvas</MainMenu.Item>
+            <MainMenu.Item onSelect={deleteBoard}>Supprimer ce tableau</MainMenu.Item>
           </MainMenu>
         </Excalidraw>
       )}
@@ -528,7 +558,18 @@ function Canvas({ onClose }) {
       )}
 
       {api && panel === "image" && <NewPicture refs={refs} setRefs={setRefs} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={() => setPanel(null)} />}
-      {api && panel === "images" && <YourImages projet={projet} root={root} onAdd={(urls) => addImagesAtCenter(urls, { origine: { source: "Tes images" } })} onClose={() => setPanel(null)} />}
+      <input ref={videoRef} type="file" accept="video/mp4,video/webm,video/quicktime" hidden onChange={(e) => (addVideo(e.target.files[0]), (e.target.value = ""))} />
+      {api && imagesOpen && <YourImages root={root} onAdd={(urls) => addImagesAtCenter(urls, { origine: { source: "Tes images" } })} onClose={() => setImagesOpen(false)} />}
+      {boardsOpen && (
+        <AllBoards
+          projet={projet}
+          boards={boards}
+          current={board?.id}
+          onOpen={async (id) => (setBoardsOpen(false), id !== board?.id && (await openBoard(id)))}
+          onNew={async () => (setBoardsOpen(false), await newBoard(`Tableau ${boards.length + 1}`))}
+          onClose={() => setBoardsOpen(false)}
+        />
+      )}
       {api && panel === "sections" && (
         <SectionImages root={root} refs={refs} setRefs={setRefs} picking={picking} setPicking={setPicking} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={() => (setPanel(null), setPicking(false))} />
       )}
@@ -719,49 +760,130 @@ function NewPicture({ refs, setRefs, makeImage, addImagesAtCenter, setFlash, onC
   );
 }
 
-// ---- « Tes images » : images du projet et du site d'origine ----
+// ---- « Tes images » (fenêtre, comme Whitelabeler) : clic pour cocher une
+// ou plusieurs images, puis « Ajouter au tableau ». Images du projet ; celles
+// du site d'origine dans un second onglet s'il y en a.
 function YourImages({ root, onAdd, onClose }) {
+  const getPuck = useGetPuck();
   const [tab, setTab] = useState("projet");
-  const [lists, setLists] = useState({ projet: null, origine: null });
-  useEffect(() => {
+  const [lists, setLists] = useState({ projet: null, origine: [] });
+  const [ticked, setTicked] = useState([]);
+  const fileRef = useRef(null);
+  function load() {
     fetch(`/api/medias/${pageName}?detail=1`)
       .then((r) => r.json())
-      .then((l) => setLists((s) => ({ ...s, projet: l.filter((x) => x.kind !== "video").map((x) => x.url).reverse() })))
+      .then((l) => setLists((s) => ({ ...s, projet: l.filter((x) => x.kind !== "video" && !/\.(mp4|webm|mov)$/i.test(x.url)).map((x) => x.url).reverse() })))
       .catch(() => setLists((s) => ({ ...s, projet: [] })));
-    const slug = root.importSource || pageName;
-    fetch(`/api/medias-origin/${slug}`)
+  }
+  useEffect(() => {
+    load();
+    // Images d'origine : les mêmes que l'onglet « D'origine » du catalogue et
+    // la carte 3 du Studio (photos d'origine encore dans la page), puis celles
+    // du dossier images/ de l'import s'il y en a.
+    const fromPage = [...new Set(originalPhotoTargets(getPuck().appState.data.content ?? []).map((t) => t.source))];
+    fetch(`/api/medias-origin/${root.importSource || pageName}`)
       .then((r) => (r.ok ? r.json() : []))
-      .then((l) => setLists((s) => ({ ...s, origine: l })))
-      .catch(() => setLists((s) => ({ ...s, origine: [] })));
+      .then((l) => setLists((s) => ({ ...s, origine: [...new Set([...fromPage, ...l])] })))
+      .catch(() => setLists((s) => ({ ...s, origine: fromPage })));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const list = lists[tab];
-  return (
-    <aside className="atl-cv__side" aria-label="Tes images">
-      <div className="atl-cv__head">
-        <h3>Tes images</h3>
-        <button type="button" onClick={onClose} aria-label="Fermer">
-          ×
-        </button>
-      </div>
-      <div className="atl-cv__seg is-full">
-        <button type="button" className={tab === "projet" ? "is-on" : ""} onClick={() => setTab("projet")}>
-          Projet
-        </button>
-        <button type="button" className={tab === "origine" ? "is-on" : ""} onClick={() => setTab("origine")}>
-          Site d'origine
-        </button>
-      </div>
-      <AddImageMenu label="Téléverser" onUpload={async (files) => onAdd(await uploadFiles(files))} />
-      {list === null ? <p className="atl-cv__muted">Chargement…</p> : !list.length ? <p className="atl-cv__muted">Aucune image ici.</p> : null}
-      <div className="atl-cv__grid">
-        {(list ?? []).map((u) => (
-          <button key={u} type="button" onClick={() => onAdd([u])} title="Poser sur le tableau">
-            <img src={u} alt="" loading="lazy" />
+  const toggle = (u) => setTicked((t) => (t.includes(u) ? t.filter((x) => x !== u) : [...t, u]));
+  return createPortal(
+    <div className="atl-cv__modal is-top" onPointerDown={onClose}>
+      <div className="atl-cv__images" onPointerDown={(e) => e.stopPropagation()}>
+        <div className="atl-cv__head">
+          <h3>Tes images</h3>
+          <button type="button" onClick={onClose} aria-label="Fermer">
+            ×
           </button>
-        ))}
+        </div>
+        {lists.origine.length > 0 && (
+          <div className="atl-cv__seg">
+            <button type="button" className={tab === "projet" ? "is-on" : ""} onClick={() => setTab("projet")}>
+              Projet
+            </button>
+            <button type="button" className={tab === "origine" ? "is-on" : ""} onClick={() => setTab("origine")}>
+              Site d'origine
+            </button>
+          </div>
+        )}
+        <div className="atl-cv__grid is-modal">
+          {list === null && <p className="atl-cv__muted">Chargement…</p>}
+          {list && !list.length && <p className="atl-cv__muted">Aucune image pour l'instant. Téléverse-en une.</p>}
+          {(list ?? []).map((u) => (
+            <button key={u} type="button" className={ticked.includes(u) ? "is-on" : ""} onClick={() => toggle(u)} onDoubleClick={() => (onAdd([u]), onClose())}>
+              <img src={u} alt="" loading="lazy" />
+              {ticked.includes(u) && <em>{ticked.indexOf(u) + 1}</em>}
+            </button>
+          ))}
+        </div>
+        <div className="atl-cv__modalfoot">
+          <button type="button" className="atl-cv__ghost" onClick={() => fileRef.current?.click()}>
+            ＋ Téléverser
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={async (e) => {
+              const urls = await uploadFiles([...e.target.files]);
+              e.target.value = "";
+              setTab("projet");
+              load();
+              setTicked((t) => [...t, ...urls]);
+            }}
+          />
+          <span />
+          <button type="button" className="atl-cv__ghost" onClick={onClose}>
+            Annuler
+          </button>
+          <button type="button" className="atl-cv__go" disabled={!ticked.length} onClick={() => (onAdd(ticked), onClose())}>
+            Ajouter au tableau{ticked.length > 1 ? ` (${ticked.length})` : ""}
+          </button>
+        </div>
       </div>
-    </aside>
+    </div>,
+    document.body,
+  );
+}
+
+// ---- « Tous les tableaux » (comme la page Canvas de Whitelabeler) ----
+function AllBoards({ projet, boards, current, onOpen, onNew, onClose }) {
+  return createPortal(
+    <div className="atl-cv__modal is-top" onPointerDown={onClose}>
+      <div className="atl-cv__boards" onPointerDown={(e) => e.stopPropagation()}>
+        <div className="atl-cv__boardshead">
+          <div>
+            <h2>Canvas</h2>
+            <p>Tes tableaux{projet ? ` du projet ${projet}` : ""}. Pose des images, écris et dessine, tout sur un même tableau ouvert.</p>
+          </div>
+          <div className="atl-cv__actions">
+            <button type="button" className="atl-cv__ghost" onClick={onClose}>
+              Fermer
+            </button>
+            <button type="button" className="atl-cv__go" onClick={onNew}>
+              Nouveau tableau
+            </button>
+          </div>
+        </div>
+        <div className="atl-cv__boardgrid">
+          {boards.map((b) => (
+            <button key={b.id} type="button" className={b.id === current ? "is-current" : ""} onClick={() => onOpen(b.id)}>
+              <span className="atl-cv__boardthumb" />
+              <b>{b.nom}</b>
+              <small>
+                {b.nb} élément{b.nb > 1 ? "s" : ""} · modifié {ago(b.modifie)}
+                {b.id === current ? " · ouvert" : ""}
+              </small>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -818,7 +940,7 @@ function usePages() {
       .then((r) => r.json())
       .then((l) => {
         const mine = projet ? l.filter((p) => p.projet === projet) : l;
-        const list = (mine.length ? mine : l).filter((p) => !/^zz-/.test(p.name) || p.name === pageName);
+        const list = (mine.length ? mine : l).filter((p) => !/^zz-/.test(p.name) || /^zz-/.test(pageName)); // pages jetables : seulement depuis une page jetable
         list.sort((a, b) => (a.name === pageName ? -1 : b.name === pageName ? 1 : a.title.localeCompare(b.title)));
         setPages(list);
       })
