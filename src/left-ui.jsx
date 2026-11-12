@@ -768,6 +768,7 @@ function AiTool() {
       </div>
       <p className="atl-tool-panel__group">Images</p>
       <div className="atl-choices">
+        {item("Canvas", "Le grand tableau du projet : toutes tes images, créer une image à partir de références, retirer un fond, installer dans la page.", () => open("atl-open-canvas"))}
         {item("Planche des images", "Toutes les images côte à côte : en refaire une avec une consigne, ou toutes avec ton produit.", () => open("atl-open-board"))}
       </div>
       <p className="atl-tool-panel__group">Style</p>

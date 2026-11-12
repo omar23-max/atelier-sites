@@ -7,6 +7,7 @@ import { designById } from "./engine/designs.js";
 import { sections } from "./engine/sections.js";
 import { blocksKey, normalizeProps } from "./engine/render.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
+import { ExportToPage } from "./canvas-ui.jsx";
 
 const sectionsById = Object.fromEntries(sections.map((x) => [x.id, x]));
 
@@ -194,7 +195,7 @@ function StudioDialog({ onClose }) {
   const [current, setCurrent] = useState(null); // clé affichée en 4
   const [run, setRun] = useState(null); // { state: "marche" | "pause" | "demande", faites }
   const [refine, setRefine] = useState("");
-  const [placeTo, setPlaceTo] = useState("");
+  const [exportUrl, setExportUrl] = useState(null);
   const [flash, setFlash] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const stopRef = useRef(false);
@@ -363,6 +364,24 @@ function StudioDialog({ onClose }) {
     setChosen((c) => new Set([...c, ...added.map((a) => a.key)]));
   }
   const pageSlots = targets.filter((t) => t.sectionId);
+  // « Export to Canvas » / « Export all to Canvas » de Whitelabeler : la
+  // version affichée rejoint le dernier tableau du projet. Toutes : le
+  // Canvas s'ouvre ensuite.
+  async function sendToCanvas(list = targets, ouvrir = true) {
+    const images = [];
+    for (const t of list) {
+      const r = results[t.key];
+      if (!r?.versions?.length) continue;
+      const v = r.versions[r.sel ?? r.versions.length - 1];
+      const [w, h] = await sizeOf(v.url);
+      images.push({ url: v.url, ratio: w / h, label: t.sectionLabel, origine: { source: "Studio d'images", modele: MODELES[v.modele]?.label ?? v.modele, consigne: v.consigne || "", note: v.note || "" } });
+    }
+    const res = await fetch(`/api/canvas/${pageName}/dernier/ajouter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ images }) });
+    if (!res.ok) return setFlash({ error: "Le Canvas n'a pas pu être mis à jour." });
+    if (!ouvrir) return setFlash({ ok: "Envoyée dans le Canvas du projet (dernier tableau)." });
+    onClose();
+    window.dispatchEvent(new CustomEvent("atl-open-canvas"));
+  }
   const download = (url, name) => {
     const a = document.createElement("a");
     a.href = url;
@@ -486,6 +505,9 @@ function StudioDialog({ onClose }) {
                 >
                   Tout télécharger ({done})
                 </button>
+                <button type="button" className="atl-mirror__linkbtn" disabled={!done} onClick={() => sendToCanvas()} title="Pose toutes les images générées sur le Canvas du projet">
+                  Tout envoyer dans le Canvas ({done})
+                </button>
               </span>
             </h3>
             <p className="atl-mirror__sub">Faites à partir de tes références et de chaque photo d'origine.</p>
@@ -551,30 +573,28 @@ function StudioDialog({ onClose }) {
                   <button type="button" className="atl-mirror__refine" disabled={!refine.trim() || status[cur.key] === "encours"} onClick={async () => (await generate(cur, refine.trim())) && setRefine("")}>
                     ✦ Affiner cette image
                   </button>
-                  <button type="button" className="atl-mirror__redo" disabled={status[cur.key] === "encours"} onClick={() => generate(cur)}>
-                    ↻ Refaire depuis l'originale
+                  <button type="button" className="atl-mirror__export" onClick={() => sendToCanvas([cur], false)}>
+                    ▤ Envoyer dans le Canvas
                   </button>
-                  {!pub && (
-                    <div className="atl-mirror__place">
-                      <select value={placeTo || (cur.sectionId ? cur.key : "")} onChange={(e) => setPlaceTo(e.target.value)} aria-label="Emplacement dans la page">
-                        {!cur.sectionId && <option value="">Choisir l'emplacement…</option>}
-                        {pageSlots.map((s, i) => (
-                          <option key={s.key} value={s.key}>
-                            {i + 1}. {s.sectionLabel}
-                            {s.key === cur.key ? " (son emplacement)" : ""}
-                          </option>
-                        ))}
-                      </select>
-                      <button type="button" className="atl-mirror__export" disabled={!(placeTo || cur.sectionId)} onClick={() => install(cur, curVer.url, placeTo || cur.key)}>
-                        {curRes.installee ? "✓ Installée · réinstaller" : "Installer dans la page"}
+                  <button type="button" className="atl-mirror__export" onClick={() => setExportUrl(curVer.url)}>
+                    ⇪ Exporter vers une page
+                  </button>
+                  <div className="atl-mirror__minor">
+                    <button type="button" className="atl-mirror__linkbtn" disabled={status[cur.key] === "encours"} onClick={() => generate(cur)}>
+                      ↻ Refaire depuis l'originale
+                    </button>
+                    {!pub && cur.sectionId && (
+                      <button type="button" className="atl-mirror__linkbtn" onClick={() => install(cur, curVer.url, cur.key)}>
+                        {curRes.installee ? "✓ Installée à sa place" : "Installer à sa place"}
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   {errors[cur.key] && <p className="atl-topbar__error">{errors[cur.key]}</p>}
                 </div>
               </div>
             )}
             {flash && <p className={flash.error ? "atl-topbar__error" : "atl-topbar__ok"}>{flash.error ?? flash.ok}</p>}
+            {exportUrl && <ExportToPage urls={[exportUrl]} onClose={() => setExportUrl(null)} onDone={(msg) => setFlash({ ok: msg })} />}
           </section>
         </div>
 

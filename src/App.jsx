@@ -10,6 +10,7 @@ import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
 import { StudioButton } from "./studio-ui.jsx";
 import { BoardButton } from "./board-ui.jsx";
+import { CanvasButton } from "./canvas-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
 // Plus de boutons « + » (projet, page, design) dans la barre : on les crée
 // depuis le projet, dans le catalogue (2026-11-08).
@@ -305,6 +306,7 @@ export default function App() {
                 <RewriteButton hidden />
                 <StudioButton hidden />
                 <BoardButton />
+                <CanvasButton />
                 {/* Choix d'un modèle pour un emplacement de section manquante. */}
                 <SlotPicker />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}

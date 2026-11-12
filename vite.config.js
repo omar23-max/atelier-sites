@@ -829,6 +829,25 @@ function atelierApi() {
                 const prompt = studioPrompt(b);
                 return json(res, 200, await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: b.source, references: b.references ?? [], prompt, width: b.width, height: b.height, format: b.mode === "pub" ? b.format : null, model: b.modele, folder }));
               }
+              // Canvas (2026-11-11) : créer une image (consigne + images de
+              // référence prises sur le tableau), ou retirer le fond d'une image.
+              if (parts[1] === "canvas-image" && NAME.test(b.page ?? "")) {
+                const { studioImage, canvasPrompt } = await import("./scripts/lib/ia.mjs");
+                const folder = await mediaPlace(b.page, "images-creees");
+                const references = (b.references ?? []).slice(0, 8);
+                const prompt = canvasPrompt({ prompt: b.prompt, produit: b.produit, description: b.description, nbRefs: references.length, type: b.type });
+                const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: null, references, prompt, width: b.width, height: b.height, format: null, model: b.modele, folder, quality: b.qualite });
+                return json(res, 200, { ...out, consigne: prompt });
+              }
+              if (parts[1] === "section-prompts") {
+                const { sectionImagePrompts } = await import("./scripts/lib/ia.mjs");
+                return json(res, 200, { prompts: await sectionImagePrompts({ key: env.OPENAI_API_KEY, ...b, sections: (b.sections ?? []).slice(0, 30) }) });
+              }
+              if (parts[1] === "detourer" && NAME.test(b.page ?? "")) {
+                const { detourerImage } = await import("./scripts/lib/ia.mjs");
+                const folder = await mediaPlace(b.page, "images-creees");
+                return json(res, 200, await detourerImage({ openaiKey: env.OPENAI_API_KEY, root, source: b.source, folder }));
+              }
               if (parts[1] === "section") {
                 const { rebuildSection } = await import("./scripts/lib/ia.mjs");
                 return json(res, 200, await rebuildSection({ key: env.OPENAI_API_KEY, ...b }));
@@ -879,6 +898,99 @@ function atelierApi() {
             }
             const detail = new URL(req.url ?? "/", "http://atelier").searchParams.get("detail") === "1";
             return json(res, 200, detail ? out : out.filter((x) => x.kind !== "video").map((x) => x.url));
+          }
+
+          // ---- Canvas (2026-11-11, refait sur Excalidraw le 2026-11-12) ----
+          // Plusieurs tableaux par projet, comme la page « Canvas » de
+          // Whitelabeler : medias/projets/<projet>/canvas/<id>.json (page hors
+          // projet : medias/<page>/canvas/<id>.json). Un tableau : { id, nom,
+          // modifie, elements (Excalidraw), files: { <fileId>: { id, mimeType,
+          // dataURL: "/medias/…" } }, appState: { scrollX, scrollY, zoom },
+          // aAjouter: [{ url, ratio, label, origine }] }. aAjouter : images
+          // envoyées par le Studio, posées par le Canvas à l'ouverture.
+          //   GET  /api/canvas/<page>               liste { projet, tableaux }
+          //   POST /api/canvas/<page>               nouveau tableau { nom }
+          //   GET  /api/canvas/<page>/<id>          un tableau
+          //   PUT  /api/canvas/<page>/<id>          l'enregistrer
+          //   POST /api/canvas/<page>/<id|dernier>/ajouter  { images }
+          // L'ancien canvas.json (avant Excalidraw) devient « Tableau 1 ».
+          if (parts[0] === "canvas" && NAME.test(parts[1] ?? "")) {
+            const place = await mediaPlace(parts[1], "canvas");
+            const base = place.projet ? join(mediasDir, "projets", place.projet) : join(mediasDir, parts[1]);
+            const dir = join(base, "canvas");
+            const BOARD = /^b-[a-z0-9-]{4,40}$/;
+            const readJson = async (f) => {
+              try {
+                return JSON.parse(await readFile(f, "utf8"));
+              } catch {
+                return null;
+              }
+            };
+            const writeBoard = async (b) => {
+              await mkdir(dir, { recursive: true });
+              await writeFile(join(dir, `${b.id}.json`), JSON.stringify(b) + "\n", "utf8");
+            };
+            const newId = () => `b-${stamp().toLowerCase()}-${Math.random().toString(36).slice(2, 6)}`;
+            // Ancien format : canvas.json → tableau « Tableau 1 » (items gardés,
+            // convertis par le Canvas à l'ouverture). L'ancien fichier est renommé.
+            const legacy = join(base, "canvas.json");
+            if (existsSync(legacy) && !existsSync(dir)) {
+              const old = (await readJson(legacy)) ?? {};
+              const imgs = (old.items ?? []).filter((x) => x.type === "image" && x.url);
+              await writeBoard({ id: newId(), nom: "Tableau 1", modifie: new Date().toISOString(), elements: [], files: {}, aAjouter: imgs.map((x) => ({ url: x.url, ratio: x.w && x.h ? x.w / x.h : 1, label: x.label ?? "", origine: x.origine ?? null, x: x.x, y: x.y, w: x.w })) });
+              await rename(legacy, join(base, "canvas-avant-excalidraw.json"));
+            }
+            const list = async () => {
+              const files = existsSync(dir) ? (await readdir(dir)).filter((f) => f.endsWith(".json")) : [];
+              const out = [];
+              for (const f of files) {
+                const b = await readJson(join(dir, f));
+                if (b?.id) out.push({ id: b.id, nom: b.nom ?? "Tableau", modifie: b.modifie ?? null, nb: (b.elements ?? []).filter((e) => !e.isDeleted).length + (b.aAjouter ?? []).length });
+              }
+              return out.sort((a, b) => String(b.modifie).localeCompare(String(a.modifie)));
+            };
+            if (!parts[2]) {
+              if (req.method === "GET") return json(res, 200, { projet: place.projet, tableaux: await list() });
+              if (req.method === "POST") {
+                const b = await readBody(req);
+                const board = { id: newId(), nom: String(b.nom ?? "").trim().slice(0, 80) || "Nouveau tableau", modifie: new Date().toISOString(), elements: [], files: {} };
+                await writeBoard(board);
+                return json(res, 200, { ok: true, id: board.id });
+              }
+              return json(res, 405, { error: "Méthode non permise." });
+            }
+            let id = parts[2];
+            if (id === "dernier") {
+              const all = await list();
+              if (all.length) id = all[0].id;
+              else {
+                id = newId();
+                await writeBoard({ id, nom: "Tableau 1", modifie: new Date().toISOString(), elements: [], files: {} });
+              }
+            }
+            if (!BOARD.test(id)) return json(res, 400, { error: "Tableau invalide." });
+            const file = join(dir, `${id}.json`);
+            if (!existsSync(file)) return json(res, 404, { error: "Tableau introuvable." });
+            if (req.method === "GET" && !parts[3]) return json(res, 200, await readJson(file));
+            if (req.method === "PUT" && !parts[3]) {
+              const b = await readBody(req);
+              const cur = (await readJson(file)) ?? {};
+              const elements = (Array.isArray(b.elements) ? b.elements : []).slice(0, 5000);
+              // Seules les images de l'atelier sont gardées (pas de data URL géante).
+              const files = Object.fromEntries(Object.entries(b.files ?? {}).filter(([, f]) => f && /^\/(medias|imports)\//.test(f.dataURL ?? "")).map(([k, f]) => [k, { id: f.id ?? k, mimeType: f.mimeType ?? "image/png", dataURL: f.dataURL, created: f.created ?? Date.now() }]));
+              const board = { ...cur, id, nom: String(b.nom ?? cur.nom ?? "Tableau").slice(0, 80), modifie: new Date().toISOString(), elements, files, appState: b.appState ?? cur.appState ?? null };
+              if (b.aAjouterPris) board.aAjouter = (cur.aAjouter ?? []).slice(b.aAjouterPris);
+              await writeBoard(board);
+              return json(res, 200, { ok: true });
+            }
+            if (req.method === "POST" && parts[3] === "ajouter") {
+              const b = await readBody(req);
+              const cur = (await readJson(file)) ?? {};
+              const imgs = (b.images ?? []).filter((x) => /^\/(medias|imports)\//.test(x?.url ?? "")).slice(0, 200);
+              await writeBoard({ ...cur, modifie: new Date().toISOString(), aAjouter: [...(cur.aAjouter ?? []), ...imgs] });
+              return json(res, 200, { ok: true, id, ajoutees: imgs.length });
+            }
+            return json(res, 405, { error: "Méthode non permise." });
           }
 
           // ---- Images du site d'origine : imports/<slug>/images/ ----

@@ -264,7 +264,7 @@ function aspectFor(width, height) {
 // Une image du Studio. source : image à refaire (/imports/…, /medias/… ou data
 // URL) ; references : idem, produit d'abord puis marque. Range le résultat dans
 // folder ({ dir, url }) et rend { url, modele, note }.
-export async function studioImage({ openaiKey, geminiKey, root, source, references = [], prompt, width, height, format, model = "gpt-image-2", folder }) {
+export async function studioImage({ openaiKey, geminiKey, root, source, references = [], prompt, width, height, format, model = "gpt-image-2", folder, quality = "medium" }) {
   const all = [source, ...references].filter(Boolean).slice(0, 8);
   const blobs = await Promise.all(all.map((s) => blobOf(root, s)));
   let png;
@@ -290,12 +290,22 @@ export async function studioImage({ openaiKey, geminiKey, root, source, referenc
     note = out.map((p) => p.text ?? "").join(" ").trim().slice(0, 400);
     if (!img) throw new Error(`Google n'a pas rendu d'image${note ? ` : ${note.slice(0, 160)}` : " (refus du modèle ?)"}.`);
     png = Buffer.from((img.inline_data ?? img.inlineData).data, "base64");
+  } else if (!blobs.length) {
+    // Canvas sans image de référence : création pure (2026-11-11).
+    const res = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: { ...headers(openaiKey), "Content-Type": "application/json" },
+      body: JSON.stringify({ model: IMAGE_MODEL, prompt, size: sizeFor(w, h), quality: ["low", "medium", "high"].includes(quality) ? quality : "medium" }),
+    });
+    if (!res.ok) throw await openaiError(res);
+    const body = await res.json();
+    png = Buffer.from(body.data[0].b64_json, "base64");
   } else {
     const fd = new FormData();
     fd.append("model", IMAGE_MODEL);
     fd.append("prompt", prompt);
     fd.append("size", sizeFor(w, h));
-    fd.append("quality", "medium");
+    fd.append("quality", ["low", "medium", "high"].includes(quality) ? quality : "medium");
     for (const [i, b] of blobs.entries()) fd.append("image[]", b, `image-${i}.png`);
     const res = await fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: headers(openaiKey), body: fd });
     if (!res.ok) throw await openaiError(res);
@@ -306,6 +316,86 @@ export async function studioImage({ openaiKey, geminiKey, root, source, referenc
   const file = `studio-${new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14)}-${Math.random().toString(36).slice(2, 6)}.png`;
   await writeFile(join(folder.dir, file), png);
   return { url: `${folder.url}/${file}`, modele: model, note };
+}
+
+// ---- Canvas (2026-11-11) ----
+// « Créer une image » : la consigne de l'utilisateur, plus les garde-fous
+// (produit fidèle aux références, aucune preuve inventée).
+export function canvasPrompt({ prompt, produit = "", description = "", nbRefs = 0, type = "image" }) {
+  const lines = [String(prompt ?? "").trim() || "A clean, realistic e-commerce photo of the product."];
+  if (produit) lines.push(`The product is "${produit}"${description ? ` (${String(description).slice(0, 300)})` : ""}.`);
+  if (nbRefs) lines.push(`The ${nbRefs} attached image(s) are references. Wherever the product appears, reproduce it exactly as shown in them: same shape, colours, materials, packaging and logo. Use them for style and mood too when relevant.`);
+  if (type === "infographie") lines.push("Make it a clean infographic: clear layout, few short labels, generous spacing, legible type.");
+  lines.push("Never invent text claims, certifications, awards, ratings, review counts, prices or numbers. Keep any text in the image short and only from the instruction. No watermark.");
+  return lines.join("\n");
+}
+
+// « Section images » (phase 3) : une consigne d'image par section, écrite
+// d'après le rôle de la section, ses textes, le produit et les Fondations.
+// sections : [{ id, numero, role, textes: [..], format, aDejaUneImage }].
+// Rend [{ id, prompt }] (consignes en anglais pour les modèles d'image).
+export async function sectionImagePrompts({ key, produit = "", description = "", pageType = "", fondations = null, type = "image", nbRefs = 0, sections = [] }) {
+  if (!sections.length) return [];
+  const system = [
+    "You are an art director for direct-response e-commerce pages (product pages, landing pages, advertorials, listicles).",
+    "For each section of the page you receive its role, its copy and the image format. Write ONE image-generation prompt per section, in English, that makes an image doing that section's job.",
+    "Rules:",
+    "- The image must illustrate what THIS section says (its promise, problem, mechanism, result, ingredient, step, social context…), not a generic product shot. Pick a concrete scene: who, where, what they do, mood, light, camera angle, composition that fits the format.",
+    nbRefs
+      ? `- ${nbRefs} reference picture(s) of the product/brand will be attached at generation time. Refer to the product as "the product from the reference pictures" and never describe a different product.`
+      : "- No product reference picture will be attached: avoid close-ups of the product's packaging; prefer people, context and benefits.",
+    type === "infographie"
+      ? "- Each image is an INFOGRAPHIC: clean layout, a few short labels written in the page's language and taken only from the section copy, icons or arrows, generous spacing."
+      : "- Each image is a PHOTO (photorealistic, editorial or UGC style as fits). No text in the image unless the section is about packaging.",
+    "- Never invent claims, numbers, percentages, ratings, review counts, certifications, awards, doctors or prices. No watermark, no logos other than the product's own.",
+    "- Respect the Fondations (central message, allowed proofs, forbidden wording) when given; do not contradict them.",
+    "- 40 to 90 words per prompt. Each prompt stands alone (it will be sent without the others).",
+    'Answer only in JSON: {"prompts":[{"id":"…","prompt":"…"}]} with every id received.',
+  ].join("\n");
+  const user = JSON.stringify({ produit, description: String(description).slice(0, 600), typeDePage: pageType, fondations, sections });
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { ...headers(key), "Content-Type": "application/json" },
+    body: JSON.stringify({ model: TEXT_MODEL, response_format: { type: "json_object" }, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+  });
+  if (!res.ok) throw await openaiError(res);
+  const body = await res.json();
+  const out = JSON.parse(body.choices?.[0]?.message?.content ?? "{}").prompts ?? [];
+  const byId = new Map(out.map((x) => [String(x.id), String(x.prompt ?? "").trim()]));
+  return sections.map((s) => ({ id: s.id, prompt: byId.get(String(s.id)) ?? "" }));
+}
+
+// « Retirer le fond » : sujet gardé, fond transparent (gpt-image-2). Si le
+// modèle refuse la transparence, fond blanc uni.
+export async function detourerImage({ openaiKey, root, source, folder }) {
+  const blob = await blobOf(root, source);
+  const once = async (transparent) => {
+    const fd = new FormData();
+    fd.append("model", IMAGE_MODEL);
+    fd.append("prompt", transparent ? "Remove the background completely. Keep the main subject exactly as it is (shape, colours, details, text, logo), centered, nothing added. Transparent background." : "Remove the background completely. Keep the main subject exactly as it is (shape, colours, details, text, logo), nothing added. Replace the background with pure flat white #FFFFFF.");
+    fd.append("quality", "medium");
+    if (transparent) {
+      fd.append("background", "transparent");
+      fd.append("output_format", "png");
+    }
+    fd.append("image[]", blob, "image.png");
+    return fetch("https://api.openai.com/v1/images/edits", { method: "POST", headers: headers(openaiKey), body: fd });
+  };
+  let res = await once(true);
+  let transparent = true;
+  if (!res.ok && res.status === 400) {
+    const txt = await res.clone().text();
+    if (/background|transparen|output_format/i.test(txt)) {
+      transparent = false;
+      res = await once(false);
+    }
+  }
+  if (!res.ok) throw await openaiError(res);
+  const body = await res.json();
+  await mkdir(folder.dir, { recursive: true });
+  const file = `detoure-${new Date().toISOString().replace(/[-:T.Z]/g, "").slice(0, 14)}-${Math.random().toString(36).slice(2, 6)}.png`;
+  await writeFile(join(folder.dir, file), Buffer.from(body.data[0].b64_json, "base64"));
+  return { url: `${folder.url}/${file}`, transparent };
 }
 
 // ---- Auditer la page (menu ✨ IA) ----

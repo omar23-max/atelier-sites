@@ -138,6 +138,54 @@ demande « en attente » (de la plus ancienne à la plus récente) :
         produit ou prix du site d'origine ; ne pas toucher aux blocs image ;
      5. enregistrer la page, noter dans `resultat` le nombre de textes écrits et
         les consignes laissées.
+   - **Studio d'images en direct (depuis le 2026-11-11, remplace les demandes
+     « images »)** : le bouton « 🖼 Studio d'images » ouvre une page plein écran
+     calquée sur « Image Mirror » de Whitelabeler (`StudioDialog`,
+     `src/studio-ui.jsx`, styles `.atl-mirror*`) : cartes 1 produit, 2 tes
+     images (produit / marque), 3 images à refaire (photos d'origine de la page,
+     `originalPhotoTargets`, celles de moins de 150 px décochées), 4 images
+     générées (versions, « À propos », Affiner, Refaire, Installer dans la page,
+     Tout télécharger) ; panneau Réglages (coût estimé, mode Miroir / Pub,
+     pilote automatique, Lancer, modèle Auto / Nano Banana / GPT Image 2 /
+     Nano Banana Pro, réglages du pilote). Chaque image : `POST /api/ia/studio`
+     → `studioPrompt` + `studioImage` (`scripts/lib/ia.mjs`), rangée dans
+     « images-creees » du projet. Installation une par une dans la page (Ctrl+Z
+     annule, enregistrement automatique). Versions gardées dans le navigateur
+     (`localStorage` « atl-studio-<page> »). Aucune demande à traiter par Claude.
+     Les deux modèles marchent (clés OPENAI_API_KEY et GEMINI_API_KEY).
+   - **Canvas (depuis le 2026-11-11, phase 2)** : grand tableau par projet,
+     comme le « Canvas » de Whitelabeler (`src/canvas-ui.jsx`, styles
+     `.atl-canvas*`). S'ouvre depuis ✨ IA → Images → « Canvas », ou depuis le
+     Studio (« Tout envoyer dans le Canvas »). Enregistré tout seul dans
+     `medias/projets/<projet>/canvas.json` (page hors projet :
+     `medias/<page>/canvas.json`) par `GET/PUT /api/canvas/<page>` ;
+     `POST /api/canvas/<page>/ajouter` pose des images à droite des autres.
+     Outils : Sélection, Main (ou espace), Texte, Ajouter des images (ou
+     glisser-déposer), zoom (Ctrl + molette), « Tout voir », « + Images du
+     projet ». Sur une image : Utiliser comme référence, Retirer le fond
+     (`/api/ia/detourer`, `detourerImage` : gpt-image-2 refuse la transparence,
+     il rend un fond blanc que le navigateur rend transparent, remplissage
+     depuis les bords), Installer dans la page (clic sur l'image de la page à
+     remplacer ; Ctrl+Z annule), Détails, Télécharger, Retirer du tableau (le
+     fichier reste). « Créer une image » : références prises sur le tableau
+     (8 au plus), consigne, Image / Infographie, format, modèle →
+     `/api/ia/canvas-image` (`canvasPrompt` ajoute les garde-fous : produit
+     fidèle aux références, aucune preuve inventée ; sans référence, GPT Image 2
+     passe par images/generations). « Créer une vidéo » est grisé.
+     **Section images (phase 3)** : panneau du Canvas (`SectionImages`). Liste
+     les sections de la page OUVERTE qui ont une image (nom de famille si le
+     nom est un code d'import, premier texte en dessous). Pour chaque section
+     cochée : image à remplacer, format (celui de l'image actuelle au départ),
+     consigne. « Écrire les consignes » → `/api/ia/section-prompts`
+     (`sectionImagePrompts`, gpt-5.4-mini : rôle de la section, ses textes,
+     produit, type de page, Fondations via `fondationsPourAudit`, nombre de
+     références ; consignes en anglais, aucune preuve inventée). « Créer » /
+     « Créer les images » passent par `/api/ia/canvas-image` ; l'image est
+     posée sur le tableau avec le nom de la section au-dessus. « Placer dans la
+     page » remplace l'image choisie (Ctrl+Z annule). Image / Infographie et le
+     modèle valent pour toutes les sections. Deux onglets ouverts sur le même Canvas :
+     le dernier qui enregistre gagne.
+     Ancienne voie, gardée pour les anciennes demandes :
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =
      références de l'utilisateur dans l'ordre (produit puis marque), `details` =
      produit, description, mode fidele/pub (pub : format 1:1 / 4:5 / 9:16,
