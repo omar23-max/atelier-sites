@@ -548,6 +548,10 @@ function PaletteTool() {
     texte: root.font_body || currentDesign?.tokens.polices?.texte || "Inter",
   };
   const base = root.projet || pageName;
+  const setRoot = (patch) => {
+    const { appState, dispatch } = getPuck();
+    dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, ...patch } } });
+  };
 
   // Enregistre la page, (crée le design.md), l'applique à toute la page, recharge.
   async function apply(design) {
@@ -735,6 +739,28 @@ function PaletteTool() {
           </li>
         </ul>
       )}
+      {/* Polices et fond de la page (venus des Réglages le 2026-11-13). */}
+      <p className="atl-tool-panel__group">Polices et fond de la page</p>
+      <div className="atl-pagefonts">
+        <label>
+          <span>Police des titres</span>
+          <input key={`h${root.font_heading ?? ""}`} defaultValue={root.font_heading ?? ""} placeholder={polices.titres} onBlur={(e) => setRoot({ font_heading: e.target.value.trim() })} />
+        </label>
+        <label>
+          <span>Police du texte</span>
+          <input key={`b${root.font_body ?? ""}`} defaultValue={root.font_body ?? ""} placeholder={polices.texte} onBlur={(e) => setRoot({ font_body: e.target.value.trim() })} />
+        </label>
+        <label className="is-row">
+          <span>Fond de la page (derrière les sections)</span>
+          <input type="color" value={/^#[0-9a-f]{6}$/i.test(root.fond_page ?? "") ? root.fond_page : "#ffffff"} onChange={(e) => setRoot({ fond_page: e.target.value })} />
+          {root.fond_page && (
+            <button type="button" onClick={() => setRoot({ fond_page: "" })}>
+              Retirer
+            </button>
+          )}
+        </label>
+        <small className="atl-tool-panel__hint">Noms Google Fonts (ex. Readex Pro, Inter Tight). Vide : les polices du design de la page.</small>
+      </div>
     </>
   );
 }

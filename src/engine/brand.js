@@ -38,6 +38,6 @@ export const rootFields = {
   },
   // produit et profil : dans la fiche « Ma marque et mon produit » (Réglages de la page).
   pageAchat: { type: "text", label: "Page d'achat liée (si pas d'achat ici)" },
-  font_heading: { type: "text", label: "Police des titres (Google Fonts, ex. Readex Pro)" },
-  font_body: { type: "text", label: "Police du texte (Google Fonts, ex. Inter Tight)" },
+  // Polices (font_heading, font_body) et fond (fond_page) : réglés dans le
+  // rail de gauche → Palette depuis le 2026-11-13 (plus dans les Réglages).
 };

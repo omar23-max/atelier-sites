@@ -297,7 +297,7 @@ export function buildPuckConfig(sections) {
     components,
     categories,
     root: {
-      fields: { ...rootFields, fond_page: { type: "custom", label: "Fond de la page (derrière toutes les sections)", render: ColorSetting } },
+      fields: rootFields, // fond_page et polices : rail de gauche → Palette (2026-11-13)
       defaultProps: { title: "Nouvelle page", font_heading: "", font_body: "" },
       render: ({ children, font_heading, font_body, fond_page }) => (
         <>

@@ -224,6 +224,18 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      images) ; les images modifiées viennent partout de `/api/medias/<page>`
      (dossier du projet). Étapes Pubs et Résultats retirées de la barre du
      projet pour l'instant (lignes commentées dans `Fondations.jsx`).
+   - **Réglages de la page allégés (2026-11-13)** : rail de gauche → Réglages
+     ne garde que le nom de la page, son type et la page d'achat liée. Page
+     d'un projet : « Marque et produit · du projet » en lecture seule (produit,
+     client visé = celui de l'angle, ce qu'on sait du produit) + lien
+     « Modifier dans le projet » ; photos du produit et logo restent
+     modifiables. `ProjectBrandSync` (inspector-ui.jsx, monté dans App.jsx)
+     remplit à l'ouverture `infos` (description + Fondations : rôle,
+     composition, utilisation, sans les lignes [MANQUE] / [À VALIDER] ;
+     réécrit seulement si vide ou `infosAuto`), `produit` et `logo` s'ils sont
+     vides. `profil` n'est jamais touché. Page hors projet : fiche modifiable
+     comme avant. Polices des titres / du texte et fond de la page : rail →
+     Palette, bloc « Polices et fond de la page » (retirés de `rootFields`).
      Ancienne voie, gardée pour les anciennes demandes :
    - **images** (bouton « 🖼 Studio d'images », champ `page`, `images` =
      références de l'utilisateur dans l'ordre (produit puis marque), `details` =

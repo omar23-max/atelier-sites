@@ -19,7 +19,7 @@ import { PreviewBarLanguage, TopbarTools, UndoRedo, FloatingViewportBar } from "
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
-import { Inspector } from "./inspector-ui.jsx";
+import { Inspector, ProjectBrandSync } from "./inspector-ui.jsx";
 import { ClosePageButton, DeletePageButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
@@ -305,6 +305,8 @@ export default function App() {
                 <RewriteButton hidden />
                 <StudioButton hidden />
                 <CanvasButton />
+                {/* Page de projet : infos, produit et logo repris du projet. */}
+                <ProjectBrandSync />
                 {/* Choix d'un modèle pour un emplacement de section manquante. */}
                 <SlotPicker />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}

@@ -902,7 +902,7 @@ export function Inspector({ children }) {
       <div className="atl-insp__detail">
         {sel?.page && (
           <div className="atl-insp__panel">
-            <PanelHead onBack={close} title="Réglages de la page" sub="Marque et produit, titre, type, polices" />
+            <PanelHead onBack={close} title="Réglages de la page" sub="Titre, type de page, page d'achat liée" />
             <BrandSheet root={getPuck().appState.data.root?.props ?? {}} onChange={patchRoot} />
             <div className="atl-insp__puck">{children}</div>
           </div>
@@ -2528,6 +2528,55 @@ const LANGUES = [
 // ---- Fiche « Ma marque et mon produit » (⚙ Réglages de la page) ----
 // Remplie une fois, reprise par tous les outils IA : réécrire la page,
 // retravailler une section, Studio d'images (photos du produit, logo).
+// Page d'un projet (2026-11-13, « Réglages » allégés) : produit, client visé
+// et ce qu'on sait du produit viennent du projet (Fondations, Angles) et ne
+// se saisissent plus ici ; seules les photos du produit et le logo restent.
+// Texte « ce que tu sais du produit » tiré du projet, sans les notes
+// [MANQUE] / [À VALIDER] (garde-fou : aucune preuve non validée).
+export function infosFromProject(p) {
+  const r = p?.fondations?.reponses ?? {};
+  const clean = (v) =>
+    String(Array.isArray(v) ? v.join(", ") : v ?? "")
+      .split("\n")
+      .filter((l) => !/\[(MANQUE|À VALIDER)/.test(l))
+      .join("\n")
+      .trim();
+  return [p?.description && clean(p.description), r.role && `Bénéfices : ${clean(r.role)}`, r.ingredients && `Composition : ${clean(r.ingredients)}`, r.usage && `Utilisation : ${clean(r.usage)}`]
+    .filter(Boolean)
+    .join("\n\n")
+    .slice(0, 6000);
+}
+
+// À l'ouverture d'une page de projet : remplit les champs que lisent les
+// outils ✨ IA et le Studio (infos, produit, logo) depuis le projet. « infos »
+// n'est réécrit que s'il est vide ou déjà rempli automatiquement (infosAuto).
+// Le client visé (profil) n'est jamais touché : c'est celui de l'angle.
+export function ProjectBrandSync() {
+  const getPuck = useGetPuck();
+  useEffect(() => {
+    const root = getPuck().appState.data.root?.props ?? {};
+    if (!root.projet) return;
+    fetch(`/api/projects/${encodeURIComponent(root.projet)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => {
+        if (!p) return;
+        const cur = getPuck().appState.data.root?.props ?? {};
+        const patch = {};
+        const infos = infosFromProject(p);
+        if (infos && (!cur.infos || cur.infosAuto) && cur.infos !== infos) Object.assign(patch, { infos, infosAuto: true });
+        if (p.produit && !cur.produit) patch.produit = p.produit;
+        const logo = p.marque?.logos?.[0];
+        if (logo && !cur.logo) patch.logo = logo;
+        if (!Object.keys(patch).length) return;
+        const { appState, dispatch } = getPuck();
+        dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, ...patch } } });
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
 function BrandSheet({ root, onChange }) {
   const [busy, setBusy] = useState(false);
   const photos = Array.isArray(root.photos_produit) ? root.photos_produit : [];
@@ -2565,14 +2614,36 @@ function BrandSheet({ root, onChange }) {
       )}
     </label>
   );
+  const fromProject = Boolean(root.projet);
   return (
     <div className="atl-brand">
-      <p className="atl-brand__title">Ma marque et mon produit</p>
-      <p className="atl-brand__hint">Rempli une fois : tous les outils ✨ IA s'en servent.</p>
-      {text("marque", "Marque", "ex. Clearflow")}
-      {text("produit", "Produit", "ex. Crème au collagène")}
-      {text("profil", "Client visé", "ex. Femmes de 35-50 ans, peau sèche")}
-      {text("infos", "Ce que tu sais du produit", "Page fournisseur, bénéfices, ingrédients, prix, garanties…", 5)}
+      <p className="atl-brand__title">{fromProject ? "Marque et produit · du projet" : "Ma marque et mon produit"}</p>
+      {fromProject ? (
+        <>
+          <p className="atl-brand__hint">Se modifient dans le projet (Fondations, Angles, Marque & design). Tous les outils ✨ IA s'en servent.</p>
+          <dl className="atl-brand__ro">
+            <dt>Produit</dt>
+            <dd>{root.produit || "—"}</dd>
+            <dt>Client visé</dt>
+            <dd>
+              {root.profil || "—"} <small>(celui de l'angle de cette page)</small>
+            </dd>
+            <dt>Ce que tu sais du produit</dt>
+            <dd className="is-long">{root.infos ? (root.infos.length > 360 ? `${root.infos.slice(0, 360)}…` : root.infos) : "Remplis les Fondations du projet."}</dd>
+          </dl>
+          <a className="atl-brand__link" href={`/catalogue.html#projet-${root.projet}`}>
+            Modifier dans le projet →
+          </a>
+        </>
+      ) : (
+        <>
+          <p className="atl-brand__hint">Rempli une fois : tous les outils ✨ IA s'en servent.</p>
+          {text("marque", "Marque", "ex. Clearflow")}
+          {text("produit", "Produit", "ex. Crème au collagène")}
+          {text("profil", "Client visé", "ex. Femmes de 35-50 ans, peau sèche")}
+          {text("infos", "Ce que tu sais du produit", "Page fournisseur, bénéfices, ingrédients, prix, garanties…", 5)}
+        </>
+      )}
       <div className="atl-brand__field">
         <span>Photos du produit {busy && "· envoi…"}</span>
         <div className="atl-brand__imgs">
