@@ -5,12 +5,12 @@
 // avant, texte des CTA). Chaque section porte props.atl_zone = "angle" quand
 // elle est une zone d'angle ; sans ce réglage, elle fait partie du socle.
 // Les pages d'angle sont des copies de la mère : elles héritent du réglage.
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { listPages } from "./projects.js";
 import { pageMenuGroups } from "./pages-ui.jsx";
 import { ANGLE_FAMILIES } from "./engine/zones.js";
 
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 export const familyIdOf = (item) => byId[item?.type]?.meta?.family ?? "autres";
 export const isAngleZone = (item) => item?.props?.atl_zone === "angle";
 

@@ -12,11 +12,11 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { createUsePuck } from "@puckeditor/core";
 import { scorePage, RULES } from "./page-score.js";
-import { sections } from "./sections.js";
+import { sections, sectionsIndex } from "./sections.js";
 import { familyById } from "./families.js";
 import { zoneOfFamilies } from "./zones.js";
 
-const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
+const sectionsById = sectionsIndex;
 const usePuckSelect = createUsePuck();
 
 const readVisible = () => {

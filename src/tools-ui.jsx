@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { renderSectionHtml, setPhotoResolver } from "./engine/render.js";
 import { brandCss } from "./engine/brand.js";
 import { rebrand } from "./engine/texts.js";
@@ -9,7 +9,7 @@ import { originalPhotoTargets } from "./studio-ui.jsx";
 import { IconDownload, IconGrid, IconHistory, IconReplace } from "./icons.jsx";
 
 const pageName = new URLSearchParams(location.search).get("page") ?? "brouillon";
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 const IMPORT = /@import\s+(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g;
 
 function Dialog({ title, onClose, children, footer, wide }) {

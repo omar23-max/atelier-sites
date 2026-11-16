@@ -1,7 +1,7 @@
-import { sections } from "./sections.js";
+import { sections, sectionsIndex } from "./sections.js";
 import { blocksKey, editableSettings, isOriginalPhoto, normalizeProps } from "./render.js";
 
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 
 // Toutes les photos d'origine que la page affiche encore : champ image vide
 // (photo d'origine de meta.photosOrigine) ou valeur /imports/….

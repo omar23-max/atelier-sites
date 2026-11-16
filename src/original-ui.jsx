@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 
 // Bascule « Original / Modifiable » d'une page issue d'un import
 // (root.props.importSource), dans la barre de l'aperçu, à gauche des tailles

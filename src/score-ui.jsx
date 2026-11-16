@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useGetPuck } from "@puckeditor/core";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { scorePage, ruleLabel } from "./engine/page-score.js";
 import { PAGE_TYPES } from "./engine/page-types.js";
 import { familyById, familyOf } from "./engine/families.js";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
-import { adaptInstructionFor, rebuildSectionWith, savePageWith } from "./inspector-ui.jsx";
+import { adaptInstructionFor, applyReplacements, rebuildSectionWith } from "./inspector-ui.jsx";
 import { showSlot } from "./slot-picker.jsx";
 import { slotStore, useSlotStore } from "./engine/missing-slots.jsx";
 import { zoneOfFamilies } from "./engine/zones.js";
 import { localFidelity } from "./engine/fidelite.js";
 import { runDesignCheck, KIND_LABEL } from "./engine/design-check.js";
 
-const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
+const sectionsById = sectionsIndex;
 const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
 const variantsFor = (families) => visible.filter((s) => families.includes(familyOf(s).id));
 
@@ -434,12 +434,12 @@ export function ScorePanel() {
         await new Promise((r) => setTimeout(r, 600));
         replacements.push(await rebuildSectionWith(getPuck, id, adaptInstructionFor(getPuck().appState.data, id, { produit }), null, { reload: false }));
       }
-      setAi({ step: "Enregistrement…" });
-      await savePageWith(getPuck, replacements);
-      location.reload();
+      setAi({ step: "Mise en place…" });
+      await applyReplacements(getPuck, replacements);
+      setAi(null);
     } catch (e) {
-      // Les sections déjà refaites sont gardées.
-      if (replacements.length) await savePageWith(getPuck, replacements).catch(() => {});
+      // Les sections déjà refaites sont gardées (posées sans rechargement).
+      if (replacements.length) await applyReplacements(getPuck, replacements).catch(() => {});
       setAi({ error: `${e.message} (${replacements.length} / ${added.length} adaptées, les sections ajoutées restent telles quelles)` });
     }
   }

@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { createUsePuck, useGetPuck } from "@puckeditor/core";
 import { FAMILIES, familyOf } from "./engine/families.js";
-import { ensureFull, sections } from "./engine/sections.js";
+import { ensureFull, sections, sectionsIndex } from "./engine/sections.js";
 import { applyDesign } from "./engine/design.js";
 import { designById } from "./engine/designs.js";
 
-const sectionsById = Object.fromEntries(sections.map((s) => [s.id, s]));
+const sectionsById = sectionsIndex;
 import { IconCollapse, IconExpand } from "./icons.jsx";
 
 export const ROOT_ZONE = "root:default-zone";
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 export const usePuckSelect = createUsePuck();
 
 const hostOf = (url) => {

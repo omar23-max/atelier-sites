@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { aiTargets, applyValues } from "./inspector-ui.jsx";
 
@@ -10,7 +10,7 @@ import { aiTargets, applyValues } from "./inspector-ui.jsx";
 // avec une consigne, ou en créer une nouvelle pour sa section à partir des
 // photos du produit. Le résultat (gpt-image-2) est posé à sa place ; Ctrl+Z
 // l'annule, Publish l'enregistre.
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 const pageName = new URLSearchParams(location.search).get("page") ?? "brouillon";
 const readAsDataUrl = (file) =>
   new Promise((resolve, reject) => {

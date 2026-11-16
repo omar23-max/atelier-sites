@@ -224,6 +224,22 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      images) ; les images modifiées viennent partout de `/api/medias/<page>`
      (dossier du projet). Étapes Pubs et Résultats retirées de la barre du
      projet pour l'instant (lignes commentées dans `Fondations.jsx`).
+   - **Retravail IA sans rechargement (2026-11-16)** : `rebuildSectionWith`
+     (inspector-ui.jsx) n'appelle plus `location.reload()`. La section créée
+     est chargée par `addSections(ids)` (engine/sections.js), ajoutée à l'index
+     partagé `sectionsIndex` (tous les modules de l'éditeur s'en servent au lieu
+     de leur propre copie `byId`) et DANS la config Puck existante (App.jsx,
+     événement `atl-sections-added` : Puck garde sa config de départ). Puis
+     `applyReplacements` remplace le contenu en une étape (`setData` ; Puck
+     refuse de changer l'id par `replace`) et note la position dans
+     l'historique ; « ↶ Revenir à avant » (bandeau `.atl-undobar`) y revient
+     par `history.setHistoryIndex` (demande confirmation si d'autres
+     changements ont suivi). Copie de sécurité avant. Même chose pour
+     « Adapter toute la page » et l'ajout de sections du Score.
+   - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
+     (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
+     serveur ou la connexion échouent ; les appelants n'affichent pas de
+     succès et ne lancent pas de demande après un échec.
    - **Réglages de la page allégés (2026-11-13)** : rail de gauche → Réglages
      ne garde que le nom de la page, son type et la page d'achat liée. Page
      d'un projet : « Marque et produit · du projet » en lecture seule (produit,

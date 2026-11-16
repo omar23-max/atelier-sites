@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { renderSectionHtml, setPhotoResolver } from "./engine/render.js";
 import { brandCss } from "./engine/brand.js";
 import { originalPhotoTargets } from "./engine/photos.js";
@@ -13,7 +13,7 @@ import { originalPhotoTargets } from "./engine/photos.js";
 //   ATELIER_OWNER_ID    (id du compte Kimi propriétaire des projets importés)
 
 const pageName = new URLSearchParams(location.search).get("page") ?? "brouillon";
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 const IMPORT = /@import\s+(?:url\([^)]*\)|"[^"]*"|'[^']*')[^;]*;/g;
 const URL_KEY = "atl-mirror-url";
 const KEY_KEY = "atl-mirror-key";

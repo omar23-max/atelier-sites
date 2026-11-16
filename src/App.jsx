@@ -1,7 +1,7 @@
 import { Component, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Puck } from "@puckeditor/core";
 import "@puckeditor/core/puck.css";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
 import { FullscreenButton } from "./library-ui.jsx";
@@ -32,7 +32,7 @@ if (!pageName) location.replace("/catalogue.html#projets");
 const EMPTY_PAGE = { root: { props: { title: "Nouvelle page" } }, content: [] };
 
 function withDefaults(data) {
-  const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+  const byId = sectionsIndex;
   return {
     ...data,
     content: (data.content ?? []).map((item, i) => {
@@ -112,7 +112,19 @@ function SafeInspector(props) {
 }
 
 export default function App() {
+  // Section neuve (retravail IA, 2026-11-16) : ajoutée DANS la config déjà
+  // donnée à Puck (Puck garde sa config de départ : en passer une nouvelle ne
+  // suffit pas). Le résultat s'affiche alors sans recharger la page.
   const config = useMemo(() => buildPuckConfig(sections), []);
+  useEffect(() => {
+    const on = (e) => {
+      const fresh = buildPuckConfig(sections);
+      for (const id of e.detail?.ids ?? []) if (fresh.components[id]) config.components[id] = fresh.components[id];
+      e.detail?.resolve?.();
+    };
+    window.addEventListener("atl-sections-added", on);
+    return () => window.removeEventListener("atl-sections-added", on);
+  }, [config]);
   const [data, setData] = useState(null);
   const [status, setStatus] = useState(null);
   const [pages, setPages] = useState([]);

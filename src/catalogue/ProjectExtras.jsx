@@ -72,7 +72,7 @@ export function BrandTab({ project, pages, onSave, onMessage }) {
       for (const f of files) urls.push(await upload(project.id, f));
       set(key === "logos" ? { logos: [...form.logos, ...urls] } : { brandBoard: urls[0] });
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     } finally {
       setBusy(null);
     }
@@ -95,7 +95,7 @@ export function BrandTab({ project, pages, onSave, onMessage }) {
       });
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     }
   }
 
@@ -197,7 +197,7 @@ export function CreativesTab({ project, onSave, onMessage }) {
       for (const f of files) added.push({ url: await upload(project.id, f), format: "1:1", titre: "", statut: "prête" });
       setItems([...items, ...added]);
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     } finally {
       setBusy(false);
     }
@@ -214,7 +214,7 @@ export function CreativesTab({ project, onSave, onMessage }) {
       );
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes » (génération Nano Banana : facturation Google requise).` });
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     }
   }
 
@@ -321,7 +321,7 @@ export function OfferTab({ project, onSave, onMessage }) {
       );
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     }
   }
 

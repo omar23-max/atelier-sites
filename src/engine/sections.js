@@ -19,6 +19,9 @@ export const sections = all
 // l'aperçu ; le même objet sert partout (config Puck…). useFull : la section,
 // complétée au besoin, pour un composant React.
 const byId = new Map(sections.map((s) => [s.id, s]));
+// Index partagé id → section (2026-11-16) : tous les modules de l'éditeur
+// s'en servent ; une section ajoutée en cours de session y apparaît aussitôt.
+export const sectionsIndex = Object.fromEntries(sections.map((s) => [s.id, s]));
 const pending = new Map();
 export function ensureFull(ids) {
   const missing = ids.filter((id) => byId.get(id)?.leger && !pending.has(id));
@@ -32,6 +35,26 @@ export function ensureFull(ids) {
     missing.forEach((id) => pending.set(id, job));
   }
   return Promise.all(ids.map((id) => pending.get(id)));
+}
+
+// Section créée pendant la session (retravail IA, 2026-11-16) : chargée en
+// entier, ajoutée à la liste, puis l'éditeur reconstruit sa config Puck
+// (événement « atl-sections-added », App.jsx). Plus besoin de recharger la page.
+export async function addSections(ids) {
+  const fresh = ids.filter((id) => !byId.has(id));
+  if (fresh.length) {
+    const full = await fetch(`/api/sections-data?ids=${fresh.map(encodeURIComponent).join(",")}`).then((r) => r.json());
+    for (const f of full) {
+      const section = { ...f, leger: false, errors: validateSection(f) };
+      sections.push(section);
+      byId.set(section.id, section);
+      sectionsIndex[section.id] = section;
+    }
+  }
+  await new Promise((resolve) => {
+    const timer = setTimeout(resolve, 3000); // pas d'éditeur à l'écoute (catalogue)
+    window.dispatchEvent(new CustomEvent("atl-sections-added", { detail: { ids, resolve: () => (clearTimeout(timer), resolve()) } }));
+  });
 }
 
 // Sections du catalogue : sans les parties d'une copie de page (meta.pageSpecific),

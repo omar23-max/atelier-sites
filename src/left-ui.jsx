@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { FAMILIES, familyOf } from "./engine/families.js";
 import { designs, designById } from "./engine/designs.js";
 import { parseDesign } from "./engine/design.js";
@@ -18,7 +18,7 @@ import { ScreenshotDrop } from "./pages-ui.jsx";
 //   Structure · Ajouter une section · Palette · ✨ IA · Score
 
 const pageName = new URLSearchParams(location.search).get("page");
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 const visible = sections.filter((s) => s.meta.status !== "masquee" && !s.meta.pageSpecific);
 const nameOf = (s, fallback) => (s?.meta.label ?? fallback).split(" — ");
 

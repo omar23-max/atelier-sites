@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { sections } from "./engine/sections.js";
+import { addSections, sections, sectionsIndex } from "./engine/sections.js";
 import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
@@ -29,7 +29,7 @@ import { getPage } from "./projects.js";
 // Les sections copiées d'une page (meta.arbre) donnent leur arbre détaillé et
 // l'ordre de leurs éléments (réglage « ordres ») ; les autres listent leurs blocs.
 
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 const pageName = new URLSearchParams(location.search).get("page");
 
 const TYPE = {
@@ -350,10 +350,45 @@ ${consigneLangue(data.root?.props)}`, reference, rootClass: "ROOT" }),
     body: JSON.stringify({ id, schema: made.schema, template: made.template, css: made.css, meta: { ...made.meta, family: section.meta.family ?? made.meta.family } }),
   });
   if (!saved.ok) throw new Error((await saved.json()).error);
-  const replacement = { sectionId, item: { type: id, props: { id, blocks_element: made.blocks } } };
+  const replacement = { sectionId, item: { type: id, props: { id, blocks_element: made.blocks } }, old: item };
   if (!reload) return replacement;
-  await savePageWith(getPuck, [replacement]);
-  location.reload();
+  await applyReplacements(getPuck, [replacement]);
+  return replacement;
+}
+
+// Pose des sections retravaillées dans l'éditeur, sans recharger la page
+// (2026-11-16) : copie de sécurité, sections chargées, puis remplacement dans
+// Puck (Ctrl+Z l'annule ; la page s'enregistre toute seule).
+export async function applyReplacements(getPuck, replacements) {
+  await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" }).catch(() => {});
+  await addSections(replacements.map((r) => r.item.type));
+  // Puck applique la nouvelle config après le rendu d'App : attendre un
+  // court instant avant de poser la section, sinon elle reste invisible.
+  await new Promise((r) => setTimeout(r, 400)); // pas requestAnimationFrame : suspendu dans un onglet caché
+  // Puck refuse de changer l'id d'une section par « replace » : on remplace
+  // tout le contenu en une seule étape (un seul Ctrl+Z l'annule).
+  const { appState, dispatch } = getPuck();
+  const byOld = new Map(replacements.map((r) => [r.sectionId, r.item]));
+  dispatch({ type: "setData", data: { ...appState.data, content: appState.data.content.map((c) => byOld.get(c.props.id) ?? c) } });
+  // Position dans l'historique de Puck juste après le retravail : « Revenir à
+  // avant » y revient (comme Ctrl+Z), sans reconstruire la page à la main.
+  await new Promise((r) => setTimeout(r, 50));
+  const at = getPuck().history?.index;
+  for (const r of replacements) r.historyIndex = at;
+}
+
+// « Revenir à avant » : revient à l'état d'avant le retravail dans
+// l'historique de Puck (comme Ctrl+Z). Si d'autres changements ont été faits
+// depuis, ils seraient annulés aussi : on demande d'abord.
+export function undoReplacements(getPuck, replacements) {
+  const history = getPuck().history;
+  const at = replacements[0]?.historyIndex;
+  if (!history || typeof at !== "number") return false;
+  const later = history.index - at;
+  if (later < 0) return false;
+  if (later > 0 && !confirm(`Revenir à avant annulera aussi ${later} modification(s) faite(s) depuis le retravail. Continuer ?`)) return false;
+  history.setHistoryIndex(at - 1);
+  return true;
 }
 
 // Enregistre la page avec des sections remplacées (copie de sécurité avant).
@@ -380,6 +415,7 @@ export function Inspector({ children }) {
   // Outil IA de la page ouvert depuis le rail de gauche : « reecrire »,
   // « traduire » ou « adapter ».
   const [pageAi, setPageAi] = useState(null);
+  const [rebuilt, setRebuilt] = useState(null); // dernier retravail : { list, label }
   const patchRoot = (patch) => {
     const { appState, dispatch } = getPuck();
     dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, ...patch } } });
@@ -878,8 +914,13 @@ export function Inspector({ children }) {
   // ---- « ADN » de la page : une section ajoutée prend son style ----
   // Palette et polices du design.md de la page, plus un extrait du CSS d'une
   // partie copiée voisine (rayons, ombres, boutons, tailles) comme modèle.
-  const adaptToPage = (sectionId) => rebuildSectionWith(getPuck, sectionId, adaptInstructionFor(getPuck().appState.data, sectionId), null);
-  const rebuildSection = (sectionId, instruction, reference) => rebuildSectionWith(getPuck, sectionId, instruction, reference);
+  const withUndoBar = async (job) => {
+    const r = await job;
+    if (r?.old) setRebuilt({ list: [r], label: "Section retravaillée" });
+    return r;
+  };
+  const adaptToPage = (sectionId) => withUndoBar(rebuildSectionWith(getPuck, sectionId, adaptInstructionFor(getPuck().appState.data, sectionId), null));
+  const rebuildSection = (sectionId, instruction, reference) => withUndoBar(rebuildSectionWith(getPuck, sectionId, instruction, reference));
 
   return (
     <div className="atl-insp" ref={rootRef}>
@@ -1049,6 +1090,7 @@ export function Inspector({ children }) {
             return rebuildSection(ai.sectionId, `Ne change QUE la partie ${which} ; tout le reste de la section reste identique. Consigne : ${instruction}`, reference);
           }}
           onAdapt={!ai.keys ? () => adaptToPage(ai.sectionId) : null}
+          onUndo={(r) => undoReplacements(getPuck, [r])}
         />
       )}
       {pageAi && (
@@ -1065,13 +1107,28 @@ export function Inspector({ children }) {
               onStep(`Section ${i + 1} / ${data.content.length}…`);
               replacements.push(await rebuildSectionWith(getPuck, item.props.id, adaptInstructionFor(data, item.props.id), null, { reload: false }));
             }
-            onStep("Enregistrement…");
-            await savePageWith(getPuck, replacements);
-            location.reload();
+            onStep("Mise en place…");
+            await applyReplacements(getPuck, replacements);
+            setRebuilt({ list: replacements, label: "Page adaptée" });
+            return replacements;
           }}
+          onUndoAll={(replacements) => undoReplacements(getPuck, replacements)}
           onClose={() => setPageAi(null)}
         />
       )}
+      {rebuilt &&
+        createPortal(
+          <div className="atl-undobar" role="status">
+            <span>✓ {rebuilt.label}, déjà dans la page (enregistrement automatique).</span>
+            <button type="button" onClick={() => (undoReplacements(getPuck, rebuilt.list), setRebuilt(null))}>
+              ↶ Revenir à avant
+            </button>
+            <button type="button" className="atl-undobar__x" onClick={() => setRebuilt(null)} aria-label="Fermer">
+              ×
+            </button>
+          </div>,
+          document.body,
+        )}
       {/* « + Ajouter une section » entre les sections de l'aperçu. */}
       {isMain() && <CanvasInsertChips content={content} />}
       {/* Modale d'ajout, ouverte par la barre flottante ou un espace entre sections. */}
@@ -1382,6 +1439,7 @@ function SectionSettings({ item, onBack, onAi, onAiDesign, onChange, onDelete })
   const [busy, setBusy] = useState(false);
   if (!item) return null;
   const section = byId[item.type];
+  if (!section) return null; // section en cours de chargement (retravail IA)
   const props = normalizeProps(section, item.props);
   const [name, variant] = (section.meta.label ?? section.id).split(" — ");
   const hasSettings = editableSettings(section.schema.settings).length > 0;
@@ -1517,6 +1575,7 @@ function GroupContents({ node, onChange, onOpen, onMove }) {
 function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangeProps, onDelete }) {
   if (!item) return null;
   const section = byId[item.type];
+  if (!section) return null; // section en cours de chargement (retravail IA)
   const props = normalizeProps(section, item.props);
   const [sectionName] = (section.meta.label ?? section.id).split(" — ");
   if (section.meta.arbre) {
@@ -1606,6 +1665,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
 function TextRunSettings({ item, node, onBack, onAi, onChange, onChangeProps, onDelete }) {
   if (!item) return null;
   const section = byId[item.type];
+  if (!section) return null; // section en cours de chargement (retravail IA)
   const props = normalizeProps(section, item.props);
   const [sectionName] = (section.meta.label ?? section.id).split(" — ");
   const leaves = node.children;
@@ -1788,7 +1848,7 @@ const REFS_KEY = "atl-ia-references";
 
 // Trois onglets : Textes, Images, Design (section entière seulement :
 // redessiner, nettoyer, adapter au style de la page).
-function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt }) {
+function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, onUndo }) {
   const { texts, images } = useMemo(() => aiTargets(item, target.keys), [item, target.keys]);
   const [prompt, setPrompt] = useState(target.prompt ?? "");
   const [tab, setTab] = useState(target.tab ?? (texts.length ? "textes" : images.length ? "images" : "design"));
@@ -1827,12 +1887,13 @@ function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt }) 
     setRefs((r) => [...r, ...added].slice(0, 6));
   }
 
-  // Onglet Design : la section est redessinée puis la page rechargée.
+  // Onglet Design : la section est redessinée et posée dans la page, sans
+  // rechargement ; « Revenir à avant » ou Ctrl+Z l'annulent (2026-11-16).
   async function design(kind) {
     setState({ busy: true, step: "Section en cours de redessin (30 à 90 s)…" });
     try {
-      if (kind === "adapter") await onAdapt();
-      else await onRebuild(kind === "nettoyer" ? "Remets de l'ordre dans cette section : alignements, espacements et tailles cohérents et réguliers, sans changer les textes ni les images." : prompt.trim() || "Redessine cette section comme sur l'image de référence, en gardant ses textes et ses images.", designRef);
+      const r = kind === "adapter" ? await onAdapt() : await onRebuild(kind === "nettoyer" ? "Remets de l'ordre dans cette section : alignements, espacements et tailles cohérents et réguliers, sans changer les textes ni les images." : prompt.trim() || "Redessine cette section comme sur l'image de référence, en gardant ses textes et ses images.", designRef);
+      setState({ rebuilt: r ?? true });
     } catch (e) {
       setState({ error: e.message });
     }
@@ -1972,6 +2033,17 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
           {state?.error && <span className="atl-topbar__error">{state.error}</span>}
           {state?.busy && <span className="atl-aidlg__step">{state.step}</span>}
           {state?.done && <span className="atl-topbar__ok">Fait. Ctrl+Z pour annuler.</span>}
+          {state?.rebuilt && (
+            <span className="atl-topbar__ok">
+              Section retravaillée, déjà dans la page (enregistrement automatique).{" "}
+              {state.rebuilt?.old && onUndo && (
+                <button type="button" className="atl-aidlg__undo" onClick={() => (onUndo(state.rebuilt), setState({ undone: true }))}>
+                  ↶ Revenir à avant
+                </button>
+              )}
+            </span>
+          )}
+          {state?.undone && <span className="atl-topbar__ok">Section d'avant remise en place.</span>}
           <button type="button" onClick={onClose} disabled={state?.busy}>
             Annuler
           </button>
@@ -2679,7 +2751,7 @@ function BrandSheet({ root, onChange }) {
 }
 
 // ---- Outils IA de toute la page (menu ✨ IA du rail de gauche) ----
-function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClose }) {
+function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onUndoAll, onClose }) {
   const [state, setState] = useState(null);
   const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page", decliner: "🎯 Décliner pour cet angle", fondations: "📐 Remplir depuis les Fondations" };
   return createPortal(
@@ -2710,7 +2782,8 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClos
                   if (!confirm(`Redessiner les ${content.length} sections de la page ?`)) return;
                   setState({ busy: true, step: "" });
                   try {
-                    await onAdaptAll((step) => setState({ busy: true, step }));
+                    const replacements = await onAdaptAll((step) => setState({ busy: true, step }));
+                    setState({ adapted: replacements });
                   } catch (e) {
                     setState({ error: e.message });
                   }
@@ -2720,6 +2793,17 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onClos
               </button>
               {state?.busy && <p className="atl-aidlg__step">{state.step}</p>}
               {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+              {state?.adapted && (
+                <p className="atl-topbar__ok">
+                  Page adaptée, sans rechargement (enregistrement automatique).{" "}
+                  {onUndoAll && (
+                    <button type="button" className="atl-aidlg__undo" onClick={() => (onUndoAll(state.adapted), setState({ undone: true }))}>
+                      ↶ Revenir à avant
+                    </button>
+                  )}
+                </p>
+              )}
+              {state?.undone && <p className="atl-topbar__ok">Sections d'avant remises en place.</p>}
             </div>
           )}
         </div>

@@ -351,7 +351,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       await onSave(await patchFresh({ statut: "demandée", demandeLe: new Date().toISOString(), demande: dossier }), true);
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     } finally {
       setBusy(false);
     }
@@ -377,14 +377,20 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       await onSave(await patchFresh({ contenusDemande: { le: new Date().toISOString(), dossier, types: askTypes } }), true);
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
-      onMessage({ error: true, text: e.message });
+      if (!e.shown) onMessage({ error: true, text: e.message });
     } finally {
       setBusy(false);
     }
   }
 
+  // Le message de succès n'apparaît qu'après un enregistrement confirmé
+  // (onSave lève une erreur sinon, déjà affichée) — audit T2.
   async function validate() {
-    await onSave(await patchFresh({ statut: "validée", valideLe: new Date().toISOString() }), true);
+    try {
+      await onSave(await patchFresh({ statut: "validée", valideLe: new Date().toISOString() }), true);
+    } catch {
+      return;
+    }
     onMessage({ text: "Fondations validées. Étape suivante : l'onglet Angles." });
   }
 

@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { Excalidraw, MainMenu, convertToExcalidrawElements, CaptureUpdateAction, restoreElements } from "@excalidraw/excalidraw";
 import "@excalidraw/excalidraw/index.css";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { aiTargets, applyValues } from "./inspector-ui.jsx";
 import { familiesOf } from "./engine/page-score.js";
@@ -23,7 +23,7 @@ import { originalPhotoTargets } from "./engine/photos.js";
 // Polices d'Excalidraw servies par l'atelier (pas de site externe).
 if (typeof window !== "undefined") window.EXCALIDRAW_ASSET_PATH = "/node_modules/@excalidraw/excalidraw/dist/prod/";
 
-const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+const byId = sectionsIndex;
 const pageName = new URLSearchParams(location.search).get("page") ?? "brouillon";
 const FORMATS = { "1:1": [1024, 1024], "4:5": [1024, 1280], "3:4": [1024, 1365], "2:3": [1024, 1536], "16:9": [1536, 864], "9:16": [864, 1536] };
 const MODELES = { "nano-banana": { label: "Nano Banana", prix: 0.04 }, "gpt-image-2": { label: "GPT Image 2", prix: 0.05 }, "nano-banana-pro": { label: "Nano Banana Pro", prix: 0.13 } };

@@ -4,12 +4,12 @@ import { useGetPuck } from "@puckeditor/core";
 import { IconImage } from "./icons.jsx";
 import { originalPhotoTargets } from "./engine/photos.js";
 import { designById } from "./engine/designs.js";
-import { sections } from "./engine/sections.js";
+import { sections, sectionsIndex } from "./engine/sections.js";
 import { blocksKey, normalizeProps } from "./engine/render.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { ExportToPage } from "./canvas-ui.jsx";
 
-const sectionsById = Object.fromEntries(sections.map((x) => [x.id, x]));
+const sectionsById = sectionsIndex;
 
 export { originalPhotoTargets };
 
