@@ -21,6 +21,35 @@ const hostOf = (url) => {
   }
 };
 
+// Recherche d'une section (2026-11-16) : nom, famille (anglais + description
+// en français), site d'origine et identifiant ; sans accents ni majuscules ;
+// tous les mots doivent se trouver.
+const fold = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+export function matchesSearch(section, query) {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  if (!words.length) return true;
+  const f = familyOf(section);
+  const hay = fold([section.meta.label, section.schema?.name, f.label, f.hint, f.id, hostOf(section.meta.source?.url), section.id].join(" "));
+  return words.every((w) => hay.includes(w));
+}
+
+// Classement : la famille qui correspond d'abord (« garantie » → Guarantee),
+// puis le nom de la section, puis le reste (site d'origine, identifiant).
+export function searchSections(list, query) {
+  const words = fold(query).split(/\s+/).filter(Boolean);
+  const rank = (s) => {
+    const f = familyOf(s);
+    const fam = fold([f.label, f.hint, f.id].join(" "));
+    const name = fold(s.meta.label ?? s.schema?.name);
+    return words.reduce((n, w) => n + (fam.includes(w) ? 4 : 0) + (name.split(" — ")[0].includes(w) ? 2 : name.includes(w) ? 1 : 0), 0);
+  };
+  return list
+    .filter((s) => matchesSearch(s, query))
+    .map((s) => [rank(s), s])
+    .sort((a, b) => b[0] - a[0])
+    .map(([, s]) => s);
+}
+
 export function Thumb({ section, large = false }) {
   return (
     <span className={`atl-thumb${large ? " atl-thumb--large" : ""}`}>
@@ -281,6 +310,7 @@ export function AddSectionButton({ variant = "header" }) {
   const [open, setOpen] = useState(false);
   const [family, setFamily] = useState(null);
   const [where, setWhere] = useState({ index: 0, afterSelected: false, custom: false });
+  const [query, setQuery] = useState("");
 
   const grouped = Object.fromEntries(FAMILIES.map((f) => [f.id, []]));
   // Les sections masquées dans le catalogue ne sont pas proposées.
@@ -310,6 +340,7 @@ export function AddSectionButton({ variant = "header" }) {
   function close() {
     setOpen(false);
     setFamily(null);
+    setQuery("");
   }
 
   function insert(id) {
@@ -332,6 +363,8 @@ export function AddSectionButton({ variant = "header" }) {
   }
 
   const current = family ? FAMILIES.find((f) => f.id === family) : null;
+  // Recherche : dans la famille ouverte, sinon dans toutes.
+  const found = query.trim() ? searchSections(current ? grouped[current.id] ?? [] : Object.values(grouped).flat(), query) : null;
 
   return (
     <>
@@ -351,6 +384,15 @@ export function AddSectionButton({ variant = "header" }) {
                   </button>
                 ) : null}
                 <h2>{current ? current.label : "Ajouter une section"}</h2>
+                <input
+                  className="atl-modal__search"
+                  type="search"
+                  autoFocus
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={current ? `Chercher dans ${current.label}…` : "Chercher : faq, avis, garantie, nom d'un site…"}
+                  aria-label="Chercher une section"
+                />
                 <span className="atl-modal__where">
                   {where.custom ? "Sera ajoutée à cet emplacement" : where.afterSelected ? "Sera ajoutée après la section sélectionnée" : "Sera ajoutée à la fin de la page"}
                 </span>
@@ -359,7 +401,25 @@ export function AddSectionButton({ variant = "header" }) {
                 </button>
               </header>
 
-              {!current ? (
+              {found ? (
+                found.length ? (
+                  <div className="atl-modal__grid">
+                    {found.slice(0, 120).map((s) => (
+                      <button type="button" key={s.id} className="atl-variant" onClick={() => insert(s.id)}>
+                        <Thumb section={s} large />
+                        <strong>{s.meta.label ?? s.schema.name}</strong>
+                        <span className="atl-family__count">
+                          {familyOf(s).label}
+                          {hostOf(s.meta.source?.url) ? ` · ${hostOf(s.meta.source.url)}` : ""}
+                        </span>
+                      </button>
+                    ))}
+                    {found.length > 120 && <p className="atl-modal__more">{found.length - 120} autres : précise la recherche.</p>}
+                  </div>
+                ) : (
+                  <p className="atl-modal__none">Aucune section ne correspond à « {query} ».</p>
+                )
+              ) : !current ? (
                 <div className="atl-modal__grid atl-modal__grid--families">
                   {FAMILIES.map((f) => {
                     const list = grouped[f.id] ?? [];

@@ -141,7 +141,12 @@ export function CanvasButton() {
     window.addEventListener("atl-open-canvas", on);
     return () => window.removeEventListener("atl-open-canvas", on);
   }, []);
-  return open ? createPortal(<Canvas onClose={() => setOpen(false)} />, document.body) : null;
+  return (
+    <>
+      {open ? createPortal(<Canvas onClose={() => setOpen(false)} />, document.body) : null}
+      <DropTrayHost />
+    </>
+  );
 }
 
 function Canvas({ onClose }) {
@@ -971,6 +976,157 @@ async function placeInPage(getPuck, name, sectionId, slotKey, url) {
   if (!res.ok) throw new Error("La page n'a pas pu être enregistrée.");
 }
 
+// ---- Glisser-déposer dans la page (2026-11-16) ----
+// « Glisser dans la page » (fenêtre Exporter) ferme le Studio / le Canvas et
+// laisse les images dans un bandeau à gauche ; on les dépose sur une image de
+// la page ouverte, à droite. Repérage par la géométrie (Puck coupe les
+// clics de l'aperçu). Ctrl+Z annule (l'image est posée par Puck).
+function previewFrame() {
+  for (const frame of document.querySelectorAll("iframe")) {
+    if (frame.contentDocument?.querySelector("[data-atl-id]")) return frame;
+  }
+  return null;
+}
+const baseName = (u) => String(u ?? "").split("?")[0].split("/").pop();
+
+// Image de l'aperçu sous le point (x, y du document de l'aperçu) → section + emplacement.
+function slotAt(getPuck, doc, x, y) {
+  let best = null;
+  let bestArea = Infinity;
+  for (const img of doc.querySelectorAll("[data-atl-id] img")) {
+    const r = img.getBoundingClientRect();
+    if (!r.width || x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+    if (r.width * r.height < bestArea) {
+      best = img;
+      bestArea = r.width * r.height;
+    }
+  }
+  if (!best) return null;
+  const sectionId = best.closest("[data-atl-id]")?.dataset.atlId;
+  const item = getPuck().appState.data.content.find((c) => c.props.id === sectionId);
+  if (!item) return null;
+  const section = byId[item.type];
+  // Page copiée : l'emplacement porte son nom dans la page (data-atl-slot).
+  const slot = best.closest("[data-atl-slot]")?.dataset.atlSlot;
+  if (section?.meta.arbre && slot) return { img: best, sectionId, key: slot };
+  // Section du catalogue : l'image se reconnaît à son fichier.
+  const name = baseName(best.getAttribute("src"));
+  const im = aiTargets(item).images.find((i) => baseName(i.src) === name);
+  return im ? { img: best, sectionId, key: im.key } : { img: best, sectionId, key: null };
+}
+
+function DropTray({ urls, onClose }) {
+  const getPuck = useGetPuck();
+  const [msg, setMsg] = useState(null);
+  const [placed, setPlaced] = useState([]);
+  const dragged = useRef(null);
+  useEffect(() => {
+    let doc = null;
+    let lit = null;
+    const light = (el) => {
+      if (lit === el) return;
+      if (lit) lit.style.outline = "";
+      lit = el;
+      if (lit) {
+        lit.style.outline = "3px solid #4f46e5";
+        lit.style.outlineOffset = "-3px";
+      }
+    };
+    const over = (e) => {
+      if (!dragged.current) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+      light(slotAt(getPuck, doc, e.clientX, e.clientY)?.img ?? null);
+    };
+    const drop = async (e) => {
+      if (!dragged.current) return;
+      e.preventDefault();
+      const url = dragged.current;
+      dragged.current = null;
+      light(null);
+      const hit = slotAt(getPuck, doc, e.clientX, e.clientY);
+      if (!hit) return setMsg({ error: "Dépose l'image sur une image de la page." });
+      if (!hit.key) return setMsg({ error: "Cet emplacement ne se remplit pas par glisser : utilise le parcours pas à pas (Exporter → Placer)." });
+      try {
+        await placeInPage(getPuck, pageName, hit.sectionId, hit.key, url);
+        setPlaced((p) => [...new Set([...p, url])]);
+        setMsg({ ok: "✓ Image placée (Ctrl+Z pour annuler)." });
+      } catch (err) {
+        setMsg({ error: err.message });
+      }
+    };
+    const leave = () => light(null);
+    const attach = () => {
+      const next = previewFrame()?.contentDocument ?? null;
+      if (next === doc) return;
+      doc?.removeEventListener("dragover", over);
+      doc?.removeEventListener("drop", drop);
+      doc?.removeEventListener("dragleave", leave);
+      doc = next;
+      doc?.addEventListener("dragover", over);
+      doc?.addEventListener("drop", drop);
+      doc?.addEventListener("dragleave", leave);
+    };
+    attach();
+    const timer = setInterval(attach, 1000);
+    return () => {
+      clearInterval(timer);
+      light(null);
+      doc?.removeEventListener("dragover", over);
+      doc?.removeEventListener("drop", drop);
+      doc?.removeEventListener("dragleave", leave);
+    };
+  }, [getPuck]);
+  return createPortal(
+    <aside className="atl-droptray" aria-label="Images à placer">
+      <header>
+        <b>Glisse une image sur la page</b>
+        <button type="button" onClick={onClose} aria-label="Fermer le bandeau">
+          ×
+        </button>
+      </header>
+      <small>Dépose-la sur l'image à remplacer, à droite.</small>
+      <div className="atl-droptray__list">
+        {urls.map((u) => (
+          <img
+            key={u}
+            src={u}
+            alt=""
+            draggable
+            className={placed.includes(u) ? "is-placed" : ""}
+            onDragStart={(e) => {
+              dragged.current = u;
+              e.dataTransfer.effectAllowed = "copy";
+              e.dataTransfer.setData("text/uri-list", u);
+            }}
+            onDragEnd={() => setTimeout(() => (dragged.current = null), 0)}
+          />
+        ))}
+      </div>
+      {msg?.ok && <p className="atl-droptray__ok">{msg.ok}</p>}
+      {msg?.error && <p className="atl-droptray__err">{msg.error}</p>}
+    </aside>,
+    document.body,
+  );
+}
+
+// Monté une fois dans l'éditeur (avec le Canvas) : ouvre le bandeau sur demande.
+export function DropTrayHost() {
+  const [urls, setUrls] = useState(null);
+  useEffect(() => {
+    const on = (e) => setUrls(e.detail?.urls ?? null);
+    window.addEventListener("atl-drop-tray", on);
+    return () => window.removeEventListener("atl-drop-tray", on);
+  }, []);
+  return urls?.length ? <DropTray urls={urls} onClose={() => setUrls(null)} /> : null;
+}
+
+// Ferme le Studio et le Canvas (le Canvas enregistre d'abord son tableau).
+function closeWorkspaces() {
+  document.querySelector(".atl-cv__close")?.click();
+  document.querySelector('.atl-mirror[role="dialog"] .atl-modal__close')?.click();
+}
+
 // ---- Aperçu d'une page, sections cliquables (comme dans Section images) ----
 // /partage/<page>?reperes=1 : un repère avant chaque section (n = rang).
 function PagePicker({ name, selected, onToggle, width = 360 }) {
@@ -1280,6 +1436,11 @@ export function ExportToPage({ urls, onClose, onDone }) {
     }
   }
   const shown = pages.filter((p) => !q || `${p.title} ${p.name}`.toLowerCase().includes(q.toLowerCase()));
+  function dragIntoPage() {
+    window.dispatchEvent(new CustomEvent("atl-drop-tray", { detail: { urls: ticked } }));
+    onClose();
+    closeWorkspaces();
+  }
   return createPortal(
     <div className="atl-cv__modal is-top" onPointerDown={onClose}>
       <div className="atl-cv__export" onPointerDown={(e) => e.stopPropagation()}>
@@ -1328,6 +1489,12 @@ export function ExportToPage({ urls, onClose, onDone }) {
         {step === 2 && (
           <>
             <p className="atl-cv__q">Sur quelle page vont-elles ?</p>
+            {pageName && (
+              <button type="button" className="atl-cv__dragbtn" onClick={dragIntoPage} disabled={!ticked.length}>
+                ✋ Glisser dans la page ouverte
+                <small>Les images restent à gauche, la page à droite : dépose chaque image sur celle à remplacer.</small>
+              </button>
+            )}
             <input className="atl-cv__search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Chercher une page" />
             <div className="atl-cv__pages">
               {shown.map((p) => (
@@ -1348,9 +1515,17 @@ export function ExportToPage({ urls, onClose, onDone }) {
             {!data && <p className="atl-cv__muted">Chargement de la page…</p>}
             {data && !list.length && <p className="atl-cv__muted">Aucune image dans cette page.</p>}
             {error && <p className="atl-cv__err">{error}</p>}
+            {page === pageName && (
+              <button type="button" className="atl-cv__dragbtn" onClick={dragIntoPage}>
+                ✋ Plutôt glisser les images dans la page
+              </button>
+            )}
+            {/* Miniature de la page à droite (2026-11-16) : un clic sur une
+                section amène à ses images dans la liste. */}
+            <div className="atl-cv__placewrap">
             <div className="atl-cv__placelist">
               {list.map((s) => (
-                <section key={s.id}>
+                <section key={s.id} id={`atl-exp-${s.index}`}>
                   <h4>
                     {s.index + 1}. {s.label}
                   </h4>
@@ -1367,6 +1542,8 @@ export function ExportToPage({ urls, onClose, onDone }) {
                   </div>
                 </section>
               ))}
+            </div>
+            {page && <PagePicker name={page} selected={[]} width={280} onToggle={(n) => document.getElementById(`atl-exp-${n}`)?.scrollIntoView({ block: "center", behavior: "smooth" })} />}
             </div>
           </>
         )}

@@ -4,6 +4,7 @@ import { useGetPuck } from "@puckeditor/core";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { renderSectionHtml, setPhotoResolver } from "./engine/render.js";
 import { brandCss } from "./engine/brand.js";
+import { designById } from "./engine/designs.js";
 import { rebrand } from "./engine/texts.js";
 import { originalPhotoTargets } from "./studio-ui.jsx";
 import { IconDownload, IconGrid, IconHistory, IconReplace } from "./icons.jsx";
@@ -214,7 +215,7 @@ async function buildHtml(data) {
   }
   // Tes propres images (studio) sont intégrées dans le fichier.
   for (const url of [...new Set(body.match(/\/medias\/[^"')\s]+/g) ?? [])]) body = body.split(url).join(await toDataUrl(url));
-  const css = [brandCss(data.root?.props), ...used.map((s) => s.css)].join("\n");
+  const css = [brandCss(data.root?.props, designById[data.root?.props?.design]?.tokens?.styles), ...used.map((s) => s.css)].join("\n");
   const imports = [...new Set(css.match(IMPORT) ?? [])].join("\n");
   const title = data.root?.props?.title ?? pageName;
   return `<!doctype html>

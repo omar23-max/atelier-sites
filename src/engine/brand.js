@@ -9,7 +9,27 @@ const fontUrl = (families) =>
     .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}:wght@400;500;600;700`)
     .join("&")}&display=swap`;
 
-export function brandCss(root = {}) {
+// Graisses 800 / 900 demandées par les styles du design (titres très gras) :
+// chacune dans sa propre requête, car Google refuse TOUTE la requête si une
+// graisse n'existe pas pour la police ; une graisse absente échoue seule et
+// la police garde 400-700 (2026-11-16).
+function heavyImports(families, styles = {}) {
+  const out = [];
+  for (const f of families) {
+    const weights = new Set();
+    for (const st of Object.values(styles)) {
+      if (String(st?.police ?? "").trim().toLowerCase() !== f.toLowerCase()) continue;
+      const g = Number(st?.graisse);
+      if (g >= 800) weights.add(g >= 900 ? 900 : 800);
+    }
+    for (const w of [...weights].sort()) out.push(`@import url("https://fonts.googleapis.com/css2?family=${encodeURIComponent(f).replace(/%20/g, "+")}:wght@${w}&display=swap");`);
+  }
+  return out;
+}
+
+// designStyles : tokens.styles du design de la page (facultatif ; les scripts
+// Node ne le passent pas).
+export function brandCss(root = {}, designStyles = null) {
   const heading = (root.font_heading ?? "").trim();
   const body = (root.font_body ?? "").trim();
   const families = [...new Set([heading, body].filter(Boolean))];
@@ -19,6 +39,7 @@ export function brandCss(root = {}) {
   ].filter(Boolean);
   return [
     families.length ? `@import url("${fontUrl(families)}");` : "",
+    ...heavyImports(families, designStyles ?? {}),
     "body { margin: 0; }",
     vars.length ? `:root { ${vars.join(" ")} }` : "",
     // Fond de la page (Réglages de la page) : visible derrière les sections transparentes.

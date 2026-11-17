@@ -4,6 +4,7 @@ import { useGetPuck } from "@puckeditor/core";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { renderSectionHtml, setPhotoResolver } from "./engine/render.js";
 import { brandCss } from "./engine/brand.js";
+import { designById } from "./engine/designs.js";
 import { originalPhotoTargets } from "./engine/photos.js";
 
 // ---- Connecteur Mirror Studio ----
@@ -43,7 +44,7 @@ async function buildPayload(data, { includeImages }) {
   }
   // Les @import (polices…) et tout le CSS vont dans la première section :
   // chaque section importée porte son HTML, le CSS global ne se répète pas.
-  const css = [brandCss(data.root?.props), ...used.map((s) => s.css)].join("\n");
+  const css = [brandCss(data.root?.props, designById[data.root?.props?.design]?.tokens?.styles), ...used.map((s) => s.css)].join("\n");
   const imports = [...new Set(css.match(IMPORT) ?? [])].join("\n");
   const plainCss = css.replace(IMPORT, "");
   const sectionsOut = htmlBySection.map(({ item, html }, i) => ({

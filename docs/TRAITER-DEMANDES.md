@@ -246,6 +246,68 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      l'utilisent (`GET /api/sections/<id>/pages`) avant de confirmer ;
      `POST /api/sections-save` accepte `target`. Parties de template : pas
      d'originale, seulement « Nouvelle section ».
+   - **Lot B (2026-11-16)** :
+     - « + Ajouter une section « … » ici » : le clic est repéré par la
+       géométrie dans le gestionnaire de clics de l'aperçu (`slotBoxAt`,
+       inspector-ui.jsx) et ouvre le SlotPicker de la ligne la plus proche,
+       sans choisir la section voisine.
+     - Échap ferme la fenêtre du dessus (`src/escape-close.js` : dialogue
+       `aria-modal`, bouton Fermer ; écoute aussi l'iframe de l'aperçu ;
+       Excalidraw garde Échap).
+     - Sélecteur Page · Studio · Canvas · Catalogue en haut du Studio et du
+       Canvas (`src/workspace-switch.jsx`).
+     - Copier / coller le style (style-editor-ui.jsx) : copie aussi
+       l'apparence réelle (police, taille, interligne en rapport, couleur ;
+       boutons : fond, coins, marges ; section : fond seulement), colle en
+       ajout (avant : un style vide effaçait la cible), message de retour.
+     - Ctrl+Z / Ctrl+Y : filet de sécurité `src/undo-keys.js` qui clique ↶ / ↷
+       si Puck n'a pas traité la touche (il exige d'avoir vu Ctrl enfoncé à
+       part) ; rien dans un champ de saisie ni dans une fenêtre ouverte.
+     - Barre « Demander une modification » retirée du bas du panneau.
+     - Noms des sections de la page sans le site d'origine (arbre, panneau :
+       fonction · famille, Structure, liste des sections, étiquette Puck,
+       confirmation de suppression) ; les galeries de choix gardent la source.
+   - **Lot C « Cohérence » palette / design.md (2026-11-16)** :
+     - Mode Palette = couleurs seulement : `designMarkdown` (engine/palette.js)
+       reçoit `styles` et les recopie dans le nouveau design.md (avant, le
+       bloc styles du design de départ était perdu).
+     - Contraste réel WCAG : `contrastRatio`, `contrastText` choisit noir ou
+       blanc selon le meilleur rapport (avant : seuil de luminance 0,45 qui
+       mettait du blanc sur l'orange, 2,5:1) ; `contrastIssues(roles)` liste
+       les paires texte/fond sous 4,5:1 ; la Palette demande confirmation.
+     - Graisses 800/900 : `brandCss(root, designStyles)` (engine/brand.js)
+       ajoute une requête Google par graisse demandée par les styles du design
+       (une graisse absente échoue seule). Passé par puck-config (aperçu),
+       tools-ui (HTML) et mirror-ui ; les scripts Node ne le passent pas.
+     - Fiche du catalogue = même définition que « Appliquer » : `roleStyles`
+       (catalogue/Designs.jsx) prend couleurs et polices des jetons appliqués,
+       et tailles / graisses / formes du relevé.
+     - Intensité 1-4 en curseur nommé (Discrète, Marquée, Forte, Totale).
+   - **Lot « Moyens » (2026-11-16)** :
+     - Recherche dans « Ajouter une section » (fenêtre et outil Ajouter du
+       rail) : `matchesSearch` / `searchSections` (library-ui.jsx) — nom,
+       famille (anglais + description française), site d'origine ; sans
+       accents ; la famille qui correspond passe en premier.
+     - Chaque paragraphe se choisit seul au clic (plus de promotion vers le
+       « ¶ Texte » regroupé dans `choose`) ; le groupe reste dans l'arbre et
+       par ⬆ (parent).
+     - Menu des écrans du panneau de style : Ordinateur · Téléphone · Tous
+       les écrans (style-editor-ui.jsx), choix partagé entre panneaux ;
+       Ordinateur / Téléphone règlent aussi l'aperçu (setUi viewports) et
+       changer l'écran de l'aperçu fait suivre la cible.
+     - Galerie des blocs d'achat (`src/engine/galerie.js`, `atlGaleries`) :
+       sections « fiche-produit » ou avec ajout au panier, marquées
+       `data-atl-galerie` par render.js (+ `GALERIE_SCRIPT` sur la page
+       publiée) et réglées dans l'aperçu par puck-config. Vignette → image
+       principale ; flèches ‹ › et glisser si l'image n'est pas déjà un
+       carrousel ; sinon la vignette N fait défiler le carrousel à la diapo N.
+       Clics repérés par la géométrie. Pas encore dans l'export Shopify.
+     - Export vers une page (canvas-ui.jsx `ExportToPage`) : « ✋ Glisser dans
+       la page ouverte » ferme Studio/Canvas et ouvre `DropTray` (bandeau
+       d'images à gauche, dépôt sur une image de l'aperçu, `slotAt` :
+       data-atl-slot pour les copies, sinon le fichier de l'image ; Ctrl+Z).
+       Le parcours pas à pas reste, avec la miniature de la page à droite
+       (`PagePicker`, clic = défile jusqu'aux images de la section).
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

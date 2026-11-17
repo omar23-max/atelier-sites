@@ -2,6 +2,7 @@ import { INFO_SETTING_TYPES } from "./shopify.js";
 import { renderLiquid } from "./liquid.js";
 import { frameCss, safeAnchor } from "./frame.js";
 import { CARROUSEL_SCRIPT, carrouselAttr, hasCarrouselTrack } from "./carrousel.js";
+import { GALERIE_SCRIPT } from "./galerie.js";
 import { nearRolesInHtml } from "../../scripts/lib/proche.mjs";
 
 // Partagé par l'atelier (Puck) et les scripts Node (export HTML, comparaison).
@@ -172,6 +173,10 @@ function withSectionFrame(section, props, instanceId, html) {
   // Carrousel réglé dans le panneau de droite (engine/carrousel.js) : le script
   // tourne sur la page publiée ; dans l'atelier, puck-config.jsx l'appelle.
   const car = hasCarrouselTrack(section) ? carrouselAttr(props.atl_carrousel, true) : null;
-  if (!css && !anchor && !car) return html;
-  return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}${car ? ` data-atl-carrousel="${car}"` : ""}>${html}${css ? `<style>${css}</style>` : ""}${car ? CARROUSEL_SCRIPT : ""}</div>`;
+  // Bloc d'achat : vignettes → image principale + carrousel (engine/galerie.js).
+  // Aussi les blocs d'achat des pages copiées (rangés « article ») : un
+  // bouton ou formulaire d'ajout au panier dans le modèle.
+  const gal = section.meta?.family === "fiche-produit" || /add[ -]?to[ -]?cart|ajouter au panier|buy now|product-form|add-to-cart/i.test(section.template ?? "");
+  if (!css && !anchor && !car && !gal) return html;
+  return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}${car ? ` data-atl-carrousel="${car}"` : ""}${gal ? " data-atl-galerie" : ""}>${html}${css ? `<style>${css}</style>` : ""}${car ? CARROUSEL_SCRIPT : ""}${gal ? GALERIE_SCRIPT : ""}</div>`;
 }

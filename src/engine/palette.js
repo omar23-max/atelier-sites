@@ -32,7 +32,30 @@ export const mix = (a, b, t) => {
   const y = rgb(b);
   return hex(...x.map((v, i) => v + (y[i] - v) * t));
 };
-const contrastText = (bg) => (luminance(bg) > 0.45 ? "#111111" : "#ffffff");
+// Contraste réel (WCAG, 2026-11-16) : rapport de 1 à 21 ; 4,5 minimum pour un
+// texte courant. Avant : un seuil de luminance 0,45, qui mettait du blanc sur
+// des couleurs moyennes (orange, vert clair) où le noir se lit mieux.
+export const contrastRatio = (a, b) => {
+  const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+};
+const contrastText = (bg) => (contrastRatio(bg, "#111111") >= contrastRatio(bg, "#ffffff") ? "#111111" : "#ffffff");
+
+// Paires texte / fond d'un design à vérifier. Renvoie celles sous 4,5:1.
+const TEXT_PAIRS = [
+  ["texte", "fond", "Texte sur le fond"],
+  ["texte", "surface", "Texte sur les cartes"],
+  ["bouton-texte", "bouton", "Texte des boutons"],
+  ["texte-sur-sombre", "fond-sombre", "Texte des sections sombres"],
+  ["texte-sur-sombre", "surface-sombre", "Texte des cartes sombres"],
+];
+export function contrastIssues(roles = {}) {
+  const ok = (c) => /^#[0-9a-f]{6}$/i.test(String(c ?? ""));
+  return TEXT_PAIRS.filter(([t, f]) => ok(roles[t]) && ok(roles[f]))
+    .map(([t, f, label]) => ({ label, texte: roles[t], fond: roles[f], exact: contrastRatio(roles[t], roles[f]) }))
+    .filter((p) => p.exact < 4.5)
+    .map(({ exact, ...p }) => ({ ...p, ratio: Math.floor(exact * 10) / 10 }));
+}
 
 // Couleurs dominantes d'une image (logo) : regroupement par cases de couleur,
 // sans les pixels transparents ; renvoie au plus `count` couleurs distinctes.
@@ -129,8 +152,11 @@ export function paletteToRoles(colors, base = {}) {
 }
 
 // Texte d'un design.md créé depuis une palette (lisible + bloc de jetons).
-export function designMarkdown({ title, origine, polices, couleurs }) {
+// styles : les styles relevés du design de départ (h1, h2, bouton…) sont
+// gardés tels quels (2026-11-16) : une palette ne change que les couleurs.
+export function designMarkdown({ title, origine, polices, couleurs, styles }) {
   const lines = Object.entries(couleurs).map(([role, c]) => `- **${role}** : ${c}`);
+  const tokens = styles && Object.keys(styles).length ? { polices, couleurs, styles } : { polices, couleurs };
   return `# ${title}
 
 Créé dans l'atelier ${origine}.
@@ -147,7 +173,7 @@ ${lines.join("\n")}
 ## Jetons
 
 \`\`\`json
-${JSON.stringify({ polices, couleurs }, null, 2)}
+${JSON.stringify(tokens, null, 2)}
 \`\`\`
 `;
 }

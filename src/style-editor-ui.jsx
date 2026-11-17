@@ -2,16 +2,32 @@
 // colonne / carte ou une section entière. Chaque réglage est rangé dans
 // props.atl_styles de la section (engine/frame.js), par écran : « Tous »,
 // « Ordinateur » ou « Mobile ». Rendu identique dans l'aperçu et sur Shopify.
-import { createContext, useContext, useMemo, useState } from "react";
-import { useGetPuck } from "@puckeditor/core";
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { createUsePuck, useGetPuck } from "@puckeditor/core";
 import { ImageSetting } from "./fields-ui.jsx";
 import { designById } from "./engine/designs.js";
 
+// Menu des écrans (2026-11-16) : Ordinateur · Téléphone · Tous les écrans.
+// Le choix est partagé par tous les panneaux de style (il ne revient plus à
+// « Tous » à chaque élément) ; Ordinateur / Téléphone mettent aussi l'aperçu
+// sur cet écran, et changer l'écran de l'aperçu fait suivre la cible.
 const DEVICE_LABELS = [
-  { value: "all", label: "Tous les écrans" },
-  { value: "d", label: "Ordinateur" },
-  { value: "m", label: "Mobile" },
+  { value: "d", label: "Ordinateur", where: "sur ordinateur", width: 1440 },
+  { value: "m", label: "Téléphone", where: "sur téléphone", width: 390 },
+  { value: "all", label: "Tous les écrans", where: "partout" },
 ];
+const usePuckSel = createUsePuck();
+let deviceNow = "all";
+const deviceSubs = new Set();
+const setSharedDevice = (v) => {
+  deviceNow = v;
+  deviceSubs.forEach((f) => f());
+};
+const useSharedDevice = () =>
+  useSyncExternalStore(
+    (f) => (deviceSubs.add(f), () => deviceSubs.delete(f)),
+    () => deviceNow,
+  );
 const FONT_CHOICES = [
   { value: "", label: "D'origine" },
   { value: "var(--atl-font-heading, inherit)", label: "Police des titres" },
@@ -565,7 +581,23 @@ function Part({ title, open = false, children }) {
 // kind : « texte », « bouton », « image », « groupe », « section ».
 // targets : cibles de atl_styles (plusieurs pour un texte de plusieurs paragraphes).
 export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, onResetLegacy }) {
-  const [device, setDevice] = useState("all");
+  const device = useSharedDevice();
+  const getPuckNow = useGetPuck();
+  const viewWidth = usePuckSel((s) => s.appState.ui.viewports?.current?.width);
+  // Écran de l'aperçu changé à la main : la cible suit (sauf « Tous »).
+  useEffect(() => {
+    if (deviceNow === "all" || typeof viewWidth !== "number") return;
+    const seen = viewWidth < 750 ? "m" : "d";
+    if (seen !== deviceNow) setSharedDevice(seen);
+  }, [viewWidth]);
+  const setDevice = (v) => {
+    setSharedDevice(v);
+    const target = DEVICE_LABELS.find((d) => d.value === v)?.width;
+    if (!target) return;
+    const { appState, dispatch } = getPuckNow();
+    const vp = appState.ui.viewports ?? {};
+    if (vp.current?.width !== target) dispatch({ type: "setUi", ui: { viewports: { ...vp, current: { ...(vp.current ?? {}), width: target, height: "auto" } } } });
+  };
   const styles = props.atl_styles ?? {};
   const first = styles[targets[0]] ?? {};
   const cs = el ? el.ownerDocument.defaultView.getComputedStyle(el) : null;
@@ -656,7 +688,8 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
   };
   const hasStyle = targets.some((t) => styles[t]) || Boolean(legacy);
   const hidden = get("display") === "none";
-  const deviceName = DEVICE_LABELS.find((d) => d.value === device).label.toLowerCase();
+  const deviceInfo = DEVICE_LABELS.find((d) => d.value === device);
+  const deviceName = deviceInfo.label.toLowerCase();
   const designId = useGetPuck()().appState.data.root?.props?.design;
   const palette = useMemo(() => styleColors(designId, el), [designId, el]);
 
@@ -670,7 +703,7 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
           </button>
         ))}
       </div>
-      {device !== "all" && <p className="atl-insp__hint">Réglages pour {deviceName} seulement ; le reste vient de « Tous les écrans ».</p>}
+      {device !== "all" && <p className="atl-insp__hint">Modifications {deviceInfo.where} seulement ; le reste vient de « Tous les écrans ».</p>}
 
       {isText && (
         <Part title="Typographie" open>
@@ -685,7 +718,7 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
               ))}
             </select>
           </label>
-          <Px label="Taille" value={get("font-size")} placeholder={cs ? Math.round(parseFloat(cs.fontSize)) : ""} onChange={(v) => set({ "font-size": v })} />
+          <Px label="Taille" value={get("font-size")} placeholder={cs && Number.isFinite(parseFloat(cs.fontSize)) ? Math.round(parseFloat(cs.fontSize)) : ""} onChange={(v) => set({ "font-size": v })} />
           <div className="atl-style__row">
             <span>Graisse</span>
             <Seg value={get("font-weight")} options={["300", "400", "500", "600", "700", "800"].map((w) => ({ value: w, label: w }))} onChange={(v) => set({ "font-weight": v })} />
@@ -698,7 +731,7 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
               min="0.8"
               max="3"
               value={get("line-height")}
-              placeholder={cs && cs.lineHeight !== "normal" ? (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)).toFixed(2) : "auto"}
+              placeholder={cs && Number.isFinite(parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)) ? (parseFloat(cs.lineHeight) / parseFloat(cs.fontSize)).toFixed(2) : "auto"}
               onChange={(e) => set({ "line-height": e.target.value })}
             />
           </label>
@@ -990,7 +1023,7 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
       </Part>
 
       <label className="atl-style__toggle">
-        <input type="checkbox" checked={hidden} onChange={(e) => set({ display: e.target.checked ? "none" : "" })} /> Masquer {device === "all" ? "partout" : `en ${deviceName}`}
+        <input type="checkbox" checked={hidden} onChange={(e) => set({ display: e.target.checked ? "none" : "" })} /> Masquer {deviceInfo.where}
       </label>
 
       <div className="atl-sx__actions">

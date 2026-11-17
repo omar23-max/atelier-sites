@@ -437,11 +437,9 @@ export function Inspector({ children }) {
   const nodeOf = (s) => (s?.sectionId && (s.key || s.group) && content[indexOf(s.sectionId)] ? pathTo(treeForItem(content[indexOf(s.sectionId)]), sameNode(s))?.at(-1) : null);
 
   function choose(next, { scroll = true } = {}) {
-    // Un paragraphe d'un texte regroupé : c'est tout le texte qui est choisi.
-    if (next?.key && next.sectionId && content[indexOf(next.sectionId)]) {
-      const owner = pathTo(treeForItem(content[indexOf(next.sectionId)]), sameNode(next))?.at(-2);
-      if (owner?.run) next = { sectionId: next.sectionId, group: owner.id, fromTree: next.fromTree };
-    }
+    // Un paragraphe d'un texte regroupé est choisi SEUL (demande du
+    // 2026-11-14 : chaque texte sélectionnable seul). Tout le texte reste
+    // accessible par la ligne « ¶ » de l'arbre ou par ⬆ (parent).
     // Tout de suite : la sélection de section que Puck déclenche ensuite ne
     // doit pas effacer l'élément choisi.
     selRef.current = next;

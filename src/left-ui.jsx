@@ -5,9 +5,9 @@ import { sections, sectionsIndex } from "./engine/sections.js";
 import { FAMILIES, familyOf } from "./engine/families.js";
 import { designs, designById } from "./engine/designs.js";
 import { parseDesign } from "./engine/design.js";
-import { brandRoles, designMarkdown, extractPalette } from "./engine/palette.js";
+import { brandRoles, contrastIssues, designMarkdown, extractPalette } from "./engine/palette.js";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
-import { ROOT_ZONE, Thumb, insertSection, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
+import { ROOT_ZONE, Thumb, insertSection, searchSections, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
 import { IconGauge, IconGrid, IconHistory, IconImage, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
 import { isAngleZone, pageRole, suggestAngleZones, zonesFromMother } from "./angle-zones.js";
@@ -314,6 +314,7 @@ function AddTool() {
   const [family, setFamily] = useState(null);
   const [mode, setMode] = useState(null); // "galerie" | "ia"
   const [peek, setPeek] = useState(null); // modèle survolé, montré en grand
+  const [query, setQuery] = useState(""); // recherche dans toute la galerie (2026-11-16)
   const [answers, setAnswers] = useState({});
   const [state, setState] = useState(null);
   // D'où part l'IA (2026-11-09) : une description (questions), le lien d'un
@@ -391,10 +392,48 @@ function AddTool() {
     </select>
   );
 
+  // Recherche dans toute la galerie, sans choisir de type d'abord.
+  const searchBox = (
+    <input className="atl-left__search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Chercher une section : faq, avis, nom d'un site…" aria-label="Chercher une section" />
+  );
+  const found = query.trim() ? searchSections(Object.values(grouped).flat(), query) : null;
+  if (found) {
+    return (
+      <>
+        {searchBox}
+        <p className="atl-tool-panel__hint">
+          {found.length ? `${found.length} section${found.length > 1 ? "s" : ""}. ` : "Aucune section ne correspond. "}
+          {hasSelection ? "Ajoutée après la section sélectionnée." : "Ajoutée en fin de page."}
+        </p>
+        <ol className="atl-variants" onMouseLeave={() => setPeek(null)}>
+          {found.slice(0, 80).map((s) => (
+            <li key={s.id} onMouseEnter={() => setPeek(s)}>
+              <button type="button" onClick={() => insertSection(getPuck, s.id)} title="Ajouter à la page">
+                <Thumb section={s} />
+                <span>
+                  {familyOf(s).label} · {nameOf(s, s.id)[1] ?? s.meta.label}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ol>
+        {peek?.thumbnail &&
+          createPortal(
+            <div className="atl-peek" aria-hidden="true">
+              <b>{nameOf(peek, peek.id)[1] ?? peek.meta.label}</b>
+              <img src={peek.thumbnail} alt="" />
+            </div>,
+            document.body,
+          )}
+      </>
+    );
+  }
+
   // 1. Type de section
   if (!family) {
     return (
       <>
+        {searchBox}
         {typeSelect}
         <p className="atl-tool-panel__hint">{hasSelection ? "Elle sera ajoutée après la section sélectionnée." : "Elle sera ajoutée en fin de page."}</p>
       </>
@@ -403,6 +442,7 @@ function AddTool() {
 
   return (
     <>
+      {searchBox}
       {typeSelect}
       <p className="atl-tool-panel__hint">{current.hint}</p>
 
@@ -570,7 +610,12 @@ function PaletteTool() {
     let id = `${base}-${suffix}`;
     for (let n = 2; designById[id]; n++) id = `${base}-${suffix}-${n}`;
     const couleurs = brandRoles(colors, currentDesign?.tokens.couleurs ?? {}, level);
-    const markdown = designMarkdown({ title: `${project?.nom ?? base} — palette ${suffix === "logo" ? "du logo" : "personnalisée"} (intensité ${level})`, origine: `${origine}, intensité ${level}/4`, polices, couleurs });
+    // Contraste réel avant d'appliquer (2026-11-16) : sous 4,5:1 le texte se lit mal.
+    const issues = contrastIssues(couleurs);
+    const lignes = issues.map((i) => `• ${i.label} : ${i.ratio}:1 (il faut 4,5:1)`).join("\n");
+    if (issues.length && !confirm(`Contraste faible avec cette palette :\n\n${lignes}\n\nAppliquer quand même ? Tu pourras corriger la couleur ensuite, ou revenir en arrière avec l'Historique.`)) return;
+    // Mode Palette = couleurs seulement : polices et styles du design actuel gardés.
+    const markdown = designMarkdown({ title: `${project?.nom ?? base} — palette ${suffix === "logo" ? "du logo" : "personnalisée"} (intensité ${level})`, origine: `${origine}, intensité ${level}/4`, polices, couleurs, styles: currentDesign?.tokens.styles });
     // La page d'abord, le design.md ensuite : créer le fichier recharge
     // l'atelier, ce qui couperait l'application en cours.
     setState({ busy: true });
@@ -656,17 +701,16 @@ function PaletteTool() {
 
       {(mode === "logo" || mode === "palette") && (
         <div className="atl-intensity">
-          <span>Intensité de la marque</span>
-          <div className="atl-intensity__seg">
-            {[
-              [1, "Discrète"],
-              [2, "Marquée"],
-              [3, "Forte"],
-              [4, "Totale"],
-            ].map(([n, label]) => (
-              <button key={n} type="button" className={level === n ? "is-on" : ""} onClick={() => setLevel(n)} title={label}>
+          <span>
+            Intensité de la marque : <b>{["", "Discrète", "Marquée", "Forte", "Totale"][level]}</b>
+          </span>
+          {/* Curseur nommé (2026-11-16) : Discrète → Totale. */}
+          <input type="range" className="atl-intensity__range" min="1" max="4" step="1" value={level} onChange={(e) => setLevel(Number(e.target.value))} aria-label="Intensité de la marque" aria-valuetext={["", "Discrète", "Marquée", "Forte", "Totale"][level]} />
+          <div className="atl-intensity__names" aria-hidden="true">
+            {["Discrète", "Marquée", "Forte", "Totale"].map((n, i) => (
+              <span key={n} className={level === i + 1 ? "is-on" : ""} onClick={() => setLevel(i + 1)}>
                 {n}
-              </button>
+              </span>
             ))}
           </div>
           <small>

@@ -169,14 +169,20 @@ function roleStyles(design) {
   const f = design.tokens.polices ?? {};
   const s = design.tokens.styles ?? {};
   const base = (police, taille, graisse, couleur, extra = {}) => ({ police, taille, graisse, couleur, interligne: null, ...extra });
+  // Même définition que « Appliquer » (applyDesign, 2026-11-16) : les couleurs
+  // viennent des rôles (couleurs) et les polices de « polices » ; le relevé
+  // (styles) garde tailles, graisses, interlignes, casse et formes. Avant, la
+  // fiche montrait le bouton du site d'origine alors que la page recevait la
+  // couleur du rôle « bouton ».
+  const applied = (st, police, couleur, extra = {}) => (st ? { ...st, police: police ?? st.police, couleur: couleur ?? st.couleur, ...extra } : null);
   return {
-    entete: s.entete ?? base(f.texte, 15, 500, c.texte),
-    h1: s.h1 ?? base(f.titres, 44, 700, c.texte),
-    sousTitre: s.sousTitre ?? base(f.texte, 20, 500, c.texte),
-    h2: s.h2 ?? base(f.titres, 32, 700, c.texte),
-    h3: s.h3 ?? base(f.titres, 20, 600, c.texte),
-    texte: s.texte ?? base(f.texte, 16, 400, c.texte, { interligne: 1.6 }),
-    bouton: s.bouton ?? base(f.texte, 16, 700, c["bouton-texte"], { fond: c.bouton, rayon: "8px", marges: "14px 28px" }),
+    entete: applied(s.entete, f.texte, c.texte) ?? base(f.texte, 15, 500, c.texte),
+    h1: applied(s.h1, f.titres, c.texte) ?? base(f.titres, 44, 700, c.texte),
+    sousTitre: applied(s.sousTitre, f.texte, c.texte) ?? base(f.texte, 20, 500, c.texte),
+    h2: applied(s.h2, f.titres, c.texte) ?? base(f.titres, 32, 700, c.texte),
+    h3: applied(s.h3, f.titres, c.texte) ?? base(f.titres, 20, 600, c.texte),
+    texte: applied(s.texte, f.texte, c.texte) ?? base(f.texte, 16, 400, c.texte, { interligne: 1.6 }),
+    bouton: applied(s.bouton, f.texte, c["bouton-texte"], c.bouton ? { fond: c.bouton } : {}) ?? base(f.texte, 16, 700, c["bouton-texte"], { fond: c.bouton, rayon: "8px", marges: "14px 28px" }),
     mesure: Boolean(design.tokens.styles),
   };
 }

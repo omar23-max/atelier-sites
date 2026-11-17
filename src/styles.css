@@ -8048,3 +8048,146 @@ body.atl-rail-only .atl-left {
   font: 600 12px "Inter", system-ui, sans-serif;
   color: #1f7a44;
 }
+
+/* Intensité de la marque en curseur nommé (2026-11-16). */
+.atl-intensity__range {
+  width: 100%;
+  accent-color: #6d5bff;
+}
+.atl-intensity__names {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--tk-text-xs);
+  color: var(--tk-ink-3);
+}
+.atl-intensity__names span {
+  cursor: pointer;
+}
+.atl-intensity__names span.is-on {
+  color: #6d5bff;
+  font-weight: 700;
+}
+
+/* Recherche dans « Ajouter une section » (2026-11-16). */
+.atl-modal__search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 340px;
+  margin-left: auto;
+  padding: 7px 10px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 8px;
+  font: 13px "Inter", system-ui, sans-serif;
+}
+.atl-modal__none,
+.atl-modal__more {
+  margin: 16px 4px;
+  color: var(--tk-ink-3);
+  font: 13px "Inter", system-ui, sans-serif;
+}
+.atl-modal__more {
+  grid-column: 1 / -1;
+}
+.atl-left__search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 8px;
+  font: 13px "Inter", system-ui, sans-serif;
+}
+
+/* ---- Glisser-déposer les images dans la page (2026-11-16) ---- */
+.atl-droptray {
+  position: fixed;
+  left: 12px;
+  top: 90px;
+  bottom: 20px;
+  z-index: 9000;
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 12px;
+  background: var(--tk-surface);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  font: 12px/1.35 "Inter", system-ui, sans-serif;
+}
+.atl-droptray header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+}
+.atl-droptray header button {
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.atl-droptray small {
+  color: var(--tk-ink-3);
+}
+.atl-droptray__list {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.atl-droptray__list img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--tk-line);
+  cursor: grab;
+}
+.atl-droptray__list img.is-placed {
+  outline: 2px solid #1f7a44;
+  outline-offset: 1px;
+}
+.atl-droptray__ok {
+  margin: 0;
+  color: #1f7a44;
+  font-weight: 600;
+}
+.atl-droptray__err {
+  margin: 0;
+  color: #b42318;
+}
+.atl-cv__dragbtn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px dashed #4f46e5;
+  border-radius: 10px;
+  background: #f4f3ff;
+  color: #2e2a8a;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.atl-cv__dragbtn small {
+  font-weight: 400;
+  color: #4b4f73;
+}
+.atl-cv__placewrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 14px;
+  align-items: start;
+}
+.atl-cv__placewrap .atl-cv__pagepick {
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+.atl-droptray__list {
+  overflow-x: hidden;
+}

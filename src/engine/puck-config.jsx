@@ -4,7 +4,9 @@ import { brandCss, rootFields } from "./brand.js";
 import { FAMILIES, familyOf } from "./families.js";
 import { blocksKey, defaultPropsFor, defaultsFor, editableSettings, renderSectionHtml } from "./render.js";
 import { ROLES } from "./design.js";
+import { designById } from "./designs.js";
 import { atlCarrousels } from "./carrousel.js";
+import { atlGaleries } from "./galerie.js";
 import { ensureFull } from "./sections.js";
 import { MissingSlots, SLOT_CSS } from "./missing-slots.jsx";
 import {
@@ -148,6 +150,7 @@ function Carrousels() {
     const run = () => (frame ||= win.setTimeout(() => {
       frame = 0;
       atlCarrousels(doc);
+      atlGaleries(doc); // galeries des blocs d'achat (vignette → image principale)
     }, 50));
     const observer = new win.MutationObserver(run);
     observer.observe(doc.body, { childList: true, subtree: true });
@@ -300,9 +303,9 @@ export function buildPuckConfig(sections) {
     root: {
       fields: rootFields, // fond_page et polices : rail de gauche → Palette (2026-11-13)
       defaultProps: { title: "Nouvelle page", font_heading: "", font_body: "" },
-      render: ({ children, font_heading, font_body, fond_page }) => (
+      render: ({ children, font_heading, font_body, fond_page, design }) => (
         <>
-          <style>{brandCss({ font_heading, font_body, fond_page }) + EDITOR_CSS + SLOT_CSS}</style>
+          <style>{brandCss({ font_heading, font_body, fond_page }, designById[design]?.tokens?.styles) + EDITOR_CSS + SLOT_CSS}</style>
           <StickySuites />
           <Carrousels />
           {children}
