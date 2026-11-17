@@ -18,6 +18,8 @@ const DEVICE_LABELS = [
 ];
 const usePuckSel = createUsePuck();
 let deviceNow = "all";
+// Pour la sélection multiple (inspector-ui) : l'écran visé en ce moment.
+export const currentDevice = () => DEVICE_LABELS.find((d) => d.value === deviceNow) ?? DEVICE_LABELS[2];
 const deviceSubs = new Set();
 const setSharedDevice = (v) => {
   deviceNow = v;

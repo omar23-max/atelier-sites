@@ -13,7 +13,6 @@ import { CanvasButton } from "./canvas-ui.jsx";
 import { LanguageSwitch } from "./lang-ui.jsx";
 // Plus de boutons « + » (projet, page, design) dans la barre : on les crée
 // depuis le projet, dans le catalogue (2026-11-08).
-import { DesignSelect } from "./design-ui.jsx";
 import { ProposalsBanner } from "./proposals-ui.jsx";
 import { PreviewBarLanguage, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
@@ -262,9 +261,8 @@ export default function App() {
             <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
             <DeletePageButton current={pageName} pages={pages} />
           </div>
-          <div className="atl-group">
-            <DesignSelect pageName={pageName} current={data?.root?.props?.design ?? null} getData={() => latest.current ?? data} />
-          </div>
+          {/* « Design » retiré de la barre (décision du 2026-11-14) : il se
+              choisit dans le rail de gauche → Palette. */}
           <OriginalSwitch
             importSource={data?.root?.props?.importSource ?? null}
             pageName={pageName}

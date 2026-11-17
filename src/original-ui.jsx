@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { sections, sectionsIndex } from "./engine/sections.js";
+import { renderSectionHtml } from "./engine/render.js";
+import { brandCss } from "./engine/brand.js";
+import { designById } from "./engine/designs.js";
 
 const byId = sectionsIndex;
 
@@ -256,23 +259,34 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
   );
 }
 
+// Trois affichages (décision du 2026-11-14, faite le 2026-11-17), dans la
+// barre de l'aperçu, à la place de « Original / Modifiable » :
+//   Ordinateur seul        — la page à modifier ;
+//   Édition + originale    — la page à modifier à gauche, la page d'origine à
+//                            droite, défilement lié (pages issues d'un import) ;
+//   Ordinateur + téléphone — la page à modifier à gauche, son rendu sur
+//                            téléphone à droite, mis à jour pendant l'édition.
+const VIEWS = [
+  { id: "seul", label: "Ordinateur seul", title: "La page à modifier, seule" },
+  { id: "originale", label: "Édition + originale", title: "La page à modifier à gauche, la page d'origine à droite (défilement lié)" },
+  { id: "telephone", label: "Ordinateur + téléphone", title: "La page à modifier à gauche, son rendu sur téléphone à droite" },
+];
+
 export function OriginalSwitch({ importSource, pageName, projet, pages = [], getData }) {
   const [info, setInfo] = useState(null);
-  const [view, setView] = useState("modifiable");
+  const [view, setView] = useState("seul");
   const bar = useElement('[class*="ViewportControls-actionsInner"]');
   const canvas = useElement('[class*="PuckCanvas-inner"]');
   const [slot, setSlot] = useState(null);
-
   useEffect(() => {
     setInfo(null);
-    setView("modifiable");
+    setView((v) => (v === "originale" ? "seul" : v));
     if (!importSource) return;
     fetch(`/api/original/${importSource}/info`)
       .then((r) => (r.ok ? r.json() : null))
       .then(setInfo)
       .catch(() => {});
   }, [importSource]);
-
   // Place réservée au début de la barre de l'aperçu.
   useEffect(() => {
     if (!bar) return;
@@ -282,24 +296,97 @@ export function OriginalSwitch({ importSource, pageName, projet, pages = [], get
     setSlot(host);
     return () => host.remove();
   }, [bar]);
-
-  if (!info || !slot) return null;
+  // Les vues doubles s'affichent avec l'aperçu en version ordinateur.
+  useEffect(() => {
+    document.body.classList.toggle("atl-view-split", view === "originale");
+    document.body.classList.toggle("atl-view-phone", view === "telephone");
+    if (view !== "seul") document.querySelector('button[title="Switch to Ordinateur viewport"]')?.click();
+    return () => document.body.classList.remove("atl-view-split", "atl-view-phone");
+  }, [view]);
+  if (!slot) return null;
+  const outer = canvas?.parentElement;
   return (
     <>
       {createPortal(
-        <span className="atl-switch" role="tablist" aria-label="Version de la page">
-          <button type="button" className={view === "original" ? "is-on" : ""} onClick={() => setView("original")} title="La page d'origine : ses textes, son design et ses images (lecture seule)">
-            Original
-          </button>
-          <button type="button" className={view === "modifiable" ? "is-on" : ""} onClick={() => setView("modifiable")} title="La version que tu modifies et publies">
-            Modifiable
-          </button>
-          <PageMenu pageName={pageName} importSource={importSource} projet={projet} pages={pages} getData={getData} />
+        <span className="atl-switch atl-views" role="tablist" aria-label="Affichage">
+          {VIEWS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              className={view === v.id ? "is-on" : ""}
+              disabled={v.id === "originale" && !info}
+              onClick={() => setView(v.id)}
+              title={v.id === "originale" && !info ? "Pas de page d'origine : cette page ne vient pas d'un import" : v.title}
+            >
+              {v.label}
+            </button>
+          ))}
+          {info && <PageMenu pageName={pageName} importSource={importSource} projet={projet} pages={pages} getData={getData} />}
         </span>,
         slot,
       )}
-      {view === "original" && canvas && createPortal(<OriginalView importSource={importSource} info={info} canvas={canvas} />, canvas)}
+      {view === "originale" && info && canvas && outer && createPortal(<OriginalView importSource={importSource} info={info} canvas={canvas} split />, outer)}
+      {view === "telephone" && canvas && outer && createPortal(<PhonePane getData={getData} canvas={canvas} />, outer)}
     </>
+  );
+}
+
+// Rendu téléphone de la page en cours (390 px), refait quand la page change.
+const CSS_IMPORT = /@import\s+url\([^)]*\)\s*;?/g;
+function phoneHtml(data) {
+  const items = (data.content ?? []).filter((it) => byId[it.type] && !byId[it.type].leger);
+  const used = [...new Set(items.map((it) => it.type))].map((t) => byId[t]);
+  const body = items
+    .map((it) => {
+      try {
+        return renderSectionHtml(byId[it.type], it.props, it.props.id);
+      } catch {
+        return "";
+      }
+    })
+    .join("\n");
+  const css = [brandCss(data.root?.props, designById[data.root?.props?.design]?.tokens?.styles), ...used.map((s) => s.css ?? "")].join("\n");
+  const imports = [...new Set(css.match(CSS_IMPORT) ?? [])].join("\n");
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base href="${location.origin}/"><style>${imports}\nhtml, body { margin: 0; }\n${css.replace(CSS_IMPORT, "")}</style></head><body>${body}</body></html>`;
+}
+
+function PhonePane({ getData, canvas }) {
+  const [html, setHtml] = useState("");
+  const frameRef = useRef(null);
+  const lastRatio = useRef(-1);
+  useEffect(() => {
+    let last = null;
+    const build = () => {
+      const data = getData?.();
+      if (!data) return;
+      const key = JSON.stringify([data.content, data.root?.props]);
+      if (key === last) return;
+      last = key;
+      setHtml(phoneHtml(data));
+    };
+    build();
+    const timer = setInterval(build, 1200);
+    return () => clearInterval(timer);
+  }, [getData]);
+  // Défilement lié : le téléphone suit la page à modifier.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const pw = [...canvas.querySelectorAll("iframe")].find((f) => f !== frameRef.current)?.contentWindow;
+      const fw = frameRef.current?.contentWindow;
+      if (!pw || !fw?.document?.documentElement) return;
+      const r = ratioOf(pw);
+      if (Math.abs(r - lastRatio.current) > 0.002) {
+        lastRatio.current = r;
+        scrollToRatio(fw, r);
+      }
+    }, 200);
+    return () => clearInterval(timer);
+  }, [canvas]);
+  return (
+    <div className="atl-phone-pane">
+      <div className="atl-original-pane__note">Téléphone (390 px) · les modifications se font à gauche</div>
+      <iframe ref={frameRef} title="Aperçu sur téléphone" srcDoc={html} sandbox="allow-scripts allow-same-origin" onLoad={() => (lastRatio.current = -1)} />
+    </div>
   );
 }
 
@@ -331,7 +418,7 @@ const scrollToRatio = (w, r) => w.scrollTo(0, r * Math.max(0, w.document.documen
 // dans un cadre) puis servie par l'atelier, scripts coupés. Refaite au plus
 // toutes les 6 h, ou avec « Actualiser ». La capture faite à l'import reste
 // visible avec « Voir la capture ».
-function OriginalView({ importSource, info, canvas }) {
+function OriginalView({ importSource, info, canvas, split = false }) {
   const { width, scale, height } = usePreviewSize(canvas);
   const frameHeight = (height - 40) / scale;
   const frameRef = useRef(null);
@@ -375,10 +462,30 @@ function OriginalView({ importSource, info, canvas }) {
       // cachée pendant ce temps (sans hauteur) : la position lui est appliquée
       // juste après son retour, en revenant sur « Modifiable ».
       let ratio = start;
+      let lastCopy = ratioOf(pw);
       // (Au retour, la page d'origine est déjà retirée : on garde la dernière
       // position relevée tant qu'elle était affichée.)
       const poll = setInterval(() => {
-        if (frame.isConnected && ow.document?.documentElement?.scrollHeight > ow.innerHeight) ratio = ratioOf(ow);
+        if (!frame.isConnected || !(ow.document?.documentElement?.scrollHeight > ow.innerHeight)) return;
+        // Côte à côte (« Édition + originale ») : les deux pages défilent ensemble.
+        if (split) {
+          const w = copy();
+          if (!w) return;
+          const c = ratioOf(w);
+          if (Math.abs(c - lastCopy) > 0.002) {
+            lastCopy = c;
+            ratio = c;
+            return scrollToRatio(ow, c);
+          }
+          const o = ratioOf(ow);
+          if (Math.abs(o - ratio) > 0.002) {
+            ratio = o;
+            scrollToRatio(w, o);
+            lastCopy = ratioOf(w);
+          }
+          return;
+        }
+        ratio = ratioOf(ow);
       }, 150);
       detach = () => {
         clearInterval(poll);
@@ -389,9 +496,9 @@ function OriginalView({ importSource, info, canvas }) {
       };
     }, 150);
     return () => (clearInterval(timer), detach());
-  }, [canvas, src]);
+  }, [canvas, src, split]);
   return (
-    <div className="atl-original-pane">
+    <div className={`atl-original-pane${split ? " is-split" : ""}`}>
       <div className="atl-original-pane__note">
         {mode === "live" ? "Page en ligne, telle qu'elle apparaît sur internet (lecture seule)" : "Capture faite à l'import (lecture seule)"}
         {info.url && (

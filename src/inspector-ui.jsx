@@ -5,7 +5,7 @@ import { addSections, sections, sectionsIndex } from "./engine/sections.js";
 import { fieldsFor } from "./engine/puck-config.jsx";
 import { blocksKey, editableSettings, normalizeProps } from "./engine/render.js";
 import { familyOf } from "./engine/families.js";
-import { StyleEditor } from "./style-editor-ui.jsx";
+import { StyleEditor, currentDevice } from "./style-editor-ui.jsx";
 import { CarrouselPanel } from "./carrousel-ui.jsx";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
@@ -408,6 +408,11 @@ export function Inspector({ children }) {
   const selected = usePuckSelect((s) => s.selectedItem);
   // sel : { sectionId, key? (élément), group? (groupe) } ou { page: true }.
   const [sel, setSel] = useState(null);
+  // Sélection multiple (Ctrl+clic, 2026-11-17) : plusieurs éléments ou
+  // groupes, même dans des sections différentes → style, masquer, supprimer.
+  const [multi, setMulti] = useState([]);
+  const multiRef = useRef(multi);
+  multiRef.current = multi;
   const [openSec, setOpenSec] = useState({});
   const [openGroups, setOpenGroups] = useState({});
   const [menu, setMenu] = useState(null);
@@ -521,9 +526,9 @@ export function Inspector({ children }) {
   // referme sinon ; un outil du rail ouvert le referme.
   useEffect(() => {
     if (!isMain()) return;
-    document.documentElement.toggleAttribute("data-atl-edit", Boolean(sel));
-    if (sel) window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: null }));
-  }, [sel]);
+    document.documentElement.toggleAttribute("data-atl-edit", Boolean(sel) || multi.length > 1);
+    if (sel || multi.length > 1) window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: null }));
+  }, [sel, multi]);
   useEffect(() => {
     const onClose = () => isMain() && selRef.current && close();
     const onPage = () => isMain() && (getPuck().dispatch({ type: "setUi", ui: { itemSelector: null } }), setSel({ page: true }));
@@ -538,7 +543,7 @@ export function Inspector({ children }) {
 
   // Section choisie dans l'aperçu (hors élément) : elle devient le choix.
   useEffect(() => {
-    if (!selected) return;
+    if (!selected || multiRef.current.length > 1) return;
     const id = selected.props.id;
     if (selRef.current?.sectionId !== id) choose({ sectionId: id }, { scroll: false });
   }, [selected?.props?.id]);
@@ -562,11 +567,27 @@ export function Inspector({ children }) {
       }
       return best;
     };
+    // Le plus petit élément sous la souris qui a une ligne dans l'arbre. Le
+    // cadre extérieur d'une copie (groupe racine de meta.arbre) n'en a pas :
+    // c'est la section elle-même. Avant (2026-11-17), cliquer dessus ouvrait
+    // un panneau vide ; maintenant la section est choisie.
     const target = (e) => {
       const sec = under(e, "[data-atl-id]");
       if (!sec) return null;
-      const el = under(e, `[data-atl-id="${CSS.escape(sec.dataset.atlId)}"] [data-atl-slot], [data-atl-id="${CSS.escape(sec.dataset.atlId)}"] [data-atl-group]`);
-      return { sectionId: sec.dataset.atlId, key: el?.dataset.atlSlot ?? undefined, group: el?.dataset.atlGroup ?? undefined };
+      const sectionId = sec.dataset.atlId;
+      const item = getPuck().appState.data.content.find((c) => c.props.id === sectionId);
+      const tree = item ? treeForItem(item) : [];
+      const hits = [];
+      for (const x of sec.querySelectorAll("[data-atl-slot], [data-atl-group]")) {
+        const r = x.getBoundingClientRect();
+        if (r.width && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) hits.push([r.width * r.height, x]);
+      }
+      hits.sort((m, n) => m[0] - n[0]);
+      for (const [, x] of hits) {
+        const t = { sectionId, key: x.dataset.atlSlot ?? undefined, group: x.dataset.atlSlot ? undefined : x.dataset.atlGroup ?? undefined };
+        if (pathTo(tree, sameNode(t))) return t;
+      }
+      return { sectionId };
     };
     // Emplacement de section conseillée (« + Ajouter une section « … » ici ») :
     // repéré par la géométrie comme le reste (Puck peut couper les clics).
@@ -580,7 +601,7 @@ export function Inspector({ children }) {
       return null;
     };
     const onSlotPress = (e) => {
-      if (e.isTrusted && slotBoxAt(e)) e.stopPropagation();
+      if (e.isTrusted && (slotBoxAt(e) || ((e.ctrlKey || e.metaKey) && isMain() && !editRef.current))) e.stopPropagation();
     };
     const onClick = (e) => {
       if (e.isTrusted) {
@@ -611,6 +632,14 @@ export function Inspector({ children }) {
       }
       if (!isMain() || editRef.current) return;
       const t = target(e);
+      // Ctrl+clic (Cmd+clic sur Mac) : ajoute ou retire de la sélection.
+      if (t && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        e.stopPropagation();
+        setTimeout(() => toggleMulti(t), 0);
+        return;
+      }
+      if (multiRef.current.length) setMulti([]);
       if (t) setTimeout(() => choose(t, { scroll: false }), 0);
     };
     // Double-clic sur un texte : on écrit directement dans la page.
@@ -886,6 +915,106 @@ export function Inspector({ children }) {
     return items;
   };
 
+  // ---- Sélection multiple (Ctrl+clic) ----
+  function toggleMulti(t) {
+    if (!t.key && !t.group) return; // une section entière : pas en multiple
+    const same = (a, b) => a.sectionId === b.sectionId && a.key === b.key && a.group === b.group;
+    const cur = selRef.current;
+    let list = multiRef.current.length ? multiRef.current : cur?.key || cur?.group ? [{ sectionId: cur.sectionId, key: cur.key, group: cur.group }] : [];
+    list = list.some((x) => same(x, t)) ? list.filter((x) => !same(x, t)) : [...list, { sectionId: t.sectionId, key: t.key, group: t.group }];
+    if (list.length < 2) {
+      setMulti([]);
+      if (list[0]) choose(list[0], { scroll: false });
+      return;
+    }
+    finishEdit();
+    selRef.current = null;
+    setSel(null);
+    setMulti(list);
+  }
+  const multiEntries = multi
+    .map((m) => {
+      const item = content[indexOf(m.sectionId)];
+      const node = nodeOf(m);
+      if (!item || !node) return null;
+      const keys = node.group ? (node.gid ? [node.gid] : leavesOf(node.children).map((l) => l.key)) : [!isImageType(node.type) && node.lien ? node.lien : node.key];
+      const kind = node.group ? "groupe" : isImageType(node.type) ? "image" : node.lien || node.type === "bouton" || node.type === "lien" ? "bouton" : "texte";
+      const label = node.group ? node.label : node.name ?? (TYPE[node.type] ?? TYPE.texte).label;
+      return { ...m, item, node, keys, kind, label, el: domOf(m.sectionId, node) };
+    })
+    .filter(Boolean);
+  // Les éléments choisis : un contour violet dans l'aperçu.
+  // (Relevé un peu après le rendu : l'aperçu redessine ses sections ensuite.)
+  useEffect(() => {
+    const marked = [];
+    const paint = () => {
+      for (const e of multiEntries) {
+        const el = domOf(e.sectionId, e.node);
+        if (!el || marked.some(([m]) => m === el)) continue;
+        marked.push([el, el.style.outline, el.style.outlineOffset]);
+        el.style.outline = "2px solid #4f46e5";
+        el.style.outlineOffset = "2px";
+      }
+    };
+    const timers = [0, 120, 500].map((ms) => setTimeout(paint, ms));
+    return () => {
+      timers.forEach(clearTimeout);
+      marked.forEach(([el, o, oo]) => ((el.style.outline = o), (el.style.outlineOffset = oo)));
+    };
+  }, [multi, content]);
+  // Échap vide la sélection multiple (aussi depuis l'aperçu).
+  useEffect(() => {
+    if (multi.length < 2) return;
+    const onKey = (e) => e.key === "Escape" && setMulti([]);
+    const win = canvasFrame()?.contentWindow;
+    window.addEventListener("keydown", onKey);
+    win?.addEventListener("keydown", onKey);
+    return () => (window.removeEventListener("keydown", onKey), win?.removeEventListener("keydown", onKey));
+  }, [multi.length > 1]);
+  // Une seule étape d'historique pour toutes les sections touchées (Ctrl+Z).
+  function patchMultiStyles(fn) {
+    const { appState, dispatch } = getPuck();
+    const bySection = new Map();
+    for (const e of multiEntries) bySection.set(e.sectionId, [...(bySection.get(e.sectionId) ?? []), ...e.keys]);
+    const next = appState.data.content.map((c) => {
+      const keys = bySection.get(c.props.id);
+      if (!keys) return c;
+      const styles = structuredClone(c.props.atl_styles ?? {});
+      fn(styles, keys);
+      return { ...c, props: { ...c.props, atl_styles: styles } };
+    });
+    dispatch({ type: "setData", data: { ...appState.data, content: next }, recordHistory: true });
+  }
+  const setDisplay = (styles, keys, dev, value) => {
+    for (const k of keys) {
+      if (value) {
+        styles[k] ??= {};
+        styles[k][dev] ??= {};
+        styles[k][dev].base = { ...styles[k][dev].base, display: value };
+      } else if (styles[k]?.[dev]?.base) {
+        delete styles[k][dev].base.display;
+      }
+    }
+  };
+  function multiHide() {
+    const dev = currentDevice().value;
+    const allHidden = multiEntries.every((e) => e.keys.every((k) => e.item.props.atl_styles?.[k]?.[dev]?.base?.display === "none"));
+    patchMultiStyles((styles, keys) => setDisplay(styles, keys, dev, allHidden ? "" : "none"));
+  }
+  function multiDelete() {
+    if (!confirm(`Supprimer ces ${multiEntries.length} éléments ?\n\nIls sont masqués sur tous les écrans ; Ctrl+Z les fait revenir.`)) return;
+    patchMultiStyles((styles, keys) => setDisplay(styles, keys, "all", "none"));
+    setMulti([]);
+  }
+  // Le panneau de style du premier élément, appliqué à tous : seules les
+  // retouches faites ici sont recopiées (le reste de chaque style est gardé).
+  function multiStyle(before, after) {
+    patchMultiStyles((styles, keys) => {
+      for (const k of keys) styles[k] = mergeStyleDiff(styles[k], before, after);
+      for (const k of Object.keys(styles)) if (!styles[k] || !Object.keys(styles[k]).length) delete styles[k];
+    });
+  }
+
   const selNode = nodeOf(sel);
   const close = () => {
     finishEdit();
@@ -963,7 +1092,17 @@ export function Inspector({ children }) {
     <div className="atl-insp" ref={rootRef}>
       {/* Comme Whitelabeler : soit la structure de la page, soit les réglages
           de l'élément choisi, jamais les deux (un seul ascenseur). */}
-      {!sel && <TreeView
+      {multi.length > 1 && (
+        <MultiPanel
+          entries={multiEntries}
+          onClear={() => setMulti([])}
+          onRemove={(e) => toggleMulti(e)}
+          onHide={multiHide}
+          onDelete={multiDelete}
+          onStyle={multiStyle}
+        />
+      )}
+      {!sel && multi.length < 2 && <TreeView
         content={content}
         sel={sel}
         openSec={openSec}
@@ -1435,6 +1574,72 @@ function FieldList({ settings, meta, blockType, values, onChange, namePrefix = "
 
 // onDelete : bouton 🗑 (section, élément, groupe) ; la confirmation est
 // demandée par l'action elle-même.
+// Recopie dans `target` ce qui a changé entre `before` et `after`
+// ({ écran: { partie: { propriété: valeur } } }).
+function mergeStyleDiff(target, before = {}, after = {}) {
+  const out = structuredClone(target ?? {});
+  const devs = new Set([...Object.keys(before ?? {}), ...Object.keys(after ?? {})]);
+  for (const dev of devs) {
+    const parts = new Set([...Object.keys(before?.[dev] ?? {}), ...Object.keys(after?.[dev] ?? {})]);
+    for (const part of parts) {
+      const b = before?.[dev]?.[part] ?? {};
+      const a = after?.[dev]?.[part] ?? {};
+      for (const p of new Set([...Object.keys(b), ...Object.keys(a)])) {
+        if (a[p] === b[p]) continue;
+        if (a[p] == null || a[p] === "") {
+          delete out[dev]?.[part]?.[p];
+        } else {
+          out[dev] ??= {};
+          out[dev][part] ??= {};
+          out[dev][part][p] = a[p];
+        }
+      }
+      if (out[dev]?.[part] && !Object.keys(out[dev][part]).length) delete out[dev][part];
+    }
+    if (out[dev] && !Object.keys(out[dev]).length) delete out[dev];
+  }
+  return out;
+}
+
+// Panneau de la sélection multiple : la liste, Masquer, Supprimer, et le
+// panneau de style (celui du premier élément, appliqué à tous).
+function MultiPanel({ entries, onClear, onRemove, onHide, onDelete, onStyle }) {
+  if (!entries.length) return null;
+  const first = entries[0];
+  const kinds = new Set(entries.map((e) => e.kind));
+  // Textes et boutons mêlés : la typographie leur est commune.
+  const kind = kinds.size === 1 ? first.kind : [...kinds].every((k) => k === "texte" || k === "bouton") ? "texte" : "groupe";
+  const own = structuredClone(first.item.props.atl_styles?.[first.keys[0]] ?? {});
+  const synth = { atl_styles: { __multi: own } };
+  const where = currentDevice().where;
+  return (
+    <div className="atl-insp__panel atl-multi">
+      <PanelHead onBack={onClear} title={`${entries.length} éléments choisis`} sub="Ctrl+clic pour en ajouter ou en retirer" onDelete={onDelete} />
+      <ul className="atl-multi__list">
+        {entries.map((e) => (
+          <li key={`${e.sectionId}/${e.key ?? e.group}`}>
+            <span>{String(e.label ?? "").slice(0, 40)}</span>
+            <button type="button" onClick={() => onRemove(e)} title="Retirer de la sélection" aria-label="Retirer de la sélection">
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="atl-multi__hide" onClick={onHide}>
+        Masquer / afficher {where}
+      </button>
+      <StyleEditor
+        key={entries.map((e) => `${e.sectionId}/${e.keys.join("+")}`).join(",")}
+        kind={kind}
+        targets={["__multi"]}
+        props={synth}
+        el={first.el}
+        onChangeProps={(next) => onStyle(own, next.atl_styles?.__multi ?? {})}
+      />
+    </div>
+  );
+}
+
 function PanelHead({ onBack, title, sub, onAi, onDelete, saveItem }) {
   return (
     <div className="atl-insp__bar">

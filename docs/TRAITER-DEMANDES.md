@@ -318,6 +318,27 @@ demande « en attente » (de la plus ancienne à la plus récente) :
        `<projet ou page>-variation(-N)` ; « Revenir » remet l'état d'avant.
        Rien ne bouge si le design de la page est tout en gris/beige (ou si
        la page n'a pas de design).
+   - **Lot « Décisions » (2026-11-17)** :
+     - Panneau de droite 248 → 200 px (styles.css, fin de fichier) ; en-tête
+       sur deux lignes (boutons, puis titre), menu des écrans en 3 colonnes.
+     - Barre du haut sans « Design » (App.jsx ; le design se choisit dans
+       Palette). Barre de l'aperçu (.atl-vpbar) en haut au centre, plus
+       fine, toujours visible ; languette de la barre du haut à gauche ;
+       aperçu décalé de 46 px.
+     - Vues (original-ui.jsx `OriginalSwitch`, remplace Original/Modifiable) :
+       Ordinateur seul · Édition + originale (page d'origine à droite,
+       défilement lié dans les deux sens, pages importées seulement) ·
+       Ordinateur + téléphone (`PhonePane` : rendu 390 px en srcdoc, refait
+       quand la page change, défilement lié). Les vues doubles mettent
+       l'aperçu en ordinateur ; Puck le remet à l'échelle (padding-right
+       du PuckCanvas).
+     - Sélection multiple Ctrl+clic (inspector-ui.jsx `toggleMulti`,
+       `MultiPanel`, `mergeStyleDiff`) : éléments et groupes, plusieurs
+       sections ; contour violet ; Masquer/afficher sur l'écran visé,
+       Supprimer (masqué partout), panneau de style du 1er élément recopié
+       sur tous (seules les retouches faites ici) ; une étape Ctrl+Z
+       (setData recordHistory: true) ; Échap ou clic simple vide la
+       sélection. Les sections entières ne se prennent pas en multiple.
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de
