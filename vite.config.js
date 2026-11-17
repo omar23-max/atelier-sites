@@ -44,9 +44,22 @@ function refreshPageThumb(name) {
 }
 
 function json(res, status, body) {
+  const text = JSON.stringify(body);
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.end(JSON.stringify(body));
+  // Vitesse (2026-11-17) : chaque lecture (GET) porte une empreinte ; si le
+  // navigateur a déjà la même réponse, « 304 » sans la renvoyer (liste des
+  // templates, pages, projets… à chaque ouverture de l'atelier).
+  const req = res.req;
+  if (status === 200 && req?.method === "GET") {
+    if (!res.getHeader("ETag")) res.setHeader("ETag", `"${createHash("sha1").update(text).digest("hex").slice(0, 20)}"`);
+    res.setHeader("Cache-Control", "no-cache");
+    if (req.headers["if-none-match"] && req.headers["if-none-match"] === res.getHeader("ETag")) {
+      res.statusCode = 304;
+      return res.end();
+    }
+  }
+  res.end(text);
 }
 
 // API locale de l'atelier. Tout est écrit dans les dossiers du projet :
@@ -162,8 +175,11 @@ function sectionsBundle() {
         // resté sur une page supprimée faisait planter le serveur en boucle).
         const leger = !used && (params.get("leger") === "1" || params.has("page"));
         const key = used ? `${page}:${[...used].sort().join(",")}` : leger ? "*leger" : "*";
-        let body = gz.get(key);
-        if (!body) {
+        // Vitesse (2026-11-17) : réponse gardée compressée avec son empreinte
+        // (ETag) ; le navigateur revalide et reçoit « 304 » si rien n'a changé
+        // au lieu de retélécharger ~2,7 Mo à chaque ouverture de l'atelier.
+        let entry = gz.get(key);
+        if (!entry) {
           const parts = [...cache.entries()]
             .filter(([id, s]) => !used || !s.pageSpecific || used.has(id))
             .sort(([a], [b]) => (a < b ? -1 : 1))
@@ -173,14 +189,20 @@ function sectionsBundle() {
           const bufs = [Buffer.from("[")];
           parts.forEach((p, i) => bufs.push(Buffer.from(i ? `,${p}` : p)));
           bufs.push(Buffer.from("]"));
-          body = gzipSync(Buffer.concat(bufs), { level: 1 });
+          const body = gzipSync(Buffer.concat(bufs), { level: 6 });
+          entry = { body, etag: `"${createHash("sha1").update(body).digest("hex").slice(0, 20)}"` };
           if (gz.size > 30) gz.clear();
-          gz.set(key, body);
+          gz.set(key, entry);
+        }
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("ETag", entry.etag);
+        if (req.headers["if-none-match"] === entry.etag) {
+          res.statusCode = 304;
+          return res.end();
         }
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.setHeader("Content-Encoding", "gzip");
-        res.setHeader("Cache-Control", "no-store");
-        res.end(body);
+        res.end(entry.body);
       });
 
       // Changement dans sections/<id>/ : ce dossier seulement est relu, puis
@@ -706,6 +728,19 @@ function atelierApi() {
             if (!/```json[\s\S]*```/.test(markdown ?? "")) return json(res, 400, { error: "Bloc de jetons manquant." });
             await writeFile(join(root, "designs", `${parts[1]}.md`), markdown, "utf8");
             return json(res, 200, { ok: true, file: `designs/${parts[1]}.md` });
+          }
+
+          // ---- Favoris et modèles récents de la galerie « Ajouter une section » (galerie.json, 2026-11-17) ----
+          if (parts[0] === "galerie" && !parts[1]) {
+            const file = join(root, "galerie.json");
+            if (req.method === "GET") return json(res, 200, existsSync(file) ? JSON.parse(await readFile(file, "utf8")) : { favoris: [], recents: [] });
+            if (req.method === "PUT") {
+              const b = await readBody(req);
+              const ids = (v, max) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && /^[a-z0-9][a-z0-9_-]*$/i.test(x)).slice(0, max) : []);
+              const next = { favoris: ids(b.favoris, 300), recents: ids(b.recents, 12) };
+              await writeFile(file, JSON.stringify(next, null, 2) + "\n", "utf8");
+              return json(res, 200, next);
+            }
           }
 
           // ---- Derniers designs appliqués (designs/_recents.json), le plus récent d'abord ----

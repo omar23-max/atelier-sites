@@ -8,6 +8,7 @@ import { designById } from "./engine/designs.js";
 
 const sectionsById = sectionsIndex;
 import { IconCollapse, IconExpand } from "./icons.jsx";
+import { pushRecent, toggleFavori, traitsOf, useGalleryPrefs } from "./gallery-prefs.js";
 
 export const ROOT_ZONE = "root:default-zone";
 const byId = sectionsIndex;
@@ -305,9 +306,45 @@ export function LibraryPanel() {
 }
 
 // Bouton « + Ajouter une section » : familles, puis variantes de la famille.
+// Carte d'un modèle dans la galerie : clic = ajouter ; ★ = favori.
+const FILTRES = [
+  ["tous", "Tous"],
+  ["favoris", "★ Favoris"],
+  ["image", "Avec image"],
+  ["sansimage", "Sans image"],
+  ["accordeon", "Questions / accordéon"],
+];
+function VariantCard({ section: s, sub, fav, onPick, onFav }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className="atl-variant"
+      onClick={onPick}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), onPick())}
+    >
+      <button
+        type="button"
+        className={`atl-variant__fav${fav ? " is-on" : ""}`}
+        aria-pressed={fav}
+        title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+        onClick={(e) => (e.stopPropagation(), onFav())}
+      >
+        {fav ? "★" : "☆"}
+      </button>
+      <Thumb section={s} large />
+      <strong>{s.meta.label ?? s.schema.name}</strong>
+      <span className="atl-family__count">{sub}</span>
+    </div>
+  );
+}
+
 export function AddSectionButton({ variant = "header" }) {
   const getPuck = useGetPuck();
   const [open, setOpen] = useState(false);
+  // Favoris, récents et filtres de la galerie (2026-11-17).
+  const prefs = useGalleryPrefs();
+  const [filtre, setFiltre] = useState("tous");
   const [family, setFamily] = useState(null);
   const [where, setWhere] = useState({ index: 0, afterSelected: false, custom: false });
   const [query, setQuery] = useState("");
@@ -341,9 +378,11 @@ export function AddSectionButton({ variant = "header" }) {
     setOpen(false);
     setFamily(null);
     setQuery("");
+    setFiltre("tous");
   }
 
   function insert(id) {
+    pushRecent(id);
     const { appState, dispatch } = getPuck();
     dispatch({ type: "insert", componentType: id, destinationIndex: where.index, destinationZone: ROOT_ZONE });
     // Même règle que insertSection : la section ajoutée adopte le design de la
@@ -365,6 +404,27 @@ export function AddSectionButton({ variant = "header" }) {
   const current = family ? FAMILIES.find((f) => f.id === family) : null;
   // Recherche : dans la famille ouverte, sinon dans toutes.
   const found = query.trim() ? searchSections(current ? grouped[current.id] ?? [] : Object.values(grouped).flat(), query) : null;
+  const passe = (s) =>
+    filtre === "tous" ||
+    (filtre === "favoris" && prefs.favoris.includes(s.id)) ||
+    (filtre === "image" && traitsOf(s).image) ||
+    (filtre === "sansimage" && !traitsOf(s).image) ||
+    (filtre === "accordeon" && traitsOf(s).accordeon);
+  const visibleSection = (id) => sectionsById[id] && sectionsById[id].meta.status !== "masquee";
+  const favoris = prefs.favoris.filter(visibleSection).map((id) => sectionsById[id]);
+  const recents = prefs.recents.filter(visibleSection).map((id) => sectionsById[id]);
+  const card = (s, sub) => <VariantCard key={s.id} section={s} sub={sub} fav={prefs.favoris.includes(s.id)} onPick={() => insert(s.id)} onFav={() => toggleFavori(s.id)} />;
+  const filtres = (
+    <div className="atl-modal__filters" role="radiogroup" aria-label="Filtrer les modèles">
+      {FILTRES.map(([id, label]) => (
+        <button key={id} type="button" role="radio" aria-checked={filtre === id} className={filtre === id ? "is-on" : ""} onClick={() => setFiltre(id)}>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+  const shownFound = found ? found.filter(passe) : null;
+  const shownFamily = current ? (grouped[current.id] ?? []).filter(passe) : [];
 
   return (
     <>
@@ -401,25 +461,31 @@ export function AddSectionButton({ variant = "header" }) {
                 </button>
               </header>
 
+              {(found || current) && filtres}
               {found ? (
-                found.length ? (
+                shownFound.length ? (
                   <div className="atl-modal__grid">
-                    {found.slice(0, 120).map((s) => (
-                      <button type="button" key={s.id} className="atl-variant" onClick={() => insert(s.id)}>
-                        <Thumb section={s} large />
-                        <strong>{s.meta.label ?? s.schema.name}</strong>
-                        <span className="atl-family__count">
-                          {familyOf(s).label}
-                          {hostOf(s.meta.source?.url) ? ` · ${hostOf(s.meta.source.url)}` : ""}
-                        </span>
-                      </button>
-                    ))}
-                    {found.length > 120 && <p className="atl-modal__more">{found.length - 120} autres : précise la recherche.</p>}
+                    {shownFound.slice(0, 120).map((s) => card(s, `${familyOf(s).label}${hostOf(s.meta.source?.url) ? ` · ${hostOf(s.meta.source.url)}` : ""}`))}
+                    {shownFound.length > 120 && <p className="atl-modal__more">{shownFound.length - 120} autres : précise la recherche.</p>}
                   </div>
                 ) : (
-                  <p className="atl-modal__none">Aucune section ne correspond à « {query} ».</p>
+                  <p className="atl-modal__none">Aucune section ne correspond{filtre !== "tous" ? " avec ce filtre" : ""} à « {query} ».</p>
                 )
               ) : !current ? (
+                <>
+                {/* Favoris et derniers modèles ajoutés, avant les familles. */}
+                {favoris.length > 0 && (
+                  <div className="atl-modal__strip">
+                    <p className="atl-modal__striptitle">★ Tes favoris</p>
+                    <div className="atl-modal__grid atl-modal__grid--strip">{favoris.map((s) => card(s, familyOf(s).label))}</div>
+                  </div>
+                )}
+                {recents.length > 0 && (
+                  <div className="atl-modal__strip">
+                    <p className="atl-modal__striptitle">Ajoutés récemment</p>
+                    <div className="atl-modal__grid atl-modal__grid--strip">{recents.slice(0, 8).map((s) => card(s, familyOf(s).label))}</div>
+                  </div>
+                )}
                 <div className="atl-modal__grid atl-modal__grid--families">
                   {FAMILIES.map((f) => {
                     const list = grouped[f.id] ?? [];
@@ -442,18 +508,13 @@ export function AddSectionButton({ variant = "header" }) {
                     );
                   })}
                 </div>
-              ) : (
+                </>
+              ) : shownFamily.length ? (
                 <div className="atl-modal__grid">
-                  {(grouped[current.id] ?? []).map((s) => (
-                    <button type="button" key={s.id} className="atl-variant" onClick={() => insert(s.id)}>
-                      <Thumb section={s} large />
-                      <strong>{s.meta.label ?? s.schema.name}</strong>
-                      <span className="atl-family__count">
-                        {hostOf(s.meta.source?.url) ? `Inspirée de ${hostOf(s.meta.source.url)}` : "Modèle de base"}
-                      </span>
-                    </button>
-                  ))}
+                  {shownFamily.map((s) => card(s, hostOf(s.meta.source?.url) ? `Inspirée de ${hostOf(s.meta.source.url)}` : "Modèle de base"))}
                 </div>
+              ) : (
+                <p className="atl-modal__none">Aucun modèle de cette famille avec ce filtre.</p>
               )}
             </div>
           </div>,

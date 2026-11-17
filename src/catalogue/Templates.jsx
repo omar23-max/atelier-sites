@@ -534,12 +534,14 @@ function TemplatePreview({ template, position, onPrev, onNext, onClose, onUse, o
           + Nouvelle page dans un projet
         </button>
         {canReplace && (
+          <>
           <button type="button" className="cat-pv__btn" onClick={() => mirrorHere(template, onMessage, true)} title="Mise en page et design du template ; textes remplacés par des consignes, images vides">
             Remplacer, sans textes ni images d'origine
           </button>
           <button type="button" className="cat-pv__btn is-primary" onClick={() => mirrorHere(template, onMessage)}>
             Remplacer la page « {currentPage} »
           </button>
+          </>
         )}
       </div>
     </>

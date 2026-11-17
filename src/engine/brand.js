@@ -1,4 +1,5 @@
 import { PAGE_TYPES } from "./page-types.js";
+import { fallbackOf } from "./fonts.js";
 
 // Kit de marque (début de la phase 4) : polices réglées au niveau de la page.
 // Chaque section garde ses valeurs d'origine en secours tant qu'aucune police
@@ -34,8 +35,9 @@ export function brandCss(root = {}, designStyles = null) {
   const body = (root.font_body ?? "").trim();
   const families = [...new Set([heading, body].filter(Boolean))];
   const vars = [
-    heading && `--atl-font-heading: "${heading}", sans-serif;`,
-    body && `--atl-font-body: "${body}", sans-serif;`,
+    // Police de secours selon la famille (serif, sans-serif…), 2026-11-17.
+    heading && `--atl-font-heading: "${heading}", ${fallbackOf(heading)};`,
+    body && `--atl-font-body: "${body}", ${fallbackOf(body)};`,
   ].filter(Boolean);
   return [
     families.length ? `@import url("${fontUrl(families)}");` : "",

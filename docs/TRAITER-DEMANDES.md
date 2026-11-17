@@ -474,6 +474,60 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      passe en « Modifiées depuis la validation… », étape « à revalider »,
      bouton « Valider à nouveau » (version + 1). Enregistrer sans changement
      garde « validées ». L'offre (project.offre) n'entre pas dans l'empreinte.
+   - **Miroring sans textes ni images d'origine (2026-11-17)** :
+     src/engine/placeholders.js (`placeholderContent`, `brief`) : chaque
+     texte devient « [ Titre H2 — 7 mots ] » (rôle et longueur d'origine),
+     chiffres gardés en forme (0,00), images vidées, props.wireframe (photos
+     d'origine cachées). projects.js : `createPage({ …, vierge })` et
+     `mirrorIntoPage(name, source, { vierge })` (origine.vierge noté).
+     Proposé dans le catalogue : « Utiliser ce template » (case « Sans les
+     textes ni les images d'origine »), menu ▾ et aperçu du template
+     (« Remplacer … sans textes ni images d'origine »), onglet Pages du projet
+     (case sous « Template ou page »). L'original reste visible avec la vue
+     « Édition + originale ». La « version wireframe » de l'atelier
+     (original-ui.jsx) garde son propre code, même résultat. Testé sur
+     zz-test-vierge (8 sections, 209 images vidées).
+   - **Sélecteur de police avec aperçu (2026-11-17)** : src/font-picker.jsx
+     (`FontPicker`) dans Palette → « Polices et fond de la page », à la place
+     des deux champs à taper. Liste par famille (src/engine/fonts.js,
+     `FONT_GROUPS`, ~60 polices Google) + polices des designs du catalogue
+     (« à vérifier ») + nom libre ; chaque police s'affiche dans sa forme
+     (chargement léger text=, seulement les lignes visibles) ; « Celle du
+     design » remet la police du design.md. Vérification Google Fonts par
+     chargement de la feuille (✓ ou ⚠ introuvable). Police de secours selon
+     la famille (`fallbackOf` : serif, sans-serif, cursive, monospace), aussi
+     utilisée par brand.js (--atl-font-*) et charte.js. Le panneau de style
+     garde « police des titres / du texte » (rôles).
+   - **Couverture en direct + vitesse d'ouverture (2026-11-17)** :
+     - Couverture : badge du chiffre sur le rail (left-ui.jsx, scorePage à
+       chaque modification ; vert ≥ 80, orange ≥ 50, rouge) ; le catalogue
+       relit pages et couvertures en revenant sur son onglet
+       (visibilitychange, Projets.jsx et Pages.jsx).
+     - Vitesse : scripts/mesure-ouverture.mjs (playwright-core, Edge) mesure
+       l'ouverture d'une page (première section, requêtes, octets, à froid et à
+       chaud). Avant : 4,6 s / 17,2 Mo à froid, 3,9 s / 4,1 Mo à chaud, 516
+       requêtes. Corrigé : /api/sections-data compressé niveau 6 (2,7 → 2,1 Mo)
+       avec ETag et « 304 » ; toutes les lectures de l'API (json() de
+       vite.config.js) portent un ETag (304 si inchangé) ; src/main.jsx
+       regroupe les lectures identiques lancées en même temps. Après : 15,3 Mo
+       à froid, 0,1 Mo à chaud, 473 requêtes ; le temps reste ~4,1-4,6 s sur
+       le serveur (459 modules servis un par un par Vite en mode
+       développement : le vrai gain demanderait une version compilée, donc
+       sortir l'API de vite.config.js — audit T6).
+     - Constaté : le serveur a manqué de mémoire (6 Go) à 15 h 44 après un
+       redémarrage de Vite dû à un changement de vite.config.js (processus
+       lancé depuis 4 jours) ; relancé par systemd en ~1 min. Après un
+       changement de vite.config.js, préférer « sudo systemctl restart
+       atelier » (mémoire libérée).
+   - **Galerie « Ajouter une section » : favoris, récents, filtres (2026-11-17)** :
+     src/gallery-prefs.js (`useGalleryPrefs`, `toggleFavori`, `pushRecent`,
+     `traitsOf`) + /api/galerie (galerie.json à la racine : favoris ≤ 300,
+     récents ≤ 12). library-ui.jsx `AddSectionButton` : ☆/★ sur chaque
+     modèle (sans fermer la galerie), rangées « ★ Tes favoris » et « Ajoutés
+     récemment » avant les familles, filtres Tous · ★ Favoris · Avec image ·
+     Sans image · Questions / accordéon (dans une famille ou une recherche ;
+     tirés de meta.arbre pour les copies, du schéma pour les sections du
+     catalogue). Pas encore dans l'outil « Ajouter » du rail.
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

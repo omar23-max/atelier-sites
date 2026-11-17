@@ -386,6 +386,12 @@ export default function Catalogue() {
       ));
 
   const pending = requests.filter((r) => r.statut !== "traitée").length;
+  // Vue Demandes ouverte : l'état se relit toutes les 8 s (traitement par Claude).
+  useEffect(() => {
+    if (view !== "demandes") return;
+    const timer = setInterval(() => api("GET", "/api/requests").then(setRequests).catch(() => {}), 8000);
+    return () => clearInterval(timer);
+  }, [view]);
   const filledFamilies = FAMILIES.filter((f) => grouped[f.id]?.length).length;
 
   async function changeStatus(section, status) {
@@ -834,7 +840,12 @@ export default function Catalogue() {
           {view === "demandes" && (
             <>
               <h1>Demandes</h1>
-              <p className="cat-lead">Ce que tu m'as demandé d'ajouter au catalogue. Dis-moi « traite les demandes du catalogue » et je les traite une par une.</p>
+              <p className="cat-lead">Ce que tu as demandé à Claude. La liste se met à jour toute seule.</p>
+              {pending > 0 && (
+                <div className="cat-nextstep">
+                  <b>{pending} demande(s) en attente de Claude.</b> Prochaine étape : écris-lui « traite les demandes du catalogue ».
+                </div>
+              )}
               {requests.length === 0 ? (
                 <div className="cat-empty">Aucune demande pour l'instant.</div>
               ) : (
@@ -873,10 +884,19 @@ export default function Catalogue() {
                           {r.consignes && <span>{r.consignes}</span>}
                           {r.images?.length > 0 && <span className="cat-muted">{r.images.length} capture(s) jointe(s)</span>}
                           {r.resultat && <span className="cat-muted">Résultat : {r.resultat}</span>}
+                          {/* État et prochaine étape (2026-11-17). */}
+                          {r.statut === "en cours" && r.progression && (
+                            <span className="cat-request__step">
+                              {r.progression.total ? `${r.progression.faites ?? 0} / ${r.progression.total} · ` : ""}
+                              {r.progression.etat ?? "en cours"}
+                            </span>
+                          )}
+                          {(r.erreur || r.progression?.erreur) && <span className="cat-request__err">Échec : {r.erreur || r.progression.erreur}. À reprendre : demande à Claude de relancer cette demande.</span>}
+                          {r.statut !== "traitée" && r.statut !== "en cours" && !r.erreur && <span className="cat-request__step">Prochaine étape : dis à Claude « traite les demandes du catalogue ».</span>}
                         </div>
                         <span className="cat-request__side">
-                          <span className={`cat-badge ${r.statut === "traitée" ? "cat-badge--green" : r.statut === "en cours" ? "cat-badge--blue" : "cat-badge--amber"}`}>
-                            {r.statut}
+                          <span className={`cat-badge ${r.erreur || r.progression?.erreur ? "cat-badge--red" : r.statut === "traitée" ? "cat-badge--green" : r.statut === "en cours" ? "cat-badge--blue" : "cat-badge--amber"}`}>
+                            {r.erreur || r.progression?.erreur ? "À reprendre" : r.statut === "traitée" ? "Traitée" : r.statut === "en cours" ? "Claude y travaille" : "En attente de Claude"}
                           </span>
                           <button
                             type="button"

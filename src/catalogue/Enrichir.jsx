@@ -12,7 +12,7 @@ export const METHODS = [
     id: "site",
     short: "Depuis un site web",
     title: "2. Depuis un site web",
-    text: "Donne l'adresse d'une page. Je la capture (desktop et mobile, styles réels, comportements avec REA), je reconstruis chaque section demandée et je la range dans sa famille.",
+    text: "Donne l'adresse d'une page. Je la capture (ordinateur et téléphone, avec ses vrais styles et ses animations), je reconstruis chaque section demandée et je la range dans sa famille.",
   },
   {
     id: "bibliotheque",
@@ -22,8 +22,8 @@ export const METHODS = [
   },
   {
     id: "design",
-    short: "Extraire un design.md",
-    title: "4. Extraire le design.md d'un site",
+    short: "Reprendre le style d'un site",
+    title: "4. Reprendre le style d'un site (design.md)",
     text: "Seulement l'univers visuel d'un site (polices, couleurs, formes), sans ses sections. Il rejoint le catalogue des designs pour être essayé sur tes pages.",
   },
   {
@@ -221,11 +221,22 @@ function UrlBatch({ urls, setUrls, onError }) {
   );
 }
 
-function Method({ method, children, onSubmit, busy, submitLabel }) {
+// Une ligne par source (2026-11-17, audit « source d'abord ») : on choisit
+// d'abord d'où vient ce qu'on ajoute, puis seul ce formulaire s'affiche.
+const SOURCE_HINTS = {
+  capture: "Une image d'une section que tu aimes",
+  site: "L'adresse d'une page (ou une liste d'adresses)",
+  bibliotheque: "Un site de sections toutes faites",
+  design: "Seulement les couleurs, polices et formes",
+  ia: "Une section décrite avec tes mots",
+};
+const SOURCE_ICONS = { capture: "🖼", site: "🌐", bibliotheque: "📚", design: "🎨", ia: "✨" };
+
+function Method({ method, children, onSubmit, busy, submitLabel, hidden }) {
   return (
-    <section className="cat-panel" id={`m-${method.id}`}>
+    <section className="cat-panel" id={`m-${method.id}`} hidden={hidden}>
       <div className="cat-panel__head">
-        <h2>{method.title}</h2>
+        <h2>{method.title.replace(/^\d+\.\s*/, "")}</h2>
       </div>
       <p className="cat-muted">{method.text}</p>
       <form
@@ -248,6 +259,7 @@ function Method({ method, children, onSubmit, busy, submitLabel }) {
 
 export function Enrichir({ onSent, onError }) {
   const [busy, setBusy] = useState(null);
+  const [source, setSource] = useState(null);
   const [capture, setCapture] = useState({ family: "", notes: "" });
   const [captureImages, setCaptureImages] = useState([]);
   const [site, setSite] = useState({ url: "", sections: "", family: "", notes: "" });
@@ -282,9 +294,38 @@ export function Enrichir({ onSent, onError }) {
   return (
     <>
       <h1>Importer une page ou des sections</h1>
-      <p className="cat-lead">Chaque demande est enregistrée dans le dossier « demandes » du projet. Dis-moi ensuite « traite les demandes du catalogue ».</p>
+      {!source ? (
+        <>
+          <p className="cat-lead">D'où vient ce que tu veux ajouter au catalogue ?</p>
+          <div className="cat-sources">
+            {METHODS.map((m) => (
+              <button key={m.id} type="button" className="cat-source" onClick={() => setSource(m.id)}>
+                <span className="cat-source__icon" aria-hidden="true">
+                  {SOURCE_ICONS[m.id]}
+                </span>
+                <b>{m.short}</b>
+                <small>{SOURCE_HINTS[m.id]}</small>
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <button type="button" className="cat-link" onClick={() => setSource(null)}>
+          ← Choisir une autre source
+        </button>
+      )}
+      <details className="cat-howto">
+        <summary>Comment ça marche</summary>
+        <p>
+          Ta demande est enregistrée (dossier « demandes » de l'atelier) puis apparaît dans l'onglet <b>Demandes</b>, « En attente de Claude ».
+          Dis ensuite à Claude « traite les demandes du catalogue » : il capture la page ou lit ta capture, reconstruit les sections au
+          format de l'atelier (outils Copycat et REA pour les animations), les range dans leur famille, puis marque la demande « Traitée ». Un
+          style seul devient un fichier design.md dans « Designs ».
+        </p>
+      </details>
 
       <Method
+        hidden={source !== "capture"}
         method={m1}
         busy={busy === "capture"}
         onSubmit={() => {
@@ -304,6 +345,7 @@ export function Enrichir({ onSent, onError }) {
       </Method>
 
       <Method
+        hidden={source !== "site"}
         method={m2}
         busy={busy === "site"}
         submitLabel={batchChecked.length ? `Enregistrer ${batchChecked.length + (site.url ? 1 : 0)} demande(s)` : undefined}
@@ -352,6 +394,7 @@ export function Enrichir({ onSent, onError }) {
       </Method>
 
       <Method
+        hidden={source !== "bibliotheque"}
         method={m3}
         busy={busy === "bibliotheque"}
         onSubmit={() => {
@@ -378,6 +421,7 @@ export function Enrichir({ onSent, onError }) {
       </Method>
 
       <Method
+        hidden={source !== "design"}
         method={mDesign}
         busy={busy === "design"}
         onSubmit={() => {
@@ -396,6 +440,7 @@ export function Enrichir({ onSent, onError }) {
       </Method>
 
       <Method
+        hidden={source !== "ia"}
         method={m4}
         busy={busy === "ia"}
         onSubmit={() => {

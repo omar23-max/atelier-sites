@@ -81,6 +81,12 @@ export function PagesView({ onOpenProject, onMessage }) {
       setPages(full);
     })().catch(() => setPages([]));
   }, [reload]);
+  // Retour sur l'onglet : couvertures relues (2026-11-17).
+  useEffect(() => {
+    const onBack = () => document.visibilityState === "visible" && setReload((n) => n + 1);
+    document.addEventListener("visibilitychange", onBack);
+    return () => document.removeEventListener("visibilitychange", onBack);
+  }, []);
 
   const groups = useMemo(() => {
     const names = Object.fromEntries(projects.map((p) => [p.id, p.nom]));

@@ -267,6 +267,11 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   };
   useEffect(() => {
     load();
+    // Retour sur l'onglet du catalogue (après une modification dans
+    // l'atelier) : couverture et pages relues (2026-11-17).
+    const onBack = () => document.visibilityState === "visible" && load();
+    document.addEventListener("visibilitychange", onBack);
+    return () => document.removeEventListener("visibilitychange", onBack);
   }, [id]);
 
   // Enregistre une partie de la fiche (marque, créatives, offre, publication).

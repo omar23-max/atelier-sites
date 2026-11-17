@@ -9,9 +9,11 @@ import { normalizeProps } from "./engine/render.js";
 import { brandRoles, contrastIssues, designMarkdown, extractPalette, shiftColor, varyPalette } from "./engine/palette.js";
 import { applyCharte, measureIn, optionsFor, roleLabel } from "./engine/charte.js";
 import { startTrial } from "./trial-ui.jsx";
+import { FontPicker } from "./font-picker.jsx";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, searchSections, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
+import { scorePage } from "./engine/page-score.js";
 import { IconGauge, IconGrid, IconHistory, IconImage, IconList, IconPalette, IconPlusSquare, IconSettings, IconSparkles } from "./icons.jsx";
 import { isAngleZone, pageRole, suggestAngleZones, zonesFromMother } from "./angle-zones.js";
 import { getPage, listTemplates, templateScore } from "./projects.js";
@@ -57,6 +59,17 @@ export function LeftPanel() {
     return () => document.body.classList.remove("atl-rail-only");
   }, [tool]);
   const current = TOOLS.find((t) => t.id === tool);
+  // Couverture en direct sur le rail (2026-11-17) : le chiffre suit chaque
+  // modification, sans ouvrir l'outil.
+  const pageData = usePuckSelect((s) => s.appState.data);
+  const coverage = useMemo(() => {
+    try {
+      const r = scorePage(pageData, sectionsIndex);
+      return r.type ? r.score : null;
+    } catch {
+      return null;
+    }
+  }, [pageData]);
   return (
     <div className="atl-left">
       <nav className="atl-rail" aria-label="Outils">
@@ -64,6 +77,11 @@ export function LeftPanel() {
           <button key={id} type="button" title={label} aria-label={label} aria-pressed={tool === id} className={tool === id ? "is-on" : ""} onClick={() => toggle(id)}>
             <Icon />
             <span className="atl-rail__label" aria-hidden="true">{short}</span>
+            {id === "score" && coverage != null && (
+              <em className={`atl-rail__badge ${coverage >= 80 ? "is-ok" : coverage >= 50 ? "is-mid" : "is-low"}`} title={`Couverture de la structure conseillée : ${coverage} / 100`}>
+                {coverage}
+              </em>
+            )}
           </button>
         ))}
         <button type="button" className="atl-rail__settings" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
@@ -1018,14 +1036,9 @@ function PaletteTool() {
       {/* Polices et fond de la page (venus des Réglages le 2026-11-13). */}
       <p className="atl-tool-panel__group">Polices et fond de la page</p>
       <div className="atl-pagefonts">
-        <label>
-          <span>Police des titres</span>
-          <input key={`h${root.font_heading ?? ""}`} defaultValue={root.font_heading ?? ""} placeholder={polices.titres} onBlur={(e) => setRoot({ font_heading: e.target.value.trim() })} />
-        </label>
-        <label>
-          <span>Police du texte</span>
-          <input key={`b${root.font_body ?? ""}`} defaultValue={root.font_body ?? ""} placeholder={polices.texte} onBlur={(e) => setRoot({ font_body: e.target.value.trim() })} />
-        </label>
+        {/* Sélecteur avec aperçu (2026-11-17) au lieu d'un nom à taper. */}
+        <FontPicker label="Police des titres" value={root.font_heading ?? ""} designFont={currentDesign?.tokens.polices?.titres ?? ""} onChange={(v) => setRoot({ font_heading: v })} />
+        <FontPicker label="Police du texte" value={root.font_body ?? ""} designFont={currentDesign?.tokens.polices?.texte ?? ""} onChange={(v) => setRoot({ font_body: v })} />
         <label className="is-row">
           <span>Fond de la page (derrière les sections)</span>
           <input type="color" value={/^#[0-9a-f]{6}$/i.test(root.fond_page ?? "") ? root.fond_page : "#ffffff"} onChange={(e) => setRoot({ fond_page: e.target.value })} />
@@ -1035,7 +1048,7 @@ function PaletteTool() {
             </button>
           )}
         </label>
-        <small className="atl-tool-panel__hint">Noms Google Fonts (ex. Readex Pro, Inter Tight). Vide : les polices du design de la page.</small>
+        <small className="atl-tool-panel__hint">Polices Google Fonts. « Celle du design » : la police du design.md de la page. Dans une section copiée, le panneau de style (Police) choisit « police des titres » ou « police du texte ».</small>
       </div>
     </>
   );

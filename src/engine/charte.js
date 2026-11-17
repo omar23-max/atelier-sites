@@ -16,6 +16,8 @@
 // posé dans un <p> est un titre) ; corrigeable dans l'inspecteur
 // (props.atl_roles = { emplacement: rôle }).
 
+import { fallbackOf } from "./fonts.js";
+
 export const ROLES_VISUELS = [
   { id: "h1", label: "Grand titre" },
   { id: "h2", label: "Titre de section" },
@@ -37,7 +39,7 @@ const px = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 const clean = (s) => String(s ?? "").replace(/['"\\;{}<>]/g, "").trim();
-const family = (name) => (clean(name) ? `'${clean(name)}', sans-serif` : null);
+const family = (name) => (clean(name) ? `'${clean(name)}', ${fallbackOf(clean(name))}` : null);
 const safe = (v) => (v == null || v === "" ? null : String(v).replace(/[;{}<>]/g, "").trim() || null);
 
 // Bouton d'achat ou d'action : la copie nomme « Bouton (CTA) » tout ce qui
