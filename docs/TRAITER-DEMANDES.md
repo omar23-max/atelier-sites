@@ -308,6 +308,16 @@ demande « en attente » (de la plus ancienne à la plus récente) :
        data-atl-slot pour les copies, sinon le fichier de l'image ; Ctrl+Z).
        Le parcours pas à pas reste, avec la miniature de la page à droite
        (`PagePicker`, clic = défile jusqu'aux images de la section).
+     - Curseurs « Varier les couleurs » (outil Palette, 2026-11-17) :
+       Teinte (−180° à +180°) et Plus sombre · plus clair (−30 à +30).
+       `shiftColor` / `varyPalette` (palette.js) : seules les couleurs vives
+       bougent ; texte neutre repassé en noir/blanc sous 4,5:1. La page
+       change en direct (`applyDesign` en mémoire + setData, sans
+       historique pendant le glissé, une étape Ctrl+Z au relâché).
+       « Garder ces couleurs » : copie de sécurité, page, puis design.md
+       `<projet ou page>-variation(-N)` ; « Revenir » remet l'état d'avant.
+       Rien ne bouge si le design de la page est tout en gris/beige (ou si
+       la page n'a pas de design).
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

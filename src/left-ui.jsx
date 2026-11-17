@@ -4,8 +4,9 @@ import { useGetPuck } from "@puckeditor/core";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { FAMILIES, familyOf } from "./engine/families.js";
 import { designs, designById } from "./engine/designs.js";
-import { parseDesign } from "./engine/design.js";
-import { brandRoles, contrastIssues, designMarkdown, extractPalette } from "./engine/palette.js";
+import { applyDesign, parseDesign } from "./engine/design.js";
+import { normalizeProps } from "./engine/render.js";
+import { brandRoles, contrastIssues, designMarkdown, extractPalette, shiftColor, varyPalette } from "./engine/palette.js";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, searchSections, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
@@ -631,6 +632,76 @@ function PaletteTool() {
     }
   }
 
+  // ---- Varier les couleurs (2026-11-17) ----
+  // Deux curseurs : la teinte tourne, puis plus clair / plus sombre. La page
+  // change en direct (sans rechargement) à partir de son état au premier
+  // mouvement ; « Garder » crée un design.md de la variation, « Revenir » ou
+  // Ctrl+Z remet les couleurs d'avant.
+  const [hue, setHue] = useState(0);
+  const [light, setLight] = useState(0);
+  const varyStart = useRef(null);
+  const varyFrame = useRef(0);
+  const varyColors = currentDesign?.tokens?.couleurs;
+  const canVary = !!varyColors && Object.keys(varyColors).length > 0;
+  // Piste du curseur : la couleur principale de la page sur tout le tour.
+  const varyMain = [varyColors?.bouton, varyColors?.accent, varyColors?.["fond-sombre"]].find((c) => c && shiftColor(c, 90) !== c);
+  const hueTrack = varyMain ? { background: `linear-gradient(90deg, ${[-180, -120, -60, 0, 60, 120, 180].map((d) => shiftColor(varyMain, d, light)).join(", ")})` } : undefined;
+  function vary(h, l) {
+    setHue(h);
+    setLight(l);
+    clearTimeout(varyFrame.current);
+    varyFrame.current = setTimeout(() => {
+      const { appState, dispatch } = getPuck();
+      if (!varyStart.current) varyStart.current = appState.data;
+      const start = varyStart.current;
+      if (!h && !l) return dispatch({ type: "setData", data: start, recordHistory: false });
+      const page = { ...start, content: (start.content ?? []).map((it) => (byId[it.type] ? { ...it, props: normalizeProps(byId[it.type], it.props) } : it)) };
+      const shifted = { ...currentDesign, tokens: { ...currentDesign.tokens, couleurs: varyPalette(varyColors, h, l) } };
+      dispatch({ type: "setData", data: applyDesign(page, shifted, byId, currentDesign).page, recordHistory: false });
+    }, 30);
+  }
+  function varyBack() {
+    clearTimeout(varyFrame.current);
+    if (varyStart.current) getPuck().dispatch({ type: "setData", data: varyStart.current, recordHistory: false });
+    varyStart.current = null;
+    setHue(0);
+    setLight(0);
+  }
+  // Curseur relâché : une étape dans l'historique (Ctrl+Z revient avant).
+  function varyCommit() {
+    if (!varyStart.current) return;
+    setTimeout(() => {
+      const { appState, dispatch } = getPuck();
+      dispatch({ type: "setData", data: appState.data, recordHistory: true });
+    }, 60);
+  }
+  async function varyKeep() {
+    const couleurs = varyPalette(varyColors, hue, light);
+    const issues = contrastIssues(couleurs);
+    const lignes = issues.map((i) => `• ${i.label} : ${i.ratio}:1 (il faut 4,5:1)`).join("\n");
+    if (issues.length && !confirm(`Contraste faible avec ces couleurs :\n\n${lignes}\n\nGarder quand même ?`)) return;
+    let id = `${base}-variation`;
+    for (let n = 2; designById[id]; n++) id = `${base}-variation-${n}`;
+    const reglage = `teinte ${hue > 0 ? "+" : ""}${hue}°, ${light > 0 ? "plus clair" : light < 0 ? "plus sombre" : "même clarté"} ${light ? Math.abs(light) : ""}`.trim();
+    const markdown = designMarkdown({ title: `${project?.nom ?? base} — variation de ${currentDesign.id} (${reglage})`, origine: `en variant ${currentDesign.id}.md (${reglage})`, polices, couleurs, styles: currentDesign.tokens.styles });
+    setState({ busy: true });
+    try {
+      // Copie de sécurité = la page enregistrée avant la variation.
+      await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
+      const data = getPuck().appState.data;
+      const page = { ...data, root: { ...data.root, props: { ...data.root.props, design: id } } };
+      const save = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(page) });
+      if (!save.ok) throw new Error((await save.json()).error);
+      // Le design.md en dernier : sa création recharge l'atelier.
+      const res = await fetch(`/api/designs/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markdown }) });
+      if (!res.ok) throw new Error((await res.json()).error);
+      await fetch("/api/designs/recents", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => {});
+      setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+      setState({ error: e.message });
+    }
+  }
+
   async function onLogo(file) {
     if (!file) return;
     setState(null);
@@ -678,6 +749,41 @@ function PaletteTool() {
             <small>{hint}</small>
           </button>
         ))}
+      </div>
+
+      {/* Varier les couleurs (2026-11-17) : la page change en direct. */}
+      <div className="atl-vary">
+        <span className="atl-vary__title">Varier les couleurs</span>
+        {canVary ? (
+          <>
+            <label>
+              <span>
+                Teinte <b>{hue > 0 ? "+" : ""}{hue}°</b>
+              </span>
+              <input type="range" className="atl-vary__hue" style={hueTrack} min="-180" max="180" step="5" value={hue} onChange={(e) => vary(Number(e.target.value), light)} onPointerUp={varyCommit} onKeyUp={varyCommit} aria-label="Teinte des couleurs" />
+            </label>
+            <label>
+              <span>
+                Plus sombre · plus clair <b>{light > 0 ? "+" : ""}{light}</b>
+              </span>
+              <input type="range" className="atl-vary__light" min="-30" max="30" step="2" value={light} onChange={(e) => vary(hue, Number(e.target.value))} onPointerUp={varyCommit} onKeyUp={varyCommit} aria-label="Plus clair ou plus sombre" />
+            </label>
+            <Swatches colors={[...new Set(Object.values(varyPalette(varyColors, hue, light)).filter((c) => /^#/.test(String(c))))].slice(0, 8)} />
+            {(hue !== 0 || light !== 0) && (
+              <div className="atl-vary__actions">
+                <button type="button" className="atl-left__cta" onClick={varyKeep}>
+                  Garder ces couleurs
+                </button>
+                <button type="button" className="atl-left__cta atl-left__cta--ghost" onClick={varyBack}>
+                  Revenir
+                </button>
+              </div>
+            )}
+            <small>La page change tout de suite (blancs, noirs et gris ne bougent pas). « Garder » enregistre ces couleurs comme un nouveau design.md ; « Revenir » ou Ctrl+Z remet celles d'avant.</small>
+          </>
+        ) : (
+          <small>Applique d'abord un design.md ou une palette (ci-dessous) : les curseurs font varier ses couleurs.</small>
+        )}
       </div>
 
       {mode === "design" && (

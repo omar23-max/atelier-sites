@@ -41,6 +41,47 @@ export const contrastRatio = (a, b) => {
 };
 const contrastText = (bg) => (contrastRatio(bg, "#111111") >= contrastRatio(bg, "#ffffff") ? "#111111" : "#ffffff");
 
+// ---- Variation d'une palette (2026-11-17) ----
+// Curseurs « Teinte » et « Plus clair / plus sombre » de l'outil Palette :
+// les couleurs vives tournent sur le cercle des couleurs (orange → rouge →
+// violet…) et s'éclaircissent ou foncent ; blancs, noirs et gris ne bougent
+// pas. Les textes neutres repassent en noir ou blanc si le contraste tombe.
+const toHsl = (h) => {
+  const [r, g, b] = rgb(h).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return [0, 0, l];
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  const hue = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [hue * 60, s, l];
+};
+const fromHsl = (h, s, l) => {
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return hex(f(0) * 255, f(8) * 255, f(4) * 255);
+};
+const isHex = (c) => /^#[0-9a-f]{6}$/i.test(String(c ?? "").trim());
+const isNeutral = (c) => {
+  const [, s, l] = toHsl(c);
+  return s < 0.06 || l < 0.05 || l > 0.97;
+};
+export function shiftColor(c, hue = 0, light = 0) {
+  if (!isHex(c) || isNeutral(c)) return c;
+  const [h, s, l] = toHsl(c);
+  return fromHsl((((h + hue) % 360) + 360) % 360, s, Math.max(0.04, Math.min(0.96, l + light / 100)));
+}
+export function varyPalette(couleurs = {}, hue = 0, light = 0) {
+  const out = {};
+  for (const [role, c] of Object.entries(couleurs)) out[role] = shiftColor(c, hue, light);
+  for (const [t, f] of [["bouton-texte", "bouton"], ["texte-sur-sombre", "fond-sombre"], ["texte", "fond"]]) {
+    if (isHex(out[t]) && isHex(out[f]) && isNeutral(out[t]) && contrastRatio(out[t], out[f]) < 4.5) out[t] = contrastText(out[f]);
+  }
+  return out;
+}
+
 // Paires texte / fond d'un design à vérifier. Renvoie celles sous 4,5:1.
 const TEXT_PAIRS = [
   ["texte", "fond", "Texte sur le fond"],

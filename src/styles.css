@@ -8191,3 +8191,67 @@ body.atl-rail-only .atl-left {
 .atl-droptray__list {
   overflow-x: hidden;
 }
+
+/* ---- Varier les couleurs (outil Palette, 2026-11-17) ---- */
+.atl-vary {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--tk-line);
+  border-radius: 10px;
+  background: var(--tk-surface);
+}
+.atl-vary__title {
+  font-weight: 600;
+  font-size: 13px;
+}
+.atl-vary label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+.atl-vary label span {
+  display: flex;
+  justify-content: space-between;
+}
+.atl-vary input[type="range"] {
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.atl-vary__hue {
+  background: linear-gradient(90deg, hsl(180 70% 50%), hsl(270 70% 55%), hsl(0 75% 55%), hsl(90 65% 45%), hsl(180 70% 50%));
+}
+.atl-vary__light {
+  background: linear-gradient(90deg, #1a1a1a, #888, #f4f4f4);
+}
+.atl-vary input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.atl-vary input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #1a1a1a;
+}
+.atl-vary__actions {
+  display: flex;
+  gap: 6px;
+}
+.atl-vary__actions > * {
+  flex: 1;
+}
+.atl-vary small {
+  color: var(--tk-ink-3);
+}
