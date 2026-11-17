@@ -206,9 +206,9 @@ function StructureTool({ onAdd }) {
               <span className="atl-structure__grip" aria-hidden="true">
                 ⋮⋮
               </span>
-              <button type="button" className="atl-structure__name" onClick={() => select(index, id)} title={section?.meta.label}>
+              {/* Sans le nom du site d'origine (2026-11-16). */}
+              <button type="button" className="atl-structure__name" onClick={() => select(index, id)} title={name}>
                 <b>{name}</b>
-                {variant && <small>{variant}</small>}
               </button>
               <span className="atl-structure__tools">
                 {role?.role && (

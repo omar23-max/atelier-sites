@@ -121,7 +121,6 @@ export function PageSections() {
                 <Thumb section={section} />
                 <span className="atl-page-sections__label">
                   <b>{index + 1}</b> {section?.meta.label?.split(" — ")[0] ?? item.type}
-                  <small>{section?.meta.label?.split(" — ")[1] ?? ""}</small>
                 </span>
               </button>
               <span className="atl-page-sections__tools">

@@ -834,7 +834,7 @@ export function Inspector({ children }) {
     const index = indexOf(sectionId);
     const item = content[index];
     if (!item) return;
-    if (!confirm(`Supprimer la section « ${byId[item.type]?.meta.label ?? item.type} » de la page ?`)) return;
+    if (!confirm(`Supprimer la section « ${(byId[item.type]?.meta.label ?? item.type).split(" — ")[0]} » de la page ?`)) return;
     run({ type: "remove", index, zone: ROOT_ZONE }, null);
     setSel(null);
   };
@@ -1072,13 +1072,8 @@ export function Inspector({ children }) {
             <p className="atl-insp__hint">Glisse les lignes de l'arbre pour changer l'ordre. Clic droit pour l'IA sur tout le groupe.</p>
           </div>
         )}
-        {sel?.sectionId && content[indexOf(sel.sectionId)] && (
-          <AskBar
-            key={`${sel.sectionId}-${sel.key ?? sel.group ?? ""}`}
-            label={selNode ? (selNode.run ? "Paragraphes" : selNode.group ? selNode.label : selNode.name ?? (TYPE[selNode.type] ?? TYPE.texte).label) : "Section"}
-            onAsk={(prompt) => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null, prompt })}
-          />
-        )}
+        {/* Barre « Demander une modification » retirée le 2026-11-16 (demande de
+            l'utilisateur) : l'IA s'ouvre par le clic droit ou le bouton ✨ IA. */}
       </div>
       {!sel?.page && <div style={{ display: "none" }}>{children}</div>}
       {sel?.sectionId && isMain() && (
@@ -1259,8 +1254,8 @@ function TreeView({ content, sel, openSec, setOpenSec, openGroups, setOpenGroups
         const id = item.props.id;
         const isOpen = openSec[id];
         const nodes = isOpen ? treeForItem(item) : null;
-        // Partie d'une copie de page : on garde « — partie N ».
-        const name = section.meta.pageSpecific ? section.meta.label.replace(" — ", " · ") : (section.meta.label ?? section.id).split(" — ")[0];
+        // Nom de la section seulement, sans le site d'où elle vient (2026-11-16).
+        const name = (section.meta.label ?? section.id).split(" — ")[0];
         const chosen = sel?.sectionId === id && !sel.key && !sel.group;
         const h = hint?.id === `sec:${id}` ? ` is-drop-${hint.side}` : "";
         return (
@@ -1485,7 +1480,7 @@ function SectionSettings({ item, onBack, onAi, onAiDesign, onChange, onDelete })
   const hasSettings = editableSettings(section.schema.settings).length > 0;
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={name} sub={variant ?? familyOf(section).label} onAi={onAi} onDelete={onDelete} saveItem={item} />
+      <PanelHead onBack={onBack} title={name} sub={familyOf(section).label} onAi={onAi} onDelete={onDelete} saveItem={item} />
       <div className="atl-insp__thumbbox">
         <Thumb section={section} />
       </div>
@@ -1847,37 +1842,6 @@ function ContextMenu({ x, y, items, onClose }) {
       )}
     </div>,
     document.body,
-  );
-}
-
-// Barre « Demander une modification » en bas du panneau : porte sur l'élément
-// choisi (pastille), ouvre la fenêtre IA avec la demande déjà écrite.
-function AskBar({ label, onAsk }) {
-  const [text, setText] = useState("");
-  const send = () => {
-    if (!text.trim()) return;
-    onAsk(text.trim());
-    setText("");
-  };
-  return (
-    <div className="atl-ask">
-      <span className="atl-ask__chip">✨ {label}</span>
-      <textarea
-        rows={2}
-        value={text}
-        placeholder="Demander une modification sur cet élément…"
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            send();
-          }
-        }}
-      />
-      <button type="button" onClick={send} disabled={!text.trim()} aria-label="Envoyer à l'IA">
-        ↑
-      </button>
-    </div>
   );
 }
 
@@ -2410,7 +2374,7 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onAiDesign, on
   const roles = editableSettings(section.schema.settings).filter((s) => s.id.startsWith("role_"));
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} onDelete={onDelete} saveItem={item} />
+      <PanelHead onBack={onBack} title={name} sub={familyOf(section).label} onDelete={onDelete} saveItem={item} />
       {/* Section qui est une FAQ (sa racine) : ses questions, modifiables ici. */}
       {section.meta.arbre?.kind === "faq" && <GroupContents node={{ kind: "faq", children: treeForItem(item) }} onChange={onValues} onOpen={onOpen} onMove={onMoveNode} />}
       <div className="atl-tabs2">

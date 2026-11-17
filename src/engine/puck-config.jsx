@@ -211,7 +211,8 @@ function componentFor(section) {
   }
 
   return {
-    label: meta.label ?? schema.name,
+    // Étiquette au-dessus de la section : sa fonction, sans le site d'origine.
+    label: (meta.label ?? schema.name).split(" — ")[0],
     fields,
     defaultProps: defaultPropsFor(section),
     render: (props) => <SectionView section={section} props={props} />,
