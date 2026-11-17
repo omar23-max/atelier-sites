@@ -16,6 +16,10 @@ export default defineConfig({
   // sectionsBundle avant atelierApi : sa route /api/sections-data passe en premier.
   plugins: [react(), rechargementSur(), sectionsBundle(), atelierApi()],
   build: {
+    // Version compilée servie par server/production.mjs : les anciens
+    // fichiers restent (un onglet ouvert pendant une mise à jour les charge
+    // encore) ; « npm run build » ne vide donc pas dist/.
+    emptyOutDir: false,
     rollupOptions: {
       input: { atelier: join(root, "index.html"), catalogue: join(root, "catalogue.html") },
     },
@@ -25,6 +29,6 @@ export default defineConfig({
     strictPort: true,
     // Pages, imports, exports, corbeille et demandes sont lus par l'API :
     // pas de rechargement de l'interface quand ils changent.
-    watch: { ignored: ["**/pages/**", "**/imports/**", "**/export/**", "**/corbeille/**", "**/demandes/**", "**/medias/**", "**/projets/**"] },
+    watch: { ignored: ["**/pages/**", "**/imports/**", "**/export/**", "**/corbeille/**", "**/demandes/**", "**/medias/**", "**/projets/**", "**/dist/**"] },
   },
 });

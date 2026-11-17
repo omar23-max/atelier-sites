@@ -9200,3 +9200,190 @@ html[data-atl-edit] [class*="Sidebar--right"]::after {
   grid-template-columns: none !important;
   overflow-x: auto;
 }
+
+/* ---- Charte du projet (lot 4, 2026-11-17) ---- */
+.atl-projcharte {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #c7c4f5;
+  border-radius: 10px;
+  background: #fbfaff;
+  font-size: 12px;
+}
+.atl-projcharte__title {
+  font-weight: 600;
+  font-size: 13px;
+}
+.atl-projcharte small {
+  color: var(--tk-ink-3);
+}
+.atl-projcharte small.is-warn {
+  color: #9a3412;
+}
+.atl-projcharte small.is-ok {
+  color: #1f7a44;
+}
+.atl-projcharte__actions {
+  display: grid;
+  gap: 6px;
+}
+.atl-projcharte__histo ul {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.atl-projcharte__histo li {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.atl-projcharte__histo button {
+  padding: 2px 8px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 6px;
+  background: #fff;
+  font: 600 11px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-rappels {
+  position: fixed;
+  left: 84px;
+  bottom: 18px;
+  z-index: 985;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.atl-charterappel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: min(520px, calc(100vw - 120px));
+  padding: 10px 12px;
+  border: 1px solid #c7c4f5;
+  border-radius: 10px;
+  background: #fbfaff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+  font: 13px/1.4 "Inter", system-ui, sans-serif;
+}
+.atl-charterappel button {
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: #4f46e5;
+  color: #fff;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-charterappel .atl-charterappel__x {
+  background: transparent;
+  color: #4b4f73;
+}
+
+/* ---- Favoris dans l'outil « Ajouter » du rail (2026-11-17) ---- */
+.atl-railcard {
+  position: relative;
+}
+.atl-railcard__fav {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #6b6f8f;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.atl-railcard__fav.is-on {
+  color: #d97706;
+  border-color: #f2c46d;
+}
+.atl-railstrip {
+  margin-top: 10px;
+}
+.atl-railstrip > b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+/* ---- Bouton principal à confirmer après un import (2026-11-17) ---- */
+.atl-ctacheck {
+  display: grid;
+  gap: 8px;
+  width: min(420px, calc(100vw - 120px));
+  max-height: 60vh;
+  padding: 12px 14px;
+  border: 1px solid #c7c4f5;
+  border-radius: 10px;
+  background: #fbfaff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+  font: 13px/1.4 "Inter", system-ui, sans-serif;
+}
+.atl-ctacheck > small {
+  color: var(--tk-ink-3);
+}
+.atl-ctacheck ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+  display: grid;
+  gap: 4px;
+}
+.atl-ctacheck li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #fff;
+}
+.atl-ctacheck li > span {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+}
+.atl-ctacheck li small {
+  color: var(--tk-ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-ctacheck button {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: #4f46e5;
+  color: #fff;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-ctacheck button.is-no {
+  background: #eceaf8;
+  color: #3b3f63;
+}
+.atl-ctacheck__foot {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---- Espacements réguliers (charte, 2026-11-17) ---- */
+.atl-portee__rythme {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding-left: 22px;
+  font-size: 12px;
+}

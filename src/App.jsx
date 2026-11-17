@@ -19,6 +19,7 @@ import { DownloadHtmlButton, DownloadZipButton, HistoryButton, RebrandButton } f
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { TrialHost } from "./trial-ui.jsx";
+import { CharteKeeper } from "./charte-keeper.jsx";
 import { Inspector, ProjectBrandSync } from "./inspector-ui.jsx";
 import { ClosePageButton, DeletePageButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
@@ -375,6 +376,8 @@ export default function App() {
                 <SlotPicker />
                 {/* Essai d'un design, d'une palette ou d'une charte avant de l'écrire. */}
                 <TrialHost />
+                {/* Charte : héritage par les nouvelles sections, rappel de la charte du projet. */}
+                <CharteKeeper />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
                 <FullscreenButton />

@@ -28,7 +28,8 @@ export const ROLES_VISUELS = [
   { id: "bouton2", label: "Bouton secondaire" },
   { id: "aucun", label: "Aucun (garder tel quel)" },
 ];
-export const roleLabel = (id) => ROLES_VISUELS.find((r) => r.id === id)?.label ?? "—";
+const BILAN_LABELS = { espacement: "Sections avec plus d'espace en haut ou en bas", carte: "Cartes" };
+export const roleLabel = (id) => ROLES_VISUELS.find((r) => r.id === id)?.label ?? BILAN_LABELS[id] ?? "—";
 
 // Taille sur téléphone = taille ordinateur × facteur (au moins 14 px).
 const MOBILE = { h1: 0.62, h2: 0.7, h3: 0.83, sousTitre: 0.85, texte: 0.92 };
@@ -58,6 +59,7 @@ export function autoRole(leaf, measured = null, family = null) {
   if (leaf?.type === "titre" || name === "Titre") return "h2";
   if (name === "Question") return "h3";
   if (leaf?.type === "bouton" || leaf?.type === "lien") return !NO_BUTTON_FAMILIES.has(family) && looksLikeCta(measured) ? "bouton" : null;
+  if (leaf?.type === "texte" && measured?.btn && /^\d+$/.test(measured.btn.id ?? "") && !NO_BUTTON_FAMILIES.has(family) && looksLikeCta(measured.btn)) return "bouton";
   if (leaf?.type === "texte" && /^(Paragraphe|Texte|Point de liste|Réponse)$/.test(name)) {
     const size = measured?.fontSize ?? 0;
     if (size >= 30) return "h2"; // grand texte posé dans un <p> ou un <div>
@@ -68,14 +70,58 @@ export function autoRole(leaf, measured = null, family = null) {
 }
 
 // Mesure d'un élément de l'aperçu (taille du texte, display).
-export const measureIn = (doc, sectionId) => (slot) => {
+// Vide en haut et en bas d'une section (2026-11-17) : distance entre le bord
+// de la section et ses premiers / derniers éléments visibles, et le padding
+// actuel de la section. Mesuré sur l'aperçu tel qu'il est affiché.
+export function gapsIn(doc, sectionId) {
+  const wrap = doc?.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
+  const root = wrap && [...wrap.children].find((c) => c.tagName !== "STYLE");
+  if (!root) return null;
+  const rr = root.getBoundingClientRect();
+  if (rr.height < 40) return null;
+  let top = Infinity;
+  let bottom = -Infinity;
+  for (const el of root.querySelectorAll("[data-atl-slot], img, video, svg, iframe")) {
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) continue;
+    const cs = el.ownerDocument.defaultView.getComputedStyle(el);
+    if (cs.visibility === "hidden" || cs.display === "none" || parseFloat(cs.opacity) === 0) continue;
+    // Image de fond qui couvre toute la section : pas un « contenu ».
+    if (r.height >= rr.height - 4) continue;
+    top = Math.min(top, r.top);
+    bottom = Math.max(bottom, r.bottom);
+  }
+  if (!Number.isFinite(top)) return null;
+  const cs = root.ownerDocument.defaultView.getComputedStyle(root);
+  return { top: Math.max(0, top - rr.top), bottom: Math.max(0, rr.bottom - bottom), padTop: parseFloat(cs.paddingTop) || 0, padBottom: parseFloat(cs.paddingBottom) || 0, desktop: (root.ownerDocument.defaultView.innerWidth ?? 0) >= 750 };
+}
+// Rythme vertical choisi dans Palette (vide en haut et en bas, ordinateur).
+export const RYTHMES = { serre: 40, moyen: 64, aere: 96 };
+
+export const measureIn = (doc, sectionId) => {
+  const fn = slotMeasure(doc, sectionId);
+  fn.gaps = () => gapsIn(doc, sectionId);
+  return fn;
+};
+const slotMeasure = (doc, sectionId) => (slot) => {
   const el = doc?.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"] [data-atl-slot="${CSS.escape(slot)}"]`);
   if (!el) return null;
   const cs = el.ownerDocument.defaultView.getComputedStyle(el);
   const r = el.getBoundingClientRect();
   const filled = !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(cs.backgroundColor) || cs.backgroundImage !== "none";
   const bordered = parseFloat(cs.borderTopWidth) > 0 && cs.borderTopStyle !== "none";
-  return { fontSize: parseFloat(cs.fontSize) || 0, display: cs.display, w: r.width, h: r.height, text: (el.textContent ?? "").replace(/\s+/g, " ").trim(), boxed: filled || bordered };
+  const out = { fontSize: parseFloat(cs.fontSize) || 0, display: cs.display, w: r.width, h: r.height, text: (el.textContent ?? "").replace(/\s+/g, " ").trim(), boxed: filled || bordered };
+  // Texte posé dans un bouton de la copie (data-atl-btn) : la copie l'a parfois
+  // rangé comme simple « Texte » ; la boîte du bouton sert alors de mesure.
+  const btn = el.closest("[data-atl-btn]");
+  if (btn && btn !== el && !el.closest("[data-atl-link]")) {
+    const bs = btn.ownerDocument.defaultView.getComputedStyle(btn);
+    const br = btn.getBoundingClientRect();
+    const bFilled = !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(bs.backgroundColor) || bs.backgroundImage !== "none";
+    const bBordered = parseFloat(bs.borderTopWidth) > 0 && bs.borderTopStyle !== "none";
+    out.btn = { id: btn.getAttribute("data-atl-btn"), w: br.width, h: br.height, text: (btn.textContent ?? "").replace(/\s+/g, " ").trim(), boxed: bFilled || bBordered };
+  }
+  return out;
 };
 
 function leavesAndCards(arbre) {
@@ -173,11 +219,35 @@ export function charteForItem(item, section, design, opts, measure = () => null)
     const measured = measure(leaf.slot);
     const role = fixed[leaf.slot] || autoRole(leaf, measured, section.meta.family);
     if (!role || role === "aucun") continue;
-    const key = (role === "bouton" || role === "bouton2") && leaf.lien ? leaf.lien : leaf.slot;
+    const isBtn = role === "bouton" || role === "bouton2";
+    const key = isBtn && leaf.lien ? leaf.lien : isBtn && measured?.btn?.id ? `btn${measured.btn.id}` : leaf.slot;
     const body = pack(declsFor(role, design, opts, measured));
     if (!body) continue;
     charte[key] = body;
     count[role] = (count[role] ?? 0) + 1;
+  }
+  // Espacements réguliers : complète le vide d'une section trop serrée (padding
+  // ajouté dans son fond), jamais de réduction (fonds et images coupés sinon).
+  // La part déjà ajoutée par la charte est retenue dans « _espace ».
+  const T = RYTHMES[opts.espacements];
+  const g = T && measure.gaps ? measure.gaps() : null;
+  if (g?.desktop) {
+    const prev = item.props?.atl_charte?._espace ?? {};
+    const base = {};
+    const added = {};
+    for (const [side, gap, pad] of [["haut", g.top, g.padTop], ["bas", g.bottom, g.padBottom]]) {
+      const before = Math.max(0, gap - (prev[side] ?? 0));
+      const padBefore = Math.max(0, pad - (prev[side] ?? 0));
+      if (before < T - 8) {
+        added[side] = Math.round(T - before);
+        base[side === "haut" ? "padding-top" : "padding-bottom"] = `${Math.round(padBefore + added[side])}px`;
+      }
+    }
+    if (Object.keys(base).length) {
+      charte.section = { d: { base } };
+      charte._espace = added;
+      count.espacement = (count.espacement ?? 0) + 1;
+    }
   }
   const r = px(design?.tokens?.styles?.bouton?.rayon);
   if (opts.formes && r != null) {
@@ -201,6 +271,7 @@ export function optionsFor(portee, cases = {}) {
     boutons: cases.boutons !== false,
     formes: cases.formes !== false,
     proportions: cases.proportions !== false,
+    espacements: cases.espacements ? cases.rythme || "moyen" : null,
   };
 }
 

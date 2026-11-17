@@ -46,6 +46,8 @@ export function targetSelector(scope, target) {
   if (target === "section") return `${scope}>:not(style)`;
   if (/^g\d+$/.test(target)) return `${scope} [data-atl-group="${target}"]`;
   if (/^l\d+$/.test(target)) return `${scope} [data-atl-link="${target}"]`;
+  // Bouton entier dont seul le texte est un emplacement (charte, 2026-11-17).
+  if (/^btn\d+$/.test(target)) return `${scope} [data-atl-btn="${target.slice(3)}"]`;
   if (/^[a-z]\d+(_\d+)?$/.test(target)) return `${scope} [data-atl-slot="${target}"]`;
   return null;
 }

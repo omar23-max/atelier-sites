@@ -18,6 +18,7 @@ import { IconGauge, IconGrid, IconHistory, IconImage, IconList, IconPalette, Ico
 import { isAngleZone, pageRole, suggestAngleZones, zonesFromMother } from "./angle-zones.js";
 import { getPage, listTemplates, templateScore } from "./projects.js";
 import { ScreenshotDrop } from "./pages-ui.jsx";
+import { pushRecent, toggleFavori, useGalleryPrefs } from "./gallery-prefs.js";
 
 // Colonne de gauche : un rail d'icônes et l'outil choisi.
 //   Structure · Ajouter une section · Palette · ✨ IA · Score
@@ -400,6 +401,32 @@ function AddTool() {
     }
   }
 
+  // Favoris et récents (2026-11-17) : les mêmes que la galerie « + Section ».
+  const prefs = useGalleryPrefs();
+  const add = (id) => {
+    pushRecent(id);
+    insertSection(getPuck, id);
+  };
+  const railCard = (s, label) => (
+    <li key={s.id} onMouseEnter={() => setPeek(s)} className="atl-railcard">
+      <button type="button" onClick={() => add(s.id)} title="Ajouter à la page">
+        <Thumb section={s} />
+        <span>{label}</span>
+      </button>
+      <button
+        type="button"
+        className={`atl-railcard__fav${prefs.favoris.includes(s.id) ? " is-on" : ""}`}
+        onClick={() => toggleFavori(s.id)}
+        title={prefs.favoris.includes(s.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+        aria-label={prefs.favoris.includes(s.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
+        aria-pressed={prefs.favoris.includes(s.id)}
+      >
+        {prefs.favoris.includes(s.id) ? "★" : "☆"}
+      </button>
+    </li>
+  );
+  const pickList = (ids) => ids.map((id) => sectionsIndex[id]).filter(Boolean);
+
   // Menu déroulant des types, comme la « Section library » de Whitelabeler :
   // une seule liste, ses 24 types d'abord puis ceux de structure de page.
   const typeSelect = (
@@ -427,16 +454,7 @@ function AddTool() {
           {hasSelection ? "Ajoutée après la section sélectionnée." : "Ajoutée en fin de page."}
         </p>
         <ol className="atl-variants" onMouseLeave={() => setPeek(null)}>
-          {found.slice(0, 80).map((s) => (
-            <li key={s.id} onMouseEnter={() => setPeek(s)}>
-              <button type="button" onClick={() => insertSection(getPuck, s.id)} title="Ajouter à la page">
-                <Thumb section={s} />
-                <span>
-                  {familyOf(s).label} · {nameOf(s, s.id)[1] ?? s.meta.label}
-                </span>
-              </button>
-            </li>
-          ))}
+          {found.slice(0, 80).map((s) => railCard(s, `${familyOf(s).label} · ${nameOf(s, s.id)[1] ?? s.meta.label}`))}
         </ol>
         {peek?.thumbnail &&
           createPortal(
@@ -457,6 +475,29 @@ function AddTool() {
         {searchBox}
         {typeSelect}
         <p className="atl-tool-panel__hint">{hasSelection ? "Elle sera ajoutée après la section sélectionnée." : "Elle sera ajoutée en fin de page."}</p>
+        {[
+          ["★ Mes favoris", pickList(prefs.favoris)],
+          ["Utilisées récemment", pickList(prefs.recents.filter((id) => !prefs.favoris.includes(id))).slice(0, 6)],
+        ].map(
+          ([title, list]) =>
+            list.length > 0 && (
+              <div key={title} className="atl-railstrip">
+                <b>{title}</b>
+                <ol className="atl-variants" onMouseLeave={() => setPeek(null)}>
+                  {list.map((s) => railCard(s, `${familyOf(s).label} · ${nameOf(s, s.id)[1] ?? s.meta.label}`))}
+                </ol>
+              </div>
+            ),
+        )}
+        {!prefs.favoris.length && <p className="atl-tool-panel__hint">Astuce : ☆ sur un modèle le garde dans « Mes favoris », ici et dans « + Section ».</p>}
+        {peek?.thumbnail &&
+          createPortal(
+            <div className="atl-peek" aria-hidden="true">
+              <b>{nameOf(peek, peek.id)[1] ?? peek.meta.label}</b>
+              <img src={peek.thumbnail} alt="" />
+            </div>,
+            document.body,
+          )}
       </>
     );
   }
@@ -483,14 +524,7 @@ function AddTool() {
 
       {mode === "galerie" && (
         <ol className="atl-variants" onMouseLeave={() => setPeek(null)}>
-          {variants.map((s) => (
-            <li key={s.id} onMouseEnter={() => setPeek(s)}>
-              <button type="button" onClick={() => insertSection(getPuck, s.id)} title="Ajouter à la page">
-                <Thumb section={s} />
-                <span>{nameOf(s, s.id)[1] ?? s.meta.label}</span>
-              </button>
-            </li>
-          ))}
+          {[...variants].sort((a, b) => prefs.favoris.includes(b.id) - prefs.favoris.includes(a.id)).map((s) => railCard(s, nameOf(s, s.id)[1] ?? s.meta.label))}
         </ol>
       )}
 
@@ -642,8 +676,12 @@ function PaletteTool() {
   const [cases, setCases] = useState({ couleurs: true, typo: false, boutons: true, formes: true, proportions: true });
   const [effacer, setEffacer] = useState(false);
   const toggleCase = (k) => setCases((c) => ({ ...c, [k]: !c[k] }));
-  async function applyScoped(design) {
-    const opts = optionsFor(portee, cases);
+  // over (lot 4) : portée, options et version imposées (charte du projet,
+  // révision) ; sinon les choix du panneau.
+  async function applyScoped(design, over = null) {
+    const P = over?.portee ?? portee;
+    const E = over?.effacer ?? effacer;
+    const opts = over?.opts ?? optionsFor(P, cases);
     const data = getPuck().appState.data;
     const doc = [...document.querySelectorAll("iframe")].find((f) => f.contentDocument?.querySelector("[data-atl-id]"))?.contentDocument;
     const before = data.root?.props ?? {};
@@ -660,29 +698,31 @@ function PaletteTool() {
     }
     page = { ...page, root: { ...page.root, props: rootProps } };
     let total = {};
-    if (portee !== "palette") {
-      const r = applyCharte(page, design, opts, byId, (sid) => measureIn(doc, sid), { effacer });
+    if (P === "palette") page = withCharte(page, design);
+    if (P !== "palette") {
+      const r = applyCharte(page, design, opts, byId, (sid) => measureIn(doc, sid), { effacer: E });
       page = r.page;
       total = r.total;
-      page.root.props.charte = { design: design.id, portee, ...opts, date: new Date().toISOString() };
+      page.root.props.charte = { design: design.id, portee: P, ...opts, date: new Date().toISOString(), ...(over?.version ? { version: over.version } : {}) };
     }
     // Bilan avant d'écrire.
-    const parts = Object.entries(total).map(([k, n]) => `${k === "carte" ? "Cartes" : roleLabel(k)} : ${n}`);
+    const parts = Object.entries(total).filter(([k]) => k !== "espacement").map(([k, n]) => `${k === "carte" ? "Cartes" : roleLabel(k)} : ${n}`);
     const lignes = [
-      `${portee === "palette" ? "Palette" : portee === "polices" ? "Couleurs et polices" : "Charte complète"} de ${design.id}.md`,
+      `${over?.version ? `Charte du projet, version ${over.version} : ` : ""}${P === "palette" ? "Palette" : P === "polices" ? "Couleurs et polices" : "Charte complète"} de ${design.id}.md`,
       "",
       opts.couleurs ? "• Couleurs des sections : changées." : "• Couleurs : gardées.",
       opts.familles ? `• Polices : ${pol.titres ?? "?"} (titres), ${pol.texte ?? "?"} (texte).` : "• Polices : gardées.",
-      portee === "complete" ? `• Tailles des textes : ${opts.typo && !opts.proportions ? "celles de la charte (ordinateur et téléphone)" : "gardées (proportions de la page)"}.` : null,
-      parts.length ? `• Éléments qui suivent la charte : ${parts.join(", ")}.` : portee !== "palette" ? "• Aucun élément reconnu (sections du catalogue : couleurs et polices seulement)." : null,
-      portee !== "palette" ? (effacer ? "• Tes retouches de style sur ces éléments sont effacées." : "• Tes retouches de style sont gardées (elles passent devant la charte).") : null,
+      P === "complete" ? `• Tailles des textes : ${opts.typo && !opts.proportions ? "celles de la charte (ordinateur et téléphone)" : "gardées (proportions de la page)"}.` : null,
+      parts.length ? `• Éléments qui suivent la charte : ${parts.join(", ")}.` : P !== "palette" ? "• Aucun élément reconnu (sections du catalogue : couleurs et polices seulement)." : null,
+      opts.espacements ? `• Espacements (${{ serre: "serré", moyen: "moyen", aere: "aéré" }[opts.espacements]}) : ${total.espacement ? `${total.espacement} section(s) trop serrée(s) complétée(s) sur ordinateur` : "aucune section trop serrée"} ; les sections plus aérées sont gardées, le téléphone n'est pas touché.` : null,
+      P !== "palette" ? (E ? "• Tes retouches de style sur ces éléments sont effacées." : "• Tes retouches de style sont gardées (elles passent devant la charte).") : null,
       "",
       "Une copie de sécurité est faite avant (Historique pour revenir). Appliquer ?",
     ].filter((l) => l != null);
     // Essai contrôlé (lot 3) : la page change à l'écran, rien n'est écrit
     // avant « Appliquer ». Bilan : ce qui change, retouches gardées, contrastes.
     let gardees = 0;
-    if (!effacer) for (const it of page.content ?? []) for (const k of Object.keys(it.props?.atl_charte ?? {})) if (it.props?.atl_styles?.[k]) gardees++;
+    if (!E) for (const it of page.content ?? []) for (const k of Object.keys(it.props?.atl_charte ?? {})) if (it.props?.atl_styles?.[k]) gardees++;
     const warn = opts.couleurs ? contrastIssues(design.tokens?.couleurs ?? {}).map((i) => `⚠ Contraste faible : ${i.label} ${i.ratio}:1 (il faut 4,5:1).`) : [];
     startTrial({
       title: lignes[0],
@@ -695,6 +735,56 @@ function PaletteTool() {
       },
     });
   }
+
+  // Variantes (lot 4, 2026-11-17) : une nouvelle palette garde la typographie
+  // et les boutons de la charte de la page ; seules les couleurs changent.
+  function withCharte(page, colorDesign) {
+    const ch = page.root?.props?.charte;
+    const base = ch && designById[ch.design];
+    if (!base) return page;
+    const doc = [...document.querySelectorAll("iframe")].find((fr) => fr.contentDocument?.querySelector("[data-atl-id]"))?.contentDocument;
+    const d = { ...base, tokens: { ...base.tokens, couleurs: colorDesign?.tokens?.couleurs ?? base.tokens.couleurs } };
+    return applyCharte(page, d, ch, byId, (sid) => measureIn(doc, sid)).page;
+  }
+
+  // ---- Charte du projet (lot 4 « Réutilisation », 2026-11-17) ----
+  // project.charte = { design, portee, couleurs, familles, typo, boutons,
+  // formes, proportions, version, date, historique: [versions précédentes] }.
+  const projCharte = project?.charte ?? null;
+  const pageCharte = root.charte ?? null;
+  const PORTEES = { palette: "Palette", polices: "Couleurs et polices", complete: "Charte complète" };
+  async function saveProjectCharte() {
+    if (!project || !pageCharte) return;
+    try {
+      const fresh = await fetch(`/api/projects/${encodeURIComponent(project.id)}`).then((r) => r.json());
+      const old = fresh.charte ?? null;
+      const { historique: _h, ...oldSansHisto } = old ?? {};
+      const next = {
+        ...pageCharte,
+        version: (old?.version ?? 0) + 1,
+        date: new Date().toISOString(),
+        historique: [...(old ? [oldSansHisto] : []), ...(old?.historique ?? [])].slice(0, 10),
+      };
+      const res = await fetch(`/api/projects/${encodeURIComponent(project.id)}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...fresh, charte: next }) });
+      if (!res.ok) throw new Error((await res.json()).error);
+      setProject({ ...fresh, charte: next });
+      setRoot({ charte: { ...pageCharte, version: next.version } });
+      setState({ ok: `Charte du projet enregistrée (version ${next.version}). Les autres pages du projet la proposeront.` });
+    } catch (e) {
+      setState({ error: e.message });
+    }
+  }
+  function applyCharteVersion(c) {
+    const d = designById[c.design];
+    if (!d) return setState({ error: `Le design ${c.design}.md n'existe plus dans le catalogue.` });
+    applyScoped(d, { portee: c.portee ?? "complete", opts: { couleurs: c.couleurs !== false, familles: Boolean(c.familles), typo: Boolean(c.typo), boutons: Boolean(c.boutons), formes: Boolean(c.formes), proportions: c.proportions !== false }, effacer: false, version: c.version });
+  }
+  // Ouverture demandée par le bandeau « charte du projet » (charte-keeper.jsx).
+  useEffect(() => {
+    const on = () => projCharte && applyCharteVersion(projCharte);
+    window.addEventListener("atl-apply-project-charte", on);
+    return () => window.removeEventListener("atl-apply-project-charte", on);
+  });
 
   async function applyPalette(colors, origine, suffix) {
     let id = `${base}-${suffix}`;
@@ -712,6 +802,7 @@ function PaletteTool() {
     let page = { ...data, content: (data.content ?? []).map((it) => (byId[it.type] ? { ...it, props: normalizeProps(byId[it.type], it.props) } : it)) };
     page = applyDesign(page, design, byId, currentDesign ?? null).page;
     page = { ...page, root: { ...page.root, props: { ...page.root.props, font_heading: data.root?.props?.font_heading ?? "", font_body: data.root?.props?.font_body ?? "" } } };
+    page = withCharte(page, design);
     startTrial({
       title: `Palette ${suffix === "logo" ? "du logo" : "personnalisée"}, intensité ${["", "Discrète", "Marquée", "Forte", "Totale"][level]}`,
       lines: ["• Couleurs des sections : changées.", "• Polices, tailles et formes : gardées.", ...issues.map((i) => `⚠ Contraste faible : ${i.label} ${i.ratio}:1 (il faut 4,5:1).`)],
@@ -751,7 +842,7 @@ function PaletteTool() {
       if (!h && !l) return dispatch({ type: "setData", data: start, recordHistory: false });
       const page = { ...start, content: (start.content ?? []).map((it) => (byId[it.type] ? { ...it, props: normalizeProps(byId[it.type], it.props) } : it)) };
       const shifted = { ...currentDesign, tokens: { ...currentDesign.tokens, couleurs: varyPalette(varyColors, h, l) } };
-      dispatch({ type: "setData", data: applyDesign(page, shifted, byId, currentDesign).page, recordHistory: false });
+      dispatch({ type: "setData", data: withCharte(applyDesign(page, shifted, byId, currentDesign).page, shifted), recordHistory: false });
     }, 30);
   }
   function varyBack() {
@@ -832,6 +923,51 @@ function PaletteTool() {
     <>
       <p className="atl-tool-panel__hint">Ce que tu choisis s'applique à toute la page (couleurs et polices de toutes les sections). Une copie de sécurité est faite avant.</p>
       {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+      {root.projet && (
+        <div className="atl-projcharte">
+          <span className="atl-projcharte__title">Charte du projet</span>
+          {projCharte ? (
+            <small>
+              Version {projCharte.version} · {projCharte.design}.md · {PORTEES[projCharte.portee] ?? projCharte.portee} · {new Date(projCharte.date).toLocaleDateString("fr-CA", { dateStyle: "medium" })}
+            </small>
+          ) : (
+            <small>Pas encore de charte : applique un design.md à cette page (de préférence « Charte complète »), puis enregistre-la ici pour tout le projet.</small>
+          )}
+          {projCharte && pageCharte?.version !== projCharte.version && <small className="is-warn">Cette page n'a pas la version {projCharte.version}.</small>}
+          {projCharte && pageCharte?.version === projCharte.version && <small className="is-ok">✓ Cette page suit la version {projCharte.version}.</small>}
+          <div className="atl-projcharte__actions">
+            {pageCharte && (!projCharte || pageCharte.version !== projCharte.version) && (
+              <button type="button" className="atl-left__cta atl-left__cta--ghost" onClick={saveProjectCharte}>
+                Enregistrer la charte de cette page pour le projet{projCharte ? ` (version ${projCharte.version + 1})` : ""}
+              </button>
+            )}
+            {projCharte && pageCharte?.version !== projCharte.version && (
+              <button type="button" className="atl-left__cta" onClick={() => applyCharteVersion(projCharte)}>
+                Essayer la version {projCharte.version} sur cette page
+              </button>
+            )}
+          </div>
+          {projCharte?.historique?.length > 0 && (
+            <details className="atl-projcharte__histo">
+              <summary>Versions précédentes ({projCharte.historique.length})</summary>
+              <ul>
+                {projCharte.historique.map((h, i) => (
+                  <li key={i}>
+                    <span>
+                      v{h.version ?? "?"} · {h.design}.md · {h.date ? new Date(h.date).toLocaleDateString("fr-CA", { dateStyle: "medium" }) : ""}
+                    </span>
+                    <button type="button" onClick={() => applyCharteVersion(h)}>
+                      Essayer
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+      {state?.ok && <p className="atl-topbar__ok">{state.ok}</p>}
+
       <div className="atl-choices">
         {[
           ["design", "1. Choisir un design.md", currentDesign ? `Actuel : ${currentDesign.id}.md` : "Les designs extraits des sites importés"],
@@ -919,9 +1055,22 @@ function PaletteTool() {
                   <input type="checkbox" checked={Boolean(cases.proportions)} onChange={() => toggleCase("proportions")} /> Garder les tailles de la page (sinon : tailles de la charte, ordinateur et téléphone)
                 </label>
               )}
-              <label className="is-off" title="Les design.md ne mesurent pas encore les espacements">
-                <input type="checkbox" disabled /> Espacements (bientôt : pas encore mesurés dans les design.md)
+              <label title="Complète le vide en haut et en bas des sections trop serrées (sections copiées, vue ordinateur) ; ne réduit jamais une section aérée.">
+                <input type="checkbox" checked={Boolean(cases.espacements)} onChange={() => toggleCase("espacements")} /> Espacements réguliers entre les sections
               </label>
+              {cases.espacements && (
+                <div className="atl-portee__rythme" role="radiogroup" aria-label="Espace en haut et en bas des sections">
+                  {[
+                    ["serre", "Serré (40 px)"],
+                    ["moyen", "Moyen (64 px)"],
+                    ["aere", "Aéré (96 px)"],
+                  ].map(([id, label]) => (
+                    <label key={id}>
+                      <input type="radio" name="atl-rythme" checked={(cases.rythme || "moyen") === id} onChange={() => setCases((c) => ({ ...c, rythme: id }))} /> {label}
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {portee !== "palette" && (

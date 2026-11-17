@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { onLive } from "../live.js";
 import { validateSection } from "./shopify.js";
 
 // Chaque dossier sections/<id>/ devient une section : ajouter un dossier
@@ -65,7 +66,7 @@ export const catalogueSections = sections.filter((s) => !s.meta.pageSpecific);
 // rechargement automatique. Dans l'atelier, seulement si la page ouverte
 // utilise une section modifiée, un petit bandeau propose de recharger ;
 // supprimer ou masquer une section ailleurs ne touche pas la page.
-if (import.meta.hot) {
+{
   const used = () => {
     try {
       return new Set(window.__atlPageTypes?.() ?? []);
@@ -73,7 +74,7 @@ if (import.meta.hot) {
       return new Set();
     }
   };
-  import.meta.hot.on("atl-sections", ({ ids = [], removed = [] }) => {
+  onLive("atl-sections", ({ ids = [], removed = [] }) => {
     window.dispatchEvent(new CustomEvent("atl-sections-changed", { detail: { ids, removed } }));
     if (!page) return;
     const mine = used();

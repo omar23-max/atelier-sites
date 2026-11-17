@@ -60,6 +60,42 @@ export function sectionsBundle() {
         .then((m) => (validate = m.validateSection))
         .catch(() => {})
         .then(loadAll);
+      // design.md (2026-11-17) : { id: { md, png } }, png = date de la miniature.
+      const designsDir = join(root, "designs");
+      const dprefix = `${slash(designsDir)}/`;
+      let designsGz = null;
+      server.middlewares.use("/api/designs-data", async (req, res) => {
+        if (!designsGz) {
+          const { stat } = await import("node:fs/promises");
+          const files = (await readdir(designsDir)).filter((f) => f.endsWith(".md"));
+          const out = {};
+          await Promise.all(
+            files.map(async (f) => {
+              const id = f.slice(0, -3);
+              const png = join(designsDir, `${id}.png`);
+              out[id] = { md: await readFile(join(designsDir, f), "utf8"), png: existsSync(png) ? Math.round((await stat(png)).mtimeMs) : 0 };
+            }),
+          );
+          const body = gzipSync(Buffer.from(JSON.stringify(out)), { level: 6 });
+          designsGz = { body, etag: `"${createHash("sha1").update(body).digest("hex").slice(0, 20)}"` };
+        }
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("ETag", designsGz.etag);
+        if (req.headers["if-none-match"] === designsGz.etag) {
+          res.statusCode = 304;
+          return res.end();
+        }
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.setHeader("Content-Encoding", "gzip");
+        res.end(designsGz.body);
+      });
+      let designsTimer = null;
+      const designsChanged = () => {
+        designsGz = null;
+        clearTimeout(designsTimer);
+        designsTimer = setTimeout(() => server.ws.send({ type: "custom", event: "atl-designs", data: {} }), 400);
+      };
+
       server.middlewares.use("/api/sections-data", async (req, res) => {
         await ensure();
         const params = new URL(req.url ?? "/", "http://atelier").searchParams;
@@ -119,6 +155,7 @@ export function sectionsBundle() {
       let timer = null;
       const onChange = (file) => {
         const f = slash(file);
+        if (f.startsWith(dprefix)) return designsChanged();
         if (!f.startsWith(prefix)) return;
         changed.add(f.slice(prefix.length).split("/")[0]);
         clearTimeout(timer);

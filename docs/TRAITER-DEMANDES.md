@@ -412,6 +412,55 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      d'écrit ; Appliquer puis Revenir = état d'avant (page et serveur).
      Pas couvert : curseurs « Varier les couleurs » (déjà en direct avec
      Garder / Revenir).
+   - **Lot 4 « Réutilisation » (2026-11-17)** :
+     · Charte du projet : bloc « Charte du projet » en haut de Palette
+     (left-ui.jsx, pages d'un projet). project.charte = { design, portée,
+     options, version, date, historique (10 versions précédentes) }.
+     « Enregistrer la charte de cette page pour le projet » (version + 1),
+     « Essayer la version N sur cette page », « Versions précédentes » →
+     « Essayer » (toujours par l'essai contrôlé). `applyScoped(design, over)`
+     accepte une portée/options/version imposées ; la page garde
+     root.charte.version.
+     · Rappel : src/charte-keeper.jsx (`CharteKeeper`, monté dans App) : si
+     le projet a une charte et que la page n'en a pas la version, petit
+     bandeau en bas à gauche « L'essayer / Plus tard » (ouvre Palette et
+     l'essai, évènement atl-apply-project-charte).
+     · Héritage : CharteKeeper repère les sections ajoutées (id nouveau) et,
+     ~0,5 s après, leur calcule atl_charte (charteForItem, design de la
+     charte + couleurs actuelles de la page). Une section dupliquée qui a
+     déjà sa charte est laissée telle quelle. Rien pendant un essai.
+     · Variantes : `withCharte(page, design)` dans applyPalette, la portée
+     « Palette » et les curseurs Teinte / Clair-sombre : la typographie et la
+     forme des boutons de la charte restent, seules les couleurs changent.
+     Vérifié sur un projet zz (3 pages, mis à la corbeille) : version 1 puis
+     2, révision v1 essayée, bandeau puis application, bouton noir à coins
+     80 px gardé au curseur, section ajoutée = 5 styles de bouton hérités.
+     Limite vue : certaines copies n'ont aucun bouton dans leur arbre (ex.
+     norse-organics-offre-sec-16) : rien ne peut y suivre la charte.
+   - **Atelier compilé (2026-11-17)** : le service `atelier` ne lance plus
+     Vite en mode développement. Drop-in
+     /etc/systemd/system/atelier.service.d/compile.conf : au démarrage
+     `vite build` (3 s, dans dist/, anciens fichiers gardés : emptyOutDir
+     false) puis `node server/production.mjs` (port 5180) : sert dist/, les
+     dossiers designs, medias, sections, imports, export (jamais .env ni
+     server/), et branche les mêmes modules server/sections.mjs et
+     server/api.mjs avec un faux « serveur Vite » (pile de middlewares,
+     fs.watch sur sections/ et designs/, messages par /api/evenements).
+     · src/live.js `onLive(évènement, fonction)` : connexion de Vite en dev,
+     /api/evenements (SSE) en version compilée ; barre « Une nouvelle version
+     de l'atelier est prête · Recharger » après un build.
+     · src/engine/designs.js : les design.md sont lus par
+     /api/designs-data (server/sections.mjs, gzip + ETag) au lieu d'être
+     figés dans le code (sinon un design.md créé après le build manquerait) ;
+     message atl-designs quand un .md change.
+     · Mesure (sur le serveur, page de 4 sections copiées) : première
+     section 12,7 s → 4,3 s, 14,8 → 5,1 Mo, 105 → 64 requêtes ; mémoire
+     1,7 → 1,5 Go. 24 essais de l'API identiques.
+     · Après un changement dans src/ : `npm run build` (les onglets ouverts
+     proposent de recharger) ; dans server/ : `sudo systemctl restart
+     atelier` (qui refait aussi le build).
+     · Revenir au mode développement : supprimer compile.conf, puis
+     `sudo systemctl daemon-reload && sudo systemctl restart atelier`.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
