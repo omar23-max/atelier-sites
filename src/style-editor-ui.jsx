@@ -737,7 +737,7 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
               onChange={(e) => set({ "line-height": e.target.value })}
             />
           </label>
-          <Px label="Espace entre lettres" value={get("letter-spacing")} placeholder={cs ? parseFloat(cs.letterSpacing) || 0 : ""} onChange={(v) => set({ "letter-spacing": v })} />
+          <Px label="Espacement" value={get("letter-spacing")} placeholder={cs ? parseFloat(cs.letterSpacing) || 0 : ""} onChange={(v) => set({ "letter-spacing": v })} />
           <div className="atl-style__row">
             <span>Style</span>
             <div className="atl-seg2">
@@ -768,11 +768,11 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
               onChange={(v) => set({ "text-align": v })}
             />
           </div>
-          <Px label="Largeur max. des lignes" value={get("max-width")} placeholder="—" onChange={(v) => set({ "max-width": v })} />
+          <Px label="Largeur max." value={get("max-width")} placeholder="—" onChange={(v) => set({ "max-width": v })} />
           {kind === "texte" && (
             <>
               <div className="atl-style__row">
-                <span>Puce devant</span>
+                <span>Puce</span>
                 <Seg
                   value={Object.keys(BULLETS).find((k) => BULLETS[k] === get("content", "before")) ?? ""}
                   options={[

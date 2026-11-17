@@ -7,6 +7,8 @@ import { designs, designById } from "./engine/designs.js";
 import { applyDesign, parseDesign } from "./engine/design.js";
 import { normalizeProps } from "./engine/render.js";
 import { brandRoles, contrastIssues, designMarkdown, extractPalette, shiftColor, varyPalette } from "./engine/palette.js";
+import { applyCharte, measureIn, optionsFor, roleLabel } from "./engine/charte.js";
+import { startTrial } from "./trial-ui.jsx";
 import { applyDesignToPage } from "./catalogue/Designs.jsx";
 import { ROOT_ZONE, Thumb, insertSection, searchSections, scrollCanvasTo, usePuckSelect } from "./library-ui.jsx";
 import { ScorePanel } from "./score-ui.jsx";
@@ -30,9 +32,9 @@ const TOOLS = [
   { id: "ajouter", label: "Ajouter une section", short: "Ajouter", icon: IconPlusSquare },
   { id: "palette", label: "Palette", short: "Palette", icon: IconPalette },
   { id: "ia", label: "IA — toute la page", short: "IA", icon: IconSparkles },
-  // Images (2026-11-12) : Studio d'images, Canvas.
-  { id: "images", label: "Images", short: "Images", icon: IconImage },
-  { id: "score", label: "Score de vente", short: "Score", icon: IconGauge },
+  // Médias (2026-11-12, renommé le 2026-11-17) : Studio d'images, Canvas, vidéos.
+  { id: "images", label: "Médias", short: "Médias", icon: IconImage },
+  { id: "score", label: "Couverture de la structure conseillée", short: "Couverture", icon: IconGauge },
 ];
 
 // Un clic sur un outil déroule son panneau ; un second clic le referme et il
@@ -564,6 +566,15 @@ function Swatches({ colors }) {
 }
 const mainColors = (d) => ["fond", "texte", "accent", "bouton", "fond-sombre", "surface"].map((r) => d.tokens.couleurs?.[r]).filter(Boolean);
 
+async function savePageWith(before, page) {
+  // Version d'avant l'essai d'abord, copie de sécurité, puis la nouvelle page.
+  const save = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(before) });
+  if (!save.ok) throw new Error((await save.json()).error);
+  await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" });
+  const put = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(page) });
+  if (!put.ok) throw new Error((await put.json()).error);
+}
+
 function PaletteTool() {
   const getPuck = useGetPuck();
   const root = usePuckSelect((s) => s.appState.data.root?.props ?? {});
@@ -607,29 +618,94 @@ function PaletteTool() {
     }
   }
 
+  // ---- Portée d'un design.md (lot 2 « Charte complète », 2026-11-17) ----
+  // Palette (couleurs seules) · Couleurs et polices · Charte complète (cases).
+  const [portee, setPortee] = useState("complete");
+  const [cases, setCases] = useState({ couleurs: true, typo: false, boutons: true, formes: true, proportions: true });
+  const [effacer, setEffacer] = useState(false);
+  const toggleCase = (k) => setCases((c) => ({ ...c, [k]: !c[k] }));
+  async function applyScoped(design) {
+    const opts = optionsFor(portee, cases);
+    const data = getPuck().appState.data;
+    const doc = [...document.querySelectorAll("iframe")].find((f) => f.contentDocument?.querySelector("[data-atl-id]"))?.contentDocument;
+    const before = data.root?.props ?? {};
+    let page = { ...data, content: (data.content ?? []).map((it) => (byId[it.type] ? { ...it, props: normalizeProps(byId[it.type], it.props) } : it)) };
+    if (opts.couleurs) page = applyDesign(page, design, byId, currentDesign ?? null).page;
+    const pol = design.tokens?.polices ?? {};
+    const rootProps = { ...page.root.props };
+    if (opts.familles) {
+      if (pol.titres) rootProps.font_heading = pol.titres;
+      if (pol.texte) rootProps.font_body = pol.texte;
+    } else {
+      rootProps.font_heading = before.font_heading ?? "";
+      rootProps.font_body = before.font_body ?? "";
+    }
+    page = { ...page, root: { ...page.root, props: rootProps } };
+    let total = {};
+    if (portee !== "palette") {
+      const r = applyCharte(page, design, opts, byId, (sid) => measureIn(doc, sid), { effacer });
+      page = r.page;
+      total = r.total;
+      page.root.props.charte = { design: design.id, portee, ...opts, date: new Date().toISOString() };
+    }
+    // Bilan avant d'écrire.
+    const parts = Object.entries(total).map(([k, n]) => `${k === "carte" ? "Cartes" : roleLabel(k)} : ${n}`);
+    const lignes = [
+      `${portee === "palette" ? "Palette" : portee === "polices" ? "Couleurs et polices" : "Charte complète"} de ${design.id}.md`,
+      "",
+      opts.couleurs ? "• Couleurs des sections : changées." : "• Couleurs : gardées.",
+      opts.familles ? `• Polices : ${pol.titres ?? "?"} (titres), ${pol.texte ?? "?"} (texte).` : "• Polices : gardées.",
+      portee === "complete" ? `• Tailles des textes : ${opts.typo && !opts.proportions ? "celles de la charte (ordinateur et téléphone)" : "gardées (proportions de la page)"}.` : null,
+      parts.length ? `• Éléments qui suivent la charte : ${parts.join(", ")}.` : portee !== "palette" ? "• Aucun élément reconnu (sections du catalogue : couleurs et polices seulement)." : null,
+      portee !== "palette" ? (effacer ? "• Tes retouches de style sur ces éléments sont effacées." : "• Tes retouches de style sont gardées (elles passent devant la charte).") : null,
+      "",
+      "Une copie de sécurité est faite avant (Historique pour revenir). Appliquer ?",
+    ].filter((l) => l != null);
+    // Essai contrôlé (lot 3) : la page change à l'écran, rien n'est écrit
+    // avant « Appliquer ». Bilan : ce qui change, retouches gardées, contrastes.
+    let gardees = 0;
+    if (!effacer) for (const it of page.content ?? []) for (const k of Object.keys(it.props?.atl_charte ?? {})) if (it.props?.atl_styles?.[k]) gardees++;
+    const warn = opts.couleurs ? contrastIssues(design.tokens?.couleurs ?? {}).map((i) => `⚠ Contraste faible : ${i.label} ${i.ratio}:1 (il faut 4,5:1).`) : [];
+    startTrial({
+      title: lignes[0],
+      lines: [...lignes.filter((l) => l.startsWith("•")), ...(gardees ? [`• ${gardees} élément(s) gardent ta retouche par-dessus la charte.`] : []), ...warn],
+      page,
+      apply: async ({ page: pg, before: prev }) => {
+        await savePageWith(prev, pg);
+        await fetch("/api/designs/recents", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: design.id }) }).catch(() => {});
+        return {};
+      },
+    });
+  }
+
   async function applyPalette(colors, origine, suffix) {
     let id = `${base}-${suffix}`;
     for (let n = 2; designById[id]; n++) id = `${base}-${suffix}-${n}`;
     const couleurs = brandRoles(colors, currentDesign?.tokens.couleurs ?? {}, level);
     // Contraste réel avant d'appliquer (2026-11-16) : sous 4,5:1 le texte se lit mal.
     const issues = contrastIssues(couleurs);
-    const lignes = issues.map((i) => `• ${i.label} : ${i.ratio}:1 (il faut 4,5:1)`).join("\n");
-    if (issues.length && !confirm(`Contraste faible avec cette palette :\n\n${lignes}\n\nAppliquer quand même ? Tu pourras corriger la couleur ensuite, ou revenir en arrière avec l'Historique.`)) return;
     // Mode Palette = couleurs seulement : polices et styles du design actuel gardés.
     const markdown = designMarkdown({ title: `${project?.nom ?? base} — palette ${suffix === "logo" ? "du logo" : "personnalisée"} (intensité ${level})`, origine: `${origine}, intensité ${level}/4`, polices, couleurs, styles: currentDesign?.tokens.styles });
-    // La page d'abord, le design.md ensuite : créer le fichier recharge
-    // l'atelier, ce qui couperait l'application en cours.
-    setState({ busy: true });
-    try {
-      const save = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(getPuck().appState.data) });
-      if (!save.ok) throw new Error((await save.json()).error);
-      await applyDesignToPage(pageName, parseDesign(id, markdown));
-      const res = await fetch(`/api/designs/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markdown }) });
-      if (!res.ok) throw new Error((await res.json()).error);
-      setTimeout(() => location.reload(), 1500);
-    } catch (e) {
-      setState({ error: e.message });
-    }
+    // Essai contrôlé (lot 3) : la palette s'affiche sur la page, rien n'est
+    // écrit avant « Appliquer ». Puis la page d'abord, le design.md ensuite :
+    // créer le fichier recharge l'atelier.
+    const design = parseDesign(id, markdown);
+    const data = getPuck().appState.data;
+    let page = { ...data, content: (data.content ?? []).map((it) => (byId[it.type] ? { ...it, props: normalizeProps(byId[it.type], it.props) } : it)) };
+    page = applyDesign(page, design, byId, currentDesign ?? null).page;
+    page = { ...page, root: { ...page.root, props: { ...page.root.props, font_heading: data.root?.props?.font_heading ?? "", font_body: data.root?.props?.font_body ?? "" } } };
+    startTrial({
+      title: `Palette ${suffix === "logo" ? "du logo" : "personnalisée"}, intensité ${["", "Discrète", "Marquée", "Forte", "Totale"][level]}`,
+      lines: ["• Couleurs des sections : changées.", "• Polices, tailles et formes : gardées.", ...issues.map((i) => `⚠ Contraste faible : ${i.label} ${i.ratio}:1 (il faut 4,5:1).`)],
+      page,
+      apply: async ({ page: pg, before: prev }) => {
+        await savePageWith(prev, pg);
+        const res = await fetch(`/api/designs/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ markdown }) });
+        if (!res.ok) throw new Error((await res.json()).error);
+        await fetch("/api/designs/recents", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => {});
+        return { reload: true, delay: 1500 };
+      },
+    });
   }
 
   // ---- Varier les couleurs (2026-11-17) ----
@@ -787,6 +863,55 @@ function PaletteTool() {
       </div>
 
       {mode === "design" && (
+        <>
+        <div className="atl-portee">
+          <span className="atl-portee__title">Ce que le design change</span>
+          <div className="atl-portee__seg" role="radiogroup" aria-label="Portée">
+            {[
+              ["palette", "Palette"],
+              ["polices", "Couleurs et polices"],
+              ["complete", "Charte complète"],
+            ].map(([id, label]) => (
+              <button key={id} type="button" role="radio" aria-checked={portee === id} className={portee === id ? "is-on" : ""} onClick={() => setPortee(id)}>
+                {label}
+              </button>
+            ))}
+          </div>
+          <small>
+            {portee === "palette"
+              ? "Les couleurs seulement : polices, tailles et formes restent."
+              : portee === "polices"
+                ? "Couleurs et familles de police (titres, texte) : tailles et formes restent."
+                : "Coche ce qui doit suivre le design. Contenus, images et ordre des sections ne bougent pas."}
+          </small>
+          {portee === "complete" && (
+            <div className="atl-portee__cases">
+              {[
+                ["couleurs", "Couleurs"],
+                ["typo", "Typographie (polices, graisse, interligne, casse)"],
+                ["boutons", "Boutons (forme, taille, couleurs)"],
+                ["formes", "Cartes et formes (arrondis)"],
+              ].map(([k, label]) => (
+                <label key={k}>
+                  <input type="checkbox" checked={Boolean(cases[k])} onChange={() => toggleCase(k)} /> {label}
+                </label>
+              ))}
+              {cases.typo && (
+                <label className="is-sub">
+                  <input type="checkbox" checked={Boolean(cases.proportions)} onChange={() => toggleCase("proportions")} /> Garder les tailles de la page (sinon : tailles de la charte, ordinateur et téléphone)
+                </label>
+              )}
+              <label className="is-off" title="Les design.md ne mesurent pas encore les espacements">
+                <input type="checkbox" disabled /> Espacements (bientôt : pas encore mesurés dans les design.md)
+              </label>
+            </div>
+          )}
+          {portee !== "palette" && (
+            <label className="atl-portee__reset">
+              <input type="checkbox" checked={effacer} onChange={() => setEffacer((v) => !v)} /> Effacer mes retouches de style sur les éléments touchés
+            </label>
+          )}
+        </div>
         <ul className="atl-palettes">
           {designs.map((d) => (
             <li key={d.id} className={d.id === root.design ? "is-current" : ""}>
@@ -797,12 +922,13 @@ function PaletteTool() {
                 </small>
                 <Swatches colors={mainColors(d)} />
               </span>
-              <button type="button" disabled={d.id === root.design || !!d.error} onClick={() => apply(d)}>
-                {d.id === root.design ? "Appliqué" : "Appliquer"}
+              <button type="button" disabled={!!d.error} onClick={() => applyScoped(d)}>
+                {d.id === root.design ? "Réappliquer" : "Appliquer"}
               </button>
             </li>
           ))}
         </ul>
+        </>
       )}
 
       {(mode === "logo" || mode === "palette") && (
@@ -926,10 +1052,11 @@ function ImagesTool() {
   );
   return (
     <>
-      <p className="atl-tool-panel__hint">Les images de la page et du projet. Tout ce que tu crées est rangé dans les images du projet (catalogue → projet → Images).</p>
+      <p className="atl-tool-panel__hint">Les images et vidéos de la page et du projet. Tout ce que tu crées est rangé dans les médias du projet (catalogue → projet → Médias).</p>
       <div className="atl-choices">
         {item("Studio d'images", "Comme « Image Mirror » de Whitelabeler : chaque photo d'origine de la page refaite avec ton produit et ta marque, puis installée dans la page ou envoyée dans le Canvas.", () => open("atl-open-studio"))}
         {item("Canvas", "Le grand tableau du projet : toutes tes images, créer une image à partir de références, Section images, retirer un fond, exporter vers une page.", () => open("atl-open-canvas"))}
+        {item("Vidéos", "Ajoute une vidéo au tableau du projet (Canvas → menu ☰ → « Ajouter une vidéo ») ; elle est rangée avec les médias du projet. Pour la page : choisis un emplacement vidéo et colle son lien.", () => open("atl-open-canvas"))}
       </div>
     </>
   );

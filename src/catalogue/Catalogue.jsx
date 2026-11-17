@@ -659,9 +659,17 @@ export default function Catalogue() {
           <strong>Atelier — Catalogue</strong>
           <span className="cat-badge cat-badge--blue">Local</span>
         </div>
-        <a className="cat-btn cat-btn--ghost cat-top__back" href={targetPage ? `/?page=${encodeURIComponent(targetPage)}` : "/"}>
-          {targetPage ? `← Retour à « ${targetPage} »` : "Ouvrir l'atelier"}
-        </a>
+        {/* Au premier accès (aucune page mémorisée), « Ouvrir l'atelier » menait
+            à / qui renvoie ici : on propose de choisir une page (audit, 2026-11-17). */}
+        {targetPage ? (
+          <a className="cat-btn cat-btn--ghost cat-top__back" href={`/?page=${encodeURIComponent(targetPage)}`} title={targetPage}>
+            ← Reprendre ma page
+          </a>
+        ) : (
+          <button type="button" className="cat-btn cat-btn--ghost cat-top__back" onClick={() => setView("pages")}>
+            Choisir une page à ouvrir
+          </button>
+        )}
         {/* Écran étroit (tablette, téléphone) : le menu se replie derrière ce
             bouton au lieu de s'étaler au-dessus du contenu (2026-11-10). */}
         <button type="button" className="cat-menu-toggle" aria-expanded={navOpen} aria-controls="cat-nav" onClick={() => setNavOpen((o) => !o)}>
@@ -732,7 +740,7 @@ export default function Catalogue() {
             Designs (design.md) <em>{designs.length}</em>
           </button>
           <button type="button" className={view === "enrichir" ? "is-on" : ""} onClick={() => setView("enrichir")}>
-            Enrichir le catalogue
+            Importer une page
           </button>
           <button type="button" className={view === "demandes" ? "is-on" : ""} onClick={() => setView("demandes")}>
             Demandes {pending > 0 && <em className="cat-dot">{pending}</em>}

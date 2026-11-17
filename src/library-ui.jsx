@@ -83,7 +83,7 @@ export function PanelTabs() {
   const tabs = [
     { name: "blocks", label: "Sections" },
     { name: "outline", label: "+ Ajouter" },
-    { name: "score", label: "Score de vente" },
+    { name: "score", label: "Couverture de la structure conseillée" },
   ];
   return (
     <div className="atl-panel-tabs" role="tablist">

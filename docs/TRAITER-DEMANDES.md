@@ -339,6 +339,79 @@ demande « en attente » (de la plus ancienne à la plus récente) :
        sur tous (seules les retouches faites ici) ; une étape Ctrl+Z
        (setData recordHistory: true) ; Échap ou clic simple vide la
        sélection. Les sections entières ne se prennent pas en multiple.
+     - Clic sur le cadre extérieur d'une copie (groupe racine de meta.arbre,
+       absent de l'arbre) : ouvrait un panneau vide. `target` (inspector-ui)
+       prend maintenant le plus petit élément sous la souris qui a une ligne
+       dans l'arbre, sinon la section.
+   - **Audit « D'abord » 2 à 11 (2026-11-17)** :
+     - T7 : rail des outils toujours visible (l'aperçu lui laisse 68 px), son
+       panneau s'ouvre au clic ; barre du haut et panneau de droite s'ouvrent
+       aussi au clavier (:focus-within). Plus de languette en haut : bouton
+       « Projet ▾ » au bout de la barre de l'aperçu (garde la barre Projet /
+       Page ouverte, `atl-topbar-pinned`, mémorisé). « Enregistré ✓ » déplacé
+       dans la barre de l'aperçu (`PreviewBarSave`, topbar-ui.jsx).
+     - Champ de rédaction de l'inspecteur (.atl-rte__area) : 13 px quelle que
+       soit la taille du texte dans la page.
+     - T6 : Excalidraw chargé à l'ouverture du Canvas (`loadExcalidraw`,
+       `CanvasBoard`), message + « Réessayer » si échec ; catalogue :
+       Catalogue.jsx chargé par import() dans main.jsx, message + « Réessayer »
+       si la liste des sections n'arrive pas.
+     - Libellés : « Couverture de la structure conseillée » (ex-Score de
+       vente, rail « Couverture ») ; étape « Exports » (ex-Publication) ;
+       Fondations : « les chiffres sans preuve sont signalés, vérifie avant
+       publication » ; rail « Médias » (ex-Images) + entrée Vidéos ; projet :
+       ressource « Médias » ; « Importer une page » (ex-Enrichir le catalogue).
+     - Catalogue : « ← Reprendre ma page » si une page est mémorisée, sinon
+       « Choisir une page à ouvrir » (avant : lien vers / qui revenait ici).
+     - Studio : avertissement visible sans photo du produit ; image d'essai :
+       si rien n'est encore généré et que plusieurs images sont prévues, pause
+       après la première (« Image d'essai faite… »).
+     - Point 7 (langue) : déjà en place (langue de la page EN/FR, consigneLangue
+       dans tous les outils IA de la page). Point 8 (Section images de bout en
+       bout) : pas fait, demande une vraie génération.
+     - Noms des familles (Customer reviews…) gardés en anglais, comme
+       Whitelabeler : décision de l'utilisateur (2026-11-17), ne pas traduire.
+   - **Lot 2 « Charte complète » (2026-11-17)** :
+     - Palette → « 1. Choisir un design.md » : portée Palette (couleurs) ·
+       Couleurs et polices · Charte complète, avec cases Couleurs,
+       Typographie (polices, graisse, interligne, casse ; décochée par
+       défaut), « Garder les tailles de la page » (cochée), Boutons, Cartes et
+       formes, Espacements (grisé : pas mesuré dans les design.md), et
+       « Effacer mes retouches de style ». Bilan (confirm) avant d'écrire,
+       copie de sécurité, puis rechargement. Bouton « Réappliquer » sur le
+       design actuel.
+     - Moteur `src/engine/charte.js` : `autoRole` (Titre H1/H2/H3, Question,
+       texte : ≥ 30 px → titre de section, ≥ 19 px → sous-titre ; bouton
+       principal seulement si ça en a l'air : fond ou contour, ≥ 80×28 px,
+       verbe d'action, hors en-tête / pied de page / bandeaux — la copie
+       nomme « Bouton (CTA) » aussi les croix, onglets et logos),
+       `charteForItem`, `applyCharte`, `optionsFor`, `measureIn`. Résultat dans
+       props.atl_charte (format atl_styles), dessiné par frame.js AVANT
+       atl_styles (la retouche gagne). Tailles téléphone = ordinateur × facteur
+       (h1 0,62, h2 0,7, h3 0,83, sous-titre 0,85, texte 0,92, min 14 px).
+       Bouton principal : couleurs des rôles bouton / bouton-texte, forme et
+       taille de styles.bouton ; secondaire : contour. Cartes (kind « carte ») :
+       arrondi = rayon du bouton × 1,5 (max 24 px). root.props.charte garde le
+       design et les options.
+     - Inspecteur : « Rôle visuel (charte) » sur chaque élément copié
+       (props.atl_roles), recalcule la section tout de suite si la page suit
+       une charte.
+     - Limites : sections du catalogue (non copiées) : couleurs et polices
+       seulement ; une section ajoutée après ne suit pas la charte (lot 4) ;
+       pas d'essai avant application (lot 3).
+   - **Lot 3 « Essai contrôlé » (2026-11-17)** : `src/trial-ui.jsx`
+     (`startTrial`, `TrialHost` monté dans App). Design.md (toutes portées) et
+     palettes (logo, palette d'un design, nouvelle palette) ne s'écrivent plus
+     tout de suite : la page change à l'écran, barre « Essai » avec le bilan
+     (ce qui change, éléments par rôle, retouches gardées, contrastes faibles
+     en ⚠), Avant / Après, Appliquer, Annuler (ou Échap). Pendant l'essai
+     window.__atlTrial coupe l'enregistrement automatique (App.onPageChange).
+     Appliquer : version d'avant, copie de sécurité, nouvelle page
+     (`savePageWith`), puis « ↶ Revenir à avant » ou Ctrl+Z ; une palette
+     crée ensuite son design.md et recharge. Vérifié : Annuler = rien
+     d'écrit ; Appliquer puis Revenir = état d'avant (page et serveur).
+     Pas couvert : curseurs « Varier les couleurs » (déjà en direct avec
+     Garder / Revenir).
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

@@ -151,7 +151,7 @@ export function ProjectsView({ onOpen, onMessage }) {
 // images et les textes ont chacun un seul onglet (d'origine / modifiés).
 const RESSOURCES = [
   { id: "marque", label: "Marque & design" },
-  { id: "images", label: "Images" },
+  { id: "images", label: "Médias" },
   { id: "textes", label: "Textes" },
 ];
 const OLD_TABS = { offre: "fondations", "images-origine": "images", "images-modifiees": "images", "textes-origine": "textes", "textes-corriges": "textes" };
@@ -506,7 +506,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
                   <th>Angle / profil client</th>
                   <th>Origine</th>
                   <th>Achat</th>
-                  <th title="Score de vente">Score</th>
+                  <th title="Couverture de la structure conseillée (sections présentes, pas une note de vente)">Couverture</th>
                   <th>Textes</th>
                   <th />
                 </tr>

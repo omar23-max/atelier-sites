@@ -397,7 +397,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   return (
     <div className="cat-fd">
       <p className="cat-muted">
-        Les faits que toi seul connais. Claude n'écrira jamais une preuve, un chiffre ou une garantie qui n'est pas cochée ici. Remplis
+        Les faits que toi seul connais. Claude s'appuie sur ce qui est coché ici ; les chiffres sans preuve sont signalés, vérifie avant publication. Remplis
         ce que tu sais, puis « Compléter avec Claude » : il fera la recherche client et l'offre, et tu valideras.
       </p>
       <div className={`cat-fd__statut is-${statut}`}>
@@ -532,7 +532,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       <section className="cat-panel">
         <h3>9. Contenu par type de page</h3>
         <p className="cat-muted">
-          Ce que chaque page doit dire, section par section, pour ce produit. Les sections sont celles que le Score attend sur ce type de
+          Ce que chaque page doit dire, section par section, pour ce produit. Les sections sont celles que la couverture de structure attend sur ce type de
           page, dans l'ordre. Écris seulement ce qui est vrai : une preuve ou un chiffre que tu n'as pas se note [MANQUE]. Les cartes des
           types de page déjà présents dans le projet sont ouvertes.
         </p>
@@ -593,7 +593,7 @@ export function ProjectProgress({ project, pages, onGo, current }) {
     ["angles", "Angles", ang.chosen ? "done" : "todo", ang.chosen ? `${ang.chosen} choisi(s)` : "à choisir"],
     ["pages", "Pages", pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     // ["creatives", "Pubs", creatives.length ? "done" : "todo", creatives.length ? `${creatives.length} créative(s)` : "à faire"], // retiré pour l'instant (2026-11-12, demande de l'utilisateur)
-    ["publication", "Publication", pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],
+    ["publication", "Exports", pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],
     // ["resultats", "Résultats", "todo", "après la mise en ligne"], // retiré pour l'instant (2026-11-12, demande de l'utilisateur)
   ];
   return (

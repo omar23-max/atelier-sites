@@ -100,6 +100,9 @@ export function frameCss(section, props, scope, { pageBackground = null, imageUr
     const fill = safeColor(c);
     if (fill) rules.push(`${scope} [data-atl-group="${gid}"]{background-color:${fill}!important}`);
   }
+  // Charte du design (engine/charte.js) d'abord, retouches ensuite : à
+  // sélecteur égal la dernière règle gagne, la retouche garde le dernier mot.
+  rules.push(...stylesCss(props.atl_charte, scope, imageUrl ?? props.atl_fond_image));
   rules.push(...stylesCss(props.atl_styles, scope, imageUrl ?? props.atl_fond_image));
   const anim = ANIMATIONS[props.atl_animation];
   if (anim) {

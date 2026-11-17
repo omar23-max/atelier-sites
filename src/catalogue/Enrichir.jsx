@@ -281,7 +281,7 @@ export function Enrichir({ onSent, onError }) {
 
   return (
     <>
-      <h1>Enrichir le catalogue</h1>
+      <h1>Importer une page ou des sections</h1>
       <p className="cat-lead">Chaque demande est enregistrée dans le dossier « demandes » du projet. Dis-moi ensuite « traite les demandes du catalogue ».</p>
 
       <Method

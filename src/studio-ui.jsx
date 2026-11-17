@@ -333,12 +333,15 @@ function StudioDialog({ onClose }) {
     if (!todo.length) return setFlash({ error: "Rien à générer : coche des images en 3." });
     stopRef.current = false;
     const limit = !form.autopilot ? 1 : form.rythme === "5" ? 5 : form.rythme === "n" ? Math.max(1, Number(form.n) || 1) : todo.length;
+    // Image d'essai (audit, 2026-11-17) : rien encore de généré et plusieurs
+    // images prévues → on s'arrête après la première pour la regarder.
+    const essai = done === 0 && Math.min(limit, todo.length) > 1;
     setStatus((s) => ({ ...s, ...Object.fromEntries(todo.map((t) => [t.key, "attente"])) }));
     let faites = 0;
     for (const t of todo) {
       if (stopRef.current || faites >= limit) break;
-      if (form.autopilot && form.rythme === "demander" && faites > 0) {
-        setRun({ state: "demande", faites, next: t.sectionLabel });
+      if (faites > 0 && ((form.autopilot && form.rythme === "demander") || (essai && faites === 1))) {
+        setRun({ state: "demande", faites, next: t.sectionLabel, essai: essai && faites === 1 });
         const go = await new Promise((resolve) => (continueRef.current = resolve));
         if (!go) break;
       }
@@ -452,6 +455,11 @@ function StudioDialog({ onClose }) {
               <RefBox title="Ton produit" hint="Quelques photos : face, dos, en main, emballage (fournisseur ou les tiennes)." group="produit" refs={refs} setRefs={setRefs} room={room} />
               <RefBox title="Ta marque" hint={`Logo, brand board, couleurs.${design ? ` Couleurs et polices de ${design.id}.` : ""}`} group="marque" refs={refs} setRefs={setRefs} room={room} />
             </div>
+            {!refs.some((r) => r.groupe === "produit") && (
+              <p className="atl-studio__warn" role="note">
+                Aucune photo de ton produit : sans elle, l'IA ne peut pas le reproduire fidèlement. Ajoute-en au moins une avant de lancer.
+              </p>
+            )}
           </section>
 
           {/* 3. Les images à refaire */}
@@ -664,7 +672,8 @@ function StudioDialog({ onClose }) {
               run.state === "demande" ? (
                 <div className="atl-mirror__ask">
                   <span>
-                    {run.faites} faite(s). Suivante : <b>{run.next}</b>
+                    {run.essai ? "Image d'essai faite : regarde-la avant de lancer les autres. " : `${run.faites} faite(s). `}
+                    Suivante : <b>{run.next}</b>
                   </span>
                   <button type="button" className="atl-mirror__go" onClick={() => continueRef.current?.(true)}>
                     Continuer

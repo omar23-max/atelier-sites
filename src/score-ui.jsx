@@ -467,7 +467,7 @@ export function ScorePanel() {
           <div className="atl-score__top">
             <Ring score={result.score} />
             <div>
-              <b>Score de vente · {result.verdict}</b>
+              <b>Couverture de la structure conseillée · {result.verdict}</b>
               <span>
                 {result.type.label} · {result.type.achat ? "achat sur la page" : "pas d'achat sur la page"}
               </span>

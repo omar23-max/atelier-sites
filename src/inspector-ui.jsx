@@ -9,6 +9,7 @@ import { StyleEditor, currentDevice } from "./style-editor-ui.jsx";
 import { CarrouselPanel } from "./carrousel-ui.jsx";
 import { ROOT_ZONE, Thumb, scrollCanvasTo, usePuckSelect, AddSectionButton } from "./library-ui.jsx";
 import { designById } from "./engine/designs.js";
+import { ROLES_VISUELS, autoRole, charteForItem, measureIn, roleLabel } from "./engine/charte.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
 import { scorePage, familiesOf } from "./engine/page-score.js";
 import { TYPES_CONTENU, briefFor } from "./engine/page-blueprints.js";
@@ -1640,6 +1641,43 @@ function MultiPanel({ entries, onClear, onRemove, onHide, onDelete, onStyle }) {
   );
 }
 
+// Rôle visuel d'un élément pour la charte (lot 2, 2026-11-17) : deviné
+// d'après son nom et sa taille, corrigeable ici. Si la page suit une charte,
+// la section est recalculée tout de suite.
+function RoleSelect({ item, leaf, props, onChangeProps }) {
+  const getPuck = useGetPuck();
+  const doc = canvasFrame()?.contentDocument;
+  const auto = autoRole(leaf, measureIn(doc, item.props.id)(leaf.key), byId[item.type]?.meta?.family);
+  const own = props.atl_roles?.[leaf.key] ?? "";
+  const change = (value) => {
+    const roles = { ...(props.atl_roles ?? {}) };
+    if (value) roles[leaf.key] = value;
+    else delete roles[leaf.key];
+    const next = { ...props, atl_roles: roles };
+    const ch = getPuck().appState.data.root?.props?.charte;
+    const design = ch && designById[ch.design];
+    if (design) {
+      const { charte } = charteForItem({ ...item, props: next }, byId[item.type], design, ch, measureIn(doc, item.props.id));
+      if (charte) next.atl_charte = charte;
+      else delete next.atl_charte;
+    }
+    onChangeProps(next);
+  };
+  return (
+    <label className="atl-insp__field atl-role">
+      <span className="atl-rte__label">Rôle visuel (charte)</span>
+      <select value={own} onChange={(e) => change(e.target.value)}>
+        <option value="">Automatique : {auto ? roleLabel(auto) : "aucun"}</option>
+        {ROLES_VISUELS.map((r) => (
+          <option key={r.id} value={r.id}>
+            {r.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function PanelHead({ onBack, title, sub, onAi, onDelete, saveItem }) {
   return (
     <div className="atl-insp__bar">
@@ -1852,6 +1890,7 @@ function ElementSettings({ item, elementKey, onBack, onAi, onChange, onChangePro
               <RichText value={block.text} onChange={(v) => set({ text: v })} />
             </div>
             {linkBlock && <LinkField block={linkBlock} onChange={(link) => onChangeLink(onChangeProps, props, linkBlock.slot, link)} />}
+            <RoleSelect item={item} leaf={leaf} props={props} onChangeProps={onChangeProps} />
             <p className="atl-insp__hint">Double-clic sur le texte dans la page pour l'écrire directement.</p>
           </>
         )}
@@ -3545,7 +3584,7 @@ function FillFromFoundations({ content, root, onApply }) {
         }
       }
       setState({
-        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre absent des Fondations)` : ""}. Vérifie avec l'outil Score → Fidélité aux Fondations. Ctrl+Z pour annuler, Publish pour enregistrer.`,
+        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre absent des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Ctrl+Z pour annuler, Publish pour enregistrer.`,
       });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà écrits)` });

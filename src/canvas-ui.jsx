@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { Excalidraw, MainMenu, convertToExcalidrawElements, CaptureUpdateAction, restoreElements } from "@excalidraw/excalidraw";
-import "@excalidraw/excalidraw/index.css";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { WorkspaceSwitch } from "./workspace-switch.jsx";
@@ -149,7 +147,53 @@ export function CanvasButton() {
   );
 }
 
+// Excalidraw (≈ 2 Mo) n'est chargé qu'à l'ouverture du Canvas (audit T6,
+// 2026-11-17) : l'éditeur s'ouvre plus vite. En cas d'échec : message et
+// « Réessayer ».
+let excalidrawJob = null;
+const loadExcalidraw = () =>
+  (excalidrawJob ??= Promise.all([import("@excalidraw/excalidraw"), import("@excalidraw/excalidraw/index.css")]).then(([m]) => m).catch((e) => {
+    excalidrawJob = null;
+    throw e;
+  }));
 function Canvas({ onClose }) {
+  const [X, setX] = useState(null);
+  const [error, setError] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    setError(null);
+    loadExcalidraw()
+      .then((m) => alive && setX(m))
+      .catch((e) => alive && setError(e.message || "chargement impossible"));
+    return () => {
+      alive = false;
+    };
+  }, [attempt]);
+  if (X) return <CanvasBoard onClose={onClose} X={X} />;
+  return (
+    <div className="atl-cv atl-cv--loading" role="dialog" aria-modal="true" aria-label="Canvas">
+      <div className="atl-cv__loadbox">
+        {error ? (
+          <>
+            <p>Le Canvas n'a pas pu se charger ({error}).</p>
+            <button type="button" className="atl-left__cta" onClick={() => setAttempt((n) => n + 1)}>
+              Réessayer
+            </button>
+          </>
+        ) : (
+          <p>Chargement du Canvas…</p>
+        )}
+        <button type="button" className="atl-cv__close" onClick={onClose} aria-label="Fermer le Canvas">
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CanvasBoard({ onClose, X }) {
+  const { Excalidraw, MainMenu, convertToExcalidrawElements, CaptureUpdateAction, restoreElements } = X;
   const getPuck = useGetPuck();
   const root = getPuck().appState.data.root?.props ?? {};
   const [projet, setProjet] = useState(null);

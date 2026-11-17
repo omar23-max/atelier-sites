@@ -14,10 +14,11 @@ import { LanguageSwitch } from "./lang-ui.jsx";
 // Plus de boutons « + » (projet, page, design) dans la barre : on les crée
 // depuis le projet, dans le catalogue (2026-11-08).
 import { ProposalsBanner } from "./proposals-ui.jsx";
-import { PreviewBarLanguage, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
+import { PreviewBarLanguage, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
+import { TrialHost } from "./trial-ui.jsx";
 import { Inspector, ProjectBrandSync } from "./inspector-ui.jsx";
 import { ClosePageButton, DeletePageButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
 
@@ -207,6 +208,8 @@ export default function App() {
   }, []);
 
   const onPageChange = useCallback((d) => {
+    // Essai d'un style en cours (trial-ui.jsx) : rien n'est enregistré.
+    if (window.__atlTrial) return;
     latest.current = d;
     if (savedJson.current == null) savedJson.current = JSON.stringify(dataRef.current);
     if (!isDirty()) return;
@@ -247,6 +250,21 @@ export default function App() {
       frameWin?.removeEventListener("keydown", onKey, true);
     };
   }, []);
+
+  // Barre du haut ouverte par « Projet ▾ » et gardée ouverte (audit T7, 2026-11-17).
+  const [pinned, setPinned] = useState(() => {
+    try {
+      return localStorage.getItem("atl-topbar-pinned") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    document.body.classList.toggle("atl-topbar-pinned", pinned);
+    try {
+      localStorage.setItem("atl-topbar-pinned", pinned ? "1" : "0");
+    } catch {}
+  }, [pinned]);
 
   return (
     <>
@@ -319,6 +337,8 @@ export default function App() {
                 <ProjectBrandSync />
                 {/* Choix d'un modèle pour un emplacement de section manquante. */}
                 <SlotPicker />
+                {/* Essai d'un design, d'une palette ou d'une charte avant de l'écrire. */}
+                <TrialHost />
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
                 <FullscreenButton />
@@ -335,10 +355,25 @@ export default function App() {
                   <span className="atl-publish">
                     <DownloadHtmlButton />
                     <MirrorButton />
-                    {/* Remplace « Publish » de Puck : il n'enregistrait que la page. */}
-                    <SaveButton onSave={savePage} />
                   </span>
                 </TopbarTools>
+                {/* Remplace « Publish » de Puck : il n'enregistrait que la page.
+                    Toujours visible, au bout de la barre de l'aperçu. */}
+                <PreviewBarSave>
+                  <SaveButton onSave={savePage} />
+                  {/* La barre Projet / Page (cachée en haut) : ouverte et gardée
+                      ouverte par ce bouton, au clic ou au clavier. */}
+                  <button
+                    type="button"
+                    className="atl-topbar-toggle"
+                    aria-pressed={pinned}
+                    aria-expanded={pinned}
+                    onClick={() => setPinned((p) => !p)}
+                    title={pinned ? "Replier la barre Projet / Page" : "Afficher la barre Projet / Page"}
+                  >
+                    Projet {pinned ? "▴" : "▾"}
+                  </button>
+                </PreviewBarSave>
               </>
             ),
           }}

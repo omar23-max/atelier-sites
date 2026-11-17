@@ -432,7 +432,7 @@ export function TemplatesView({ onMessage, initialType = "tous", typeLabels = {}
       {!templates ? (
         <p className="cat-muted">Chargement…</p>
       ) : templates.length === 0 ? (
-        <div className="cat-empty">Aucun template. Importe un site depuis « Enrichir le catalogue ».</div>
+        <div className="cat-empty">Aucun template. Importe un site depuis « Importer une page ».</div>
       ) : (
         <>
           {/* Filtres rangés dans une seule carte (2026-11-09) : recherche, puis

@@ -36,6 +36,13 @@ function usePreviewBarSlot(className) {
   return slot;
 }
 
+// État de l'enregistrement, toujours visible au bout de la barre de l'aperçu
+// (audit T7, 2026-11-17 : avant, il était dans la barre du haut, cachée).
+export function PreviewBarSave({ children }) {
+  const slot = usePreviewBarSlot("atl-save-host");
+  return slot ? createPortal(children, slot) : null;
+}
+
 // EN / FR dans la barre de l'aperçu, juste avant les écrans.
 export function PreviewBarLanguage({ children }) {
   const slot = usePreviewBarSlot("atl-lang-host");
