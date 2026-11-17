@@ -412,6 +412,68 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      d'écrit ; Appliquer puis Revenir = état d'avant (page et serveur).
      Pas couvert : curseurs « Varier les couleurs » (déjà en direct avec
      Garder / Revenir).
+   - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
+     styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
+     réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
+     largeur ; libellés raccourcis (Espacement, Largeur max., Puce) ;
+     « d'origine » en Inter (plus en police de code) ; Style de texte libellé
+     au-dessus ; Rôle visuel aligné ; champ de rédaction 56 px de haut ; menu
+     des écrans sur deux rangs (Ordinateur · Téléphone, puis Tous les écrans) ;
+     pastilles (graisse, style) qui passent à la ligne proprement ; Copier /
+     Coller le style même largeur ; Marges haut / bas dans la largeur ; plus de
+     languette « ‹ » sur le contenu quand le panneau est ouvert. Vérifié :
+     aucun réglage ne dépasse le panneau (élément, bloc, section copiée).
+   - **Audit « Ensuite », lot 1 « Fiabiliser » (2026-11-17)** :
+     - T1 chiffres avec leur nature (src/engine/fidelite.js) : `kindOf`
+       (argent, pourcent, durée, note, dose, fois, nombre), `knownNumbers`
+       renvoie des faits nombre → natures (contexte du texte, sinon nom du
+       champ : prix, garantie…), `knowsFig`. Un prix de 30 n'autorise plus
+       « 30 jours » ; « 100 % » est vérifié ; « 90-day » repéré. Testé sur 11
+       cas. Pas fait : affirmations sans nombre (certifications, origine…),
+       faits typés saisis dans les Fondations.
+     - T3 conflits d'écriture des pages : vite.config.js (`pageRev`, empreinte
+       sha1 ; `pageWriters`, dernier onglet ; ETag au GET et au PUT ; PUT avec
+       If-Match périmé venant d'un autre onglet → 409). src/main.jsx pose
+       X-Atl-Tab sur chaque appel /api/ ; App.jsx envoie If-Match et affiche
+       le bandeau « Cette page a été modifiée ailleurs » (Garder ma version =
+       copie de sécurité de l'autre puis enregistrement ; Voir l'autre version
+       = recharger). Les écritures du même onglet (palette, essai) ne bloquent
+       pas. Pas fait : brouillon / version validée des Fondations.
+     - T5 bilan d'import (scripts/kimi-zip.mjs) : étapes import, réparation,
+       fiche, vérification notées par page ; « ⚠ importée mais NON validée »
+       si une étape manque ; code de sortie 0 tout validé, 2 partiel, 1 échec.
+       Pas lancé sur un vrai import (vérifié à la compilation).
+     - T4 export HTML (tools-ui.jsx `buildHtml` → { html, bilan }) : langue de
+       la page (lang=), sections non rendues signalées (au lieu d'être sautées
+       en silence), médias de l'atelier intégrés aussi depuis le CSS, bilan à
+       la fin (sections, médias intégrés ou introuvables, photos d'origine
+       retirées, polices Google, ressources et liens restés en ligne). Vu sur
+       la copie Paleo : des ressources pointent encore vers paleopro.com. Pas
+       fait : ZIP autonome.
+   - **Propositions IA avant application (2026-11-17)** : inspector-ui.jsx
+     `PageAiDialog` récolte les textes des outils de page (Réécrire pour mon
+     produit, Décliner pour cet angle, Remplir depuis les Fondations,
+     Traduire) au lieu de les écrire ; `ProposalReview` les montre par
+     section, avant → après (un texte, ou « Voir tout »), cases à cocher,
+     ↗ pour voir la section, « Appliquer N section(s) » (une étape setData,
+     Ctrl+Z) ou « Tout rejeter ». Les sections décochées restent en attente.
+     Fermer avec des propositions en attente demande confirmation. Testé avec
+     une réponse IA simulée (aucun appel payant). Pas concernés : retravail
+     d'une seule section (bandeau « Revenir à avant »), Adapter toute la page
+     (sections redessinées, bandeau « Revenir à avant »).
+   - **Fondations en sous-étapes + brouillon / version validée (2026-11-17)** :
+     src/catalogue/Fondations.jsx. Cinq étapes (Produit et clients · Preuves
+     et offre · Recherche clients · Message central · Contenus des pages),
+     sommaire collant en haut avec l'état de chaque étape (✓ quand le minimum
+     est là), une étape affichée à la fois (les autres restent montées :
+     l'offre non enregistrée n'est pas perdue), barre collante en bas
+     (← étape · étape → · Enregistrer · Compléter avec Claude · Valider).
+     Résultats de Claude repliés (résumé + clic). Statut « modifiée » :
+     `empreinte` (réponses, message, contenus) gardée à la validation
+     (valideEmpreinte, version) ; un enregistrement qui change le contenu
+     passe en « Modifiées depuis la validation… », étape « à revalider »,
+     bouton « Valider à nouveau » (version + 1). Enregistrer sans changement
+     garde « validées ». L'offre (project.offre) n'entre pas dans l'empreinte.
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

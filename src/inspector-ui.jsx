@@ -1270,7 +1270,12 @@ export function Inspector({ children }) {
           tool={pageAi}
           content={content}
           root={getPuck().appState.data.root?.props ?? {}}
-          onApply={(id, values) => updateValues(id, values)}
+          onApplyMany={(map) => {
+            // Propositions acceptées : une seule étape d'historique (Ctrl+Z).
+            const { appState, dispatch } = getPuck();
+            const next = appState.data.content.map((c) => (map[c.props.id] ? applyValues(c, map[c.props.id]) : c));
+            dispatch({ type: "setData", data: { ...appState.data, content: next }, recordHistory: true });
+          }}
           onRoot={patchRoot}
           onAdaptAll={async (onStep) => {
             const data = getPuck().appState.data;
@@ -3140,8 +3145,98 @@ function BrandSheet({ root, onChange }) {
 }
 
 // ---- Outils IA de toute la page (menu ✨ IA du rail de gauche) ----
-function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onUndoAll, onClose }) {
+// Propositions IA avant application (audit « Ensuite », 2026-11-17) : les
+// outils de page (Réécrire, Décliner, Remplir depuis les Fondations, Traduire)
+// ne touchent plus la page ; leurs textes s'ajoutent ici, section par section,
+// avant → après. On coche ce qu'on garde, puis « Appliquer » (une étape,
+// Ctrl+Z). Une erreur en cours de route ne laisse plus une page à moitié
+// réécrite : rien n'est écrit sans validation.
+const shorten = (t, n = 90) => (t.length > n ? `${t.slice(0, n)}…` : t);
+function ProposalReview({ content, proposals, onApply, onReject }) {
+  const [off, setOff] = useState(() => new Set());
+  const [open, setOpen] = useState(null);
+  const rows = Object.keys(proposals)
+    .map((id) => {
+      const item = content.find((c) => c.props.id === id);
+      if (!item) return null;
+      const old = Object.fromEntries(aiTargets(item).texts.map((t) => [t.id, t.text]));
+      const changes = Object.entries(proposals[id])
+        .filter(([k, v]) => v?.text != null && plain(v.text) !== plain(old[k] ?? ""))
+        .map(([k, v]) => ({ k, avant: plain(old[k] ?? ""), apres: plain(v.text) }));
+      return { id, index: content.indexOf(item), name: (byId[item.type]?.meta?.label ?? item.type).split(" — ")[0], changes };
+    })
+    .filter((r) => r && r.changes.length)
+    .sort((a, b) => a.index - b.index);
+  if (!rows.length) return null;
+  const chosen = rows.filter((r) => !off.has(r.id));
+  const toggle = (id) => setOff((s) => {
+    const n = new Set(s);
+    if (n.has(id)) n.delete(id);
+    else n.add(id);
+    return n;
+  });
+  return (
+    <div className="atl-prop">
+      <p className="atl-prop__title">
+        Propositions : {rows.length} section(s), {rows.reduce((n, r) => n + r.changes.length, 0)} texte(s) · <b>rien n'est encore dans la page</b>
+      </p>
+      <div className="atl-prop__bar">
+        <button type="button" onClick={() => setOff(new Set())}>
+          Tout cocher
+        </button>
+        <button type="button" onClick={() => setOff(new Set(rows.map((r) => r.id)))}>
+          Tout décocher
+        </button>
+      </div>
+      <ul className="atl-prop__list">
+        {rows.map((r) => (
+          <li key={r.id} className={off.has(r.id) ? "is-off" : ""}>
+            <div className="atl-prop__head">
+              <label>
+                <input type="checkbox" checked={!off.has(r.id)} onChange={() => toggle(r.id)} />
+                <b>
+                  {r.index + 1}. {r.name}
+                </b>
+                <small>{r.changes.length} texte(s)</small>
+              </label>
+              <button type="button" onClick={() => setOpen(open === r.id ? null : r.id)}>
+                {open === r.id ? "Masquer" : "Voir tout"}
+              </button>
+              <button type="button" onClick={() => scrollCanvasTo(r.id)} title="Voir la section dans la page">
+                ↗
+              </button>
+            </div>
+            {(open === r.id ? r.changes : r.changes.slice(0, 1)).map((c) => (
+              <div key={c.k} className="atl-prop__diff">
+                <del>{open === r.id ? c.avant || "(vide)" : shorten(c.avant || "(vide)")}</del>
+                <ins>{open === r.id ? c.apres : shorten(c.apres)}</ins>
+              </div>
+            ))}
+          </li>
+        ))}
+      </ul>
+      <div className="atl-prop__actions">
+        <button type="button" className="atl-aibox__go" disabled={!chosen.length} onClick={() => onApply(Object.fromEntries(chosen.map((r) => [r.id, proposals[r.id]])))}>
+          Appliquer {chosen.length} section(s)
+        </button>
+        <button type="button" className="atl-prop__reject" onClick={onReject}>
+          Tout rejeter
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PageAiDialog({ tool, content, root, onApplyMany, onRoot, onAdaptAll, onUndoAll, onClose: close }) {
   const [state, setState] = useState(null);
+  const [proposals, setProposals] = useState({});
+  const [applied, setApplied] = useState(null);
+  const onApply = (id, values) => setProposals((p) => ({ ...p, [id]: { ...(p[id] ?? {}), ...values } }));
+  const pending = Object.keys(proposals).length;
+  const onClose = () => {
+    if (pending && !confirm("Fermer sans appliquer les propositions ? Elles seront perdues.")) return;
+    close();
+  };
   const titles = { reecrire: "✍️ Réécrire pour mon produit", traduire: "🌐 Traduire la page", adapter: "🎨 Adapter toute la page à son style", auditer: "🔍 Auditer la page", decliner: "🎯 Décliner pour cet angle", fondations: "📐 Remplir depuis les Fondations" };
   return createPortal(
     <div className="atl-modal" role="dialog" aria-modal="true" onMouseDown={(e) => e.target === e.currentTarget && !state?.busy && onClose()}>
@@ -3158,6 +3253,19 @@ function PageAiDialog({ tool, content, root, onApply, onRoot, onAdaptAll, onUndo
           {tool === "fondations" && <FillFromFoundations content={content} root={root} onApply={onApply} />}
           {tool === "auditer" && <AuditPage content={content} root={root} onClose={onClose} />}
           {tool === "traduire" && <TranslatePage content={content} root={root} onApply={onApply} onLangue={(code) => onRoot({ langue: code })} />}
+          {pending > 0 && (
+            <ProposalReview
+              content={content}
+              proposals={proposals}
+              onApply={(map) => {
+                onApplyMany(map);
+                setApplied(Object.keys(map).length);
+                setProposals((p) => Object.fromEntries(Object.entries(p).filter(([id]) => !map[id])));
+              }}
+              onReject={() => (setProposals({}), setApplied(null))}
+            />
+          )}
+          {applied != null && <p className="atl-topbar__ok">✓ {applied} section(s) appliquée(s) dans la page. Ctrl+Z pour annuler.</p>}
           {tool === "adapter" && (
             <div className="atl-aibox">
               <p className="atl-aibox__hint">
@@ -3437,7 +3545,7 @@ function RewritePage({ content, root, onApply, onRoot }) {
           done += batch.length;
         }
       }
-      setState({ done: `${done} textes réécrits. Ctrl+Z pour annuler, Publish pour enregistrer.` });
+      setState({ done: `${done} textes réécrits. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.` });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà réécrits)` });
     }
@@ -3584,7 +3692,7 @@ function FillFromFoundations({ content, root, onApply }) {
         }
       }
       setState({
-        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre absent des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Ctrl+Z pour annuler, Publish pour enregistrer.`,
+        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre absent des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.`,
       });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà écrits)` });
@@ -3715,7 +3823,7 @@ function DeclinePage({ content, root, onApply }) {
           done += batch.length;
         }
       }
-      setState({ done: `${done} textes déclinés pour « ${angle.titre} ». Ctrl+Z pour annuler, Publish pour enregistrer.` });
+      setState({ done: `${done} textes déclinés pour « ${angle.titre} ». Vérifie les propositions ci-dessous, puis applique celles que tu gardes.` });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà déclinés)` });
     }
@@ -3789,7 +3897,7 @@ function TranslatePage({ content, root, onApply, onLangue }) {
         }
       }
       if (/^(anglais|français)/.test(langue)) onLangue?.(langue.startsWith("anglais") ? "en" : "fr");
-      setState({ done: `${done} textes traduits en ${langue}. Ctrl+Z pour annuler, Publish pour enregistrer.` });
+      setState({ done: `${done} textes traduits en ${langue}. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.` });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà traduits)` });
     }

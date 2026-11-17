@@ -53,11 +53,11 @@ const currentPage = new URLSearchParams(location.search).get("page") ?? (() => {
   }
 })();
 
-async function mirrorHere(template, onMessage) {
-  const question = `Miroring de « ${template.nom} » dans la page « ${currentPage} » ?\n\nToutes les sections de la page sont remplacées par celles du template (copie de sécurité dans l'Historique). La page garde son projet, son titre et son produit.`;
+async function mirrorHere(template, onMessage, vierge = false) {
+  const question = `Miroring de « ${template.nom} » dans la page « ${currentPage} »${vierge ? ", sans ses textes ni ses images" : ""} ?\n\nToutes les sections de la page sont remplacées par celles du template (copie de sécurité dans l'Historique). La page garde son projet, son titre et son produit.${vierge ? "\n\nChaque texte devient une consigne « [ Titre H2 — 7 mots ] » et les emplacements d'image sont vides : la mise en page et le design restent." : ""}`;
   if (!confirm(question)) return;
   try {
-    const n = await mirrorIntoPage(currentPage, template.page);
+    const n = await mirrorIntoPage(currentPage, template.page, { vierge });
     onMessage?.({ text: `${n} section(s) copiées dans « ${currentPage} ». Ouverture…` });
     location.href = `/?page=${encodeURIComponent(currentPage)}`;
   } catch (e) {
@@ -250,6 +250,7 @@ function TemplateCard({ template, onUse, onDelete, onMessage, onPreview }) {
               items={[
                 { label: "Nouvelle page dans un projet", action: () => onUse(template) },
                 { label: `Remplacer la page « ${currentPage} »`, action: () => mirrorHere(template, onMessage) },
+                { label: `Remplacer « ${currentPage} » sans textes ni images d'origine`, action: () => mirrorHere(template, onMessage, true) },
               ]}
             />
           )}
@@ -272,6 +273,7 @@ function UseTemplate({ template, onClose, onMessage }) {
   const [produit, setProduit] = useState(template.produit ?? "");
   const [pageType, setPageType] = useState(template.pageType ?? "produit");
   const [profil, setProfil] = useState("");
+  const [vierge, setVierge] = useState(false);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -299,7 +301,7 @@ function UseTemplate({ template, onClose, onMessage }) {
       }
       let name = pageNameFor(id, pageType, profil);
       for (let n = 2; pages.some((p) => p.name === name); n++) name = pageNameFor(id, pageType, `${profil} ${n}`);
-      await createPage({ name, projet: id, produit: project?.produit || project?.nom || "", pageType, profil, source: template.page }, pages);
+      await createPage({ name, projet: id, produit: project?.produit || project?.nom || "", pageType, profil, source: template.page, vierge }, pages);
       location.href = `/?page=${name}`;
     } catch (e) {
       setError(e.message);
@@ -360,9 +362,17 @@ function UseTemplate({ template, onClose, onMessage }) {
               <span>Angle / profil client (facultatif)</span>
               <input value={profil} onChange={(e) => setProfil(e.target.value)} placeholder="ex. anti-rides, prix, femmes 45+" />
             </label>
+            <label className="cat-use__vierge">
+              <input type="checkbox" checked={vierge} onChange={(e) => setVierge(e.target.checked)} />
+              <span>
+                <b>Sans les textes ni les images d'origine</b>
+                <small>Chaque texte devient une consigne « [ Titre H2 — 7 mots ] », les emplacements d'image sont vides.</small>
+              </span>
+            </label>
             <p className="cat-muted">
-              La page reprend la mise en page et le design du template ; les photos et textes d'origine restent des repères à remplacer. La
-              version « Original » reste consultable depuis l'atelier.
+              La page reprend la mise en page et le design du template ;{" "}
+              {vierge ? "tu remplis chaque emplacement." : "les photos et textes d'origine restent des repères à remplacer."} La version « Original » reste consultable depuis
+              l'atelier (vue « Édition + originale »).
             </p>
             {error && <p className="cat-error">{error}</p>}
             <button type="button" className="cat-btn" disabled={busy || !projet} onClick={create}>
@@ -524,6 +534,9 @@ function TemplatePreview({ template, position, onPrev, onNext, onClose, onUse, o
           + Nouvelle page dans un projet
         </button>
         {canReplace && (
+          <button type="button" className="cat-pv__btn" onClick={() => mirrorHere(template, onMessage, true)} title="Mise en page et design du template ; textes remplacés par des consignes, images vides">
+            Remplacer, sans textes ni images d'origine
+          </button>
           <button type="button" className="cat-pv__btn is-primary" onClick={() => mirrorHere(template, onMessage)}>
             Remplacer la page « {currentPage} »
           </button>

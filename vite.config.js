@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { gzipSync } from "node:zlib";
+import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -374,7 +375,9 @@ function atelierApi() {
             const file = join(pagesDir, `${name}.json`);
             if (req.method === "GET" && !parts[2]) {
               if (!existsSync(file)) return json(res, 404, { error: "Page introuvable." });
-              return json(res, 200, JSON.parse(await readFile(file, "utf8")));
+              const text = await readFile(file, "utf8");
+              res.setHeader("ETag", pageRev(text));
+              return json(res, 200, JSON.parse(text));
             }
             // Historique : copies de sécurité de la page, de la plus récente à la plus ancienne.
             const historyDir = join(pagesDir, "_historique");
@@ -401,7 +404,9 @@ function atelierApi() {
               const source = join(historyDir, copyName);
               if (!existsSync(source)) return json(res, 404, { error: "Copie introuvable." });
               if (existsSync(file)) await writeFile(join(historyDir, `${name}__${stamp()}.json`), await readFile(file, "utf8"), "utf8");
-              await writeFile(file, await readFile(source, "utf8"), "utf8");
+              const restored = await readFile(source, "utf8");
+              await writeFile(file, restored, "utf8");
+              pageWriters.set(name, { tab: String(req.headers["x-atl-tab"] ?? ""), rev: pageRev(restored) });
               return json(res, 200, { ok: true });
             }
             // Copie de sécurité avant une opération globale (ex. changement de design).
@@ -416,6 +421,17 @@ function atelierApi() {
             if (req.method === "PUT") {
               const data = await readBody(req);
               if (!Array.isArray(data?.content)) return json(res, 400, { error: "Contenu de page invalide." });
+              // Deux auteurs partis de la même version (audit T3, 2026-11-17) :
+              // l'éditeur envoie la version qu'il a chargée (If-Match). Si la
+              // page a changé depuis, et pas par ce même onglet, conflit 409
+              // au lieu d'écraser l'autre version.
+              const tab = String(req.headers["x-atl-tab"] ?? "");
+              const expected = req.headers["if-match"];
+              if (expected && existsSync(file)) {
+                const current = pageRev(await readFile(file, "utf8"));
+                const last = pageWriters.get(name);
+                if (current !== expected && !(last && last.tab && last.tab === tab && last.rev === current)) return json(res, 409, { error: "Cette page a été modifiée ailleurs.", conflit: true });
+              }
               await mkdir(pagesDir, { recursive: true });
               // Sous Windows, le fichier peut être lu au même moment (vignette) :
               // quelques essais avant d'abandonner.
@@ -429,7 +445,10 @@ function atelierApi() {
                 }
               }
               refreshPageThumb(name);
-              return json(res, 200, { ok: true, file: `pages/${name}.json` });
+              const rev = pageRev(JSON.stringify(data, null, 2) + "\n");
+              pageWriters.set(name, { tab, rev });
+              res.setHeader("ETag", rev);
+              return json(res, 200, { ok: true, file: `pages/${name}.json`, rev });
             }
           }
 
@@ -1279,6 +1298,11 @@ function __atlRecharger() {
     },
   };
 }
+
+// Version d'une page (empreinte du fichier) et dernier onglet qui l'a écrite
+// (en-tête X-Atl-Tab, posé par src/main.jsx), pour les conflits d'écriture.
+const pageRev = (text) => createHash("sha1").update(text).digest("hex").slice(0, 16);
+const pageWriters = new Map();
 
 export default defineConfig({
   // sectionsBundle avant atelierApi : sa route /api/sections-data passe en premier.

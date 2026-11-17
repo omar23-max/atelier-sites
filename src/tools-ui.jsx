@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
-import { sections, sectionsIndex } from "./engine/sections.js";
+import { ensureFull, sections, sectionsIndex } from "./engine/sections.js";
+import { langueOf } from "./engine/langue.js";
 import { renderSectionHtml, setPhotoResolver } from "./engine/render.js";
 import { brandCss } from "./engine/brand.js";
 import { designById } from "./engine/designs.js";
@@ -200,32 +201,57 @@ const toDataUrl = async (url) => {
   });
 };
 
+// Export vérifié (audit T4, 2026-11-17) : chaque section est rendue ou
+// signalée, les médias de l'atelier (corps ET CSS) sont intégrés, la langue
+// est celle de la page, et un bilan dit ce qui dépend encore d'Internet.
 async function buildHtml(data) {
-  const used = [...new Set(data.content.map((c) => c.type))].map((t) => byId[t]).filter(Boolean);
+  const bilan = { sections: 0, sautees: [], integres: 0, manquants: [], enLigne: [], polices: 0 };
+  await ensureFull([...new Set(data.content.map((c) => c.type))].filter((t) => byId[t])).catch(() => {});
+  const used = [...new Set(data.content.map((c) => c.type))].map((t) => byId[t]).filter((s) => s && !s.leger);
   // Les photos d'origine ne partent jamais : leurs champs restent vides.
   setPhotoResolver(() => "");
-  let body;
+  const parts = [];
   try {
-    body = data.content
-      .filter((item) => byId[item.type])
-      .map((item) => renderSectionHtml(byId[item.type], item.props, item.props.id))
-      .join("\n");
+    for (const item of data.content) {
+      const section = byId[item.type];
+      const name = (section?.meta?.label ?? item.type).split(" — ")[0];
+      if (!section || section.leger) {
+        bilan.sautees.push(name);
+        continue;
+      }
+      try {
+        parts.push(renderSectionHtml(section, item.props, item.props.id));
+        bilan.sections++;
+      } catch (e) {
+        bilan.sautees.push(`${name} (${e.message})`);
+      }
+    }
   } finally {
     setPhotoResolver((p) => p);
   }
-  // Tes propres images (studio) sont intégrées dans le fichier.
-  for (const url of [...new Set(body.match(/\/medias\/[^"')\s]+/g) ?? [])]) body = body.split(url).join(await toDataUrl(url));
-  const css = [brandCss(data.root?.props, designById[data.root?.props?.design]?.tokens?.styles), ...used.map((s) => s.css)].join("\n");
-  const imports = [...new Set(css.match(IMPORT) ?? [])].join("\n");
+  let body = parts.join("\n");
+  let css = [brandCss(data.root?.props, designById[data.root?.props?.design]?.tokens?.styles), ...used.map((s) => s.css)].join("\n");
+  // Tes propres images et vidéos (studio, téléversées) intégrées dans le fichier.
+  for (const url of [...new Set([...(body.match(/\/medias\/[^"')\s]+/g) ?? []), ...(css.match(/\/medias\/[^"')\s]+/g) ?? [])])]) {
+    try {
+      const data64 = await toDataUrl(url);
+      body = body.split(url).join(data64);
+      css = css.split(url).join(data64);
+      bilan.integres++;
+    } catch {
+      bilan.manquants.push(url);
+    }
+  }
+  const imports = [...new Set(css.match(IMPORT) ?? [])];
   const title = data.root?.props?.title ?? pageName;
-  return `<!doctype html>
-<html lang="fr">
+  const html = `<!doctype html>
+<html lang="${langueOf(data.root?.props).code}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title.replace(/</g, "&lt;")}</title>
 <style>
-${imports}
+${imports.join("\n")}
 html, body { margin: 0; }
 ${css.replace(IMPORT, "")}
 </style>
@@ -235,6 +261,25 @@ ${body}
 </body>
 </html>
 `;
+  // Ce qui reste en ligne dans le fichier final : ressources (images, vidéos,
+  // polices, CSS) et liens vers d'autres sites.
+  const host = (u) => {
+    try {
+      return new URL(u).hostname;
+    } catch {
+      return null;
+    }
+  };
+  const ressources = new Set();
+  for (const m of html.matchAll(/(?:src|poster|srcset)="(https?:\/\/[^"\s]+)|url\(\s*['"]?(https?:\/\/[^'")\s]+)/g)) ressources.add(host(m[1] || m[2]));
+  const liens = new Set();
+  for (const m of html.matchAll(/<a\b[^>]*\shref="(https?:\/\/[^"]+)"/g)) liens.add(host(m[1]));
+  ressources.delete(null);
+  liens.delete(null);
+  bilan.polices = [...ressources].filter((h) => /fonts\.(googleapis|gstatic)\.com$/.test(h)).length > 0;
+  bilan.enLigne = [...ressources].filter((h) => !/fonts\.(googleapis|gstatic)\.com$/.test(h));
+  bilan.liens = [...liens];
+  return { html, bilan };
 }
 
 export function DownloadHtmlButton() {
@@ -248,12 +293,29 @@ export function DownloadHtmlButton() {
       return;
     setBusy(true);
     try {
-      const html = await buildHtml(data);
+      const { html, bilan } = await buildHtml(data);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
       a.download = `${pageName}.html`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      // Bilan de l'export : ce qui est dedans, ce qui manque, ce qui demande Internet.
+      alert(
+        [
+          `HTML téléchargé (${pageName}.html).`,
+          "",
+          `• ${bilan.sections} section(s) rendue(s).`,
+          bilan.sautees.length ? `• ⚠ ${bilan.sautees.length} section(s) NON rendue(s) : ${bilan.sautees.join(", ")}.` : null,
+          `• ${bilan.integres} image(s) ou vidéo(s) de l'atelier intégrée(s) dans le fichier.`,
+          bilan.manquants.length ? `• ⚠ ${bilan.manquants.length} média(s) introuvable(s) : ${bilan.manquants.slice(0, 5).join(", ")}.` : null,
+          originals ? `• ${originals} photo(s) d'origine retirée(s) : emplacements vides.` : null,
+          bilan.polices ? "• Polices : chargées depuis Google à l'ouverture (Internet nécessaire)." : null,
+          bilan.enLigne.length ? `• Ressources restées en ligne (Internet nécessaire) : ${bilan.enLigne.slice(0, 6).join(", ")}.` : "• Aucune autre ressource en ligne.",
+          bilan.liens.length ? `• Liens vers d'autres sites : ${bilan.liens.slice(0, 6).join(", ")} (à vérifier : liens du site d'origine ?).` : null,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      );
       // Noté dans le projet (onglet Publication du catalogue).
       const projet = data.root?.props?.projet;
       if (projet) {

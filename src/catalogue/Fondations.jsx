@@ -285,6 +285,12 @@ export function foundationsFilled(project) {
   return Boolean(r.role && r.douleur && (r.genre?.length || r.qui));
 }
 
+// Empreinte du contenu des Fondations : sert à savoir si elles ont changé
+// depuis leur validation (audit T3, 2026-11-17 : avant, « validées » restait
+// affiché après n'importe quelle modification).
+const empreinte = (fd) => JSON.stringify([fd?.reponses ?? {}, fd?.message ?? null, fd?.contenus ?? {}]);
+const filled = (v) => (Array.isArray(v) ? v.length > 0 : v && typeof v === "object" ? Object.keys(v).length > 0 : String(v ?? "").trim() !== "");
+
 export function FoundationsTab({ project, onSave, onMessage, request, offer, pages }) {
   const f = project.fondations ?? {};
   const [rep, setRep] = useState(f.reponses ?? {});
@@ -299,6 +305,26 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const setPreuve = (k, patch) => set("preuves", { ...preuves, [k]: { ...preuves[k], ...patch } });
   const statut = f.statut ?? "brouillon";
   const res = f.resultats;
+  // Sous-étapes avec sommaire (audit « Ensuite », 2026-11-17) : une partie du
+  // questionnaire à la fois, les autres restent montées (rien n'est perdu en
+  // changeant d'étape), boutons d'action toujours visibles en bas.
+  const [step, setStep] = useState(0);
+  const countOf = (keys) => [keys.filter((k) => filled(rep[k])).length, keys.length];
+  const [p1, p1t] = countOf([...TEXTES.produit, ...TEXTES.clients, ...TEXTES.probleme].map((x) => x[0]).concat(["genre", "ages", "pays", "essaye"]));
+  const nbPreuves = Object.values(rep.preuves ?? {}).filter((p) => p?.oui).length;
+  const [p3, p3t] = countOf(TEXTES.collecte.map((x) => x[0]));
+  const nbTypes = Object.values(cont ?? {}).filter((t) => Object.values(t ?? {}).some((s) => Object.values(s ?? {}).some((v) => String(v ?? "").trim()))).length;
+  const STEPS = [
+    { label: "Produit et clients", etat: `${p1} / ${p1t} rempli(s)`, ok: foundationsFilled({ fondations: { reponses: rep } }) },
+    { label: "Preuves et offre", etat: nbPreuves ? `${nbPreuves} preuve(s) cochée(s)` : "aucune preuve cochée", ok: nbPreuves > 0 },
+    { label: "Recherche clients", etat: `${p3} / ${p3t} source(s)${res ? " · résultats de Claude" : ""}`, ok: p3 > 0 || Boolean(res) },
+    { label: "Message central", etat: messageFilled({ fondations: { message: msg } }) ? "rempli" : "à faire", ok: messageFilled({ fondations: { message: msg } }) },
+    { label: "Contenus des pages", etat: `${nbTypes} type(s) de page`, ok: nbTypes > 0 },
+  ];
+  const go = (i) => {
+    setStep(i);
+    document.querySelector(".cat-fd__steps")?.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
 
   const patch = (extra = {}) => ({
     fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: cont, ...extra },
@@ -330,7 +356,15 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       }
     }
     if (changed) setCont(merged);
-    return { fondations: { ...fresh, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: merged, ...extra } };
+    const out = { ...fresh, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: merged, ...extra };
+    if (extra.statut === "validée") out.valideEmpreinte = empreinte(out);
+    else if (!("statut" in extra) && (fresh.statut === "validée" || fresh.statut === "modifiée")) {
+      // Validées autrefois sans empreinte : la version du serveur sert de référence.
+      const ref = fresh.valideEmpreinte ?? empreinte(fresh);
+      out.valideEmpreinte = ref;
+      out.statut = empreinte(out) === ref ? "validée" : "modifiée";
+    }
+    return { fondations: out };
   }
 
   async function save(silent) {
@@ -387,7 +421,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // (onSave lève une erreur sinon, déjà affichée) — audit T2.
   async function validate() {
     try {
-      await onSave(await patchFresh({ statut: "validée", valideLe: new Date().toISOString() }), true);
+      await onSave(await patchFresh({ statut: "validée", valideLe: new Date().toISOString(), version: (f.version ?? 0) + 1 }), true);
     } catch {
       return;
     }
@@ -400,16 +434,30 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         Les faits que toi seul connais. Claude s'appuie sur ce qui est coché ici ; les chiffres sans preuve sont signalés, vérifie avant publication. Remplis
         ce que tu sais, puis « Compléter avec Claude » : il fera la recherche client et l'offre, et tu valideras.
       </p>
-      <div className={`cat-fd__statut is-${statut}`}>
+      <div className={`cat-fd__statut is-${statut === "modifiée" ? "modifiee" : statut}`}>
         {statut === "validée"
-          ? `Fondations validées le ${new Date(f.valideLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}.`
-          : statut === "demandée"
+          ? `Fondations validées le ${new Date(f.valideLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}${f.version ? ` (version ${f.version})` : ""}.`
+          : statut === "modifiée"
+            ? `Modifiées depuis la validation du ${new Date(f.valideLe).toLocaleDateString("fr-CA", { dateStyle: "long" })} : relis les changements, puis valide à nouveau.`
+            : statut === "demandée"
             ? res
               ? "Claude a complété les fondations : relis ses résultats plus bas, corrige si besoin, puis valide."
               : "Demande envoyée à Claude : dis-lui « traite les demandes »."
             : "Brouillon : remplis le questionnaire."}
       </div>
 
+      <nav className="cat-fd__steps" aria-label="Étapes des Fondations">
+        {STEPS.map((s, i) => (
+          <button key={s.label} type="button" className={`${i === step ? "is-on" : ""} ${s.ok ? "is-ok" : ""}`} onClick={() => go(i)} aria-current={i === step ? "step" : undefined}>
+            <span className="cat-fd__stepnum">{s.ok ? "✓" : i + 1}</span>
+            <b>{s.label}</b>
+            <small>{s.etat}</small>
+          </button>
+        ))}
+      </nav>
+      {step === 0 && !STEPS[0].ok && <p className="cat-fd__min">Minimum pour demander à Claude : ce que fait le produit, le problème principal et qui achète.</p>}
+
+      <div className="cat-fd__step" hidden={step !== 0}>
       <section className="cat-panel">
         <h3>1. Le produit</h3>
         {TEXTES.produit.map(([k, l, p, r]) => (
@@ -446,6 +494,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         ))}
       </section>
 
+      </div>
+      <div className="cat-fd__step" hidden={step !== 1}>
       <section className="cat-panel">
         <h3>4. Les preuves que tu as vraiment</h3>
         <div className="cat-fd__preuves">
@@ -477,6 +527,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         <Cases options={CHOIX.ton} value={rep.ton} onChange={(v) => set("ton", v)} />
       </section>
 
+      </div>
+      <div className="cat-fd__step" hidden={step !== 2}>
       <section className="cat-panel">
         <h3>7. Ce que tu as trouvé toi-même</h3>
         <p className="cat-muted">
@@ -491,7 +543,10 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       {res && (
         <section className="cat-panel cat-fd__res">
-          <h3>Résultats de Claude</h3>
+          <details className="cat-fd__resfold">
+          <summary>
+            <b>Résultats de Claude</b> · {["promesse", "avatars", "douleurs", "mots", "objections", "angles", "notes"].filter((k) => filled(res[k])).length} partie(s) — cliquer pour relire
+          </summary>
           {[
             ["promesse", "Promesse"],
             ["avatars", "Avatars"],
@@ -516,9 +571,12 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
               </div>
             ) : null,
           )}
+          </details>
         </section>
       )}
+      </div>
 
+      <div className="cat-fd__step" hidden={step !== 3}>
       <section className="cat-panel cat-fd__mc">
         <h3>8. Message central</h3>
         <p className="cat-muted">
@@ -529,6 +587,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         <MessageEditor value={msg} onChange={setMsg} />
       </section>
 
+      </div>
+      <div className="cat-fd__step" hidden={step !== 4}>
       <section className="cat-panel">
         <h3>9. Contenu par type de page</h3>
         <p className="cat-muted">
@@ -562,15 +622,24 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         <ContenusEditor value={cont} onChange={setCont} pages={pages} />
       </section>
 
-      <div className="cat-actions">
+      </div>
+
+      <div className="cat-actions cat-fd__bar">
+        <button type="button" className="cat-btn cat-btn--ghost" disabled={step === 0} onClick={() => go(step - 1)}>
+          ← {step > 0 ? STEPS[step - 1].label : "Précédent"}
+        </button>
+        <button type="button" className="cat-btn cat-btn--ghost" disabled={step === STEPS.length - 1} onClick={() => go(step + 1)}>
+          {step < STEPS.length - 1 ? STEPS[step + 1].label : "Suivant"} →
+        </button>
+        <span className="cat-fd__barsep" />
         <button type="button" className="cat-btn cat-btn--ghost" onClick={() => save()}>
           Enregistrer
         </button>
         <button type="button" className="cat-btn cat-btn--ghost" disabled={busy} onClick={askClaude}>
           {busy ? "Envoi…" : "Compléter avec Claude"}
         </button>
-        <button type="button" className="cat-btn" disabled={!res && statut !== "validée"} onClick={validate} title={res ? "" : "Après les résultats de Claude"}>
-          Valider les fondations
+        <button type="button" className="cat-btn" disabled={!res && statut !== "validée" && statut !== "modifiée"} onClick={validate} title={res ? "" : "Après les résultats de Claude"}>
+          {statut === "modifiée" ? "Valider à nouveau" : "Valider les fondations"}
         </button>
       </div>
     </div>
@@ -589,7 +658,7 @@ export function ProjectProgress({ project, pages, onGo, current }) {
   const exported = Object.values(project.publication ?? {}).filter((p) => p.html).length;
   const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
   const steps = [
-    ["fondations", "Fondations", fd === "validée" ? "done" : fd === "demandée" ? "doing" : foundationsFilled(project) ? "doing" : "todo", fd === "validée" ? "validées" : fd === "demandée" ? "chez Claude" : "à faire"],
+    ["fondations", "Fondations", fd === "validée" ? "done" : fd === "demandée" || fd === "modifiée" ? "doing" : foundationsFilled(project) ? "doing" : "todo", fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? "chez Claude" : "à faire"],
     ["angles", "Angles", ang.chosen ? "done" : "todo", ang.chosen ? `${ang.chosen} choisi(s)` : "à choisir"],
     ["pages", "Pages", pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     // ["creatives", "Pubs", creatives.length ? "done" : "todo", creatives.length ? `${creatives.length} créative(s)` : "à faire"], // retiré pour l'instant (2026-11-12, demande de l'utilisateur)

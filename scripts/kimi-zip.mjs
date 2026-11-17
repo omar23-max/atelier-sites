@@ -132,12 +132,14 @@ for (const [n, { slug, app }] of jobs.entries()) {
     if (opt("--url")) importArgs.push("--url", opt("--url"));
     if (!args.includes("--coupe")) importArgs.push("--sans-coupe");
     execFileSync(process.execPath, importArgs, { cwd: root, stdio: "inherit" });
-    results.push({ slug, ok: true });
+    // États séparés (audit T5, 2026-11-17) : importée ≠ vérifiée.
+    results.push({ slug, ok: true, etapes: { import: true, reparation: null, fiche: null, verification: null } });
   } catch (e) {
     console.log(`  ✗ ${slug} : ${e.message.split("\n")[0]}`);
-    results.push({ slug, ok: false });
+    results.push({ slug, ok: false, erreur: e.message.split("\n")[0], etapes: { import: false } });
   }
 }
+const mark = (slugs, step, value) => results.filter((r) => slugs.includes(r.slug)).forEach((r) => (r.etapes[step] = value));
 // Fiche template (catalogue → Templates) puis vérification complète
 // (atelier + Copycat + PWC, scripts/verifier-import.mjs) de chaque page
 // importée. --verifier-a-part : seulement la fiche ; la vérification est
@@ -150,23 +152,48 @@ if (ok.length) {
   console.log("\n=== Réparation des défauts connus");
   try {
     execFileSync(process.execPath, [join(root, "scripts", "reparer-miroir.mjs"), ...ok], { cwd: root, stdio: "inherit", timeout: 3600000 });
+    mark(ok, "reparation", true);
   } catch {
+    mark(ok, "reparation", false);
     console.log(`  ⚠ Réparation interrompue. Plus tard : node scripts/reparer-miroir.mjs ${ok.join(" ")}`);
   }
   console.log("\n=== Fiches template");
-  execFileSync(process.execPath, [join(root, "scripts", "kimi-template.mjs"), ...ok, ...(origine ? ["--origine", origine] : [])], { cwd: root, stdio: "inherit" });
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "kimi-template.mjs"), ...ok, ...(origine ? ["--origine", origine] : [])], { cwd: root, stdio: "inherit" });
+    mark(ok, "fiche", true);
+  } catch {
+    mark(ok, "fiche", false);
+    console.log(`  ⚠ Fiches interrompues. Plus tard : node scripts/kimi-template.mjs ${ok.join(" ")}`);
+  }
   if (args.includes("--verifier-a-part")) {
     console.log(`\n⚠ Vérification à lancer : node scripts/verifier-lot.mjs ${ok.join(" ")}`);
   } else {
     for (const slug of ok) {
       try {
         execFileSync(process.execPath, [join(root, "scripts", "verifier-import.mjs"), slug], { cwd: root, stdio: "inherit", timeout: 3600000 });
+        mark([slug], "verification", true);
       } catch {
+        mark([slug], "verification", false);
         console.log(`  ⚠ Vérification interrompue. Plus tard : node scripts/verifier-import.mjs ${slug}`);
       }
     }
   }
 }
 
+// Bilan par étape : une page importée mais non vérifiée n'a pas de ✓ final.
 console.log("\n=== Bilan");
-for (const r of results) console.log(`  ${r.ok ? "✓" : "✗"} ${r.slug}${r.ok ? `  http://localhost:5180/?page=${r.slug}` : "  (à reprendre : node scripts/kimi-zip.mjs \"<zip>\" --seulement " + r.slug + ")"}`);
+const etat = (v) => (v === true ? "✓" : v === false ? "✗" : "—");
+let partiel = false;
+for (const r of results) {
+  if (!r.ok) {
+    console.log(`  ✗ ${r.slug} : import échoué (${r.erreur}). À reprendre : node scripts/kimi-zip.mjs "<zip>" --seulement ${r.slug}`);
+    continue;
+  }
+  const e = r.etapes;
+  const complet = e.reparation === true && e.fiche === true && e.verification === true;
+  if (!complet) partiel = true;
+  console.log(`  ${complet ? "✓" : "⚠"} ${r.slug} · import ${etat(e.import)} · réparation ${etat(e.reparation)} · fiche ${etat(e.fiche)} · vérification ${etat(e.verification)}${complet ? "" : " → importée mais NON validée"}  http://localhost:5180/?page=${r.slug}`);
+}
+const echecs = results.filter((r) => !r.ok).length;
+// Code de sortie lisible par l'appelant : 0 tout validé, 2 partiel, 1 échec.
+process.exitCode = echecs ? 1 : partiel ? 2 : 0;

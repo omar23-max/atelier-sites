@@ -43,8 +43,12 @@ function withDefaults(data) {
   };
 }
 
+// Version de la page chargée / enregistrée par cet éditeur (en-tête ETag) :
+// renvoyée à chaque enregistrement pour détecter une autre version (T3).
+let pageRev = null;
 async function loadPage() {
   const res = await fetch(`/api/pages/${pageName}`);
+  pageRev = res.headers.get("ETag");
   if (res.status === 404) return EMPTY_PAGE;
   if (!res.ok) throw new Error((await res.json()).error);
   return res.json();
@@ -192,9 +196,16 @@ export default function App() {
     saving.current = true;
     saveStore.set("saving");
     try {
-      const res = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: json });
+      const res = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json", ...(pageRev ? { "If-Match": pageRev } : {}) }, body: json });
       const body = await res.json();
+      if (res.status === 409 && body.conflit) {
+        saveStore.set("error");
+        setConflict(true);
+        return;
+      }
       if (!res.ok) throw new Error(body.error);
+      pageRev = res.headers.get("ETag") ?? body.rev ?? pageRev;
+      setConflict(false);
       savedJson.current = json;
       saveStore.set(isDirty() ? "dirty" : "saved");
       setStatus((st) => (st?.error ? null : st));
@@ -251,6 +262,17 @@ export default function App() {
     };
   }, []);
 
+  // Conflit d'écriture (T3) : la page a été modifiée dans un autre onglet ou
+  // sur un autre appareil. Rien n'est écrasé sans le demander.
+  const [conflict, setConflict] = useState(false);
+  async function keepMine() {
+    // L'autre version reste dans l'Historique (copie de sécurité d'abord).
+    await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" }).catch(() => {});
+    pageRev = null;
+    setConflict(false);
+    savePage();
+  }
+
   // Barre du haut ouverte par « Projet ▾ » et gardée ouverte (audit T7, 2026-11-17).
   const [pinned, setPinned] = useState(() => {
     try {
@@ -293,6 +315,20 @@ export default function App() {
         <div id="atl-topbar-tools" />
         {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
       </div>
+      {conflict && (
+        <div className="atl-conflict" role="alert">
+          <b>Cette page a été modifiée ailleurs</b> (un autre onglet ou un autre appareil) depuis que tu l'as ouverte. Tes dernières modifications ne sont pas encore enregistrées.
+          <span>
+            <button type="button" onClick={keepMine}>
+              Garder ma version
+            </button>
+            <button type="button" onClick={() => ((window.__atlPageDeleted = true), location.reload())}>
+              Voir l'autre version
+            </button>
+          </span>
+          <small>« Garder ma version » met d'abord l'autre dans l'Historique.</small>
+        </div>
+      )}
       {data && <ProposalsBanner pageName={pageName} proposals={data.root?.props?.propositionsImport} />}
       {data && pages.length > 0 && (
         <OrphanBanner pageName={pageName} info={pages.find((p) => p.name === pageName)} projects={projects} getData={() => latest.current ?? data} />

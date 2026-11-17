@@ -8902,3 +8902,127 @@ html[data-atl-edit] [class*="Sidebar--right"]::after {
   min-width: 0;
   box-sizing: border-box;
 }
+
+/* ---- Conflit d'écriture (audit T3, 2026-11-17) ---- */
+.atl-conflict {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 995;
+  display: grid;
+  gap: 8px;
+  width: min(560px, calc(100vw - 110px));
+  padding: 12px 16px;
+  border: 1px solid #f0b4a8;
+  border-radius: 12px;
+  background: #fff5f2;
+  color: #5c1d10;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+  font: 13px/1.45 "Inter", system-ui, sans-serif;
+}
+.atl-conflict span {
+  display: flex;
+  gap: 8px;
+}
+.atl-conflict button {
+  padding: 6px 12px;
+  border: 1px solid #c4553f;
+  border-radius: 8px;
+  background: #fff;
+  color: #5c1d10;
+  font: 600 13px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-conflict button:first-child {
+  background: #c4553f;
+  color: #fff;
+}
+.atl-conflict small {
+  color: #8a4a3c;
+}
+
+/* ---- Propositions IA avant application (2026-11-17) ---- */
+.atl-prop {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #c7c4f5;
+  border-radius: 12px;
+  background: #fbfaff;
+  font: 13px/1.45 "Inter", system-ui, sans-serif;
+}
+.atl-prop__title {
+  margin: 0;
+}
+.atl-prop__bar,
+.atl-prop__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.atl-prop__bar button,
+.atl-prop__head button,
+.atl-prop__reject {
+  padding: 4px 10px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 7px;
+  background: #fff;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-prop__list {
+  display: grid;
+  gap: 6px;
+  max-height: 46vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.atl-prop__list li {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--tk-line);
+  border-radius: 9px;
+  background: #fff;
+}
+.atl-prop__list li.is-off {
+  opacity: 0.5;
+}
+.atl-prop__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.atl-prop__head label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.atl-prop__head small {
+  color: var(--tk-ink-3);
+}
+.atl-prop__diff {
+  display: grid;
+  gap: 2px;
+  padding-left: 22px;
+  font-size: 12.5px;
+}
+.atl-prop__diff del {
+  color: #9a3412;
+  text-decoration: line-through;
+  text-decoration-color: rgba(154, 52, 18, 0.5);
+}
+.atl-prop__diff ins {
+  color: #14532d;
+  text-decoration: none;
+}
+.atl-prop__diff ins::before {
+  content: "→ ";
+  color: var(--tk-ink-3);
+}

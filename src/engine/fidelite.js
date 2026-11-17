@@ -33,21 +33,84 @@ function numberOf(token) {
 const NUMBER = /\d+(?:[\s  .,]\d+)*/g;
 // Ce qui fait d'un nombre un engagement : monnaie, pourcentage, durée, quantité
 // d'avis ou de clients, dose, note sur 5.
-const UNIT_AFTER = /^\s?(%|\$|€|£|\+|k\b|x\b|mg\b|g\b|ml\b|\/ ?5|★|⭐|(excellent|out of|sur 5|rated|rating|great|trustpilot|jours?|days?|semaines?|weeks?|mois|months?|ans|years?|heures?|hours?|minutes?|avis|reviews?|ratings?|étoiles?|stars?|clients?|customers?|personnes|people|users?|utilisateurs?|gélules?|capsules?|flacons?|bottles?|commandes?|orders?|vendus?|sold|études?|studies|brevets?|patents?)\b)/i;
+const UNIT_AFTER = /^[\s-]?(%|\$|€|£|\+|k\b|x\b|mg\b|g\b|ml\b|\/ ?5|★|⭐|(excellent|out of|sur 5|rated|rating|great|trustpilot|jours?|days?|semaines?|weeks?|mois|months?|ans|years?|heures?|hours?|minutes?|avis|reviews?|ratings?|étoiles?|stars?|clients?|customers?|personnes|people|users?|utilisateurs?|gélules?|capsules?|flacons?|bottles?|commandes?|orders?|vendus?|sold|études?|studies|brevets?|patents?)\b)/i;
 const UNIT_BEFORE = /(\$|€|£|-|save|économisez|only|seulement|just)\s?$/i;
 
-// Tous les nombres connus du projet : Fondations (questionnaire, résultats,
-// message central, cartes du type de page), offre, fiche de la page.
+// Nature d'un chiffre d'après ce qui l'entoure (audit T1, 2026-11-17) : un
+// prix de 30 $ n'autorise pas une « garantie de 30 jours ». null = inconnue.
+export function kindOf(after = "", before = "") {
+  const a = String(after);
+  const b = String(before);
+  if (/^\s?%/.test(a)) return "pourcent";
+  if (/^\s?(\$|€|£|k?\s?(usd|eur|cad)\b)/i.test(a) || /(\$|€|£)\s?$/.test(b)) return "argent";
+  if (/^\s?(\/ ?5|★|⭐|(sur 5|out of 5|stars?|étoiles?|rated|rating)\b)/i.test(a)) return "note";
+  if (/^[\s-]?(jours?|days?|semaines?|weeks?|mois|months?|ans|years?|heures?|hours?|h\b|minutes?|min\b|nuits?|nights?)/i.test(a)) return "duree";
+  if (/^[\s-]?(mg|g|ml|kg|gélules?|capsules?|comprimés?|tablets?|flacons?|bottles?|servings?|portions?)\b/i.test(a)) return "dose";
+  if (/^\s?(x|fois|times)\b/i.test(a)) return "fois";
+  if (/^\s?(\+|k\b|avis|reviews?|ratings?|clients?|customers?|personnes|people|users?|utilisateurs?|commandes?|orders?|vendus?|sold|études?|studies|brevets?|patents?)/i.test(a)) return "nombre";
+  if (/(save|économisez|only|seulement|just)\s?$/i.test(b)) return "argent";
+  return null;
+}
+
+// Nature d'un champ des Fondations d'après son nom (prix, garantie…), quand
+// le texte lui-même ne la dit pas (« garantie : 30 »).
+const KEY_KINDS = [
+  [/^(prix|price|montant|co[uû]t|tarif|packs?)$/i, "argent"],
+  [/^(garantie|d[ée]lai|dur[ée]e|livraison|retours?|essai|cure)$/i, "duree"],
+  [/^(avis|reviews?|ventes|vendus|clients)$/i, "nombre"],
+  [/^(note|rating|[ée]toiles)$/i, "note"],
+  [/^(pourcentage|taux|remise|r[ée]duction|rabais)$/i, "pourcent"],
+];
+const kindOfPath = (path) => {
+  for (const seg of [...path].reverse()) for (const [re, k] of KEY_KINDS) if (re.test(seg)) return k;
+  return null;
+};
+
+// Faits chiffrés connus : nombre → natures (« ? » = nature inconnue, accepte tout).
+class Faits {
+  constructor() {
+    this.map = new Map();
+  }
+  add(n, kind) {
+    if (!this.map.has(n)) this.map.set(n, new Set());
+    this.map.get(n).add(kind || "?");
+  }
+  has(n) {
+    return this.map.has(n);
+  }
+  knows(fig) {
+    const k = this.map.get(fig.n);
+    return Boolean(k && (k.has("?") || !fig.kind || k.has(fig.kind)));
+  }
+}
+
+function addFacts(faits, v, path = []) {
+  if (v == null) return;
+  if (typeof v === "string" || typeof v === "number") {
+    const text = String(v);
+    for (const m of text.matchAll(NUMBER)) {
+      const n = numberOf(m[0]);
+      if (n == null) continue;
+      const after = text.slice(m.index + m[0].length, m.index + m[0].length + 14);
+      const before = text.slice(Math.max(0, m.index - 12), m.index);
+      faits.add(n, kindOf(after, before) ?? kindOfPath(path));
+    }
+    return;
+  }
+  if (Array.isArray(v)) return v.forEach((x) => addFacts(faits, x, path));
+  if (typeof v === "object") for (const [k, x] of Object.entries(v)) addFacts(faits, x, [...path, k]);
+}
+
+// Tous les chiffres connus du projet, avec leur nature : Fondations
+// (questionnaire, résultats, message central, cartes du type de page), offre,
+// fiche de la page.
 export function knownNumbers(project, root = {}) {
   const f = project?.fondations ?? {};
-  const blob = JSON.stringify([f.reponses, f.resultats, f.message, f.contenus?.[root.pageType], project?.offre, project?.produit, project?.description, root.infos, root.produit]);
-  const out = new Set();
-  for (const m of blob.matchAll(NUMBER)) {
-    const n = numberOf(m[0]);
-    if (n != null) out.add(n);
-  }
-  return out;
+  const faits = new Faits();
+  addFacts(faits, { reponses: f.reponses, resultats: f.resultats, message: f.message, contenus: f.contenus?.[root.pageType], offre: project?.offre, produit: project?.produit, description: project?.description, infos: root.infos, fiche: root.produit });
+  return faits;
 }
+const knowsFig = (known, fig) => (known?.knows ? known.knows(fig) : known?.has?.(fig.n));
 
 // Les nombres « qui engagent » d'un texte (suivis ou précédés d'une unité) :
 // [{ n: forme normalisée, valeur: tel qu'écrit, index, after }].
@@ -59,9 +122,9 @@ export function figuresIn(text) {
     if (!UNIT_AFTER.test(after) && !UNIT_BEFORE.test(before)) continue;
     const n = numberOf(m[0]);
     if (n == null) continue;
-    // Années et « 100 % » : pas des preuves.
-    if ((/^(19|20)\d\d$/.test(n) && !/^\s?(%|\$|€)/.test(after)) || (n === "100" && /^\s?%/.test(after))) continue;
-    out.push({ n, valeur: m[0], index: m.index, after });
+    // Années : pas des preuves. « 100 % » en est une à vérifier (audit T1).
+    if (/^(19|20)\d\d$/.test(n) && !/^\s?(%|\$|€)/.test(after)) continue;
+    out.push({ n, kind: kindOf(after, before), valeur: m[0], index: m.index, after });
   }
   return out;
 }
@@ -69,7 +132,7 @@ export function figuresIn(text) {
 // Garde-fou de « Remplir depuis les Fondations » : un texte écrit par l'IA
 // contient-il un chiffre qui engage et qui n'est nulle part dans le projet ?
 export function hasUnknownFigure(html, known) {
-  return figuresIn(plain(html)).some((f) => !known.has(f.n));
+  return figuresIn(plain(html)).some((f) => !knowsFig(known, f));
 }
 
 // Nombres d'un texte libre (brief envoyé à l'IA), à ajouter aux nombres connus.
@@ -117,8 +180,8 @@ export function localFidelity(page, sectionsById, project) {
       if (/\[\s*(MANQUE|À VALIDER|A VALIDER)/i.test(text)) notes.push({ sectionId: item.props.id, name, text: text.slice(0, 90) });
       if (nav) continue;
       for (const fig of figuresIn(text)) {
-        if (known.has(fig.n) || seen.has(fig.n)) continue;
-        seen.add(fig.n);
+        if (knowsFig(known, fig) || seen.has(`${fig.n}|${fig.kind}`)) continue;
+        seen.add(`${fig.n}|${fig.kind}`);
         const from = Math.max(0, fig.index - 28);
         const to = fig.index + fig.valeur.length + 30;
         chiffres.push({ sectionId: item.props.id, name, valeur: fig.valeur, extrait: `${from ? "…" : ""}${text.slice(from, to)}${to < text.length ? "…" : ""}` });

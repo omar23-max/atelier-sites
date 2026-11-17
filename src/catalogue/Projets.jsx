@@ -378,7 +378,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
   // ou "vide" (page vide). Une page d'angle part par défaut d'une copie de la
   // page mère de son type. L'origine est enregistrée (root.props.origine) et
   // peut être changée ensuite (bouton « Changer » de la colonne Origine).
-  const [form, setForm] = useState({ pageType: "produit", role: "mere", profil: "", source: "", depuis: "page", url: "" });
+  const [form, setForm] = useState({ pageType: "produit", role: "mere", profil: "", source: "", depuis: "page", url: "", vierge: false });
   const [busy, setBusy] = useState(false);
   const [requests, setRequests] = useState([]);
   const [originFor, setOriginFor] = useState(null); // page dont on change l'origine
@@ -463,6 +463,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
           source,
           pageAchat: buyPages[0]?.info.name ?? "",
           origine,
+          vierge: form.depuis === "page" && form.vierge,
         },
         allPages,
       );
@@ -665,6 +666,15 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
               ))}
             </div>
             {form.depuis === "page" && isAngleRole && !form.source && hasMother && <small className="cat-muted">Par défaut : copie de la page mère de ce type.</small>}
+            {form.depuis === "page" && (
+              <label className="cat-use__vierge">
+                <input type="checkbox" checked={form.vierge} onChange={(e) => setForm({ ...form, vierge: e.target.checked })} />
+                <span>
+                  <b>Sans les textes ni les images d'origine</b>
+                  <small>Consignes « [ Titre H2 — 7 mots ] » à la place des textes, emplacements d'image vides.</small>
+                </span>
+              </label>
+            )}
           </div>
           <button type="button" className="cat-btn" disabled={busy} onClick={add}>
             {busy ? "Création…" : "Ajouter"}

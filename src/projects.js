@@ -5,6 +5,8 @@
 // Template : un site ou une page importé (imports/<nom>/) ; sa page « mirror »
 // sert de point de départ aux pages des projets.
 import { pageTypeById } from "./engine/page-types.js";
+import { placeholderContent } from "./engine/placeholders.js";
+import { sectionsIndex } from "./engine/sections.js";
 
 export const slug = (s) =>
   String(s ?? "")
@@ -86,13 +88,15 @@ export function empreinte(content = []) {
 
 // Origine d'une page (2026-11-08) : root.props.origine = { type: "vide" |
 // "template" | "page" | "lien", source, url, le, empreinte }.
-export async function createPage({ name, projet = "", produit = "", pageType, profil = "", pageAchat = "", source = "", origine = null }, existing = []) {
+// vierge : sans les textes ni les images d'origine (consignes « [ Titre H2 — 7 mots ] », images vides).
+export async function createPage({ name, projet = "", produit = "", pageType, profil = "", pageAchat = "", source = "", origine = null, vierge = false }, existing = []) {
   if (!pageType) throw new Error("Choisis le type de page.");
   if (!projet) throw new Error("Une page appartient toujours à un projet : choisis-le ou crée-le.");
   if (!NAME.test(name)) throw new Error("Nom de page invalide : minuscules, chiffres et tirets.");
   if (existing.some((p) => p.name === name)) throw new Error(`La page « ${name} » existe déjà.`);
   let page = { root: { props: {} }, content: [] };
   if (source) page = await getPage(source);
+  if (vierge && page.content?.length) page.content = placeholderContent(page.content, sectionsIndex);
   const type = pageTypeById[pageType];
   page.root = {
     ...page.root,
@@ -104,7 +108,7 @@ export async function createPage({ name, projet = "", produit = "", pageType, pr
       produit,
       profil,
       pageAchat: type.achat ? "" : pageAchat,
-      ...(origine ? { origine: { ...origine, le: new Date().toISOString(), empreinte: empreinte(page.content) } } : {}),
+      ...(origine ? { origine: { ...origine, ...(vierge ? { vierge: true } : {}), le: new Date().toISOString(), empreinte: empreinte(page.content) } } : {}),
     },
   };
   await api("PUT", `/api/pages/${name}`, page);
@@ -130,12 +134,15 @@ export async function changePageOrigin(name, { type, source = "", url = "" }) {
 // « Miroring dans la page actuelle » : la page reprend toutes les sections, le
 // design et l'import d'origine du template, et garde son projet, son titre,
 // son produit et son type. Copie de sécurité avant (Historique).
-export async function mirrorIntoPage(name, source) {
+export async function mirrorIntoPage(name, source, { vierge = false } = {}) {
   const [page, tpl] = await Promise.all([getPage(name), getPage(source)]);
   const own = page.root?.props ?? {};
   await api("POST", `/api/pages/${name}/snapshot`).catch(() => {});
   const next = {
     ...tpl,
+    // Miroring sans textes ni images d'origine (2026-11-17) : mise en page et
+    // design du template, consignes à la place des textes, images vides.
+    content: vierge ? placeholderContent(tpl.content ?? [], sectionsIndex) : tpl.content,
     root: {
       ...tpl.root,
       props: { ...tpl.root?.props, ...Object.fromEntries(["title", "projet", "produit", "profil", "pageType", "pageAchat", "langue"].filter((k) => own[k]).map((k) => [k, own[k]])) },
