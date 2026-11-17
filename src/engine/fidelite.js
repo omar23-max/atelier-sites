@@ -108,9 +108,86 @@ export function knownNumbers(project, root = {}) {
   const f = project?.fondations ?? {};
   const faits = new Faits();
   addFacts(faits, { reponses: f.reponses, resultats: f.resultats, message: f.message, contenus: f.contenus?.[root.pageType], offre: project?.offre, produit: project?.produit, description: project?.description, infos: root.infos, fiche: root.produit });
+  // Faits typés des Fondations (2026-11-17) : « validé » autorise, « retiré »
+  // interdit (même si le chiffre traîne dans un texte).
+  for (const fait of f.faits ?? []) {
+    const n = numberOf(String(fait.valeur ?? ""));
+    if (n == null || !fait.nature) continue;
+    if (fait.etat === "valide") faits.add(n, fait.nature);
+    else if (fait.etat === "retire") {
+      const k = faits.map.get(n);
+      if (k) {
+        k.delete(fait.nature);
+        k.delete("?");
+        if (!k.size) faits.map.delete(n);
+      }
+    }
+  }
   return faits;
 }
 const knowsFig = (known, fig) => (known?.knows ? known.knows(fig) : known?.has?.(fig.n));
+// ---- Affirmations sans chiffre (audit T1, suite, 2026-11-17) ----
+// « Bio », « cliniquement prouvé », « recommandé par les médecins », « vu
+// dans… », « fabriqué au… », « n° 1 », « satisfait ou remboursé »… engagent
+// autant qu'un chiffre. Chacune doit s'appuyer sur une preuve cochée dans les
+// Fondations (partie 4) ou être écrite dans les Fondations / l'offre.
+// fort : bloquée quand l'IA remplit la page depuis les Fondations.
+const W = (body) => new RegExp(`(?<!\\p{L})(?:${body})(?!\\p{L})`, "iu");
+export const CLAIMS = [
+  { id: "certification", label: "Certification, label", preuve: "certification", fort: true, re: W("bio|organic|biologique|certifiée?s?|certified|vegan|végan|végétalien|gluten[- ]free|sans gluten|non[- ]gmo|sans ogm|kosher|casher|halal|cruelty[- ]free|gmp|fda[- ]approved|approuvée? par la fda|usda|ecocert|leaping bunny") },
+  { id: "clinique", label: "Étude, preuve scientifique", preuve: "etude", fort: true, re: W("clinically (?:proven|tested|studied)|cliniquement (?:prouvée?|testée?)|clinical (?:study|studies|trial)|études? cliniques?|scientifically proven|scientifiquement prouvée?|prouvée? scientifiquement|backed by science|science[- ]backed|research[- ]backed") },
+  { id: "expert", label: "Expert, médecin", preuve: "expert", fort: true, re: W("doctors? (?:recommended|approved|formulated)|doctor[- ](?:recommended|approved|formulated)|recommandée? par (?:les |des )?(?:médecins|dermatologues|experts|pharmaciens)|recommended by (?:doctors|physicians|dermatologists|experts|pharmacists)|dermatologist[- ](?:tested|approved|recommended)|dermatologiquement testée?|testée? dermatologiquement|pharmacist[- ](?:recommended|approved)|nutritionist[- ]approved") },
+  { id: "presse", label: "Presse, médias", preuve: "presse", fort: true, re: W("as seen (?:on|in)|vu (?:à|dans|sur)|featured (?:in|on)|as featured") },
+  { id: "recompense", label: "Prix, classement", preuve: null, fort: true, re: /(?<!\p{L})(?:award[- ]winning|primée?|best[- ]sellers?|meilleures? ventes?|top[- ]rated|number one|numéro un)(?!\p{L})|#\s?1(?!\d)|n°\s?1(?!\d)/iu },
+  { id: "origine", label: "Origine, fabrication", preuve: null, fort: false, re: W("made in (?:the )?[a-z]+|fabriquée? (?:au|en|aux) [\\p{L}]+|produite? (?:au|en|aux) [\\p{L}]+|sourced from [a-z]+") },
+  { id: "garantie", label: "Garantie", preuve: "garantie", fort: false, re: W("money[- ]back|satisfait ou remboursé|satisfaction guaranteed|guarantee|garantie") },
+  { id: "naturel", label: "Composition", preuve: null, fort: false, re: W("all[- ]natural|100 ?% natur(?:al|el|elle)|natural ingredients|ingrédients naturels|no (?:fillers|additives|preservatives)|sans (?:additifs|conservateurs|produits chimiques)|chemical[- ]free|toxin[- ]free") },
+  { id: "stock", label: "Disponibilité, urgence", preuve: null, fort: false, re: W("only \\d+ left|selling fast|limited stock|stock limité|presque épuisée?|almost (?:gone|sold out)|while supplies last|jusqu'à épuisement") },
+];
+
+// Toutes les affirmations d'un texte (une par sorte).
+export function claimsIn(text) {
+  const t = String(text ?? "");
+  const out = [];
+  for (const c of CLAIMS) {
+    const m = c.re.exec(t);
+    if (m) out.push({ id: c.id, label: c.label, fort: c.fort, valeur: m[0], index: m.index });
+  }
+  return out;
+}
+
+// Sortes d'affirmations que le projet autorise : preuve cochée (sans
+// [MANQUE]) dans les Fondations, ou affirmation écrite dans le questionnaire,
+// le message central, l'offre ou la fiche de la page.
+export function knownClaims(project, root = {}) {
+  const f = project?.fondations ?? {};
+  const preuves = f.reponses?.preuves ?? {};
+  const ok = new Set();
+  for (const c of CLAIMS) {
+    const p = c.preuve && preuves[c.preuve];
+    if (p?.oui && !/\[\s*MANQUE/i.test(String(p.detail ?? ""))) ok.add(c.id);
+  }
+  if (String(project?.offre?.garantie ?? "").trim()) ok.add("garantie");
+  const { preuves: _p, ...reponses } = f.reponses ?? {};
+  const blob = JSON.stringify([reponses, f.message, project?.offre, project?.produit, project?.description, root.infos, root.produit]).replace(/\[[^\]]*(MANQUE|VALIDER)[^\]]*\]/gi, " ");
+  for (const c of claimsIn(blob)) ok.add(c.id);
+  // Pour l'origine, le pays compte : « fabriqué au Canada » n'autorise pas
+  // « fabriqué en France ».
+  ok.blob = blob.toLowerCase();
+  return ok;
+}
+
+// Une affirmation est-elle couverte par le projet ?
+export function claimKnown(c, known) {
+  if (!known?.has(c.id)) return false;
+  if (c.id === "origine" && known.blob) return known.blob.includes(String(c.valeur).trim().split(/\s+/).pop().toLowerCase());
+  return true;
+}
+
+export const unknownClaims = (html, known, { fortesSeulement = false } = {}) =>
+  claimsIn(plain(html)).filter((c) => !claimKnown(c, known) && (!fortesSeulement || c.fort));
+export const hasUnknownClaim = (html, known) => unknownClaims(html, known, { fortesSeulement: true }).length > 0;
+
 
 // Les nombres « qui engagent » d'un texte (suivis ou précédés d'une unité) :
 // [{ n: forme normalisée, valeur: tel qu'écrit, index, after }].
@@ -153,7 +230,10 @@ export function localFidelity(page, sectionsById, project) {
   const type = root.pageType ?? "";
   const contenus = project?.fondations?.contenus ?? {};
   const known = knownNumbers(project, root);
+  const knownC = knownClaims(project, root);
   const chiffres = [];
+  const affirmations = [];
+  const seenClaims = new Set();
   const notes = [];
   const seen = new Set();
   const famsOnPage = new Set();
@@ -186,6 +266,14 @@ export function localFidelity(page, sectionsById, project) {
         const to = fig.index + fig.valeur.length + 30;
         chiffres.push({ sectionId: item.props.id, name, valeur: fig.valeur, extrait: `${from ? "…" : ""}${text.slice(from, to)}${to < text.length ? "…" : ""}` });
       }
+      for (const c of claimsIn(text)) {
+        const key = `${c.id}|${c.valeur.toLowerCase()}`;
+        if (claimKnown(c, knownC) || seenClaims.has(key)) continue;
+        seenClaims.add(key);
+        const from = Math.max(0, c.index - 28);
+        const to = c.index + c.valeur.length + 30;
+        affirmations.push({ sectionId: item.props.id, name, sorte: c.label, fort: c.fort, valeur: c.valeur, extrait: `${from ? "…" : ""}${text.slice(from, to)}${to < text.length ? "…" : ""}` });
+      }
     }
   }
 
@@ -201,6 +289,7 @@ export function localFidelity(page, sectionsById, project) {
     carteRemplie: TYPES_CONTENU.includes(type) && Object.keys(contenus[type] ?? {}).length > 0,
     couverture: { avecContenu, total: sectionsUtiles },
     chiffres,
+    affirmations,
     notes,
     sansSection,
   };

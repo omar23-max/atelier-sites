@@ -227,7 +227,7 @@ function FoundationsCheck({ data }) {
   }, [projet]);
   if (!projet || !project) return null;
   const f = localFidelity(data, sectionsById, project);
-  const total = f.chiffres.length + f.notes.length + f.sansSection.length;
+  const total = f.chiffres.length + f.affirmations.length + f.notes.length + f.sansSection.length;
   return (
     <div className="atl-score__block">
       <h4>
@@ -240,7 +240,7 @@ function FoundationsCheck({ data }) {
       ) : (
         <p className="atl-score__note">
           {f.couverture.avecContenu} section(s) sur {f.couverture.total} ont un contenu prévu dans les Fondations.
-          {total === 0 ? " ✓ Aucun chiffre hors Fondations, aucune note oubliée." : ""}
+          {total === 0 ? " ✓ Aucun chiffre ni affirmation hors Fondations, aucune note oubliée." : ""}
         </p>
       )}
       {f.chiffres.length > 0 && (
@@ -255,6 +255,30 @@ function FoundationsCheck({ data }) {
                   <span className="atl-textchecks__icon">#</span>
                   <span>
                     <b>{c.valeur}</b>
+                    <small>
+                      {c.extrait} — {c.name}
+                    </small>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {f.affirmations.length > 0 && (
+        <>
+          <p className="atl-score__note">
+            <b>{f.affirmations.length} affirmation(s) sans preuve dans les Fondations</b> (label, étude, médecin, presse, origine, garantie…). Si elle est vraie, coche la preuve dans les Fondations (partie 4) ; sinon, retire-la de la page.
+          </p>
+          <ul className="atl-textchecks">
+            {f.affirmations.slice(0, 15).map((c, i) => (
+              <li key={i}>
+                <button type="button" onClick={() => showSection(getPuck, c.sectionId)} title="Voir la section">
+                  <span className="atl-textchecks__icon">{c.fort ? "!" : "?"}</span>
+                  <span>
+                    <b>
+                      {c.valeur} · {c.sorte}
+                    </b>
                     <small>
                       {c.extrait} — {c.name}
                     </small>

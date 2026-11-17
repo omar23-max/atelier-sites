@@ -15,7 +15,7 @@ import { LanguageSwitch } from "./lang-ui.jsx";
 // depuis le projet, dans le catalogue (2026-11-08).
 import { ProposalsBanner } from "./proposals-ui.jsx";
 import { PreviewBarLanguage, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
-import { DownloadHtmlButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
+import { DownloadHtmlButton, DownloadZipButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { TrialHost } from "./trial-ui.jsx";
@@ -390,6 +390,7 @@ export default function App() {
                 <TopbarTools>
                   <span className="atl-publish">
                     <DownloadHtmlButton />
+                    <DownloadZipButton />
                     <MirrorButton />
                   </span>
                 </TopbarTools>

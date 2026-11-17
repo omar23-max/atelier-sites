@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { PAGE_TYPES, pageTypeById } from "../engine/page-types.js";
 import { slug } from "../projects.js";
-import { MessageRecap } from "./Fondations.jsx";
+import { MessageRecap, normalizeMessage } from "./Fondations.jsx";
 
 // Étape ② Angles d'un projet : les pistes d'angles des Fondations deviennent
 // des cartes (avatar, douleur, promesse). On y CHOISIT seulement les angles à
@@ -10,7 +10,23 @@ import { MessageRecap } from "./Fondations.jsx";
 // de chaque type (et son angle), puis les pages des autres angles (copies).
 //
 // projets/<id>.json : angles: [{ id, titre, lentille, avatar, douleur,
-//   promesse, pageType, choisi, mere, page }]
+//   promesse, pageType, choisi, mere, page,
+//   situation, objection, preuve, statut: "hypothese" | "retenu" }]
+//
+// Comparaison (2026-11-17, audit « Ensuite ») : chaque angle se décrit avec
+// les mêmes critères (public, situation, douleur, promesse, objection
+// principale, preuve disponible, page) ; vue Cartes ou Tableau comparatif ;
+// statut « Hypothèse à tester » / « Angle retenu ». Le socle (produit, offre,
+// mécanisme) est commun à tous les angles et rappelé en haut.
+
+const CRITERES = [
+  ["avatar", "Public"],
+  ["situation", "Situation"],
+  ["douleur", "Douleur"],
+  ["promesse", "Promesse"],
+  ["objection", "Objection principale"],
+  ["preuve", "Preuve disponible"],
+];
 
 // « Pas un shake (anti-angle) — avatar : … · douleur : … · promesse : … · page : listicle (déjà là) »
 const TYPE_WORDS = [
@@ -59,6 +75,17 @@ export function anglesProgress(project, pageNames) {
 
 export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
   const [angles, setAngles] = useState(() => anglesOf(project));
+  const [vue, setVue] = useState("cartes");
+  // Choix proposés pour l'objection et la preuve : ceux du message central
+  // et les preuves cochées dans les Fondations (saisie libre possible).
+  const msg = project.fondations?.message ? normalizeMessage(project.fondations.message) : null;
+  const objections = (msg?.objections ?? []).map((o) => o.objection).filter(Boolean);
+  const preuvesFd = Object.entries(project.fondations?.reponses?.preuves ?? {})
+    .filter(([, p]) => p?.oui && p.detail && !/\[\s*MANQUE/i.test(p.detail))
+    .map(([, p]) => p.detail);
+  const preuves = [...new Set([...(msg?.preuves ?? []).filter(Boolean), ...preuvesFd])];
+  const listOf = (k) => (k === "objection" ? "cat-angles-objections" : k === "preuve" ? "cat-angles-preuves" : undefined);
+  const statutOf = (a) => (a.statut === "retenu" ? "retenu" : "hypothese");
   const pageNames = pages.map((p) => p.info.name);
   const set = (id, patch) => setAngles((list) => list.map((a) => (a.id === id ? { ...a, ...patch } : a)));
   const chosen = angles.filter((a) => a.choisi);
@@ -100,11 +127,80 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
         )}
         .
       </p>
-      <MessageRecap project={project} onEdit={onGo ? () => onGo("fondations") : null} />
-      <div className="cat-angles__bar">
-        <b>{chosen.length}</b> angle(s) choisi(s) à tester
+      <MessageRecap project={project} onEdit={onGo ? () => onGo("fondations") : null} open={false} />
+      <div className="cat-angles__socle">
+        <b>Socle commun à tous les angles</b> : {project.produit || project.nom}
+        {project.offre?.prix ? ` · ${String(project.offre.prix).slice(0, 80)}` : ""}
+        {msg?.mecanisme ? ` · mécanisme : ${String(msg.mecanisme).slice(0, 120)}${String(msg.mecanisme).length > 120 ? "…" : ""}` : ""}
+        <small> Ce qui change d'un angle à l'autre : les critères ci-dessous.</small>
       </div>
-      <div className="cat-angles__grid">
+      <datalist id="cat-angles-objections">
+        {objections.map((o) => (
+          <option key={o} value={o} />
+        ))}
+      </datalist>
+      <datalist id="cat-angles-preuves">
+        {preuves.map((p) => (
+          <option key={p} value={p} />
+        ))}
+      </datalist>
+      <div className="cat-angles__bar">
+        <span>
+          <b>{chosen.length}</b> angle(s) choisi(s) · {chosen.filter((a) => statutOf(a) === "retenu").length} retenu(s), {chosen.filter((a) => statutOf(a) === "hypothese").length} hypothèse(s) à tester
+        </span>
+        <span className="cat-angles__vue" role="radiogroup" aria-label="Affichage">
+          {[
+            ["cartes", "Cartes"],
+            ["tableau", "Tableau comparatif"],
+          ].map(([id, label]) => (
+            <button key={id} type="button" role="radio" aria-checked={vue === id} className={vue === id ? "is-on" : ""} onClick={() => setVue(id)}>
+              {label}
+            </button>
+          ))}
+        </span>
+      </div>
+      {vue === "tableau" && (
+        <div className="cat-angles__tablewrap">
+          <table className="cat-angles__table">
+            <thead>
+              <tr>
+                <th>À tester</th>
+                <th>Angle</th>
+                <th>Statut</th>
+                {CRITERES.map(([, l]) => (
+                  <th key={l}>{l}</th>
+                ))}
+                <th>Page</th>
+              </tr>
+            </thead>
+            <tbody>
+              {angles.map((a) => (
+                <tr key={a.id} className={a.choisi ? "is-on" : ""}>
+                  <td>
+                    <input type="checkbox" checked={a.choisi} onChange={(e) => set(a.id, { choisi: e.target.checked })} aria-label={`Tester « ${a.titre} »`} />
+                  </td>
+                  <td>
+                    <input value={a.titre} onChange={(e) => set(a.id, { titre: e.target.value })} aria-label="Titre de l'angle" />
+                  </td>
+                  <td>
+                    <select value={statutOf(a)} disabled={!a.choisi} onChange={(e) => set(a.id, { statut: e.target.value })}>
+                      <option value="hypothese">Hypothèse à tester</option>
+                      <option value="retenu">Angle retenu</option>
+                    </select>
+                  </td>
+                  {CRITERES.map(([k, l]) => (
+                    <td key={k}>
+                      <textarea rows={2} value={a[k] ?? ""} list={listOf(k)} onChange={(e) => set(a.id, { [k]: e.target.value })} aria-label={l} className={!String(a[k] ?? "").trim() ? "is-empty" : ""} />
+                    </td>
+                  ))}
+                  <td>{isLinked(a) ? <a href={`/?page=${encodeURIComponent(a.page)}`}>Ouvrir</a> : <small className="cat-muted">—</small>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <div className="cat-angles__grid" hidden={vue !== "cartes"}>
         {angles.map((a) => (
           <article key={a.id} className={`cat-angle${a.choisi ? " is-on" : ""}`}>
             <header>
@@ -112,20 +208,29 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
                 <input type="checkbox" checked={a.choisi} onChange={(e) => set(a.id, { choisi: e.target.checked })} />
                 À tester
               </label>
+              {a.choisi && (
+                <select className="cat-angle__statut" value={statutOf(a)} onChange={(e) => set(a.id, { statut: e.target.value })} aria-label="Statut">
+                  <option value="hypothese">Hypothèse à tester</option>
+                  <option value="retenu">Angle retenu</option>
+                </select>
+              )}
               {isLinked(a) && <span className="cat-angle__has">a sa page</span>}
             </header>
             <input className="cat-angle__title" value={a.titre} onChange={(e) => set(a.id, { titre: e.target.value })} aria-label="Titre de l'angle" />
             {a.lentille && <small className="cat-muted">{a.lentille}</small>}
-            {[
-              ["avatar", "Avatar"],
-              ["douleur", "Douleur"],
-              ["promesse", "Promesse"],
-            ].map(([k, l]) => (
-              <label key={k} className="cat-angle__field">
-                <span>{l}</span>
-                <textarea rows={1} value={a[k]} onChange={(e) => set(a.id, { [k]: e.target.value })} />
-              </label>
-            ))}
+            {CRITERES.map(([k, l]) =>
+              k === "objection" || k === "preuve" ? (
+                <label key={k} className="cat-angle__field">
+                  <span>{l}</span>
+                  <input value={a[k] ?? ""} list={listOf(k)} onChange={(e) => set(a.id, { [k]: e.target.value })} placeholder={k === "objection" ? "Choisir ou écrire" : "Laquelle, parmi tes preuves"} />
+                </label>
+              ) : (
+                <label key={k} className="cat-angle__field">
+                  <span>{l}</span>
+                  <textarea rows={1} value={a[k] ?? ""} onChange={(e) => set(a.id, { [k]: e.target.value })} placeholder={k === "situation" ? "Quand le problème se présente" : ""} />
+                </label>
+              ),
+            )}
           </article>
         ))}
       </div>

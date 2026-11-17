@@ -2,6 +2,7 @@ import { useState } from "react";
 import { anglesProgress } from "./Angles.jsx";
 import { TYPES_CONTENU, FICHES, blueprintOf, contenuProgress } from "../engine/page-blueprints.js";
 import { pageTypeById } from "../engine/page-types.js";
+import { figuresIn } from "../engine/fidelite.js";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
 // questionnaire de faits que seul l'utilisateur connaît (surtout des cases),
@@ -229,7 +230,7 @@ function MessageEditor({ value, onChange }) {
 }
 
 // Rappel en lecture seule (onglet Angles) : le même discours sur chaque page.
-export function MessageRecap({ project, onEdit }) {
+export function MessageRecap({ project, onEdit, open = true }) {
   const raw = project.fondations?.message;
   if (!raw?.promesse && !raw?.mecanisme)
     return (
@@ -244,9 +245,10 @@ export function MessageRecap({ project, onEdit }) {
     );
   const m = normalizeMessage(raw);
   return (
-    <details className="cat-mc-recap" open>
+    <details className="cat-mc-recap" open={open}>
       <summary>
         <b>Message central</b> — repris sur toutes les pages du projet
+        {!open && m.promesse && <span className="cat-mc-recap__short"> · {String(m.promesse).slice(0, 140)}{String(m.promesse).length > 140 ? "…" : ""}</span>}
       </summary>
       <dl>
         <dt>Promesse</dt>
@@ -288,7 +290,108 @@ export function foundationsFilled(project) {
 // Empreinte du contenu des Fondations : sert à savoir si elles ont changé
 // depuis leur validation (audit T3, 2026-11-17 : avant, « validées » restait
 // affiché après n'importe quelle modification).
-const empreinte = (fd) => JSON.stringify([fd?.reponses ?? {}, fd?.message ?? null, fd?.contenus ?? {}]);
+const empreinte = (fd) => JSON.stringify([fd?.reponses ?? {}, fd?.message ?? null, fd?.contenus ?? {}, fd?.faits ?? []]);
+
+// Faits chiffrés typés (audit T1, 2026-11-17) : chaque chiffre de l'offre et
+// des preuves a sa nature, sa valeur, son unité, sa source et son état. Un
+// fait « validé » autorise ce chiffre sur les pages, un fait « retiré »
+// l'interdit même s'il traîne dans un texte des Fondations.
+export const NATURES = [
+  ["argent", "Prix, montant"],
+  ["pourcent", "Pourcentage"],
+  ["duree", "Durée"],
+  ["note", "Note (sur 5)"],
+  ["nombre", "Nombre (avis, clients, ventes…)"],
+  ["dose", "Dose, quantité"],
+  ["fois", "Multiplicateur (×)"],
+];
+const ETATS = [
+  ["a-confirmer", "À confirmer"],
+  ["valide", "Validé"],
+  ["retire", "Retiré"],
+];
+
+function FaitsEditor({ value = [], onChange, sources }) {
+  const set = (i, patch) => onChange(value.map((f, j) => (j === i ? { ...f, ...patch } : f)));
+  const add = () => onChange([...value, { id: `f${Date.now().toString(36)}`, nature: "argent", valeur: "", unite: "", source: "", etat: "a-confirmer" }]);
+  // Propose les chiffres déjà écrits dans le questionnaire et l'offre (à confirmer).
+  function fromTexts() {
+    const seen = new Set(value.map((f) => `${f.valeur}|${f.nature}`));
+    const next = [...value];
+    for (const [label, text] of sources) {
+      for (const fig of figuresIn(String(text ?? ""))) {
+        const nature = fig.kind ?? "nombre";
+        const key = `${fig.n}|${nature}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        next.push({ id: `f${Date.now().toString(36)}${next.length}`, nature, valeur: fig.n, unite: (fig.after.trim().split(/\s+/)[0] ?? "").replace(/[^\p{L}$€£%/×-]/gu, "").replace(/^-/, ""), source: label, etat: "a-confirmer" });
+      }
+    }
+    onChange(next);
+  }
+  return (
+    <div className="cat-faits">
+      <table>
+        <thead>
+          <tr>
+            <th>Nature</th>
+            <th>Valeur</th>
+            <th>Unité</th>
+            <th>Source</th>
+            <th>État</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {value.map((f, i) => (
+            <tr key={f.id ?? i} className={`is-${f.etat}`}>
+              <td>
+                <select value={f.nature} onChange={(e) => set(i, { nature: e.target.value })}>
+                  {NATURES.map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td>
+                <input value={f.valeur} onChange={(e) => set(i, { valeur: e.target.value })} placeholder="58" />
+              </td>
+              <td>
+                <input value={f.unite} onChange={(e) => set(i, { unite: e.target.value })} placeholder="$ US, jours, avis…" />
+              </td>
+              <td>
+                <input value={f.source} onChange={(e) => set(i, { source: e.target.value })} placeholder="Page produit, Trustpilot…" />
+              </td>
+              <td>
+                <select value={f.etat} onChange={(e) => set(i, { etat: e.target.value })}>
+                  {ETATS.map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td>
+                <button type="button" className="cat-link" onClick={() => onChange(value.filter((_, j) => j !== i))} aria-label="Retirer ce fait">
+                  ×
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="cat-faits__actions">
+        <button type="button" className="cat-btn cat-btn--ghost" onClick={add}>
+          + Ajouter un fait
+        </button>
+        <button type="button" className="cat-btn cat-btn--ghost" onClick={fromTexts}>
+          Reprendre les chiffres déjà écrits (à confirmer)
+        </button>
+      </div>
+    </div>
+  );
+}
 const filled = (v) => (Array.isArray(v) ? v.length > 0 : v && typeof v === "object" ? Object.keys(v).length > 0 : String(v ?? "").trim() !== "");
 
 export function FoundationsTab({ project, onSave, onMessage, request, offer, pages }) {
@@ -296,6 +399,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [rep, setRep] = useState(f.reponses ?? {});
   const [msg, setMsg] = useState(f.message ?? null);
   const [cont, setCont] = useState(f.contenus ?? {});
+  const [faits, setFaits] = useState(f.faits ?? []);
   // Types de page à faire remplir par Claude : ceux du projet, sinon tous.
   const typesUsed = [...new Set((pages ?? []).map((p) => p.info?.pageType).filter((t) => TYPES_CONTENU.includes(t)))];
   const [askTypes, setAskTypes] = useState(typesUsed.length ? typesUsed : TYPES_CONTENU);
@@ -327,7 +431,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   };
 
   const patch = (extra = {}) => ({
-    fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: cont, ...extra },
+    fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: cont, faits, ...extra },
   });
 
   // Avant d'enregistrer : relire le projet sur le serveur. Claude a pu écrire
@@ -356,7 +460,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       }
     }
     if (changed) setCont(merged);
-    const out = { ...fresh, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: merged, ...extra };
+    const out = { ...fresh, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: merged, faits, ...extra };
     if (extra.statut === "validée") out.valideEmpreinte = empreinte(out);
     else if (!("statut" in extra) && (fresh.statut === "validée" || fresh.statut === "modifiée")) {
       // Validées autrefois sans empreinte : la version du serveur sert de référence.
@@ -509,6 +613,23 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="cat-panel">
+        <h3>Faits chiffrés</h3>
+        <p className="cat-muted">
+          Chaque chiffre que les pages peuvent citer : sa nature (un prix de 30 $ n'autorise pas « 30 jours »), sa valeur, d'où il vient. « Validé » :
+          utilisable ; « Retiré » : interdit, même s'il reste écrit ailleurs dans les Fondations ; « À confirmer » : à vérifier avant publication.
+        </p>
+        <FaitsEditor
+          value={faits}
+          onChange={setFaits}
+          sources={[
+            ["Questionnaire : produit", rep.role],
+            ["Questionnaire : preuves", JSON.stringify(rep.preuves ?? {})],
+            ["Offre", JSON.stringify(project.offre ?? {})],
+          ]}
+        />
       </section>
 
       {/* 5. L'offre : un seul formulaire (OfferTab), avec son propre bouton

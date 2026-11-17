@@ -204,8 +204,20 @@ const toDataUrl = async (url) => {
 // Export vérifié (audit T4, 2026-11-17) : chaque section est rendue ou
 // signalée, les médias de l'atelier (corps ET CSS) sont intégrés, la langue
 // est celle de la page, et un bilan dit ce qui dépend encore d'Internet.
-async function buildHtml(data) {
-  const bilan = { sections: 0, sautees: [], integres: 0, manquants: [], enLigne: [], polices: 0 };
+// zip : version autonome (2026-11-17) — médias rangés dans assets/, polices
+// Google téléchargées dans fonts/ ; renvoie aussi les fichiers à zipper.
+async function buildHtml(data, { zip = false } = {}) {
+  const bilan = { sections: 0, sautees: [], integres: 0, manquants: [], enLigne: [], polices: 0, policesLocales: 0, zip };
+  const files = new Map();
+  const taken = new Set();
+  const localName = (dir, url, ext = "") => {
+    let base = (url.split("?")[0].split("/").pop() || "fichier").replace(/[^a-zA-Z0-9._-]/g, "_");
+    if (ext && !/\.[a-z0-9]{2,5}$/i.test(base)) base += ext;
+    let name = `${dir}/${base}`;
+    for (let n = 2; taken.has(name); n++) name = `${dir}/${n}-${base}`;
+    taken.add(name);
+    return name;
+  };
   await ensureFull([...new Set(data.content.map((c) => c.type))].filter((t) => byId[t])).catch(() => {});
   const used = [...new Set(data.content.map((c) => c.type))].map((t) => byId[t]).filter((s) => s && !s.leger);
   // Les photos d'origine ne partent jamais : leurs champs restent vides.
@@ -234,15 +246,62 @@ async function buildHtml(data) {
   // Tes propres images et vidéos (studio, téléversées) intégrées dans le fichier.
   for (const url of [...new Set([...(body.match(/\/medias\/[^"')\s]+/g) ?? []), ...(css.match(/\/medias\/[^"')\s]+/g) ?? [])])]) {
     try {
-      const data64 = await toDataUrl(url);
-      body = body.split(url).join(data64);
-      css = css.split(url).join(data64);
+      let target;
+      if (zip) {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        target = localName("assets", url);
+        files.set(target, await res.blob());
+      } else target = await toDataUrl(url);
+      body = body.split(url).join(target);
+      css = css.split(url).join(target);
       bilan.integres++;
     } catch {
       bilan.manquants.push(url);
     }
   }
-  const imports = [...new Set(css.match(IMPORT) ?? [])];
+  let imports = [...new Set(css.match(IMPORT) ?? [])];
+  // ZIP : les polices Google (feuille + fichiers .woff2) sont téléchargées et
+  // servies depuis fonts/ : la page s'affiche sans Internet.
+  let fontsCss = "";
+  if (zip) {
+    const keep = [];
+    for (const imp of imports) {
+      const href = /url\(\s*['"]?([^'")\s]+)/.exec(imp)?.[1] ?? /@import\s+['"]([^'"]+)/.exec(imp)?.[1];
+      if (!href || !/fonts\.googleapis\.com/.test(href)) {
+        keep.push(imp);
+        continue;
+      }
+      try {
+        let text = await (await fetch(href)).text();
+        for (const m of [...new Set([...text.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].map((x) => x[1]))]) {
+          const blob = await (await fetch(m)).blob();
+          const name = localName("fonts", m, ".woff2");
+          files.set(name, blob);
+          text = text.split(m).join(name);
+          bilan.policesLocales++;
+        }
+        fontsCss += text + "\n";
+      } catch {
+        keep.push(imp);
+      }
+    }
+    imports = keep;
+    // Polices Google appelées directement dans les styles des sections.
+    for (const m of [...new Set([...css.matchAll(/url\(\s*['"]?(https:\/\/fonts\.gstatic\.com\/[^'")\s]+)/g)].map((x) => x[1]))]) {
+      try {
+        const blob = await (await fetch(m)).blob();
+        const name = localName("fonts", m, ".woff2");
+        files.set(name, blob);
+        css = css.split(m).join(name);
+        bilan.policesLocales++;
+      } catch {}
+    }
+  }
+  // Fichiers du site d'origine appelés par un chemin relatif (polices
+  // « assets/pp-… » des copies) : jamais inclus, comme les photos d'origine
+  // (licence à vérifier) ; la police de secours s'affiche.
+  bilan.origine = [...new Set([...css.matchAll(/url\(\s*['"]?((?:\.\/)?assets\/[^'")\s?#]+)/g)].map((x) => x[1].split("/").pop()))];
   const title = data.root?.props?.title ?? pageName;
   const html = `<!doctype html>
 <html lang="${langueOf(data.root?.props).code}">
@@ -252,6 +311,7 @@ async function buildHtml(data) {
 <title>${title.replace(/</g, "&lt;")}</title>
 <style>
 ${imports.join("\n")}
+${fontsCss}
 html, body { margin: 0; }
 ${css.replace(IMPORT, "")}
 </style>
@@ -279,7 +339,25 @@ ${body}
   bilan.polices = [...ressources].filter((h) => /fonts\.(googleapis|gstatic)\.com$/.test(h)).length > 0;
   bilan.enLigne = [...ressources].filter((h) => !/fonts\.(googleapis|gstatic)\.com$/.test(h));
   bilan.liens = [...liens];
-  return { html, bilan };
+  return { html, bilan, files };
+}
+
+// Bilan de l'export (alerte, et LISEZ-MOI.txt du ZIP).
+function bilanLines(bilan, originals, fichier) {
+  return [
+    `${bilan.zip ? "ZIP" : "HTML"} téléchargé (${fichier}).`,
+    "",
+    `• ${bilan.sections} section(s) rendue(s).`,
+    bilan.sautees.length ? `• ⚠ ${bilan.sautees.length} section(s) NON rendue(s) : ${bilan.sautees.join(", ")}.` : null,
+    `• ${bilan.integres} image(s) ou vidéo(s) de l'atelier ${bilan.zip ? "rangée(s) dans assets/" : "intégrée(s) dans le fichier"}.`,
+    bilan.manquants.length ? `• ⚠ ${bilan.manquants.length} média(s) introuvable(s) : ${bilan.manquants.slice(0, 5).join(", ")}.` : null,
+    originals ? `• ${originals} photo(s) d'origine retirée(s) : emplacements vides.` : null,
+    bilan.policesLocales ? `• ${bilan.policesLocales} fichier(s) de police Google dans ${bilan.zip ? "fonts/ : affichage sans Internet" : "le fichier"}.` : null,
+    bilan.origine?.length ? `• ${bilan.origine.length} police(s) ou fichier(s) du site d'origine non inclus (licence à vérifier) : ${bilan.origine.slice(0, 5).join(", ")} ; la police de secours s'affiche.` : null,
+    bilan.polices ? "• Polices : chargées depuis Google à l'ouverture (Internet nécessaire)." : null,
+    bilan.enLigne.length ? `• Ressources restées en ligne (Internet nécessaire) : ${bilan.enLigne.slice(0, 6).join(", ")}.` : "• Aucune autre ressource en ligne.",
+    bilan.liens?.length ? `• Liens vers d'autres sites : ${bilan.liens.slice(0, 6).join(", ")} (à vérifier : liens du site d'origine ?).` : null,
+  ].filter(Boolean);
 }
 
 export function DownloadHtmlButton() {
@@ -300,22 +378,7 @@ export function DownloadHtmlButton() {
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       // Bilan de l'export : ce qui est dedans, ce qui manque, ce qui demande Internet.
-      alert(
-        [
-          `HTML téléchargé (${pageName}.html).`,
-          "",
-          `• ${bilan.sections} section(s) rendue(s).`,
-          bilan.sautees.length ? `• ⚠ ${bilan.sautees.length} section(s) NON rendue(s) : ${bilan.sautees.join(", ")}.` : null,
-          `• ${bilan.integres} image(s) ou vidéo(s) de l'atelier intégrée(s) dans le fichier.`,
-          bilan.manquants.length ? `• ⚠ ${bilan.manquants.length} média(s) introuvable(s) : ${bilan.manquants.slice(0, 5).join(", ")}.` : null,
-          originals ? `• ${originals} photo(s) d'origine retirée(s) : emplacements vides.` : null,
-          bilan.polices ? "• Polices : chargées depuis Google à l'ouverture (Internet nécessaire)." : null,
-          bilan.enLigne.length ? `• Ressources restées en ligne (Internet nécessaire) : ${bilan.enLigne.slice(0, 6).join(", ")}.` : "• Aucune autre ressource en ligne.",
-          bilan.liens.length ? `• Liens vers d'autres sites : ${bilan.liens.slice(0, 6).join(", ")} (à vérifier : liens du site d'origine ?).` : null,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      );
+      alert(bilanLines(bilan, originals, `${pageName}.html`).join("\n"));
       // Noté dans le projet (onglet Publication du catalogue).
       const projet = data.root?.props?.projet;
       if (projet) {
@@ -334,6 +397,47 @@ export function DownloadHtmlButton() {
     <button type="button" className="atl-tool" onClick={download} disabled={busy} title="Télécharger la page en un seul fichier HTML">
       <IconDownload />
       {busy ? "Préparation…" : "HTML"}
+    </button>
+  );
+}
+
+// ZIP autonome (2026-11-17) : index.html + assets/ (tes médias) + fonts/
+// (polices Google) + LISEZ-MOI.txt : la page s'ouvre sans Internet, sauf
+// les ressources restées sur d'autres sites (listées).
+export function DownloadZipButton() {
+  const getPuck = useGetPuck();
+  const [busy, setBusy] = useState(false);
+  async function download() {
+    const data = getPuck().appState.data;
+    const originals = originalPhotoTargets(data.content ?? []).length;
+    setBusy(true);
+    try {
+      const { html, bilan, files } = await buildHtml(data, { zip: true });
+      const { default: JSZip } = await import("jszip");
+      const z = new JSZip();
+      z.file("index.html", html);
+      for (const [name, blob] of files) z.file(name, blob);
+      const lignes = bilanLines(bilan, originals, `${pageName}.zip`);
+      z.file("LISEZ-MOI.txt", [`Page « ${data.root?.props?.title ?? pageName} » exportée par l'atelier le ${new Date().toLocaleString("fr-CA")}.`, "Ouvre index.html dans un navigateur.", "", ...lignes].join("\r\n"));
+      const blob = await z.generateAsync({ type: "blob", compression: "DEFLATE" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${pageName}.zip`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      const projet = data.root?.props?.projet;
+      if (projet) fetch(`/api/projects/${projet}/publication`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: pageName, canal: "html", sansPhotosOrigine: originals > 0 }) }).catch(() => {});
+      alert(lignes.join("\n"));
+    } catch (e) {
+      alert(`Export ZIP impossible : ${e.message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <button type="button" className="atl-tool" onClick={download} disabled={busy} title="Télécharger la page en ZIP autonome (HTML, images, polices) : s'ouvre sans Internet">
+      <IconDownload />
+      {busy ? "Préparation…" : "ZIP"}
     </button>
   );
 }

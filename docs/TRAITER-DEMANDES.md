@@ -528,6 +528,75 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      Sans image · Questions / accordéon (dans une famille ou une recherche ;
      tirés de meta.arbre pour les copies, du schéma pour les sections du
      catalogue). Pas encore dans l'outil « Ajouter » du rail.
+   - **Importer : la source d'abord, état des demandes (2026-11-17)** :
+     Enrichir.jsx : 5 cartes (capture, site, bibliothèque, style d'un site,
+     IA) ; le formulaire choisi seul (les autres restent montés, cachés) ;
+     « ← Choisir une autre source » ; détails techniques (dossier demandes,
+     Copycat, REA, design.md) dans « Comment ça marche » replié ; textes sans
+     jargon. Catalogue.jsx, Demandes : bandeau « N demande(s) en attente de
+     Claude — prochaine étape… », états lisibles (En attente de Claude ·
+     Claude y travaille avec progression faites / total · Traitée · À
+     reprendre si r.erreur ou progression.erreur), ligne « Prochaine étape »
+     sur les demandes en attente, liste relue toutes les 8 s quand l'onglet
+     est ouvert. Les statuts écrits par Claude ne changent pas (en attente,
+     en cours, traitée ; erreur dans « erreur » si besoin).
+   - **Affirmations sans chiffre (2026-11-17, audit T1 suite)** :
+     src/engine/fidelite.js `CLAIMS` (certification / label, étude / preuve
+     scientifique, expert / médecin, presse, prix / classement — « fortes » —
+     puis origine, garantie, composition « naturel », disponibilité / urgence),
+     `claimsIn`, `knownClaims` (preuve cochée en partie 4 sans [MANQUE], ou
+     affirmation écrite dans le questionnaire, le message central, l'offre ou
+     la fiche ; garantie de l'offre ; pour l'origine le pays doit
+     correspondre), `claimKnown`, `unknownClaims`, `hasUnknownClaim`.
+     localFidelity renvoie `affirmations` ; Couverture → Fidélité aux
+     Fondations les liste (« ! » forte, « ? » à vérifier) ; l'audit IA les
+     reçoit (affirmationsHorsFondations) ; « Remplir depuis les Fondations »
+     remplace un texte qui contient une affirmation forte sans preuve par
+     « [À compléter : preuve absente des Fondations] ». Testé sur 12 phrases
+     et sur une page zz rattachée à un projet zz (corbeille). Limite : une
+     liste de mots, pas une compréhension du texte (une tournure absente de
+     la liste passe).
+   - **Angles comparés (2026-11-17)** : src/catalogue/Angles.jsx. Message
+     central replié (promesse sur une ligne, `MessageRecap open={false}`),
+     encadré « Socle commun » (produit, prix, mécanisme). Mêmes critères pour
+     chaque angle (`CRITERES` : public, situation, douleur, promesse, objection
+     principale, preuve disponible) + page associée ; objection et preuve
+     proposées depuis le message central et les preuves cochées (datalist,
+     saisie libre). Vue Cartes ou « Tableau comparatif » (cases vides
+     teintées). Statut des angles choisis : « Hypothèse à tester » / « Angle
+     retenu » (angles[].statut). Nouveaux champs : situation, objection,
+     preuve, statut (projets/<id>.json).
+   - **Export ZIP autonome (2026-11-17)** : tools-ui.jsx `DownloadZipButton`
+     (bouton « ZIP » à côté de « HTML »), `buildHtml(data, { zip: true })` :
+     index.html + assets/ (médias de l'atelier) + fonts/ (polices Google : les
+     feuilles @import et les url(fonts.gstatic.com) des styles, téléchargées) +
+     LISEZ-MOI.txt (bilan, `bilanLines`). Les ressources du site d'origine
+     (polices pp-…, images sur paleopro.com…) ne sont jamais incluses (licence,
+     comme les photos d'origine) : listées « restées en ligne ». Testé sur une
+     page zz : 1 image dans assets/, 12 polices dans fonts/, plus aucun appel à
+     Google. Vu en passant : dans l'éditeur, les polices « assets/… » des
+     copies ne se chargent pas (chemin relatif) ; les polices Google du design
+     prennent le relais.
+   - **Faits chiffrés typés dans les Fondations (2026-11-17)** :
+     Fondations.jsx `FaitsEditor` (étape « Preuves et offre ») :
+     fondations.faits[] = { nature (argent, pourcent, durée, note, nombre,
+     dose, fois), valeur, unité, source, état (à confirmer, validé, retiré) } ;
+     « Reprendre les chiffres déjà écrits » les propose depuis le
+     questionnaire et l'offre (à confirmer). fidelite.js `knownNumbers` :
+     « validé » autorise ce chiffre avec sa nature, « retiré » l'interdit même
+     s'il reste écrit dans les Fondations. Les faits entrent dans l'empreinte
+     de validation (changer un fait → « à revalider »).
+   - **vite.config.js découpé (2026-11-17, audit T6)** : server/commun.mjs
+     (dossiers, readBody, json + ETag, Supabase, vignettes, pageRev /
+     pageWriters), server/sections.mjs (sectionsBundle, /api/sections-data),
+     server/api.mjs (atelierApi : toute l'API, code inchangé),
+     server/rechargement.mjs (rechargement sûr) ; vite.config.js = la
+     configuration seule (30 lignes). Déplacement mécanique (scripts de
+     découpe et de vérification des noms), 24 essais de l'API passés, éditeur
+     ouvert normalement. Un changement dans server/*.mjs redémarre Vite comme
+     avant : relancer ensuite avec « sudo systemctl restart atelier ».
+     Prochaine étape possible (non faite) : servir l'atelier compilé (vite
+     build) avec ces modules, pour une ouverture plus rapide.
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

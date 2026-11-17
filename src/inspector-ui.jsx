@@ -14,7 +14,7 @@ import { consigneLangue, langueOf } from "./engine/langue.js";
 import { scorePage, familiesOf } from "./engine/page-score.js";
 import { TYPES_CONTENU, briefFor } from "./engine/page-blueprints.js";
 import { pageTypeById } from "./engine/page-types.js";
-import { fondationsPourAudit, localFidelity, knownNumbers, hasUnknownFigure } from "./engine/fidelite.js";
+import { fondationsPourAudit, localFidelity, knownNumbers, hasUnknownFigure, knownClaims, hasUnknownClaim } from "./engine/fidelite.js";
 import { isAngleZone, pageRole, zonesFromMother } from "./angle-zones.js";
 import { getPage } from "./projects.js";
 
@@ -3330,7 +3330,11 @@ function AuditPage({ content, root, onClose }) {
       // Le contrôle local (chiffres absents des Fondations) est donné à l'IA :
       // elle ne peut pas passer à côté d'un prix ou d'un nombre d'avis resté
       // du site d'origine.
-      if (fondations) fondations.chiffresHorsFondations = localFidelity(data, byId, project).chiffres.slice(0, 30).map((c) => ({ valeur: c.valeur, extrait: c.extrait, sectionId: c.sectionId }));
+      if (fondations) {
+        const loc = localFidelity(data, byId, project);
+        fondations.chiffresHorsFondations = loc.chiffres.slice(0, 30).map((c) => ({ valeur: c.valeur, extrait: c.extrait, sectionId: c.sectionId }));
+        fondations.affirmationsHorsFondations = loc.affirmations.slice(0, 30).map((c) => ({ valeur: c.valeur, sorte: c.sorte, extrait: c.extrait, sectionId: c.sectionId }));
+      }
       const sectionsOut = data.content.map((item) => {
         const section = byId[item.type];
         const texts = aiTargets(item).texts.map((t) => ({ role: t.role ?? "", text: plain(t.text).slice(0, fondations ? 260 : 160) })).filter((t) => t.text);
@@ -3683,16 +3687,20 @@ function FillFromFoundations({ content, root, onApply }) {
           // Garde-fou : un chiffre qui engage (prix, %, durée, nombre d'avis…)
           // absent du projet ne passe pas, quoi qu'ait écrit l'IA.
           const safe = body.items.map((x) => {
-            if (!hasUnknownFigure(x.text, known)) return x;
+            const figure = hasUnknownFigure(x.text, known);
+            // Affirmation forte sans preuve (label, étude, médecin, presse,
+            // classement) : bloquée comme un chiffre inventé (2026-11-17).
+            const claim = !figure && info?.project && hasUnknownClaim(x.text, knownClaims(info.project, root));
+            if (!figure && !claim) return x;
             guarded++;
-            return { ...x, text: "[À compléter : chiffre absent des Fondations]" };
+            return { ...x, text: figure ? "[À compléter : chiffre absent des Fondations]" : "[À compléter : preuve absente des Fondations]" };
           });
           onApply(job.id, Object.fromEntries(safe.map((x) => [x.id, { text: x.text }])));
           done += batch.length;
         }
       }
       setState({
-        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre absent des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.`,
+        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre ou preuve absents des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.`,
       });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà écrits)` });
