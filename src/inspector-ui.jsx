@@ -570,7 +570,38 @@ export function Inspector({ children }) {
       const el = under(e, `[data-atl-id="${CSS.escape(sec.dataset.atlId)}"] [data-atl-slot], [data-atl-id="${CSS.escape(sec.dataset.atlId)}"] [data-atl-group]`);
       return { sectionId: sec.dataset.atlId, key: el?.dataset.atlSlot ?? undefined, group: el?.dataset.atlGroup ?? undefined };
     };
+    // Emplacement de section conseillée (« + Ajouter une section « … » ici ») :
+    // repéré par la géométrie comme le reste (Puck peut couper les clics).
+    // Le clic ne doit PAS choisir la section voisine : il ouvre directement le
+    // choix du modèle de cette famille (bogue du 2026-11-14).
+    const slotBoxAt = (e) => {
+      for (const box of doc.querySelectorAll(".atl-slot")) {
+        const r = box.getBoundingClientRect();
+        if (r.width && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) return box;
+      }
+      return null;
+    };
+    const onSlotPress = (e) => {
+      if (e.isTrusted && slotBoxAt(e)) e.stopPropagation();
+    };
     const onClick = (e) => {
+      if (e.isTrusted) {
+        const box = slotBoxAt(e);
+        if (box) {
+          e.stopPropagation();
+          e.preventDefault();
+          // L'élément de l'emplacement sous la souris (ou le seul) → son bouton.
+          // Le plus proche verticalement (0 = la souris est dessus).
+          const dist = (it) => {
+            const r = it.getBoundingClientRect();
+            return e.clientY < r.top ? r.top - e.clientY : e.clientY > r.bottom ? e.clientY - r.bottom : 0;
+          };
+          const items = [...box.querySelectorAll(".atl-slot__item")];
+          const item = items.reduce((best, it) => (!best || dist(it) < dist(best) ? it : best), null);
+          item?.querySelector("button[data-slot-key]")?.click();
+          return;
+        }
+      }
       // Un clic lancé par un script de la page (défilement automatique d'un
       // bandeau, d'un carrousel) n'est pas un clic de l'utilisateur : le
       // bouton le reçoit, mais il s'arrête à la section (Puck ne doit pas
@@ -586,6 +617,7 @@ export function Inspector({ children }) {
     };
     // Double-clic sur un texte : on écrit directement dans la page.
     const onDouble = (e) => {
+      if (slotBoxAt(e)) return void e.stopPropagation();
       if (!isMain() || editRef.current) return;
       const t = target(e);
       if (!t?.key) return;
@@ -594,6 +626,7 @@ export function Inspector({ children }) {
       setTimeout(() => startEdit(t, { x: e.clientX, y: e.clientY }), 0);
     };
     const onMenu = (e) => {
+      if (slotBoxAt(e)) return;
       if (!isMain()) return;
       let t = target(e);
       if (!t) return;
@@ -684,6 +717,8 @@ export function Inspector({ children }) {
       const next = canvasFrame()?.contentDocument ?? null;
       if (next === doc) return;
       doc?.removeEventListener("click", onClick, true);
+      doc?.removeEventListener("pointerdown", onSlotPress, true);
+      doc?.removeEventListener("mousedown", onSlotPress, true);
       doc?.removeEventListener("contextmenu", onMenu, true);
       doc?.removeEventListener("dblclick", onDouble, true);
       doc?.removeEventListener("mousemove", onMove, true);
@@ -692,6 +727,8 @@ export function Inspector({ children }) {
       onLeaveDoc();
       doc = next;
       doc?.addEventListener("click", onClick, true);
+      doc?.addEventListener("pointerdown", onSlotPress, true);
+      doc?.addEventListener("mousedown", onSlotPress, true);
       doc?.addEventListener("contextmenu", onMenu, true);
       doc?.addEventListener("dblclick", onDouble, true);
       doc?.addEventListener("mousemove", onMove, true);
@@ -703,6 +740,8 @@ export function Inspector({ children }) {
     return () => {
       clearInterval(timer);
       doc?.removeEventListener("click", onClick, true);
+      doc?.removeEventListener("pointerdown", onSlotPress, true);
+      doc?.removeEventListener("mousedown", onSlotPress, true);
       doc?.removeEventListener("contextmenu", onMenu, true);
       doc?.removeEventListener("dblclick", onDouble, true);
       doc?.removeEventListener("mousemove", onMove, true);
@@ -1403,7 +1442,7 @@ function FieldList({ settings, meta, blockType, values, onChange, namePrefix = "
 
 // onDelete : bouton 🗑 (section, élément, groupe) ; la confirmation est
 // demandée par l'action elle-même.
-function PanelHead({ onBack, title, sub, onAi, onDelete }) {
+function PanelHead({ onBack, title, sub, onAi, onDelete, saveItem }) {
   return (
     <div className="atl-insp__bar">
       <button type="button" className="atl-insp__back" onClick={onBack} title="Revenir à la page">
@@ -1413,6 +1452,7 @@ function PanelHead({ onBack, title, sub, onAi, onDelete }) {
         <b>{title}</b>
         {sub && <small>{sub}</small>}
       </div>
+      {saveItem && <SaveSectionMenu item={saveItem} />}
       {onAi && (
         <button type="button" className="atl-insp__aibtn" onClick={onAi} title="Retravailler avec l'IA">
           ✨ IA
@@ -1445,7 +1485,7 @@ function SectionSettings({ item, onBack, onAi, onAiDesign, onChange, onDelete })
   const hasSettings = editableSettings(section.schema.settings).length > 0;
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={name} sub={variant ?? familyOf(section).label} onAi={onAi} onDelete={onDelete} />
+      <PanelHead onBack={onBack} title={name} sub={variant ?? familyOf(section).label} onAi={onAi} onDelete={onDelete} saveItem={item} />
       <div className="atl-insp__thumbbox">
         <Thumb section={section} />
       </div>
@@ -1493,7 +1533,6 @@ function SectionSettings({ item, onBack, onAi, onAiDesign, onChange, onDelete })
       ) : (
         <p className="atl-insp__empty">Cette section n'a pas de réglage général : ouvre ses éléments dans l'arbre.</p>
       )}
-      <SaveSectionBox item={item} />
       <button type="button" className="atl-aibtn-wide" onClick={onAi}>
         ✨ Retravailler avec l'IA…
         <small>Textes, images ou design de la section</small>
@@ -2057,53 +2096,198 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
   );
 }
 
-// ---- Enregistrer la section modifiée dans le catalogue ----
-// Nouvelle section (copie avec ces textes, images et styles), ou la section
-// d'origine du catalogue mise à jour (les pages qui l'utilisent ne bougent pas).
-function SaveSectionBox({ item }) {
-  const [state, setState] = useState(null);
-  const section = byId[item.type];
-  if (!section) return null;
-  const canOverwrite = !section.meta.pageSpecific;
-  async function save(mode) {
-    const name = section.meta.label ?? section.id;
-    if (mode === "ecraser" && !confirm(`Remplacer « ${name} » du catalogue par cette version ?
+// ---- Enregistrer la section modifiée dans le catalogue (menu en haut à droite) ----
+// « Nouvelle section » : copie avec ces textes, images et styles, sous un nom
+// choisi. « Remplacer » : la section du catalogue d'où vient celle-ci (elle-même,
+// ou l'originale d'une copie figée / d'une section perso) prend ces valeurs ;
+// les pages qui l'utilisent sont listées avant de confirmer (elles ne bougent pas).
+function catalogueTargetOf(section) {
+  if (!section.meta.pageSpecific) return section.id;
+  // L'atelier charge toutes les sections du catalogue : une originale absente
+  // de l'index est une partie de template (ou supprimée) → rien à remplacer.
+  const orig = section.meta.figeeDepuis || section.meta.copieDe;
+  return orig && byId[orig] && !byId[orig].meta.pageSpecific ? orig : null;
+}
 
-Les prochains ajouts de cette section la prendront telle quelle ; les pages qui l'utilisent déjà ne changent pas.`)) return;
-    const label = mode === "nouvelle" ? prompt("Nom de la nouvelle section :", `${name.replace(/ — .*$/, "")} — perso`) : null;
-    if (mode === "nouvelle" && label === null) return;
+function SaveSectionMenu({ item }) {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(null); // null | "nouvelle" | "ecraser"
+  const [label, setLabel] = useState("");
+  const [pages, setPages] = useState(null);
+  const [state, setState] = useState(null);
+  const [pos, setPos] = useState(null);
+  const box = useRef(null);
+  const pop = useRef(null);
+  const section = byId[item.type];
+  useEffect(() => {
+    if (!open) return;
+    // Menu affiché par-dessus tout (portail) : le panneau de droite le couperait.
+    const place = () => {
+      const r = box.current?.getBoundingClientRect();
+      if (r) setPos({ top: r.bottom + 6, right: Math.max(8, window.innerWidth - r.right) });
+    };
+    place();
+    window.addEventListener("resize", place);
+    const away = (e) => !box.current?.contains(e.target) && !pop.current?.contains(e.target) && setOpen(false);
+    const esc = (e) => e.key === "Escape" && (e.stopPropagation(), setOpen(false));
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      document.removeEventListener("pointerdown", away);
+      document.removeEventListener("keydown", esc, true);
+    };
+  }, [open]);
+  if (!section) return null;
+  const name = (section.meta.label ?? section.id).replace(/ — .*$/, "");
+  const target = catalogueTargetOf(section);
+  const targetName = target ? (byId[target]?.meta.label ?? target) : null;
+
+  const toggle = () => {
+    setOpen((o) => !o);
+    setStep(null);
+    setState(null);
+  };
+  const askNew = () => {
+    setLabel(`${name} — perso`);
+    setStep("nouvelle");
+    setState(null);
+  };
+  const askReplace = async () => {
+    setStep("ecraser");
+    setState(null);
+    setPages(null);
+    try {
+      const list = await fetch(`/api/sections/${encodeURIComponent(target)}/pages`).then((r) => (r.ok ? r.json() : []));
+      setPages(list);
+    } catch {
+      setPages([]);
+    }
+  };
+  async function save(mode) {
+    if (mode === "nouvelle" && !label.trim()) return;
     setState({ busy: true });
     try {
       const res = await fetch("/api/sections-save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ from: section.id, mode, props: item.props, label }),
+        body: JSON.stringify({ from: section.id, target: mode === "ecraser" ? target : undefined, mode, props: item.props, label: mode === "nouvelle" ? label.trim() : null }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body.error);
-      setState({ done: mode === "nouvelle" ? `Ajoutée au catalogue : « ${label} ».` : "Section du catalogue mise à jour." });
+      if (!res.ok) throw new Error(body.error || "Enregistrement refusé.");
+      // Disponible tout de suite dans « Ajouter une section », sans recharger.
+      if (mode === "nouvelle") addSections([body.id]).catch(() => {});
+      setStep(null);
+      setState({ done: mode === "nouvelle" ? `✓ Ajoutée au catalogue : « ${label.trim()} ».` : `✓ « ${targetName} » mise à jour dans le catalogue.` });
     } catch (e) {
       setState({ error: e.message });
     }
   }
+
   return (
-    <div className="atl-savesec">
-      <span>Enregistrer cette version dans le catalogue</span>
-      <div>
-        <button type="button" disabled={state?.busy} onClick={() => save("nouvelle")}>
-          Nouvelle section
-        </button>
-        <button
-          type="button"
-          disabled={state?.busy || !canOverwrite}
-          onClick={() => save("ecraser")}
-          title={canOverwrite ? "La section du catalogue prend ces textes, images et styles" : "Section propre à cette page : pas d'original dans le catalogue"}
-        >
-          Remplacer l'originale
-        </button>
-      </div>
-      {state?.done && <small className="atl-topbar__ok">{state.done}</small>}
-      {state?.error && <small className="atl-topbar__error">{state.error}</small>}
+    <div className="atl-savemenu" ref={box}>
+      <button
+        type="button"
+        className={`atl-savemenu__btn${open ? " is-open" : ""}`}
+        onClick={toggle}
+        title="Enregistrer cette section dans le catalogue"
+        aria-label="Enregistrer cette section dans le catalogue"
+        aria-expanded={open}
+      >
+        💾<span aria-hidden="true">▾</span>
+      </button>
+      {open && pos && createPortal(
+        <div className="atl-savemenu__pop" ref={pop} style={{ top: pos.top, right: pos.right }} role="dialog" aria-label="Enregistrer la section">
+          <p className="atl-savemenu__title">Enregistrer cette version dans le catalogue</p>
+          <p className="atl-savemenu__hint">Textes, images, styles et réglages tels qu'ils sont dans la page.</p>
+
+          {step !== "ecraser" && (
+            <div className={`atl-savemenu__opt${step === "nouvelle" ? " is-on" : ""}`}>
+              {step === "nouvelle" ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    save("nouvelle");
+                  }}
+                >
+                  <label>
+                    <span>Nom de la nouvelle section</span>
+                    <input autoFocus value={label} onChange={(e) => setLabel(e.target.value)} />
+                  </label>
+                  <div className="atl-savemenu__row">
+                    <button type="button" onClick={() => setStep(null)} disabled={state?.busy}>
+                      Retour
+                    </button>
+                    <button type="submit" className="is-primary" disabled={state?.busy || !label.trim()}>
+                      {state?.busy ? "Enregistrement…" : "Enregistrer"}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button type="button" className="atl-savemenu__choice" onClick={askNew}>
+                  <b>Nouvelle section</b>
+                  <small>Une copie sous un nouveau nom ; l'originale ne change pas.</small>
+                </button>
+              )}
+            </div>
+          )}
+
+          {step !== "nouvelle" && (
+            <div className={`atl-savemenu__opt${step === "ecraser" ? " is-on" : ""}`}>
+              {step === "ecraser" ? (
+                <>
+                  <p>
+                    <b>Remplacer « {targetName} »</b> du catalogue par cette version ?
+                  </p>
+                  {pages === null ? (
+                    <small>Recherche des pages qui l'utilisent…</small>
+                  ) : pages.length ? (
+                    <>
+                      <small>
+                        {pages.length} page{pages.length > 1 ? "s l'utilisent" : " l'utilise"} — elle{pages.length > 1 ? "s" : ""} ne change{pages.length > 1 ? "nt" : ""} pas ; seuls les prochains ajouts prendront cette version :
+                      </small>
+                      <ul className="atl-savemenu__pages">
+                        {pages.map((p) => (
+                          <li key={p.name}>
+                            {p.title || p.name}
+                            {p.name === pageName && <em> (cette page)</em>}
+                            {p.projet && <small> · {p.projet}</small>}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : (
+                    <small>Aucune page ne l'utilise encore. Les prochains ajouts prendront cette version.</small>
+                  )}
+                  <div className="atl-savemenu__row">
+                    <button type="button" onClick={() => setStep(null)} disabled={state?.busy}>
+                      Retour
+                    </button>
+                    <button type="button" className="is-danger" disabled={state?.busy || pages === null} onClick={() => save("ecraser")}>
+                      {state?.busy ? "Enregistrement…" : "Remplacer"}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="atl-savemenu__choice"
+                  disabled={!target}
+                  onClick={askReplace}
+                  title={target ? "" : "Section propre à cette page : pas d'original dans le catalogue"}
+                >
+                  <b>Remplacer l'originale{target && target !== section.id ? ` (${targetName})` : ""}</b>
+                  <small>{target ? "La section du catalogue prend cette version." : "Section propre à cette page (venue d'un template) : pas d'originale dans le catalogue. Enregistre-la comme nouvelle section."}</small>
+                </button>
+              )}
+            </div>
+          )}
+
+          {state?.done && <p className="atl-topbar__ok">{state.done}</p>}
+          {state?.error && <p className="atl-topbar__error">{state.error}</p>}
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }
@@ -2226,7 +2410,7 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onAiDesign, on
   const roles = editableSettings(section.schema.settings).filter((s) => s.id.startsWith("role_"));
   return (
     <div className="atl-insp__panel">
-      <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} onDelete={onDelete} />
+      <PanelHead onBack={onBack} title={name} sub={variant ?? "Section"} onDelete={onDelete} saveItem={item} />
       {/* Section qui est une FAQ (sa racine) : ses questions, modifiables ici. */}
       {section.meta.arbre?.kind === "faq" && <GroupContents node={{ kind: "faq", children: treeForItem(item) }} onChange={onValues} onOpen={onOpen} onMove={onMoveNode} />}
       <div className="atl-tabs2">
@@ -2294,7 +2478,6 @@ function CopySectionSettings({ item, onBack, onChange, onAiTexts, onAiDesign, on
       )}
       {tab === "couleurs" && <FieldList settings={roles} meta={section.meta} values={props} onChange={onChange} />}
 
-      <SaveSectionBox item={item} />
       <button type="button" className="atl-aibtn-wide" onClick={onAiTexts}>
         ✨ Retravailler avec l'IA…
         <small>Textes, images ou design de la section</small>

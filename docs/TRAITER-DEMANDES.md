@@ -236,6 +236,16 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      par `history.setHistoryIndex` (demande confirmation si d'autres
      changements ont suivi). Copie de sécurité avant. Même chose pour
      « Adapter toute la page » et l'ajout de sections du Score.
+   - **Enregistrer une section (A5, 2026-11-16)** : bouton 💾▾ en haut à
+     droite du panneau d'une section (`SaveSectionMenu`, inspector-ui.jsx ;
+     remplace l'encadré du bas). « Nouvelle section » : nom saisi dans le
+     menu, copie `<base>-perso-N` disponible tout de suite (`addSections`).
+     « Remplacer l'originale » : la section elle-même si elle est au
+     catalogue, sinon l'originale d'une copie figée (`figeeDepuis`) ou d'une
+     perso (`copieDe`) si elle est au catalogue ; liste des pages qui
+     l'utilisent (`GET /api/sections/<id>/pages`) avant de confirmer ;
+     `POST /api/sections-save` accepte `target`. Parties de template : pas
+     d'originale, seulement « Nouvelle section ».
    - **Sauvegarde du projet (audit T2, 2026-11-16)** : `saveProjectPatch`
      (Projets.jsx) lève une erreur marquée `shown` si la lecture, le
      serveur ou la connexion échouent ; les appelants n'affichent pas de

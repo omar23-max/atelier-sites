@@ -760,7 +760,7 @@ function atelierApi() {
           // défaut sont celles de la page ; « ecraser » : la section d'origine
           // prend ces valeurs (les pages qui l'utilisent déjà ne bougent pas).
           if (parts[0] === "sections-save" && req.method === "POST") {
-            const { from, mode, props, label } = await readBody(req);
+            const { from, target, mode, props, label } = await readBody(req);
             if (!NAME.test(from ?? "") || !existsSync(join(sectionsDir, from, "schema.json"))) return json(res, 400, { error: "Section introuvable." });
             const clean = { ...(props ?? {}) };
             delete clean.id;
@@ -768,8 +768,16 @@ function atelierApi() {
             const srcMeta = existsSync(join(srcDir, "meta.json")) ? JSON.parse(await readFile(join(srcDir, "meta.json"), "utf8")) : {};
             let id = from;
             if (mode === "ecraser") {
-              if (srcMeta.pageSpecific) return json(res, 400, { error: "Cette section appartient à une page : enregistre-la plutôt comme nouvelle section." });
-              await writeFile(join(srcDir, "meta.json"), JSON.stringify({ ...srcMeta, presetProps: clean, modifieeLe: new Date().toISOString().slice(0, 10) }, null, 2) + "\n", "utf8");
+              // Cible : la section elle-même, ou l'originale du catalogue d'une
+              // copie figée / d'une section perso (target, 2026-11-16).
+              const tgt = target ?? from;
+              const allowed = tgt === from || tgt === srcMeta.figeeDepuis || tgt === srcMeta.copieDe;
+              const tgtDir = join(sectionsDir, tgt);
+              if (!allowed || !NAME.test(tgt) || !existsSync(join(tgtDir, "schema.json"))) return json(res, 400, { error: "Section d'origine introuvable dans le catalogue." });
+              const tgtMeta = existsSync(join(tgtDir, "meta.json")) ? JSON.parse(await readFile(join(tgtDir, "meta.json"), "utf8")) : {};
+              if (tgtMeta.pageSpecific) return json(res, 400, { error: "Cette section appartient à une page : enregistre-la plutôt comme nouvelle section." });
+              await writeFile(join(tgtDir, "meta.json"), JSON.stringify({ ...tgtMeta, presetProps: clean, modifieeLe: new Date().toISOString().slice(0, 10) }, null, 2) + "\n", "utf8");
+              id = tgt;
             } else {
               const base = from.replace(/-(sec-|p)\d+$/, "").replace(/-perso-\d+$/, "");
               let n = 1;

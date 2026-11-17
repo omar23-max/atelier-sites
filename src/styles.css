@@ -7850,3 +7850,201 @@ body.atl-rail-only .atl-left {
 .atl-undobar { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 9999; display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; border-radius: 12px; background: #1d1e2c; color: #fff; font: 500 14px/1.3 var(--tk-font); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
 .atl-undobar button { padding: 6px 12px; border: 0; border-radius: 8px; background: #fff; color: #1d1e2c; font: inherit; font-weight: 600; cursor: pointer; }
 .atl-undobar .atl-undobar__x { padding: 4px 8px; background: transparent; color: #fff; font-size: 18px; }
+
+/* ---- Menu « Enregistrer ▾ » de la section (en haut à droite du panneau, 2026-11-16) ---- */
+.atl-savemenu {
+  position: relative;
+  flex: none;
+}
+.atl-savemenu__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 8px;
+  background: var(--tk-surface);
+  color: var(--tk-ink);
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.atl-savemenu__btn:hover,
+.atl-savemenu__btn.is-open {
+  background: var(--tk-hover);
+}
+.atl-savemenu__btn:focus-visible {
+  outline: 2px solid var(--tk-accent);
+  outline-offset: 1px;
+}
+.atl-savemenu__pop {
+  position: fixed;
+  z-index: 10000;
+  width: 270px;
+  padding: 12px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 10px;
+  background: var(--tk-surface);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+  font: 12px/1.4 "Inter", system-ui, sans-serif;
+  color: var(--tk-ink);
+}
+.atl-savemenu__title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 13px;
+}
+.atl-savemenu__hint {
+  margin: 2px 0 10px;
+  color: var(--tk-ink-3);
+}
+.atl-savemenu__opt + .atl-savemenu__opt {
+  margin-top: 6px;
+}
+.atl-savemenu__choice {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--tk-line);
+  border-radius: 8px;
+  background: var(--tk-surface);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.atl-savemenu__choice:hover:not(:disabled) {
+  background: var(--tk-hover);
+  border-color: var(--tk-line-strong);
+}
+.atl-savemenu__choice:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.atl-savemenu__choice small,
+.atl-savemenu__opt > small {
+  color: var(--tk-ink-3);
+}
+.atl-savemenu__opt.is-on p {
+  margin: 0 0 4px;
+}
+.atl-savemenu__opt label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+.atl-savemenu__opt input {
+  padding: 7px 8px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 7px;
+  font: 13px "Inter", system-ui, sans-serif;
+}
+.atl-savemenu__pages {
+  max-height: 140px;
+  overflow: auto;
+  margin: 6px 0 0;
+  padding: 6px 8px 6px 22px;
+  border-radius: 7px;
+  background: var(--tk-surface-2);
+}
+.atl-savemenu__pages li + li {
+  margin-top: 2px;
+}
+.atl-savemenu__pages small,
+.atl-savemenu__pages em {
+  color: var(--tk-ink-3);
+}
+.atl-savemenu__row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+}
+.atl-savemenu__row button {
+  padding: 6px 10px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 7px;
+  background: var(--tk-surface);
+  font: 600 12px "Inter", system-ui, sans-serif;
+  cursor: pointer;
+}
+.atl-savemenu__row button.is-primary {
+  background: var(--tk-ink);
+  border-color: var(--tk-ink);
+  color: #fff;
+}
+.atl-savemenu__row button.is-danger {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}
+.atl-savemenu__row button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.atl-savemenu__pop .atl-topbar__ok,
+.atl-savemenu__pop .atl-topbar__error {
+  margin: 10px 0 0;
+}
+
+.atl-savemenu__btn span {
+  font-size: 10px;
+  color: var(--tk-ink-3);
+}
+
+/* ---- Changer d'espace : Page · Studio · Canvas · Catalogue (2026-11-16) ---- */
+.atl-wswitch {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(30, 30, 80, 0.12);
+  font: 600 12.5px "Inter", system-ui, sans-serif;
+}
+.atl-wswitch button {
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #3b3f5c;
+  font: inherit;
+  cursor: pointer;
+}
+.atl-wswitch button:hover {
+  background: #f1f2f8;
+}
+.atl-wswitch button.is-on {
+  background: #1e1e2e;
+  color: #fff;
+  cursor: default;
+}
+.atl-wswitch button:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 1px;
+}
+.atl-mirror__top .atl-wswitch {
+  margin-left: auto;
+}
+/* Avec le sélecteur d'espace, le titre du tableau se resserre pour que la
+   croix de fermeture reste visible. */
+.atl-cv__title {
+  min-width: 0;
+  gap: 10px;
+}
+.atl-cv__title > button {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Retour de « Copier / Coller le style » (2026-11-16). */
+.atl-sx__clipmsg {
+  margin: 6px 0 0;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  color: #1f7a44;
+}

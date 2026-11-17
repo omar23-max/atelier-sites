@@ -1,8 +1,13 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import { installEscapeClose } from "./escape-close.js";
+import { installUndoKeys } from "./undo-keys.js";
 import "./tokens.css";
 import "./styles.css";
+
+installEscapeClose();
+installUndoKeys();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

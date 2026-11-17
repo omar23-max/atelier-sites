@@ -5,6 +5,7 @@ import { Excalidraw, MainMenu, convertToExcalidrawElements, CaptureUpdateAction,
 import "@excalidraw/excalidraw/index.css";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
+import { WorkspaceSwitch } from "./workspace-switch.jsx";
 import { aiTargets, applyValues } from "./inspector-ui.jsx";
 import { familiesOf } from "./engine/page-score.js";
 import { FAMILIES } from "./engine/families.js";
@@ -467,6 +468,7 @@ function Canvas({ onClose }) {
           UIOptions={{ canvasActions: { loadScene: false, saveToActiveFile: false, export: { saveFileToDisk: true } }, tools: { image: true } }}
           renderTopRightUI={() => (
             <div className="atl-cv__right">
+              <WorkspaceSwitch current="canvas" onLeave={async () => (await flushSave(), onClose())} />
               <div className="atl-cv__ai">
                 <button type="button" className={imagesOpen ? "is-on" : ""} onClick={() => setImagesOpen(true)} title="Tes images" aria-label="Tes images">
                   <svg viewBox="0 0 24 24" aria-hidden="true">

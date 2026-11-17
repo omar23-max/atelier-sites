@@ -8,6 +8,7 @@ import { sections, sectionsIndex } from "./engine/sections.js";
 import { blocksKey, normalizeProps } from "./engine/render.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { ExportToPage } from "./canvas-ui.jsx";
+import { WorkspaceSwitch } from "./workspace-switch.jsx";
 
 const sectionsById = sectionsIndex;
 
@@ -417,6 +418,7 @@ function StudioDialog({ onClose }) {
           <h2>Studio d'images</h2>
           <span>Chaque photo d'origine refaite avec ton produit et ta marque, puis installée dans la page.</span>
         </div>
+        <WorkspaceSwitch current="studio" onLeave={() => (stop(), onClose())} />
         <button type="button" className="atl-modal__close" onClick={() => (stop(), onClose())} aria-label="Fermer">
           ×
         </button>

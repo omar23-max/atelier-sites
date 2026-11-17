@@ -28,6 +28,10 @@ const RATIOS = { carre: "1 / 1", "4-3": "4 / 3", "3-4": "3 / 4", "16-9": "16 / 9
 const COLUMNS = { "50-50": "1fr 1fr", "60-40": "3fr 2fr", "40-60": "2fr 3fr", "70-30": "7fr 3fr", "30-70": "3fr 7fr", trois: "1fr 1fr 1fr" };
 const FOCUS = ["left top", "center top", "right top", "left center", "center center", "right center", "left bottom", "center bottom", "right bottom"];
 const CLIP_KEY = "atl-style-clip";
+// Apparence relevée à l'écran quand on copie un style (texte, puis boîte).
+const COPY_TEXT_PROPS = ["font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-transform", "color"];
+const COPY_BOX_PROPS = ["background-color", "border-radius", "padding-top", "padding-right", "padding-bottom", "padding-left"];
+const COPY_SKIP = /^(normal|none|auto|0px|rgba\(0, 0, 0, 0\)|transparent)$/;
 
 export const toHex = (c) => {
   if (/^#[0-9a-f]{6}$/i.test(c ?? "")) return c;
@@ -594,18 +598,55 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
   const set = (decl, part = "base") => write({ [device]: { [part]: decl } });
   const isText = kind === "texte" || kind === "bouton";
 
+  // Copier le style (vérifié le 2026-11-16) : avant, un élément jamais retouché
+  // copiait un style vide, et le coller EFFAÇAIT les retouches de la cible.
+  // Maintenant on copie aussi son apparence réelle (police, taille, couleur…,
+  // relevée à l'écran) et coller s'AJOUTE aux retouches de la cible.
+  const [clipMsg, setClipMsg] = useState("");
+  const flashMsg = (m) => {
+    setClipMsg(m);
+    setTimeout(() => setClipMsg((cur) => (cur === m ? "" : cur)), 2200);
+  };
   const copyStyle = () => {
+    const clip = structuredClone(first);
+    if (cs) {
+      const base = (clip.all ??= {}).base ??= {};
+      // Section : seulement sa couleur de fond (ses marges lui sont propres).
+      const keys = isText ? COPY_TEXT_PROPS.concat(kind === "bouton" ? COPY_BOX_PROPS : []) : kind === "section" ? ["background-color"] : COPY_BOX_PROPS;
+      for (const p of keys) {
+        const v = cs.getPropertyValue(p);
+        if (base[p] == null && v && !COPY_SKIP.test(v)) base[p] = v;
+      }
+      // Interligne relevé en px → rapport (le champ « Interligne » attend 1,5…).
+      const lh = parseFloat(base["line-height"]);
+      const fs = parseFloat(cs.fontSize);
+      if (/px$/.test(base["line-height"] ?? "") && lh && fs) base["line-height"] = String(Math.round((lh / fs) * 100) / 100);
+      // Police d'origine : la même pile que la page, sans guillemets superflus.
+      if (base["font-family"]) base["font-family"] = base["font-family"].replace(/"/g, "'");
+    }
     try {
-      localStorage.setItem(CLIP_KEY, JSON.stringify(first));
-    } catch {}
+      localStorage.setItem(CLIP_KEY, JSON.stringify(clip));
+      flashMsg("✓ Style copié");
+    } catch {
+      flashMsg("Copie impossible");
+    }
   };
   const pasteStyle = () => {
     let clip = null;
     try {
       clip = JSON.parse(localStorage.getItem(CLIP_KEY) ?? "null");
     } catch {}
-    if (!clip) return;
-    onChangeProps({ ...props, atl_styles: { ...styles, ...Object.fromEntries(targets.map((t) => [t, structuredClone(clip)])) } });
+    if (!clip || !Object.keys(clip).length) return flashMsg("Rien à coller : copie d'abord un style");
+    const next = structuredClone(styles);
+    for (const t of targets) {
+      next[t] ??= {};
+      for (const [dev, parts] of Object.entries(clip)) {
+        next[t][dev] ??= {};
+        for (const [part, decl] of Object.entries(parts ?? {})) next[t][dev][part] = { ...(next[t][dev][part] ?? {}), ...decl };
+      }
+    }
+    onChangeProps({ ...props, atl_styles: next });
+    flashMsg("✓ Style collé (Ctrl+Z pour annuler)");
   };
   const reset = () => {
     const next = { ...styles };
@@ -965,6 +1006,11 @@ export function StyleEditor({ kind, targets, props, onChangeProps, el, legacy, o
           </button>
         )}
       </div>
+      {clipMsg && (
+        <p className="atl-sx__clipmsg" role="status">
+          {clipMsg}
+        </p>
+      )}
     </div>
     </PaletteCtx.Provider>
   );
