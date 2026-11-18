@@ -1,9 +1,9 @@
-import { cloneElement, useRef, useState } from "react";
+import { cloneElement, useEffect, useRef, useState } from "react";
 import { anglesProgress } from "./Angles.jsx";
 import { TYPES_CONTENU, FICHES, blueprintOf, contenuProgress } from "../engine/page-blueprints.js";
 import { pageTypeById } from "../engine/page-types.js";
 import { figuresIn, unitOf } from "../engine/fidelite.js";
-import { empreinte, merge3, realText, statutFondations, withIds } from "../engine/fondations-etat.js";
+import { empreinte, merge3, realText, same, statutFondations, withIds } from "../engine/fondations-etat.js";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
 // questionnaire de faits que seul l'utilisateur connaît (surtout des cases),
@@ -141,7 +141,7 @@ function ContenusEditor({ value, onChange, pages = [] }) {
       {TYPES_CONTENU.map((type) => {
         const fiche = FICHES[type];
         const sections = blueprintOf(type);
-        const { done, total } = contenuProgress(value, type);
+        const { done, total, manques } = contenuProgress(value, type);
         const info = pageTypeById[type];
         return (
           <details key={type} className="cat-fd__type" open={used[type] ? true : undefined}>
@@ -149,8 +149,8 @@ function ContenusEditor({ value, onChange, pages = [] }) {
               <b>{info?.label ?? type}</b>
               <span className="cat-muted">{fiche.famille}</span>
               {used[type] ? <span className="cat-badge cat-badge--blue">{used[type]} page(s) dans ce projet</span> : null}
-              <span className={`cat-fd__count${done === total && total ? " is-done" : ""}`}>
-                {done} / {total} remplis
+              <span className={`cat-fd__count${done === total && total ? " is-done" : ""}`} title="Prêts = vrai texte ; les champs [MANQUE] ne comptent pas">
+                {done} / {total} prêts{manques ? ` · ${manques} [MANQUE]` : ""}
               </span>
             </summary>
             <div className="cat-fd__fiche">
@@ -333,6 +333,19 @@ const ETATS = [
 
 function FaitsEditor({ value = [], onChange, sources }) {
   const set = (i, patch) => onChange(value.map((f, j) => (j === i ? { ...f, ...patch } : f)));
+  // Retrait d'un fait : annulable (audit F10, 2026-11-17).
+  const [retire, setRetire] = useState(null);
+  const remove = (i) => {
+    setRetire({ fait: value[i], i });
+    onChange(value.filter((_, j) => j !== i));
+  };
+  const undo = () => {
+    if (!retire) return;
+    const next = [...value];
+    next.splice(Math.min(retire.i, next.length), 0, retire.fait);
+    onChange(next);
+    setRetire(null);
+  };
   const add = () => onChange([...value, { id: `f${Date.now().toString(36)}`, nature: "argent", valeur: "", unite: "", source: "", etat: "a-confirmer" }]);
   // Propose les chiffres déjà écrits dans le questionnaire et l'offre (à confirmer).
   function fromTexts() {
@@ -396,7 +409,7 @@ function FaitsEditor({ value = [], onChange, sources }) {
                 </select>
               </td>
               <td>
-                <button type="button" className="cat-link" onClick={() => onChange(value.filter((_, j) => j !== i))} aria-label="Retirer ce fait">
+                <button type="button" className="cat-link" onClick={() => remove(i)} aria-label={`Supprimer le fait ${i + 1}`} title="Supprimer ce fait (annulable)">
                   ×
                 </button>
               </td>
@@ -404,6 +417,14 @@ function FaitsEditor({ value = [], onChange, sources }) {
           ))}
         </tbody>
       </table>
+      {retire && (
+        <p className="cat-faits__undo" role="status">
+          Fait supprimé : {retire.fait?.valeur} {retire.fait?.unite}.{" "}
+          <button type="button" className="cat-link" onClick={undo}>
+            Annuler la suppression
+          </button>
+        </p>
+      )}
       <div className="cat-faits__actions">
         <button type="button" className="cat-btn cat-btn--ghost" onClick={add}>
           + Ajouter un fait
@@ -429,6 +450,60 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // cet onglet a chargé, puis ce qu'il a enregistré en dernier.
   const baseRef = useRef({ fondations: { ...f, faits: withIds(f.faits) }, offre: project.offre ?? {} });
   const [conflit, setConflit] = useState(null);
+  // Brouillon gardé (audit F05, 2026-11-17) : tant qu'il n'est pas
+  // enregistré, le brouillon (et sa version de référence) est rangé dans ce
+  // navigateur ; il survit au changement d'onglet (Angles…), à la fermeture
+  // ou au rechargement, et revient à la prochaine ouverture des Fondations.
+  const draftKey = `atl-fd-brouillon:${project.id}`;
+  const localNow = () => ({ fondations: { reponses: rep, message: msg, contenus: cont, faits }, offre });
+  const baseView = () => ({ fondations: { reponses: baseRef.current.fondations.reponses ?? {}, message: baseRef.current.fondations.message ?? null, contenus: baseRef.current.fondations.contenus ?? {}, faits: baseRef.current.fondations.faits ?? [] }, offre: baseRef.current.offre ?? {} });
+  const [restaure, setRestaure] = useState(null);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    try {
+      const d = JSON.parse(localStorage.getItem(draftKey) ?? "null");
+      if (!d?.local) return;
+      const l = d.local;
+      if (same(l, baseView())) return localStorage.removeItem(draftKey);
+      setRep(l.fondations.reponses ?? {});
+      setMsg(l.fondations.message ?? null);
+      setCont(l.fondations.contenus ?? {});
+      setFaits(withIds(l.fondations.faits));
+      setOffre(l.offre ?? {});
+      if (d.base) baseRef.current = d.base;
+      setRestaure({ at: d.at });
+    } catch {}
+  }, []);
+  const dirty = !same(localNow(), baseView());
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        if (dirty) localStorage.setItem(draftKey, JSON.stringify({ base: baseRef.current, local: localNow(), at: new Date().toISOString() }));
+        else localStorage.removeItem(draftKey);
+      } catch {}
+    }, 300);
+    return () => clearTimeout(t);
+  });
+  // Fermer l'onglet ou recharger avec un brouillon : le navigateur demande.
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+  // Le sommaire des étapes se cale sous l'en-tête du catalogue (audit F10).
+  useEffect(() => {
+    const top = document.querySelector(".cat-top");
+    if (!top) return;
+    const put = () => document.documentElement.style.setProperty("--cat-top-h", `${top.offsetHeight}px`);
+    put();
+    const ro = new ResizeObserver(put);
+    ro.observe(top);
+    return () => ro.disconnect();
+  }, []);
   // Types de page à faire remplir par Claude : ceux du projet, sinon tous.
   const typesUsed = [...new Set((pages ?? []).map((p) => p.info?.pageType).filter((t) => TYPES_CONTENU.includes(t)))];
   const [askTypes, setAskTypes] = useState(typesUsed.length ? typesUsed : TYPES_CONTENU);
@@ -446,7 +521,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [p1, p1t] = countOf([...TEXTES.produit, ...TEXTES.clients, ...TEXTES.probleme].map((x) => x[0]).concat(["genre", "ages", "pays", "essaye"]));
   const nbPreuves = Object.values(rep.preuves ?? {}).filter((p) => p?.oui).length;
   const [p3, p3t] = countOf(TEXTES.collecte.map((x) => x[0]));
-  const nbTypes = Object.values(cont ?? {}).filter((t) => Object.values(t ?? {}).some((s) => Object.values(s ?? {}).some((v) => String(v ?? "").trim()))).length;
+  const nbTypes = Object.values(cont ?? {}).filter((t) => Object.values(t ?? {}).some((s) => Object.values(s ?? {}).some((v) => realText(v)))).length;
   const STEPS = [
     { label: "Produit et clients", etat: `${p1} / ${p1t} rempli(s)`, ok: foundationsFilled({ fondations: { reponses: rep } }) },
     { label: "Preuves et offre", etat: nbPreuves ? `${nbPreuves} preuve(s) cochée(s)` : "aucune preuve cochée", ok: nbPreuves > 0 },
@@ -456,7 +531,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   ];
   const go = (i) => {
     setStep(i);
-    document.querySelector(".cat-fd__steps")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    const calme = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    document.querySelector(".cat-fd__steps")?.scrollIntoView({ block: "start", behavior: calme ? "auto" : "smooth" });
   };
 
   const patch = (extra = {}) => ({
@@ -524,6 +600,11 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         const saved = await onSave(out.patch, silent, { rev: out.rev });
         baseRef.current = { fondations: { ...(saved?.fondations ?? out.patch.fondations), faits: withIds((saved?.fondations ?? out.patch.fondations).faits) }, offre: saved?.offre ?? out.patch.offre };
         setConflit(null);
+        setRestaure(null);
+        try {
+          localStorage.removeItem(draftKey);
+        } catch {}
+        setTick((n) => n + 1);
         return saved;
       } catch (e) {
         if (e.code === 409) continue;
@@ -560,7 +641,11 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     setOffre(server.offre ?? {});
     baseRef.current = { fondations: { ...sf, faits: withIds(sf.faits) }, offre: server.offre ?? {} };
     setConflit(null);
-    onMessage({ text: "Version enregistrée reprise. Tes changements sur les champs en conflit sont abandonnés." });
+    setRestaure(null);
+    try {
+      localStorage.removeItem(draftKey);
+    } catch {}
+    onMessage({ text: "Version enregistrée reprise. Tes changements non enregistrés sont abandonnés." });
   }
 
   async function askClaude() {
@@ -638,6 +723,19 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             : "Brouillon : remplis le questionnaire."}
       </div>
 
+      {restaure && !conflit && (
+        <div className="cat-fd__brouillon" role="status">
+          <b>Brouillon repris</b> : tu avais quitté les Fondations sans enregistrer{restaure.at ? ` (le ${new Date(restaure.at).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" })})` : ""}.
+          <span>
+            <button type="button" className="cat-btn" onClick={() => save().catch(() => {})}>
+              Enregistrer maintenant
+            </button>
+            <button type="button" className="cat-btn cat-btn--ghost" onClick={takeServer}>
+              Abandonner ce brouillon
+            </button>
+          </span>
+        </div>
+      )}
       {conflit && (
         <div className="cat-fd__conflit" role="alert">
           <b>Modifié aussi ailleurs pendant que tu écrivais</b> (Claude, un autre onglet) : {[...new Set(conflit.champs.map(nomDuChamp))].slice(0, 6).join(" · ")}
@@ -842,6 +940,30 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
                 : ""}
           </p>
         </div>
+        {(() => {
+          const ref = f.contenusEmpreinte;
+          const now = empreinte({ offre, fondations: { reponses: rep, message: msg, faits } });
+          const manques = TYPES_CONTENU.reduce((n, t) => n + contenuProgress(cont, t).manques, 0);
+          return (
+            <>
+              {ref && ref !== now && (
+                <div className="cat-fd__relire" role="status">
+                  <b>Cartes à relire</b> : les faits, l'offre ou le message central ont changé depuis leur rédaction par Claude. Rien n'a été réécrit ; relis les
+                  passages concernés (prix, garantie, preuves…).
+                  <button type="button" className="cat-btn cat-btn--ghost" onClick={() => saveAll(false, { contenusEmpreinte: now }).catch(() => {})}>
+                    J'ai relu les cartes
+                  </button>
+                </div>
+              )}
+              {manques > 0 && (
+                <p className="cat-fd__hint">
+                  {manques} champ(s) marqués [MANQUE] : ajoute d'abord le fait ou la preuve qui manque (étape « Preuves et offre »), puis « Remplir avec Claude » les
+                  complète — ces champs ne sont jamais comptés comme prêts.
+                </p>
+              )}
+            </>
+          );
+        })()}
         <ContenusEditor value={cont} onChange={setCont} pages={pages} />
       </section>
 
@@ -855,6 +977,9 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           {step < STEPS.length - 1 ? STEPS[step + 1].label : "Suivant"} →
         </button>
         <span className="cat-fd__barsep" />
+        <span className={`cat-fd__etat${dirty ? " is-dirty" : ""}`} role="status" aria-live="polite">
+          {dirty ? "● Modifications non enregistrées" : "✓ Tout est enregistré"}
+        </span>
         <button type="button" className="cat-btn cat-btn--ghost" onClick={() => save()}>
           Enregistrer
         </button>

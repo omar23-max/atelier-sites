@@ -23,7 +23,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const { TYPES_CONTENU, FICHES, blueprintOf } = await import(pathToFileURL(join(root, "src", "engine", "page-blueprints.js")).href);
-const { realText } = await import(pathToFileURL(join(root, "src", "engine", "fondations-etat.js")).href);
+const { realText, empreinte } = await import(pathToFileURL(join(root, "src", "engine", "fondations-etat.js")).href);
 
 const [cmd, projet, ...rest] = process.argv.slice(2);
 const dry = rest.includes("--dry");
@@ -127,7 +127,10 @@ if (!dry && written) {
       }
     }
   }
+  // contenusEmpreinte : l'état des faits / de l'offre / du message au moment
+  // de la rédaction ; s'il change ensuite, les cartes sont « à relire » (F06).
   fresh.fondations = { ...(fresh.fondations ?? {}), contenus: cur, contenusRemplisLe: new Date().toISOString() };
+  fresh.fondations.contenusEmpreinte = empreinte(fresh);
   await writeFile(file, JSON.stringify(fresh, null, 2) + "\n", "utf8");
   console.log(`Écrit : projets/${projet}.json (copie : projets/_historique/${projet}--${stamp}.json)`);
 }

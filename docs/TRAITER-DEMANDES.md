@@ -577,6 +577,30 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      mécanismes UMP/UMS + brief, F09 fiche d'offre structurée. Partie mobile
      de F10 écartée (pas d'édition depuis le téléphone, décision de
      l'utilisateur).
+   - **Audit des Fondations, lot 2 « Usage quotidien » (2026-11-18)** :
+     · F05 brouillon : Fondations.jsx range le brouillon non enregistré (et sa
+     version de référence pour la fusion) dans localStorage
+     `atl-fd-brouillon:<projet>` ; il revient après un passage par Angles, un
+     rechargement ou une fermeture : bandeau « Brouillon repris · Enregistrer
+     maintenant / Abandonner ce brouillon ». Indicateur dans la barre du bas
+     (« ● Modifications non enregistrées » / « ✓ Tout est enregistré ») ;
+     fermer ou recharger l'onglet avec un brouillon → le navigateur demande.
+     · F06 : `contenuProgress` rend done (prêts), manques, renseignes ; les
+     cartes affichent « 20 / 30 prêts · 10 [MANQUE] » ; conseil pour compléter
+     les manques ; le script fondations-contenus.mjs note
+     fondations.contenusEmpreinte en écrivant les cartes → si les faits,
+     l'offre ou le message changent ensuite : bandeau « Cartes à relire » (rien
+     n'est réécrit) et bouton « J'ai relu les cartes ».
+     · F10 (bureau) : sommaire des étapes calé sous l'en-tête (--cat-top-h),
+     focus visible, défilement sans animation si le système le demande ;
+     suppression d'un fait annulable (« Annuler la suppression »).
+     · Tests : scripts/tests/fondations-fiabilite.mjs --http → 53/53 (P04
+     compteurs, H07-H08 empreinte des cartes). Essais navigateur sur
+     zz-test-fd-lot2 (corbeille) : brouillon gardé après Angles et après
+     rechargement, enregistrer / abandonner, cartes à relire, compteurs.
+     · Pas fait (volontairement) : les 6 états par champ proposés par l'audit
+     (vide, manque, brouillon, à relire, approuvé, obsolète) et « non
+     applicable » ; la version légère ci-dessus couvre les cas testés.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

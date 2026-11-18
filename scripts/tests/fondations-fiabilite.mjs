@@ -66,6 +66,12 @@ check("P01", "Des champs tous [MANQUE] comptent zéro contenu prêt", 0, contenu
 const mf = (await readFile(join(root, "src/catalogue/Fondations.jsx"), "utf8")).includes("realText(m?.promesse) && realText(m?.mecanisme)");
 check("P02", "Le message central exige une vraie promesse et un vrai mécanisme", true, mf && !(realText("[MANQUE]") && realText("[À VALIDER]")));
 check("P03", "Un vrai texte compte", true, realText("Une peau plus ferme [À VALIDER : délai]"));
+{
+  const [s0, s1] = blueprintOf("produit");
+  const c = { produit: { [s0.key]: { [s0.champs[0].k]: "Vrai texte", ...(s0.champs[1] ? { [s0.champs[1].k]: "[MANQUE : prix]" } : {}) } } };
+  const pr = contenuProgress(c, "produit");
+  check("P04", "Compteur : prêts, manques et renseignés distincts", [1, s0.champs[1] ? 1 : 0, s0.champs[1] ? 2 : 1], [pr.done, pr.manques, pr.renseignes]);
+}
 
 // ---- Fusion à trois versions (F01) ----
 const old = { reponses: { role: "ancien" }, faits: withIds([]) };
@@ -122,6 +128,20 @@ if (process.argv.includes("--http")) {
     check("H05", "La révision renvoyée au PUT = celle du GET suivant", b1.rev, g2.headers.get("ETag"));
     const put3 = await fetch(`${B}/api/projects/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...after, nom: "zz renommé" }) });
     check("H06", "PUT sans If-Match (anciens écrivains) : toujours accepté", 200, put3.status);
+    // Cartes « à relire » (F06) : le script de Claude note l'empreinte au
+    // moment de la rédaction ; un prix changé ensuite la rend différente.
+    const { execFileSync } = await import("node:child_process");
+    const { blueprintOf: bp } = await imp("src/engine/page-blueprints.js");
+    const s0 = bp("produit")[0];
+    const tmp = join(root, "..", `zz-contenus-${Date.now()}.json`);
+    await writeFile(tmp, JSON.stringify({ produit: { [s0.key]: { [s0.champs[0].k]: "Texte de Claude" } } }));
+    execFileSync("node", [join(root, "scripts", "fondations-contenus.mjs"), "ecrire", id, tmp], { stdio: "ignore" });
+    const apres = JSON.parse(await readFile(file, "utf8"));
+    check("H07", "Le script note l'empreinte des cartes", empreinte(apres), apres.fondations.contenusEmpreinte);
+    check("H08", "Un prix changé ensuite → cartes à relire", true, empreinte({ ...apres, offre: { ...apres.offre, prix: "1" } }) !== apres.fondations.contenusEmpreinte);
+    const { rm, readdir } = await import("node:fs/promises");
+    await rm(tmp, { force: true });
+    for (const h of await readdir(join(root, "projets", "_historique")).catch(() => [])) if (h.startsWith(`${id}--`)) await rename(join(root, "projets", "_historique", h), join(root, "corbeille", "projets", h)).catch(() => {});
   } finally {
     await mkdir(join(root, "corbeille", "projets"), { recursive: true });
     if (existsSync(file)) await rename(file, join(root, "corbeille", "projets", `${id}.json`));

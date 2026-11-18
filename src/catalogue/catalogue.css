@@ -3953,3 +3953,58 @@ textarea {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ---- Lot 2 de l'audit des Fondations (2026-11-17) ---- */
+.cat-fd__steps {
+  top: var(--cat-top-h, 62px) !important;
+}
+.cat-fd__steps button:focus-visible,
+.cat-fd__bar .cat-btn:focus-visible,
+.cat-faits select:focus-visible,
+.cat-faits input:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+.cat-fd__brouillon,
+.cat-fd__relire {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid #c7c4f5;
+  border-radius: 10px;
+  background: #f7f6ff;
+  font-size: 13px;
+}
+.cat-fd__brouillon span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cat-fd__relire {
+  border-color: #f0c36d;
+  background: #fff8e6;
+  color: #6b4500;
+}
+.cat-fd__relire .cat-btn {
+  justify-self: start;
+}
+.cat-fd__etat {
+  align-self: center;
+  margin-right: 6px;
+  font: 600 12px "Inter", system-ui, sans-serif;
+  color: #1f7a44;
+  white-space: nowrap;
+}
+.cat-fd__etat.is-dirty {
+  color: #9a3412;
+}
+.cat-faits__undo {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cat-fd * {
+    scroll-behavior: auto !important;
+  }
+}

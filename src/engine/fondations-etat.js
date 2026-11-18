@@ -78,7 +78,7 @@ export function statutFondations(project) {
 }
 
 // ---- Fusion à trois versions ----
-const same = (a, b) => stable(a) === stable(b);
+export const same = (a, b) => stable(a) === stable(b);
 const plainObject = (v) => v && typeof v === "object" && !Array.isArray(v);
 const byId = (list) => list.every((x) => plainObject(x) && x.id);
 

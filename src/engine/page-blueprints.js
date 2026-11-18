@@ -1,4 +1,4 @@
-import { realText } from "./fondations-etat.js";
+import { hasMarker, realText } from "./fondations-etat.js";
 // Contenu attendu par type de page (2026-11-10).
 //
 // Une seule liste par type de page : celle du Page Score (RULES, page-score.js).
@@ -304,16 +304,23 @@ export function briefFor(type, families = [], contenus = {}) {
 }
 
 // Avancement d'une carte : champs remplis / champs à remplir.
+// done = prêts (vrai texte), manques = champs avec un [MANQUE] / [À VALIDER],
+// renseignes = champs non vides (audit F06, 2026-11-17 : « renseigné » et
+// « prêt à utiliser » sont deux choses).
 export function contenuProgress(contenus, type) {
   const c = contenus?.[type] ?? {};
   let done = 0;
   let total = 0;
+  let manques = 0;
+  let renseignes = 0;
   for (const s of blueprintOf(type)) {
     for (const ch of s.champs) {
       total++;
-      // Un champ « [MANQUE …] » n'est pas prêt (audit F06, 2026-11-17).
-      if (realText(c[s.key]?.[ch.k])) done++;
+      const v = c[s.key]?.[ch.k];
+      if (String(v ?? "").trim()) renseignes++;
+      if (hasMarker(v)) manques++;
+      else if (realText(v)) done++;
     }
   }
-  return { done, total };
+  return { done, total, manques, renseignes };
 }
