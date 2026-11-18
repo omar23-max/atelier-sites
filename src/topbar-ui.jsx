@@ -8,10 +8,16 @@ const usePuckSelect = createUsePuck();
 // sont rendus par Puck dans son en-tête (overrides.headerActions) mais
 // affichés dans la barre du haut, à côté de Projet / Page / Design : une seule
 // barre au lieu de deux. Le portail garde le contexte de Puck.
+// Barre unique (2026-11-17) : HTML, ZIP, Mirror au bout de la barre de l'aperçu.
 export function TopbarTools({ children }) {
-  const [slot, setSlot] = useState(null);
-  useEffect(() => setSlot(document.getElementById("atl-topbar-tools")), []);
+  const slot = usePreviewBarSlot("atl-publish-host");
   return slot ? createPortal(<div className="atl-tools">{children}</div>, slot) : null;
+}
+
+// Projet et Page au début de la barre de l'aperçu (barre unique, 2026-11-17).
+export function PreviewBarProject({ children }) {
+  const slot = usePreviewBarSlot("atl-proj-host");
+  return slot ? createPortal(children, slot) : null;
 }
 
 // Une place dans la barre de l'aperçu (Original / Modifiable, écrans, zoom).

@@ -495,6 +495,40 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      le nom zz-test-bilan, --verifier-a-part) : « import ✓ · réparation ✓ ·
      fiche ✓ · vérification — → importée mais NON validée », code de sortie
      2. Tout l'essai est à la corbeille (page, 24 sections, imports/).
+   - **Menu Page · Studio · Canvas · Catalogue dans le catalogue
+     (2026-11-17)** : `WorkspaceSwitch current="catalogue" page={targetPage}`
+     en haut à droite de l'en-tête (caché sous 760 px). Page → /?page=… ;
+     Studio / Canvas → /?page=…&ouvrir=studio|canvas : `useOpenFromUrl`
+     (workspace-switch.jsx) retire le paramètre, attend la page affichée, pose
+     window.__atlEspace et envoie atl-open-… ; l'état ouvert part de
+     __atlEspace (l'éditeur remonte ses boutons après le chargement), remis à
+     zéro à la fermeture. Sans page mémorisée : liste des pages. Testé sur
+     zz-test-menu (corbeille) : Canvas et Studio s'ouvrent depuis le catalogue,
+     aller-retour Canvas → Catalogue → Studio.
+   - **Barre unique de l'éditeur (2026-11-17, capture de l'utilisateur)** :
+     une seule ligne de 44 px en haut, sur toute la largeur : Projet · Page
+     (✕, 🗑) · EN/FR · écrans de Puck (téléphone, tablette, ordinateur) + 2
+     icônes de vue (ordinateur + ordinateur = modifiée + originale ;
+     ordinateur + téléphone) · ⋯ · zoom · plein écran · annuler / rétablir ·
+     Enregistré · HTML / ZIP / Mirror. Plus de barre du haut ni de bouton
+     « Projet ▾ » ; les vues en texte (« Ordinateur seul »…) sont retirées.
+     Code : App.jsx (`PreviewBarProject` dans headerActions, OriginalSwitch
+     hors barre, messages en bulle `.atl-status-toast`), topbar-ui.jsx
+     (`PreviewBarProject`, `TopbarTools` → `atl-publish-host`),
+     original-ui.jsx (VIEWS en icônes SVG, clic sur un écran de Puck = vue
+     simple ; en vue double l'écran « ordinateur » de Puck reste cliquable),
+     styles.css bloc « Barre unique » (ordre par `order`, :has() pour les
+     boutons de Puck ; libellés PROJET / PAGE cachés sous 1 500 px, boutons de
+     zoom ± cachés sous 1 280 px). Vérifié à 1 600 et 1 366 px, vues double
+     et retour, sur zz-test-barre (corbeille).
+     Retouche le même soir (capture : chevauchement) : le nom de la page
+     (bouton atl-pagemenu__btn, dont le style visait l ancienne barre) est
+     coupé par « … » ; icônes 26 px, écarts 2 px, zoom, Enregistré et
+     HTML / ZIP / Mirror plus petits ; menus Projet / Page à 100 px sous
+     1 180 px. Aucun chevauchement de 1 100 à 1 536 px avec un nom très long.
+     2e retouche (capture) : plus de trou entre Enregistré et HTML ; le groupe
+     EN/FR … Enregistré est collé à HTML / ZIP / Mirror, la place libre reste
+     après Page et le nom de la page s agrandit jusqu à 380 px.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

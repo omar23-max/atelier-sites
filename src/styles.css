@@ -9387,3 +9387,398 @@ html[data-atl-edit] [class*="Sidebar--right"]::after {
   padding-left: 22px;
   font-size: 12px;
 }
+
+/* ==== Barre unique (2026-11-17) ====
+   Projet · Page · EN/FR · écrans + vues doubles · zoom · plein écran ·
+   annuler · Enregistré · HTML / ZIP / Mirror : une seule ligne fine en haut,
+   sur toute la largeur. Les éléments ajoutés sont rangés par `order`. */
+.atl-topbar {
+  display: none !important;
+}
+.atl-vpbar,
+.atl-vpbar:hover,
+.atl-vpbar.is-up,
+body.atl-topbar-pinned .atl-vpbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  height: 44px !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--tk-line) !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  z-index: 960 !important;
+}
+.atl-vpbar [class*="ViewportControls-actions"] {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+.atl-vpbar [class*="ViewportControls-actionsInner"] {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 4px !important;
+  width: 100% !important;
+  min-width: 0;
+}
+.atl-vpbar [class*="ViewportControls-toggleButton"] {
+  display: none !important;
+}
+/* Ordre */
+.atl-proj-host { order: -20; }
+.atl-lang-host { order: -10 !important; margin: 0 6px 0 auto !important; }
+.atl-vpbar [class*="actionsInner"] > span:has(> button[title^="Switch to"]) { order: 1; }
+.atl-switch-host { order: 2 !important; }
+.atl-vpbar [class*="actionsInner"] > div[class*="ViewportControls-divider"] { order: 3; }
+.atl-vpbar [class*="actionsInner"] > span:has(> button[title^="Zoom"]) { order: 4; }
+.atl-vpbar [class*="actionsInner"] > div[class*="ViewportControls-zoom"] { order: 5; }
+.atl-vpbar .atl-viewport-divider { order: 6; }
+.atl-vpbar .atl-viewport-btn { order: 7; }
+.atl-vpbar .atl-undo { order: 8; }
+.atl-save-host { order: 9 !important; margin-left: 4px !important; }
+.atl-publish-host { order: 10; margin-left: auto; }
+
+/* Projet · Page, compacts */
+.atl-proj-host {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.atl-proj-host .atl-group {
+  height: 32px;
+  padding: 0 4px 0 8px;
+  gap: 4px;
+  border-width: 1px;
+  border-radius: 8px;
+  min-width: 0;
+}
+.atl-proj-host .atl-group .atl-topbar__field {
+  gap: 6px;
+}
+.atl-proj-host .atl-group .atl-topbar__field > span,
+.atl-proj-host .atl-group__label {
+  font: 700 11px "Inter", system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
+.atl-proj-host select,
+.atl-proj-host .atl-topbar__pages {
+  height: 26px;
+  max-width: 190px;
+  padding: 0 22px 0 8px;
+  font-size: 13px;
+}
+.atl-proj-host button {
+  height: 26px;
+  min-width: 26px;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+/* Vues doubles en icônes, comme les écrans de Puck */
+.atl-switch-host,
+.atl-switch-host .atl-switch {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 2px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.atl-switch-host .atl-switch button.atl-view-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 36px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: #46433d !important;
+  cursor: pointer;
+}
+.atl-switch-host .atl-switch button.atl-view-icon:hover {
+  background: var(--tk-surface-2, #f1f0ec) !important;
+}
+.atl-switch-host .atl-switch button.atl-view-icon.is-on {
+  background: #e8eaff !important;
+  color: #4f46e5 !important;
+}
+.atl-switch-host .atl-switch button.atl-view-icon:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+/* En vue double, l'écran « ordinateur » de Puck n'apparaît plus choisi. */
+body.atl-view-split .atl-vpbar span[class*="ViewportButton--isActive"] button,
+body.atl-view-phone .atl-vpbar span[class*="ViewportButton--isActive"] button {
+  background: transparent !important;
+  color: #46433d !important;
+}
+
+/* Boutons compacts : zoom, langue, enregistrement, publication */
+.atl-vpbar [class*="ViewportControls-zoomSelect"] {
+  height: 28px;
+}
+.atl-lang-host .atl-devices button {
+  padding: 3px 8px !important;
+}
+.atl-publish-host .atl-tools,
+.atl-publish-host .atl-publish {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.atl-publish-host button,
+.atl-publish-host a {
+  height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 12.5px !important;
+  border-radius: 8px !important;
+  white-space: nowrap;
+}
+
+/* Tout ce qui était sous l'ancienne barre */
+.atl-left,
+[class*="Sidebar--right"],
+body.atl-topbar-pinned .atl-left,
+body.atl-topbar-pinned [class*="Sidebar--right"] {
+  top: 44px !important;
+}
+.atl-left .atl-rail,
+.atl-left .atl-tool-panel,
+body.atl-topbar-pinned .atl-left .atl-rail,
+body.atl-topbar-pinned .atl-left .atl-tool-panel {
+  height: calc(100vh - 44px) !important;
+}
+[class*="PuckCanvas_"],
+body.atl-topbar-pinned [class*="PuckCanvas_"] {
+  padding-top: 46px !important;
+}
+.atl-original-pane.is-split,
+.atl-phone-pane,
+body.atl-topbar-pinned .atl-original-pane.is-split,
+body.atl-topbar-pinned .atl-phone-pane {
+  top: 46px !important;
+}
+.atl-trial,
+body.atl-topbar-pinned .atl-trial {
+  top: 54px !important;
+}
+
+/* Messages de la page (enregistrée, erreur…) : petite bulle sous la barre */
+.atl-status-toast {
+  position: fixed;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 990;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #f3fbf6;
+  border: 1px solid #b7dfc6;
+  color: #1f5132;
+  font: 600 12.5px "Inter", system-ui, sans-serif;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+.atl-status-toast.is-error {
+  background: #fff4f2;
+  border-color: #f2c1b8;
+  color: #8a2a17;
+}
+
+/* Écran moins large : libellés plus courts */
+@media (max-width: 1500px) {
+  .atl-proj-host .atl-group .atl-topbar__field > span,
+  .atl-proj-host .atl-group__label {
+    display: none;
+  }
+  .atl-proj-host select,
+  .atl-proj-host .atl-topbar__pages {
+    max-width: 150px;
+  }
+}
+@media (max-width: 1280px) {
+  .atl-vpbar [class*="actionsInner"] > span:has(> button[title^="Zoom"]) {
+    display: none;
+  }
+  .atl-publish-host button,
+  .atl-publish-host a {
+    padding: 0 7px !important;
+  }
+}
+
+/* En vue double : l'écran « ordinateur » de Puck reste cliquable (retour à la vue simple). */
+body.atl-view-split .atl-vpbar span[class*="ViewportButton--isActive"],
+body.atl-view-phone .atl-vpbar span[class*="ViewportButton--isActive"] {
+  cursor: pointer;
+}
+body.atl-view-split .atl-vpbar span[class*="ViewportButton--isActive"] button,
+body.atl-view-phone .atl-vpbar span[class*="ViewportButton--isActive"] button {
+  pointer-events: none;
+}
+body.atl-view-split .atl-vpbar span[class*="ViewportButton--isActive"] svg,
+body.atl-view-phone .atl-vpbar span[class*="ViewportButton--isActive"] svg {
+  color: #46433d !important;
+}
+/* Barre unique : menus Projet / Page à largeur fixe (plus de chevauchement). */
+.atl-proj-host .atl-group {
+  flex: 0 0 auto !important;
+}
+.atl-proj-host .atl-group .atl-topbar__field {
+  flex: 0 0 auto !important;
+}
+.atl-proj-host select,
+.atl-proj-host .atl-topbar__pages {
+  flex: 0 0 auto !important;
+  width: 190px !important;
+  min-width: 0 !important;
+  text-overflow: ellipsis;
+}
+@media (max-width: 1500px) {
+  .atl-proj-host select,
+  .atl-proj-host .atl-topbar__pages {
+    width: 150px !important;
+  }
+}
+@media (max-width: 1280px) {
+  .atl-proj-host select,
+  .atl-proj-host .atl-topbar__pages {
+    width: 120px !important;
+  }
+}
+.atl-proj-host {
+  flex: 0 0 auto !important;
+}
+/* Barre unique, retouche (capture du 2026-11-17) : le nom de la page ne
+   déborde plus sur ✕ / 🗑 / EN, et la partie droite est resserrée. */
+.atl-proj-host button.atl-pagemenu__btn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-align: left;
+  white-space: nowrap;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+.atl-proj-host .atl-pagemenu__cur {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atl-proj-host .atl-pagemenu__caret {
+  flex: none;
+}
+.atl-proj-host .atl-group {
+  overflow: hidden;
+}
+/* Partie droite plus serrée */
+.atl-vpbar [class*="ViewportControls-actionsInner"] {
+  gap: 2px !important;
+}
+.atl-vpbar button[title^="Switch to"],
+.atl-vpbar button[title^="Zoom"],
+.atl-vpbar .atl-viewport-btn,
+.atl-vpbar .atl-undo button {
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 0 !important;
+}
+.atl-switch-host .atl-switch button.atl-view-icon {
+  width: 30px !important;
+  height: 26px !important;
+}
+.atl-switch-host .atl-pagemenu__btn,
+.atl-switch-host .atl-switch > :not(.atl-view-icon) > button {
+  padding: 0 4px !important;
+  min-width: 0 !important;
+}
+.atl-vpbar [class*="ViewportControls-divider"],
+.atl-vpbar .atl-viewport-divider {
+  margin: 0 3px !important;
+}
+.atl-vpbar [class*="ViewportControls-zoom"] {
+  gap: 0 !important;
+}
+.atl-vpbar [class*="ViewportControls-zoomSelect"] {
+  height: 26px !important;
+  padding: 0 2px !important;
+  font-size: 12px !important;
+  max-width: 82px;
+}
+.atl-vpbar .atl-undo {
+  gap: 0 !important;
+}
+.atl-save-host .atl-save {
+  padding: 3px 8px !important;
+  font-size: 11.5px !important;
+}
+.atl-publish-host .atl-tools,
+.atl-publish-host .atl-publish {
+  gap: 3px !important;
+}
+.atl-publish-host button,
+.atl-publish-host a {
+  height: 28px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+}
+.atl-lang-host {
+  margin-right: 4px !important;
+}
+@media (max-width: 1180px) {
+  .atl-proj-host select,
+  .atl-proj-host .atl-topbar__pages {
+    width: 100px !important;
+  }
+  .atl-vpbar [class*="ViewportControls-zoomSelect"] {
+    max-width: 70px;
+  }
+}
+/* Barre unique, 2e retouche (capture du 2026-11-17) : plus de trou avant
+   HTML / ZIP / Mirror ; la place libre va au nom de la page. */
+.atl-publish-host {
+  margin-left: 6px !important;
+}
+.atl-lang-host {
+  margin-left: 10px !important;
+}
+.atl-proj-host {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+.atl-proj-host .atl-group:last-child {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+}
+.atl-proj-host .atl-group:last-child .atl-topbar__field {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+}
+.atl-proj-host button.atl-pagemenu__btn {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 110px !important;
+  max-width: 380px !important;
+}

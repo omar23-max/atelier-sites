@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { WorkspaceSwitch } from "../workspace-switch.jsx";
 import { catalogueSections as allSections, sections as everySection, useFull } from "../engine/sections.js";
 import { FAMILIES, familyOf } from "../engine/families.js";
 import { defaultPropsFor, renderSectionHtml } from "../engine/render.js";
@@ -676,6 +677,8 @@ export default function Catalogue() {
             Choisir une page à ouvrir
           </button>
         )}
+        {/* Même menu que le Studio et le Canvas (2026-11-17). */}
+        <WorkspaceSwitch current="catalogue" page={targetPage} onNoPage={() => setView("pages")} />
         {/* Écran étroit (tablette, téléphone) : le menu se replie derrière ce
             bouton au lieu de s'étaler au-dessus du contenu (2026-11-10). */}
         <button type="button" className="cat-menu-toggle" aria-expanded={navOpen} aria-controls="cat-nav" onClick={() => setNavOpen((o) => !o)}>

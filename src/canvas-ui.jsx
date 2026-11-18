@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
-import { WorkspaceSwitch } from "./workspace-switch.jsx";
+import { WorkspaceSwitch, useOpenFromUrl } from "./workspace-switch.jsx";
 import { aiTargets, applyValues } from "./inspector-ui.jsx";
 import { familiesOf } from "./engine/page-score.js";
 import { FAMILIES } from "./engine/families.js";
@@ -133,15 +133,16 @@ async function uploadDataUrl(dataUrl, name) {
 }
 
 export function CanvasButton() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => window.__atlEspace === "canvas");
   useEffect(() => {
     const on = () => setOpen(true);
+    useOpenFromUrl("canvas");
     window.addEventListener("atl-open-canvas", on);
     return () => window.removeEventListener("atl-open-canvas", on);
   }, []);
   return (
     <>
-      {open ? createPortal(<Canvas onClose={() => setOpen(false)} />, document.body) : null}
+      {open ? createPortal(<Canvas onClose={() => ((window.__atlEspace = null), setOpen(false))} />, document.body) : null}
       <DropTrayHost />
     </>
   );

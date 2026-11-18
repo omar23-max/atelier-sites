@@ -8,7 +8,7 @@ import { sections, sectionsIndex } from "./engine/sections.js";
 import { blocksKey, normalizeProps } from "./engine/render.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { ExportToPage } from "./canvas-ui.jsx";
-import { WorkspaceSwitch } from "./workspace-switch.jsx";
+import { WorkspaceSwitch, useOpenFromUrl } from "./workspace-switch.jsx";
 
 const sectionsById = sectionsIndex;
 
@@ -43,10 +43,11 @@ const plain = (html) => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+
 // traite avec gpt-image-2 ; les images obtenues sont posées dans la page
 // (medias/<page>/), les pubs rangées dans medias/<page>/pubs/.
 export function StudioButton({ hidden = false }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => window.__atlEspace === "studio");
   // Ouvert aussi depuis un champ image (« Refaire avec le Studio d'images »).
   useEffect(() => {
     const onOpen = () => setOpen(true);
+    useOpenFromUrl("studio");
     window.addEventListener("atl-open-studio", onOpen);
     return () => window.removeEventListener("atl-open-studio", onOpen);
   }, []);
@@ -58,7 +59,7 @@ export function StudioButton({ hidden = false }) {
           Studio d'images
         </button>
       )}
-      {open && createPortal(<StudioDialog onClose={() => setOpen(false)} />, document.body)}
+      {open && createPortal(<StudioDialog onClose={() => ((window.__atlEspace = null), setOpen(false))} />, document.body)}
     </>
   );
 }

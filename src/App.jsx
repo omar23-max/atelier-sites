@@ -14,7 +14,7 @@ import { LanguageSwitch } from "./lang-ui.jsx";
 // Plus de boutons « + » (projet, page, design) dans la barre : on les crée
 // depuis le projet, dans le catalogue (2026-11-08).
 import { ProposalsBanner } from "./proposals-ui.jsx";
-import { PreviewBarLanguage, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
+import { PreviewBarLanguage, PreviewBarProject, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, DownloadZipButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
@@ -274,48 +274,28 @@ export default function App() {
     savePage();
   }
 
-  // Barre du haut ouverte par « Projet ▾ » et gardée ouverte (audit T7, 2026-11-17).
-  const [pinned, setPinned] = useState(() => {
-    try {
-      return localStorage.getItem("atl-topbar-pinned") === "1";
-    } catch {
-      return false;
-    }
-  });
-  useEffect(() => {
-    document.body.classList.toggle("atl-topbar-pinned", pinned);
-    try {
-      localStorage.setItem("atl-topbar-pinned", pinned ? "1" : "0");
-    } catch {}
-  }, [pinned]);
+  // Barre unique (2026-11-17) : Projet et Page sont dans la barre de l'aperçu,
+  // toujours visible ; plus de barre du haut à ouvrir par « Projet ▾ ».
+  try {
+    localStorage.removeItem("atl-topbar-pinned");
+  } catch {}
 
   return (
     <>
-      <div className="atl-topbar">
-        {/* Trois blocs de même taille : projet, page, design. */}
-        <div className="atl-topbar__groups">
-          <div className="atl-group">
-            <ProjectSelect current={pageName} pages={pages} projects={projects} />
-          </div>
-          <div className="atl-group">
-            <PageSelect current={pageName} pages={pages} projects={projects} />
-            <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
-            <DeletePageButton current={pageName} pages={pages} />
-          </div>
-          {/* « Design » retiré de la barre (décision du 2026-11-14) : il se
-              choisit dans le rail de gauche → Palette. */}
-          <OriginalSwitch
-            importSource={data?.root?.props?.importSource ?? null}
-            pageName={pageName}
-            projet={data?.root?.props?.projet ?? null}
-            pages={pages}
-            getData={() => latest.current ?? data}
-          />
+      {/* Vues « originale + modifiée » et « ordinateur + téléphone » : icônes
+          dans la barre de l'aperçu, après les écrans de Puck. */}
+      <OriginalSwitch
+        importSource={data?.root?.props?.importSource ?? null}
+        pageName={pageName}
+        projet={data?.root?.props?.projet ?? null}
+        pages={pages}
+        getData={() => latest.current ?? data}
+      />
+      {status && (
+        <div className={`atl-status-toast${status.error ? " is-error" : ""}`} role="status">
+          {status.text}
         </div>
-        {/* Écrans, langue, HTML, Mirror, Enregistrer : rendus par Puck (topbar-ui). */}
-        <div id="atl-topbar-tools" />
-        {status && <span className={status.error ? "atl-topbar__error" : "atl-topbar__ok"}>{status.text}</span>}
-      </div>
+      )}
       {conflict && (
         <div className="atl-conflict" role="alert">
           <b>Cette page a été modifiée ailleurs</b> (un autre onglet ou un autre appareil) depuis que tu l'as ouverte. Tes dernières modifications ne sont pas encore enregistrées.
@@ -387,6 +367,17 @@ export default function App() {
                 <FloatingViewportBar />
                 {/* Une seule barre en haut : ces outils s'affichent à côté de Projet / Page / Design. */}
                 {/* EN / FR : dans la barre de l'aperçu, avant les écrans (ceux de Puck). */}
+                {/* Une seule ligne (2026-11-17) : Projet · Page au début de la barre. */}
+                <PreviewBarProject>
+                  <div className="atl-group">
+                    <ProjectSelect current={pageName} pages={pages} projects={projects} />
+                  </div>
+                  <div className="atl-group">
+                    <PageSelect current={pageName} pages={pages} projects={projects} />
+                    <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
+                    <DeletePageButton current={pageName} pages={pages} />
+                  </div>
+                </PreviewBarProject>
                 <PreviewBarLanguage>
                   <LanguageSwitch />
                 </PreviewBarLanguage>
@@ -401,18 +392,6 @@ export default function App() {
                     Toujours visible, au bout de la barre de l'aperçu. */}
                 <PreviewBarSave>
                   <SaveButton onSave={savePage} />
-                  {/* La barre Projet / Page (cachée en haut) : ouverte et gardée
-                      ouverte par ce bouton, au clic ou au clavier. */}
-                  <button
-                    type="button"
-                    className="atl-topbar-toggle"
-                    aria-pressed={pinned}
-                    aria-expanded={pinned}
-                    onClick={() => setPinned((p) => !p)}
-                    title={pinned ? "Replier la barre Projet / Page" : "Afficher la barre Projet / Page"}
-                  >
-                    Projet {pinned ? "▴" : "▾"}
-                  </button>
                 </PreviewBarSave>
               </>
             ),

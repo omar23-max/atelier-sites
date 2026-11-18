@@ -266,10 +266,40 @@ function PageMenu({ pageName, importSource, projet, pages, getData }) {
 //                            droite, défilement lié (pages issues d'un import) ;
 //   Ordinateur + téléphone — la page à modifier à gauche, son rendu sur
 //                            téléphone à droite, mis à jour pendant l'édition.
+// Vues doubles en icônes (2026-11-17), après les écrans de Puck (téléphone,
+// tablette, ordinateur = vue simple) : ordinateur + ordinateur (page modifiée
+// à gauche, originale à droite) et ordinateur + téléphone.
+const Monitor = ({ x }) => (
+  <>
+    <rect x={x + 0.75} y="1.75" width="11" height="8" rx="1.5" />
+    <path d={`M${x + 6.25} 9.75v3M${x + 3.75} 13.25h5`} />
+  </>
+);
 const VIEWS = [
   { id: "seul", label: "Ordinateur seul", title: "La page à modifier, seule" },
-  { id: "originale", label: "Édition + originale", title: "La page à modifier à gauche, la page d'origine à droite (défilement lié)" },
-  { id: "telephone", label: "Ordinateur + téléphone", title: "La page à modifier à gauche, son rendu sur téléphone à droite" },
+  {
+    id: "originale",
+    label: "Édition + originale",
+    title: "Page modifiée à gauche, page d'origine à droite (défilement lié)",
+    icon: (
+      <svg viewBox="0 0 26 15" width="26" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <Monitor x={0} />
+        <Monitor x={13.5} />
+      </svg>
+    ),
+  },
+  {
+    id: "telephone",
+    label: "Ordinateur + téléphone",
+    title: "Page modifiée sur ordinateur à gauche, son rendu sur téléphone à droite",
+    icon: (
+      <svg viewBox="0 0 22 15" width="22" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <Monitor x={0} />
+        <rect x="15" y="1.5" width="6.25" height="12" rx="1.4" />
+        <path d="M17.6 11.4h1" />
+      </svg>
+    ),
+  },
 ];
 
 export function OriginalSwitch({ importSource, pageName, projet, pages = [], getData }) {
@@ -296,6 +326,20 @@ export function OriginalSwitch({ importSource, pageName, projet, pages = [], get
     setSlot(host);
     return () => host.remove();
   }, [bar]);
+  // Un clic sur un écran de Puck (téléphone, tablette, ordinateur) revient à
+  // la vue simple. isTrusted : le clic automatique ci-dessous ne compte pas.
+  useEffect(() => {
+    if (!bar) return;
+    // L'écran déjà choisi est désactivé par Puck : en vue double, son clic
+    // arrive sur l'enveloppe (span), le bouton laissant passer la souris (CSS).
+    const on = (e) => {
+      if (!e.isTrusted) return;
+      const hit = e.target.closest?.('button[title^="Switch to"]') ?? e.target.closest?.("span")?.querySelector(':scope > button[title^="Switch to"]');
+      if (hit) setView("seul");
+    };
+    bar.addEventListener("click", on);
+    return () => bar.removeEventListener("click", on);
+  }, [bar]);
   // Les vues doubles s'affichent avec l'aperçu en version ordinateur.
   useEffect(() => {
     document.body.classList.toggle("atl-view-split", view === "originale");
@@ -309,16 +353,18 @@ export function OriginalSwitch({ importSource, pageName, projet, pages = [], get
     <>
       {createPortal(
         <span className="atl-switch atl-views" role="tablist" aria-label="Affichage">
-          {VIEWS.map((v) => (
+          {VIEWS.filter((v) => v.icon).map((v) => (
             <button
               key={v.id}
               type="button"
-              className={view === v.id ? "is-on" : ""}
+              className={`atl-view-icon${view === v.id ? " is-on" : ""}`}
               disabled={v.id === "originale" && !info}
-              onClick={() => setView(v.id)}
-              title={v.id === "originale" && !info ? "Pas de page d'origine : cette page ne vient pas d'un import" : v.title}
+              aria-pressed={view === v.id}
+              aria-label={v.label}
+              onClick={() => setView(view === v.id ? "seul" : v.id)}
+              title={v.id === "originale" && !info ? "Pas de page d'origine : cette page ne vient pas d'un import" : view === v.id ? `${v.title} — clic : revenir à la vue simple` : v.title}
             >
-              {v.label}
+              {v.icon}
             </button>
           ))}
           {info && <PageMenu pageName={pageName} importSource={importSource} projet={projet} pages={pages} getData={getData} />}
