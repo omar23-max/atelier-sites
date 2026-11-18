@@ -461,6 +461,40 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      atelier` (qui refait aussi le build).
      · Revenir au mode développement : supprimer compile.conf, puis
      `sudo systemctl daemon-reload && sudo systemctl restart atelier`.
+   - **Restes du plan terminés (2026-11-17)** :
+     · Favoris dans l'outil « Ajouter » du rail (left-ui.jsx `railCard`) :
+     ☆/★ sur chaque modèle, « ★ Mes favoris » et « Utilisées récemment » sans
+     type choisi, favoris en tête de la galerie d'un type ; mêmes données que
+     « + Section » (gallery-prefs.js, galerie.json).
+     · Polices restées sur le site d'origine :
+     scripts/apres-import/polices-locales.mjs (étape 2 bis du LISEZ-MOI) :
+     1 231 adresses testées : 1 114 déjà chargeables (Shopify, Google…), 21
+     bloquées par leur site → copiées dans imports/_polices/, 21 disparues mais
+     retrouvées dans imports/<site>/assets/, 63 disparues sans copie (police
+     de secours), 12 injoignables ; 41 style.css réécrits (sauvegarde
+     ~/sauvegardes/avant-polices-*.tgz, et git).
+     · Boutons « oubliés » par la copie : texte rangé comme « Texte » dans un
+     bouton (data-atl-btn). charte.js : measureIn mesure aussi la boîte du
+     bouton (`btn`) ; autoRole en fait un bouton principal s'il ressemble à
+     un CTA ; la charte vise tout le bouton (clé `btn<N>`, frame.js
+     targetSelector). Ex. norse-organics « STOP ACNE NOW » reconnu.
+     · Bouton principal à confirmer après un import : charte-keeper.jsx
+     `CtaCheck`, une fois par page importée (root.importSource) : « Import : N
+     boutons repérés… Vérifier / Plus tard / Ne plus demander » ; liste Oui /
+     Non (survol = bouton entouré dans la page), « Tout est bon » ; écrit
+     atl_roles (bouton / aucun) et root.ctaValides. Testé sur un vrai import
+     (scooch) : « Subscribe & Save » proposé, refusé d'un « Non ».
+     · Espacements dans la charte : case « Espacements réguliers » (Serré 40 /
+     Moyen 64 / Aéré 96 px) dans « Charte complète ». charte.js `gapsIn`
+     mesure le vide en haut / en bas de chaque section copiée ; une section
+     trop serrée reçoit du padding (dans son fond, ordinateur seulement,
+     clé `section` + `_espace` pour recalculer) ; jamais de réduction.
+     Vérifié : Aéré → toutes les sections serrées à 96 px, une à 160 px
+     gardée ; puis Moyen → ajouts recalculés.
+     · Bilan d'import par étapes essayé sur un vrai import (zip scooch sous
+     le nom zz-test-bilan, --verifier-a-part) : « import ✓ · réparation ✓ ·
+     fiche ✓ · vérification — → importée mais NON validée », code de sortie
+     2. Tout l'essai est à la corbeille (page, 24 sections, imports/).
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
@@ -1145,6 +1179,22 @@ puis ses champs dans `BASE` ou `PAR_TYPE`.
    **Aucune preuve, aucun chiffre, aucun avis, aucune garantie** qui ne soit
    coché dans `reponses.preuves` ou écrit dans `offre` : sinon « [MANQUE : …] ».
    Les avis : seulement ceux collés par l'utilisateur (collecte), jamais inventés.
+3 bis. **Toujours avec ChatGPT (demande de l'utilisateur, 2026-11-17)**, sur le
+   PC de Claude, dossier `C:/Users/HP/Desktop/codex-travail/` (ChatGPT n'écrit
+   jamais dans l'atelier) :
+   a. **Deuxième rédaction** : mêmes sources que Claude (réponses, résultats,
+      message, offre, angles, données WinningHunter récupérées par Claude) et le
+      fichier à remplir ; ChatGPT écrit sa version des champs.
+   b. **Deuxième réflexion** : angles et objections oubliés.
+   c. **Vérification** de la version retenue : affirmation sans source,
+      chiffre absent des données, promesse trop forte, contradictions,
+      contenu attendu pour le type de page qui manque.
+   Commande : `codex exec -s read-only -C "C:/Users/HP/Desktop/codex-travail"
+   --skip-git-repo-check -o resultat.txt "consigne"`. **Claude fait le tri** :
+   meilleur de chaque version, mêmes règles qu'au point 3 (une preuve inventée
+   par ChatGPT est rejetée → « [MANQUE] »). Le `resultat` de la demande dit en
+   une ligne ce qui vient de ChatGPT et ce qui a été écarté. WinningHunter n'est
+   pas visible par ChatGPT en `codex exec` : Claude l'interroge lui-même.
 4. `node scripts/fondations-contenus.mjs ecrire <projet> /tmp/<projet>-contenus.json`
    (`--dry` pour voir avant) : un champ déjà rempli n'est jamais remplacé, un
    champ hors plan est refusé, copie du projet dans `projets/_historique/`.

@@ -108,7 +108,7 @@ function CtaCheck() {
   const [found, setFound] = useState(null);
   const [open, setOpen] = useState(false);
   const [later, setLater] = useState(false);
-  const imported = Boolean(root.propositionsImport);
+  const imported = Boolean(root.importSource || root.propositionsImport);
 
   useEffect(() => {
     if (!imported || root.ctaValides) return;
@@ -132,9 +132,9 @@ function CtaCheck() {
     return () => clearTimeout(t);
   }, [imported, root.ctaValides, count]);
 
-  const finish = () => {
+  const finish = (value = new Date().toISOString()) => {
     const { appState, dispatch } = getPuck();
-    dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, ctaValides: new Date().toISOString() } } });
+    dispatch({ type: "replaceRoot", root: { ...appState.data.root, props: { ...appState.data.root.props, ctaValides: value } } });
     setOpen(false);
   };
   const decide = (list, yes) => {
@@ -181,6 +181,9 @@ function CtaCheck() {
         </button>
         <button type="button" className="atl-charterappel__x" onClick={() => setLater(true)}>
           Plus tard
+        </button>
+        <button type="button" className="atl-charterappel__x" onClick={() => finish("non demandé")}>
+          Ne plus demander
         </button>
       </div>
     );
