@@ -648,6 +648,25 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      atl-studio-retirees-<page> ; la page et les images déjà générées ne sont
      pas touchées. Testé sur zz-test-studio (corbeille) : 90 → 89 → annuler →
      88, gardé après fermeture / réouverture, « Remettre » → 90.
+   - **Clones sous-traités à ChatGPT (Codex) + correction de l'import
+     (2026-11-18)** : Codex accède à internet avec
+     `codex exec -s workspace-write -c sandbox_workspace_write.network_access=true … < /dev/null`
+     (sans `< /dev/null`, il attend l'entrée clavier et reste bloqué). Prompt
+     = bloc de docs/prompt-chatgpt-cloner-pour-atelier.md + la page + un
+     « cadre de travail » (dossier C:/Users/HP/Desktop/codex-travail/clones
+     seulement, zip livré là). Titan (titan.email) : 13 sections, 99,6 % de
+     pixels identiques, ~20 min ; zip vérifié (Vite seul, aucun script
+     d'installation), puis `kimi-zip.mjs ~/zips/titan-accueil.zip
+     titan-accueil --verifier-a-part`.
+     · **Correction de scripts/kimi-import.mjs** : les règles posées sur des
+     classes de <html> / <body> (Titan : « body.titan-v2 » porte toutes les
+     variables de polices, tailles, couleurs) étaient jetées (aucun élément
+     de la section ne porte la classe). `pageClasses` est relevé avec la page
+     ; `pageHead` / `isPageSel` traitent « .titan-v2 », « .home .x »,
+     « body.home .x » comme la règle de page : réécrits sur la section
+     (« .atl-<section> »). Avant : titre du hero à 18 px en dm-sans ; après :
+     51,2 px en titan-sans, comme l'original. Sauvegarde de l'ancien script :
+     /tmp/kimi-import.avant-body.mjs.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
