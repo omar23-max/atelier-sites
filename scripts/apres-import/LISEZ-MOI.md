@@ -12,6 +12,7 @@ Avant tout : une sauvegarde
 |---|---|---|
 | 1 | Mesurer les nouvelles sections (vide en haut, cadres, FAQ, carrousels) | `node analyse.mjs --ids a,b,c --out ~/apres-import/nouveau.jsonl` |
 | 2 | Cadres carrés des copies (déjà dans `copie.mjs` pour les nouveaux imports ; à relancer si besoin) | `node controles.mjs` |
+| 2 bis | Polices restées sur le site d origine : tester chaque adresse, ranger dans imports/_polices/ celles que le site bloque, reprendre celles déjà rangées par un import (polices disparues) — 2026-11-17 | `node polices-locales.mjs --dry` puis `node polices-locales.mjs` (ou `--ids a,b`) |
 | 3 | Cadres carrés des sections Kimi / refaites | `node controles-kimi.mjs` |
 | 4 | Flèches de carrousel non reconnues | `node fleches.mjs --ids <sections avec piste sans flèches>` |
 | 5 | FAQ sans questions reliées (catalogue : sections dont le texte dit FAQ / Questions) | `node faq-build.mjs --ids …` |

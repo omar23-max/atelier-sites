@@ -777,7 +777,7 @@ function PaletteTool() {
   function applyCharteVersion(c) {
     const d = designById[c.design];
     if (!d) return setState({ error: `Le design ${c.design}.md n'existe plus dans le catalogue.` });
-    applyScoped(d, { portee: c.portee ?? "complete", opts: { couleurs: c.couleurs !== false, familles: Boolean(c.familles), typo: Boolean(c.typo), boutons: Boolean(c.boutons), formes: Boolean(c.formes), proportions: c.proportions !== false }, effacer: false, version: c.version });
+    applyScoped(d, { portee: c.portee ?? "complete", opts: { couleurs: c.couleurs !== false, familles: Boolean(c.familles), typo: Boolean(c.typo), boutons: Boolean(c.boutons), formes: Boolean(c.formes), proportions: c.proportions !== false, espacements: c.espacements ?? null }, effacer: false, version: c.version });
   }
   // Ouverture demandée par le bandeau « charte du projet » (charte-keeper.jsx).
   useEffect(() => {
