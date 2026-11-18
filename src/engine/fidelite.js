@@ -14,6 +14,7 @@
 import { familiesOf } from "./page-score.js";
 import { TYPES_CONTENU, blueprintOf, briefFor } from "./page-blueprints.js";
 import { MARQUEUR, realText, withoutResearch } from "./fondations-etat.js";
+import { faitsDeFiche } from "./offre-fiche.js";
 
 const plain = (html) =>
   String(html ?? "")
@@ -168,6 +169,12 @@ export function knownNumbers(project, root = {}) {
   const f = project?.fondations ?? {};
   const faits = new Faits();
   addFacts(faits, { reponses: withoutResearch(f.reponses), message: f.message, contenus: f.contenus?.[root.pageType], offre: project?.offre, produit: project?.produit, description: project?.description, infos: root.infos, fiche: root.produit });
+  // Fiche d'offre (F09) : prix, prix par unité, remises, quantités, garantie
+  // calculés ou saisis dans la fiche = chiffres autorisés.
+  for (const fait of faitsDeFiche(project?.offreFiche)) {
+    const n = numberOf(String(fait.valeur));
+    if (n != null) faits.add(n, fait.nature, unitOf(` ${fait.unite ?? ""}`, ""), "fait");
+  }
   for (const fait of f.faits ?? []) {
     const n = numberOf(String(fait.valeur ?? ""));
     if (n == null || !fait.nature) continue;

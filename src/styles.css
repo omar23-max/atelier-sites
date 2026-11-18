@@ -9782,3 +9782,67 @@ body.atl-view-phone .atl-vpbar span[class*="ViewportButton--isActive"] svg {
   min-width: 110px !important;
   max-width: 380px !important;
 }
+
+/* Studio : retirer une image de « Images à refaire » (2026-11-18) */
+.atl-mirror__strip li {
+  position: relative;
+}
+.atl-mirror__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #4b4f6b;
+  font: 600 15px/1 "Inter", system-ui, sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.atl-mirror__strip li:hover .atl-mirror__remove,
+.atl-mirror__remove:focus-visible {
+  opacity: 1;
+}
+.atl-mirror__remove:hover {
+  background: #fff1ee;
+  color: #b42318;
+  border-color: #f2c1b8;
+}
+.atl-mirror__remove:disabled {
+  display: none;
+}
+.atl-mirror__retraits {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--tk-ink-3, #6b6f8f);
+}
+@media (hover: none) {
+  .atl-mirror__remove {
+    opacity: 1;
+  }
+}
+.atl-mirror__strip li > button.atl-mirror__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+}
+.atl-mirror__strip li > button.atl-mirror__remove:hover {
+  background: #fff1ee;
+  border-color: #f2c1b8;
+}

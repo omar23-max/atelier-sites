@@ -4,6 +4,8 @@ import { TYPES_CONTENU, FICHES, blueprintOf, contenuProgress } from "../engine/p
 import { pageTypeById } from "../engine/page-types.js";
 import { figuresIn, unitOf } from "../engine/fidelite.js";
 import { empreinte, merge3, realText, same, statutFondations, withIds } from "../engine/fondations-etat.js";
+import { OffreFiche } from "./OffreFiche.jsx";
+import { BriefCampagne, Mecanismes } from "./DecisionsMessage.jsx";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
 // questionnaire de faits que seul l'utilisateur connaît (surtout des cases),
@@ -97,6 +99,10 @@ function nomDuChamp(path) {
   if (zone === "message") return `Message central : ${key ?? ""}`.trim();
   if (zone === "contenus") return `Carte ${key ?? ""}${rest[0] ? ` · ${rest[0]}` : ""}`;
   if (zone.startsWith("faits")) return "Un fait chiffré";
+  if (zone.startsWith("offreFiche")) return "Fiche d'offre";
+  if (zone.startsWith("mecanismes")) return "Une piste de mécanisme";
+  if (zone.startsWith("mecanismeChoisi")) return "Le mécanisme choisi";
+  if (zone.startsWith("brief")) return "Brief de campagne";
   return path;
 }
 
@@ -446,17 +452,25 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [faits, setFaits] = useState(() => withIds(f.faits));
   // L'offre est gérée ici (audit F04) : une seule sauvegarde pour tout.
   const [offre, setOffre] = useState(project.offre ?? {});
+  // Lot 3 de l'audit (2026-11-18) : fiche d'offre, pistes de mécanisme, choix, brief.
+  const [fiche, setFiche] = useState(project.offreFiche ?? null);
+  const [mecas, setMecas] = useState(f.mecanismes ?? []);
+  const [choix, setChoix] = useState(f.mecanismeChoisi ?? null);
+  const [brief, setBrief] = useState(f.brief ?? {});
   // Version de référence pour la fusion à trois versions (audit F01) : ce que
   // cet onglet a chargé, puis ce qu'il a enregistré en dernier.
-  const baseRef = useRef({ fondations: { ...f, faits: withIds(f.faits) }, offre: project.offre ?? {} });
+  const baseRef = useRef({ fondations: { ...f, faits: withIds(f.faits) }, offre: project.offre ?? {}, offreFiche: project.offreFiche ?? null });
   const [conflit, setConflit] = useState(null);
   // Brouillon gardé (audit F05, 2026-11-17) : tant qu'il n'est pas
   // enregistré, le brouillon (et sa version de référence) est rangé dans ce
   // navigateur ; il survit au changement d'onglet (Angles…), à la fermeture
   // ou au rechargement, et revient à la prochaine ouverture des Fondations.
   const draftKey = `atl-fd-brouillon:${project.id}`;
-  const localNow = () => ({ fondations: { reponses: rep, message: msg, contenus: cont, faits }, offre });
-  const baseView = () => ({ fondations: { reponses: baseRef.current.fondations.reponses ?? {}, message: baseRef.current.fondations.message ?? null, contenus: baseRef.current.fondations.contenus ?? {}, faits: baseRef.current.fondations.faits ?? [] }, offre: baseRef.current.offre ?? {} });
+  const localNow = () => ({ fondations: { reponses: rep, message: msg, contenus: cont, faits, mecanismes: mecas, mecanismeChoisi: choix, brief }, offre, offreFiche: fiche });
+  const baseView = () => {
+    const b = baseRef.current.fondations;
+    return { fondations: { reponses: b.reponses ?? {}, message: b.message ?? null, contenus: b.contenus ?? {}, faits: b.faits ?? [], mecanismes: b.mecanismes ?? [], mecanismeChoisi: b.mecanismeChoisi ?? null, brief: b.brief ?? {} }, offre: baseRef.current.offre ?? {}, offreFiche: baseRef.current.offreFiche ?? null };
+  };
   const [restaure, setRestaure] = useState(null);
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -470,6 +484,10 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       setCont(l.fondations.contenus ?? {});
       setFaits(withIds(l.fondations.faits));
       setOffre(l.offre ?? {});
+      setFiche(l.offreFiche ?? null);
+      setMecas(l.fondations.mecanismes ?? []);
+      setChoix(l.fondations.mecanismeChoisi ?? null);
+      setBrief(l.fondations.brief ?? {});
       if (d.base) baseRef.current = d.base;
       setRestaure({ at: d.at });
     } catch {}
@@ -526,7 +544,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     { label: "Produit et clients", etat: `${p1} / ${p1t} rempli(s)`, ok: foundationsFilled({ fondations: { reponses: rep } }) },
     { label: "Preuves et offre", etat: nbPreuves ? `${nbPreuves} preuve(s) cochée(s)` : "aucune preuve cochée", ok: nbPreuves > 0 },
     { label: "Recherche clients", etat: `${p3} / ${p3t} source(s)${res ? " · résultats de Claude" : ""}`, ok: p3 > 0 || Boolean(res) },
-    { label: "Message central", etat: messageFilled({ fondations: { message: msg } }) ? "rempli" : "à faire", ok: messageFilled({ fondations: { message: msg } }) },
+    { label: "Message central", etat: `${messageFilled({ fondations: { message: msg } }) ? "rempli" : "à faire"}${choix?.id ? " · mécanisme choisi" : mecas.length ? ` · ${mecas.length} piste(s)` : ""}`, ok: messageFilled({ fondations: { message: msg } }) },
     { label: "Contenus des pages", etat: `${nbTypes} type(s) de page`, ok: nbTypes > 0 },
   ];
   const go = (i) => {
@@ -568,6 +586,10 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     const contenus = m("contenus", base.fondations.contenus ?? {}, cont, sf.contenus ?? {});
     const faitsM = m("faits", base.fondations.faits ?? [], faits, sf.faits ?? []);
     const offreM = m("offre", base.offre ?? {}, offre, server.offre ?? {});
+    const ficheM = m("offreFiche", base.offreFiche ?? null, fiche, server.offreFiche ?? null);
+    const mecasM = m("mecanismes", base.fondations.mecanismes ?? [], mecas, sf.mecanismes ?? []);
+    const choixM = m("mecanismeChoisi", base.fondations.mecanismeChoisi ?? null, choix, sf.mecanismeChoisi ?? null);
+    const briefM = m("brief", base.fondations.brief ?? {}, brief, sf.brief ?? {});
     if (conflicts.length && !force) return { conflicts, server, rev };
     // Ce que les autres ont ajouté apparaît tout de suite ici.
     setRep(reponses);
@@ -575,13 +597,18 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     setCont(contenus);
     setFaits(faitsM);
     setOffre(offreM);
-    let fd = { ...sf, reponses, ...(message ? { message } : {}), contenus, faits: faitsM, ...extra };
+    setFiche(ficheM);
+    setMecas(mecasM ?? []);
+    setChoix(choixM ?? null);
+    setBrief(briefM ?? {});
+    let fd = { ...sf, reponses, ...(message ? { message } : {}), contenus, faits: faitsM, mecanismes: mecasM ?? [], mecanismeChoisi: choixM ?? null, brief: briefM ?? {}, ...extra };
     // Validées autrefois sans empreinte : la version enregistrée sert de référence.
     if (["validée", "modifiée"].includes(sf.statut) && !sf.valideEmpreinte) fd.valideEmpreinte = empreinte({ ...server, fondations: sf });
-    const next = { ...server, offre: offreM, fondations: fd };
+    const next = { ...server, offre: offreM, offreFiche: ficheM ?? undefined, fondations: fd };
+    if (!ficheM) delete next.offreFiche;
     if (extra.statut === "validée") fd = { ...fd, valideEmpreinte: empreinte(next) };
     else if (!("statut" in extra)) fd = statutFondations({ ...next, fondations: fd });
-    return { patch: { fondations: fd, offre: offreM }, rev, conflicts: [] };
+    return { patch: { fondations: fd, offre: offreM, ...(ficheM ? { offreFiche: ficheM } : {}) }, rev, conflicts: [] };
   }
 
   // Enregistre tout (questionnaire, faits, message, cartes, offre) ; refait
@@ -598,7 +625,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       }
       try {
         const saved = await onSave(out.patch, silent, { rev: out.rev });
-        baseRef.current = { fondations: { ...(saved?.fondations ?? out.patch.fondations), faits: withIds((saved?.fondations ?? out.patch.fondations).faits) }, offre: saved?.offre ?? out.patch.offre };
+        baseRef.current = { fondations: { ...(saved?.fondations ?? out.patch.fondations), faits: withIds((saved?.fondations ?? out.patch.fondations).faits) }, offre: saved?.offre ?? out.patch.offre, offreFiche: saved?.offreFiche ?? out.patch.offreFiche ?? null };
         setConflit(null);
         setRestaure(null);
         try {
@@ -639,7 +666,11 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     setCont(sf.contenus ?? {});
     setFaits(withIds(sf.faits));
     setOffre(server.offre ?? {});
-    baseRef.current = { fondations: { ...sf, faits: withIds(sf.faits) }, offre: server.offre ?? {} };
+    setFiche(server.offreFiche ?? null);
+    setMecas(sf.mecanismes ?? []);
+    setChoix(sf.mecanismeChoisi ?? null);
+    setBrief(sf.brief ?? {});
+    baseRef.current = { fondations: { ...sf, faits: withIds(sf.faits) }, offre: server.offre ?? {}, offreFiche: server.offreFiche ?? null };
     setConflit(null);
     setRestaure(null);
     try {
@@ -686,6 +717,29 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         { projet: project.id, contenus: askTypes },
       );
       await saveAll(true, { contenusDemande: { le: new Date().toISOString(), dossier, types: askTypes } });
+      onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
+    } catch (e) {
+      if (!e.shown) onMessage({ error: true, text: e.message });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Pistes de mécanisme demandées à Claude (lot 3) : une demande « fondations »
+  // avec details.mecanismes ; Claude les écrit avec
+  // scripts/fondations-decisions.mjs (ajoutées en « hypothèse », rien n'est remplacé).
+  async function askMecanismes() {
+    if (!foundationsFilled({ fondations: { reponses: rep } }))
+      return onMessage({ error: true, text: "Remplis d'abord le produit, le problème et qui achète (étape 1)." });
+    if (mecas.length >= 5) return onMessage({ error: true, text: "Déjà 5 pistes : supprime celles qui ne servent pas avant d'en demander d'autres." });
+    setBusy(true);
+    try {
+      await saveAll(true);
+      const dossier = await request(
+        "fondations",
+        `Projet « ${project.nom} » : proposer jusqu'à ${5 - mecas.length} piste(s) de mécanisme (mécanisme du problème / de la solution, croyance à faire évoluer, preuves nécessaires et disponibles, limites, formulations interdites) à partir de la recherche clients et des preuves, en hypothèses.`,
+        { projet: project.id, mecanismes: true },
+      );
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
       if (!e.shown) onMessage({ error: true, text: e.message });
@@ -836,6 +890,13 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           Enregistrer — plus de doublon avec un onglet Offre séparé (2026-11-08). */}
       <section className="cat-panel">
         <h3>5. L'offre</h3>
+        <h4 className="cat-fd__sub">Fiche d'offre (packs, prix, conditions)</h4>
+        <p className="cat-muted">
+          Les données commerciales : les prix par unité et les remises se calculent seuls, et les pages reprennent ces chiffres. Les champs en dessous restent le
+          texte de vente.
+        </p>
+        <OffreFiche value={fiche} onChange={setFiche} texteOffre={offre.packs} />
+        <h4 className="cat-fd__sub">Texte de vente de l'offre</h4>
         {offer && cloneElement(offer, { form: offre, setForm: setOffre, onSaveAll: (silent) => saveAll(silent) })}
       </section>
 
@@ -898,6 +959,22 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <div className="cat-fd__step" hidden={step !== 3}>
+      <section className="cat-panel">
+        <h3>Pistes de mécanisme (méthode Jeffrey)</h3>
+        <p className="cat-muted">
+          Jusqu'à 5 pistes, chacune avec le mécanisme du problème (pourquoi rien n'a marché) et celui de la solution (pourquoi ce produit marche). Tu en choisis une
+          et tu notes pourquoi ; les autres restent gardées. Une piste sans preuve reste une hypothèse.
+        </p>
+        <Mecanismes
+          value={mecas}
+          choix={choix}
+          onChange={setMecas}
+          onChoix={setChoix}
+          busy={busy}
+          onAsk={askMecanismes}
+          onToMessage={(p) => setMsg({ ...normalizeMessage(msg), mecanisme: `${p.ums}${realText(p.ump) ? ` — là où le reste échoue : ${p.ump}` : ""}` })}
+        />
+      </section>
       <section className="cat-panel cat-fd__mc">
         <h3>8. Message central</h3>
         <p className="cat-muted">
@@ -906,6 +983,23 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           en 4.
         </p>
         <MessageEditor value={msg} onChange={setMsg} />
+      </section>
+      <section className="cat-panel">
+        <h3>Brief de campagne</h3>
+        <p className="cat-muted">
+          Le contexte de la page à écrire : pour qui, d'où vient le visiteur, quelle promesse la pub a faite, quel mécanisme, quelle offre, quelles preuves. La
+          rédaction des pages le suit ; tu peux le copier ou le télécharger.
+        </p>
+        <BriefCampagne
+          project={project}
+          value={brief}
+          onChange={setBrief}
+          fondations={{ ...f, reponses: rep, faits, message: msg ? normalizeMessage(msg) : f.message, version: f.version }}
+          piste={mecas.find((m) => m.id === choix?.id) ?? null}
+          fiche={fiche}
+          typesPage={TYPES_CONTENU.map((t) => [t, pageTypeById[t]?.label ?? t])}
+          avatars={(res?.avatars ?? []).map((a) => (typeof a === "string" ? a : a?.nom ?? a?.titre ?? "")).filter(Boolean)}
+        />
       </section>
 
       </div>

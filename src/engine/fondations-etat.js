@@ -59,7 +59,14 @@ export const empreinteV1 = (fd) => JSON.stringify([fd?.reponses ?? {}, fd?.messa
 export function empreinte(project) {
   const fd = project?.fondations ?? {};
   const faits = (fd.faits ?? []).map(({ id: _id, ...f }) => f);
-  return `v2:${hash(stable([withoutResearch(fd.reponses), fd.message ?? null, faits, pick(project?.offre, OFFER_KEYS)]))}`;
+  const parts = [withoutResearch(fd.reponses), fd.message ?? null, faits, pick(project?.offre, OFFER_KEYS)];
+  // Fiche d'offre et mécanisme choisi (lot 3, 2026-11-18) : ajoutés seulement
+  // s'ils existent, pour ne pas changer l'empreinte des projets sans eux.
+  const extra = {};
+  if (project?.offreFiche) extra.fiche = project.offreFiche;
+  if (fd.mecanismeChoisi?.id) extra.mecanisme = fd.mecanismeChoisi.id;
+  if (Object.keys(extra).length) parts.push(extra);
+  return `v2:${hash(stable(parts))}`;
 }
 
 // Statut après une modification : une validation dont le contenu a changé

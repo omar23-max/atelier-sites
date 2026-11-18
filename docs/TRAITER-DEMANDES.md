@@ -601,6 +601,53 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      · Pas fait (volontairement) : les 6 états par champ proposés par l'audit
      (vide, manque, brouillon, à relire, approuvé, obsolète) et « non
      applicable » ; la version légère ci-dessus couvre les cas testés.
+   - **Audit des Fondations, lot 3 « Méthode » : F09 + F08 (2026-11-18)** —
+     F07 (bibliothèque de sources) volontairement laissé pour plus tard.
+     · F09 fiche d'offre : src/engine/offre-fiche.js (`packsCalcules`,
+     `controlesFiche`, `faitsDeFiche`, `resumeFiche`, `packsDepuisTexte`),
+     src/catalogue/OffreFiche.jsx dans l'étape « Preuves et offre », au-dessus
+     du texte de vente. project.offreFiche = { devise, unite, packs[{ id, nom,
+     quantite, offertes, prix, prixBarre, abonnement, cadence, populaire }],
+     garantie, retours, livraison, bonus[{ nom, valeur, livre }], leviers
+     (résultat, confiance, délai, effort : obstacle / réponse / preuve),
+     rarete }. Unités totales, prix par unité et remise calculés ; contrôles
+     (devise, prix barré, « 2+1 » sans économie, garantie > retours, bonus pas
+     livrable, rareté sans condition…) ; « Les reprendre » propose les packs
+     lus dans le texte de l'offre. Les chiffres de la fiche sont autorisés par
+     fidelite.js ; la fiche entre dans l'empreinte de validation (seulement si
+     elle existe) ; « Remplir depuis les Fondations » reçoit le résumé de
+     l'offre.
+     · F08 : src/catalogue/DecisionsMessage.jsx dans l'étape « Message
+     central ». `Mecanismes` : 5 pistes au plus (nom, mécanisme du problème,
+     de la solution, croyance, preuves nécessaires / disponibles, limites,
+     formulations interdites, état hypothèse / étayée), « Choisir cette piste »
+     + raison gardée (fondations.mecanismeChoisi), « Reprendre dans le message
+     central », « Demander des pistes à Claude » (demande fondations avec
+     details.mecanismes). `BriefCampagne` (fondations.brief) : avatar,
+     situation, conscience, trafic, promesse de la pub, type de page, langue,
+     action, preuves autorisées (faits validés + preuves documentées),
+     objections prioritaires ; mécanisme et offre repris tout seuls ; « Copier
+     le brief (Markdown) » et « Télécharger (JSON) » avec la révision des
+     Fondations et les identifiants des preuves. Le mécanisme choisi entre
+     dans l'empreinte ; la rédaction des pages reçoit mécanisme (marqué
+     hypothèse s'il n'est pas étayé) et brief.
+     · scripts/fondations-decisions.mjs (mecanismes | fiche) : écrit pour
+     Claude sans rien remplacer (voir la procédure plus bas).
+     · Tests : scripts/tests/fondations-fiabilite.mjs --http → 70/70 (O01-O13,
+     M01, H09-H11). Navigateur, projet zz-test-fd-lot3 (corbeille) : packs
+     repris du vrai texte de l'offre, calculs, contrôle garantie / retours,
+     2 pistes, choix + raison, reprise dans le message, brief, enregistrement
+     unique, « modifiée » après validation, relu après rechargement.
+     · Pas testé de bout en bout : « Remplir depuis les Fondations » avec la
+     fiche et le brief (demande une génération IA payante).
+   - **Studio : retirer des images de « Images à refaire » (2026-11-18)** :
+     studio-ui.jsx : « × » au survol de chaque vignette (caché pendant sa
+     génération) → l image sort de la liste et de la file ; « Annuler » juste
+     après ; « Remettre les images retirées (N) » les replace dans l ordre de la
+     page. Retraits gardés par page dans localStorage
+     atl-studio-retirees-<page> ; la page et les images déjà générées ne sont
+     pas touchées. Testé sur zz-test-studio (corbeille) : 90 → 89 → annuler →
+     88, gardé après fermeture / réouverture, « Remettre » → 90.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
@@ -1301,6 +1348,22 @@ puis ses champs dans `BASE` ou `PAR_TYPE`.
    par ChatGPT est rejetée → « [MANQUE] »). Le `resultat` de la demande dit en
    une ligne ce qui vient de ChatGPT et ce qui a été écarté. WinningHunter n'est
    pas visible par ChatGPT en `codex exec` : Claude l'interroge lui-même.
+3 ter. **Demande « fondations » avec `details.mecanismes`** (bouton « Demander des
+   pistes à Claude », Message central) : écrire au plus 5 pistes en tout
+   (le nombre manquant est dans la demande), chacune avec nom, ump (mécanisme
+   du problème), ums (de la solution), croyance, preuvesNecessaires,
+   preuvesDispo (seulement des faits validés ou preuves cochées), limites,
+   interdits. Toutes restent « hypothèse » : c'est l'utilisateur qui choisit et
+   qui marque « étayée ». Deuxième rédaction et vérification par ChatGPT
+   comme au 3 bis. Écrire avec
+   `node scripts/fondations-decisions.mjs mecanismes <projet> /tmp/<projet>-pistes.json`
+   (refus au-delà de 5 ; rien n'est remplacé ; copie dans projets/_historique/).
+   **Demande « offre »** : en plus des champs de texte de l'offre, compléter la
+   fiche d'offre (packs, devise, garantie, retours, livraison, bonus, leviers)
+   avec `node scripts/fondations-decisions.mjs fiche <projet> /tmp/<projet>-fiche.json`
+   (seuls les champs vides ; les contrôles s'affichent à la fin). Aucun prix,
+   aucune garantie ni aucun bonus inventés : seulement ce que l'utilisateur a
+   écrit ou validé ; bonus « livre: false » tant qu'il n'existe pas.
 4. `node scripts/fondations-contenus.mjs ecrire <projet> /tmp/<projet>-contenus.json`
    (`--dry` pour voir avant) : un champ déjà rempli n'est jamais remplacé, un
    champ hors plan est refusé, copie du projet dans `projets/_historique/`.

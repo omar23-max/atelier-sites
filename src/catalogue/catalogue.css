@@ -4008,3 +4008,161 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---- Lot 3 de l'audit : fiche d'offre, mécanismes, brief (2026-11-18) ---- */
+.cat-fd__sub {
+  margin: 14px 0 4px;
+  font-size: 14px;
+}
+.cat-fiche,
+.cat-meca,
+.cat-brief {
+  display: grid;
+  gap: 10px;
+}
+.cat-fiche__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.cat-fiche__grow {
+  flex: 1;
+  min-width: 200px;
+}
+.cat-fiche__tablewrap {
+  overflow-x: auto;
+}
+.cat-fiche__packs {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.cat-fiche__packs th {
+  padding: 4px 6px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--cat-muted, #6b6f8f);
+  white-space: nowrap;
+}
+.cat-fiche__packs td {
+  padding: 3px 4px;
+  vertical-align: middle;
+}
+.cat-fiche__packs input:not([type="checkbox"]):not([type="radio"]) {
+  width: 100%;
+  min-width: 56px;
+  box-sizing: border-box;
+}
+.cat-fiche__packs td:first-child input {
+  min-width: 140px;
+}
+.cat-fiche__calc {
+  color: #1f5132;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cat-fiche__inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cat-fiche__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+.cat-fiche fieldset,
+.cat-fiche__leviers fieldset {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid #e3e0d8;
+  border-radius: 10px;
+}
+.cat-fiche legend {
+  padding: 0 4px;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+.cat-fiche__leviers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+.cat-fiche__controles {
+  margin: 0;
+  padding: 10px 12px;
+  list-style: none;
+  border: 1px solid #f0c36d;
+  border-radius: 10px;
+  background: #fff8e6;
+  font-size: 12.5px;
+  display: grid;
+  gap: 4px;
+}
+.cat-fiche__controles .is-erreur {
+  color: #8a2a17;
+}
+.cat-fiche__propose {
+  margin: 0;
+  font-size: 12.5px;
+}
+.cat-meca__piste {
+  padding: 8px 12px;
+  border: 1px solid #e3e0d8;
+  border-radius: 10px;
+  background: #fff;
+}
+.cat-meca__piste.is-choisie {
+  border-color: #8f88f0;
+  box-shadow: 0 0 0 2px #e8e6ff;
+}
+.cat-meca__piste summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.cat-meca__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.cat-meca__choix {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid #c7c4f5;
+  border-radius: 10px;
+  background: #f7f6ff;
+}
+.cat-meca__choix .is-warn {
+  color: #9a3412;
+}
+.cat-meca__choix .cat-btn {
+  justify-self: start;
+}
+.cat-brief__auto {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--cat-muted, #4b4f73);
+}
+
+.cat-fiche fieldset input:not([type="checkbox"]),
+.cat-fiche fieldset select,
+.cat-fiche fieldset textarea,
+.cat-fiche__leviers textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.cat-fiche fieldset .cat-fiche__row {
+  flex-wrap: nowrap;
+}
+.cat-fiche fieldset .cat-fiche__row select {
+  width: auto;
+}

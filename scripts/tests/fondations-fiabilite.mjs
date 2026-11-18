@@ -15,6 +15,7 @@ const imp = (f) => import(pathToFileURL(join(root, f)).href);
 const { knownNumbers, hasUnknownFigure, knownClaims, hasUnknownClaim } = await imp("src/engine/fidelite.js");
 const { blueprintOf, contenuProgress } = await imp("src/engine/page-blueprints.js");
 const { merge3, empreinte, empreinteV1, statutFondations, realText, withIds } = await imp("src/engine/fondations-etat.js");
+const { packsCalcules, controlesFiche, packsDepuisTexte } = await imp("src/engine/offre-fiche.js");
 
 const cases = [];
 const check = (id, sujet, attendu, obtenu) => cases.push({ id, sujet, attendu, obtenu, ok: JSON.stringify(attendu) === JSON.stringify(obtenu) });
@@ -104,6 +105,44 @@ check("C02", "Sans modification locale, un fait ajouté ailleurs est gardé", 1,
   check("V05", "Ancienne validation (v1) modifiée depuis : « modifiée »", "modifiée", statutFondations({ ...v1, fondations: { ...v1.fondations, reponses: { role: "y" } } }).statut);
 }
 
+// ---- Fiche d'offre (F09) ----
+{
+  const fiche = {
+    devise: "USD",
+    unite: "flacon",
+    packs: [
+      { id: "a", quantite: "1", offertes: "", prix: "58" },
+      { id: "b", quantite: "2", offertes: "1", prix: "115", prixBarre: "174", populaire: true },
+    ],
+    garantie: { duree: "90", unite: "jours" },
+    retours: { duree: "30", unite: "jours" },
+    bonus: [{ id: "x", nom: "Guide PDF", livre: false }],
+    rarete: { active: true, condition: "" },
+  };
+  const c = packsCalcules(fiche);
+  check("O01", "« 2 + 1 » = 3 unités, prix par unité et remise calculés", [3, 38.33, 34], [c[1].total, c[1].prixUnite, c[1].remise]);
+  const ctrl = controlesFiche(fiche).map((x) => x.texte).join(" | ");
+  check("O02", "Garantie plus longue que la fenêtre de retour : signalée", true, /dépasse la fenêtre de retour/.test(ctrl));
+  check("O03", "Bonus pas encore livrable : signalé", true, /pas encore livrable/.test(ctrl));
+  check("O04", "Rareté sans vraie condition : signalée", true, /sans vraie condition/.test(ctrl));
+  check("O05", "Prix barré plus bas que le prix : signalé", true, /prix barré/.test(controlesFiche({ devise: "USD", packs: [{ quantite: "1", prix: "50", prixBarre: "40" }] }).map((x) => x.texte).join(" ")));
+  const p = { offreFiche: fiche };
+  num("O06", "Le prix par unité calculé est autorisé sur une page", p, "Seulement 38.33 $ par flacon", false);
+  num("O07", "La remise calculée est autorisée", p, "Économisez 34%", false);
+  num("O08", "Un prix absent de la fiche reste signalé", p, "Seulement 29 $", true);
+  num("O09", "La garantie de la fiche couvre « 90 jours », pas « 90 mois »", p, "Garantie 90 mois", true);
+  const t = packsDepuisTexte("1 = 58 $ ; 3 flacons = 115 $ (le plus populaire) ; 2+1 = 90 $");
+  check("O10", "Packs repérés dans le texte de l'offre", [["1", "", "58"], ["3", "", "115"], ["2", "1", "90"]], t.map((x) => [x.quantite, x.offertes, x.prix]));
+  const t2 = packsDepuisTexte("1 flacon (30 jours) = 58 $ ; 3 flacons (la cure de 90 jours) = 115 $, soit 1,28 $ par jour, le plus populaire ; 5 flacons (150 jours) = 172 $ ; abonnement : -25 %");
+  check("O13", "Texte réel avec parenthèses : 3 packs, le populaire repéré", [["1", "58"], ["3", "115"], ["5", "172"], true], [...t2.map((x) => [x.quantite, x.prix]), t2[1]?.populaire]);
+  const v = { offreFiche: fiche, fondations: { reponses: {}, faits: [], message: null, statut: "validée" } };
+  v.fondations.valideEmpreinte = empreinte(v);
+  check("O11", "Changer un prix de la fiche → Fondations « modifiée »", "modifiée", statutFondations({ ...v, offreFiche: { ...fiche, packs: [{ ...fiche.packs[0], prix: "49" }, fiche.packs[1]] } }).statut);
+  const sansFiche = { offre: { prix: "30" }, fondations: { reponses: {}, faits: [], message: null } };
+  check("O12", "Projet sans fiche : empreinte inchangée par le lot 3", empreinte(sansFiche), empreinte({ ...sansFiche }));
+  check("M01", "Choisir un autre mécanisme → Fondations « modifiée »", "modifiée", statutFondations({ ...v, fondations: { ...v.fondations, mecanismeChoisi: { id: "m2" } } }).statut);
+}
+
 // ---- Essais réels de l'API (projet jetable) ----
 if (process.argv.includes("--http")) {
   const B = "http://127.0.0.1:5180";
@@ -139,6 +178,29 @@ if (process.argv.includes("--http")) {
     const apres = JSON.parse(await readFile(file, "utf8"));
     check("H07", "Le script note l'empreinte des cartes", empreinte(apres), apres.fondations.contenusEmpreinte);
     check("H08", "Un prix changé ensuite → cartes à relire", true, empreinte({ ...apres, offre: { ...apres.offre, prix: "1" } }) !== apres.fondations.contenusEmpreinte);
+    // Script des décisions : pistes ajoutées sans rien remplacer, 5 au plus ;
+    // fiche complétée seulement là où elle est vide.
+    const tmpM = join(root, "..", `zz-meca-${Date.now()}.json`);
+    await writeFile(tmpM, JSON.stringify([{ nom: "A", ump: "p", ums: "s" }, { nom: "B", ump: "p2", ums: "s2" }]));
+    execFileSync("node", [join(root, "scripts", "fondations-decisions.mjs"), "mecanismes", id, tmpM], { stdio: "ignore" });
+    const m1 = JSON.parse(await readFile(file, "utf8")).fondations.mecanismes ?? [];
+    check("H09", "Pistes ajoutées en « hypothèse »", [2, "hypothese"], [m1.length, m1[0]?.statut]);
+    await writeFile(tmpM, JSON.stringify([1, 2, 3, 4].map((i) => ({ nom: `X${i}`, ums: "s" }))));
+    let refus = false;
+    try {
+      execFileSync("node", [join(root, "scripts", "fondations-decisions.mjs"), "mecanismes", id, tmpM], { stdio: "ignore" });
+    } catch {
+      refus = true;
+    }
+    check("H10", "Plus de 5 pistes en tout : refusé, rien d'écrit", [true, 2], [refus, (JSON.parse(await readFile(file, "utf8")).fondations.mecanismes ?? []).length]);
+    const avantFiche = JSON.parse(await readFile(file, "utf8"));
+    avantFiche.offreFiche = { devise: "CAD", packs: [{ id: "u", quantite: "1", prix: "40" }] };
+    await writeFile(file, JSON.stringify(avantFiche, null, 2));
+    await writeFile(tmpM, JSON.stringify({ devise: "USD", unite: "flacon", packs: [{ quantite: "3", prix: "99" }], garantie: { duree: "60", unite: "jours" } }));
+    execFileSync("node", [join(root, "scripts", "fondations-decisions.mjs"), "fiche", id, tmpM], { stdio: "ignore" });
+    const fi = JSON.parse(await readFile(file, "utf8")).offreFiche;
+    check("H11", "Fiche : la devise et les packs de l'utilisateur sont gardés, les vides remplis", ["CAD", 1, "flacon", "60"], [fi.devise, fi.packs.length, fi.unite, fi.garantie?.duree]);
+    await (await import("node:fs/promises")).rm(tmpM, { force: true });
     const { rm, readdir } = await import("node:fs/promises");
     await rm(tmp, { force: true });
     for (const h of await readdir(join(root, "projets", "_historique")).catch(() => [])) if (h.startsWith(`${id}--`)) await rename(join(root, "projets", "_historique", h), join(root, "corbeille", "projets", h)).catch(() => {});

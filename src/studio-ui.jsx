@@ -186,7 +186,18 @@ function StudioDialog({ onClose }) {
   const root = data.root?.props ?? {};
   // Emplacements d'image à refaire : relevés à l'ouverture (une image installée
   // ne doit pas disparaître de la liste).
-  const [targets, setTargets] = useState(() => originalPhotoTargets(data.content ?? []));
+  // Images retirées de la liste (2026-11-18) : gardées par page dans ce
+  // navigateur ; la page et les images déjà générées ne sont pas touchées.
+  const LS_RETIREES = `atl-studio-retirees-${pageName}`;
+  const [retirees, setRetirees] = useState(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(LS_RETIREES) ?? "[]"));
+    } catch {
+      return new Set();
+    }
+  });
+  const [dernierRetrait, setDernierRetrait] = useState(null); // { target, index }
+  const [targets, setTargets] = useState(() => originalPhotoTargets(data.content ?? []).filter((t) => !retirees.has(t.key)));
   const [chosen, setChosen] = useState(() => new Set(targets.map((t) => t.key)));
   const [refs, setRefs] = useState([]);
   const [notes, setNotes] = useState({});
@@ -211,6 +222,45 @@ function StudioDialog({ onClose }) {
       localStorage.setItem(LS, JSON.stringify(results));
     } catch {}
   }, [results]);
+  useEffect(() => {
+    try {
+      if (retirees.size) localStorage.setItem(LS_RETIREES, JSON.stringify([...retirees]));
+      else localStorage.removeItem(LS_RETIREES);
+    } catch {}
+  }, [retirees]);
+  // Retirer une image de la liste « Images à refaire » (annulable).
+  function retirer(t) {
+    const index = targets.findIndex((x) => x.key === t.key);
+    setTargets((list) => list.filter((x) => x.key !== t.key));
+    setChosen((c) => new Set([...c].filter((x) => x !== t.key)));
+    if (t.sectionId) setRetirees((s) => new Set([...s, t.key]));
+    if (current === t.key) setCurrent(null);
+    setDernierRetrait({ target: t, index });
+  }
+  function annulerRetrait() {
+    const d = dernierRetrait;
+    if (!d) return;
+    setTargets((list) => {
+      const next = list.filter((x) => x.key !== d.target.key);
+      next.splice(Math.min(d.index, next.length), 0, d.target);
+      return next;
+    });
+    setRetirees((s) => new Set([...s].filter((x) => x !== d.target.key)));
+    setDernierRetrait(null);
+  }
+  // Remettre toutes les photos d'origine retirées, à leur place dans l'ordre de la page.
+  function remettreTout() {
+    const all = originalPhotoTargets(getPuck().appState.data.content ?? []);
+    setTargets((list) => {
+      const have = new Set(list.map((x) => x.key));
+      const back = all.filter((x) => retirees.has(x.key) && !have.has(x.key));
+      const order = new Map(all.map((x, i) => [x.key, i]));
+      const page = [...list.filter((x) => x.sectionId), ...back].sort((a, b) => (order.get(a.key) ?? 1e9) - (order.get(b.key) ?? 1e9));
+      return [...page, ...list.filter((x) => !x.sectionId)];
+    });
+    setRetirees(new Set());
+    setDernierRetrait(null);
+  }
   // Versions dont le fichier a été mis à la corbeille (catalogue) : retirées.
   useEffect(() => {
     const urls = Object.values(results).flatMap((r) => (r.versions ?? []).map((v) => v.url));
@@ -489,6 +539,16 @@ function StudioDialog({ onClose }) {
                   const label = st === "encours" ? "En cours" : st === "attente" ? "En attente" : st === "erreur" ? "Erreur" : r?.installee ? "Installée" : r?.versions?.length ? "Fait" : chosen.has(t.key) ? "À faire" : small(t.key) ? "Petite" : "Gardée";
                   return (
                     <li key={t.key} className={`${chosen.has(t.key) ? "is-on" : ""}${cur?.key === t.key ? " is-current" : ""}`}>
+                      <button
+                        type="button"
+                        className="atl-mirror__remove"
+                        disabled={st === "encours"}
+                        onClick={() => retirer(t)}
+                        title={st === "encours" ? "En cours de génération" : "Retirer de la liste (la page n'est pas modifiée)"}
+                        aria-label={`Retirer l'image ${i + 1} de la liste`}
+                      >
+                        ×
+                      </button>
                       <button type="button" onClick={() => setCurrent(t.key)} title={`${t.sectionLabel} · ${t.settingLabel ?? ""}`}>
                         <span className="atl-mirror__num">{i + 1}</span>
                         <img src={r?.versions?.length ? r.versions[r.sel ?? r.versions.length - 1].url : t.source} alt="" />
@@ -502,6 +562,23 @@ function StudioDialog({ onClose }) {
                   );
                 })}
               </ul>
+            )}
+            {(dernierRetrait || retirees.size > 0) && (
+              <p className="atl-mirror__retraits" role="status">
+                {dernierRetrait && (
+                  <>
+                    Image retirée de la liste.{" "}
+                    <button type="button" className="atl-mirror__linkbtn" onClick={annulerRetrait}>
+                      Annuler
+                    </button>
+                  </>
+                )}
+                {retirees.size > 0 && (
+                  <button type="button" className="atl-mirror__linkbtn" onClick={remettreTout}>
+                    Remettre les images retirées ({retirees.size})
+                  </button>
+                )}
+              </p>
             )}
             <div className="atl-mirror__bar">
               <span>

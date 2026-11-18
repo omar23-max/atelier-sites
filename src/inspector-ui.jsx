@@ -1,3 +1,4 @@
+import { resumeFiche } from "./engine/offre-fiche.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
@@ -3641,6 +3642,7 @@ function FillFromFoundations({ content, root, onApply }) {
     setPicked(next);
   };
   const message = fd.message ?? {};
+  const mecaChoisi = (fd.mecanismes ?? []).find((m) => m.id === fd.mecanismeChoisi?.id) ?? null;
   const angle = info?.angle ?? null;
 
   async function run() {
@@ -3665,6 +3667,10 @@ function FillFromFoundations({ content, root, onApply }) {
             objections: (message.objections ?? []).filter((o) => o?.objection),
           },
           ...(enAngle ? { angle: { titre: angle.titre, avatar: angle.avatar, douleur: angle.douleur, promesse: angle.promesse } } : {}),
+          // Lot 3 (2026-11-18) : offre de la fiche, mécanisme choisi, brief.
+          ...(info?.project?.offreFiche ? { offre: resumeFiche(info.project.offreFiche) } : {}),
+          ...(mecaChoisi ? { mecanismeChoisi: { nom: mecaChoisi.nom, probleme: mecaChoisi.ump, solution: mecaChoisi.ums, hypothese: mecaChoisi.statut !== "etaye", interdits: mecaChoisi.interdits } } : {}),
+          ...(fd.brief && Object.keys(fd.brief).length ? { briefCampagne: { avatar: fd.brief.avatar, situation: fd.brief.situation, conscience: fd.brief.conscience, trafic: fd.brief.trafic, promessePub: fd.brief.promessePub, action: fd.brief.action } } : {}),
         };
         for (let i = 0; i < job.texts.length; i += 40) {
           const batch = job.texts.slice(i, i + 40);
@@ -3675,7 +3681,7 @@ function FillFromFoundations({ content, root, onApply }) {
             body: JSON.stringify({
               items: batch,
               prompt:
-                "Écris chaque texte de cette section à partir du BRIEF du contexte (« section » → « contenu ») : c'est le contenu validé dans les Fondations du projet pour cette section de la page. Répartis ce contenu dans les textes selon leur rôle (titre, sous-titre, liste, avis, bouton…), en gardant la longueur de chaque texte et ses balises de mise en forme. N'ajoute aucune information, aucun chiffre, aucune preuve ni aucun avis absent du brief ou du message central. Un passage du brief entre crochets (« [MANQUE … ] », « [À VALIDER … ] ») n'est pas une information : ne le recopie pas et n'invente rien à la place ; à cet endroit, reste général. Ne recopie pas les notes destinées à l'équipe (« coché d'avance », « en petit dessous », « ne pas écrire… »). Garde les signes † et * des allégations. La page d'origine vend UN AUTRE produit, d'une autre marque : n'en garde aucun nom de marque ou de produit, aucun prix, aucune monnaie, aucun chiffre, aucun avis, aucun ingrédient, aucun animal ni aucune promesse. Avis clients : recopie chaque avis du brief mot pour mot, avec son auteur, un avis par emplacement ; ne mélange pas deux avis, ne les complète pas, n'en crée pas ; n'écris ni « achat vérifié », ni note moyenne, ni nombre d'avis, ni répartition par étoiles si le brief ne les donne pas. S'il y a moins de contenu que de textes : un texte en trop qui est un simple libellé (« Quantité », « Voir plus », un intertitre neutre) est adapté au produit ; un texte en trop qui portait une information de la page d'origine (nom, prix, chiffre, avis, promesse, caractéristique) devient une consigne courte entre crochets qui dit quoi écrire, par exemple « [Avis client à ajouter] », « [Prix à compléter] », « [Bénéfice à compléter] ». Mieux vaut une consigne entre crochets qu'une information non prouvée." +
+                "Écris chaque texte de cette section à partir du BRIEF du contexte (« section » → « contenu ») : c'est le contenu validé dans les Fondations du projet pour cette section de la page. Répartis ce contenu dans les textes selon leur rôle (titre, sous-titre, liste, avis, bouton…), en gardant la longueur de chaque texte et ses balises de mise en forme. N'ajoute aucune information, aucun chiffre, aucune preuve ni aucun avis absent du brief, du message central ou de l'offre (fiche d'offre ; un mécanisme marqué « hypothese » ne se présente jamais comme prouvé). Un passage du brief entre crochets (« [MANQUE … ] », « [À VALIDER … ] ») n'est pas une information : ne le recopie pas et n'invente rien à la place ; à cet endroit, reste général. Ne recopie pas les notes destinées à l'équipe (« coché d'avance », « en petit dessous », « ne pas écrire… »). Garde les signes † et * des allégations. La page d'origine vend UN AUTRE produit, d'une autre marque : n'en garde aucun nom de marque ou de produit, aucun prix, aucune monnaie, aucun chiffre, aucun avis, aucun ingrédient, aucun animal ni aucune promesse. Avis clients : recopie chaque avis du brief mot pour mot, avec son auteur, un avis par emplacement ; ne mélange pas deux avis, ne les complète pas, n'en crée pas ; n'écris ni « achat vérifié », ni note moyenne, ni nombre d'avis, ni répartition par étoiles si le brief ne les donne pas. S'il y a moins de contenu que de textes : un texte en trop qui est un simple libellé (« Quantité », « Voir plus », un intertitre neutre) est adapté au produit ; un texte en trop qui portait une information de la page d'origine (nom, prix, chiffre, avis, promesse, caractéristique) devient une consigne courte entre crochets qui dit quoi écrire, par exemple « [Avis client à ajouter] », « [Prix à compléter] », « [Bénéfice à compléter] ». Mieux vaut une consigne entre crochets qu'une information non prouvée." +
                 (enAngle ? " Cette section est une zone d'angle : parle à l'avatar de l'angle du contexte, de sa douleur, vers sa promesse, sans contredire le brief." : "") +
                 " " +
                 consigneLangue(root),
