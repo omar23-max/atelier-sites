@@ -767,7 +767,7 @@ const built = await page.evaluate(
       } catch {}
     }
     // Taille de texte de la racine (html) : sert à convertir les rem plus bas.
-    return { parts: out, css, sheetBase: document.styleSheets[0]?.href ?? origin + "/", rootPx: parseFloat(getComputedStyle(document.documentElement).fontSize) || 16 };
+    return { parts: out, css, sheetBase: document.styleSheets[0]?.href ?? origin + "/", rootPx: parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, pageClasses: [...document.documentElement.classList, ...document.body.classList] };
   },
   { recipes, keep: [...keep], tracks: [...tracks], MAX_SLOTS, origin, assetBase },
 );
@@ -949,10 +949,23 @@ const splitSel = (sel) => {
   out.push(cur);
   return out;
 };
+// Classes posées sur <html> ou <body> (2026-11-18, clone Titan : toutes ses
+// variables de polices et de tailles sont sur « body.titan-v2 ») : une règle
+// qui commence par ces classes vise la page entière, donc la section.
+const PAGE_CLS = new Set(built.pageClasses ?? []);
+const pageHead = (s) => {
+  const m = /^((?:html|body)?(?:\.[\w-]+)+)(?=[\s>+~:,]|$)/.exec(s);
+  if (!m) return null;
+  const cls = m[1].replace(/^(html|body)/, "").split(".").filter(Boolean);
+  return cls.length && cls.every((c) => PAGE_CLS.has(c)) ? m[1] : null;
+};
+const isPageSel = (s) => /^(html|body|:root)\b/.test(s) || Boolean(pageHead(s));
 const scopeSel = (sel, scope) =>
   splitSel(sel)
     .map((s) => {
       s = s.trim();
+      const head = pageHead(s);
+      if (head) return `.${scope}${s.slice(head.length)}`;
       if (/^(html|:root|body)\b/.test(s)) return s.replace(/^(html\s*body|html|:root|body)/, `.${scope}`);
       return `.${scope} ${s}`;
     })
@@ -1007,7 +1020,7 @@ const cssFor = (keys, scope) => {
       // Règles de la page entière (html, body, :root : police, couleur, variables) :
       // gardées partout, la section en tient lieu ; ces balises ne sont pas
       // numérotées et ne seraient jamais « utilisées ».
-      const pageRule = splitSel(r.sel).every((s) => /^(html|body|:root)\b/.test(s.trim()));
+      const pageRule = splitSel(r.sel).every((s) => isPageSel(s.trim()));
       if (!pageRule && use !== "all" && !(use ?? []).some((k) => set.has(k))) continue;
       // La page entière (html, body) : sans hauteur ni largeur mini (une section
       // n'est pas un écran).
