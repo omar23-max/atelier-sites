@@ -667,6 +667,25 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      (« .atl-<section> »). Avant : titre du hero à 18 px en dm-sans ; après :
      51,2 px en titan-sans, comme l'original. Sauvegarde de l'ancien script :
      /tmp/kimi-import.avant-body.mjs.
+   - **Page d'accueil NexTap en deux versions (2026-11-18)** : Birdie
+     (birdie.care) cloné par Codex (11 sections, 98,7 %) et importé.
+     Pages assemblées par /tmp/assembler-page.mjs <plan.json> (sections
+     prises dans plusieurs pages, moteur « vierge » : textes en consignes,
+     images vidées, `wireframe`) : nextap-accueil-titan et
+     nextap-accueil-birdie, 19 sections chacune, projet nextap, hero =
+     paleo-pro-accueil-p2. Version Titan : menu Titan fixe et transparent,
+     d'où `marge_haut: 110` sur le hero. Celle qui n'est pas retenue part à
+     la corbeille.
+     · **Deux versions par base** (demande suivante) : /tmp/assembler-v2.mjs
+     <plan.json> <original|stock> donne <base>-original (vrais textes et
+     vraies images) et <base>-stock (Lorem ipsum du même nombre de mots ;
+     le 1er titre de chaque section commence par « [ Nom — Titre H2 — 5 mots ] » ;
+     chiffres gardés ; images picsum.photos à la taille du repère ; wireframe
+     pour cacher les photos d'origine). Nom de section dans
+     props.atl_nom_section. Plans : /tmp/plan2-titan.json, /tmp/plan2-birdie.json.
+     Restent d'origine dans la version stock : le logo Titan du menu (fond
+     CSS) et les 4 vidéos de « Le studio NexTap » (Birdie p7, écrites dans
+     le gabarit).
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
