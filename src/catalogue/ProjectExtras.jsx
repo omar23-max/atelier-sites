@@ -308,12 +308,18 @@ const OFFER_FIELDS = [
   ["objections", "Objections et réponses", "« C'est trop cher » → … (une par ligne)", 3],
 ];
 
-export function OfferTab({ project, onSave, onMessage }) {
-  const [form, setForm] = useState(project.offre ?? {});
+// Dans les Fondations (audit F04, 2026-11-17) : form / setForm / onSaveAll
+// viennent des Fondations, une seule sauvegarde pour le questionnaire, les
+// faits, le message et l'offre. Seule (sans ces props) : comme avant.
+export function OfferTab({ project, onSave, onMessage, form: ctrlForm, setForm: ctrlSet, onSaveAll }) {
+  const [own, setOwn] = useState(project.offre ?? {});
+  const form = ctrlForm ?? own;
+  const setForm = ctrlSet ?? setOwn;
+  const saveOffer = (silent) => (onSaveAll ? onSaveAll(silent) : onSave({ offre: form }, silent));
 
   async function askOffer() {
     try {
-      await onSave({ offre: form }, true);
+      await saveOffer(true);
       const dossier = await request(
         "offre",
         `Projet « ${project.nom} » : construire / renforcer l'offre (méthode Hormozi : offre, prix, angles, objections) à partir de la fiche, puis compléter l'onglet Offre.`,
@@ -343,8 +349,8 @@ export function OfferTab({ project, onSave, onMessage }) {
         <button type="button" className="cat-btn cat-btn--ghost" onClick={askOffer}>
           Travailler l'offre avec Claude (méthode Hormozi)
         </button>
-        <button type="button" className="cat-btn" onClick={() => onSave({ offre: form })}>
-          Enregistrer l'offre
+        <button type="button" className="cat-btn" onClick={() => saveOffer(false).catch(() => {})}>
+          {onSaveAll ? "Enregistrer (Fondations et offre)" : "Enregistrer l'offre"}
         </button>
       </div>
     </div>

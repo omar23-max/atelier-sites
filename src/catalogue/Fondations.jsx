@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { cloneElement, useRef, useState } from "react";
 import { anglesProgress } from "./Angles.jsx";
 import { TYPES_CONTENU, FICHES, blueprintOf, contenuProgress } from "../engine/page-blueprints.js";
 import { pageTypeById } from "../engine/page-types.js";
-import { figuresIn } from "../engine/fidelite.js";
+import { figuresIn, unitOf } from "../engine/fidelite.js";
+import { empreinte, merge3, realText, statutFondations, withIds } from "../engine/fondations-etat.js";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
 // questionnaire de faits que seul l'utilisateur connaît (surtout des cases),
@@ -82,6 +83,22 @@ const TEXTES = {
     ["liensRecherche", "Liens à fouiller (un par ligne)", "https://www.amazon.com/…\nhttps://www.reddit.com/r/…", 3],
   ],
 };
+
+// Nom lisible d'un champ en conflit (« reponses.usage » → « Comment on l'utilise »).
+const OFFRE_NOMS = { promesse: "Offre : promesse", cible: "Offre : client visé", prix: "Offre : prix", packs: "Offre : packs", garantie: "Offre : garantie", bonus: "Offre : bonus", urgence: "Offre : urgence", angles: "Offre : angles", objections: "Offre : objections" };
+function nomDuChamp(path) {
+  const [zone, key, ...rest] = String(path).split(".");
+  if (zone === "reponses") {
+    for (const list of Object.values(TEXTES)) for (const [k, l] of list) if (k === key) return l;
+    if (key === "preuves") return `Preuve : ${rest[0] ?? ""}`.trim();
+    return `Questionnaire : ${key}`;
+  }
+  if (zone === "offre") return OFFRE_NOMS[key] ?? `Offre : ${key}`;
+  if (zone === "message") return `Message central : ${key ?? ""}`.trim();
+  if (zone === "contenus") return `Carte ${key ?? ""}${rest[0] ? ` · ${rest[0]}` : ""}`;
+  if (zone.startsWith("faits")) return "Un fait chiffré";
+  return path;
+}
 
 function Cases({ options, value = [], onChange }) {
   return (
@@ -196,9 +213,11 @@ export function normalizeMessage(m) {
   return { promesse: m.promesse ?? "", mecanisme: m.mecanisme ?? "", preuves: preuves.slice(0, 3), objections: objections.slice(0, 3) };
 }
 
+// Prêt seulement avec une vraie promesse et un vrai mécanisme : des
+// marqueurs [MANQUE] / [À VALIDER] ne suffisent pas (audit F06, 2026-11-17).
 export function messageFilled(project) {
   const m = project.fondations?.message;
-  return Boolean(m?.promesse && m?.mecanisme);
+  return Boolean(realText(m?.promesse) && realText(m?.mecanisme));
 }
 
 function MessageEditor({ value, onChange }) {
@@ -290,7 +309,8 @@ export function foundationsFilled(project) {
 // Empreinte du contenu des Fondations : sert à savoir si elles ont changé
 // depuis leur validation (audit T3, 2026-11-17 : avant, « validées » restait
 // affiché après n'importe quelle modification).
-const empreinte = (fd) => JSON.stringify([fd?.reponses ?? {}, fd?.message ?? null, fd?.contenus ?? {}, fd?.faits ?? []]);
+// Depuis le 2026-11-17 : src/engine/fondations-etat.js (empreinte v2 : faits,
+// offre, message central, questionnaire sans la recherche brute).
 
 // Faits chiffrés typés (audit T1, 2026-11-17) : chaque chiffre de l'offre et
 // des preuves a sa nature, sa valeur, son unité, sa source et son état. Un
@@ -316,15 +336,18 @@ function FaitsEditor({ value = [], onChange, sources }) {
   const add = () => onChange([...value, { id: `f${Date.now().toString(36)}`, nature: "argent", valeur: "", unite: "", source: "", etat: "a-confirmer" }]);
   // Propose les chiffres déjà écrits dans le questionnaire et l'offre (à confirmer).
   function fromTexts() {
-    const seen = new Set(value.map((f) => `${f.valeur}|${f.nature}`));
+    // Identité d'un fait : valeur + nature + unité (« 30 jours » ≠ « 30 mois »).
+    const keyOf = (v, nature, unite) => `${v}|${nature}|${unitOf(` ${unite ?? ""}`)?.u ?? ""}`;
+    const seen = new Set(value.map((f) => keyOf(f.valeur, f.nature, f.unite)));
     const next = [...value];
     for (const [label, text] of sources) {
       for (const fig of figuresIn(String(text ?? ""))) {
         const nature = fig.kind ?? "nombre";
-        const key = `${fig.n}|${nature}`;
+        const unite = (fig.after.trim().split(/\s+/)[0] ?? "").replace(/[^\p{L}$€£%/×-]/gu, "").replace(/^-/, "");
+        const key = keyOf(fig.n, nature, unite);
         if (seen.has(key)) continue;
         seen.add(key);
-        next.push({ id: `f${Date.now().toString(36)}${next.length}`, nature, valeur: fig.n, unite: (fig.after.trim().split(/\s+/)[0] ?? "").replace(/[^\p{L}$€£%/×-]/gu, "").replace(/^-/, ""), source: label, etat: "a-confirmer" });
+        next.push({ id: `f${Date.now().toString(36)}${next.length}`, nature, valeur: fig.n, unite, source: label, etat: "a-confirmer" });
       }
     }
     onChange(next);
@@ -346,7 +369,7 @@ function FaitsEditor({ value = [], onChange, sources }) {
           {value.map((f, i) => (
             <tr key={f.id ?? i} className={`is-${f.etat}`}>
               <td>
-                <select value={f.nature} onChange={(e) => set(i, { nature: e.target.value })}>
+                <select value={f.nature} onChange={(e) => set(i, { nature: e.target.value })} aria-label={`Nature du fait ${i + 1}`}>
                   {NATURES.map(([v, l]) => (
                     <option key={v} value={v}>
                       {l}
@@ -355,16 +378,16 @@ function FaitsEditor({ value = [], onChange, sources }) {
                 </select>
               </td>
               <td>
-                <input value={f.valeur} onChange={(e) => set(i, { valeur: e.target.value })} placeholder="58" />
+                <input value={f.valeur} onChange={(e) => set(i, { valeur: e.target.value })} placeholder="58" aria-label={`Valeur du fait ${i + 1}`} />
               </td>
               <td>
-                <input value={f.unite} onChange={(e) => set(i, { unite: e.target.value })} placeholder="$ US, jours, avis…" />
+                <input value={f.unite} onChange={(e) => set(i, { unite: e.target.value })} placeholder="$ US, jours, avis…" aria-label={`Unité du fait ${i + 1}`} />
               </td>
               <td>
-                <input value={f.source} onChange={(e) => set(i, { source: e.target.value })} placeholder="Page produit, Trustpilot…" />
+                <input value={f.source} onChange={(e) => set(i, { source: e.target.value })} placeholder="Page produit, Trustpilot…" aria-label={`Source du fait ${i + 1}`} />
               </td>
               <td>
-                <select value={f.etat} onChange={(e) => set(i, { etat: e.target.value })}>
+                <select value={f.etat} onChange={(e) => set(i, { etat: e.target.value })} aria-label={`État du fait ${i + 1}`}>
                   {ETATS.map(([v, l]) => (
                     <option key={v} value={v}>
                       {l}
@@ -399,7 +422,13 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [rep, setRep] = useState(f.reponses ?? {});
   const [msg, setMsg] = useState(f.message ?? null);
   const [cont, setCont] = useState(f.contenus ?? {});
-  const [faits, setFaits] = useState(f.faits ?? []);
+  const [faits, setFaits] = useState(() => withIds(f.faits));
+  // L'offre est gérée ici (audit F04) : une seule sauvegarde pour tout.
+  const [offre, setOffre] = useState(project.offre ?? {});
+  // Version de référence pour la fusion à trois versions (audit F01) : ce que
+  // cet onglet a chargé, puis ce qu'il a enregistré en dernier.
+  const baseRef = useRef({ fondations: { ...f, faits: withIds(f.faits) }, offre: project.offre ?? {} });
+  const [conflit, setConflit] = useState(null);
   // Types de page à faire remplir par Claude : ceux du projet, sinon tous.
   const typesUsed = [...new Set((pages ?? []).map((p) => p.info?.pageType).filter((t) => TYPES_CONTENU.includes(t)))];
   const [askTypes, setAskTypes] = useState(typesUsed.length ? typesUsed : TYPES_CONTENU);
@@ -434,45 +463,104 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     fondations: { ...f, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: cont, faits, ...extra },
   });
 
-  // Avant d'enregistrer : relire le projet sur le serveur. Claude a pu écrire
-  // entre-temps (résultats, cartes de la partie 9) pendant que cet onglet
-  // restait ouvert ; sans cela, enregistrer ici effacerait son travail. Un champ
-  // de carte que cet onglet n'a jamais vu rempli et qui est vide ici reprend la
-  // valeur du serveur ; un champ que l'utilisateur a vidé lui-même reste vide.
-  async function patchFresh(extra = {}) {
-    let fresh = f;
-    try {
-      const r = await fetch(`/api/projects/${project.id}`);
-      if (r.ok) fresh = (await r.json()).fondations ?? f;
-    } catch {}
-    const merged = JSON.parse(JSON.stringify(cont));
-    let changed = false;
-    for (const [type, sections] of Object.entries(fresh.contenus ?? {})) {
-      for (const [key, champs] of Object.entries(sections ?? {})) {
-        for (const [k, v] of Object.entries(champs ?? {})) {
-          const seen = String(f.contenus?.[type]?.[key]?.[k] ?? "").trim();
-          const here = String(merged[type]?.[key]?.[k] ?? "").trim();
-          if (!seen && !here && String(v ?? "").trim()) {
-            ((merged[type] ??= {})[key] ??= {})[k] = v;
-            changed = true;
-          }
-        }
+  // Avant d'enregistrer : relire le projet sur le serveur et fusionner à
+  // trois versions (audit ChatGPT F01, 2026-11-17) — version chargée par cet
+  // onglet, brouillon local, version enregistrée maintenant. Un champ changé
+  // ailleurs et pas ici est gardé ; un champ changé ici et pas ailleurs
+  // l'emporte ; changé des deux côtés différemment → conflit, rien n'est
+  // écrasé sans demander. Couvre questionnaire, faits, message, cartes, offre.
+  async function patchFresh(extra = {}, { force = false } = {}) {
+    const r = await fetch(`/api/projects/${project.id}`);
+    if (!r.ok) {
+      const e = new Error("Non enregistré : le projet n'a pas pu être relu. Réessaie dans un instant.");
+      onMessage({ error: true, text: e.message });
+      e.shown = true;
+      throw e;
+    }
+    const rev = r.headers.get("ETag");
+    const server = await r.json();
+    const sf = { ...(server.fondations ?? {}), faits: withIds(server.fondations?.faits) };
+    const base = baseRef.current;
+    const conflicts = [];
+    const m = (k, b, l, sv) => {
+      const out = merge3(b, l, sv, k);
+      conflicts.push(...out.conflicts);
+      return out.value;
+    };
+    const reponses = m("reponses", base.fondations.reponses ?? {}, rep, sf.reponses ?? {});
+    const message = msg ? m("message", base.fondations.message ? normalizeMessage(base.fondations.message) : null, normalizeMessage(msg), sf.message ? normalizeMessage(sf.message) : null) : sf.message ?? null;
+    const contenus = m("contenus", base.fondations.contenus ?? {}, cont, sf.contenus ?? {});
+    const faitsM = m("faits", base.fondations.faits ?? [], faits, sf.faits ?? []);
+    const offreM = m("offre", base.offre ?? {}, offre, server.offre ?? {});
+    if (conflicts.length && !force) return { conflicts, server, rev };
+    // Ce que les autres ont ajouté apparaît tout de suite ici.
+    setRep(reponses);
+    if (message) setMsg(message);
+    setCont(contenus);
+    setFaits(faitsM);
+    setOffre(offreM);
+    let fd = { ...sf, reponses, ...(message ? { message } : {}), contenus, faits: faitsM, ...extra };
+    // Validées autrefois sans empreinte : la version enregistrée sert de référence.
+    if (["validée", "modifiée"].includes(sf.statut) && !sf.valideEmpreinte) fd.valideEmpreinte = empreinte({ ...server, fondations: sf });
+    const next = { ...server, offre: offreM, fondations: fd };
+    if (extra.statut === "validée") fd = { ...fd, valideEmpreinte: empreinte(next) };
+    else if (!("statut" in extra)) fd = statutFondations({ ...next, fondations: fd });
+    return { patch: { fondations: fd, offre: offreM }, rev, conflicts: [] };
+  }
+
+  // Enregistre tout (questionnaire, faits, message, cartes, offre) ; refait
+  // la fusion si le projet a bougé entre la lecture et l'écriture (409).
+  async function saveAll(silent, extra = {}, opts = {}) {
+    for (let essai = 0; essai < 3; essai++) {
+      const out = await patchFresh(extra, opts);
+      if (out.conflicts.length) {
+        setConflit({ champs: out.conflicts, extra, silent });
+        const e = new Error("Conflit");
+        onMessage({ error: true, text: `Non enregistré : ${out.conflicts.length} champ(s) ont aussi été modifiés ailleurs. Choisis quelle version garder (bandeau en haut des Fondations).` });
+        e.shown = true;
+        throw e;
+      }
+      try {
+        const saved = await onSave(out.patch, silent, { rev: out.rev });
+        baseRef.current = { fondations: { ...(saved?.fondations ?? out.patch.fondations), faits: withIds((saved?.fondations ?? out.patch.fondations).faits) }, offre: saved?.offre ?? out.patch.offre };
+        setConflit(null);
+        return saved;
+      } catch (e) {
+        if (e.code === 409) continue;
+        throw e;
       }
     }
-    if (changed) setCont(merged);
-    const out = { ...fresh, reponses: rep, ...(msg ? { message: normalizeMessage(msg) } : {}), contenus: merged, faits, ...extra };
-    if (extra.statut === "validée") out.valideEmpreinte = empreinte(out);
-    else if (!("statut" in extra) && (fresh.statut === "validée" || fresh.statut === "modifiée")) {
-      // Validées autrefois sans empreinte : la version du serveur sert de référence.
-      const ref = fresh.valideEmpreinte ?? empreinte(fresh);
-      out.valideEmpreinte = ref;
-      out.statut = empreinte(out) === ref ? "validée" : "modifiée";
-    }
-    return { fondations: out };
+    const e = new Error("Non enregistré : le projet change sans arrêt ailleurs. Réessaie dans un instant.");
+    onMessage({ error: true, text: e.message });
+    e.shown = true;
+    throw e;
   }
 
   async function save(silent) {
-    await onSave(await patchFresh(), silent);
+    await saveAll(silent);
+  }
+
+  // Conflit : garder ma version pour les champs en conflit, ou reprendre la
+  // version enregistrée (mon brouillon de ces champs est alors abandonné).
+  async function keepMine() {
+    const c = conflit;
+    try {
+      await saveAll(c?.silent ?? false, c?.extra ?? {}, { force: true });
+    } catch {}
+  }
+  async function takeServer() {
+    const r = await fetch(`/api/projects/${project.id}`);
+    if (!r.ok) return onMessage({ error: true, text: "Le projet n'a pas pu être relu." });
+    const server = await r.json();
+    const sf = server.fondations ?? {};
+    setRep(sf.reponses ?? {});
+    setMsg(sf.message ?? null);
+    setCont(sf.contenus ?? {});
+    setFaits(withIds(sf.faits));
+    setOffre(server.offre ?? {});
+    baseRef.current = { fondations: { ...sf, faits: withIds(sf.faits) }, offre: server.offre ?? {} };
+    setConflit(null);
+    onMessage({ text: "Version enregistrée reprise. Tes changements sur les champs en conflit sont abandonnés." });
   }
 
   async function askClaude() {
@@ -480,13 +568,13 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       return onMessage({ error: true, text: "Remplis au moins : ce que fait le produit, le problème principal, et qui achète." });
     setBusy(true);
     try {
-      await onSave(await patchFresh(), true); // la demande lit le questionnaire enregistré
+      await saveAll(true); // la demande lit le questionnaire enregistré
       const dossier = await request(
         "fondations",
         `Projet « ${project.nom} » : poser les fondations (recherche client, avatars, douleurs et mots des clients, promesse, objections, pistes d'angles) à partir du questionnaire Fondations, puis remplir fondations.resultats et l'onglet Offre.`,
         { projet: project.id },
       );
-      await onSave(await patchFresh({ statut: "demandée", demandeLe: new Date().toISOString(), demande: dossier }), true);
+      await saveAll(true, { statut: "demandée", demandeLe: new Date().toISOString(), demande: dossier });
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
       if (!e.shown) onMessage({ error: true, text: e.message });
@@ -505,14 +593,14 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       return onMessage({ error: true, text: "Remplis d'abord le message central (partie 8) : la promesse et le mécanisme. Les cartes en découlent." });
     setBusy(true);
     try {
-      await onSave(await patchFresh(), true);
+      await saveAll(true);
       const labels = askTypes.map((t) => pageTypeById[t]?.label ?? t).join(", ");
       const dossier = await request(
         "fondations",
         `Projet « ${project.nom} » : remplir les cartes « Contenu par type de page » (Fondations, partie 9) pour : ${labels}. Seulement les champs vides, à partir du questionnaire, du message central, de l'offre et des angles.`,
         { projet: project.id, contenus: askTypes },
       );
-      await onSave(await patchFresh({ contenusDemande: { le: new Date().toISOString(), dossier, types: askTypes } }), true);
+      await saveAll(true, { contenusDemande: { le: new Date().toISOString(), dossier, types: askTypes } });
       onMessage({ text: `Demande enregistrée (${dossier}). Dis à Claude « traite les demandes ».` });
     } catch (e) {
       if (!e.shown) onMessage({ error: true, text: e.message });
@@ -525,7 +613,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // (onSave lève une erreur sinon, déjà affichée) — audit T2.
   async function validate() {
     try {
-      await onSave(await patchFresh({ statut: "validée", valideLe: new Date().toISOString(), version: (f.version ?? 0) + 1 }), true);
+      await saveAll(true, { statut: "validée", valideLe: new Date().toISOString(), version: (f.version ?? 0) + 1 });
     } catch {
       return;
     }
@@ -550,6 +638,20 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             : "Brouillon : remplis le questionnaire."}
       </div>
 
+      {conflit && (
+        <div className="cat-fd__conflit" role="alert">
+          <b>Modifié aussi ailleurs pendant que tu écrivais</b> (Claude, un autre onglet) : {[...new Set(conflit.champs.map(nomDuChamp))].slice(0, 6).join(" · ")}
+          {conflit.champs.length > 6 ? ` et ${conflit.champs.length - 6} autre(s)` : ""}. Les autres changements sont déjà fusionnés.
+          <span>
+            <button type="button" className="cat-btn" onClick={keepMine}>
+              Garder ma version de ces champs
+            </button>
+            <button type="button" className="cat-btn cat-btn--ghost" onClick={takeServer}>
+              Reprendre la version enregistrée
+            </button>
+          </span>
+        </div>
+      )}
       <nav className="cat-fd__steps" aria-label="Étapes des Fondations">
         {STEPS.map((s, i) => (
           <button key={s.label} type="button" className={`${i === step ? "is-on" : ""} ${s.ok ? "is-ok" : ""}`} onClick={() => go(i)} aria-current={i === step ? "step" : undefined}>
@@ -627,7 +729,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           sources={[
             ["Questionnaire : produit", rep.role],
             ["Questionnaire : preuves", JSON.stringify(rep.preuves ?? {})],
-            ["Offre", JSON.stringify(project.offre ?? {})],
+            ["Offre", JSON.stringify(offre ?? {})],
           ]}
         />
       </section>
@@ -636,7 +738,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           Enregistrer — plus de doublon avec un onglet Offre séparé (2026-11-08). */}
       <section className="cat-panel">
         <h3>5. L'offre</h3>
-        {offer}
+        {offer && cloneElement(offer, { form: offre, setForm: setOffre, onSaveAll: (silent) => saveAll(silent) })}
       </section>
 
       <section className="cat-panel">

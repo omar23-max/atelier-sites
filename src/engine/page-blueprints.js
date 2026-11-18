@@ -1,3 +1,4 @@
+import { realText } from "./fondations-etat.js";
 // Contenu attendu par type de page (2026-11-10).
 //
 // Une seule liste par type de page : celle du Page Score (RULES, page-score.js).
@@ -310,7 +311,8 @@ export function contenuProgress(contenus, type) {
   for (const s of blueprintOf(type)) {
     for (const ch of s.champs) {
       total++;
-      if (String(c[s.key]?.[ch.k] ?? "").trim()) done++;
+      // Un champ « [MANQUE …] » n'est pas prêt (audit F06, 2026-11-17).
+      if (realText(c[s.key]?.[ch.k])) done++;
     }
   }
   return { done, total };

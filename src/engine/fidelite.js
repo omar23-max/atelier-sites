@@ -13,6 +13,7 @@
 // l'audit IA (« Auditer la page »), qui reçoit les mêmes Fondations.
 import { familiesOf } from "./page-score.js";
 import { TYPES_CONTENU, blueprintOf, briefFor } from "./page-blueprints.js";
+import { MARQUEUR, realText, withoutResearch } from "./fondations-etat.js";
 
 const plain = (html) =>
   String(html ?? "")
@@ -66,34 +67,90 @@ const kindOfPath = (path) => {
   return null;
 };
 
-// Faits chiffrés connus : nombre → natures (« ? » = nature inconnue, accepte tout).
+// Unité d'un chiffre (audit ChatGPT F02, 2026-11-17) : « 30 jours » ne
+// couvre pas « 30 mois », « 30 USD » pas « 30 € », « 1000 mg » pas « 1000 g ».
+// Ramenée à une unité de base quand la conversion est sûre (1000 mg = 1 g,
+// 2 semaines = 14 jours). null = pas d'unité lisible.
+// Fin de mot qui tient compte des accents : « gélules » n'est pas « g ».
+const U = (body) => new RegExp(`^[\\s-]?(?:${body})(?![\\p{L}\\d])`, "iu");
+const UNITS = [
+  [U("jours?|days?"), { u: "jour", f: 1 }],
+  [U("semaines?|weeks?"), { u: "jour", f: 7 }],
+  [U("mois|months?"), { u: "mois" }],
+  [U("ans?|années?|years?"), { u: "an" }],
+  [U("heures?|hours?|h"), { u: "minute", f: 60 }],
+  [U("minutes?|min"), { u: "minute", f: 1 }],
+  [U("nuits?|nights?"), { u: "nuit" }],
+  [U("gélules?|capsules?|comprimés?|tablets?|pills?"), { u: "gelule" }],
+  [U("flacons?|bottles?|pots?|jars?"), { u: "flacon" }],
+  [U("servings?|portions?|doses?"), { u: "portion" }],
+  [U("mg|milligrammes?"), { u: "mg", f: 1 }],
+  [U("g|grammes?|grams?"), { u: "mg", f: 1000 }],
+  [U("kg|kilos?"), { u: "mg", f: 1e6 }],
+  [U("ml|millilitres?"), { u: "ml", f: 1 }],
+  [U("l|litres?|liters?"), { u: "ml", f: 1000 }],
+];
+export function unitOf(after = "", before = "") {
+  const a = String(after).toLowerCase();
+  const b = String(before).toLowerCase();
+  if (/^\s?(us\s?\$|\$\s?us(?![\p{L}])|usd(?![\p{L}]))/u.test(a) || /us\s?\$\s?$/.test(b)) return { u: "usd" };
+  if (/^\s?(ca\s?\$|\$\s?ca(?![\p{L}])|cad(?![\p{L}]))/u.test(a) || /ca\s?\$\s?$/.test(b)) return { u: "cad" };
+  if (/^\s?(€|eur(?:os?)?(?![\p{L}]))/u.test(a) || /€\s?$/.test(b)) return { u: "eur" };
+  if (/^\s?(£|gbp(?![\p{L}]))/u.test(a) || /£\s?$/.test(b)) return { u: "gbp" };
+  if (/^\s?\$/.test(a) || /\$\s?$/.test(b)) return { u: "$" };
+  for (const [re, unit] of UNITS) if (re.test(a)) return unit;
+  return null;
+}
+const moneyOk = (a, b) => a === b || (a === "$" && (b === "usd" || b === "cad")) || (b === "$" && (a === "usd" || a === "cad"));
+const base = (n, unit) => (unit?.f ? String(Number(n) * unit.f) : n);
+
+// Faits chiffrés connus. Chaque entrée : nombre (ramené à l'unité de base),
+// nature, unité, origine (« fait » typé validé ou « texte » des Fondations).
+// Un fait « à confirmer » ou « retiré » bloque le même chiffre écrit dans un
+// texte (audit F02 : le texte brut n'autorise pas un fait non validé).
 class Faits {
   constructor() {
     this.map = new Map();
+    this.blocked = [];
   }
-  add(n, kind) {
-    if (!this.map.has(n)) this.map.set(n, new Set());
-    this.map.get(n).add(kind || "?");
+  add(n, kind, unit = null, origin = "texte") {
+    const key = base(n, unit);
+    if (!this.map.has(key)) this.map.set(key, []);
+    this.map.get(key).push({ kind: kind || null, u: unit?.u ?? null, origin });
+  }
+  block(n, kind, unit = null) {
+    this.blocked.push({ n: base(n, unit), kind, u: unit?.u ?? null });
   }
   has(n) {
     return this.map.has(n);
   }
+  static match(e, fig, fu) {
+    // Nature : un texte sans nature lisible n'autorise que des chiffres sans
+    // nature (audit F02, plus de joker « ? »).
+    if (e.kind ? fig.kind && e.kind !== fig.kind : fig.kind) return false;
+    if (e.u && fu && !(e.u === fu || moneyOk(e.u, fu))) return false;
+    return true;
+  }
   knows(fig) {
-    const k = this.map.get(fig.n);
-    return Boolean(k && (k.has("?") || !fig.kind || k.has(fig.kind)));
+    const fu = fig.unit?.u ?? null;
+    const key = base(fig.n, fig.unit);
+    const list = this.map.get(key) ?? [];
+    if (list.some((e) => e.origin === "fait" && Faits.match(e, fig, fu))) return true;
+    if (this.blocked.some((b) => b.n === key && Faits.match(b, fig, fu))) return false;
+    return list.some((e) => Faits.match(e, fig, fu));
   }
 }
 
 function addFacts(faits, v, path = []) {
   if (v == null) return;
   if (typeof v === "string" || typeof v === "number") {
-    const text = String(v);
+    const text = String(v).replace(MARQUEUR, " ");
     for (const m of text.matchAll(NUMBER)) {
       const n = numberOf(m[0]);
       if (n == null) continue;
       const after = text.slice(m.index + m[0].length, m.index + m[0].length + 14);
       const before = text.slice(Math.max(0, m.index - 12), m.index);
-      faits.add(n, kindOf(after, before) ?? kindOfPath(path));
+      faits.add(n, kindOf(after, before) ?? kindOfPath(path), unitOf(after, before));
     }
     return;
   }
@@ -101,27 +158,22 @@ function addFacts(faits, v, path = []) {
   if (typeof v === "object") for (const [k, x] of Object.entries(v)) addFacts(faits, x, [...path, k]);
 }
 
-// Tous les chiffres connus du projet, avec leur nature : Fondations
-// (questionnaire, résultats, message central, cartes du type de page), offre,
-// fiche de la page.
+// Chiffres que le projet autorise, avec nature et unité : faits typés
+// validés, puis les textes que l'utilisateur maîtrise (questionnaire hors
+// recherche brute, message central, cartes du type de page, offre, fiche).
+// La recherche (collages clients et concurrents, résultats de Claude) n'en
+// fait plus partie : une citation de concurrent ne prouve rien pour notre
+// produit (audit F02).
 export function knownNumbers(project, root = {}) {
   const f = project?.fondations ?? {};
   const faits = new Faits();
-  addFacts(faits, { reponses: f.reponses, resultats: f.resultats, message: f.message, contenus: f.contenus?.[root.pageType], offre: project?.offre, produit: project?.produit, description: project?.description, infos: root.infos, fiche: root.produit });
-  // Faits typés des Fondations (2026-11-17) : « validé » autorise, « retiré »
-  // interdit (même si le chiffre traîne dans un texte).
+  addFacts(faits, { reponses: withoutResearch(f.reponses), message: f.message, contenus: f.contenus?.[root.pageType], offre: project?.offre, produit: project?.produit, description: project?.description, infos: root.infos, fiche: root.produit });
   for (const fait of f.faits ?? []) {
     const n = numberOf(String(fait.valeur ?? ""));
     if (n == null || !fait.nature) continue;
-    if (fait.etat === "valide") faits.add(n, fait.nature);
-    else if (fait.etat === "retire") {
-      const k = faits.map.get(n);
-      if (k) {
-        k.delete(fait.nature);
-        k.delete("?");
-        if (!k.size) faits.map.delete(n);
-      }
-    }
+    const unit = unitOf(` ${fait.unite ?? ""}`, "");
+    if (fait.etat === "valide") faits.add(n, fait.nature, unit, "fait");
+    else faits.block(n, fait.nature, unit);
   }
   return faits;
 }
@@ -156,24 +208,86 @@ export function claimsIn(text) {
   return out;
 }
 
-// Sortes d'affirmations que le projet autorise : preuve cochée (sans
-// [MANQUE]) dans les Fondations, ou affirmation écrite dans le questionnaire,
-// le message central, l'offre ou la fiche de la page.
+// Labels précis (audit ChatGPT F03) : une preuve « Vegan » autorise
+// « vegan », pas « FDA-approved ». « Certifié » seul demande au moins un
+// label documenté.
+const LABELS = [
+  ["bio", W("bio|organic|biologique")],
+  ["vegan", W("vegan|végan|végétalien")],
+  ["gluten", W("gluten[- ]free|sans gluten")],
+  ["ogm", W("non[- ]gmo|sans ogm")],
+  ["kosher", W("kosher|casher")],
+  ["halal", W("halal")],
+  ["cruelty", W("cruelty[- ]free|leaping bunny")],
+  ["gmp", W("gmp")],
+  ["fda", W("fda")],
+  ["usda", W("usda")],
+  ["ecocert", W("ecocert")],
+];
+export const labelsIn = (text) => new Set(LABELS.filter(([, re]) => re.test(String(text ?? ""))).map(([id]) => id));
+
+// Toutes les occurrences (pas une par sorte), pour juger chaque phrase.
+function claimsAll(text) {
+  const t = String(text ?? "");
+  const out = [];
+  for (const c of CLAIMS) {
+    const re = new RegExp(c.re.source, c.re.flags.includes("g") ? c.re.flags : `${c.re.flags}g`);
+    for (const m of t.matchAll(re)) out.push({ id: c.id, label: c.label, fort: c.fort, valeur: m[0], index: m.index });
+  }
+  return out;
+}
+// « Ne pas écrire cliniquement prouvé », « never say FDA-approved » : une
+// consigne d'interdiction n'est pas une preuve (audit F03).
+const NEGATION = /(?:\bne\s+(?:pas|jamais)|\bn['’]\p{L}+\s+(?:pas|jamais)|\bpas\s+(?:de|d['’]|un|une)|\bjamais|\binterdit\p{L}*|\b[ée]viter|\bproscri\p{L}*|\bdon['’]?t|\bdo\s+not|\bnever|\bavoid|\bnot)\b[^.!?\n]{0,40}$/iu;
+const negated = (text, index) => NEGATION.test(String(text).slice(Math.max(0, index - 60), index));
+
+// Textes que l'utilisateur maîtrise (pas la recherche brute ni les preuves,
+// jugées à part), un par un.
+function ownTexts(project, root) {
+  const f = project?.fondations ?? {};
+  const { preuves: _p, ...reponses } = withoutResearch(f.reponses);
+  const out = [];
+  const walk = (v) => {
+    if (v == null) return;
+    if (typeof v === "string") return out.push(v.replace(MARQUEUR, " "));
+    if (Array.isArray(v)) return v.forEach(walk);
+    if (typeof v === "object") return Object.values(v).forEach(walk);
+  };
+  walk([reponses, f.message, project?.offre, project?.produit, project?.description, root.infos, root.produit]);
+  return out;
+}
+
+// Sortes d'affirmations que le projet autorise :
+//   - preuve cochée AVEC un détail réel (ni vide, ni [MANQUE], ni [À VALIDER]) ;
+//   - affirmation écrite (non niée) dans les textes de l'utilisateur.
+// La recherche brute (citations clients, concurrents) n'autorise rien.
 export function knownClaims(project, root = {}) {
   const f = project?.fondations ?? {};
   const preuves = f.reponses?.preuves ?? {};
   const ok = new Set();
+  ok.labels = new Set();
   for (const c of CLAIMS) {
     const p = c.preuve && preuves[c.preuve];
-    if (p?.oui && !/\[\s*MANQUE/i.test(String(p.detail ?? ""))) ok.add(c.id);
+    if (!p?.oui || !realText(p.detail)) continue;
+    if (c.id === "certification") {
+      const l = labelsIn(String(p.detail).replace(MARQUEUR, " "));
+      if (!l.size) continue;
+      l.forEach((x) => ok.labels.add(x));
+    }
+    ok.add(c.id);
   }
-  if (String(project?.offre?.garantie ?? "").trim()) ok.add("garantie");
-  const { preuves: _p, ...reponses } = f.reponses ?? {};
-  const blob = JSON.stringify([reponses, f.message, project?.offre, project?.produit, project?.description, root.infos, root.produit]).replace(/\[[^\]]*(MANQUE|VALIDER)[^\]]*\]/gi, " ");
-  for (const c of claimsIn(blob)) ok.add(c.id);
+  if (realText(project?.offre?.garantie)) ok.add("garantie");
+  const texts = ownTexts(project, root);
+  for (const text of texts) {
+    for (const c of claimsAll(text)) {
+      if (negated(text, c.index)) continue;
+      ok.add(c.id);
+      if (c.id === "certification") labelsIn(c.valeur).forEach((x) => ok.labels.add(x));
+    }
+  }
   // Pour l'origine, le pays compte : « fabriqué au Canada » n'autorise pas
   // « fabriqué en France ».
-  ok.blob = blob.toLowerCase();
+  ok.blob = texts.join(" \n ").toLowerCase();
   return ok;
 }
 
@@ -181,18 +295,26 @@ export function knownClaims(project, root = {}) {
 export function claimKnown(c, known) {
   if (!known?.has(c.id)) return false;
   if (c.id === "origine" && known.blob) return known.blob.includes(String(c.valeur).trim().split(/\s+/).pop().toLowerCase());
+  if (c.id === "certification" && known.labels) {
+    const wanted = labelsIn(c.valeur);
+    // « Certifié » sans label : au moins un label documenté suffit.
+    if (!wanted.size) return known.labels.size > 0;
+    return [...wanted].every((x) => known.labels.has(x));
+  }
   return true;
 }
 
 export const unknownClaims = (html, known, { fortesSeulement = false } = {}) =>
-  claimsIn(plain(html)).filter((c) => !claimKnown(c, known) && (!fortesSeulement || c.fort));
+  claimsAll(plain(html)).filter((c, i, all) => all.findIndex((x) => x.id === c.id && x.valeur.toLowerCase() === c.valeur.toLowerCase()) === i && !claimKnown(c, known) && (!fortesSeulement || c.fort));
 export const hasUnknownClaim = (html, known) => unknownClaims(html, known, { fortesSeulement: true }).length > 0;
-
 
 // Les nombres « qui engagent » d'un texte (suivis ou précédés d'une unité) :
 // [{ n: forme normalisée, valeur: tel qu'écrit, index, after }].
 export function figuresIn(text) {
   const out = [];
+  // Emplacements entre crochets ([2 years ago], [3x Pack], [MANQUE : …]) : des
+  // consignes à remplir, pas des chiffres qui engagent (positions gardées).
+  text = String(text ?? "").replace(/\[[^\]\n]{0,160}\]/g, (m) => " ".repeat(m.length));
   for (const m of String(text ?? "").matchAll(NUMBER)) {
     const after = text.slice(m.index + m[0].length, m.index + m[0].length + 14);
     const before = text.slice(Math.max(0, m.index - 12), m.index);
@@ -201,7 +323,7 @@ export function figuresIn(text) {
     if (n == null) continue;
     // Années : pas des preuves. « 100 % » en est une à vérifier (audit T1).
     if (/^(19|20)\d\d$/.test(n) && !/^\s?(%|\$|€)/.test(after)) continue;
-    out.push({ n, kind: kindOf(after, before), valeur: m[0], index: m.index, after });
+    out.push({ n, kind: kindOf(after, before), unit: unitOf(after, before), valeur: m[0], index: m.index, after });
   }
   return out;
 }

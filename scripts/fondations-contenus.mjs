@@ -23,6 +23,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const { TYPES_CONTENU, FICHES, blueprintOf } = await import(pathToFileURL(join(root, "src", "engine", "page-blueprints.js")).href);
+const { realText } = await import(pathToFileURL(join(root, "src", "engine", "fondations-etat.js")).href);
 
 const [cmd, projet, ...rest] = process.argv.slice(2);
 const dry = rest.includes("--dry");
@@ -38,7 +39,9 @@ if (!existsSync(file)) {
 }
 const project = JSON.parse(await readFile(file, "utf8"));
 const contenus = project.fondations?.contenus ?? {};
-const filled = (v) => Boolean(String(v ?? "").trim());
+// Un champ qui ne contient que des marqueurs ([MANQUE …]) est encore à
+// remplir : il sera remplacé quand l'information arrive (audit F06).
+const filled = (v) => realText(v);
 
 if (cmd === "lister" || cmd === "modele") {
   const types = args[0] ? args[0].split(",") : TYPES_CONTENU;

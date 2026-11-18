@@ -12,6 +12,7 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promise
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { root, pagesDir, sectionsDir, trashDir, requestsDir, projectsDir, importsDir, mediasDir, NAME, TRASH_NAME, stamp, readBody, thumbTimers, refreshPageThumb, json, supabaseClient, mediaPlace, pageRev, pageWriters } from "./commun.mjs";
+import { empreinte, statutFondations } from "../src/engine/fondations-etat.js";
 
 export function atelierApi() {
   const db = supabaseClient();
@@ -490,9 +491,29 @@ export function atelierApi() {
             if (req.method === "PUT") {
               const data = await readBody(req);
               if (!data?.nom) return json(res, 400, { error: "Le projet doit avoir un nom." });
+              // Révision (audit ChatGPT F01, 2026-11-17) : If-Match = l'empreinte
+              // (ETag) de la version lue avant d'écrire. Si le projet a changé
+              // depuis (autre onglet, script de Claude), refus 409 : le client
+              // refait sa fusion au lieu d'écraser. Sans If-Match : comme avant.
+              const ifMatch = req.headers["if-match"];
+              if (ifMatch && existsSync(file)) {
+                const cur = JSON.stringify(JSON.parse(await readFile(file, "utf8")));
+                const rev = `"${createHash("sha1").update(cur).digest("hex").slice(0, 20)}"`;
+                if (ifMatch !== rev) return json(res, 409, { error: "Le projet a été modifié ailleurs entre-temps.", rev });
+              }
+              // Fondations validées dont les faits, l'offre ou le message ont
+              // changé → « modifiée » (audit F04), quel que soit l'écrivain.
+              const next = { ...data, id: parts[1] };
+              if (next.fondations && ["validée", "modifiée"].includes(next.fondations.statut) && !next.fondations.valideEmpreinte && existsSync(file)) {
+                // Validées autrefois sans empreinte : la version enregistrée sert de référence.
+                const before = JSON.parse(await readFile(file, "utf8"));
+                next.fondations = { ...next.fondations, valideEmpreinte: empreinte(before) };
+              }
+              if (next.fondations) next.fondations = statutFondations(next);
               await mkdir(projectsDir, { recursive: true });
-              await writeFile(file, JSON.stringify({ ...data, id: parts[1] }, null, 2) + "\n", "utf8");
-              return json(res, 200, { ok: true, file: `projets/${parts[1]}.json` });
+              await writeFile(file, JSON.stringify(next, null, 2) + "\n", "utf8");
+              const rev = `"${createHash("sha1").update(JSON.stringify(next)).digest("hex").slice(0, 20)}"`;
+              return json(res, 200, { ok: true, file: `projets/${parts[1]}.json`, rev, fondations: next.fondations ?? null });
             }
           }
 

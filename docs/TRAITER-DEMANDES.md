@@ -529,6 +529,54 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      2e retouche (capture) : plus de trou entre Enregistré et HTML ; le groupe
      EN/FR … Enregistré est collé à HTML / ZIP / Mirror, la place libre reste
      après Page et le nom de la page s agrandit jusqu à 380 px.
+   - **Audit ChatGPT des Fondations, lot 1 « Fiabilité » (2026-11-17)** —
+     rapport ~/Downloads/audit-fondations-atelier-2026-11-17.md (F01–F10).
+     Les 25 cas de l'audit reproduits d'abord (9/25 conformes, mêmes 16
+     écarts), puis repris et complétés dans
+     `node scripts/tests/fondations-fiabilite.mjs [--http]` (50/50 ; --http
+     essaie l'API sur un projet jetable mis à la corbeille).
+     · Module commun src/engine/fondations-etat.js : marqueurs (`realText`,
+     `MARQUEUR`), recherche brute (`RESEARCH_KEY` : collecte*, liensRecherche,
+     sites), empreinte v2 (faits, offre, message, questionnaire sans la
+     recherche ; contenus des pages exclus), `statutFondations` (migration des
+     empreintes v1 sans perte), `merge3` (fusion à trois versions, faits par
+     id), `withIds`.
+     · F01 : PUT /api/projects/<id> accepte If-Match (ETag du GET) → 409 si le
+     projet a changé ; sans If-Match comme avant. saveProjectPatch envoie
+     If-Match (réessaie seul pour les petites fiches). Fondations : patchFresh
+     fusionne à trois versions questionnaire, faits, message, cartes ET offre ;
+     conflit sur un même champ → bandeau « Garder ma version de ces champs /
+     Reprendre la version enregistrée », rien n'est écrasé sans choix.
+     · F04 : l'offre est gérée par les Fondations (OfferTab contrôlé :
+     form / setForm / onSaveAll) → un seul « Enregistrer » pour tout ; le
+     serveur recalcule le statut à chaque PUT (prix changé → « modifiée ») ;
+     validées sans empreinte : la version enregistrée sert de référence.
+     · F02 : fidelite.js `unitOf` (jours/semaines→jours, mois, ans, minutes,
+     mg/g/kg, ml/l, gélules, flacons, portions, $ / USD / CAD / € / £ ;
+     conversions sûres seulement) ; plus de joker « ? » ; un fait « à
+     confirmer » ou « retiré » bloque le même chiffre écrit dans un texte ;
+     la recherche brute et les résultats de Claude n'autorisent plus de
+     chiffres ; emplacements entre crochets ignorés.
+     · F03 : preuve cochée = détail réel exigé (ni vide ni marqueur) ;
+     certification limitée aux labels écrits (Vegan ≠ FDA) ; négations
+     (« ne pas écrire… ») et recherche brute n'autorisent rien ; toutes les
+     occurrences d'une page sont jugées.
+     · Partie commune de F06 faite : compteur des cartes, message central et
+     script fondations-contenus.mjs ignorent les champs qui ne contiennent que
+     des marqueurs (le script peut maintenant les remplacer). Partie de F10
+     faite : chaque champ du tableau des faits a un nom accessible.
+     · Effet mesuré sur les 6 pages de projet : 116 → 138 chiffres et 24 → 30
+     affirmations signalés ; les nouveaux relus un par un sont justifiés (prix
+     en £, garantie 60 j au lieu de 90, avis copiés, « gluten-free » sans
+     preuve, ingrédient d'un autre produit).
+     · Le script de l'audit (verify-foundations.mjs) extrait des fonctions du
+     code de b9f6426 : il ne s'exécute plus sur le nouveau code, remplacé par
+     scripts/tests/fondations-fiabilite.mjs.
+     · Reste (lots 2 à 4 de l'audit) : F05 brouillon perdu en changeant
+     d'onglet, états de champ complets (F06), F07 sources liées, F08
+     mécanismes UMP/UMS + brief, F09 fiche d'offre structurée. Partie mobile
+     de F10 écartée (pas d'édition depuis le téléphone, décision de
+     l'utilisateur).
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

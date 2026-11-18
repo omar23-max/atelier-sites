@@ -278,29 +278,43 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   // Enregistre une partie du projet. En cas d'échec (lecture, refus du
   // serveur, connexion coupée) : message d'erreur, puis l'erreur est relancée
   // pour que l'appelant n'affiche pas de succès ni ne continue (audit T2).
-  async function saveProjectPatch(patch, silent) {
-    const fail = (text) => {
-      onMessage({ error: true, text });
+  // Révision (audit ChatGPT F01, 2026-11-17) : l'écriture porte l'empreinte
+  // de la version lue (If-Match). Si le projet a changé entre-temps : avec
+  // opts.rev (les Fondations, qui fusionnent elles-mêmes), erreur code 409
+  // rendue à l'appelant ; sinon (nom, marque…) relecture et nouvel essai.
+  async function saveProjectPatch(patch, silent, opts = {}) {
+    const fail = (text, code) => {
+      if (code !== 409) onMessage({ error: true, text });
       const e = new Error(text);
-      e.shown = true;
+      e.shown = code !== 409;
+      e.code = code;
       throw e;
     };
     try {
-      const res = await fetch(`/api/projects/${id}`);
-      if (!res.ok) fail("Non enregistré : le projet n'a pas pu être relu. Réessaie dans un instant.");
-      const current = await res.json();
-      const save = await fetch(`/api/projects/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...current, ...patch }),
-      });
-      if (!save.ok) fail(`Non enregistré : ${(await save.json().catch(() => ({}))).error ?? `refus du serveur (${save.status})`}.`);
-      const saved = { ...current, ...patch };
-      setProject(saved);
-      if (!silent) onMessage({ text: "Fiche du projet enregistrée." });
-      return saved;
+      for (let essai = 0; essai < 3; essai++) {
+        const res = await fetch(`/api/projects/${id}`);
+        if (!res.ok) fail("Non enregistré : le projet n'a pas pu être relu. Réessaie dans un instant.");
+        const current = await res.json();
+        const rev = opts.rev ?? res.headers.get("ETag");
+        const save = await fetch(`/api/projects/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...(rev ? { "If-Match": rev } : {}) },
+          body: JSON.stringify({ ...current, ...patch }),
+        });
+        if (save.status === 409) {
+          if (opts.rev) fail("Le projet a été modifié ailleurs entre-temps.", 409);
+          continue;
+        }
+        const body = await save.json().catch(() => ({}));
+        if (!save.ok) fail(`Non enregistré : ${body.error ?? `refus du serveur (${save.status})`}.`);
+        const saved = { ...current, ...patch, ...(body.fondations ? { fondations: body.fondations } : {}) };
+        setProject(saved);
+        if (!silent) onMessage({ text: "Fiche du projet enregistrée." });
+        return saved;
+      }
+      fail("Non enregistré : le projet change sans arrêt ailleurs (autre onglet ?). Réessaie dans un instant.");
     } catch (e) {
-      if (e.shown) throw e;
+      if (e.shown || e.code === 409) throw e;
       fail("Non enregistré : la connexion avec l'atelier est coupée. Vérifie ta connexion puis réessaie.");
     }
   }
