@@ -825,6 +825,38 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      Sauvegardes : /tmp/inspector.avant-menu-style.jsx,
      /tmp/library.avant-languette.jsx, /tmp/App.avant-languette.jsx,
      /tmp/styles.avant-menu-style.css.
+     · Correctif : ma fonction writeStyle (style du clic droit) masquait
+     writeStyle d'origine (style en ligne, bouton 👁 Masquer) : renommée
+     applyStyleDecl.
+   - **Poignée de hauteur des sections (2026-11-19)** : section choisie (pas
+     un élément) → bande « ⇕ Hauteur » sur son bord bas (SectionResizer,
+     inspector-ui.jsx) ; tirer change la hauteur en direct (min-height en
+     ligne), au lâcher atl_styles.section.all.base.min-height ; double-clic :
+     hauteur d'origine ; si le bas de la section est sous l'aperçu, la
+     poignée reste au bas de l'aperçu. Testé : 518 → 668 px, gardé après
+     rechargement, double-clic → 518. Sauvegardes :
+     /tmp/inspector.avant-poignee.jsx, /tmp/styles.avant-poignee.css.
+   - **Stylet → IA en un clic (2026-11-19)** : après « Enregistrer », la barre
+     du stylet propose « 🖼 Créer une section avec ce croquis » (événement
+     atl-add-section { index : après la section dessinée, image } : la
+     fenêtre « Ajouter une section » s'ouvre avec le croquis déjà choisi) et
+     « ✨ Retravailler cette section » (événement atl-ai-section { sectionId,
+     image } : fenêtre IA sur la section, onglet Design, croquis en exemple à
+     imiter via target.reference). Testé : les deux fenêtres s'ouvrent comme
+     prévu (la capture elle-même ne peut pas être faite dans le navigateur de
+     test). Sauvegardes : /tmp/inspector.avant-stylet-next.jsx,
+     /tmp/library.avant-stylet-next.jsx.
+   - **Retour au même endroit après un rechargement (2026-11-19)** :
+     RetourPosition (library-ui.jsx, monté dans App.jsx) relève toutes les
+     400 ms la position de l'aperçu et la section choisie ; au départ
+     (beforeunload / pagehide) les garde dans sessionStorage « atl-retour »
+     pour la page ; au chargement, y revient (plusieurs passages, arrêt si
+     l'utilisateur touche à l'aperçu) et choisit de nouveau la section. Après
+     une section créée ou refaite par l'IA (rechargement de secours),
+     goToAfterReload (inspector-ui.jsx) note cette section : la page s'ouvre
+     sur elle. Testé : F5 depuis 8 658 px → 8 658 px ; section notée → en
+     haut de l'écran et choisie. Sauvegardes : /tmp/inspector.avant-retour.jsx,
+     /tmp/library.avant-retour.jsx, /tmp/App.avant-retour.jsx.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

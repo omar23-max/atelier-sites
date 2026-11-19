@@ -4,7 +4,7 @@ import "@puckeditor/core/puck.css";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
-import { FullscreenButton, RightPanelTab } from "./library-ui.jsx";
+import { FullscreenButton, RightPanelTab, RetourPosition } from "./library-ui.jsx";
 import { StyletButton } from "./stylet-ui.jsx";
 import { SlotPicker } from "./slot-picker.jsx";
 import { LeftPanel } from "./left-ui.jsx";
@@ -376,6 +376,8 @@ export default function App() {
                 <StyletButton />
                 {/* Panneau de droite : seulement par la languette (2026-11-18). */}
                 <RightPanelTab />
+                {/* Retour au même endroit après un rechargement (2026-11-19). */}
+                <RetourPosition />
                 {/* Annuler / Rétablir : dans la barre de l'aperçu. */}
                 <UndoRedo />
                 {/* Barre de l'aperçu → pilule flottante en bas (plein écran). */}

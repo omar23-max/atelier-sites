@@ -393,6 +393,8 @@ export function AddSectionButton({ variant = "header" }) {
       const index = Number(e.detail?.index);
       const { appState } = getPuck();
       setWhere({ index: Number.isFinite(index) ? Math.max(0, Math.min(index, appState.data.content.length)) : appState.data.content.length, afterSelected: false, custom: true });
+      // Depuis le stylet (2026-11-19) : le croquis est déjà choisi.
+      if (e.detail?.image) setFromImg({ image: e.detail.image, precisions: "" });
       setOpen(true);
     };
     window.addEventListener("atl-add-section", on);
@@ -688,4 +690,88 @@ export function RightPanelTab() {
     </button>,
     document.body,
   );
+}
+
+
+// Retour au même endroit après un rechargement (2026-11-19). Avant chaque
+// rechargement (F5, « Recharger », design appliqué…) : position dans l'aperçu
+// et section choisie, pour cette page. Après une section créée ou refaite
+// par l'IA (rechargement de secours) : cette section, prioritaire
+// (« goto », écrit par inspector-ui.jsx). Au chargement : on y revient et la
+// section est choisie de nouveau.
+const RETOUR_KEY = "atl-retour";
+const retourPage = new URLSearchParams(location.search).get("page");
+function previewWin() {
+  for (const f of document.querySelectorAll("iframe")) if (f.contentDocument?.querySelector("[data-atl-id]")) return f;
+  return null;
+}
+export function RetourPosition() {
+  const getPuck = useGetPuck();
+  useEffect(() => {
+    if (!retourPage) return;
+    // Dernière position connue, relevée en continu : au moment du départ,
+    // l'aperçu peut déjà être démonté (sa position serait 0).
+    const last = { y: null, section: null };
+    const track = setInterval(() => {
+      try {
+        const win = previewWin()?.contentWindow;
+        if (win) last.y = win.scrollY;
+        const { appState } = getPuck();
+        const i = appState.ui.itemSelector?.zone === ROOT_ZONE ? appState.ui.itemSelector.index : null;
+        last.section = i != null ? appState.data.content[i]?.props.id ?? null : null;
+      } catch {}
+    }, 400);
+    const save = () => {
+      try {
+        const old = JSON.parse(sessionStorage.getItem(RETOUR_KEY) ?? "null");
+        if (old?.goto && old.page === retourPage && Date.now() - old.le < 15000) return;
+        if (last.y == null) return;
+        sessionStorage.setItem(RETOUR_KEY, JSON.stringify({ page: retourPage, y: last.y, section: last.section, le: Date.now() }));
+      } catch {}
+    };
+    window.addEventListener("pagehide", save);
+    window.addEventListener("beforeunload", save);
+    let saved = null;
+    try {
+      saved = JSON.parse(sessionStorage.getItem(RETOUR_KEY) ?? "null");
+    } catch {}
+    const timers = [];
+    if (saved && saved.page === retourPage && Date.now() - saved.le < 10 * 60 * 1000) {
+      let touched = false;
+      let selected = false;
+      const go = () => {
+        const frame = previewWin();
+        const win = frame?.contentWindow;
+        if (!win) return false;
+        if (!win.__atlRetourHooked) {
+          win.__atlRetourHooked = true;
+          ["wheel", "mousedown", "keydown", "touchstart"].forEach((ev) => win.addEventListener(ev, () => (touched = true), { passive: true }));
+        }
+        if (touched) return true;
+        const el = saved.section && frame.contentDocument.querySelector(`[data-atl-id="${CSS.escape(saved.section)}"]`);
+        if (saved.goto && el) win.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + win.scrollY - 20) });
+        else if (typeof saved.y === "number") win.scrollTo({ top: saved.y });
+        if (!selected && saved.section) {
+          const { appState, dispatch } = getPuck();
+          const index = appState.data.content.findIndex((c) => c.props.id === saved.section);
+          if (index >= 0) {
+            dispatch({ type: "setUi", ui: { itemSelector: { index, zone: ROOT_ZONE } } });
+            selected = true;
+          }
+        }
+        return true;
+      };
+      // Plusieurs passages : l'aperçu se monte, puis les images décalent la page.
+      last.y = typeof saved.y === "number" ? saved.y : null;
+      for (const t of [500, 1000, 1800, 3000, 4500, 6500]) timers.push(setTimeout(go, t));
+      timers.push(setTimeout(() => sessionStorage.removeItem(RETOUR_KEY), 7000));
+    }
+    return () => {
+      clearInterval(track);
+      window.removeEventListener("pagehide", save);
+      window.removeEventListener("beforeunload", save);
+      timers.forEach(clearTimeout);
+    };
+  }, []);
+  return null;
 }

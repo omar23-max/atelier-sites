@@ -98,6 +98,9 @@ function Overlay({ onClose }) {
   const [count, setCount] = useState(0);
   const [hidden, setHidden] = useState(false);
   const [msg, setMsg] = useState(null);
+  // Dernier croquis enregistré (2026-11-19) : pour les boutons « Créer une
+  // section avec ce croquis » et « Retravailler cette section ».
+  const [saved, setSaved] = useState(null); // { image, sectionId, index }
 
   const redraw = () => {
     const c = canvasRef.current;
@@ -216,14 +219,19 @@ function Overlay({ onClose }) {
           return r.height > 0 && bottom > Math.max(box.t, fr.top) && top < Math.min(box.b, fr.bottom);
         })
         .map((el) => el.getAttribute("data-atl-id"));
+      const image = out.toDataURL("image/jpeg", 0.88);
       const res = await fetch(`/api/croquis/${encodeURIComponent(pageName)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: out.toDataURL("image/jpeg", 0.88), sections }),
+        body: JSON.stringify({ image, sections }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
-      setMsg({ ok: "Croquis enregistré : il te sera proposé dans « Retravailler avec l'IA »." });
+      // Section dessinée : la première touchée ; son rang = ordre dans l'aperçu.
+      const all = [...frame.contentDocument.querySelectorAll("[data-atl-id]")].map((el) => el.getAttribute("data-atl-id"));
+      const sectionId = sections[0] ?? null;
+      setSaved({ image, sectionId, index: sectionId ? all.indexOf(sectionId) : all.length - 1 });
+      setMsg({ ok: "Croquis enregistré." });
     } catch (e) {
       setHidden(false);
       setMsg({ error: e?.name === "NotAllowedError" ? "Capture annulée." : e.message });
@@ -255,6 +263,34 @@ function Overlay({ onClose }) {
           <button type="button" className="atl-stylet__save" onClick={save} title="Capture l'aperçu avec ton dessin">
             📸 Enregistrer
           </button>
+          {saved && (
+            <>
+              <button
+                type="button"
+                className="atl-stylet__next"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("atl-add-section", { detail: { index: saved.index + 1, image: saved.image } }));
+                  onClose();
+                }}
+                title="Ouvre « Ajouter une section » avec ce croquis, juste après la section dessinée"
+              >
+                🖼 Créer une section avec ce croquis
+              </button>
+              {saved.sectionId && (
+                <button
+                  type="button"
+                  className="atl-stylet__next"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent("atl-ai-section", { detail: { sectionId: saved.sectionId, image: saved.image } }));
+                    onClose();
+                  }}
+                  title="Ouvre « Retravailler avec l'IA » sur la section dessinée, onglet Design, avec ce croquis comme exemple"
+                >
+                  ✨ Retravailler cette section
+                </button>
+              )}
+            </>
+          )}
           <button type="button" onClick={onClose} title="Fermer (Échap)">
             Fermer
           </button>

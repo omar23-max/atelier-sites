@@ -358,6 +358,18 @@ ${consigneLangue(data.root?.props)}`, reference, rootClass: "ROOT" }),
   return replacement;
 }
 
+// Retour au même endroit après un rechargement (2026-11-19). Avant chaque
+// rechargement (F5, « Recharger », design appliqué…), la position dans
+// l'aperçu et la section choisie sont retenues pour cette page ; après une
+// section créée ou refaite par l'IA, c'est cette section (prioritaire).
+const RETOUR_KEY = "atl-retour";
+function goToAfterReload(sectionId) {
+  if (!sectionId) return;
+  try {
+    sessionStorage.setItem(RETOUR_KEY, JSON.stringify({ page: pageName, section: sectionId, goto: true, le: Date.now() }));
+  } catch {}
+}
+
 // Nouvelle section depuis une image ou un croquis (2026-11-18) : l'IA rend
 // HTML + CSS d'après l'image ; la section (sections/<page>-ia-…) est posée à
 // l'index donné. Même filet que applyReplacements : si l'aperçu ne l'affiche
@@ -400,6 +412,7 @@ export async function createSectionFromImage(getPuck, index, image, instruction 
   const shown = () => canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(id)}"]`);
   for (let i = 0; i < 20 && !shown(); i++) await new Promise((r) => setTimeout(r, 200));
   if (!shown()) {
+    goToAfterReload(id);
     await savePageWith(getPuck, []);
     location.reload();
   } else setTimeout(() => scrollCanvasTo(id), 150);
@@ -431,6 +444,7 @@ export async function applyReplacements(getPuck, replacements) {
   const shown = () => replacements.every((r) => canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(r.item.props.id)}"]`));
   for (let i = 0; i < 20 && !shown(); i++) await new Promise((r) => setTimeout(r, 200));
   if (!shown()) {
+    goToAfterReload(replacements[0]?.item.props.id);
     await savePageWith(getPuck, []);
     location.reload();
   }
@@ -913,11 +927,21 @@ export function Inspector({ children }) {
       // (la planche des images a été retirée le 2026-11-12).
       else window.dispatchEvent(new CustomEvent("atl-open-studio"));
     };
+    // Depuis le stylet (2026-11-19) : section dessinée, onglet Design, le
+    // croquis comme exemple à imiter.
+    const onSection = (e) => {
+      const id = e.detail?.sectionId;
+      if (!id || !isMain()) return;
+      choose({ sectionId: id }, { scroll: false });
+      setAi({ sectionId: id, keys: null, tab: "design", reference: e.detail.image ?? null });
+    };
     window.addEventListener("atl-ai-page", onPage);
     window.addEventListener("atl-ai-image", onImage);
+    window.addEventListener("atl-ai-section", onSection);
     return () => {
       window.removeEventListener("atl-ai-page", onPage);
       window.removeEventListener("atl-ai-image", onImage);
+      window.removeEventListener("atl-ai-section", onSection);
     };
   }, []);
 
@@ -954,7 +978,7 @@ export function Inspector({ children }) {
   // Écrit dans atl_styles[cible].all.base (tous les écrans) ; valeur vide =
   // retour au style d'origine. Section : sa racine (« section ») et les
   // variables de police, que les textes de la copie suivent.
-  function writeStyle(sectionId, targets, decl, isSection) {
+  function applyStyleDecl(sectionId, targets, decl, isSection) {
     const item = itemOf(sectionId);
     if (!item) return;
     const styles = structuredClone(item.props.atl_styles ?? {});
@@ -1002,7 +1026,7 @@ export function Inspector({ children }) {
     const clip = readStyleClip();
     if (!clip) return;
     const decl = isSection ? Object.fromEntries(Object.entries(clip).filter(([k]) => ["background-color", "background-image", "padding-top", "padding-bottom", "color"].includes(k))) : clip;
-    writeStyle(sectionId, targets, decl, isSection);
+    applyStyleDecl(sectionId, targets, decl, isSection);
   }
 
   const menuItems = (m) => {
@@ -1344,6 +1368,23 @@ export function Inspector({ children }) {
             l'utilisateur) : l'IA s'ouvre par le clic droit ou le bouton ✨ IA. */}
       </div>
       {!sel?.page && <div style={{ display: "none" }}>{children}</div>}
+      {sel?.sectionId && !selNode && !editing && isMain() && itemOf(sel.sectionId) && (
+        <SectionResizer
+          sectionId={sel.sectionId}
+          type={itemOf(sel.sectionId).type}
+          onCommit={(px) => {
+            const item = itemOf(sel.sectionId);
+            const styles = structuredClone(item.props.atl_styles ?? {});
+            styles.section ??= {};
+            styles.section.all ??= {};
+            const base = { ...(styles.section.all.base ?? {}) };
+            if (px == null) delete base["min-height"];
+            else base["min-height"] = `${px}px`;
+            styles.section.all.base = base;
+            updateProps(sel.sectionId, { ...item.props, atl_styles: styles });
+          }}
+        />
+      )}
       {sel?.sectionId && isMain() && (
         <CanvasToolbar
           sel={sel}
@@ -1376,7 +1417,7 @@ export function Inspector({ children }) {
           pop={stylePop}
           item={itemOf(stylePop.sectionId)}
           design={designById[getPuck().appState.data.root?.props?.design]}
-          onWrite={(decl) => writeStyle(stylePop.sectionId, stylePop.targets, decl, stylePop.isSection)}
+          onWrite={(decl) => applyStyleDecl(stylePop.sectionId, stylePop.targets, decl, stylePop.isSection)}
           onClose={() => setStylePop(null)}
         />
       )}
@@ -2470,7 +2511,7 @@ function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, on
   const [tab, setTab] = useState(target.tab ?? (onRebuild ? "design" : texts.length ? "textes" : images.length ? "images" : "design"));
   const doTexts = tab === "textes";
   const doImages = tab === "images";
-  const [designRef, setDesignRef] = useState(null);
+  const [designRef, setDesignRef] = useState(target.reference ?? null);
   const [refs, setRefs] = useState(() => {
     try {
       return JSON.parse(sessionStorage.getItem(REFS_KEY) ?? "[]");
@@ -3279,6 +3320,91 @@ function startSectionDrag(e, sectionId, onMoveSection) {
   };
   window.addEventListener("mousemove", onMove);
   window.addEventListener("mouseup", onUp);
+}
+
+// Poignée de hauteur (2026-11-19) : bande en bas de la section choisie ;
+// la tirer change sa hauteur (min-height de la section, tous les écrans).
+// Pendant le geste, l'aperçu change en direct ; au lâcher, la valeur est
+// écrite dans atl_styles.section. Double-clic : hauteur d'origine.
+function SectionResizer({ sectionId, type, onCommit }) {
+  const [box, setBox] = useState(null);
+  const [drag, setDrag] = useState(null); // { h }
+  const dragRef = useRef(null);
+  const find = () => {
+    const frame = canvasFrame();
+    const root = frame?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
+    const target = root?.querySelector(`.${CSS.escape(`atl-${type}`)}`) ?? root;
+    return { frame, root, target };
+  };
+  useEffect(() => {
+    let raf;
+    const tick = () => {
+      const { frame, root } = find();
+      if (frame && root) {
+        const fr = frame.getBoundingClientRect();
+        const z = fr.width / frame.offsetWidth || 1;
+        const r = root.getBoundingClientRect();
+        const top = fr.top + r.top * z;
+        const bottom = fr.top + r.bottom * z;
+        // Bas de la section sous l'aperçu : la poignée reste au bas de l'aperçu.
+        const at = Math.min(bottom, fr.bottom - 10);
+        const next = bottom > fr.top + 20 && top < fr.bottom - 30 ? { top: Math.round(at - 7), left: Math.round(fr.left + r.left * z), width: Math.round(r.width * z) } : null;
+        setBox((b) => (b?.top === next?.top && b?.left === next?.left && b?.width === next?.width ? b : next));
+      } else setBox(null);
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    const timer = setInterval(tick, 150); // si requestAnimationFrame est suspendu
+    return () => (cancelAnimationFrame(raf), clearInterval(timer));
+  }, [sectionId, type]);
+
+  const down = (e) => {
+    const { frame, target } = find();
+    if (!frame || !target) return;
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+    const fr = frame.getBoundingClientRect();
+    const z = fr.width / frame.offsetWidth || 1;
+    dragRef.current = { y: e.clientY, h: target.offsetHeight, z, target, prev: target.style.getPropertyValue("min-height"), prevPrio: target.style.getPropertyPriority("min-height") };
+    setDrag({ h: target.offsetHeight });
+  };
+  const move = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    const h = Math.max(40, Math.round(d.h + (e.clientY - d.y) / d.z));
+    d.target.style.setProperty("min-height", `${h}px`, "important");
+    d.last = h;
+    setDrag({ h });
+  };
+  const up = () => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setDrag(null);
+    if (!d) return;
+    // Le style en ligne laisse la place à celui de la page (écrit ci-dessous).
+    if (d.prev) d.target.style.setProperty("min-height", d.prev, d.prevPrio);
+    else d.target.style.removeProperty("min-height");
+    if (d.last != null && Math.abs(d.last - d.h) >= 2) onCommit(d.last);
+  };
+  if (!box) return null;
+  return createPortal(
+    <div
+      className={`atl-resizer${drag ? " is-drag" : ""}`}
+      style={{ top: box.top, left: box.left, width: box.width }}
+      onPointerDown={down}
+      onPointerMove={move}
+      onPointerUp={up}
+      onPointerCancel={up}
+      onDoubleClick={() => onCommit(null)}
+      title="Tirer pour changer la hauteur de la section · double-clic : hauteur d'origine"
+    >
+      <span>{drag ? `${drag.h} px` : "⇕ Hauteur"}</span>
+    </div>,
+    document.body,
+  );
 }
 
 function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection }) {
