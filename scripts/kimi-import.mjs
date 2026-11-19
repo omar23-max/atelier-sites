@@ -1027,6 +1027,10 @@ const cssFor = (keys, scope) => {
       let body = r.body;
       if (/^(html|body|:root)$/.test(r.sel.trim())) body = body.replace(/(^|;)\s*(min-height|min-width|scroll-behavior)\s*:[^;]+;?/g, "$1");
       if (!body.trim()) continue;
+      // Voile de la page entière (2026-11-18, Paleo Pro : grain posé par
+      // body::before, fixe, plein écran) : recopié dans chaque section, il
+      // s'empilait (4 sections = 4 voiles, page assombrie). Retiré.
+      if (pageRule && splitSel(r.sel).every((s) => /::?(before|after)\b/.test(s)) && /(^|;)\s*position\s*:\s*fixed\b/.test(body)) continue;
       text = `${scopeSel(r.sel, scope)} { ${body} }`;
     }
     for (const w of [...r.wrap].reverse()) text = `${w} { ${text} }`;

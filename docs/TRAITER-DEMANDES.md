@@ -686,6 +686,31 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      Restent d'origine dans la version stock : le logo Titan du menu (fond
      CSS) et les 4 vidéos de « Le studio NexTap » (Birdie p7, écrites dans
      le gabarit).
+     · **Pages sombres** : le grain de Paleo Pro (body::before, fixe, plein
+     écran, z-index 2000) avait été recopié dans chacune de ses sections ;
+     4 sections Paleo = 4 voiles empilés. /tmp/grain-fix.py : dans les 34
+     sections paleo-pro-*, le voile passe en position absolue et la section
+     en position relative (grain limité à la section). Sauvegardes :
+     /tmp/grain-avant/. Puis, à la demande, le grain est **retiré** des 34
+     sections (/tmp/grain-remove.py, à partir des sauvegardes).
+     · **kimi-import.mjs** : une règle de page (html, body, classes de page)
+     sur ::before / ::after avec « position: fixed » n'est plus recopiée
+     (voile de page). Testé : règle seule sur exemples, et Titan réimporté
+     sous « essai-voile-titan », CSS identique, puis mis à la corbeille.
+     Sauvegarde : /tmp/kimi-import.avant-voile.mjs.
+     · **Ordre d'origine + menu clair** : les pages suivent l'ordre exact de
+     Titan / Birdie (Titan p13 « chiffres » remis), les sections empruntées
+     s'intercalent. Menu et bandeau des logos Titan en clair (fond pêche du
+     hero) : copies nextap-titan-menu-clair et nextap-titan-logos-clair
+     (sections Titan d'origine intactes ; règles ajoutées en fin de
+     style.css). Plan : 4e champ {"__type": "<copie>"} pour remplacer une
+     section par sa copie. Version stock : images < 80 px (logos, icônes)
+     gardées.
+     · Bandeau « News » de Titan retiré de nextap-titan-menu-clair (menu 50 px),
+     hero : marge_haut 60.
+     · Idem sur titan-accueil (section titan-accueil-p1, seule page à l utiliser) :
+     bandeau caché + fond rgb(17,17,19) au menu fixe. Sauvegarde :
+     /tmp/titan-p1-style.avant-news.css.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
