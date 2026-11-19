@@ -1,3 +1,4 @@
+import { croquisFor, dataUrlOf } from "./stylet-ui.jsx";
 import { resumeFiche } from "./engine/offre-fiche.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -341,8 +342,7 @@ export async function rebuildSectionWith(getPuck, sectionId, instruction, refere
     body: JSON.stringify({ html, css: section.css, prompt: `${instruction}
 ${consigneLangue(data.root?.props)}`, reference, rootClass: "ROOT" }),
   });
-  const body = await res.json();
-  if (!res.ok) throw new Error(body.error);
+  const body = await iaJson(res);
   const id = `${pageName}-ia-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.slice(0, 80);
   const label = (section.meta.label ?? section.id).replace(/ — refaite par l'IA$/, "");
   const made = htmlToSection(body.html, body.css, id, "ROOT", label, pageName);
@@ -356,6 +356,54 @@ ${consigneLangue(data.root?.props)}`, reference, rootClass: "ROOT" }),
   if (!reload) return replacement;
   await applyReplacements(getPuck, [replacement]);
   return replacement;
+}
+
+// Nouvelle section depuis une image ou un croquis (2026-11-18) : l'IA rend
+// HTML + CSS d'après l'image ; la section (sections/<page>-ia-…) est posée à
+// l'index donné. Même filet que applyReplacements : si l'aperçu ne l'affiche
+// pas, la page est enregistrée puis rechargée.
+export async function createSectionFromImage(getPuck, index, image, instruction = "") {
+  const data = getPuck().appState.data;
+  const prompt = [
+    "Crée une NOUVELLE section de page de vente qui reproduit l'image de référence : même disposition, même hiérarchie (titres, textes, boutons, images, cartes), mêmes proportions et un style proche (couleurs, tailles, coins, ombres).",
+    "Si l'image est un croquis dessiné à la main ou une capture annotée (traits, flèches, mots écrits par-dessus), suis ces annotations comme des consignes ; ne reproduis pas les annotations elles-mêmes.",
+    "Textes : reprends ceux qu'on lit sur l'image ; sinon des textes courts et plausibles, à remplacer ensuite.",
+    'Images : une balise <img> à chaque emplacement d\'image, avec src="" et un alt qui décrit l\'image attendue.',
+    instruction ? `Précisions : ${instruction}` : "",
+    consigneLangue(data.root?.props),
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const res = await fetch("/api/ia/section", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ html: '<div class="ROOT"></div>', css: "", prompt, reference: image, rootClass: "ROOT" }),
+  });
+  const body = await iaJson(res);
+  const id = `${pageName}-ia-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.slice(0, 80);
+  const made = htmlToSection(body.html, body.css, id, "ROOT", "Section depuis une image", pageName);
+  const saved = await fetch("/api/sections-ia", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, schema: made.schema, template: made.template, css: made.css, meta: made.meta }),
+  });
+  if (!saved.ok) throw new Error((await saved.json()).error);
+  await fetch(`/api/pages/${pageName}/snapshot`, { method: "POST" }).catch(() => {});
+  await addSections([id]);
+  await new Promise((r) => setTimeout(r, 400));
+  const { appState, dispatch } = getPuck();
+  const content = [...appState.data.content];
+  const at = Math.max(0, Math.min(index, content.length));
+  content.splice(at, 0, { type: id, props: { id, blocks_element: made.blocks } });
+  dispatch({ type: "setData", data: { ...appState.data, content } });
+  dispatch({ type: "setUi", ui: { itemSelector: { index: at, zone: ROOT_ZONE } } });
+  const shown = () => canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(id)}"]`);
+  for (let i = 0; i < 20 && !shown(); i++) await new Promise((r) => setTimeout(r, 200));
+  if (!shown()) {
+    await savePageWith(getPuck, []);
+    location.reload();
+  } else setTimeout(() => scrollCanvasTo(id), 150);
+  return id;
 }
 
 // Pose des sections retravaillées dans l'éditeur, sans recharger la page
@@ -2107,8 +2155,68 @@ function ContextMenu({ x, y, items, onClose }) {
   );
 }
 
+
+// Réponse d'une demande à l'IA (2026-11-18) : erreur dans { error } même en
+// 200 (réponse longue commencée par le serveur), et message clair si la
+// réponse n'est pas du JSON (page d'erreur de Cloudflare, coupure…).
+async function iaJson(res) {
+  const text = await res.text();
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    const why = {
+      413: "image ou demande trop lourde",
+      502: "serveur indisponible (redémarrage ?)",
+      503: "serveur indisponible",
+      504: "délai dépassé",
+      520: "réponse coupée par le serveur",
+      522: "serveur injoignable",
+      524: "le serveur a mis plus de 100 s à répondre",
+    }[res.status];
+    if (/cloudflare/i.test(text) || why) throw new Error(`Cloudflare a répondu à la place du serveur (erreur ${res.status}${why ? ` : ${why}` : ""}). Réessaie dans un instant.`);
+    throw new Error(`Réponse inattendue du serveur (erreur ${res.status}). Recharge la page (F5) puis réessaie.`);
+  }
+  if (!res.ok || body?.error) throw new Error(body?.error ?? `Erreur ${res.status}`);
+  return body;
+}
+
 // ---- Retravailler avec l'IA ----
-const QUICK =["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Traduire en français", "Traduire en anglais"];
+// Actions rapides par onglet (2026-11-18) : un clic ajoute la consigne.
+const QUICK = {
+  design: [
+    "Réduire la hauteur de la section",
+    "Supprimer les espaces vides",
+    "Plus d'espace entre les éléments",
+    "Adapter les polices au reste de la page",
+    "Agrandir le titre",
+    "Changer l'arrière-plan (couleur du style)",
+    "Fond clair",
+    "Fond sombre",
+    "Centrer le contenu",
+    "Image à gauche, texte à droite",
+    "Texte à gauche, image à droite",
+    "Mettre en 2 colonnes",
+    "Boutons plus visibles",
+    "Coins arrondis et ombres douces",
+    "Plus moderne et épuré",
+    "Mieux lisible sur mobile",
+  ],
+  images: [
+    "Mettre mon produit à la place",
+    "Fond blanc, photo studio",
+    "Photo lifestyle (produit en situation)",
+    "Une personne qui utilise le produit",
+    "Gros plan sur le produit",
+    "Plus lumineuse",
+    "Ambiance chaleureuse",
+    "Plus de contraste",
+    "Retirer le texte de l'image",
+    "Retirer le logo de l'autre marque",
+    "Aux couleurs de ma marque",
+  ],
+  textes: ["Plus court", "Plus percutant", "Plus émotionnel", "Adapter à mon produit", "Plus clair et simple", "Ajouter un chiffre ou une preuve (sans inventer)", "Traduire en français", "Traduire en anglais"],
+};
 const REFS_KEY = "atl-ia-references";
 
 // Trois onglets : Textes, Images, Design (section entière seulement :
@@ -2116,7 +2224,8 @@ const REFS_KEY = "atl-ia-references";
 function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, onUndo }) {
   const { texts, images } = useMemo(() => aiTargets(item, target.keys), [item, target.keys]);
   const [prompt, setPrompt] = useState(target.prompt ?? "");
-  const [tab, setTab] = useState(target.tab ?? (texts.length ? "textes" : images.length ? "images" : "design"));
+  // Design en premier et par défaut (2026-11-18, onglet le plus utilisé).
+  const [tab, setTab] = useState(target.tab ?? (onRebuild ? "design" : texts.length ? "textes" : images.length ? "images" : "design"));
   const doTexts = tab === "textes";
   const doImages = tab === "images";
   const [designRef, setDesignRef] = useState(null);
@@ -2128,6 +2237,23 @@ function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, on
     }
   });
   const [state, setState] = useState(null);
+  // Croquis du stylet (2026-11-18) : proposés comme images de référence,
+  // ceux qui touchent cette section d'abord.
+  const [croquis, setCroquis] = useState([]);
+  const [usedCroquis, setUsedCroquis] = useState([]);
+  useEffect(() => {
+    croquisFor(item.props.id).then(setCroquis);
+  }, [item.props.id]);
+  async function removeCroquis(c) {
+    await fetch(`/api/croquis/${encodeURIComponent(pageName)}/${encodeURIComponent(c.fichier)}`, { method: "DELETE" }).catch(() => {});
+    setCroquis((list) => list.filter((x) => x.url !== c.url));
+  }
+  async function useCroquis(c) {
+    const data = await dataUrlOf(c.url);
+    if (tab === "design") setDesignRef(data);
+    else setRefs((r) => [...r, data].slice(0, 6));
+    setUsedCroquis((u) => [...u, c.url]);
+  }
   const section = byId[item.type];
   if (!section) return null;
   const [sectionName] = (section.meta.label ?? section.id).split(" — ");
@@ -2177,8 +2303,7 @@ function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, on
           body: JSON.stringify({ items: texts, regles: !/tradui|translat/i.test(prompt), prompt: /tradui|translat/i.test(prompt) ? prompt : `${prompt}
 ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.produit ?? "", profil: root.profil ?? "", infosProduit: String(root.infos ?? "").slice(0, 8000), typeDePage: root.pageType ?? "" }, references: refs }),
         });
-        const body = await res.json();
-        if (!res.ok) throw new Error(body.error);
+        const body = await iaJson(res);
         onApply(Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
       }
       if (doImages && images.length) {
@@ -2190,8 +2315,7 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ page: pageName, source: img.src, prompt, references: refs, width: w, height: h }),
           });
-          const body = await res.json();
-          if (!res.ok) throw new Error(body.error);
+          const body = await iaJson(res);
           onApply({ [img.key]: { image: body.url } });
         }
       }
@@ -2219,9 +2343,9 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
           <div className="atl-aidlg__tabrow">
           <div className="atl-tabs2 atl-aidlg__tabs">
             {[
+              ["design", "Design", Boolean(onRebuild)],
               ["textes", `Textes (${texts.length})`, texts.length > 0],
               ["images", `Images (${images.length})`, images.length > 0],
-              ["design", "Design", Boolean(onRebuild)],
             ].map(([id, label, ok]) => (
               <button key={id} type="button" className={tab === id ? "is-on" : ""} disabled={!ok || state?.busy} onClick={() => (setTab(id), setState(null))}>
                 {label}
@@ -2253,12 +2377,33 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
             />
           </label>
           <div className="atl-aidlg__chips">
-            {QUICK.map((q) => (
+            {(QUICK[tab] ?? QUICK.textes).map((q) => (
               <button key={q} type="button" onClick={() => setPrompt((p) => (p ? `${p} ${q}.` : `${q}.`))}>
                 {q}
               </button>
             ))}
           </div>
+          {croquis.length > 0 && (
+            <div className="atl-aidlg__croquis">
+              <span>✎ Tes croquis : clique pour {tab === "design" ? "le prendre comme exemple à imiter" : "l'ajouter aux références"}</span>
+              <div>
+                {croquis.slice(0, 12).map((c) => {
+                  const here = c.sections?.includes(item.props.id);
+                  return (
+                    <div key={c.url} className={`atl-aidlg__croq${here ? " is-here" : ""}${usedCroquis.includes(c.url) ? " is-used" : ""}`}>
+                      <button type="button" onClick={() => useCroquis(c)} title={c.le ? new Date(c.le).toLocaleString() : ""}>
+                        <img src={c.url} alt="" />
+                        {here && <em>cette section</em>}
+                      </button>
+                      <button type="button" className="atl-aidlg__croq-del" onClick={() => removeCroquis(c)} title="Supprimer ce croquis (corbeille)" aria-label="Supprimer ce croquis">
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {tab === "design" && (
             <div className="atl-aidlg__design">
               <label className="atl-aibox__ref">
@@ -3096,8 +3241,7 @@ function BrandSheet({ root, onChange }) {
           r.readAsDataURL(file);
         });
         const res = await fetch(`/api/medias/${pageName}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, dataUrl }) });
-        const body = await res.json();
-        if (!res.ok) throw new Error(body.error);
+        const body = await iaJson(res);
         urls.push(body.url);
       }
       if (field === "logo") onChange({ logo: urls[0] ?? root.logo ?? "" });
@@ -3581,8 +3725,7 @@ function RewritePage({ content, root, onApply, onRoot }) {
               contexte: { marque: form.marque || "", produit: root.produit ?? "", profilClient: anglesCtx ? "tous les angles" : root.profil ?? "", infosProduit: form.infos.slice(0, 8000), typeDePage: root.pageType ?? "", ...(anglesCtx ? { angles: anglesCtx } : {}) },
             }),
           });
-          const body = await res.json();
-          if (!res.ok) throw new Error(body.error);
+          const body = await iaJson(res);
           onApply(job.id, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
           done += batch.length;
         }
@@ -3725,8 +3868,7 @@ function FillFromFoundations({ content, root, onApply }) {
               contexte,
             }),
           });
-          const body = await res.json();
-          if (!res.ok) throw new Error(body.error);
+          const body = await iaJson(res);
           // Garde-fou : un chiffre qui engage (prix, %, durée, nombre d'avis…)
           // absent du projet ne passe pas, quoi qu'ait écrit l'IA.
           const safe = body.items.map((x) => {
@@ -3868,8 +4010,7 @@ function DeclinePage({ content, root, onApply }) {
               contexte,
             }),
           });
-          const body = await res.json();
-          if (!res.ok) throw new Error(body.error);
+          const body = await iaJson(res);
           onApply(job.id, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
           done += batch.length;
         }
@@ -3941,8 +4082,7 @@ function TranslatePage({ content, root, onApply, onLangue }) {
               contexte: { produit: root.produit ?? "", typeDePage: root.pageType ?? "" },
             }),
           });
-          const body = await res.json();
-          if (!res.ok) throw new Error(body.error);
+          const body = await iaJson(res);
           onApply(job.id, Object.fromEntries(body.items.map((x) => [x.id, { text: x.text }])));
           done += batch.length;
         }

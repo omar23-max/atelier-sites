@@ -9885,3 +9885,66 @@ body.atl-view-phone .atl-vpbar span[class*="ViewportButton--isActive"] svg {
   background: #fff1ee;
   border-color: #f2c1b8;
 }
+
+/* Stylet (src/stylet-ui.jsx, 2026-11-18) */
+.atl-stylet { position: fixed; inset: 0; z-index: 9000; }
+.atl-stylet__canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.atl-stylet__bar { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; max-width: calc(100vw - 40px); padding: 8px 12px; border-radius: 14px; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.06); font: 13px/1.2 Inter, system-ui, sans-serif; color: #1c1c1c; }
+.atl-stylet__bar b { margin-right: 4px; }
+.atl-stylet__bar button { height: 30px; padding: 0 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font: inherit; cursor: pointer; }
+.atl-stylet__bar button.is-on { border-color: #111; box-shadow: inset 0 0 0 1px #111; }
+.atl-stylet__bar button:disabled { opacity: .4; cursor: default; }
+.atl-stylet__bar .atl-stylet__color { width: 24px; height: 24px; padding: 0; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ccc; }
+.atl-stylet__bar .atl-stylet__color.is-on { box-shadow: 0 0 0 2px #111; }
+.atl-stylet__sep { width: 1px; height: 22px; background: #e3e3e3; margin: 0 2px; }
+.atl-stylet__bar .atl-stylet__save { border-color: #111; background: #111; color: #fff; font-weight: 600; }
+.atl-stylet__ok { color: #15803d; }
+.atl-stylet__err { color: #b91c1c; }
+/* Croquis proposés dans « Retravailler avec l'IA » */
+.atl-aidlg__croquis { display: grid; gap: 6px; margin-top: 10px; }
+.atl-aidlg__croquis > span { font-size: 12.5px; color: #555; }
+.atl-aidlg__croquis > div { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.atl-aidlg__croquis button { position: relative; flex: none; width: 120px; height: 76px; padding: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #f6f6f6; cursor: pointer; }
+.atl-aidlg__croquis button img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.atl-aidlg__croquis button.is-here { border-color: #4c5fd5; box-shadow: 0 0 0 1px #4c5fd5; }
+.atl-aidlg__croquis button.is-used { opacity: .45; }
+.atl-aidlg__croquis button em { position: absolute; left: 4px; top: 4px; padding: 1px 6px; border-radius: 99px; background: #4c5fd5; color: #fff; font: 600 10px Inter, system-ui, sans-serif; font-style: normal; }
+
+/* Croquis : vignette + bouton Supprimer (2026-11-18) */
+.atl-aidlg__croquis .atl-aidlg__croq { position: relative; flex: none; }
+.atl-aidlg__croquis .atl-aidlg__croq > button:first-child { position: relative; display: block; width: 120px; height: 76px; padding: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #f6f6f6; cursor: pointer; }
+.atl-aidlg__croquis .atl-aidlg__croq.is-here > button:first-child { border-color: #4c5fd5; box-shadow: 0 0 0 1px #4c5fd5; }
+.atl-aidlg__croquis .atl-aidlg__croq.is-used > button:first-child { opacity: .45; }
+.atl-aidlg__croquis .atl-aidlg__croq-del { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; padding: 0; border: 1px solid #ddd; border-radius: 50%; background: #fff; color: #b91c1c; font: 700 13px/1 Inter, system-ui, sans-serif; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.atl-aidlg__croquis .atl-aidlg__croq-del:hover { background: #fee2e2; }
+.atl-aidlg__croquis > div { padding-top: 6px; }
+
+/* « Ajouter une section » : depuis une image ou un croquis (2026-11-18) */
+.atl-fromimg { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px; margin: 4px 20px 14px; padding: 14px 16px; border: 2px dashed #b9c4fb; border-radius: 14px; background: rgba(91,124,255,.05); }
+.atl-fromimg__text { display: grid; gap: 3px; flex: 1 1 280px; }
+.atl-fromimg__text strong { font-size: 14.5px; }
+.atl-fromimg__text span { font-size: 12.5px; color: #5c6690; }
+.atl-fromimg__pick { padding: 8px 14px; border-radius: 99px; background: #4c5fd5; color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.atl-fromimg__pick:hover { background: #3a4bc0; }
+.atl-fromimg__croquis { display: flex; align-items: center; gap: 8px; flex-basis: 100%; overflow-x: auto; }
+.atl-fromimg__croquis span { font-size: 12.5px; color: #5c6690; white-space: nowrap; }
+.atl-fromimg__croquis button { flex: none; width: 96px; height: 60px; padding: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #f6f6f6; cursor: pointer; }
+.atl-fromimg__croquis img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.atl-fromimg__ready { display: flex; gap: 14px; width: 100%; align-items: flex-start; }
+.atl-fromimg__ready > img { width: 180px; max-height: 130px; object-fit: contain; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
+.atl-fromimg__ready > div { display: grid; gap: 8px; flex: 1; }
+.atl-fromimg__ready textarea { width: 100%; padding: 8px 10px; border: 1px solid #d6dbf5; border-radius: 8px; font: inherit; font-size: 13px; resize: vertical; }
+.atl-fromimg__actions { display: flex; gap: 8px; justify-content: flex-end; }
+.atl-fromimg__actions button { padding: 7px 14px; border: 1px solid #d6dbf5; border-radius: 8px; background: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+.atl-fromimg__actions .atl-fromimg__go { border-color: #111; background: #111; color: #fff; font-weight: 600; }
+.atl-fromimg__actions button:disabled { opacity: .5; cursor: default; }
+.atl-fromimg__err { color: #b91c1c; font-size: 12.5px; }
+
+/* Barre de l'aperçu aérée (2026-11-18) : langue, écrans, zoom */
+@media (min-width: 1280px) {
+  .atl-vpbar [class*="ViewportControls-actionsInner"] { gap: 8px !important; }
+  .atl-lang-host { margin: 0 14px 0 auto !important; }
+  .atl-switch-host .atl-switch { gap: 6px !important; }
+  .atl-vpbar [class*="ViewportControls-divider"],
+  .atl-vpbar .atl-viewport-divider { margin: 0 10px !important; }
+}

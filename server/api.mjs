@@ -12,6 +12,7 @@ import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promise
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { root, pagesDir, sectionsDir, trashDir, requestsDir, projectsDir, importsDir, mediasDir, NAME, TRASH_NAME, stamp, readBody, thumbTimers, refreshPageThumb, json, supabaseClient, mediaPlace, pageRev, pageWriters } from "./commun.mjs";
+const jsonOut = json;
 import { empreinte, statutFondations } from "../src/engine/fondations-etat.js";
 
 export function atelierApi() {
@@ -671,6 +672,30 @@ export function atelierApi() {
 
           // ---- Retravailler avec l'IA (OpenAI, clé de .env.local) ----
           if (parts[0] === "ia" && req.method === "POST") {
+            // Demandes longues (2026-11-18) : Cloudflare coupe à 100 s sans
+            // réponse (page HTML « 524 », lue comme du JSON invalide). Après
+            // 20 s, la réponse commence (200) et un espace part toutes les
+            // 15 s ; JSON accepte les espaces au début. Une erreur arrive
+            // alors en 200 avec { error } (l'éditeur la lit aussi).
+            let beat = setTimeout(function tick() {
+              if (!res.headersSent) {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json; charset=utf-8");
+              }
+              res.write(" ");
+              beat = setTimeout(tick, 15000);
+            }, 20000);
+            res.on("close", () => clearTimeout(beat));
+            // Journal (journalctl -u atelier) : chaque demande IA, sa durée, son issue.
+            const t0 = Date.now();
+            console.log(`[ia] ${parts[1]} reçue (${req.headers["content-length"] ?? "?"} octets)`);
+            res.on("close", () => console.log(`[ia] ${parts[1]} terminée en ${Math.round((Date.now() - t0) / 1000)} s, statut ${res.statusCode}${res.writableFinished ? "" : " (connexion coupée avant la fin)"}`));
+            const json = (r, status, body) => {
+              clearTimeout(beat);
+              if (status >= 400) console.log(`[ia] ${parts[1]} erreur : ${body?.error ?? status}`);
+              if (r.headersSent) return r.end(JSON.stringify(status >= 400 ? { ...body, error: body?.error ?? `Erreur ${status}` } : body));
+              return jsonOut(r, status, body);
+            };
             const env = loadEnv("development", root, "");
             const { rewriteTexts, reworkImage, auditPage } = await import("../scripts/lib/ia.mjs");
             const b = await readBody(req);
@@ -730,6 +755,44 @@ export function atelierApi() {
           // videos-creees/. Page hors projet : medias/<page>/ comme avant. Les
           // images du site d'origine restent à part (imports/<slug>/images/).
           // Téléverser une image depuis le panneau de droite.
+          // ---- Croquis du stylet (2026-11-18) : medias/croquis/<page>/ ----
+          //   POST /api/croquis/<page>   { image: dataURL jpeg/png, sections: [ids] }
+          //   GET  /api/croquis/<page>   [{ url, le, sections }] du plus récent
+          //   DELETE /api/croquis/<page>/<fichier>  (vers corbeille/croquis)
+          if (parts[0] === "croquis" && NAME.test(parts[1] ?? "")) {
+            const dir = join(root, "medias", "croquis", parts[1]);
+            const url = `/medias/croquis/${parts[1]}`;
+            if (req.method === "POST" && !parts[2]) {
+              const { image, sections = [] } = await readBody(req);
+              const m = /^data:image\/(png|jpe?g);base64,(.+)$/.exec(image ?? "");
+              if (!m) return json(res, 400, { error: "Image invalide." });
+              await mkdir(dir, { recursive: true });
+              const name = `croquis-${stamp()}`;
+              const ext = m[1] === "png" ? "png" : "jpg";
+              await writeFile(join(dir, `${name}.${ext}`), Buffer.from(m[2], "base64"));
+              const ids = (Array.isArray(sections) ? sections : []).filter((x) => typeof x === "string").slice(0, 40);
+              await writeFile(join(dir, `${name}.json`), JSON.stringify({ le: new Date().toISOString(), sections: ids }) + "\n");
+              return json(res, 200, { ok: true, url: `${url}/${name}.${ext}` });
+            }
+            if (req.method === "GET" && !parts[2]) {
+              if (!existsSync(dir)) return json(res, 200, []);
+              const files = (await readdir(dir)).filter((f) => /\.(jpg|png)$/.test(f)).sort().reverse().slice(0, 30);
+              const list = [];
+              for (const f of files) {
+                let meta = {};
+                try {
+                  meta = JSON.parse(await readFile(join(dir, f.replace(/\.(jpg|png)$/, ".json")), "utf8"));
+                } catch {}
+                list.push({ url: `${url}/${f}`, fichier: f, le: meta.le ?? null, sections: meta.sections ?? [] });
+              }
+              return json(res, 200, list);
+            }
+            if (req.method === "DELETE" && /^croquis-[\w-]+\.(jpg|png)$/.test(parts[2] ?? "")) {
+              await mkdir(join(root, "corbeille", "croquis"), { recursive: true });
+              if (existsSync(join(dir, parts[2]))) await rename(join(dir, parts[2]), join(root, "corbeille", "croquis", `${parts[1]}__${parts[2]}`));
+              return json(res, 200, { ok: true });
+            }
+          }
           if (parts[0] === "medias" && NAME.test(parts[1] ?? "") && req.method === "POST") {
             const { name: fileName, dataUrl } = await readBody(req);
             // Images, et vidéos depuis le 2026-11-12 (« Ajouter une vidéo » du Canvas).

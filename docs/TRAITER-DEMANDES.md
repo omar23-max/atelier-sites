@@ -745,6 +745,59 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      endroit de l'écran, la barre sous la souris, on peut cliquer plusieurs
      fois. Testé sur une page jetable (essai-barre, à la corbeille).
      Sauvegarde : /tmp/inspector.avant-barre-fixe.jsx.
+   - **Stylet et croquis pour l'IA (2026-11-18)** : bouton « ✎ Stylet » dans
+     la barre de l'aperçu (src/stylet-ui.jsx, monté dans App.jsx) : calque de
+     dessin plein écran (5 couleurs, 3 épaisseurs, pression du stylet,
+     Ctrl+Z, Effacer, Échap). « 📸 Enregistrer » : capture de l'onglet par
+     getDisplayMedia (Chrome demande « Partager cet onglet ? »), recadrée sur
+     l'aperçu, avec les sections touchées par le dessin ; POST
+     /api/croquis/<page> → medias/croquis/<page>/croquis-<date>.jpg + .json
+     (GET liste, DELETE vers corbeille/croquis). « Retravailler avec l'IA »
+     propose les croquis de la page (ceux de la section d'abord, étiquette
+     « cette section ») : clic = référence (Textes, Images) ou exemple à
+     imiter (Design). Testé : dessin, route, propositions dans la fenêtre ;
+     la capture elle-même n'a pas pu être essayée (le navigateur de test
+     n'a pas la fenêtre de partage). Sauvegardes : /tmp/api.avant-croquis.mjs,
+     /tmp/App.avant-stylet.jsx, /tmp/inspector.avant-croquis.jsx,
+     /tmp/styles.avant-stylet.css.
+     · Suite (testé par l'utilisateur : la capture marche) : × sur chaque
+     croquis de la fenêtre IA (DELETE, vers corbeille/croquis) ; onglet
+     Design en premier et ouvert par défaut quand la section peut être
+     redessinée ; actions rapides propres à chaque onglet (QUICK.design : 16,
+     QUICK.images : 11, QUICK.textes : 8). Sauvegardes :
+     /tmp/inspector.avant-aidlg-v2.jsx, /tmp/styles.avant-aidlg-v2.css.
+   - **Section depuis une image ou un croquis (2026-11-18)** : encart en haut
+     de « Ajouter une section » (library-ui.jsx, AddSectionButton) : « Choisir
+     une image sur l'ordinateur… » (sélecteur de fichiers) ou un croquis du
+     stylet de la page, champ « Précisions », « Créer la section ».
+     createSectionFromImage (inspector-ui.jsx, chargé à la demande pour
+     éviter l'import circulaire) : /api/ia/section avec l'image en référence
+     (consigne : reproduire la disposition, suivre les annotations d'un
+     croquis, <img src=""> + alt aux emplacements d'image), section
+     <page>-ia-… posée à l'emplacement choisi (même filet de rechargement).
+     Testé sur une page jetable avec le croquis de l'utilisateur (titan).
+     · Barre de l'aperçu aérée au-delà de 1280 px (gap 8 px, séparateurs
+     10 px). Sauvegardes : /tmp/inspector.avant-depuis-image.jsx,
+     /tmp/library.avant-depuis-image.jsx, /tmp/styles.avant-depuis-image.css.
+   - **Stylet : dessin accroché à la page (2026-11-18)** : le croquis se
+     décalait après un zoom (traits gardés en coordonnées d'écran). Les
+     points sont maintenant dans le repère du contenu de l'aperçu (view /
+     toPage / toScreen : place de l'iframe, zoom de l'aperçu, défilement) et
+     redessinés toutes les 50 ms si quelque chose a bougé (minuterie, pas
+     requestAnimationFrame) ; épaisseur suivant le zoom ; la molette fait
+     défiler l'aperçu pendant le dessin. Testé : trait sur un titre, fenêtre
+     redimensionnée, molette : le trait reste sur le titre.
+   - **« Unexpected token '<', "<!DOCTYPE"… is not valid JSON » (2026-11-18)**
+     sur « Refaire » une image : la page d'erreur HTML de Cloudflare (coupure
+     à 100 s sans réponse) lue comme du JSON. Le service marche (23 s par le
+     tunnel). Correctif : dans le bloc /api/ia (server/api.mjs), après 20 s
+     la réponse commence (200) et un espace part toutes les 15 s ; une
+     erreur arrive alors en 200 avec { error } (json local qui l'écrit).
+     Éditeur : iaJson(res) lit la réponse (erreur aussi dans un 200, message
+     clair si ce n'est pas du JSON) pour textes, images, Redessiner, section
+     depuis une image, Studio. Testé : refonte d'image de 24 s, réponse
+     « ␠{"url":…} » valide. Sauvegardes : /tmp/api.avant-keepalive.mjs,
+     /tmp/inspector.avant-iajson.jsx.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

@@ -5,6 +5,7 @@ import { sections, sectionsIndex } from "./engine/sections.js";
 import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
 import { FullscreenButton } from "./library-ui.jsx";
+import { StyletButton } from "./stylet-ui.jsx";
 import { SlotPicker } from "./slot-picker.jsx";
 import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
@@ -371,6 +372,8 @@ export default function App() {
                 {/* Catalogue et Historique sont en bas du rail de gauche. */}
                 <HistoryButton hidden />
                 <FullscreenButton />
+                {/* Stylet : dessiner sur l'écran, capture pour l'IA (2026-11-18). */}
+                <StyletButton />
                 {/* Annuler / Rétablir : dans la barre de l'aperçu. */}
                 <UndoRedo />
                 {/* Barre de l'aperçu → pilule flottante en bas (plein écran). */}

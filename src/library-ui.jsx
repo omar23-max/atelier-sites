@@ -9,6 +9,7 @@ import { designById } from "./engine/designs.js";
 const sectionsById = sectionsIndex;
 import { IconCollapse, IconExpand } from "./icons.jsx";
 import { pushRecent, toggleFavori, traitsOf, useGalleryPrefs } from "./gallery-prefs.js";
+import { croquisFor, dataUrlOf } from "./stylet-ui.jsx";
 
 export const ROOT_ZONE = "root:default-zone";
 const byId = sectionsIndex;
@@ -348,6 +349,30 @@ export function AddSectionButton({ variant = "header" }) {
   const [family, setFamily] = useState(null);
   const [where, setWhere] = useState({ index: 0, afterSelected: false, custom: false });
   const [query, setQuery] = useState("");
+  // Section depuis une image ou un croquis (2026-11-18).
+  const [fromImg, setFromImg] = useState(null); // { image, precisions, busy, error }
+  const [croquis, setCroquis] = useState([]);
+  useEffect(() => {
+    if (open) croquisFor(null).then(setCroquis);
+  }, [open]);
+  const pickFile = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const r = new FileReader();
+    r.onload = () => setFromImg({ image: r.result, precisions: "" });
+    r.readAsDataURL(file);
+  };
+  async function createFromImage() {
+    setFromImg((f) => ({ ...f, busy: true, error: null }));
+    try {
+      const { createSectionFromImage } = await import("./inspector-ui.jsx");
+      // La fenêtre reste ouverte (« Création en cours… ») jusqu'à la section posée.
+      await createSectionFromImage(getPuck, where.index, fromImg.image, fromImg.precisions.trim());
+      setFromImg(null);
+      close();
+    } catch (e) {
+      setFromImg((f) => ({ ...f, busy: false, error: e.message }));
+    }
+  }
 
   const grouped = Object.fromEntries(FAMILIES.map((f) => [f.id, []]));
   // Les sections masquées dans le catalogue ne sont pas proposées.
@@ -376,6 +401,7 @@ export function AddSectionButton({ variant = "header" }) {
 
   function close() {
     setOpen(false);
+    setFromImg((f) => (f?.busy ? f : null));
     setFamily(null);
     setQuery("");
     setFiltre("tous");
@@ -473,6 +499,48 @@ export function AddSectionButton({ variant = "header" }) {
                 )
               ) : !current ? (
                 <>
+                {/* Depuis une image ou un croquis (2026-11-18) : l'IA crée la section. */}
+                <div className="atl-fromimg">
+                  {!fromImg ? (
+                    <>
+                      <div className="atl-fromimg__text">
+                        <strong>🖼 Créer à partir d'une image ou d'un croquis</strong>
+                        <span>Une capture d'un site, une photo, un dessin : l'IA en fait une section (30 à 90 s).</span>
+                      </div>
+                      <label className="atl-fromimg__pick">
+                        Choisir une image sur l'ordinateur…
+                        <input type="file" accept="image/*" hidden onChange={(e) => pickFile(e.target.files[0])} />
+                      </label>
+                      {croquis.length > 0 && (
+                        <div className="atl-fromimg__croquis">
+                          <span>ou un de tes croquis :</span>
+                          {croquis.slice(0, 8).map((c) => (
+                            <button key={c.url} type="button" onClick={async () => setFromImg({ image: await dataUrlOf(c.url), precisions: "" })} title={c.le ? new Date(c.le).toLocaleString() : ""}>
+                              <img src={c.url} alt="" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="atl-fromimg__ready">
+                      <img src={fromImg.image} alt="" />
+                      <div>
+                        <strong>Nouvelle section d'après cette image</strong>
+                        <textarea rows={2} placeholder="Précisions (facultatif) : ex. 3 colonnes, fond sombre, garde seulement le haut…" value={fromImg.precisions} onChange={(e) => setFromImg({ ...fromImg, precisions: e.target.value })} />
+                        <div className="atl-fromimg__actions">
+                          <button type="button" onClick={() => setFromImg(null)} disabled={fromImg.busy}>
+                            Changer d'image
+                          </button>
+                          <button type="button" className="atl-fromimg__go" onClick={createFromImage} disabled={fromImg.busy}>
+                            {fromImg.busy ? "Création en cours…" : "Créer la section"}
+                          </button>
+                        </div>
+                        {fromImg.error && <span className="atl-fromimg__err">{fromImg.error}</span>}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 {/* Favoris et derniers modèles ajoutés, avant les familles. */}
                 {favoris.length > 0 && (
                   <div className="atl-modal__strip">
