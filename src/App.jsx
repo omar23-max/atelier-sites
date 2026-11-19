@@ -117,18 +117,28 @@ function SafeInspector(props) {
 }
 
 export default function App() {
-  // Section neuve (retravail IA, 2026-11-16) : ajoutée DANS la config déjà
-  // donnée à Puck (Puck garde sa config de départ : en passer une nouvelle ne
-  // suffit pas). Le résultat s'affiche alors sans recharger la page.
-  const config = useMemo(() => buildPuckConfig(sections), []);
+  // Section neuve (retravail IA, 2026-11-16) : la config de Puck est
+  // complétée. Correctif du 2026-11-18 : Puck 0.23 ne relit sa config que si on
+  // lui en passe une NOUVELLE (il la recopie dans son store quand l'objet
+  // change) ; modifier l'ancienne en place laissait « No configuration for
+  // <section>-ia-… » et la section retravaillée n'apparaissait pas.
+  const [config, setConfig] = useState(() => buildPuckConfig(sections));
+  const sectionsAddedWaiting = useRef([]);
   useEffect(() => {
     const on = (e) => {
       const fresh = buildPuckConfig(sections);
-      for (const id of e.detail?.ids ?? []) if (fresh.components[id]) config.components[id] = fresh.components[id];
-      e.detail?.resolve?.();
+      const added = {};
+      for (const id of e.detail?.ids ?? []) if (fresh.components[id]) added[id] = fresh.components[id];
+      if (e.detail?.resolve) sectionsAddedWaiting.current.push(e.detail.resolve);
+      setConfig((c) => ({ ...c, components: { ...c.components, ...added } }));
     };
     window.addEventListener("atl-sections-added", on);
     return () => window.removeEventListener("atl-sections-added", on);
+  }, []);
+  // Les effets des enfants (Puck recopie la config) passent avant celui-ci.
+  useEffect(() => {
+    const waiting = sectionsAddedWaiting.current.splice(0);
+    waiting.forEach((resolve) => resolve());
   }, [config]);
   const [data, setData] = useState(null);
   const [status, setStatus] = useState(null);

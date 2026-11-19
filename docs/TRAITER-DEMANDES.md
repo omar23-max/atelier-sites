@@ -711,6 +711,40 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      · Idem sur titan-accueil (section titan-accueil-p1, seule page à l utiliser) :
      bandeau caché + fond rgb(17,17,19) au menu fixe. Sauvegarde :
      /tmp/titan-p1-style.avant-news.css.
+     · Menus Titan (titan-accueil-p1, nextap-titan-menu-clair) en position
+     relative : fixes, ils traversaient la page dans l éditeur. marge_haut du
+     hero NexTap retirée.
+   - **« Retravailler avec l IA » cassé (2026-11-18)** : « Cannot find module
+     …/server/scripts/lib/ia.mjs ». server/api.mjs importait
+     "./scripts/lib/ia.mjs" (chemin d avant le passage du code dans server/,
+     atelier compilé depuis le 2026-11-17) : les 6 imports passent en
+     "../scripts/lib/ia.mjs" (textes, images, Studio, Canvas, détourage,
+     Redessiner). Sauvegarde : /tmp/api.avant-chemin-ia.mjs. Service relancé.
+     · **Section retravaillée invisible** (« No configuration for <page>-ia-… ») :
+     Puck 0.23 ne voit pas une section ajoutée en modifiant sa config en
+     place. App.jsx passe maintenant une NOUVELLE config (useState) ; et
+     filet dans applyReplacements (inspector-ui.jsx) : si la section n'est
+     pas dans l'aperçu après 4 s, la page est enregistrée puis rechargée
+     (c'est ce filet qui agit aujourd'hui). Testé sur une page jetable
+     (essai-redessiner, à la corbeille). Sauvegardes : /tmp/App.avant-config.jsx,
+     /tmp/inspector.avant-filet.jsx.
+   - **« Ignorer » sur les sections conseillées (2026-11-18)** : bouton à côté
+     de « Choisir un modèle » (engine/missing-slots.jsx) ; clé de la
+     proposition gardée dans root.props.atl_ignores (Ctrl+Z annule) ; le clic
+     géométrique de l'éditeur (inspector-ui.jsx, slotBoxAt) va au bouton
+     Ignorer s'il est sous la souris. Le Score de vente compte encore ces
+     familles comme manquantes. Sauvegarde : /tmp/missing-slots.avant-ignorer.jsx.
+   - **Fenêtre « Retravailler avec l'IA » (2026-11-18)** : Annuler et
+     Réécrire / Refaire / Redessiner montés sur la ligne des onglets
+     (.atl-aidlg__tabrow, .atl-aidlg__actions) ; le pied ne garde que les
+     messages et se cache s'il est vide. Sauvegardes :
+     /tmp/inspector.avant-boutons-haut.jsx, /tmp/styles.avant-boutons-haut.css.
+   - **Barre flottante qui suit la section (2026-11-18)** : ▲ / ▼ de la barre
+     (CanvasToolbar, keepInPlace) font défiler l'aperçu d'autant que la
+     section (ou l'élément) s'est déplacée, pendant 1,5 s : elle reste au même
+     endroit de l'écran, la barre sous la souris, on peut cliquer plusieurs
+     fois. Testé sur une page jetable (essai-barre, à la corbeille).
+     Sauvegarde : /tmp/inspector.avant-barre-fixe.jsx.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

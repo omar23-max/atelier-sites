@@ -377,6 +377,15 @@ export async function applyReplacements(getPuck, replacements) {
   await new Promise((r) => setTimeout(r, 50));
   const at = getPuck().history?.index;
   for (const r of replacements) r.historyIndex = at;
+  // Filet (2026-11-18) : si l'aperçu n'affiche pas la section neuve (Puck
+  // n'a pas pris la config complétée : « No configuration for … »), la page
+  // est enregistrée puis rechargée ; la section apparaît alors.
+  const shown = () => replacements.every((r) => canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(r.item.props.id)}"]`));
+  for (let i = 0; i < 20 && !shown(); i++) await new Promise((r) => setTimeout(r, 200));
+  if (!shown()) {
+    await savePageWith(getPuck, []);
+    location.reload();
+  }
 }
 
 // « Revenir à avant » : revient à l'état d'avant le retravail dans
@@ -619,7 +628,12 @@ export function Inspector({ children }) {
           };
           const items = [...box.querySelectorAll(".atl-slot__item")];
           const item = items.reduce((best, it) => (!best || dist(it) < dist(best) ? it : best), null);
-          item?.querySelector("button[data-slot-key]")?.click();
+          // Bouton « Ignorer » sous la souris (2026-11-18) : c'est lui qui reçoit le clic.
+          const ignore = [...box.querySelectorAll("button[data-ignore-key]")].find((b) => {
+            const r = b.getBoundingClientRect();
+            return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+          });
+          (ignore ?? item?.querySelector("button[data-slot-key]"))?.click();
           return;
         }
       }
@@ -2201,6 +2215,8 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
           <p className="atl-aidlg__target">
             Sur {what} : {texts.length} texte(s), {images.length} image(s).
           </p>
+          {/* Boutons à côté des onglets (2026-11-18) : visibles sans défiler. */}
+          <div className="atl-aidlg__tabrow">
           <div className="atl-tabs2 atl-aidlg__tabs">
             {[
               ["textes", `Textes (${texts.length})`, texts.length > 0],
@@ -2211,6 +2227,15 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
                 {label}
               </button>
             ))}
+          </div>
+          <div className="atl-aidlg__actions">
+            <button type="button" onClick={onClose} disabled={state?.busy}>
+              Annuler
+            </button>
+            <button type="button" className="atl-newpage__create" disabled={state?.busy || (tab === "design" && !prompt.trim() && !designRef)} onClick={launch}>
+              {state?.busy ? "En cours…" : tab === "design" ? "Redessiner" : tab === "images" ? "Refaire" : "Réécrire"}
+            </button>
+          </div>
           </div>
           <p className="atl-aidlg__how">
             {tab === "textes" && "Réécrit les textes choisis — gpt-5.4-mini, immédiat."}
@@ -2295,12 +2320,6 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
             </span>
           )}
           {state?.undone && <span className="atl-topbar__ok">Section d'avant remise en place.</span>}
-          <button type="button" onClick={onClose} disabled={state?.busy}>
-            Annuler
-          </button>
-          <button type="button" className="atl-newpage__create" disabled={state?.busy || (tab === "design" && !prompt.trim() && !designRef)} onClick={launch}>
-            {state?.busy ? "En cours…" : tab === "design" ? "Redessiner" : tab === "images" ? "Refaire" : "Réécrire"}
-          </button>
         </footer>
       </div>
     </div>,
@@ -2878,6 +2897,24 @@ function startSectionDrag(e, sectionId, onMoveSection) {
 function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection }) {
   const [pos, setPos] = useState(null);
   const barRef = useRef(null);
+  // ▲ / ▼ (2026-11-18) : l'aperçu défile d'autant que la section (ou l'élément)
+  // s'est déplacée ; elle reste au même endroit de l'écran, la barre aussi,
+  // sous la souris : on peut cliquer plusieurs fois de suite.
+  const keepInPlace = (fn) => () => {
+    const frame = canvasFrame();
+    const find = () => (node ? domOf(sel.sectionId, node) : frame?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sel.sectionId)}"]`));
+    const before = find()?.getBoundingClientRect().top;
+    fn();
+    if (before == null || !frame) return;
+    // Suivi minuté (1,5 s) : le rendu après le déplacement peut tarder.
+    const t0 = Date.now();
+    const fix = () => {
+      const top = find()?.getBoundingClientRect().top;
+      if (top != null && Math.abs(top - before) > 1) frame.contentWindow.scrollBy(0, top - before);
+      if (Date.now() - t0 < 1500) setTimeout(fix, 16);
+    };
+    setTimeout(fix, 0);
+  };
   useEffect(() => {
     let raf;
     const tick = () => {
@@ -2949,10 +2986,10 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
               ⋮⋮
             </button>
           )}
-          <button type="button" onClick={onUp} title="Monter">
+          <button type="button" onClick={keepInPlace(onUp)} title="Monter">
             ▲
           </button>
-          <button type="button" onClick={onDown} title="Descendre">
+          <button type="button" onClick={keepInPlace(onDown)} title="Descendre">
             ▼
           </button>
           {isText && (

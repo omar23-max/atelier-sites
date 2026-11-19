@@ -672,7 +672,7 @@ export function atelierApi() {
           // ---- Retravailler avec l'IA (OpenAI, clé de .env.local) ----
           if (parts[0] === "ia" && req.method === "POST") {
             const env = loadEnv("development", root, "");
-            const { rewriteTexts, reworkImage, auditPage } = await import("./scripts/lib/ia.mjs");
+            const { rewriteTexts, reworkImage, auditPage } = await import("../scripts/lib/ia.mjs");
             const b = await readBody(req);
             try {
               // Auditer la page (menu ✨ IA) : grille du skill, gains rapides.
@@ -690,7 +690,7 @@ export function atelierApi() {
               // consigne est construite ici (studioPrompt), rangée dans
               // « images-creees » du projet. Modèle : gpt-image-2 ou Nano Banana.
               if (parts[1] === "studio" && NAME.test(b.page ?? "")) {
-                const { studioImage, studioPrompt } = await import("./scripts/lib/ia.mjs");
+                const { studioImage, studioPrompt } = await import("../scripts/lib/ia.mjs");
                 const folder = await mediaPlace(b.page, "images-creees");
                 const prompt = studioPrompt(b);
                 return json(res, 200, await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: b.source, references: b.references ?? [], prompt, width: b.width, height: b.height, format: b.mode === "pub" ? b.format : null, model: b.modele, folder }));
@@ -698,7 +698,7 @@ export function atelierApi() {
               // Canvas (2026-11-11) : créer une image (consigne + images de
               // référence prises sur le tableau), ou retirer le fond d'une image.
               if (parts[1] === "canvas-image" && NAME.test(b.page ?? "")) {
-                const { studioImage, canvasPrompt } = await import("./scripts/lib/ia.mjs");
+                const { studioImage, canvasPrompt } = await import("../scripts/lib/ia.mjs");
                 const folder = await mediaPlace(b.page, "images-creees");
                 const references = (b.references ?? []).slice(0, 8);
                 const prompt = canvasPrompt({ prompt: b.prompt, produit: b.produit, description: b.description, nbRefs: references.length, type: b.type });
@@ -706,16 +706,16 @@ export function atelierApi() {
                 return json(res, 200, { ...out, consigne: prompt });
               }
               if (parts[1] === "section-prompts") {
-                const { sectionImagePrompts } = await import("./scripts/lib/ia.mjs");
+                const { sectionImagePrompts } = await import("../scripts/lib/ia.mjs");
                 return json(res, 200, { prompts: await sectionImagePrompts({ key: env.OPENAI_API_KEY, ...b, sections: (b.sections ?? []).slice(0, 30) }) });
               }
               if (parts[1] === "detourer" && NAME.test(b.page ?? "")) {
-                const { detourerImage } = await import("./scripts/lib/ia.mjs");
+                const { detourerImage } = await import("../scripts/lib/ia.mjs");
                 const folder = await mediaPlace(b.page, "images-creees");
                 return json(res, 200, await detourerImage({ openaiKey: env.OPENAI_API_KEY, root, source: b.source, folder }));
               }
               if (parts[1] === "section") {
-                const { rebuildSection } = await import("./scripts/lib/ia.mjs");
+                const { rebuildSection } = await import("../scripts/lib/ia.mjs");
                 return json(res, 200, await rebuildSection({ key: env.OPENAI_API_KEY, ...b }));
               }
             } catch (e) {

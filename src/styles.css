@@ -5265,6 +5265,45 @@ html[data-atl-edit] [class*="Sidebar--right"] {
   padding: 0;
   margin: 2px 0 4px;
 }
+/* Onglets + Annuler / Réécrire sur une ligne (2026-11-18) */
+.atl-aidlg__tabrow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #ebebeb;
+}
+.atl-aidlg__tabrow .atl-aidlg__tabs {
+  border-bottom: 0;
+  margin: 2px 0 0;
+}
+.atl-aidlg__actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+.atl-aidlg__actions button {
+  padding: 7px 14px;
+  border: 1px solid var(--tk-line-strong);
+  border-radius: 6px;
+  background: var(--tk-surface);
+  font: inherit;
+  cursor: pointer;
+}
+.atl-aidlg__actions .atl-newpage__create {
+  border-color: var(--tk-black);
+  background: var(--tk-black);
+  color: #fff;
+  font-weight: 600;
+}
+.atl-aidlg__actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.atl-aidlg .atl-newpage__foot:empty {
+  display: none;
+}
 .atl-aidlg__tabs button:disabled {
   opacity: 0.4;
   cursor: default;

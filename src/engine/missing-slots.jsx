@@ -10,7 +10,7 @@
 // oui/non, rôle de la page (mère, angle) et la demande de choix d'un modèle
 // (ouverte par un clic sur un rectangle, affichée par src/slot-picker.jsx).
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { createUsePuck } from "@puckeditor/core";
+import { createUsePuck, useGetPuck } from "@puckeditor/core";
 import { scorePage, RULES } from "./page-score.js";
 import { sections, sectionsIndex } from "./sections.js";
 import { familyById } from "./families.js";
@@ -65,9 +65,13 @@ export function missingByIndex(data) {
   if (cache.data === data) return cache.byIndex;
   const byIndex = new Map();
   const result = data ? scorePage(data, sectionsById) : null;
+  // Propositions ignorées (bouton « Ignorer », 2026-11-18) : gardées dans la
+  // page (root.props.atl_ignores), elles ne s'affichent plus.
+  const ignored = new Set(data?.root?.props?.atl_ignores ?? []);
   if (result?.type) {
     for (const m of result.missing) {
       if (!m.rule.families) continue; // « lien vers la page d'achat » : un réglage, pas une section
+      if (ignored.has(m.rule.families.join("+"))) continue;
       const list = byIndex.get(m.index) ?? [];
       list.push({
         key: m.rule.families.join("+"),
@@ -99,6 +103,7 @@ export function MissingSlots({ sectionId, where }) {
     return items?.length ? JSON.stringify(items) : "";
   });
   const { visible, role, flash } = useSlotStore();
+  const getPuck = useGetPuck();
   const ref = useRef(null);
   const itemsRef = useRef([]);
   // Les clics de l'aperçu (iframe) n'arrivent pas aux gestionnaires React :
@@ -111,6 +116,14 @@ export function MissingSlots({ sectionId, where }) {
     const onClick = (e) => {
       e.stopPropagation();
       e.preventDefault();
+      const ig = e.target.closest?.("button[data-ignore-key]");
+      if (ig) {
+        const { appState, dispatch } = getPuck();
+        const data = appState.data;
+        const list = [...new Set([...(data.root?.props?.atl_ignores ?? []), ig.dataset.ignoreKey])];
+        dispatch({ type: "setData", data: { ...data, root: { ...data.root, props: { ...(data.root?.props ?? {}), atl_ignores: list } } } });
+        return;
+      }
       const b = e.target.closest?.("button[data-slot-key]");
       const it = b && itemsRef.current.find((x) => x.key === b.dataset.slotKey);
       if (it) slotStore.set({ picker: { ...it, elsewhere: b.dataset.elsewhere === "1" } });
@@ -146,9 +159,14 @@ export function MissingSlots({ sectionId, where }) {
               </b>
               <small>{it.why}</small>
             </div>
-            <button type="button" data-slot-key={it.key} data-elsewhere={elsewhere ? "1" : "0"}>
-              {elsewhere ? "Ouvrir la page mère" : "Choisir un modèle"}
-            </button>
+            <div className="atl-slot__actions">
+              <button type="button" data-slot-key={it.key} data-elsewhere={elsewhere ? "1" : "0"}>
+                {elsewhere ? "Ouvrir la page mère" : "Choisir un modèle"}
+              </button>
+              <button type="button" className="atl-slot__ignore" data-ignore-key={it.key} title="Ne plus proposer cette section sur cette page (Ctrl+Z pour annuler)">
+                Ignorer
+              </button>
+            </div>
           </div>
         );
       })}
@@ -172,6 +190,9 @@ export const SLOT_CSS = `
 .atl-slot__zone.is-angle { background: #ffe6d2; color: #a3480f; }
 .atl-slot button { flex: none; height: 34px; padding: 0 14px; border: 0; border-radius: 99px; background: #4c5fd5; color: #fff; font: 600 13px "Inter", system-ui, sans-serif; cursor: pointer; }
 .atl-slot button:hover { background: #3a4bc0; }
+.atl-slot__actions { display: flex; flex: none; gap: 8px; }
+.atl-slot button.atl-slot__ignore { background: #fff; color: #4c5fd5; box-shadow: inset 0 0 0 1px #b9c4fb; }
+.atl-slot button.atl-slot__ignore:hover { background: #eef1ff; }
 .atl-slot__item.is-elsewhere { opacity: .72; }
 .atl-slot__item.is-elsewhere button { background: #fff; color: #4c5fd5; box-shadow: inset 0 0 0 1px #8ea2ff; }
 @keyframes atl-slot-flash { 0% { box-shadow: 0 0 0 0 rgba(76,95,213,.65); background: rgba(91,124,255,.2); } 100% { box-shadow: 0 0 0 14px rgba(76,95,213,0); background: rgba(91,124,255,.06); } }
