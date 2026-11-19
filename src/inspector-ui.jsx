@@ -1402,6 +1402,11 @@ export function Inspector({ children }) {
           onAddSection={() => window.dispatchEvent(new CustomEvent("atl-add-section", { detail: { index: indexOf(sel.sectionId) + 1 } }))}
           onEdit={() => startEdit(sel)}
           onMoveSection={moveSection}
+          onDragNode={
+            selNode && selNode.k != null && selNode.parent && siblingsOf(sel.sectionId, selNode).length > 1
+              ? (e) => startNodeDrag(e, sel.sectionId, selNode, siblingsOf(sel.sectionId, selNode), moveNode)
+              : null
+          }
           onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null })}
           onHide={() => {
             const block = (normalizeProps(byId[itemOf(sel.sectionId).type], itemOf(sel.sectionId).props).blocks_element ?? []).find((b) => b.slot === sel.key);
@@ -3271,6 +3276,75 @@ function htmlToSection(html, css, id, rootClass, label, page) {
 // Glisser une section dans l'aperçu : on suit la souris sur toute la fenêtre
 // (l'aperçu de Puck ne reçoit pas la souris), une ligne montre où elle ira,
 // l'aperçu défile près des bords ; au relâchement, la section est déplacée.
+// Glisser un élément dans l'aperçu (2026-11-19) : parmi ses frères du même
+// bloc (comme dans Structure). Ligne bleue horizontale si les frères sont
+// les uns sous les autres, verticale s'ils sont côte à côte.
+function startNodeDrag(e, sectionId, node, siblings, onMoveNode) {
+  e.preventDefault();
+  e.stopPropagation();
+  const frame = canvasFrame();
+  if (!frame) return;
+  const doc = frame.contentDocument;
+  const others = siblings.filter((n) => n !== node && !(node.key ? n.key === node.key : n.id === node.id));
+  if (!others.length) return;
+  const shield = document.createElement("div");
+  shield.className = "atl-dragshield";
+  const line = document.createElement("div");
+  line.className = "atl-dropline";
+  document.body.append(shield, line);
+  const self = domOf(sectionId, node);
+  if (self) self.style.setProperty("opacity", "0.45");
+  let target = null;
+  let timer = null;
+  const rects = () => {
+    const fr = frame.getBoundingClientRect();
+    const z = fr.width / frame.offsetWidth || 1;
+    return others
+      .map((n) => {
+        const el = domOf(sectionId, n);
+        const r = el?.getBoundingClientRect();
+        return r && r.width && r.height ? { n, l: fr.left + r.left * z, t: fr.top + r.top * z, r: fr.left + r.right * z, b: fr.top + r.bottom * z } : null;
+      })
+      .filter(Boolean);
+  };
+  // Côte à côte : les frères partagent à peu près la même hauteur de ligne.
+  const first = rects();
+  const all = self ? [...first, (() => { const fr = frame.getBoundingClientRect(); const z = fr.width / frame.offsetWidth || 1; const r = self.getBoundingClientRect(); return { t: fr.top + r.top * z, b: fr.top + r.bottom * z }; })()] : first;
+  const minH = Math.min(...all.map((x) => x.b - x.t));
+  const row = all.length > 1 && Math.max(...all.map((x) => x.t)) - Math.min(...all.map((x) => x.t)) < minH / 2;
+  const where = (cx, cy) => {
+    let best = null;
+    for (const x of rects()) {
+      const after = row ? cx > (x.l + x.r) / 2 : cy > (x.t + x.b) / 2;
+      const edge = row ? (after ? x.r : x.l) : after ? x.b : x.t;
+      const d = Math.abs((row ? cx : cy) - edge) + (row ? Math.max(0, x.t - cy, cy - x.b) : Math.max(0, x.l - cx, cx - x.r)) * 0.5;
+      if (!best || d < best.d) best = { d, n: x.n, after, x, edge };
+    }
+    if (!best) return null;
+    if (row) Object.assign(line.style, { left: `${best.edge - 2}px`, top: `${best.x.t}px`, width: "4px", height: `${best.x.b - best.x.t}px` });
+    else Object.assign(line.style, { left: `${best.x.l}px`, top: `${best.edge - 2}px`, width: `${best.x.r - best.x.l}px`, height: "" });
+    return best;
+  };
+  const onMove = (ev) => {
+    target = where(ev.clientX, ev.clientY);
+    const fr = frame.getBoundingClientRect();
+    clearInterval(timer);
+    const dir = ev.clientY < fr.top + 60 ? -1 : ev.clientY > fr.bottom - 60 ? 1 : 0;
+    if (dir) timer = setInterval(() => (doc.defaultView.scrollBy(0, dir * 30), (target = where(ev.clientX, ev.clientY))), 30);
+  };
+  const onUp = () => {
+    clearInterval(timer);
+    shield.remove();
+    line.remove();
+    if (self) self.style.removeProperty("opacity");
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseup", onUp);
+    if (target) onMoveNode(sectionId, node, target.n, target.after);
+  };
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+}
+
 function startSectionDrag(e, sectionId, onMoveSection) {
   e.preventDefault();
   const frame = canvasFrame();
@@ -3407,7 +3481,7 @@ function SectionResizer({ sectionId, type, onCommit }) {
   );
 }
 
-function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection }) {
+function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection, onDragNode }) {
   const [pos, setPos] = useState(null);
   const barRef = useRef(null);
   // ▲ / ▼ (2026-11-18) : l'aperçu défile d'autant que la section (ou l'élément)
@@ -3496,6 +3570,11 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
           )}
           {!node && (
             <button type="button" className="atl-float__grip" onMouseDown={(e) => startSectionDrag(e, sel.sectionId, onMoveSection)} title="Glisser pour déplacer la section">
+              ⋮⋮
+            </button>
+          )}
+          {node && onDragNode && (
+            <button type="button" className="atl-float__grip" onMouseDown={onDragNode} title="Glisser pour déplacer l'élément (dans son bloc)">
               ⋮⋮
             </button>
           )}

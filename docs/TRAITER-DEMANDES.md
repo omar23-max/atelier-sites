@@ -857,6 +857,13 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      sur elle. Testé : F5 depuis 8 658 px → 8 658 px ; section notée → en
      haut de l'écran et choisie. Sauvegardes : /tmp/inspector.avant-retour.jsx,
      /tmp/library.avant-retour.jsx, /tmp/App.avant-retour.jsx.
+   - **Glisser un élément dans l'aperçu (2026-11-19)** : poignée ⋮⋮ dans la
+     barre flottante d'un élément ou d'un groupe qui a des frères dans le
+     même bloc ; startNodeDrag (inspector-ui.jsx) : élément estompé, ligne
+     bleue horizontale (frères empilés) ou verticale (côte à côte),
+     défilement auto près des bords, au lâcher moveNode (même parent, comme
+     dans Structure ; Ctrl+Z annule). Testé : image glissée au-dessus du
+     bloc de texte (ordre IMG, H2). Sauvegarde : /tmp/inspector.avant-glisser.jsx.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la
