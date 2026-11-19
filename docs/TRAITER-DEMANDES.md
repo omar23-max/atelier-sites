@@ -798,6 +798,16 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      depuis une image, Studio. Testé : refonte d'image de 24 s, réponse
      « ␠{"url":…} » valide. Sauvegardes : /tmp/api.avant-keepalive.mjs,
      /tmp/inspector.avant-iajson.jsx.
+     · **Vraie cause** (journal ajouté : « [ia] … reçue / erreur / terminée »
+     dans journalctl -u atelier) : OpenAI refusait l'image source, « Invalid
+     image data » (images AVIF des imports Kimi, envoyées comme PNG) ; le
+     serveur répondait 502 et Cloudflare remplace les 502 de l'origine par sa
+     page « serveur indisponible ». Correctifs : blobOf (scripts/lib/ia.mjs)
+     convertit en PNG par « vips copy » tout ce qui n'est pas PNG/JPEG/WebP
+     (AVIF, SVG, GIF…) ; erreurs IA en 500 au lieu de 502 ; message de
+     l'éditeur avec le code (502, 524, 413…). Testé : refonte depuis une
+     image AVIF de Titan, 25 s, OK. Sauvegardes : /tmp/ia.avant-avif.mjs,
+     /tmp/api.avant-500.mjs.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

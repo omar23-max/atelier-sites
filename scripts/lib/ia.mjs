@@ -3,7 +3,9 @@
 //   - textes : gpt-5.4-mini réécrit un ou plusieurs textes selon la consigne ;
 //   - image  : gpt-image-2 refait une image à partir de l'image d'origine et
 //     des photos de référence (ton produit, ton logo…).
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { tmpdir } from "node:os";
 import { existsSync } from "node:fs";
 import { join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -91,8 +93,20 @@ async function blobOf(root, src) {
   if (!/^\/(imports|medias)\//.test(src ?? "")) throw new Error(`Image introuvable : ${src}`);
   const file = normalize(join(root, src.split("?")[0]));
   if (!file.startsWith(normalize(root)) || !existsSync(file)) throw new Error(`Image introuvable : ${src}`);
-  const type = /\.jpe?g$/i.test(file) ? "image/jpeg" : /\.webp$/i.test(file) ? "image/webp" : "image/png";
-  return new Blob([await readFile(file)], { type });
+  if (/\.(png|jpe?g|webp)$/i.test(file)) {
+    const type = /\.jpe?g$/i.test(file) ? "image/jpeg" : /\.webp$/i.test(file) ? "image/webp" : "image/png";
+    return new Blob([await readFile(file)], { type });
+  }
+  // AVIF, SVG, GIF… (2026-11-18) : OpenAI ne lit que PNG, JPEG et WebP
+  // (« Invalid image data » sur les images AVIF des imports Kimi).
+  // Conversion en PNG par vips.
+  const out = join(tmpdir(), `atl-ia-${Date.now()}-${Math.random().toString(36).slice(2, 6)}.png`);
+  await new Promise((ok, ko) => execFile("vips", ["copy", file, out], (err) => (err ? ko(new Error(`Image illisible (${src}) : conversion impossible.`)) : ok())));
+  try {
+    return new Blob([await readFile(out)], { type: "image/png" });
+  } finally {
+    await rm(out, { force: true });
+  }
 }
 
 // Format le plus proche de l'image d'origine parmi ceux du modèle.

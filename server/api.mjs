@@ -744,7 +744,8 @@ export function atelierApi() {
                 return json(res, 200, await rebuildSection({ key: env.OPENAI_API_KEY, ...b }));
               }
             } catch (e) {
-              return json(res, 502, { error: e.message });
+              // 500, pas 502 : Cloudflare remplace les 502 par sa propre page (2026-11-18).
+              return json(res, 500, { error: e.message });
             }
             return json(res, 400, { error: "Demande IA invalide." });
           }
