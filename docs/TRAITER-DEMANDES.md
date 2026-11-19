@@ -808,6 +808,23 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      l'éditeur avec le code (502, 524, 413…). Testé : refonte depuis une
      image AVIF de Titan, 25 s, OK. Sauvegardes : /tmp/ia.avant-avif.mjs,
      /tmp/api.avant-500.mjs.
+   - **Panneau de droite par la languette + style au clic droit (2026-11-19)** :
+     le panneau de droite ne s'ouvre plus quand on choisit une section ou un
+     élément (ni au survol) ; languette ◂ / ▸ au bord droit (RightPanelTab,
+     library-ui.jsx, classe html.atl-rp-open ; « Modifier » et « Réglages de
+     la section » l'ouvrent aussi). Clic droit : Copier le style (style
+     affiché : police, taille, graisse, couleurs, fond, coins, bordure, ombre,
+     marges intérieures ; gardé dans localStorage atl-style-clip, donc d'une
+     page à l'autre), Coller le style (section : fond, marges, couleur
+     seulement), Couleurs… (texte, fond, bordure : couleurs du design + autre
+     couleur + ↺ d'origine) et Police… (police titres / texte de la page,
+     taille, graisse, interligne, espacement, casse, alignement) dans une
+     petite fenêtre (StylePop, inspector-ui.jsx) ; écrit dans
+     atl_styles[cible].all.base. Section : police par variables
+     (--atl-font-body → titres, sans boucle). Testé sur une page jetable.
+     Sauvegardes : /tmp/inspector.avant-menu-style.jsx,
+     /tmp/library.avant-languette.jsx, /tmp/App.avant-languette.jsx,
+     /tmp/styles.avant-menu-style.css.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

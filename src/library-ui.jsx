@@ -662,3 +662,30 @@ export function FieldsPanel({ children, itemSelector }) {
     </div>
   );
 }
+
+
+// Panneau de droite (2026-11-18) : il ne s'ouvre plus tout seul quand on
+// choisit une section ou un élément ; la languette ◂ / ▸ l'ouvre et le ferme
+// (classe atl-rp-open sur <html>). « Réglages de la section » et « Modifier »
+// du clic droit l'ouvrent aussi (événement atl-rp-open).
+export function RightPanelTab() {
+  const [open, setOpen] = useState(() => document.documentElement.classList.contains("atl-rp-open"));
+  const [right, setRight] = useState(0);
+  useEffect(() => {
+    document.documentElement.classList.toggle("atl-rp-open", open);
+    // La languette se cale sur la largeur réelle du panneau.
+    const sb = document.querySelector('[class*="Sidebar--right"]');
+    setRight(open && sb ? sb.offsetWidth : 0);
+  }, [open]);
+  useEffect(() => {
+    const on = () => setOpen(true);
+    window.addEventListener("atl-rp-open", on);
+    return () => window.removeEventListener("atl-rp-open", on);
+  }, []);
+  return createPortal(
+    <button type="button" className="atl-rp-tab" style={{ right }} onClick={() => setOpen(!open)} title={open ? "Fermer le panneau de droite" : "Ouvrir le panneau de droite (réglages)"} aria-label="Panneau de droite">
+      {open ? "▸" : "◂"}
+    </button>,
+    document.body,
+  );
+}

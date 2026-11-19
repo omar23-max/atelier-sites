@@ -475,6 +475,8 @@ export function Inspector({ children }) {
   const [openSec, setOpenSec] = useState({});
   const [openGroups, setOpenGroups] = useState({});
   const [menu, setMenu] = useState(null);
+  // Petite fenêtre Couleurs… / Police… du clic droit (2026-11-18).
+  const [stylePop, setStylePop] = useState(null);
   const [ai, setAi] = useState(null);
   // Outil IA de la page ouvert depuis le rail de gauche : « reecrire »,
   // « traduire » ou « adapter ».
@@ -948,6 +950,61 @@ export function Inspector({ children }) {
     close();
   };
 
+  // ---- Style d'un élément, d'un groupe ou de la section (2026-11-18) ----
+  // Écrit dans atl_styles[cible].all.base (tous les écrans) ; valeur vide =
+  // retour au style d'origine. Section : sa racine (« section ») et les
+  // variables de police, que les textes de la copie suivent.
+  function writeStyle(sectionId, targets, decl, isSection) {
+    const item = itemOf(sectionId);
+    if (!item) return;
+    const styles = structuredClone(item.props.atl_styles ?? {});
+    const put = (t, d) => {
+      styles[t] ??= {};
+      styles[t].all ??= {};
+      const base = { ...(styles[t].all.base ?? {}) };
+      for (const [k, v] of Object.entries(d)) {
+        if (v === "" || v == null) delete base[k];
+        else base[k] = v;
+      }
+      styles[t].all.base = base;
+    };
+    for (const t of targets) {
+      if (isSection && decl["font-family"] !== undefined) {
+        // Pas de variable qui se référence elle-même (ignorée par le
+        // navigateur) : « titres » = la police du texte suit celle des titres.
+        const f = decl["font-family"];
+        const vars = /--atl-font-heading/.test(f)
+          ? { "--atl-font-body": "var(--atl-font-heading, inherit)", "--atl-font-heading": "" }
+          : /--atl-font-body/.test(f)
+            ? { "--atl-font-heading": "var(--atl-font-body, inherit)", "--atl-font-body": "" }
+            : { "--atl-font-heading": "", "--atl-font-body": "" };
+        put(t, { ...decl, ...vars });
+      } else put(t, decl);
+    }
+    updateProps(sectionId, { ...item.props, atl_styles: styles });
+  }
+  function copyStyle(sectionId, node) {
+    const item = itemOf(sectionId);
+    const root = canvasFrame()?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
+    const el = node ? domOf(sectionId, node) : root?.querySelector(`.${CSS.escape(`atl-${item?.type}`)}`) ?? root;
+    if (!el) return;
+    const cs = el.ownerDocument.defaultView.getComputedStyle(el);
+    const props = node ? STYLE_COPY_PROPS : ["background-color", "background-image", "padding-top", "padding-bottom", "color"];
+    const decl = {};
+    for (const p of props) {
+      const v = cs.getPropertyValue(p);
+      if (!v || v === "none" || v === "normal" || v === "rgba(0, 0, 0, 0)" || /url\(/.test(v)) continue;
+      decl[p] = p === "font-family" ? v.replace(/"/g, "'") : v;
+    }
+    writeStyleClip(decl);
+  }
+  function pasteStyle(sectionId, targets, isSection) {
+    const clip = readStyleClip();
+    if (!clip) return;
+    const decl = isSection ? Object.fromEntries(Object.entries(clip).filter(([k]) => ["background-color", "background-image", "padding-top", "padding-bottom", "color"].includes(k))) : clip;
+    writeStyle(sectionId, targets, decl, isSection);
+  }
+
   const menuItems = (m) => {
     const index = indexOf(m.sectionId);
     const item = content[index];
@@ -955,11 +1012,21 @@ export function Inspector({ children }) {
     const node = nodeOf(m);
     const keys = node ? (node.group ? leavesOf(node.children).map((l) => l.key) : [node.key]) : null;
     const items = [{ label: "✨ Retravailler avec l'IA…", action: () => setAi({ sectionId: m.sectionId, keys, label: node?.group ? node.label : null }) }];
+    // Style (2026-11-18) : copier / coller le style affiché, Couleurs…, Police…
+    const targets = styleTargetsOf(item, node);
+    items.push(
+      { sep: true },
+      { label: "Copier le style", action: () => copyStyle(m.sectionId, node) },
+      { label: "Coller le style", disabled: !readStyleClip(), action: () => pasteStyle(m.sectionId, targets, !node) },
+      { label: "Couleurs…", action: () => setStylePop({ kind: "couleurs", x: m.x, y: m.y, sectionId: m.sectionId, targets, isSection: !node }) },
+      { label: "Police…", action: () => setStylePop({ kind: "police", x: m.x, y: m.y, sectionId: m.sectionId, targets, isSection: !node }) },
+      { sep: true },
+    );
     if (node) {
       const sibs = siblingsOf(m.sectionId, node);
       const i = sibs.findIndex((n) => (node.key ? n.key === node.key : n.id === node.id));
       items.push(
-        { label: "Modifier", action: () => choose({ sectionId: m.sectionId, key: node.key, group: node.group ? node.id : undefined, fromTree: true }) },
+        { label: "Modifier", action: () => (choose({ sectionId: m.sectionId, key: node.key, group: node.group ? node.id : undefined, fromTree: true }), window.dispatchEvent(new CustomEvent("atl-rp-open"))) },
         { sep: true },
         { label: "Monter", disabled: i <= 0, action: () => step(m.sectionId, node, -1) },
         { label: "Descendre", disabled: i < 0 || i >= sibs.length - 1, action: () => step(m.sectionId, node, 1) },
@@ -968,7 +1035,7 @@ export function Inspector({ children }) {
       );
     } else {
       items.push(
-        { label: "Réglages de la section", action: () => choose({ sectionId: m.sectionId }) },
+        { label: "Réglages de la section", action: () => (choose({ sectionId: m.sectionId }), window.dispatchEvent(new CustomEvent("atl-rp-open"))) },
         { sep: true },
         { label: "Monter", disabled: index === 0, action: () => run({ type: "reorder", sourceIndex: index, destinationIndex: index - 1, destinationZone: ROOT_ZONE }, index - 1) },
         { label: "Descendre", disabled: index === content.length - 1, action: () => run({ type: "reorder", sourceIndex: index, destinationIndex: index + 1, destinationZone: ROOT_ZONE }, index + 1) },
@@ -1304,6 +1371,15 @@ export function Inspector({ children }) {
         />
       )}
       {menu && <ContextMenu x={menu.x} y={menu.y} items={menuItems(menu)} onClose={() => setMenu(null)} />}
+      {stylePop && itemOf(stylePop.sectionId) && (
+        <StylePop
+          pop={stylePop}
+          item={itemOf(stylePop.sectionId)}
+          design={designById[getPuck().appState.data.root?.props?.design]}
+          onWrite={(decl) => writeStyle(stylePop.sectionId, stylePop.targets, decl, stylePop.isSection)}
+          onClose={() => setStylePop(null)}
+        />
+      )}
       {ai && content[indexOf(ai.sectionId)] && (
         <AiDialog
           target={ai}
@@ -2074,6 +2150,172 @@ function LinkField({ block, onChange }) {
 }
 
 // ---- Menu du clic droit ----
+// ---- Copier / coller le style, Couleurs…, Police… (clic droit, 2026-11-18) ----
+const STYLE_COPY_PROPS = [
+  "color", "font-family", "font-size", "font-weight", "font-style", "line-height", "letter-spacing", "text-transform", "text-align",
+  "background-color", "border-radius", "border-top-width", "border-right-width", "border-bottom-width", "border-left-width", "border-style", "border-color",
+  "box-shadow", "padding-top", "padding-right", "padding-bottom", "padding-left",
+];
+const STYLE_CLIP_KEY = "atl-style-clip";
+function readStyleClip() {
+  try {
+    const v = JSON.parse(localStorage.getItem(STYLE_CLIP_KEY) ?? "null");
+    return v && Object.keys(v).length ? v : null;
+  } catch {
+    return null;
+  }
+}
+function writeStyleClip(decl) {
+  try {
+    localStorage.setItem(STYLE_CLIP_KEY, JSON.stringify(decl));
+  } catch {}
+}
+// Cibles de style d'un nœud : l'élément, le conteneur du groupe, ou chaque
+// élément d'un groupe sans conteneur ; sans nœud, la section entière.
+function styleTargetsOf(item, node) {
+  if (!node) return ["section"];
+  if (node.key) return [node.key];
+  if (node.gid) return [node.gid];
+  return leavesOf(node.children ?? []).map((l) => l.key).filter(Boolean);
+}
+const spopHex = (c) => {
+  const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c ?? "");
+  if (!m) return /^#[0-9a-f]{6}$/i.test(c ?? "") ? c : "#000000";
+  return `#${[m[1], m[2], m[3]].map((n) => Number(n).toString(16).padStart(2, "0")).join("")}`;
+};
+
+function StylePop({ pop, item, design, onWrite, onClose }) {
+  const ref = useRef(null);
+  const base = pop.targets.length ? item.props.atl_styles?.[pop.targets[0]]?.all?.base ?? {} : {};
+  useEffect(() => {
+    const close = (e) => !ref.current?.contains(e.target) && onClose();
+    const esc = (e) => e.key === "Escape" && onClose();
+    const shut = () => onClose();
+    // L'aperçu est un autre document : un clic, la molette ou Échap dedans
+    // ferment aussi la fenêtre (comme le menu du clic droit).
+    const frames = [...document.querySelectorAll("iframe")].map((f) => f.contentWindow).filter(Boolean);
+    const timer = setTimeout(() => {
+      window.addEventListener("mousedown", close);
+      frames.forEach((w) => {
+        w.addEventListener("mousedown", shut);
+        w.addEventListener("wheel", shut, { passive: true });
+        w.addEventListener("keydown", esc);
+      });
+    }, 0);
+    window.addEventListener("keydown", esc);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", esc);
+      frames.forEach((w) => {
+        w.removeEventListener("mousedown", shut);
+        w.removeEventListener("wheel", shut);
+        w.removeEventListener("keydown", esc);
+      });
+    };
+  }, []);
+  const left = Math.min(pop.x, window.innerWidth - 300);
+  const top = Math.min(pop.y, window.innerHeight - (pop.kind === "police" ? 360 : 300));
+  const swatches = [...new Set([...Object.values(design?.tokens?.couleurs ?? {}), "#ffffff", "#000000", "#111827", "#f5f5f4"].filter((c) => /^#[0-9a-f]{3,8}$/i.test(c)))].slice(0, 12);
+  const colorRow = (label, prop) => (
+    <div className="atl-spop__row">
+      <span>{label}</span>
+      <div className="atl-spop__swatches">
+        {swatches.map((c) => (
+          <button key={c} type="button" style={{ background: c }} className={base[prop] === c ? "is-on" : ""} title={c} onClick={() => onWrite({ [prop]: c })} />
+        ))}
+        <input type="color" value={spopHex(base[prop])} onChange={(e) => onWrite({ [prop]: e.target.value })} title="Autre couleur" />
+        <button type="button" className="atl-spop__reset" onClick={() => onWrite({ [prop]: "" })} title="Couleur d'origine">
+          ↺
+        </button>
+      </div>
+    </div>
+  );
+  const px = (v) => (v ? String(parseFloat(v)) : "");
+  return createPortal(
+    <div ref={ref} className="atl-spop" style={{ left, top }} onMouseDown={(e) => e.stopPropagation()}>
+      <header>
+        <b>{pop.kind === "couleurs" ? "Couleurs" : "Police"}</b>
+        <span>{pop.isSection ? "toute la section" : pop.targets.length > 1 ? `${pop.targets.length} éléments` : "cet élément"}</span>
+        <button type="button" onClick={onClose} aria-label="Fermer">
+          ×
+        </button>
+      </header>
+      {pop.kind === "couleurs" ? (
+        <>
+          {!pop.isSection && colorRow("Texte", "color")}
+          {colorRow(pop.isSection ? "Fond de la section" : "Fond", "background-color")}
+          {!pop.isSection && colorRow("Bordure", "border-color")}
+          {pop.isSection && colorRow("Texte (par défaut)", "color")}
+        </>
+      ) : (
+        <>
+          <label className="atl-spop__row">
+            <span>Police</span>
+            <select value={base["font-family"] ?? ""} onChange={(e) => onWrite({ "font-family": e.target.value })}>
+              <option value="">D'origine</option>
+              <option value="var(--atl-font-heading, inherit)">Police des titres de la page</option>
+              <option value="var(--atl-font-body, inherit)">Police du texte de la page</option>
+            </select>
+          </label>
+          {!pop.isSection && (
+            <>
+              <label className="atl-spop__row">
+                <span>Taille</span>
+                <span className="atl-spop__inline">
+                  <input type="number" min="8" max="200" value={px(base["font-size"])} placeholder="—" onChange={(e) => onWrite({ "font-size": e.target.value ? `${e.target.value}px` : "" })} /> px
+                </span>
+              </label>
+              <div className="atl-spop__row">
+                <span>Graisse</span>
+                <div className="atl-spop__seg">
+                  {[["", "Orig."], ["400", "Normal"], ["600", "Semi"], ["700", "Gras"], ["800", "Très gras"]].map(([v, l]) => (
+                    <button key={l} type="button" className={(base["font-weight"] ?? "") === v ? "is-on" : ""} onClick={() => onWrite({ "font-weight": v })}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <label className="atl-spop__row">
+                <span>Interligne</span>
+                <input type="number" step="0.05" min="0.8" max="3" value={base["line-height"] ?? ""} placeholder="—" onChange={(e) => onWrite({ "line-height": e.target.value })} />
+              </label>
+              <label className="atl-spop__row">
+                <span>Espacement</span>
+                <span className="atl-spop__inline">
+                  <input type="number" step="0.5" min="-5" max="20" value={px(base["letter-spacing"])} placeholder="—" onChange={(e) => onWrite({ "letter-spacing": e.target.value ? `${e.target.value}px` : "" })} /> px
+                </span>
+              </label>
+              <div className="atl-spop__row">
+                <span>Casse</span>
+                <div className="atl-spop__seg">
+                  {[["", "Orig."], ["none", "Normale"], ["uppercase", "MAJUSCULES"]].map(([v, l]) => (
+                    <button key={l} type="button" className={(base["text-transform"] ?? "") === v ? "is-on" : ""} onClick={() => onWrite({ "text-transform": v })}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="atl-spop__row">
+                <span>Alignement</span>
+                <div className="atl-spop__seg">
+                  {[["", "Orig."], ["left", "Gauche"], ["center", "Centre"], ["right", "Droite"]].map(([v, l]) => (
+                    <button key={l} type="button" className={(base["text-align"] ?? "") === v ? "is-on" : ""} onClick={() => onWrite({ "text-align": v })}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+          <p className="atl-spop__hint">Les polices de la page se choisissent dans Palette.</p>
+        </>
+      )}
+    </div>,
+    document.body,
+  );
+}
+
 function ContextMenu({ x, y, items, onClose }) {
   const ref = useRef(null);
   useEffect(() => {
