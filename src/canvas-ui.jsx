@@ -31,6 +31,9 @@ const QUALITES = { high: "Haute", medium: "Moyenne", low: "Basse" };
 const MAX_REFS = 8;
 const FAMILY_BY_ID = Object.fromEntries(FAMILIES.map((f) => [f.id, f]));
 
+// Lecteur vidéo de l'atelier (2026-11-20) : aperçu ou première image au lieu
+// d'un rectangle noir. url / poster : adresses /medias/… du projet.
+const lecteurLink = (url, poster) => `${location.origin}/api/lecteur?v=${encodeURIComponent(url)}${poster ? `&p=${encodeURIComponent(poster)}` : ""}`;
 const sizeOf = (src) =>
   new Promise((resolve) => {
     const img = new Image();
@@ -488,7 +491,7 @@ function CanvasBoard({ onClose, X }) {
       const w = 480;
       const h = 270;
       const spot = freeSpot(cx - w / 2, cy - h / 2, w, h);
-      const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}`, x: spot.x, y: spot.y, width: w, height: h, link: `${location.origin}${url}`, customData: { url, origine: { source: "Vidéo ajoutée" } } }], null);
+      const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}`, x: spot.x, y: spot.y, width: w, height: h, link: lecteurLink(url), customData: { url, origine: { source: "Vidéo ajoutée" } } }], null);
       api.updateScene({ elements: [...api.getSceneElements(), el], captureUpdate: CaptureUpdateAction.IMMEDIATELY });
       setFlash({ ok: "Vidéo posée sur le tableau (clique-la pour la lire)." });
     } catch (e) {
@@ -522,7 +525,7 @@ function CanvasBoard({ onClose, X }) {
           const [nw, nh] = await sizeOf(it.poster).catch(() => [9, 16]);
           if (nw && nh) h = Math.round((w * nh) / nw);
         }
-        const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}${i}`, x, y, width: w, height: h, link: `${location.origin}${it.url}`, customData: { url: it.url, ...customData } }], null);
+        const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}${i}`, x, y, width: w, height: h, link: lecteurLink(it.url, it.poster), customData: { url: it.url, poster: it.poster ?? null, ...customData } }], null);
         added.push(el);
         rowH = Math.max(rowH, h);
       } else {
@@ -554,12 +557,12 @@ function CanvasBoard({ onClose, X }) {
           langCode="fr-FR"
           initialData={{
             // Vidéos : adresse recalculée pour le site ouvert (PC, tunnel ou atelier.nive.ca).
-            elements: (board.initial.elements ?? []).map((e) => (e.type === "embeddable" && e.customData?.url ? { ...e, link: `${location.origin}${e.customData.url}` } : e)),
+            elements: (board.initial.elements ?? []).map((e) => (e.type === "embeddable" && e.customData?.url ? { ...e, link: lecteurLink(e.customData.url, e.customData.poster) } : e)),
             files: board.initial.files ?? {},
             appState: { viewBackgroundColor: board.initial.appState?.viewBackgroundColor ?? "transparent", currentItemFontFamily: 5, ...(board.initial.appState ? { scrollX: board.initial.appState.scrollX, scrollY: board.initial.appState.scrollY, zoom: { value: board.initial.appState.zoom ?? 1 } } : {}) },
           }}
           onChange={onChange}
-          validateEmbeddable={(link) => (link.startsWith(`${location.origin}/medias/`) ? true : undefined)}
+          validateEmbeddable={(link) => (link.startsWith(`${location.origin}/medias/`) || link.startsWith(`${location.origin}/api/lecteur?`) ? true : undefined)}
           UIOptions={{ canvasActions: { loadScene: false, saveToActiveFile: false, export: { saveFileToDisk: true } }, tools: { image: true } }}
           renderTopRightUI={() => (
             <div className="atl-cv__right">

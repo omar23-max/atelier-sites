@@ -902,6 +902,17 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      REST ≠ MCP : total_views, total_adspend, adscore « Winning »,
      adscore_reasons, daysrunning. Testé avec la clé sur farandwideofficial.com.
      Sauvegarde : /tmp/api.avant-wh-tris.mjs.
+   - **Vidéos de Canvas : aperçu au lieu d'un rectangle noir (2026-11-20)** :
+     les cadres vidéo d'un tableau pointent vers GET /api/lecteur?v=&p=
+     (server/api.mjs) : petite page avec <video controls>, aperçu intégré en
+     data: (moins de 600 Ko ; Canvas isole ses cadres, sandbox sans
+     allow-same-origin), sinon première image (#t=0.3). canvas-ui.jsx :
+     lecteurLink() pour les vidéos neuves (« Ajouter une vidéo », import
+     WinningHunter, customData.poster) et à l'ouverture des tableaux (les
+     anciennes vidéos passent aussi par le lecteur). validateEmbeddable
+     accepte /api/lecteur. À vérifier sur atelier.nive.ca : la lecture de la
+     vidéo depuis le cadre isolé derrière Cloudflare Access. Sauvegardes :
+     /tmp/api.avant-lecteur.mjs, /tmp/canvas.avant-lecteur.jsx.
    - **Catalogue → Projets restait blanc (2026-11-20)** : erreur React #31,
      projets/nextap.json avait produit = { nom, lien } (créé ainsi le
      2026-11-18) alors que produit est un texte partout. Remis à « NexTap »

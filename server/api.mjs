@@ -756,6 +756,38 @@ export function atelierApi() {
           // videos-creees/. Page hors projet : medias/<page>/ comme avant. Les
           // images du site d'origine restent à part (imports/<slug>/images/).
           // Téléverser une image depuis le panneau de droite.
+          // ---- Lecteur vidéo pour Canvas (2026-11-20) ----
+          // Les vidéos posées sur un tableau étaient lues dans le lecteur brut du
+          // navigateur (rectangle noir avant lecture). Petite page : image
+          // d'aperçu si on en a une, sinon première image de la vidéo.
+          if (parts[0] === "lecteur" && req.method === "GET") {
+            const u = new URL(req.url, "http://x");
+            const ok = (x) => typeof x === "string" && /^\/medias\/[\w./-]+$/.test(x) && !x.includes("..");
+            const v = u.searchParams.get("v");
+            const pst = u.searchParams.get("p");
+            if (!ok(v)) return json(res, 400, { error: "Vidéo invalide." });
+            const esc = (x) => x.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+            // Aperçu intégré à la page (data:) : Canvas isole ses cadres, et
+            // derrière Cloudflare Access une image chargée à part pourrait
+            // être refusée. Au-delà de 600 Ko, adresse normale.
+            let posterSrc = null;
+            if (ok(pst)) {
+              const file = join(root, pst);
+              try {
+                const buf = existsSync(file) ? await readFile(file) : null;
+                posterSrc = buf && buf.length < 600 * 1024 ? `data:${/\.png$/i.test(pst) ? "image/png" : /\.webp$/i.test(pst) ? "image/webp" : "image/jpeg"};base64,${buf.toString("base64")}` : pst;
+              } catch {
+                posterSrc = pst;
+              }
+            }
+            const src = `${u.origin === "http://x" ? "" : ""}${v}`;
+            const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000}video{width:100%;height:100%;object-fit:contain;display:block;background:#000}</style></head><body><video controls playsinline preload="metadata" ${posterSrc ? `poster="${esc(posterSrc)}" src="${esc(src)}"` : `src="${esc(src)}#t=0.3"`}></video></body></html>`;
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            res.setHeader("Cache-Control", "public, max-age=3600");
+            return res.end(html);
+          }
+
           // ---- WinningHunter (2026-11-20) : pubs d'une marque → médias de l'atelier ----
           //   GET  /api/wh/statut                 { cle: bool }
           //   POST /api/wh/cle { cle }            vérifie (1 crédit) puis garde dans .env.local
