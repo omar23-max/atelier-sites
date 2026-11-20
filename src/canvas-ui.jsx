@@ -1,3 +1,4 @@
+import { WhImport } from "./winninghunter-ui.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
@@ -214,6 +215,7 @@ function CanvasBoard({ onClose, X }) {
   const [empty, setEmpty] = useState(false);
   const [boardsOpen, setBoardsOpen] = useState(false);
   const [imagesOpen, setImagesOpen] = useState(false);
+  const [whOpen, setWhOpen] = useState(false);
   const videoRef = useRef(null);
   const sig = useRef("");
   const saveTimer = useRef(null);
@@ -494,6 +496,49 @@ function CanvasBoard({ onClose, X }) {
     }
   }
 
+  // Import WinningHunter (2026-11-20) : images et vidéos posées en grille
+  // (4 colonnes) près du centre de l'écran, comme Whitelabeler.
+  async function placeGrid(items) {
+    const [cx, cy] = viewCenter();
+    const cols = Math.min(4, items.length);
+    const w = 240;
+    const gap = 24;
+    const x0 = cx - (cols * (w + gap) - gap) / 2;
+    const start = freeSpot(x0, cy - 160, cols * (w + gap), 400);
+    let y = start.y;
+    let rowH = 0;
+    const added = [];
+    for (const [i, it] of items.entries()) {
+      const col = i % cols;
+      if (col === 0 && i > 0) {
+        y += rowH + gap;
+        rowH = 0;
+      }
+      const x = start.x + col * (w + gap);
+      const customData = { origine: { source: "WinningHunter" } };
+      if (it.type === "video") {
+        let h = Math.round((w * 16) / 9);
+        if (it.poster) {
+          const [nw, nh] = await sizeOf(it.poster).catch(() => [9, 16]);
+          if (nw && nh) h = Math.round((w * nh) / nw);
+        }
+        const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}${i}`, x, y, width: w, height: h, link: `${location.origin}${it.url}`, customData: { url: it.url, ...customData } }], null);
+        added.push(el);
+        rowH = Math.max(rowH, h);
+      } else {
+        const [nw, nh] = await sizeOf(it.url);
+        const h = Math.round((w * nh) / nw);
+        added.push(...(await imageElements(it.url, { x, y, w, h, customData })));
+        rowH = Math.max(rowH, h);
+      }
+    }
+    api.updateScene({ elements: [...api.getSceneElements(), ...added], captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+    try {
+      api.scrollToContent(added, { fitToContent: true, animate: true });
+    } catch {}
+    setFlash({ ok: `${items.length} média(s) WinningHunter posé(s) sur le tableau.` });
+  }
+
   const savedLabel = saved === "ok" ? "Enregistré" : saved === "encours" ? "Enregistrement…" : "Non enregistré";
   const togglePanel = (p) => {
     setPicking(false);
@@ -526,6 +571,9 @@ function CanvasBoard({ onClose, X }) {
                     <path d="M4 16l4.5-5 3.5 4 2.5-3L20 17v2H4z" fill="#fff" />
                     <circle cx="15.5" cy="8.5" r="1.6" fill="#fff" />
                   </svg>
+                </button>
+                <button type="button" className={`atl-cv__whbtn${whOpen ? " is-on" : ""}`} onClick={() => setWhOpen(true)} title="Importer les pubs d'une marque depuis WinningHunter" aria-label="Importer depuis WinningHunter">
+                  WH
                 </button>
                 <button type="button" className={`is-main${panel === "image" ? " is-on" : ""}`} onClick={() => togglePanel("image")} title="Créer une image" aria-label="Créer une image">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -611,6 +659,7 @@ function CanvasBoard({ onClose, X }) {
 
       {api && panel === "image" && <NewPicture refs={refs} setRefs={setRefs} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={() => setPanel(null)} />}
       <input ref={videoRef} type="file" accept="video/mp4,video/webm,video/quicktime" hidden onChange={(e) => (addVideo(e.target.files[0]), (e.target.value = ""))} />
+      {api && whOpen && <WhImport page={pageName} title="Importer depuis WinningHunter → ce tableau" onImported={(items) => placeGrid(items)} onClose={() => setWhOpen(false)} />}
       {api && imagesOpen && <YourImages root={root} onAdd={(urls) => addImagesAtCenter(urls, { origine: { source: "Tes images" } })} onClose={() => setImagesOpen(false)} />}
       {boardsOpen && (
         <AllBoards

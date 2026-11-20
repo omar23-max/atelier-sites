@@ -864,6 +864,23 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      défilement auto près des bords, au lâcher moveNode (même parent, comme
      dans Structure ; Ctrl+Z annule). Testé : image glissée au-dessus du
      bloc de texte (ordre IMG, H2). Sauvegarde : /tmp/inspector.avant-glisser.jsx.
+   - **Importer depuis WinningHunter (2026-11-20)** : bouton « WH » dans Canvas
+     → fenêtre WhImport (src/winninghunter-ui.jsx) : clé à coller une fois
+     (vérifiée par /credits, gardée dans .env.local : WINNINGHUNTER_API_KEY,
+     jamais sauvegardée sur GitHub), recherche (marque / site / texte,
+     Vidéos-Images-Tout, tri : pertinence, plus longue diffusion, dépenses,
+     récentes), vignettes (vidéo jouée au survol), cocher, Importer → fichiers
+     dans les médias du projet (televersees/, préfixe wh-), posés en grille
+     (4 colonnes) sur le tableau (placeGrid, canvas-ui.jsx ; vidéos en cadre
+     cliquable comme « Ajouter une vidéo »). Serveur /api/wh/statut, /cle,
+     /recherche (GET app.winninghunter.com/api/v1/adlibrary, en-tête
+     X-API-Key, 1 crédit par page, 60 demandes/min ; champs video, poster,
+     image, cards), /importer (https seulement, hôtes winninghunter.com,
+     fbcdn.net, facebook.com, cdninstagram.com ; 80 Mo max). Testé : routes
+     sans clé, import réel de vidéos/aperçus/image WinningHunter, refus d'un
+     autre hôte, fenêtre + pose en grille avec une réponse de recherche
+     simulée (la recherche réelle attend la clé). Sauvegardes :
+     /tmp/api.avant-wh.mjs, /tmp/canvas.avant-wh.jsx, /tmp/styles.avant-wh.css.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

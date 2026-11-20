@@ -756,6 +756,123 @@ export function atelierApi() {
           // videos-creees/. Page hors projet : medias/<page>/ comme avant. Les
           // images du site d'origine restent à part (imports/<slug>/images/).
           // Téléverser une image depuis le panneau de droite.
+          // ---- WinningHunter (2026-11-20) : pubs d'une marque → médias de l'atelier ----
+          //   GET  /api/wh/statut                 { cle: bool }
+          //   POST /api/wh/cle { cle }            vérifie (1 crédit) puis garde dans .env.local
+          //   GET  /api/wh/recherche?q=&type=&tri=&champ=&scroll=   1 crédit par page
+          //   POST /api/wh/importer { page, items: [{ url, type, poster? }] }
+          // API : https://app.winninghunter.com/api/v1 (en-tête X-API-Key).
+          if (parts[0] === "wh") {
+            const WH = "https://app.winninghunter.com/api/v1";
+            const envFile = join(root, ".env.local");
+            const keyOf = () => loadEnv("development", root, "").WINNINGHUNTER_API_KEY ?? "";
+            const whGet = async (path, key) => {
+              const r = await fetch(`${WH}${path}`, { headers: { "X-API-Key": key, Accept: "application/json" } });
+              const text = await r.text();
+              let body = null;
+              try {
+                body = JSON.parse(text);
+              } catch {}
+              if (!r.ok) {
+                const msg = body?.error ?? body?.message ?? `WinningHunter : erreur ${r.status}`;
+                throw Object.assign(new Error(r.status === 401 ? "Clé WinningHunter refusée." : r.status === 429 ? `WinningHunter : ${msg} (crédits ou limite de 60 demandes par minute).` : `WinningHunter : ${msg}`), { status: r.status });
+              }
+              return body;
+            };
+            if (parts[1] === "statut" && req.method === "GET") return json(res, 200, { cle: Boolean(keyOf()) });
+            if (parts[1] === "cle" && req.method === "POST") {
+              const { cle } = await readBody(req);
+              const key = String(cle ?? "").trim();
+              if (!/^[\w.-]{16,200}$/.test(key)) return json(res, 400, { error: "Clé invalide." });
+              try {
+                const credits = await whGet("/credits", key);
+                let env = existsSync(envFile) ? await readFile(envFile, "utf8") : "";
+                env = /^WINNINGHUNTER_API_KEY=.*$/m.test(env) ? env.replace(/^WINNINGHUNTER_API_KEY=.*$/m, `WINNINGHUNTER_API_KEY=${key}`) : `${env.replace(/\n*$/, "\n")}WINNINGHUNTER_API_KEY=${key}\n`;
+                await writeFile(envFile, env, "utf8");
+                return json(res, 200, { ok: true, credits });
+              } catch (e) {
+                return json(res, 400, { error: e.message });
+              }
+            }
+            if (parts[1] === "recherche" && req.method === "GET") {
+              const key = keyOf();
+              if (!key) return json(res, 400, { error: "Clé WinningHunter absente.", cle: false });
+              const u = new URL(req.url, "http://x");
+              const q = (u.searchParams.get("q") ?? "").trim();
+              if (!q) return json(res, 400, { error: "Écris une marque, un site ou un mot-clé." });
+              const params = new URLSearchParams({ keyword: q, sorting: u.searchParams.get("tri") || "relevance", sortdirection: "desc", limit: "30" });
+              const champ = u.searchParams.get("champ");
+              if (["landingurl", "pagename", "adtext", "productname"].includes(champ)) params.set("searchkeyword", champ);
+              const type = u.searchParams.get("type");
+              if (type === "videos" || type === "images") params.set("mediafilter", type);
+              const scroll = u.searchParams.get("scroll");
+              if (scroll) params.set("scroll", scroll);
+              try {
+                const body = await whGet(`/adlibrary?${params}`, key);
+                const days = (a, b) => (a ? Math.max(1, Math.round(((b ? new Date(b) : new Date()) - new Date(a)) / 86400000)) : null);
+                const ads = (body.data ?? []).map((a, i) => {
+                  const medias = [];
+                  if (a.video) medias.push({ type: "video", url: a.video, poster: a.poster || null });
+                  else if (a.image) medias.push({ type: "image", url: a.image });
+                  for (const c of Array.isArray(a.cards) ? a.cards : []) {
+                    const v = c?.video || c?.video_url || c?.videoUrl;
+                    const im = c?.image || c?.image_url || c?.imageUrl || c?.resized_image_url || c?.original_image_url;
+                    if (v) medias.push({ type: "video", url: v, poster: im || null });
+                    else if (im) medias.push({ type: "image", url: im });
+                  }
+                  return {
+                    id: `${a.productid ?? a.page_id ?? "ad"}-${a.started ?? ""}-${i}`,
+                    marque: a.pageName ?? "",
+                    debut: a.started ?? null,
+                    vu: a.lastSeen ?? null,
+                    jours: a.daysrunning ?? days(a.started, a.lastSeen),
+                    depense: a.total_adspend ?? a.total_eu_adspend ?? null,
+                    texte: String(a.copy ?? a.caption ?? "").slice(0, 400),
+                    lien: a.urlStore ?? a.product_url ?? null,
+                    medias,
+                  };
+                });
+                return json(res, 200, { total: body.total ?? null, scroll: body.scroll ?? null, ads });
+              } catch (e) {
+                return json(res, e.status === 401 ? 400 : 500, { error: e.message });
+              }
+            }
+            if (parts[1] === "importer" && req.method === "POST") {
+              const { page, items = [] } = await readBody(req);
+              if (!NAME.test(page ?? "")) return json(res, 400, { error: "Page invalide." });
+              const okHost = (h) => /(^|\.)winninghunter\.com$|(^|\.)fbcdn\.net$|(^|\.)facebook\.com$|(^|\.)cdninstagram\.com$/.test(h);
+              const { dir, url: base } = await mediaPlace(page, "televersees");
+              await mkdir(dir, { recursive: true });
+              const save = async (src, hint) => {
+                const u = new URL(src);
+                if (u.protocol !== "https:" || !okHost(u.hostname)) throw new Error(`Adresse non autorisée : ${u.hostname}`);
+                const r = await fetch(src);
+                if (!r.ok) throw new Error(`Téléchargement impossible (${r.status})`);
+                const type = r.headers.get("content-type") ?? "";
+                const m = /^(image|video)\/(png|jpe?g|webp|gif|mp4|webm|quicktime)/.exec(type);
+                if (!m) throw new Error(`Type de fichier inattendu : ${type || "inconnu"}`);
+                const buf = Buffer.from(await r.arrayBuffer());
+                if (buf.length > 80 * 1024 * 1024) throw new Error("Fichier trop lourd (80 Mo au plus).");
+                const ext = m[2] === "jpeg" ? "jpg" : m[2] === "quicktime" ? "mov" : m[2];
+                const file = `wh-${hint}-${stamp()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+                await writeFile(join(dir, file), buf);
+                return `${base}/${file}`;
+              };
+              const out = [];
+              for (const it of items.slice(0, 60)) {
+                try {
+                  const url = await save(it.url, it.type === "video" ? "video" : "image");
+                  const poster = it.type === "video" && it.poster ? await save(it.poster, "apercu").catch(() => null) : null;
+                  out.push({ ok: true, type: it.type === "video" ? "video" : "image", url, poster });
+                } catch (e) {
+                  out.push({ ok: false, type: it.type, error: e.message, source: it.url });
+                }
+              }
+              return json(res, 200, { items: out });
+            }
+            return json(res, 404, { error: "Route WinningHunter inconnue." });
+          }
+
           // ---- Croquis du stylet (2026-11-18) : medias/croquis/<page>/ ----
           //   POST /api/croquis/<page>   { image: dataURL jpeg/png, sections: [ids] }
           //   GET  /api/croquis/<page>   [{ url, le, sections }] du plus récent
