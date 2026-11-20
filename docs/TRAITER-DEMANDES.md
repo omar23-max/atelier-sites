@@ -881,6 +881,33 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      autre hôte, fenêtre + pose en grille avec une réponse de recherche
      simulée (la recherche réelle attend la clé). Sauvegardes :
      /tmp/api.avant-wh.mjs, /tmp/canvas.avant-wh.jsx, /tmp/styles.avant-wh.css.
+     · Miniatures absentes (2026-11-20) : pubs anciennes (2023) = video vide,
+     poster réduit à un nom de fichier sans adresse, liens Facebook signés
+     expirés. /api/wh/recherche prend aussi videos[0].video_hd/sd_url,
+     facebook_video_url, video_preview_image_url, facebook_thumbnail_url,
+     facebook_image_url, n'accepte que des https, vérifie en parallèle (4 s,
+     Range 0-0) ce qui n'est pas sur media.winninghunter.com et écarte les
+     fichiers morts (ad.indisponible) ; la fenêtre dit combien de pubs sont
+     écartées et conseille « Site (adresse) » / « Vues récemment ». Vidéo sans
+     aperçu : première image (#t=0.5, preload metadata). Testé avec la clé :
+     « Far and wide » / nom du produit / plus longue diffusion → 29 sur 30
+     sans fichier ; farandwideofficial.com / site → 30 sur 30 avec vidéo.
+     Sauvegarde : /tmp/api.avant-wh-medias.mjs.
+     · Tris et chiffres (2026-11-20) : tris « Mieux classées » (toprank, ordre
+     croissant), « Plus d'impressions » (reach), « Plus de dépenses », etc. ;
+     case « Encore actives » (activestatus=active, cochée par défaut) ;
+     vignettes : rang dans la marque (#n), score WinningHunter (Gagnante /
+     Prometteuse / En test, raisons en infobulle), impressions (total_views),
+     dépenses (total_adspend, texte dans l'API REST), copies actives. Champs
+     REST ≠ MCP : total_views, total_adspend, adscore « Winning »,
+     adscore_reasons, daysrunning. Testé avec la clé sur farandwideofficial.com.
+     Sauvegarde : /tmp/api.avant-wh-tris.mjs.
+   - **Catalogue → Projets restait blanc (2026-11-20)** : erreur React #31,
+     projets/nextap.json avait produit = { nom, lien } (créé ainsi le
+     2026-11-18) alors que produit est un texte partout. Remis à « NexTap »
+     (le lien est dans fondations.reponses.lien) ; Projets.jsx et Angles.jsx
+     affichent produit.nom si un objet revient. Sauvegarde :
+     /tmp/nextap.avant-produit.json.
    - **Panneau de droite rangé (2026-11-17, claude.docx « un peu brouillon »)** :
      styles.css, bloc « Panneau de droite rangé » en fin de fichier. Lignes de
      réglage (.atl-style__row) en grille : libellé 72 px, réglage sur toute la

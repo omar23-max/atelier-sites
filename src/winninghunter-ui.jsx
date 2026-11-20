@@ -6,12 +6,16 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const TRIS = [
+  ["toprank", "Mieux classées (rang WinningHunter)"],
+  ["reach", "Plus d'impressions"],
+  ["adspend", "Plus de dépenses"],
   ["relevance", "Pertinence"],
   ["longestrunning", "Tourne depuis le plus longtemps"],
-  ["adspend", "Plus de dépenses"],
-  ["mostrecent", "Plus récentes"],
   ["lastseen", "Vues récemment"],
+  ["mostrecent", "Plus récentes"],
 ];
+const SCORES = { winning: "Gagnante", scaling: "Prometteuse", testing: "En test" };
+const short = (n) => (n == null ? null : n >= 1e6 ? `${Math.round(n / 1e5) / 10} M` : n >= 1000 ? `${Math.round(n / 100) / 10} k` : String(Math.round(n)));
 const CHAMPS = [
   ["", "Partout"],
   ["landingurl", "Site (adresse)"],
@@ -32,14 +36,16 @@ async function readJson(res) {
   return body;
 }
 
-const money = (n) => (n == null ? null : n >= 1000 ? `${Math.round(n / 100) / 10} k$ dépensés` : n < 1 ? "< 1 $ dépensé" : `${Math.round(n)} $ dépensés`);
+const money = (n) => (n == null ? null : n >= 1000 ? `${Math.round(n / 100) / 10} k$` : n < 1 ? "< 1 $" : `${Math.round(n)} $`);
 
 export function WhImport({ page, onImported, onClose, title = "Importer depuis WinningHunter" }) {
   const [cle, setCle] = useState(null); // null = vérification, false = absente
   const [keyInput, setKeyInput] = useState("");
   const [q, setQ] = useState("");
   const [type, setType] = useState("videos");
-  const [tri, setTri] = useState("longestrunning");
+  const [tri, setTri] = useState("toprank");
+  // Pubs encore actives : ce sont elles qui ont leurs fichiers, et qui marchent.
+  const [actives, setActives] = useState(true);
   const [champ, setChamp] = useState("");
   const [ads, setAds] = useState([]);
   const [scroll, setScroll] = useState(null);
@@ -80,14 +86,23 @@ export function WhImport({ page, onImported, onClose, title = "Importer depuis W
     if (!q.trim()) return;
     setState({ busy: true, step: more ? "Résultats suivants…" : "Recherche…" });
     try {
-      const params = new URLSearchParams({ q: q.trim(), type, tri, champ });
+      const params = new URLSearchParams({ q: q.trim(), type, tri, champ, actives: actives ? "1" : "0" });
       if (more && scroll) params.set("scroll", scroll);
       const b = await readJson(await fetch(`/api/wh/recherche?${params}`));
       setAds((list) => (more ? [...list, ...b.ads] : b.ads));
       setScroll(b.scroll);
       setTotal(b.total);
       if (!more) setTicked([]);
-      setState(b.ads.length || more ? null : { error: "Aucune pub trouvée. Essaie le nom de la page ou un autre champ." });
+      const usable = b.ads.filter((a) => a.medias.length).length;
+      setState(
+        !b.ads.length && !more
+          ? { error: "Aucune pub trouvée. Essaie « Site (adresse) » ou « Nom de la page »." }
+          : !usable && !b.scroll
+            ? { error: "Ces pubs sont anciennes : leurs fichiers ne sont plus disponibles. Essaie le tri « Vues récemment » ou « Plus récentes »." }
+            : !usable
+              ? { error: "Pubs anciennes sans fichier disponible sur cette page : essaie « Plus de résultats », ou le tri « Vues récemment »." }
+              : null,
+      );
     } catch (e) {
       if (e.body?.cle === false) setCle(false);
       setState({ error: e.message });
@@ -175,6 +190,9 @@ export function WhImport({ page, onImported, onClose, title = "Importer depuis W
                   </option>
                 ))}
               </select>
+              <label className="atl-wh__check" title="Les pubs qui tournent encore : elles ont leurs fichiers, et la marque continue de payer pour elles">
+                <input type="checkbox" checked={actives} onChange={(e) => setActives(e.target.checked)} /> Encore actives
+              </label>
               <button type="button" className="atl-wh__go" disabled={!q.trim() || state?.busy} onClick={() => search(false)}>
                 Chercher
               </button>
@@ -182,7 +200,8 @@ export function WhImport({ page, onImported, onClose, title = "Importer depuis W
             {tiles.length > 0 && (
               <div className="atl-wh__bar">
                 <span>
-                  {tiles.length} média(s){total != null ? ` · ${total} pub(s) au total` : ""} · 1 crédit par page de résultats
+                  {tiles.length} média(s){total != null ? ` · ${total} pub(s) au total` : ""}
+                  {ads.some((a) => a.indisponible) ? ` · ${ads.filter((a) => a.indisponible).length} pub(s) ancienne(s) sans fichier disponible, non affichée(s)` : ""} · 1 crédit par page de résultats
                 </span>
                 <button type="button" onClick={() => setTicked(allTicked ? [] : tiles.map((t) => ({ key: t.key, ...t.m })))}>
                   {allTicked ? "Tout décocher" : "Tout cocher"}
@@ -196,7 +215,7 @@ export function WhImport({ page, onImported, onClose, title = "Importer depuis W
                   <button key={key} type="button" className={`atl-wh__tile${n >= 0 ? " is-on" : ""}`} onClick={() => toggle(ad, j, m)} title={ad.texte}>
                     <span className="atl-wh__media">
                       {m.type === "video" ? (
-                        <video src={m.url} poster={m.poster ?? undefined} muted loop playsInline preload="none" onMouseEnter={(e) => e.currentTarget.play().catch(() => {})} onMouseLeave={(e) => e.currentTarget.pause()} />
+                        <video src={m.poster ? m.url : `${m.url}#t=0.5`} poster={m.poster ?? undefined} muted loop playsInline preload={m.poster ? "none" : "metadata"} onMouseEnter={(e) => e.currentTarget.play().catch(() => {})} onMouseLeave={(e) => e.currentTarget.pause()} />
                       ) : (
                         <img src={m.url} alt="" loading="lazy" />
                       )}
@@ -205,7 +224,18 @@ export function WhImport({ page, onImported, onClose, title = "Importer depuis W
                     </span>
                     <span className="atl-wh__info">
                       <b>{ad.marque}</b>
-                      <small>{[ad.jours != null ? `${ad.jours} j` : null, ad.depense != null ? money(ad.depense) : null, ad.debut ? `depuis ${ad.debut}` : null].filter(Boolean).join(" · ")}</small>
+                      <span className="atl-wh__stats">
+                        {ad.rang != null && <span title="Rang WinningHunter dans la marque (1 = sa meilleure pub)">#{ad.rang}</span>}
+                        {ad.score && (
+                          <span className={`is-${ad.score}`} title={ad.raisons?.length ? `Score WinningHunter : ${ad.raisons.join(" · ")}` : "Score WinningHunter"}>
+                            {SCORES[ad.score] ?? ad.score}
+                          </span>
+                        )}
+                        {ad.vues != null && <span title="Impressions (Union européenne)">👁 {short(ad.vues)}</span>}
+                        {ad.depense != null && <span title="Dépenses estimées (Union européenne)">{money(ad.depense)}</span>}
+                        {ad.copies > 1 && <span title="Copies actives de cette pub">×{ad.copies}</span>}
+                      </span>
+                      <small>{[ad.jours != null ? `${ad.jours} j` : null, ad.debut ? `depuis ${ad.debut}` : null].filter(Boolean).join(" · ")}</small>
                     </span>
                   </button>
                 );

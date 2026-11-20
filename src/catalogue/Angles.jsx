@@ -129,7 +129,7 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
       </p>
       <MessageRecap project={project} onEdit={onGo ? () => onGo("fondations") : null} open={false} />
       <div className="cat-angles__socle">
-        <b>Socle commun à tous les angles</b> : {project.produit || project.nom}
+        <b>Socle commun à tous les angles</b> : {(typeof project.produit === "string" ? project.produit : project.produit?.nom) || project.nom}
         {project.offre?.prix ? ` · ${String(project.offre.prix).slice(0, 80)}` : ""}
         {msg?.mecanisme ? ` · mécanisme : ${String(msg.mecanisme).slice(0, 120)}${String(msg.mecanisme).length > 120 ? "…" : ""}` : ""}
         <small> Ce qui change d'un angle à l'autre : les critères ci-dessous.</small>

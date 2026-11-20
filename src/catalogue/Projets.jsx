@@ -96,7 +96,7 @@ export function ProjectsView({ onOpen, onMessage }) {
                       }}
                     />
                   </span>
-                  {p.produit && <span className="cat-muted cat-card__meta">{p.produit}</span>}
+                  {p.produit && <span className="cat-muted cat-card__meta">{typeof p.produit === "string" ? p.produit : p.produit?.nom ?? ""}</span>}
                   {p.description && <span className="cat-muted cat-card__meta">{p.description}</span>}
                   <div className="cat-card__badges">
                     <span className="cat-badge cat-badge--blue">{own.length} page(s)</span>

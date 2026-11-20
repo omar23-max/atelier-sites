@@ -800,7 +800,10 @@ export function atelierApi() {
               const u = new URL(req.url, "http://x");
               const q = (u.searchParams.get("q") ?? "").trim();
               if (!q) return json(res, 400, { error: "Écris une marque, un site ou un mot-clé." });
-              const params = new URLSearchParams({ keyword: q, sorting: u.searchParams.get("tri") || "relevance", sortdirection: "desc", limit: "30" });
+              const tri = u.searchParams.get("tri") || "relevance";
+              // Rang WinningHunter : 1 = meilleure pub de la marque → ordre croissant.
+              const params = new URLSearchParams({ keyword: q, sorting: tri, sortdirection: tri === "toprank" ? "asc" : "desc", limit: "30" });
+              if (u.searchParams.get("actives") === "1") params.set("activestatus", "active");
               const champ = u.searchParams.get("champ");
               if (["landingurl", "pagename", "adtext", "productname"].includes(champ)) params.set("searchkeyword", champ);
               const type = u.searchParams.get("type");
@@ -810,10 +813,19 @@ export function atelierApi() {
               try {
                 const body = await whGet(`/adlibrary?${params}`, key);
                 const days = (a, b) => (a ? Math.max(1, Math.round(((b ? new Date(b) : new Date()) - new Date(a)) / 86400000)) : null);
+                // Pubs anciennes (2026-11-20) : souvent plus de fichier chez
+                // WinningHunter (aperçu = simple nom de fichier, sans adresse) et
+                // des liens Facebook expirés. On prend les autres champs connus,
+                // puis on vérifie plus bas ce qui se télécharge vraiment.
+                const http = (u) => (typeof u === "string" && /^https:\/\//.test(u) ? u : null);
                 const ads = (body.data ?? []).map((a, i) => {
                   const medias = [];
-                  if (a.video) medias.push({ type: "video", url: a.video, poster: a.poster || null });
-                  else if (a.image) medias.push({ type: "image", url: a.image });
+                  const v0 = Array.isArray(a.videos) ? a.videos[0] ?? {} : {};
+                  const video = http(a.video) ?? http(v0.video_hd_url) ?? http(v0.video_sd_url) ?? http(a.facebook_video_url);
+                  const poster = http(a.poster) ?? http(v0.video_preview_image_url) ?? http(a.facebook_thumbnail_url);
+                  const image = http(a.image) ?? http(a.facebook_image_url);
+                  if (video) medias.push({ type: "video", url: video, poster });
+                  else if (image) medias.push({ type: "image", url: image });
                   for (const c of Array.isArray(a.cards) ? a.cards : []) {
                     const v = c?.video || c?.video_url || c?.videoUrl;
                     const im = c?.image || c?.image_url || c?.imageUrl || c?.resized_image_url || c?.original_image_url;
@@ -826,12 +838,49 @@ export function atelierApi() {
                     debut: a.started ?? null,
                     vu: a.lastSeen ?? null,
                     jours: a.daysrunning ?? days(a.started, a.lastSeen),
-                    depense: a.total_adspend ?? a.total_eu_adspend ?? null,
+                    // API REST : total_views, total_adspend (texte), adscore « Winning »…
+                    depense: Number.isFinite(Number(a.total_adspend ?? a.total_eu_adspend)) && (a.total_adspend ?? a.total_eu_adspend) != null ? Number(a.total_adspend ?? a.total_eu_adspend) : null,
+                    vues: a.total_views ?? a.total_eu_views ?? null,
+                    rang: a.ad_rank ?? null,
+                    score: (() => {
+                      const v = String(a.adscore ?? "").toLowerCase();
+                      return /winning|established/.test(v) && !/unestablished/.test(v) ? "winning" : /potential|scaling/.test(v) ? "scaling" : /unestablished|testing/.test(v) ? "testing" : null;
+                    })(),
+                    raisons: Array.isArray(a.adscore_reasons) ? a.adscore_reasons.slice(0, 3) : [],
+                    copies: Number(a.countActive) || null,
                     texte: String(a.copy ?? a.caption ?? "").slice(0, 400),
                     lien: a.urlStore ?? a.product_url ?? null,
                     medias,
                   };
                 });
+                // Ce qui n'est pas chez WinningHunter (liens Facebook signés) est
+                // vérifié en parallèle (4 s au plus) : fichiers expirés écartés.
+                const alive = async (u) => {
+                  if (!u) return false;
+                  if (/^https:\/\/media\.winninghunter\.com\//.test(u)) return true;
+                  try {
+                    const ctl = new AbortController();
+                    const t = setTimeout(() => ctl.abort(), 4000);
+                    const r = await fetch(u, { method: "GET", headers: { Range: "bytes=0-0" }, signal: ctl.signal });
+                    clearTimeout(t);
+                    r.body?.cancel?.().catch?.(() => {});
+                    return r.ok || r.status === 206;
+                  } catch {
+                    return false;
+                  }
+                };
+                await Promise.all(
+                  ads.flatMap((ad) =>
+                    ad.medias.map(async (m) => {
+                      m.ok = await alive(m.url);
+                      if (m.poster && !(await alive(m.poster))) m.poster = null;
+                    }),
+                  ),
+                );
+                for (const ad of ads) {
+                  ad.medias = ad.medias.filter((m) => m.ok);
+                  ad.indisponible = ad.medias.length === 0;
+                }
                 return json(res, 200, { total: body.total ?? null, scroll: body.scroll ?? null, ads });
               } catch (e) {
                 return json(res, e.status === 401 ? 400 : 500, { error: e.message });
