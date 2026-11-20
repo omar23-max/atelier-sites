@@ -760,6 +760,12 @@ export function atelierApi() {
           // Les vidéos posées sur un tableau étaient lues dans le lecteur brut du
           // navigateur (rectangle noir avant lecture). Petite page : image
           // d'aperçu si on en a une, sinon première image de la vidéo.
+          // ---- Mirror (2026-11-20) : adapter une pub vidéo à ton produit ----
+          if (parts[0] === "mirror") {
+            const { mirrorRoute } = await import("./mirror.mjs");
+            return mirrorRoute(req, res, parts, { root, mediaPlace, readBody, json });
+          }
+
           if (parts[0] === "lecteur" && req.method === "GET") {
             const u = new URL(req.url, "http://x");
             const ok = (x) => typeof x === "string" && /^\/medias\/[\w./-]+$/.test(x) && !x.includes("..");

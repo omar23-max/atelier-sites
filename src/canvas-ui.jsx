@@ -1,4 +1,5 @@
 import { WhImport } from "./winninghunter-ui.jsx";
+import { MirrorPanel } from "./mirror-pub-ui.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
@@ -260,6 +261,9 @@ function CanvasBoard({ onClose, X }) {
   const [boardsOpen, setBoardsOpen] = useState(false);
   const [imagesOpen, setImagesOpen] = useState(false);
   const [whOpen, setWhOpen] = useState(false);
+  const [selVid, setSelVid] = useState(null); // vidéo sélectionnée : { id, url, poster, left, top }
+  const [mirror, setMirror] = useState(null); // { url, poster } : panneau Mirror ouvert
+  const lastVid = useRef("");
   const videoRef = useRef(null);
   const sig = useRef("");
   const saveTimer = useRef(null);
@@ -425,6 +429,13 @@ function CanvasBoard({ onClose, X }) {
       if (one && url && (panelRef.current === "image" || pickingRef.current)) {
         setRefs((r) => (r.some((x) => x.fileId === one.fileId) ? r : r.length >= MAX_REFS ? r : [...r, { fileId: one.fileId, url }]));
       }
+    }
+    // Vidéo sélectionnée → barre « Mirror » au-dessus d'elle (2026-11-20).
+    const vid = ids.length === 1 ? elements.find((e) => e.id === ids[0] && e.type === "embeddable" && /\.(mp4|mov|webm)$/i.test(e.customData?.url ?? "")) : null;
+    const vkey = vid ? `${vid.id}:${Math.round(vid.x)}:${Math.round(vid.y)}:${Math.round(vid.width)}:${appState.scrollX | 0}:${appState.scrollY | 0}:${z}` : "";
+    if (vkey !== lastVid.current) {
+      lastVid.current = vkey;
+      setSelVid(vid ? { id: vid.id, url: vid.customData.url, poster: vid.customData.poster ?? null, left: (vid.x + appState.scrollX) * z + vid.width * z * 0.5, top: (vid.y + appState.scrollY) * z } : null);
     }
     // Enregistrement seulement si le contenu ou la vue ont changé.
     const s = `${elements.map((e) => `${e.id}${e.version}`).join("")}|${appState.scrollX | 0}|${appState.scrollY | 0}|${z}|${appState.viewBackgroundColor}`;
@@ -699,6 +710,29 @@ function CanvasBoard({ onClose, X }) {
             🗑
           </button>
         </div>
+      )}
+
+      {selVid && api && !picking && !mirror && (
+        <div className="atl-cv__bar" style={{ left: Math.min(Math.max(selVid.left, 300), window.innerWidth - 300), top: Math.max(70, selVid.top - 50) }}>
+          <button type="button" className="is-main" onClick={() => setMirror({ url: selVid.url, poster: selVid.poster })}>
+            Mirror : adapter à mon produit
+          </button>
+          <button type="button" onClick={() => download(selVid.url, selVid.url.split("/").pop())} title="Télécharger" aria-label="Télécharger">
+            ⤓
+          </button>
+        </div>
+      )}
+
+      {api && mirror && (
+        <MirrorPanel
+          video={mirror.url}
+          poster={mirror.poster}
+          photosDuTableau={refs.map((r) => r.url)}
+          picking={picking}
+          onPick={() => setPicking((x) => (x ? false : (setRefs([]), true)))}
+          onPlace={(urls) => addImagesAtCenter(urls, { origine: { source: "Mirror : storyboard" } })}
+          onClose={() => (setMirror(null), setPicking(false))}
+        />
       )}
 
       {picking && (

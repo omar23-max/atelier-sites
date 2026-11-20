@@ -2201,3 +2201,25 @@ Original 80 % → retour Modifiable 80 %.
   l'utilisateur), jeton `--tk-font-display` ; texte courant en Inter. Les deux
   polices sont chargées par `src/tokens.css` (le catalogue n'en chargeait
   aucune avant).
+- 2026-11-20 : « Mirror : adapter à mon produit » dans Canvas. Cliquer une
+  vidéo du tableau ouvre un panneau en 4 étapes : 1. analyse rea-video
+  (~/outils/rea-video, une à la fois, ~4 min) : plans, images
+  scene_NN_frame.jpg, répliques, textes à l'écran, storyboard, zip ;
+  2. fiche de continuité et prompts d'images (prompt Whitelabeler Cast Lab) ;
+  3. argumentaire à valider, puis script, plan et blocs (Story Lab) ;
+  4. prompts TopView/Seedance du bloc A, puis des autres selon le nombre de
+  coupes (Motion Lab). Prompts dans server/mirror/*.md (relus à chaque
+  appel), code server/mirror.mjs et src/mirror-pub-ui.jsx, modèle gpt-5.5
+  (MIRROR_MODEL), résultats dans medias/projets/<projet>/mirror/. Ne pas
+  confondre avec src/mirror-ui.jsx (connecteur Mirror Studio, plus ancien).
+- 2026-11-20 : « Mirror : adapter à mon produit » dans Canvas. Cliquer une
+  vidéo du tableau ouvre un panneau en 4 étapes : 1. analyse rea-video
+  (~/outils/rea-video, une à la fois, ~4 min) : plans, images
+  scene_NN_frame.jpg, répliques, textes à l'écran, storyboard, zip ;
+  2. fiche de continuité et prompts d'images (prompt Whitelabeler Cast Lab) ;
+  3. argumentaire à valider, puis script, plan et blocs (Story Lab) ;
+  4. prompts TopView/Seedance du bloc A, puis des autres selon le nombre de
+  coupes (Motion Lab). Prompts dans server/mirror/*.md (relus à chaque
+  appel), code server/mirror.mjs et src/mirror-pub-ui.jsx, modèle gpt-5.5
+  (MIRROR_MODEL), résultats dans medias/projets/<projet>/mirror/. Ne pas
+  confondre avec src/mirror-ui.jsx (connecteur Mirror Studio, plus ancien).
