@@ -913,6 +913,21 @@ demande « en attente » (de la plus ancienne à la plus récente) :
      accepte /api/lecteur. À vérifier sur atelier.nive.ca : la lecture de la
      vidéo depuis le cadre isolé derrière Cloudflare Access. Sauvegardes :
      /tmp/api.avant-lecteur.mjs, /tmp/canvas.avant-lecteur.jsx.
+     · Constaté par l'utilisateur sur atelier.nive.ca : vidéo refusée et pas
+     de miniature sur les anciennes (cadre isolé = pas de connexion
+     Cloudflare Access). Correctif : renderEmbeddable (canvas-ui.jsx) affiche
+     un <video> directement dans la page pour customData.url en .mp4 / .webm
+     / .mov (aperçu customData.poster, sinon première image #t=0.3). Testé :
+     2 vidéos importées, lecteurs dans la page (aucun iframe), chargées
+     (readyState 4) avec leur aperçu. Sauvegarde :
+     /tmp/canvas.avant-video-directe.jsx.
+     · « Je n'arrive pas à les lire » : Canvas laisse ses cadres inertes
+     (pointer-events: none) tant qu'on ne les a pas activés d'un clic ; le 1er
+     clic sur ▶ ne faisait qu'activer. CanvasVideo (canvas-ui.jsx) : gros
+     bouton ▶ cliquable qui lance la lecture au premier clic ; commandes et
+     clics actifs pendant la lecture, retour à l'élément déplaçable en pause.
+     Testé au vrai clic : lecture lancée en un clic. Sauvegarde :
+     /tmp/canvas.avant-bouton-play.jsx.
    - **Catalogue → Projets restait blanc (2026-11-20)** : erreur React #31,
      projets/nextap.json avait produit = { nom, lien } (créé ainsi le
      2026-11-18) alors que produit est un texte partout. Remis à « NexTap »

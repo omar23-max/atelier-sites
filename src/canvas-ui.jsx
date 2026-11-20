@@ -33,6 +33,47 @@ const FAMILY_BY_ID = Object.fromEntries(FAMILIES.map((f) => [f.id, f]));
 
 // Lecteur vidéo de l'atelier (2026-11-20) : aperçu ou première image au lieu
 // d'un rectangle noir. url / poster : adresses /medias/… du projet.
+// Vidéo d'un tableau (2026-11-20) : gros bouton ▶ qui lance la lecture dès
+// le premier clic (sinon Canvas demande d'abord d'« activer » le cadre).
+// Pendant la lecture, les commandes répondent ; en pause, la vidéo redevient
+// un élément qu'on déplace comme les autres.
+function CanvasVideo({ url, poster }) {
+  const ref = useRef(null);
+  const [playing, setPlaying] = useState(false);
+  return (
+    <div className="atl-cv__vwrap">
+      <video
+        ref={ref}
+        className="atl-cv__video"
+        src={poster ? url : `${url}#t=0.3`}
+        poster={poster}
+        controls={playing}
+        playsInline
+        preload="metadata"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+        style={{ pointerEvents: playing ? "auto" : undefined }}
+      />
+      {!playing && (
+        <button
+          type="button"
+          className="atl-cv__play"
+          title="Lire la vidéo"
+          aria-label="Lire la vidéo"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            ref.current?.play().catch(() => {});
+          }}
+        >
+          ▶
+        </button>
+      )}
+    </div>
+  );
+}
+
 const lecteurLink = (url, poster) => `${location.origin}/api/lecteur?v=${encodeURIComponent(url)}${poster ? `&p=${encodeURIComponent(poster)}` : ""}`;
 const sizeOf = (src) =>
   new Promise((resolve) => {
@@ -563,6 +604,15 @@ function CanvasBoard({ onClose, X }) {
           }}
           onChange={onChange}
           validateEmbeddable={(link) => (link.startsWith(`${location.origin}/medias/`) || link.startsWith(`${location.origin}/api/lecteur?`) ? true : undefined)}
+          // Vidéos du projet lues directement dans la page (2026-11-20) : un
+          // cadre isolé d'Excalidraw n'envoie pas la connexion Cloudflare
+          // Access, la vidéo y était refusée sur atelier.nive.ca. Aperçu si on
+          // l'a, sinon première image.
+          renderEmbeddable={(el) => {
+            const url = el.customData?.url;
+            if (!url || !/\.(mp4|webm|mov)(\?|$)/i.test(url)) return null;
+            return <CanvasVideo url={url} poster={el.customData?.poster || undefined} />;
+          }}
           UIOptions={{ canvasActions: { loadScene: false, saveToActiveFile: false, export: { saveFileToDisk: true } }, tools: { image: true } }}
           renderTopRightUI={() => (
             <div className="atl-cv__right">
