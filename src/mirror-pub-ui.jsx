@@ -70,7 +70,7 @@ export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, o
     refresh(id);
   }, [id]);
   // Interroge le serveur tant que quelque chose tourne.
-  const busy = st && (["en attente", "en cours"].includes(st.analyse?.statut) || Object.values(st.etapes ?? {}).some((e) => e.statut === "en cours"));
+  const busy = st && (["en attente", "en cours"].includes(st.analyse?.statut) || [...Object.values(st.etapes ?? {}), ...Object.values(st.images ?? {})].some((e) => e.statut === "en cours"));
   useEffect(() => {
     clearInterval(timer.current);
     if (busy) timer.current = setInterval(() => refresh(), 4000);
@@ -235,6 +235,7 @@ export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, o
                       {e?.statut === "en cours" && <Wait label="L'IA écrit… (1 à 4 min)" since={e.debut} />}
                       {e?.statut === "erreur" && <p className="atl-mir__err">{e.erreur}</p>}
                       {e?.texte && e.statut !== "en cours" && <Markdown text={e.texte} />}
+                      {name === "cast" && e?.texte && e.statut !== "en cours" && <RefImages st={st} id={id} text={e.texte} refresh={refresh} onPlace={onPlace} setErr={setErr} />}
                       {e?.statut !== "en cours" && (
                         <>
                           {name === "suite" && (
@@ -259,6 +260,379 @@ export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, o
         )}
       </div>
     </aside>
+  );
+}
+
+// ---- Mirror d'une pub IMAGE (2026-11-20) ----
+// Analyse de la pub + 3 variantes (textes modifiables), puis génération
+// avec la pub comme modèle de mise en page et tes photos produit.
+export function MirrorImagePanel({ image, photosDuTableau, onPick, picking, onPlace, onClose }) {
+  const [id, setId] = useState(null);
+  const [st, setSt] = useState(null);
+  const [err, setErr] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [consigne, setConsigne] = useState("");
+  const [modele, setModele] = useState("nano-banana");
+  const [edits, setEdits] = useState({}); // n → { accroche, sousTitre, cta, autres, prompt }
+  const timer = useRef(null);
+  const clean = (u) => String(u ?? "").split("?")[0];
+
+  useEffect(() => {
+    let off = false;
+    setLoading(true);
+    api("")
+      .then((d) => {
+        if (off) return;
+        const m = (d.mirrors ?? []).find((x) => x.kind === "image" && x.image === clean(image));
+        setId(m?.id ?? null);
+        if (!m) setSt(null);
+      })
+      .catch((e) => setErr(e.message))
+      .finally(() => !off && setLoading(false));
+    return () => {
+      off = true;
+    };
+  }, [image]);
+  async function refresh(which = id) {
+    if (!which) return;
+    try {
+      const d = await api(`/${which}`);
+      setSt(d);
+      setErr(null);
+      return d;
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+  useEffect(() => {
+    if (id) refresh(id);
+  }, [id]);
+  const busy = st && [st.etapes?.adapter, ...Object.values(st.images ?? {})].some((e) => e?.statut === "en cours");
+  useEffect(() => {
+    clearInterval(timer.current);
+    if (busy) timer.current = setInterval(() => refresh(), 3000);
+    return () => clearInterval(timer.current);
+  }, [busy, id]);
+
+  async function ensure() {
+    if (id) return id;
+    const d = await api("", { image: clean(image) });
+    setId(d.id);
+    await refresh(d.id);
+    return d.id;
+  }
+  async function saveSettings(patch) {
+    try {
+      const jid = await ensure();
+      setSt((s) => ({ ...(s ?? {}), ...patch }));
+      await api(`/${jid}/reglages`, patch);
+      await refresh(jid);
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+  async function adapt() {
+    setErr(null);
+    try {
+      const jid = await ensure();
+      await api(`/${jid}/etape/adapter`, { consigne });
+      setConsigne("");
+      setEdits({});
+      await refresh(jid);
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+  const e = st?.etapes?.adapter;
+  const vars = e?.variantes ?? [];
+  const photos = st?.photos ?? [];
+  const usable = (photosDuTableau ?? []).filter((u) => /^\/medias\//.test(u) && clean(u) !== clean(image));
+  const imgs = st?.images ?? {};
+  const val = (v) => ({ ...v.textes, prompt: v.prompt, ...(edits[v.n] ?? {}) });
+  const setVal = (n, k, x) => setEdits((m) => ({ ...m, [n]: { ...(m[n] ?? {}), [k]: x } }));
+
+  async function gen(v) {
+    setErr(null);
+    const x = val(v);
+    try {
+      await api(`/${id}/image`, { nom: `variante_${v.n}`, prompt: x.prompt, refs: ["__pub__", ...photos.map((p) => p.split("/").pop())], ratio: st.ratio, modele, textes: { accroche: x.accroche, sousTitre: x.sousTitre, cta: x.cta, autres: x.autres } });
+      await refresh();
+    } catch (er) {
+      setErr(er.message);
+    }
+  }
+
+  return (
+    <aside className="atl-mir" onPointerDown={(ev) => ev.stopPropagation()} onWheel={(ev) => ev.stopPropagation()}>
+      <header className="atl-mir__head">
+        <div>
+          <strong>Mirror</strong>
+          <span>Adapter cette pub image à ton produit</span>
+        </div>
+        <button type="button" onClick={onClose} aria-label="Fermer">
+          ×
+        </button>
+      </header>
+      <div className="atl-mir__body">
+        {err && <p className="atl-mir__err">{err}</p>}
+        {loading && <p className="atl-mir__muted">Chargement…</p>}
+        {!loading && (
+          <>
+            <section className="atl-mir__step">
+              <h3>La pub d'origine</h3>
+              <img className="atl-mir__adsrc" src={image} alt="Pub d'origine" />
+            </section>
+            <section className="atl-mir__step">
+              <h3>Ton produit</h3>
+              <p className="atl-mir__muted">Photos de ton produit (2 ou 3, nettes, sans texte incrusté). Les infos du produit viennent des Fondations du projet.</p>
+              <div className="atl-mir__photos">
+                {photos.map((p) => (
+                  <figure key={p}>
+                    <img src={p} alt="" />
+                    <button type="button" onClick={() => saveSettings({ photos: photos.filter((x) => x !== p) })} aria-label="Retirer">
+                      ×
+                    </button>
+                  </figure>
+                ))}
+              </div>
+              <div className="atl-mir__row">
+                <button type="button" className={picking ? "is-on" : ""} onClick={onPick}>
+                  {picking ? "Terminé" : "Choisir sur le tableau"}
+                </button>
+                {picking && usable.some((u) => !photos.includes(clean(u))) && (
+                  <button type="button" className="is-main" onClick={() => saveSettings({ photos: [...new Set([...photos, ...usable.map(clean)])].slice(0, 8) })}>
+                    Ajouter les {usable.filter((u) => !photos.includes(clean(u))).length} image(s) choisie(s)
+                  </button>
+                )}
+              </div>
+              <label className="atl-mir__field">
+                Langue de la pub
+                <select value={st?.langue ?? "anglais"} onChange={(ev) => saveSettings({ langue: ev.target.value })}>
+                  <option value="anglais">Anglais</option>
+                  <option value="français (Québec)">Français (Québec)</option>
+                  <option value="français (France)">Français (France)</option>
+                </select>
+              </label>
+              <label className="atl-mir__field">
+                Ce qu'il faut dire ou ne pas dire (facultatif)
+                <textarea rows={2} defaultValue={st?.notes ?? ""} onBlur={(ev) => ev.target.value !== (st?.notes ?? "") && saveSettings({ notes: ev.target.value })} placeholder="Ex. : mettre l'accent sur « sans appli », pas de prix…" />
+              </label>
+            </section>
+            <section className="atl-mir__step">
+              <h3>Analyse et variantes</h3>
+              <p className="atl-mir__muted">L'IA lit la pub (accroche, mise en page, preuves), la transpose sur ton produit et propose 3 variantes : la plus proche, puis 2 autres angles.</p>
+              {e?.statut === "en cours" && <Wait label="L'IA lit la pub… (environ 1 min)" since={e.debut} />}
+              {e?.statut === "erreur" && <p className="atl-mir__err">{e.erreur}</p>}
+              {e?.texte && e.statut !== "en cours" && (
+                <details className="atl-mir__scenes">
+                  <summary>Voir l'analyse de la pub</summary>
+                  <Markdown text={e.texte} />
+                </details>
+              )}
+              {e?.statut !== "en cours" && (
+                <>
+                  {e?.texte && <textarea rows={2} value={consigne} onChange={(ev) => setConsigne(ev.target.value)} placeholder="Consigne pour refaire l'analyse (facultatif)" />}
+                  <button type="button" className="is-main" disabled={!photos.length} onClick={adapt}>
+                    {e?.texte ? (consigne ? "Refaire avec cette consigne" : "Refaire l'analyse") : "Analyser et proposer 3 variantes"}
+                  </button>
+                  {!photos.length && <p className="atl-mir__muted">Ajoute d'abord au moins une photo de ton produit.</p>}
+                </>
+              )}
+            </section>
+            {vars.length > 0 && e?.statut !== "en cours" && (
+              <section className="atl-mir__step">
+                <h3>Tes pubs</h3>
+                <div className="atl-mir__row">
+                  <select value={modele} onChange={(ev) => setModele(ev.target.value)}>
+                    {MODELES.map(([v, l]) => (
+                      <option key={v} value={v}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                  <button type="button" className="is-main" disabled={busy} onClick={() => vars.forEach((v) => imgs[`variante_${v.n}`]?.statut !== "en cours" && gen(v))}>
+                    Générer les {vars.length} pubs
+                  </button>
+                  {vars.some((v) => imgs[`variante_${v.n}`]?.statut === "faite") && (
+                    <button type="button" onClick={() => onPlace(vars.map((v) => imgs[`variante_${v.n}`]).filter((x) => x?.statut === "faite").map((x) => `${x.url}?v=${x.v}`))}>
+                      Poser sur le tableau
+                    </button>
+                  )}
+                </div>
+                {vars.map((v) => {
+                  const x = val(v);
+                  const im = imgs[`variante_${v.n}`];
+                  return (
+                    <div key={v.n} className="atl-mir__var">
+                      <div className="atl-mir__varimg">{im?.statut === "faite" ? <img src={`${im.url}?v=${im.v}`} alt={v.titre} /> : im?.statut === "en cours" ? <span className="atl-mir__spin" /> : <span>{v.n}</span>}</div>
+                      <div className="atl-mir__refinfo">
+                        <b>
+                          {v.n}. {v.titre}
+                        </b>
+                        {v.angle && <small>{v.angle}</small>}
+                        {v.pourquoi && <small className="atl-mir__why">{v.pourquoi}</small>}
+                        <label className="atl-mir__field">
+                          Accroche
+                          <input value={x.accroche ?? ""} onChange={(ev) => setVal(v.n, "accroche", ev.target.value)} />
+                        </label>
+                        <label className="atl-mir__field">
+                          Sous-titre
+                          <input value={x.sousTitre ?? ""} onChange={(ev) => setVal(v.n, "sousTitre", ev.target.value)} />
+                        </label>
+                        <label className="atl-mir__field">
+                          Bouton
+                          <input value={x.cta ?? ""} onChange={(ev) => setVal(v.n, "cta", ev.target.value)} />
+                        </label>
+                        <details>
+                          <summary className="atl-mir__muted">Consigne d'image (anglais)</summary>
+                          <textarea rows={4} value={x.prompt ?? ""} onChange={(ev) => setVal(v.n, "prompt", ev.target.value)} />
+                        </details>
+                        {im?.statut === "erreur" && <p className="atl-mir__err">{im.erreur}</p>}
+                        {im?.statut === "en cours" && <Wait label="Pub en cours…" since={im.debut} />}
+                        <div className="atl-mir__row">
+                          <button type="button" disabled={im?.statut === "en cours"} onClick={() => gen(v)}>
+                            {im?.statut === "faite" ? "Refaire" : "Générer"}
+                          </button>
+                          {im?.statut === "faite" && (
+                            <>
+                              <button type="button" onClick={() => onPlace([`${im.url}?v=${im.v}`])}>
+                                Poser sur le tableau
+                              </button>
+                              <a className="atl-mir__btn" href={im.url} download={im.url.split("/").pop()}>
+                                ⤓
+                              </a>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </section>
+            )}
+          </>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+// Prompts d'images de la fiche (« LIBRARY SHOT N OF M ») : nom à créer,
+// images à envoyer dans l'ordre, format, prompt.
+function parseShots(text) {
+  const heads = [...String(text).matchAll(/^#{1,4}\s.*?LIBRARY SHOT\s+(\d+)[^\n]*$/gim)];
+  return heads
+    .map((h, i) => {
+      const body = text.slice(h.index, heads[i + 1]?.index ?? text.length);
+      const nom = /Save the result as[^`\n]*`([^`]+)`/i.exec(body)?.[1]?.trim();
+      const promptAt = body.search(/^#{1,4}\s.*PROMPT/im);
+      const refZone = promptAt > 0 ? body.slice(0, promptAt) : body;
+      const tableZone = refZone.slice(Math.max(0, refZone.search(/REFERENCE IMAGES/i)));
+      // Ordre exact du tableau, doublons compris : le prompt compte « image 2 »,
+      // « image 3 »… même quand c'est la même photo.
+      const refs = [...tableZone.matchAll(/`([\w.-]+\.(?:jpe?g|png|webp))`/gi)].map((m) => m[1]).filter((f) => f !== nom);
+      const prompt = /```[^\n]*\n([\s\S]*?)```/.exec(promptAt > 0 ? body.slice(promptAt) : body)?.[1]?.trim();
+      const ratio = /Aspect ratio[^0-9\n]*(\d+\s*:\s*\d+)/i.exec(body)?.[1]?.replace(/\s/g, "") ?? "4:5";
+      const titre = h[0].replace(/^#+\s*(🎬\s*)?/, "").trim();
+      return nom && prompt ? { n: Number(h[1]), titre, nom, refs, prompt, ratio } : null;
+    })
+    .filter(Boolean);
+}
+
+const MODELES = [
+  ["nano-banana", "Nano Banana (0,04 $)"],
+  ["nano-banana-pro", "Nano Banana Pro (0,13 $)"],
+  ["gpt-image-2", "GPT Image 2 (0,05 $)"],
+];
+
+function RefImages({ st, id, text, refresh, onPlace, setErr }) {
+  const shots = parseShots(text);
+  const [modele, setModele] = useState("nano-banana");
+  const [chain, setChain] = useState(false);
+  const imgs = st.images ?? {};
+  const stem = (n) => n.replace(/\.[a-z0-9]+$/i, "");
+  const anyRunning = shots.some((s) => imgs[stem(s.nom)]?.statut === "en cours");
+
+  async function gen(s) {
+    setErr(null);
+    try {
+      await api(`/${id}/image`, { nom: s.nom, prompt: s.prompt, refs: s.refs, ratio: s.ratio, modele });
+      await refresh();
+      return true;
+    } catch (e) {
+      setErr(e.message);
+      return false;
+    }
+  }
+  // « Tout générer » : une image après l'autre (la 1re sert de référence aux
+  // suivantes), en sautant celles déjà faites.
+  const tried = useRef(new Set());
+  useEffect(() => {
+    if (!chain) return void tried.current.clear();
+    if (anyRunning) return;
+    const next = shots.find((s) => imgs[stem(s.nom)]?.statut !== "faite");
+    if (!next) return setChain(false);
+    // Déjà tentée dans cette série et en erreur : on s'arrête là.
+    if (tried.current.has(next.nom)) return setChain(false);
+    tried.current.add(next.nom);
+    gen(next).then((ok) => !ok && setChain(false));
+  }, [chain, anyRunning, JSON.stringify(imgs)]);
+
+  if (!shots.length) return <p className="atl-mir__muted">Je ne trouve pas les prompts d'images dans la fiche (refais l'étape si besoin).</p>;
+  const done = shots.map((s) => imgs[stem(s.nom)]).filter((x) => x?.statut === "faite");
+  return (
+    <div className="atl-mir__refs">
+      <h4>Images de référence ({done.length}/{shots.length})</h4>
+      <p className="atl-mir__muted">Faites ici, avec les images demandées par chaque prompt, envoyées dans l'ordre. La 1re sert ensuite de référence aux autres : commence par elle.</p>
+      <div className="atl-mir__row">
+        <select value={modele} onChange={(e) => setModele(e.target.value)}>
+          {MODELES.map(([v, l]) => (
+            <option key={v} value={v}>
+              {l}
+            </option>
+          ))}
+        </select>
+        <button type="button" className="is-main" disabled={chain || anyRunning || done.length === shots.length} onClick={() => setChain(true)}>
+          {chain ? "Génération en cours…" : done.length ? "Générer les images restantes" : `Générer les ${shots.length} images`}
+        </button>
+        {done.length > 0 && (
+          <button type="button" onClick={() => onPlace(done.map((x) => `${x.url}?v=${x.v}`))}>
+            Poser les images sur le tableau
+          </button>
+        )}
+      </div>
+      {shots.map((s) => {
+        const im = imgs[stem(s.nom)];
+        return (
+          <div key={s.nom} className="atl-mir__ref">
+            <div className="atl-mir__refimg">{im?.statut === "faite" ? <img src={`${im.url}?v=${im.v}`} alt={s.nom} /> : im?.statut === "en cours" ? <span className="atl-mir__spin" /> : <span>{s.n}</span>}</div>
+            <div className="atl-mir__refinfo">
+              <b>{s.titre}</b>
+              <small>
+                {s.nom} · {s.ratio} · envoie : {s.refs.join(", ") || "aucune image"}
+              </small>
+              {im?.statut === "erreur" && <p className="atl-mir__err">{im.erreur}</p>}
+              {im?.statut === "en cours" && <Wait label="Image en cours…" since={im.debut} />}
+              <div className="atl-mir__row">
+                <button type="button" disabled={im?.statut === "en cours" || chain} onClick={() => gen(s)}>
+                  {im?.statut === "faite" ? "Refaire" : "Générer"}
+                </button>
+                {im?.statut === "faite" && (
+                  <>
+                    <button type="button" onClick={() => onPlace([`${im.url}?v=${im.v}`])}>
+                      Poser sur le tableau
+                    </button>
+                    <a className="atl-mir__btn" href={im.url} download={im.url.split("/").pop()}>
+                      ⤓
+                    </a>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

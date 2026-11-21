@@ -2223,3 +2223,21 @@ Original 80 % → retour Modifiable 80 %.
   appel), code server/mirror.mjs et src/mirror-pub-ui.jsx, modèle gpt-5.5
   (MIRROR_MODEL), résultats dans medias/projets/<projet>/mirror/. Ne pas
   confondre avec src/mirror-ui.jsx (connecteur Mirror Studio, plus ancien).
+- 2026-11-20 (suite) : Mirror, images de référence faites dans l'atelier.
+  Sous la fiche de continuité : section « Images de référence » (lit chaque
+  LIBRARY SHOT : nom, images à envoyer dans l'ordre du tableau, doublons
+  compris, format, prompt). Nano Banana par défaut, Pro ou GPT Image au choix ;
+  « Générer les N images » les fait une par une (la 1re sert de seed). Route
+  POST /api/mirror/<id>/image ; une consigne « aucune légende » est ajoutée
+  devant chaque prompt (Nano Banana recopiait les légendes des plans).
+- 2026-11-20 (suite) : Mirror pour les pubs IMAGES. Dans Canvas, cliquer une
+  image → bouton « Mirror » (premier de la barre) → panneau : la pub d'origine,
+  tes photos produit, langue, consignes ; « Analyser et proposer 3 variantes »
+  (gpt-5.5, consigne IMAGE_SYSTEM dans server/mirror.mjs : même squelette, ton
+  produit, aucune preuve inventée ; variante 1 = miroir le plus proche, 2 et 3
+  = autres angles) ; textes de chaque variante modifiables (accroche,
+  sous-titre, bouton, consigne d'image) ; « Générer » avec la pub comme modèle
+  de mise en page + photos produit (Nano Banana par défaut). Résultats dans
+  medias/projets/<projet>/mirror/<id>/images/variante_N.png. Le fichier
+  etat.json est écrit sous verrou et fusionné (plusieurs images en même temps
+  s'écrasaient).

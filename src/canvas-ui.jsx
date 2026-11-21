@@ -1,5 +1,5 @@
 import { WhImport } from "./winninghunter-ui.jsx";
-import { MirrorPanel } from "./mirror-pub-ui.jsx";
+import { MirrorPanel, MirrorImagePanel } from "./mirror-pub-ui.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
@@ -263,6 +263,7 @@ function CanvasBoard({ onClose, X }) {
   const [whOpen, setWhOpen] = useState(false);
   const [selVid, setSelVid] = useState(null); // vidéo sélectionnée : { id, url, poster, left, top }
   const [mirror, setMirror] = useState(null); // { url, poster } : panneau Mirror ouvert
+  const [mirrorImg, setMirrorImg] = useState(null); // adresse de la pub image : panneau Mirror image
   const lastVid = useRef("");
   const videoRef = useRef(null);
   const sig = useRef("");
@@ -689,8 +690,16 @@ function CanvasBoard({ onClose, X }) {
 
       {api && empty && <p className="atl-cv__hint">Glisse une image ou une vidéo ici, écris ou dessine.</p>}
 
-      {sel && api && !picking && panel !== "image" && (
+      {sel && api && !picking && panel !== "image" && !mirrorImg && (
         <div className="atl-cv__bar" style={{ left: Math.min(Math.max(sel.left, 300), window.innerWidth - 300), top: Math.max(70, sel.top - 50) }}>
+          <button
+            type="button"
+            className="is-main"
+            title="Refaire cette pub avec ton produit (analyse + 3 variantes)"
+            onClick={() => (/^\/medias\//.test(sel.url) ? setMirrorImg(sel.url) : setFlash({ error: "Cette image n'est pas encore enregistrée dans le projet : attends une seconde et réessaie." }))}
+          >
+            Mirror
+          </button>
           <button type="button" onClick={() => (setRefs((r) => (r.some((x) => x.fileId === sel.fileId) ? r : [...r, { fileId: sel.fileId, url: sel.url }].slice(-MAX_REFS))), setPanel((p) => p || "image"))}>
             Utiliser comme référence
           </button>
@@ -721,6 +730,17 @@ function CanvasBoard({ onClose, X }) {
             ⤓
           </button>
         </div>
+      )}
+
+      {api && mirrorImg && (
+        <MirrorImagePanel
+          image={mirrorImg}
+          photosDuTableau={refs.map((r) => r.url)}
+          picking={picking}
+          onPick={() => setPicking((x) => (x ? false : (setRefs([]), true)))}
+          onPlace={(urls) => addImagesAtCenter(urls, { origine: { source: "Mirror : pub adaptée" } })}
+          onClose={() => (setMirrorImg(null), setPicking(false))}
+        />
       )}
 
       {api && mirror && (

@@ -21,12 +21,54 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REA = process.env.REA_VIDEO_BIN || "/home/ubuntu/outils/rea-video-venv/bin/rea-video";
 const MODEL = process.env.MIRROR_MODEL || "gpt-5.5";
 const ID = /^m-[a-z0-9-]{6,40}$/;
-const STEPS = ["cast", "argument", "story", "motion", "suite"];
+const STEPS = ["cast", "argument", "story", "motion", "suite", "adapter"];
+
+// Pub image : consigne écrite pour l'atelier (Whitelabeler n'en a pas pour
+// les images). Même doctrine que la vidéo : même squelette, ton produit, tes
+// vraies preuves.
+const IMAGE_SYSTEM = `You are a senior direct-response ad creative director. The user found a competitor's static image ad that works and wants the same ad for their own product (the "Mirror method").
+
+Doctrine
+- Same skeleton, better muscles: keep what makes the ad work (the hook mechanism, layout, visual idea, hierarchy, emotional register, the job of each element) and rebuild it around the user's product, its real features and the user's audience.
+- The product is SWAPPED, never redesigned: it must look exactly like the user's photos.
+- Credible copy converts: use only facts given about the product. Never invent numbers, reviews, ratings, studies, awards, certifications, guarantees, prices or discounts. If the competitor relies on a proof the user does not have, replace it with a real feature or a concrete benefit, and say so.
+- Short ad copy: headline 3 to 9 words, optional secondary line up to 12 words, CTA 1 to 4 words. Written in the ad language requested.
+
+Work
+1. Read the competitor's ad: what it sells, the hook and its mechanism (pattern break, callout, before/after, comparison, testimonial, offer, curiosity...), the layout and visual hierarchy, every piece of text verbatim, the proof elements, the CTA, the target audience and awareness level.
+2. Transfer: map each element to the user's product (same job, user's truth).
+3. Propose exactly 3 variants: variant 1 is the closest mirror (same hook mechanism and layout); variants 2 and 3 keep the layout but test a different angle taken from the product facts (e.g. a different pain, benefit or audience).
+
+For each variant write "prompt": an English image-generation brief of 60 to 140 words describing the user's ad to create, as a scene and layout description: background, where the product sits and how big, props, people if any (ordinary, realistic), light, colours, typography style and where each text sits. Refer to the product as "the product from the product photos". Do NOT write the ad's words inside "prompt" (they are given separately), do not mention the competitor's brand.
+
+Answer ONLY in JSON:
+{"analyse": "Markdown in French (Québec, plain words, tutoiement): what the ad does and why it works, the text transcribed, then the transfer to the user's product in a short table (élément de la pub | job | chez toi), and what you could not transfer and why.",
+ "variantes": [{"titre": "short French name", "angle": "French, one line", "pourquoi": "French, one or two lines", "accroche": "...", "sousTitre": "... or empty", "cta": "... or empty", "autres": "other small text or empty", "prompt": "English brief"}]}
+No em dashes.`;
+
+// Format le plus proche de l'image (pour la variante générée).
+async function ratioOf(file) {
+  const dims = await new Promise((ok) => execFile("vipsheader", ["-f", "width", file], (e, w) => execFile("vipsheader", ["-f", "height", file], (e2, h) => ok([Number(w), Number(h)]))));
+  const [w, h] = dims;
+  if (!w || !h) return "4:5";
+  const r = w / h;
+  const opts = [["1:1", 1], ["4:5", 0.8], ["9:16", 0.5625], ["16:9", 1.778], ["3:4", 0.75], ["2:3", 0.667]];
+  return opts.reduce((best, o) => (Math.abs(o[1] - r) < Math.abs(best[1] - r) ? o : best))[0];
+}
 
 // Une seule analyse rea-video à la fois (8 min de calcul pour 13 s de vidéo,
 // le serveur a 6 cœurs) ; les étapes IA, elles, peuvent tourner en parallèle.
 let queue = Promise.resolve();
 const running = new Set();
+const locks = new Map();
+function withLock(key, fn) {
+  const next = (locks.get(key) ?? Promise.resolve()).then(fn, fn);
+  locks.set(
+    key,
+    next.catch(() => {}),
+  );
+  return next;
+}
 
 const readJson = async (f, d = null) => {
   try {
@@ -46,11 +88,26 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
   const jobDir = (id) => join(baseDir, id);
   const stateFile = (id) => join(jobDir(id), "etat.json");
   const load = (id) => readJson(stateFile(id));
-  const save = async (st) => {
-    st.modifie = now();
-    await mkdir(jobDir(st.id), { recursive: true });
-    await writeFile(stateFile(st.id), JSON.stringify(st, null, 1) + "\n", "utf8");
+  // Écritures une par une, fusionnées avec le disque : plusieurs images ou
+  // étapes lancées en même temps s'écrasaient (essai du 2026-11-20 : la 3e
+  // pub perdue). Pour chaque image / étape, la version la plus récente gagne.
+  const stampOf = (e) => Math.max(Date.parse(e?.fin ?? "") || 0, Date.parse(e?.debut ?? "") || 0);
+  const mergeMap = (disk = {}, mine = {}) => {
+    const o = { ...disk };
+    for (const [k, v] of Object.entries(mine ?? {})) if (!o[k] || stampOf(v) >= stampOf(o[k])) o[k] = v;
+    return o;
   };
+  const save = (st) =>
+    withLock(`${baseDir}/${st.id}`, async () => {
+      const disk = await load(st.id);
+      if (disk) {
+        st.etapes = mergeMap(disk.etapes, st.etapes);
+        if (disk.images || st.images) st.images = mergeMap(disk.images, st.images);
+      }
+      st.modifie = now();
+      await mkdir(jobDir(st.id), { recursive: true });
+      await writeFile(stateFile(st.id), JSON.stringify(st, null, 1) + "\n", "utf8");
+    });
   const env = loadEnv("development", root, "");
   const projet = place.projet ? await readJson(join(root, "projets", `${place.projet}.json`), {}) : {};
 
@@ -58,6 +115,16 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
   if (!parts[1] && req.method === "POST") {
     const b = await readBody(req);
     const ok = (x) => typeof x === "string" && /^\/medias\/[\w./-]+$/.test(x) && !x.includes("..");
+    // Pub image (2026-11-20) : pas d'analyse rea-video, une seule étape IA
+    // (« adapter ») puis les variantes générées.
+    if (b.image !== undefined) {
+      const img = String(b.image).split("?")[0];
+      if (!ok(img) || !/\.(png|jpe?g|webp|avif)$/i.test(img) || !existsSync(join(root, normalize(img)))) return json(res, 400, { error: "Image invalide ou introuvable dans le projet." });
+      const id = `m-${now().slice(0, 19).replace(/[-:T]/g, "").toLowerCase()}-${Math.random().toString(36).slice(2, 6)}`;
+      const st = { id, kind: "image", image: img, ratio: await ratioOf(join(root, normalize(img))), cree: now(), langue: "anglais", photos: [], notes: "", analyse: { statut: "faite" }, etapes: {} };
+      await save(st);
+      return json(res, 200, { id });
+    }
     if (!ok(b.video) || !/\.(mp4|mov|webm)$/i.test(b.video)) return json(res, 400, { error: "Vidéo invalide." });
     const file = join(root, normalize(b.video));
     if (!existsSync(file)) return json(res, 404, { error: "Vidéo introuvable dans le projet." });
@@ -74,7 +141,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     const out = [];
     for (const id of ids) {
       const st = await load(id);
-      if (st) out.push({ id, video: st.video, cree: st.cree, analyse: st.analyse?.statut });
+      if (st) out.push({ id, kind: st.kind ?? "video", video: st.video ?? null, image: st.image ?? null, cree: st.cree, analyse: st.analyse?.statut });
     }
     return json(res, 200, { mirrors: out.sort((a, b) => (a.cree < b.cree ? 1 : -1)) });
   }
@@ -120,6 +187,8 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     const b = await readBody(req);
     const name = parts[3];
     if (st.analyse?.statut !== "faite") return json(res, 409, { error: "L'analyse de la vidéo n'est pas terminée." });
+    if ((name === "adapter") !== (st.kind === "image")) return json(res, 400, { error: "Étape non prévue pour ce type de pub." });
+    if (name === "adapter" && !st.photos.length) return json(res, 409, { error: "Ajoute d'abord au moins une photo de ton produit." });
     const need = { argument: ["cast"], story: ["cast", "argument"], motion: ["cast", "story"], suite: ["cast", "story", "motion"] }[name] ?? [];
     const missing = need.find((n) => !st.etapes[n]?.texte);
     if (missing) return json(res, 409, { error: `Il faut d'abord l'étape « ${missing} ».` });
@@ -132,7 +201,87 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     return json(res, 200, { ok: true });
   }
 
+  // POST /api/mirror/<id>/image { nom, prompt, refs: [fichiers], ratio, modele }
+  // Image de référence de l'étape 2, faite dans l'atelier (Nano Banana par
+  // défaut). Les images sont envoyées dans l'ordre du prompt : image du plan,
+  // photos produit, puis images déjà générées (la « seed »).
+  if (parts[2] === "image" && req.method === "POST") {
+    const b = await readBody(req);
+    const nom = String(b.nom ?? "").trim();
+    if (!/^[\w.-]{3,120}$/.test(nom)) return json(res, 400, { error: "Nom d'image invalide." });
+    const prompt = String(b.prompt ?? "").trim();
+    if (prompt.length < 20) return json(res, 400, { error: "Prompt vide." });
+    const modele = ["nano-banana", "nano-banana-pro", "gpt-image-2"].includes(b.modele) ? b.modele : "nano-banana";
+    const key = `${id}:image:${nom}`;
+    if (running.has(key)) return json(res, 409, { error: "Cette image est déjà en cours." });
+    // Fichiers demandés → chemins sur le disque.
+    const files = [];
+    const missing = [];
+    for (const r of (b.refs ?? []).map((x) => basename(String(x))).slice(0, 8)) {
+      const stem = r.replace(/\.[a-z0-9]+$/i, "");
+      // Adresses /medias/… (lues par studioImage depuis la racine).
+      let u = null;
+      if (r === "__pub__") u = st.image ?? null;
+      else if (/^scene_\d+_frame\.jpg$/.test(r)) u = `${baseUrl}/${id}/scenes/${r}`;
+      else if (st.images?.[stem]?.url) u = st.images[stem].url;
+      else u = st.photos.find((x) => basename(x) === r) ?? null;
+      if (u && existsSync(join(root, normalize(u)))) files.push(u);
+      else missing.push(r);
+    }
+    if (missing.length) return json(res, 409, { error: `Il manque : ${missing.join(", ")}. Génère d'abord les images dont celle-ci dépend (dans l'ordre), ou ajoute la photo produit.` });
+    st.images = st.images ?? {};
+    st.images[nom.replace(/\.[a-z0-9]+$/i, "")] = { ...(st.images[nom.replace(/\.[a-z0-9]+$/i, "")] ?? {}), statut: "en cours", modele, debut: now(), erreur: null };
+    await save(st);
+    running.add(key);
+    // Pub image : consigne complète écrite ici, avec les textes exacts (que
+    // l'utilisateur a pu corriger dans le panneau).
+    let full = null;
+    if (st.kind === "image") {
+      const t = b.textes ?? {};
+      const line = (k, label) => (String(t[k] ?? "").trim() ? `${label}: "${String(t[k]).trim().slice(0, 200)}"` : "");
+      const texts = [line("accroche", "Headline"), line("sousTitre", "Secondary line"), line("cta", "Call-to-action button"), line("autres", "Other small text")].filter(Boolean);
+      full = [
+        "Image 1 is a COMPETITOR'S AD. Use it only as the reference for layout, composition, placement of elements, colour mood and typography style. Never keep its product, brand name, logo, packaging or any of its words.",
+        `Images 2${files.length > 2 ? ` to ${files.length}` : ""} are photos of the user's own product: wherever the product appears it must look exactly like them (shape, colours, materials, printed logo).`,
+        `Make the user's ad: ${prompt}`,
+        texts.length ? `Text on the ad, exactly these words and nothing else, spelled exactly, clearly legible: ${texts.join("; ")}.` : "No text on the ad.",
+        "Never add ratings, stars, review counts, prices, percentages, certifications, awards or claims that are not in the text above. No watermark.",
+        "Output only the finished ad as one single image. No board, no labels, no split screen.",
+      ].join("\n");
+    }
+    makeImage(id, nom, full ?? prompt, files, b.ratio, modele, !!full).finally(() => running.delete(key));
+    return json(res, 200, { ok: true });
+  }
+
   return json(res, 404, { error: "Route Mirror inconnue." });
+
+  async function makeImage(jid, nom, prompt, files, ratio, modele, isAd = false) {
+    const stem = nom.replace(/\.[a-z0-9]+$/i, "");
+    try {
+      const { studioImage } = await import("../scripts/lib/ia.mjs");
+      const SIZES = { "1:1": [1024, 1024], "4:5": [1024, 1280], "9:16": [1024, 1820], "16:9": [1820, 1024], "3:4": [1024, 1365], "2:3": [1024, 1536] };
+      const [w, h] = SIZES[String(ratio ?? "").replace(/\s/g, "")] ?? [1024, 1280];
+      const dir = join(jobDir(jid), "images");
+      // Les images des plans portent les légendes de la pub d'origine : Nano
+      // Banana les recopiait malgré le prompt (essai du 2026-11-20).
+      const guard = isAd ? "" : "IMPORTANT: image 1 is a layout and camera reference only. Do not reproduce any caption, subtitle, sticker, emoji, text box, watermark or logo visible in image 1 or in any reference. The output contains no text at all, except the product's own printed wordmark exactly as on the product photos.\n\n";
+      const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: files[0] ?? null, references: files.slice(1), prompt: guard + prompt, width: w, height: h, format: null, model: modele, folder: { dir, url: `${baseUrl}/${jid}/images` } });
+      // Rangée sous le nom prévu par le prompt (extension réelle : .png).
+      const finalName = `${stem}.png`;
+      const { rename } = await import("node:fs/promises");
+      await rm(join(dir, finalName), { force: true });
+      await rename(join(dir, basename(out.url)), join(dir, finalName));
+      const s2 = await load(jid);
+      s2.images = s2.images ?? {};
+      s2.images[stem] = { statut: "faite", modele, fin: now(), url: `${baseUrl}/${jid}/images/${finalName}`, v: Date.now().toString(36), note: out.note || null };
+      await save(s2);
+    } catch (e) {
+      const s2 = await load(jid);
+      s2.images = s2.images ?? {};
+      s2.images[stem] = { ...(s2.images[stem] ?? {}), statut: "erreur", erreur: e.message, fin: now() };
+      await save(s2);
+    }
+  }
 
   // ---------------------------------------------------------------------
   // 1. Analyse rea-video, puis fiche « Scene Lab » (scenes.json + images
@@ -252,6 +401,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
   // 2 à 4. Étapes IA : prompt Whitelabeler + contexte + images.
   async function runStep(jid, name) {
     const s = await load(jid);
+    if (name === "adapter") return runAdapt(jid, s);
     try {
       const scenes = await readJson(join(jobDir(jid), "scenes.json"), {});
       const file = { cast: "cast.md", argument: "story.md", story: "story.md", motion: "motion.md", suite: "motion.md" }[name];
@@ -290,6 +440,45 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     }
   }
 
+  // Pub image : analyse de la pub concurrente + 3 variantes pour le produit,
+  // en un seul appel (JSON). Les variantes restent modifiables dans le panneau.
+  async function runAdapt(jid, s) {
+    try {
+      const facts = (await brief(s, {}, "adapter")).trim();
+      const content = [{ type: "text", text: `${facts}\n\nThe competitor's ad is the first image below, then the user's product photos.${s.etapes.adapter?.consigne ? `\n\nUSER NOTE FOR THIS RUN: ${s.etapes.adapter.consigne}` : ""}` }];
+      const ad = await dataUrl(join(root, normalize(s.image)), 1280);
+      if (!ad) throw new Error("Image de la pub illisible.");
+      content.push({ type: "text", text: "Competitor's ad:" }, { type: "image_url", image_url: { url: ad } });
+      for (const p of s.photos) {
+        const u = await dataUrl(join(root, normalize(p)), 900);
+        if (u) content.push({ type: "text", text: `User's product photo: ${basename(p)}` }, { type: "image_url", image_url: { url: u } });
+      }
+      const raw = await chat(env.OPENAI_API_KEY, IMAGE_SYSTEM, content, true);
+      let d;
+      try {
+        d = JSON.parse(raw);
+      } catch {
+        throw new Error("Réponse illisible du modèle (JSON attendu).");
+      }
+      const variantes = (Array.isArray(d.variantes) ? d.variantes : []).slice(0, 4).map((v, i) => ({
+        n: i + 1,
+        titre: String(v.titre ?? `Variante ${i + 1}`).slice(0, 120),
+        angle: String(v.angle ?? "").slice(0, 400),
+        pourquoi: String(v.pourquoi ?? "").slice(0, 600),
+        textes: { accroche: String(v.accroche ?? "").slice(0, 200), sousTitre: String(v.sousTitre ?? "").slice(0, 200), cta: String(v.cta ?? "").slice(0, 60), autres: String(v.autres ?? "").slice(0, 200) },
+        prompt: String(v.prompt ?? "").slice(0, 3000),
+      }));
+      if (!variantes.length) throw new Error("Aucune variante proposée.");
+      const s2 = await load(jid);
+      s2.etapes.adapter = { ...s2.etapes.adapter, statut: "faite", fin: now(), texte: String(d.analyse ?? "").trim(), variantes };
+      await save(s2);
+    } catch (e) {
+      const s2 = (await load(jid)) ?? s;
+      s2.etapes.adapter = { ...s2.etapes.adapter, statut: "erreur", erreur: e.message, fin: now() };
+      await save(s2);
+    }
+  }
+
   async function brief(s, scenes, name) {
     const prod = projet.produit && typeof projet.produit === "object" ? projet.produit.nom : projet.produit;
     const f = projet.fondations?.reponses ?? {};
@@ -309,7 +498,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
       .filter(Boolean)
       .join("\n");
     const manifest = [
-      `SOURCE: ${basename(s.video)} | duration ${scenes.duree}s | ${scenes.taille} | ${scenes.scenes?.length ?? 0} scenes | pace ${scenes.rythme} words/s | source language: English`,
+      `SOURCE: ${basename(s.video ?? s.image ?? "source")} | duration ${scenes.duree}s | ${scenes.taille} | ${scenes.scenes?.length ?? 0} scenes | pace ${scenes.rythme} words/s | source language: English`,
       "SCENE | START | END | DURATION | WORDS | FRAME | WHAT IS SEEN | ON-SCREEN TEXT | SAID",
       ...(scenes.scenes ?? []).map((x) => `${x.n} | ${x.debut} | ${x.fin} | ${x.duree}s | ${x.mots} | ${x.frame ?? "-"} | ${x.vu || "-"} | ${x.texte || "-"} | ${x.dit ? `"${x.dit}"` : "NOT CAPTURED"}`),
     ].join("\n");
@@ -332,6 +521,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     const prev = (n) => s.etapes[n]?.texte ?? "";
     const redo = (n) => (s.etapes[n]?.consigne ? `\n\n=== USER NOTE FOR THIS RUN ===\n${s.etapes[n].consigne}\n${prev(n) ? `\n=== YOUR PREVIOUS ANSWER FOR THIS STEP (revise it according to the note, keep what the note does not touch) ===\n${prev(n)}` : ""}` : "");
     const common = `=== THE USER'S PRODUCT ===\n${product}\n\nLanguage of the ad to write: ${s.langue}.\n${s.notes ? `User restrictions and wishes: ${s.notes}\n` : ""}`;
+    if (name === "adapter") return common;
     if (name === "cast")
       return `${common}\nProduct photos: ${s.photos.length ? s.photos.map((p) => basename(p)).join(", ") : "none supplied (say so, build text-only identity, and warn that the product will drift)"}. They are attached below, followed by every scene reference frame.\n\n${sceneLab}\n\nRUN NOW: Phase 1 catalog (skip the greeting), Phase 2 Ad Read, Phase 3 Library Plan, Phase 4 Continuity Sheet, Phase 5 every library shot package (all of them), Phase 6 Continuity Library manifest. One single answer, no waiting for approval.${redo("cast")}`;
     if (name === "argument")
@@ -352,12 +542,12 @@ const ADAPTER = `HOW YOU RUN HERE (overrides the session flow above where they c
 - Format in Markdown. Put every paste-ready prompt in its own fenced code block so the app can show a copy button.
 - No em dashes.`;
 
-async function chat(key, system, content) {
+async function chat(key, system, content, asJson = false) {
   if (!key) throw new Error("Clé OpenAI absente (OPENAI_API_KEY dans .env.local).");
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: MODEL, messages: [{ role: "system", content: system }, { role: "user", content }] }),
+    body: JSON.stringify({ model: MODEL, ...(asJson ? { response_format: { type: "json_object" } } : {}), messages: [{ role: "system", content: system }, { role: "user", content }] }),
     signal: AbortSignal.timeout(15 * 60 * 1000),
   });
   const body = await res.json().catch(() => ({}));
