@@ -6,6 +6,7 @@ import { buildPuckConfig } from "./engine/puck-config.jsx";
 import { normalizeProps } from "./engine/render.js";
 import { FullscreenButton, RightPanelTab, RetourPosition } from "./library-ui.jsx";
 import { StyletButton } from "./stylet-ui.jsx";
+import { ZoomPage } from "./zoom-page.jsx";
 import { SlotPicker } from "./slot-picker.jsx";
 import { LeftPanel } from "./left-ui.jsx";
 import { RewriteButton } from "./copy-ui.jsx";
@@ -374,6 +375,7 @@ export default function App() {
                 <FullscreenButton />
                 {/* Stylet : dessiner sur l'écran, capture pour l'IA (2026-11-18). */}
                 <StyletButton />
+                <ZoomPage />
                 {/* Panneau de droite : seulement par la languette (2026-11-18). */}
                 <RightPanelTab />
                 {/* Retour au même endroit après un rechargement (2026-11-19). */}

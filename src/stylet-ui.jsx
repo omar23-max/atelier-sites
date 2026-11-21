@@ -173,6 +173,16 @@ function Overlay({ onClose }) {
   // section avec ce croquis » et « Retravailler cette section ».
   const [saved, setSaved] = useState(null); // { image, sectionId, index }
 
+  // Grille (2026-11-21) : changer colonnes / lignes modifie aussi la
+  // dernière grille tracée, puis sert aux suivantes.
+  const regrid = (key, n) => {
+    (key === "cols" ? setCols : setRows)(n);
+    const last = [...strokes.current].reverse().find((x) => x.type === "grid");
+    if (last) {
+      last[key] = n;
+      redraw();
+    }
+  };
   const redraw = () => {
     const c = canvasRef.current;
     if (c) draw(c.getContext("2d"), strokes.current);
@@ -358,14 +368,14 @@ function Overlay({ onClose }) {
           ))}
           {tool === "grid" && (
             <span className="atl-stylet__grid">
-              <select value={cols} onChange={(e) => setCols(Number(e.target.value))} title="Colonnes">
+              <select value={cols} onChange={(e) => regrid("cols", Number(e.target.value))} title="Colonnes (change aussi la dernière grille)">
                 {[2, 3, 4, 5, 6].map((n) => (
                   <option key={n} value={n}>
                     {n} col.
                   </option>
                 ))}
               </select>
-              <select value={rows} onChange={(e) => setRows(Number(e.target.value))} title="Lignes">
+              <select value={rows} onChange={(e) => regrid("rows", Number(e.target.value))} title="Lignes (change aussi la dernière grille)">
                 {[1, 2, 3, 4].map((n) => (
                   <option key={n} value={n}>
                     {n} lig.
@@ -380,20 +390,27 @@ function Overlay({ onClose }) {
           ))}
           <span className="atl-stylet__sep" />
           {SIZES.map(([label, s]) => (
-            <button key={s} type="button" className={s === size ? "is-on" : ""} onClick={() => setSize(s)}>
-              {label}
+            <button key={s} type="button" className={`atl-stylet__size${s === size ? " is-on" : ""}`} onClick={() => setSize(s)} title={`Trait ${label.toLowerCase()}`} aria-label={`Trait ${label.toLowerCase()}`}>
+              <i style={{ width: Math.max(4, s * 1.2), height: Math.max(4, s * 1.2) }} />
             </button>
           ))}
           <span className="atl-stylet__sep" />
-          <button type="button" onClick={undo} disabled={!count} title="Annuler le dernier trait ou la dernière forme (Ctrl+Z)">
-            ↶
+          <button type="button" className="atl-stylet__tool" onClick={undo} disabled={!count} title="Annuler le dernier trait ou la dernière forme (Ctrl+Z)" aria-label="Annuler">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3" />
+            </svg>
           </button>
-          <button type="button" onClick={clear} disabled={!count}>
-            Effacer
+          <button type="button" className="atl-stylet__tool" onClick={clear} disabled={!count} title="Tout effacer" aria-label="Tout effacer">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />
+            </svg>
           </button>
           <button type="button" className="atl-stylet__save" onClick={save} title="Capture l'aperçu avec ton dessin">
             📸 Enregistrer
           </button>
+          {(saved || msg) && (
+            <div className="atl-stylet__extra">
+              {msg && <span className={msg.error ? "atl-stylet__err" : "atl-stylet__ok"}>{msg.error ?? msg.ok}</span>}
           {saved && (
             <>
               <button
@@ -422,10 +439,13 @@ function Overlay({ onClose }) {
               )}
             </>
           )}
-          <button type="button" onClick={onClose} title="Fermer (Échap)">
-            Fermer
+            </div>
+          )}
+          <button type="button" className="atl-stylet__tool" onClick={onClose} title="Fermer le stylet (Échap)" aria-label="Fermer le stylet">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </button>
-          {msg && <span className={msg.error ? "atl-stylet__err" : "atl-stylet__ok"}>{msg.error ?? msg.ok}</span>}
         </div>
       )}
     </div>,

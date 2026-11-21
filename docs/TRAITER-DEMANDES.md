@@ -2252,3 +2252,12 @@ Original 80 % → retour Modifiable 80 %.
   rectangle, rond, grille (2 à 6 colonnes, 1 à 4 lignes, séparations en
   pointillés) et texte (un clic, puis le texte à écrire). Maj : carré, cercle,
   ligne à 45°. Les formes suivent le défilement et le zoom comme les traits.
+- 2026-11-21 : zoom de la page seule. Ctrl + molette et Ctrl + / Ctrl - zooment
+  l aperçu (boutons de zoom de Puck, 25 % à 100 %) au lieu du zoom du
+  navigateur ; les menus gardent leur taille. Ctrl + 0 reste au navigateur.
+  Le Canvas garde son zoom. Fichier src/zoom-page.jsx, monté dans App.jsx.
+- 2026-11-21 : barre du Stylet sur une seule ligne : épaisseurs en points,
+  annuler / effacer / fermer en icônes ; boutons d après enregistrement et
+  messages dans un petit bandeau au-dessus de la barre.
+- 2026-11-21 : Stylet, grille modifiable : changer colonnes ou lignes met à jour
+  la dernière grille tracée (outil Grille ouvert), puis sert aux suivantes.
