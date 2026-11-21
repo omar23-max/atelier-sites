@@ -38,6 +38,16 @@ const FAMILY_BY_ID = Object.fromEntries(FAMILIES.map((f) => [f.id, f]));
 // le premier clic (sinon Canvas demande d'abord d'« activer » le cadre).
 // Pendant la lecture, les commandes répondent ; en pause, la vidéo redevient
 // un élément qu'on déplace comme les autres.
+// Appui sur un élément posé au-dessus du tableau (bouton ▶) → même appui sur
+// le tableau d'Excalidraw, Ctrl ou Cmd valant Maj (ajout à la sélection).
+function forwardToBoard(e) {
+  const board = document.querySelector(".excalidraw canvas.interactive");
+  if (!board) return;
+  board.dispatchEvent(
+    new PointerEvent("pointerdown", { bubbles: true, cancelable: true, clientX: e.clientX, clientY: e.clientY, screenX: e.screenX, screenY: e.screenY, pointerId: e.pointerId, pointerType: e.pointerType || "mouse", isPrimary: true, button: 0, buttons: 1, shiftKey: e.shiftKey || e.ctrlKey || e.metaKey, altKey: e.altKey }),
+  );
+}
+
 function CanvasVideo({ url, poster }) {
   const ref = useRef(null);
   const [playing, setPlaying] = useState(false);
@@ -62,11 +72,22 @@ function CanvasVideo({ url, poster }) {
           className="atl-cv__play"
           title="Lire la vidéo"
           aria-label="Lire la vidéo"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
+          onPointerDown={(e) => {
             e.stopPropagation();
-            ref.current?.play().catch(() => {});
+            e.preventDefault();
+            const d = { x: e.clientX, y: e.clientY, mod: e.ctrlKey || e.metaKey || e.shiftKey };
+            // Le tableau capture le pointeur : le clic n'arrive plus au bouton.
+            // Relâché sans bouger ni touche Ctrl/Maj → lecture.
+            window.addEventListener(
+              "pointerup",
+              (u) => {
+                if (!d.mod && Math.hypot(u.clientX - d.x, u.clientY - d.y) < 6) ref.current?.play().catch(() => {});
+              },
+              { once: true, capture: true },
+            );
+            forwardToBoard(e);
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           ▶
         </button>
@@ -275,6 +296,24 @@ function CanvasBoard({ onClose, X }) {
   pickingRef.current = picking;
   const lastSel = useRef("");
   const emptyRef = useRef(null);
+
+  // Ctrl + clic = Maj + clic (2026-11-21) : Excalidraw n'ajoute à la
+  // sélection qu'avec Maj ; l'utilisateur sélectionne avec Ctrl.
+  useEffect(() => {
+    const asShift = (e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey) return;
+      if (!(e.target instanceof Element) || !e.target.closest(".excalidraw canvas")) return;
+      try {
+        Object.defineProperty(e, "shiftKey", { get: () => true });
+        Object.defineProperty(e, "ctrlKey", { get: () => false });
+        Object.defineProperty(e, "metaKey", { get: () => false });
+      } catch {}
+    };
+    for (const t of ["pointerdown", "pointerup", "mousedown", "mouseup", "click"]) window.addEventListener(t, asShift, true);
+    return () => {
+      for (const t of ["pointerdown", "pointerup", "mousedown", "mouseup", "click"]) window.removeEventListener(t, asShift, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!flash) return;
@@ -636,20 +675,24 @@ function CanvasBoard({ onClose, X }) {
                     <path d="M4 16l4.5-5 3.5 4 2.5-3L20 17v2H4z" fill="#fff" />
                     <circle cx="15.5" cy="8.5" r="1.6" fill="#fff" />
                   </svg>
+                  <span>Images</span>
                 </button>
                 <button type="button" className={`atl-cv__whbtn${whOpen ? " is-on" : ""}`} onClick={() => setWhOpen(true)} title="Importer les pubs d'une marque depuis WinningHunter" aria-label="Importer depuis WinningHunter">
-                  WH
+                  <b className="atl-cv__whlogo">WH</b>
+                  <span>WinningHunter</span>
                 </button>
                 <button type="button" className={`is-main${panel === "image" ? " is-on" : ""}`} onClick={() => togglePanel("image")} title="Créer une image" aria-label="Créer une image">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M11 3l1.6 4.4L17 9l-4.4 1.6L11 15l-1.6-4.4L5 9l4.4-1.6zM18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8zM6 15l.6 1.4L8 17l-1.4.6L6 19l-.6-1.4L4 17l1.4-.6z" fill="currentColor" />
                   </svg>
+                  <span>Créer</span>
                 </button>
                 <button type="button" className="is-video" disabled title="Créer une vidéo (bientôt : la clé Google ne donne pas accès à Veo)" aria-label="Créer une vidéo">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="6" width="13" height="12" rx="2" fill="currentColor" />
                     <path d="M17 10l4-2.5v9L17 14z" fill="currentColor" />
                   </svg>
+                  <span>Vidéo</span>
                 </button>
                 <button type="button" className={panel === "sections" ? "is-on" : ""} onClick={() => togglePanel("sections")} title="Section images" aria-label="Section images">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -657,6 +700,7 @@ function CanvasBoard({ onClose, X }) {
                     <rect x="3" y="12" width="8" height="7" rx="1" fill="currentColor" />
                     <rect x="13" y="12" width="8" height="7" rx="1" fill="currentColor" />
                   </svg>
+                  <span>Sections</span>
                 </button>
               </div>
               <div className="atl-cv__title">

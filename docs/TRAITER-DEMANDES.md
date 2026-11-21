@@ -2241,3 +2241,10 @@ Original 80 % → retour Modifiable 80 %.
   medias/projets/<projet>/mirror/<id>/images/variante_N.png. Le fichier
   etat.json est écrit sous verrou et fusionné (plusieurs images en même temps
   s'écrasaient).
+- 2026-11-21 : Canvas. Ctrl + clic (ou Cmd + clic) ajoute une image ou une
+  vidéo à la sélection, comme Maj + clic (Excalidraw ne connaît que Maj) ; on
+  déplace ensuite le groupe. Le bouton ▶ des vidéos ne bloque plus : l'appui
+  est transmis au tableau (sélection, déplacement), un clic sans bouger lance
+  la lecture (détecté au relâchement, le tableau capture le pointeur).
+  Bandeau du haut : nom sous chaque icône (Images, WinningHunter, Créer,
+  Vidéo, Sections), contraste renforcé.
