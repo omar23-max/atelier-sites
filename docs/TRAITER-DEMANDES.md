@@ -2248,3 +2248,7 @@ Original 80 % → retour Modifiable 80 %.
   la lecture (détecté au relâchement, le tableau capture le pointeur).
   Bandeau du haut : nom sous chaque icône (Images, WinningHunter, Créer,
   Vidéo, Sections), contraste renforcé.
+- 2026-11-21 : Stylet. 3 couleurs (rouge, bleu, vert) ; outils crayon, ligne, flèche,
+  rectangle, rond, grille (2 à 6 colonnes, 1 à 4 lignes, séparations en
+  pointillés) et texte (un clic, puis le texte à écrire). Maj : carré, cercle,
+  ligne à 45°. Les formes suivent le défilement et le zoom comme les traits.

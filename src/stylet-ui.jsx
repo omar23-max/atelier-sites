@@ -10,7 +10,18 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const pageName = new URLSearchParams(location.search).get("page");
-const COLORS = ["#e11d48", "#2563eb", "#16a34a", "#f59e0b", "#111111"];
+const COLORS = ["#e11d48", "#2563eb", "#16a34a"];
+// Outils (2026-11-21) : crayon libre, puis formes posées en deux points
+// (début et fin du glisser), texte posé d'un clic.
+const TOOLS = [
+  ["free", "Crayon", "M3 21l3.5-1 11-11-2.5-2.5-11 11zM14.5 5.5l2.5 2.5"],
+  ["line", "Ligne", "M4 20L20 4"],
+  ["arrow", "Flèche", "M4 20L20 4M11 4h9v9"],
+  ["rect", "Rectangle", "M4 6h16v12H4z"],
+  ["ellipse", "Rond", "M12 5c4.4 0 8 3.1 8 7s-3.6 7-8 7-8-3.1-8-7 3.6-7 8-7z"],
+  ["grid", "Grille", "M4 5h16v14H4zM9.3 5v14M14.7 5v14M4 12h16"],
+  ["text", "Texte", "M5 6V4h14v2M12 4v16M9 20h6"],
+];
 const SIZES = [
   ["Fin", 3],
   ["Moyen", 6],
@@ -44,6 +55,11 @@ function draw(ctx, strokes) {
   ctx.lineJoin = "round";
   for (const s of strokes) {
     ctx.strokeStyle = s.color;
+    ctx.fillStyle = s.color;
+    if (s.type && s.type !== "free") {
+      drawShape(ctx, s, v, k);
+      continue;
+    }
     const pts = s.points.map((p) => ({ ...toScreen(v, p), p: p.p }));
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1];
@@ -61,6 +77,58 @@ function draw(ctx, strokes) {
       ctx.arc(a.x * k, a.y * k, (s.size * v.z * k) / 2, 0, Math.PI * 2);
       ctx.fill();
     }
+  }
+}
+
+function drawShape(ctx, s, v, k) {
+  const a = toScreen(v, s.points[0]);
+  const b = toScreen(v, s.points[1] ?? s.points[0]);
+  const [x1, y1, x2, y2] = [a.x * k, a.y * k, b.x * k, b.y * k];
+  ctx.lineWidth = s.size * v.z * k;
+  ctx.beginPath();
+  if (s.type === "line" || s.type === "arrow") {
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    if (s.type === "arrow" && Math.hypot(x2 - x1, y2 - y1) > 4) {
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      const len = Math.max(14, s.size * 3.2) * v.z * k;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - len * Math.cos(ang - 0.45), y2 - len * Math.sin(ang - 0.45));
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - len * Math.cos(ang + 0.45), y2 - len * Math.sin(ang + 0.45));
+      ctx.stroke();
+    }
+  } else if (s.type === "rect" || s.type === "grid") {
+    ctx.strokeRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1));
+    if (s.type === "grid") {
+      const [l, t, w, h] = [Math.min(x1, x2), Math.min(y1, y2), Math.abs(x2 - x1), Math.abs(y2 - y1)];
+      ctx.save();
+      ctx.lineWidth = Math.max(1, s.size * 0.6) * v.z * k;
+      ctx.setLineDash([8 * k, 6 * k]);
+      ctx.beginPath();
+      for (let i = 1; i < (s.cols ?? 3); i++) {
+        ctx.moveTo(l + (w * i) / s.cols, t);
+        ctx.lineTo(l + (w * i) / s.cols, t + h);
+      }
+      for (let i = 1; i < (s.rows ?? 1); i++) {
+        ctx.moveTo(l, t + (h * i) / s.rows);
+        ctx.lineTo(l + w, t + (h * i) / s.rows);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+  } else if (s.type === "ellipse") {
+    ctx.ellipse((x1 + x2) / 2, (y1 + y2) / 2, Math.abs(x2 - x1) / 2, Math.abs(y2 - y1) / 2, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (s.type === "text") {
+    const px = (14 + s.size * 2.2) * v.z * k;
+    ctx.font = `600 ${px}px Inter, system-ui, sans-serif`;
+    ctx.textBaseline = "top";
+    String(s.text ?? "")
+      .split("\n")
+      .forEach((line, i) => ctx.fillText(line, x1, y1 + i * px * 1.25));
   }
 }
 
@@ -95,6 +163,9 @@ function Overlay({ onClose }) {
   const current = useRef(null);
   const [color, setColor] = useState(COLORS[0]);
   const [size, setSize] = useState(6);
+  const [tool, setTool] = useState("free");
+  const [cols, setCols] = useState(3);
+  const [rows, setRows] = useState(1);
   const [count, setCount] = useState(0);
   const [hidden, setHidden] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -174,17 +245,51 @@ function Overlay({ onClose }) {
     } catch {
       // pointeur déjà relâché : le trait se dessine quand même
     }
-    current.current = { color, size, pen: e.pointerType === "pen", points: [pt(e)] };
+    if (tool === "text") {
+      const p0 = pt(e);
+      const text = window.prompt("Texte à écrire sur la page :");
+      if (text && text.trim()) {
+        strokes.current.push({ type: "text", color, size, text: text.trim(), points: [p0] });
+        setCount(strokes.current.length);
+        redraw();
+      }
+      return;
+    }
+    current.current = tool === "free" ? { color, size, pen: e.pointerType === "pen", points: [pt(e)] } : { type: tool, color, size, cols, rows, points: [pt(e), pt(e)] };
     strokes.current.push(current.current);
     redraw();
   };
   const move = (e) => {
     if (!current.current) return;
+    if (current.current.type) {
+      // Forme : le second point suit le pointeur ; Maj = carré / cercle /
+      // ligne à 45°.
+      const a = current.current.points[0];
+      let b = pt(e);
+      if (e.shiftKey) {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        if (current.current.type === "line" || current.current.type === "arrow") {
+          const ang = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4);
+          const len = Math.hypot(dx, dy);
+          b = { x: a.x + len * Math.cos(ang), y: a.y + len * Math.sin(ang) };
+        } else {
+          const m = Math.max(Math.abs(dx), Math.abs(dy));
+          b = { x: a.x + Math.sign(dx || 1) * m, y: a.y + Math.sign(dy || 1) * m };
+        }
+      }
+      current.current.points[1] = b;
+      redraw();
+      return;
+    }
     const coalesced = e.nativeEvent.getCoalescedEvents?.();
     for (const ev of coalesced?.length ? coalesced : [e.nativeEvent]) current.current.points.push(pt(ev));
     redraw();
   };
   const up = () => {
+    // Forme sans glisser (simple clic) : retirée.
+    const c = current.current;
+    if (c?.type && Math.hypot(c.points[1].x - c.points[0].x, c.points[1].y - c.points[0].y) < 3) strokes.current.pop();
     if (current.current) setCount(strokes.current.length);
     current.current = null;
   };
@@ -244,6 +349,32 @@ function Overlay({ onClose }) {
       {!hidden && (
         <div className="atl-stylet__bar" onPointerDown={(e) => e.stopPropagation()}>
           <b>✎ Stylet</b>
+          {TOOLS.map(([id, label, d]) => (
+            <button key={id} type="button" className={`atl-stylet__tool${tool === id ? " is-on" : ""}`} onClick={() => setTool(id)} title={id === "free" || id === "text" ? label : `${label} (Maj : forme régulière)`} aria-label={label}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d={d} />
+              </svg>
+            </button>
+          ))}
+          {tool === "grid" && (
+            <span className="atl-stylet__grid">
+              <select value={cols} onChange={(e) => setCols(Number(e.target.value))} title="Colonnes">
+                {[2, 3, 4, 5, 6].map((n) => (
+                  <option key={n} value={n}>
+                    {n} col.
+                  </option>
+                ))}
+              </select>
+              <select value={rows} onChange={(e) => setRows(Number(e.target.value))} title="Lignes">
+                {[1, 2, 3, 4].map((n) => (
+                  <option key={n} value={n}>
+                    {n} lig.
+                  </option>
+                ))}
+              </select>
+            </span>
+          )}
+          <span className="atl-stylet__sep" />
           {COLORS.map((c) => (
             <button key={c} type="button" className={`atl-stylet__color${c === color ? " is-on" : ""}`} style={{ background: c }} onClick={() => setColor(c)} title="Couleur" />
           ))}
@@ -254,7 +385,7 @@ function Overlay({ onClose }) {
             </button>
           ))}
           <span className="atl-stylet__sep" />
-          <button type="button" onClick={undo} disabled={!count} title="Annuler le dernier trait (Ctrl+Z)">
+          <button type="button" onClick={undo} disabled={!count} title="Annuler le dernier trait ou la dernière forme (Ctrl+Z)">
             ↶
           </button>
           <button type="button" onClick={clear} disabled={!count}>
