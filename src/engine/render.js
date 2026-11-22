@@ -121,6 +121,7 @@ export function renderSectionHtml(section, props, instanceId = "apercu") {
   }
 
   let html = keepChosenImages(renderLiquid(section.template, { section: { id: instanceId, settings, blocks } }));
+  html = injectAjouts(html, merged.atl_ajouts);
   if (/data-atl-(q|acc)=/.test(html)) html += ACC_SCRIPT;
   return withSectionFrame(section, merged, instanceId, html);
 }
@@ -179,4 +180,80 @@ function withSectionFrame(section, props, instanceId, html) {
   const gal = section.meta?.family === "fiche-produit" || /add[ -]?to[ -]?cart|ajouter au panier|buy now|product-form|add-to-cart/i.test(section.template ?? "");
   if (!css && !anchor && !car && !gal) return html;
   return `<div class="${cls}"${anchor ? ` id="${anchor}"` : ""}${car ? ` data-atl-carrousel="${car}"` : ""}${gal ? " data-atl-galerie" : ""}>${html}${css ? `<style>${css}</style>` : ""}${car ? CARROUSEL_SCRIPT : ""}${gal ? GALERIE_SCRIPT : ""}</div>`;
+}
+
+
+// ---- Blocs ajoutés ou dupliqués dans une copie (2026-11-22) ----
+// props.atl_ajouts = [{ id: "x1", apres: "s40", type: "copie" | "titre" |
+// "paragraphe" | "image" | "video", modele: "s40", text, image, video }].
+// Chaque bloc est inséré juste après l'élément « apres » (ou un bloc ajouté
+// avant lui). « modele » : élément dont on reprend la balise et le style ;
+// sans modèle, balise simple. Le bloc porte data-atl-slot="xN" : il se
+// sélectionne, se stylise (atl_styles) et se déplace comme les autres.
+const VOID_TAGS = new Set(["img", "br", "hr", "input", "source", "meta", "link", "wbr", "area", "col", "embed", "track"]);
+const IMG_VIDE =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="100%" height="100%" fill="#e8e8ee"/><text x="50%" y="50%" fill="#8a8aa0" font-family="sans-serif" font-size="34" text-anchor="middle" dominant-baseline="middle">Image</text></svg>');
+function slotRange(html, slot) {
+  const at = html.indexOf(`data-atl-slot="${slot}"`);
+  if (at < 0) return null;
+  const start = html.lastIndexOf("<", at);
+  const m = /^<([a-zA-Z][a-zA-Z0-9-]*)/.exec(html.slice(start, start + 40));
+  if (!m) return null;
+  const tag = m[1].toLowerCase();
+  const openEnd = html.indexOf(">", at) + 1;
+  if (!openEnd) return null;
+  if (VOID_TAGS.has(tag) || html[openEnd - 2] === "/") return { start, openEnd, end: openEnd, tag, closeStart: null };
+  const re = new RegExp(`<\\/?${tag}\\b[^>]*>`, "gi");
+  re.lastIndex = openEnd;
+  let depth = 1;
+  let mm;
+  while ((mm = re.exec(html))) {
+    if (mm[0][1] === "/") depth--;
+    else if (!mm[0].endsWith("/>")) depth++;
+    if (depth === 0) return { start, openEnd, end: re.lastIndex, tag, closeStart: mm.index };
+  }
+  return null;
+}
+const escAttr = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const asHtml = (t) => String(t ?? "").replace(/\n/g, "<br>");
+function ajoutHtml(html, a) {
+  const id = escAttr(a.id);
+  // Titre : niveau choisi (H1 à H4). Le modèle (titre du même niveau dans la
+  // section) donne le style ; sinon balise simple du niveau.
+  const level = a.type === "titre" && /^[1-6]$/.test(String(a.niveau ?? "")) ? `h${a.niveau}` : null;
+  const model = a.modele ? slotRange(html, a.modele) : null;
+  if (a.type === "video") {
+    return a.video
+      ? `<video data-atl-slot="${id}" data-atl-ajout controls playsinline preload="metadata" src="${escAttr(a.video)}" style="width:100%;height:auto;display:block;border-radius:inherit"></video>`
+      : `<div data-atl-slot="${id}" data-atl-ajout style="display:grid;place-items:center;min-height:200px;background:#e8e8ee;color:#8a8aa0;font:600 18px sans-serif">Vidéo</div>`;
+  }
+  if (model) {
+    let out = html.slice(model.start, model.end);
+    if (model.tag === "img") {
+      const src = a.image || IMG_VIDE;
+      out = out.replace(/\s(srcset|sizes)="[^"]*"/g, "").replace(/visibility:\s*hidden;?/g, "");
+      out = /\ssrc="[^"]*"/.test(out) ? out.replace(/\ssrc="[^"]*"/, ` src="${escAttr(src)}"`) : out.replace(/^<img/, `<img src="${escAttr(src)}"`);
+    } else if (model.closeStart != null && a.text != null) {
+      const innerStart = model.openEnd - model.start;
+      const innerEnd = model.closeStart - model.start;
+      out = out.slice(0, innerStart) + asHtml(a.text) + out.slice(innerEnd);
+    }
+    if (level && model.tag !== level) out = out.replace(new RegExp(`^<${model.tag}\\b`, "i"), `<${level}`).replace(new RegExp(`</${model.tag}>$`, "i"), `</${level}>`);
+    // En dernier : le contenu ci-dessus est repéré par positions.
+    return out.replace(`data-atl-slot="${a.modele}"`, `data-atl-slot="${id}" data-atl-ajout`);
+  }
+  if (a.type === "image") return `<img data-atl-slot="${id}" data-atl-ajout src="${escAttr(a.image || IMG_VIDE)}" alt="" style="width:100%;height:auto;display:block">`;
+  const tag = a.type === "titre" ? level ?? "h2" : "p";
+  return `<${tag} data-atl-slot="${id}" data-atl-ajout>${asHtml(a.text ?? "")}</${tag}>`;
+}
+export function injectAjouts(html, ajouts) {
+  if (!Array.isArray(ajouts) || !ajouts.length) return html;
+  for (const a of ajouts) {
+    if (!a || !/^x\d+$/.test(a.id ?? "") || !a.apres) continue;
+    const after = slotRange(html, a.apres);
+    if (!after) continue;
+    html = html.slice(0, after.end) + ajoutHtml(html, a) + html.slice(after.end);
+  }
+  return html;
 }

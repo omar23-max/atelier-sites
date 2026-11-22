@@ -117,7 +117,7 @@ function treeForItem(item) {
       };
     };
     const root = walk(section.meta.arbre, null);
-    return root ? (root.group ? root.children : [root]) : [];
+    return withAjouts(root ? (root.group ? root.children : [root]) : [], props.atl_ajouts);
   }
   // Section du catalogue : ses blocs, par type (déplaçables entre blocs du même type).
   const leaves = [];
@@ -215,6 +215,41 @@ export function aiTargets(item, keys = null) {
   return { texts, images };
 }
 
+// Blocs ajoutés ou dupliqués (2026-11-22) : feuilles insérées juste après
+// leur élément, dans le même conteneur (pas de place dans l'ordre du modèle,
+// k = null : ils se déplacent avec la poignée ✥).
+const AJOUT_NOM = { titre: "Titre", paragraphe: "Paragraphe", image: "Image", video: "Vidéo" };
+function withAjouts(nodes, ajouts) {
+  if (!Array.isArray(ajouts) || !ajouts.length) return nodes;
+  const all = (list) => list.flatMap((n) => (n.group ? [n, ...all(n.children)] : [n]));
+  let out = nodes;
+  for (const a of ajouts) {
+    if (!/^x\d+$/.test(a?.id ?? "")) continue;
+    const model = a.modele ? all(out).find((n) => n.key === a.modele) : null;
+    const type = a.type === "copie" ? model?.type ?? "texte" : a.type === "paragraphe" ? "texte" : a.type === "titre" ? model?.type ?? "titre" : a.type;
+    const name = a.type === "copie" ? `${model?.name ?? TYPE[type]?.label ?? "Élément"} (copie)` : a.type === "titre" && a.niveau ? `Titre H${a.niveau} ajouté` : `${AJOUT_NOM[a.type] ?? "Élément"} ajouté`;
+    const leaf = { key: a.id, k: null, parent: null, type, name, text: a.text, image: a.image, ajout: true, ajoutType: a.type, niveau: a.niveau ?? null, label: isImageType(type) ? name : plain(a.text) || name };
+    const insert = (list) => {
+      const i = list.findIndex((n) => n.key === a.apres);
+      if (i >= 0) return [...list.slice(0, i + 1), { ...leaf, parent: list[i].parent }, ...list.slice(i + 1)];
+      let hit = false;
+      const next = list.map((n) => {
+        if (hit || !n.group) return n;
+        const c = insert(n.children);
+        if (c !== n.children) {
+          hit = true;
+          return { ...n, children: c };
+        }
+        return n;
+      });
+      return hit ? next : list;
+    };
+    const inserted = insert(out);
+    out = inserted !== out ? inserted : [...out, leaf];
+  }
+  return out;
+}
+
 // Écrit des valeurs (clé → { text } ou { image }) dans les props d'une section.
 export function applyValues(item, values) {
   const section = byId[item.type];
@@ -227,7 +262,13 @@ export function applyValues(item, values) {
         ? { ...b, ...(v.text != null ? { text: v.text } : {}), ...(v.image != null ? { image: v.image } : {}), ...(v.style != null ? { style: v.style } : {}) }
         : b;
     });
-    return { ...item, props: { ...props, blocks_element: blocks } };
+    const ajouts = Array.isArray(props.atl_ajouts)
+      ? props.atl_ajouts.map((a) => {
+          const v = values[a.id];
+          return v ? { ...a, ...(v.text != null ? { text: v.text } : {}), ...(v.image != null ? { image: v.image } : {}) } : a;
+        })
+      : undefined;
+    return { ...item, props: { ...props, blocks_element: blocks, ...(ajouts ? { atl_ajouts: ajouts } : {}) } };
   }
   const next = { ...props };
   for (const [key, v] of Object.entries(values)) {
@@ -961,6 +1002,17 @@ export function Inspector({ children }) {
   const removeNode = (sectionId, node) => {
     const item = itemOf(sectionId);
     if (!item || !node) return;
+    if (node.ajout) {
+      if (!confirm(`Supprimer « ${(node.label ?? node.name ?? "").slice(0, 50)} » ?`)) return;
+      const list = item.props.atl_ajouts ?? [];
+      const gone = list.find((a) => a.id === node.key);
+      const ajouts = list.filter((a) => a.id !== node.key).map((a) => (a.apres === node.key ? { ...a, apres: gone?.apres ?? a.apres } : a));
+      const styles = structuredClone(item.props.atl_styles ?? {});
+      delete styles[node.key];
+      updateProps(sectionId, { ...item.props, atl_ajouts: ajouts, atl_styles: styles });
+      close();
+      return;
+    }
     const targets = node.group ? (node.gid ? [node.gid] : leavesOf(node.children).map((l) => l.key)) : [node.key];
     const what = node.group ? `le groupe « ${node.label} »` : `l'élément « ${(node.label ?? node.name ?? "").slice(0, 50)} »`;
     if (!confirm(`Supprimer ${what} ?\n\nIl est masqué sur tous les écrans ; pour le faire revenir : panneau de style, « Masquer partout ».`)) return;
@@ -973,6 +1025,83 @@ export function Inspector({ children }) {
     updateProps(sectionId, { ...item.props, atl_styles: styles });
     close();
   };
+
+  // ---- Ajouter ou dupliquer un bloc dans une copie (2026-11-22) ----
+  const nextAjoutId = (item) => `x${Math.max(0, ...(item.props.atl_ajouts ?? []).map((a) => Number(String(a.id).slice(1)) || 0)) + 1}`;
+  function pushAjout(sectionId, a) {
+    const item = itemOf(sectionId);
+    if (!item) return;
+    const full = { id: nextAjoutId(item), ...a };
+    updateProps(sectionId, { ...item.props, atl_ajouts: [...(item.props.atl_ajouts ?? []), full] });
+    setTimeout(() => setSel({ sectionId, key: full.id }), 250);
+  }
+  function duplicateNode(sectionId, node) {
+    if (!node || node.group) return;
+    const item = itemOf(sectionId);
+    const src = node.ajout ? (item.props.atl_ajouts ?? []).find((a) => a.id === node.key) : null;
+    if (src) return pushAjout(sectionId, { ...src, id: undefined, apres: node.key });
+    pushAjout(sectionId, { type: "copie", modele: node.key, apres: node.key, text: node.text ?? null, image: node.image ?? null });
+  }
+  // Titre de niveau n dans la section (nom « Titre H2 »… relevé à l'import).
+  const titleOfLevel = (leaves, n) => leaves.find((l) => !l.ajout && new RegExp(`^titre\\s*h${n}\\b`, "i").test(l.name ?? ""));
+  function setTitleLevel(sectionId, key, n) {
+    const item = itemOf(sectionId);
+    if (!item) return;
+    const leaves = leavesOf(treeForItem(item));
+    const model = titleOfLevel(leaves, n);
+    const ajouts = (item.props.atl_ajouts ?? []).map((a) => (a.id === key ? { ...a, niveau: n, modele: model?.key ?? null } : a));
+    updateProps(sectionId, { ...item.props, atl_ajouts: ajouts });
+  }
+  async function addBlock(sectionId, node, type, niveau = null) {
+    const item = itemOf(sectionId);
+    if (!item || !node) return;
+    const leaves = leavesOf(treeForItem(item)).filter((l) => !l.ajout);
+    const after = node.group ? leavesOf(node.children).at(-1)?.key : node.key;
+    if (!after) return;
+    // Modèle : l'élément choisi s'il est du bon genre, sinon le premier de la
+    // section qui l'est (même police, même taille, même couleur).
+    const isTitle = (l) => /^titre/i.test(l.name ?? "") || l.type === "titre";
+    const isPara = (l) => /^paragraphe/i.test(l.name ?? "") || (l.type === "texte" && plain(l.text).length > 40);
+    const isImg = (l) => l.type === "image";
+    const want = type === "titre" ? isTitle : type === "paragraphe" ? isPara : type === "image" ? isImg : null;
+    // Image : seulement l'image choisie comme modèle (la première image d'une
+    // section est souvent son fond, étiré derrière tout) ; sinon image simple.
+    const model = type === "titre" && niveau ? titleOfLevel(leaves, niveau) ?? null : want ? (!node.group && want(node) ? node : type === "image" ? null : leaves.find(want)) : null;
+    if (type === "video") {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "video/mp4,video/webm,video/quicktime";
+      input.onchange = async () => {
+        const f = input.files?.[0];
+        if (!f) return;
+        if (f.size > 70 * 1024 * 1024) return alert("Vidéo trop lourde (70 Mo au plus).");
+        try {
+          const dataUrl = await new Promise((ok, ko) => {
+            const r = new FileReader();
+            r.onload = () => ok(r.result);
+            r.onerror = ko;
+            r.readAsDataURL(f);
+          });
+          const res = await fetch(`/api/medias/${pageName}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: f.name, dataUrl }) });
+          const body = await res.json().catch(() => ({}));
+          if (!res.ok || !body.url) throw new Error(body.error ?? "Envoi refusé");
+          pushAjout(sectionId, { type: "video", apres: after, video: body.url });
+        } catch (e) {
+          alert(`Vidéo non ajoutée : ${e.message}`);
+        }
+      };
+      input.click();
+      return;
+    }
+    pushAjout(sectionId, {
+      type,
+      apres: after,
+      modele: model?.key ?? null,
+      text: type === "titre" ? "Nouveau titre" : type === "paragraphe" ? "Nouveau paragraphe : écris ton texte ici." : null,
+      image: null,
+      ...(type === "titre" && niveau ? { niveau } : {}),
+    });
+  }
 
   // ---- Style d'un élément, d'un groupe ou de la section (2026-11-18) ----
   // Écrit dans atl_styles[cible].all.base (tous les écrans) ; valeur vide =
@@ -1385,6 +1514,9 @@ export function Inspector({ children }) {
           }}
         />
       )}
+      {sel?.sectionId && selNode && !selNode.run && (selNode.key || selNode.gid) && !editing && isMain() && itemOf(sel.sectionId) && (
+        <ElementFrame key={`${sel.sectionId}:${selNode.key ?? selNode.gid}`} sectionId={sel.sectionId} node={selNode} onCommit={(decl) => applyStyleDecl(sel.sectionId, [selNode.key ?? selNode.gid], decl, false)} />
+      )}
       {sel?.sectionId && isMain() && (
         <CanvasToolbar
           sel={sel}
@@ -1408,7 +1540,15 @@ export function Inspector({ children }) {
               : null
           }
           onAi={() => setAi({ sectionId: sel.sectionId, keys: selNode ? (selNode.group ? leavesOf(selNode.children).map((l) => l.key) : [selNode.key]) : null, label: selNode?.group ? selNode.label : null })}
+          onDuplicate={selNode && !selNode.group && !selNode.run && byId[itemOf(sel.sectionId)?.type]?.meta.arbre ? () => duplicateNode(sel.sectionId, selNode) : null}
+          onAddBlock={selNode && !selNode.run && byId[itemOf(sel.sectionId)?.type]?.meta.arbre ? (t, n) => addBlock(sel.sectionId, selNode, t, n) : null}
+          onLevel={selNode?.ajout ? (n) => setTitleLevel(sel.sectionId, selNode.key, n) : null}
           onHide={() => {
+            if (selNode?.ajout) {
+              const st = itemOf(sel.sectionId).props.atl_styles?.[selNode.key]?.all?.base ?? {};
+              applyStyleDecl(sel.sectionId, [selNode.key], { display: st.display === "none" ? "" : "none" }, false);
+              return;
+            }
             const block = (normalizeProps(byId[itemOf(sel.sectionId).type], itemOf(sel.sectionId).props).blocks_element ?? []).find((b) => b.slot === sel.key);
             const d = parseStyle(block?.style);
             d.display = /none/.test(d.display ?? "") ? "" : "none";
@@ -3400,6 +3540,149 @@ function startSectionDrag(e, sectionId, onMoveSection) {
 // la tirer change sa hauteur (min-height de la section, tous les écrans).
 // Pendant le geste, l'aperçu change en direct ; au lâcher, la valeur est
 // écrite dans atl_styles.section. Double-clic : hauteur d'origine.
+// Poignées d'un élément (2026-11-22) : bords et coin pour la taille,
+// poignée ✥ pour le déplacer librement. Pointillés quand un bord, ou le
+// milieu, s'aligne sur un élément voisin ou sur la section (aimantation à
+// 6 px). Écrit dans atl_styles : width / height (et min-height pour un
+// texte), translate pour le déplacement. Double-clic sur une poignée :
+// retour à l'origine.
+function ElementFrame({ sectionId, node, onCommit }) {
+  const [box, setBox] = useState(null);
+  const [info, setInfo] = useState(null);
+  const [guides, setGuides] = useState([]);
+  const dragRef = useRef(null);
+  const isImg = !node.group && isImageType(node.type);
+  useEffect(() => {
+    let raf;
+    const tick = () => {
+      const frame = canvasFrame();
+      const el = domOf(sectionId, node);
+      if (frame && el) {
+        const fr = frame.getBoundingClientRect();
+        const z = fr.width / frame.offsetWidth || 1;
+        const r = el.getBoundingClientRect();
+        const next = r.width && r.height ? { l: Math.round(fr.left + r.left * z), t: Math.round(fr.top + r.top * z), w: Math.round(r.width * z), h: Math.round(r.height * z), clip: { t: fr.top, b: fr.bottom } } : null;
+        setBox((b) => (b && next && b.l === next.l && b.t === next.t && b.w === next.w && b.h === next.h ? b : next));
+      } else setBox(null);
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    const timer = setInterval(tick, 150);
+    return () => (cancelAnimationFrame(raf), clearInterval(timer));
+  }, [sectionId, node.key, node.gid]);
+
+  const start = (mode) => (e) => {
+    const frame = canvasFrame();
+    const el = domOf(sectionId, node);
+    const sec = frame?.contentDocument.querySelector(`[data-atl-id="${CSS.escape(sectionId)}"]`);
+    if (!frame || !el || !sec) return;
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {}
+    const fr = frame.getBoundingClientRect();
+    const z = fr.width / frame.offsetWidth || 1;
+    const scr = (r) => ({ l: fr.left + r.left * z, t: fr.top + r.top * z, r: fr.left + r.right * z, b: fr.top + r.bottom * z });
+    const me = scr(el.getBoundingClientRect());
+    // Repères : les autres éléments et groupes de la section, et la section.
+    const others = [...sec.querySelectorAll("[data-atl-slot],[data-atl-group]")].filter((x) => x !== el && !x.contains(el) && !el.contains(x) && x.getBoundingClientRect().width > 0);
+    const rects = [...others.map((x) => scr(x.getBoundingClientRect())), scr(sec.getBoundingClientRect())];
+    const xs = rects.flatMap((r) => [r.l, r.r, (r.l + r.r) / 2]);
+    const ys = rects.flatMap((r) => [r.t, r.b, (r.t + r.b) / 2]);
+    const cs = getComputedStyle(el);
+    const tr = (cs.translate && cs.translate !== "none" ? cs.translate : "0px 0px").split(/\s+/).map((v) => parseFloat(v) || 0);
+    dragRef.current = { mode, x: e.clientX, y: e.clientY, z, el, me, xs, ys, sec: scr(sec.getBoundingClientRect()), w0: el.offsetWidth, h0: el.offsetHeight, tx0: tr[0], ty0: tr[1] ?? 0, ratio: el.offsetWidth / Math.max(1, el.offsetHeight), shift: e.shiftKey, saved: ["width", "height", "min-height", "translate", "max-width", "flex"].map((k) => [k, el.style.getPropertyValue(k), el.style.getPropertyPriority(k)]) };
+  };
+  const SNAP = 6;
+  const near = (v, list) => {
+    let best = null;
+    for (const c of list) {
+      const d = c - v;
+      if (Math.abs(d) <= SNAP && (!best || Math.abs(d) < Math.abs(best.d))) best = { d, at: c };
+    }
+    return best;
+  };
+  const move = (e) => {
+    const d = dragRef.current;
+    if (!d) return;
+    let dx = e.clientX - d.x;
+    let dy = e.clientY - d.y;
+    const lines = [];
+    const vline = (x) => lines.push({ v: true, x, t: d.sec.t, b: d.sec.b });
+    const hline = (y) => lines.push({ v: false, y, l: d.sec.l, r: d.sec.r });
+    if (d.mode === "move") {
+      const cx = [d.me.l + dx, d.me.r + dx, (d.me.l + d.me.r) / 2 + dx].map((v) => near(v, d.xs)).filter(Boolean).sort((a, b) => Math.abs(a.d) - Math.abs(b.d))[0];
+      const cy = [d.me.t + dy, d.me.b + dy, (d.me.t + d.me.b) / 2 + dy].map((v) => near(v, d.ys)).filter(Boolean).sort((a, b) => Math.abs(a.d) - Math.abs(b.d))[0];
+      if (cx) (dx += cx.d), vline(cx.at);
+      if (cy) (dy += cy.d), hline(cy.at);
+      const tx = Math.round(d.tx0 + dx / d.z);
+      const ty = Math.round(d.ty0 + dy / d.z);
+      d.el.style.setProperty("translate", `${tx}px ${ty}px`, "important");
+      d.out = { translate: tx || ty ? `${tx}px ${ty}px` : "" };
+      setInfo(`${tx >= 0 ? "+" : ""}${tx} · ${ty >= 0 ? "+" : ""}${ty} px`);
+    } else {
+      const wide = d.mode === "r" || d.mode === "rb";
+      const tall = d.mode === "b" || d.mode === "rb";
+      if (wide) {
+        const c = near(d.me.r + dx, d.xs);
+        if (c) (dx += c.d), vline(c.at);
+      }
+      if (tall) {
+        const c = near(d.me.b + dy, d.ys);
+        if (c) (dy += c.d), hline(c.at);
+      }
+      let w = Math.max(20, Math.round(d.w0 + dx / d.z));
+      let h = Math.max(16, Math.round(d.h0 + dy / d.z));
+      // Coin d'une image : proportions gardées (Maj : libres).
+      if (d.mode === "rb" && isImg && !e.shiftKey) h = Math.round(w / d.ratio);
+      const out = {};
+      if (wide) {
+        d.el.style.setProperty("width", `${w}px`, "important");
+        d.el.style.setProperty("max-width", "none", "important");
+        d.el.style.setProperty("flex", "none", "important");
+        Object.assign(out, { width: `${w}px`, "max-width": "none", flex: "none" });
+      }
+      if (tall) {
+        const k = isImg ? "height" : "min-height";
+        d.el.style.setProperty(k, `${h}px`, "important");
+        out[k] = `${h}px`;
+        if (isImg) out["object-fit"] = "cover";
+      }
+      d.out = out;
+      setInfo(`${wide ? w : d.w0} × ${tall ? h : d.h0} px`);
+    }
+    setGuides(lines);
+  };
+  const up = () => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setGuides([]);
+    setInfo(null);
+    if (!d) return;
+    for (const [k, v, prio] of d.saved) v ? d.el.style.setProperty(k, v, prio) : d.el.style.removeProperty(k);
+    if (d.out && Object.keys(d.out).length) onCommit(d.out);
+  };
+  const reset = (mode) => () => onCommit(mode === "move" ? { translate: "" } : mode === "b" ? { height: "", "min-height": "", "object-fit": "" } : { width: "", "max-width": "", flex: "", ...(mode === "rb" ? { height: "", "min-height": "", "object-fit": "" } : {}) });
+  if (!box) return null;
+  const h = (mode, cls, title) => <div className={`atl-ef__h atl-ef__h--${cls}`} onPointerDown={start(mode)} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDoubleClick={reset(mode)} title={title} />;
+  return createPortal(
+    <>
+      <div className="atl-ef" style={{ left: box.l, top: box.t, width: box.w, height: box.h }}>
+        {h("r", "r", "Tirer pour changer la largeur · double-clic : largeur d'origine")}
+        {h("b", "b", isImg ? "Tirer pour changer la hauteur · double-clic : hauteur d'origine" : "Tirer pour changer la hauteur minimale · double-clic : d'origine")}
+        {h("rb", "rb", isImg ? "Tirer pour agrandir (proportions gardées, Maj : libres) · double-clic : taille d'origine" : "Tirer pour changer largeur et hauteur · double-clic : taille d'origine")}
+        <div className="atl-ef__move" onPointerDown={start("move")} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDoubleClick={reset("move")} title="Tirer pour déplacer l'élément · double-clic : place d'origine">
+          ✥
+        </div>
+        {info && <span className="atl-ef__info">{info}</span>}
+      </div>
+      {guides.map((g, i) => (g.v ? <div key={i} className="atl-guide atl-guide--v" style={{ left: g.x, top: g.t, height: g.b - g.t }} /> : <div key={i} className="atl-guide atl-guide--h" style={{ top: g.y, left: g.l, width: g.r - g.l }} />))}
+    </>,
+    document.body,
+  );
+}
+
 function SectionResizer({ sectionId, type, onCommit }) {
   const [box, setBox] = useState(null);
   const [drag, setDrag] = useState(null); // { h }
@@ -3481,8 +3764,9 @@ function SectionResizer({ sectionId, type, onCommit }) {
   );
 }
 
-function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection, onDragNode }) {
+function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit, onHide, editing, onFormat, onMoveSection, onAddSection, onDragNode, onDuplicate, onAddBlock, onLevel }) {
   const [pos, setPos] = useState(null);
+  const [addOpen, setAddOpen] = useState(false);
   const barRef = useRef(null);
   // ▲ / ▼ (2026-11-18) : l'aperçu défile d'autant que la section (ou l'élément)
   // s'est déplacée ; elle reste au même endroit de l'écran, la barre aussi,
@@ -3513,14 +3797,23 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
         const r = el.getBoundingClientRect();
         const bw = (barRef.current?.offsetWidth ?? 320) + 16;
         const top = fr.top + r.top * scale;
-        const visible = top > fr.top - 10 && top < fr.bottom;
+        const bottom = fr.top + r.bottom * scale;
+        // Écart (2026-11-22) : la barre ne doit pas cacher ce qu'on modifie
+        // (poignées, bords, texte du dessus). Au-dessus avec 22 px d'écart ;
+        // sans la place, en dessous ; sinon en haut de l'aperçu.
+        const barH = barRef.current?.offsetHeight ?? 38;
+        const GAP = node ? 22 : 14;
+        const above = top - barH - GAP;
+        const below = bottom + GAP;
+        const barTop = above >= fr.top + 6 ? above : below + barH <= fr.bottom - 6 ? below : fr.top + 6;
+        const visible = bottom > fr.top + 10 && top < fr.bottom - 10;
         // Ancrée en haut à droite de la section, toujours dans le canvas.
         // Panneau de droite visible en édition : la barre ne doit pas passer dessous.
         const sb = document.querySelector('[class*="Sidebar--right"]');
         const sbLeft = sb && document.documentElement.hasAttribute("data-atl-edit") ? sb.getBoundingClientRect().left : fr.right;
         const next = visible
           ? {
-              top: Math.round(Math.min(fr.bottom - 48, Math.max(fr.top + 8, top - 44))),
+              top: Math.round(barTop),
               left: Math.round(Math.min(Math.min(fr.right, sbLeft) - bw, Math.max(fr.left + 8, fr.left + (r.left + r.width) * scale - bw))),
             }
           : null;
@@ -3592,6 +3885,45 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
           <button type="button" onClick={onAi} title="Retravailler avec l'IA">
             ✨
           </button>
+          {node?.ajout && node.ajoutType === "titre" && onLevel && (
+            <select className="atl-float__level" value={node.niveau ?? ""} onChange={(e) => onLevel(Number(e.target.value))} title="Niveau du titre">
+              {!node.niveau && <option value="">H?</option>}
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  H{n}
+                </option>
+              ))}
+            </select>
+          )}
+          {node && !node.group && onDuplicate && (
+            <button type="button" onClick={onDuplicate} title="Dupliquer cet élément (la copie se place juste après)">
+              ⧉
+            </button>
+          )}
+          {node && onAddBlock && (
+            <span className="atl-float__addwrap">
+              <button type="button" className={addOpen ? "is-on" : ""} onClick={() => setAddOpen((x) => !x)} title="Ajouter un élément juste après">
+                ＋ Élément
+              </button>
+              {addOpen && (
+                <span className="atl-float__menu">
+                  {[
+                    ["titre", 1, "H1  Titre principal"],
+                    ["titre", 2, "H2  Titre de section"],
+                    ["titre", 3, "H3  Sous-titre"],
+                    ["titre", 4, "H4  Petit titre"],
+                    ["paragraphe", null, "¶  Paragraphe"],
+                    ["image", null, "🖼  Image"],
+                    ["video", null, "▶  Vidéo"],
+                  ].map(([t, n, l]) => (
+                    <button key={`${t}${n ?? ""}`} type="button" onClick={() => (setAddOpen(false), onAddBlock(t, n))}>
+                      {l}
+                    </button>
+                  ))}
+                </span>
+              )}
+            </span>
+          )}
           {node && !node.group && (
             <button type="button" onClick={onHide} title="Masquer">
               👁

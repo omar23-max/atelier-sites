@@ -2261,3 +2261,33 @@ Original 80 % → retour Modifiable 80 %.
   messages dans un petit bandeau au-dessus de la barre.
 - 2026-11-21 : Stylet, grille modifiable : changer colonnes ou lignes met à jour
   la dernière grille tracée (outil Grille ouvert), puis sert aux suivantes.
+- 2026-11-22 : éléments d'une section (copies). 1) Poignées sur l'élément
+  choisi (texte, image, groupe) : bord droit = largeur, bas = hauteur (image)
+  ou hauteur minimale (texte), coin = les deux (image : proportions gardées,
+  Maj = libres), ✥ = déplacement libre (CSS translate). Pointillés roses et
+  aimantation (6 px) sur les bords et milieux des éléments voisins et de la
+  section. Double-clic sur une poignée = retour à l'origine. Écrit dans
+  atl_styles (width, height / min-height, max-width:none, flex:none,
+  object-fit, translate). Composant ElementFrame (inspector-ui.jsx).
+  2) Barre de l'élément : ⧉ Dupliquer (texte ou image, pas les groupes) et
+  « + Élément » (Titre, Paragraphe, Image, Vidéo), placé juste après.
+  Stockés dans props.atl_ajouts [{ id: xN, apres, type, modele, text, image,
+  video }], injectés par injectAjouts (src/engine/render.js) : éditeur et
+  export. Titre / paragraphe reprennent la balise et le style d'un titre /
+  paragraphe de la section ; image : l'image choisie si c'en est une, sinon
+  image simple pleine largeur (la 1re image d'une section est souvent son
+  fond). Vidéo : fichier choisi sur le PC, envoyé dans le projet. Les blocs
+  ajoutés se modifient (texte), se stylisent, se déplacent (✥) et se
+  suppriment (supprimés pour de bon). Pas de ▲ ▼ pour eux (pas de place dans
+  l'ordre du modèle). Dans certains modèles (éléments placés en absolu), un
+  bloc ajouté peut s'afficher ailleurs que sous son voisin : le placer au ✥.
+- 2026-11-22 : barre d élément, « + Élément » à sa largeur (les boutons de la barre
+  font 28 px fixes, le texte débordait sur l oeil).
+- 2026-11-22 : titres ajoutés, niveau au choix. « + Élément » propose H1 à H4 ;
+  le titre reprend le style d un titre du même niveau dans la section (nom
+  « Titre Hn » relevé à l import), sinon la balise simple du niveau. Menu
+  H1 à H4 dans la barre d un titre ajouté pour changer de niveau ensuite
+  (atl_ajouts : niveau, modele recalculé).
+- 2026-11-22 : barre flottante éloignée de ce qu on modifie : au-dessus de l élément
+  avec 22 px d écart (14 px pour une section), en dessous s il n y a pas la
+  place au-dessus ; ne recouvre plus l élément ni ses poignées.
