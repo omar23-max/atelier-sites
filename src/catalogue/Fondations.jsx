@@ -444,7 +444,7 @@ function FaitsEditor({ value = [], onChange, sources }) {
 }
 const filled = (v) => (Array.isArray(v) ? v.length > 0 : v && typeof v === "object" ? Object.keys(v).length > 0 : String(v ?? "").trim() !== "");
 
-export function FoundationsTab({ project, onSave, onMessage, request, offer, pages }) {
+export function FoundationsTab({ project, onSave, onMessage, request, offer, pages, step: stepProp = null, onStep = null, nav = null }) {
   const f = project.fondations ?? {};
   const [rep, setRep] = useState(f.reponses ?? {});
   const [msg, setMsg] = useState(f.message ?? null);
@@ -534,7 +534,12 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // Sous-étapes avec sommaire (audit « Ensuite », 2026-11-17) : une partie du
   // questionnaire à la fois, les autres restent montées (rien n'est perdu en
   // changeant d'étape), boutons d'action toujours visibles en bas.
-  const [step, setStep] = useState(0);
+  // Menu unique du projet (2026-11-22) : l'étape vient du menu du projet
+  // (stepProp) ; sans lui, sommaire interne comme avant.
+  const [stepLocal, setStepLocal] = useState(0);
+  const step = stepProp ?? stepLocal;
+  const setStep = onStep ?? setStepLocal;
+  const embedded = stepProp != null;
   const countOf = (keys) => [keys.filter((k) => filled(rep[k])).length, keys.length];
   const [p1, p1t] = countOf([...TEXTES.produit, ...TEXTES.clients, ...TEXTES.probleme].map((x) => x[0]).concat(["genre", "ages", "pays", "essaye"]));
   const nbPreuves = Object.values(rep.preuves ?? {}).filter((p) => p?.oui).length;
@@ -550,7 +555,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const go = (i) => {
     setStep(i);
     const calme = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    document.querySelector(".cat-fd__steps")?.scrollIntoView({ block: "start", behavior: calme ? "auto" : "smooth" });
+    document.querySelector(embedded ? ".cat-menu" : ".cat-fd__steps")?.scrollIntoView({ block: "start", behavior: calme ? "auto" : "smooth" });
   };
 
   const patch = (extra = {}) => ({
@@ -804,7 +809,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           </span>
         </div>
       )}
-      <nav className="cat-fd__steps" aria-label="Étapes des Fondations">
+      <nav className="cat-fd__steps" aria-label="Étapes des Fondations" hidden={embedded}>
         {STEPS.map((s, i) => (
           <button key={s.label} type="button" className={`${i === step ? "is-on" : ""} ${s.ok ? "is-ok" : ""}`} onClick={() => go(i)} aria-current={i === step ? "step" : undefined}>
             <span className="cat-fd__stepnum">{s.ok ? "✓" : i + 1}</span>
@@ -851,6 +856,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
         ))}
       </section>
+
+      <VideosConcurrents value={rep.videosConcurrents} onChange={(v) => set("videosConcurrents", v)} project={project} onMessage={onMessage} />
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
@@ -1064,12 +1071,25 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <div className="cat-actions cat-fd__bar">
-        <button type="button" className="cat-btn cat-btn--ghost" disabled={step === 0} onClick={() => go(step - 1)}>
-          ← {step > 0 ? STEPS[step - 1].label : "Précédent"}
-        </button>
-        <button type="button" className="cat-btn cat-btn--ghost" disabled={step === STEPS.length - 1} onClick={() => go(step + 1)}>
-          {step < STEPS.length - 1 ? STEPS[step + 1].label : "Suivant"} →
-        </button>
+        {embedded && nav ? (
+          <>
+            <button type="button" className="cat-btn cat-btn--ghost" disabled={!nav.prev} onClick={() => nav.prev?.go()}>
+              ← {nav.prev?.label ?? "Précédent"}
+            </button>
+            <button type="button" className="cat-btn cat-btn--ghost" disabled={!nav.next} onClick={() => nav.next?.go()}>
+              {nav.next?.label ?? "Suivant"} →
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="cat-btn cat-btn--ghost" disabled={step === 0} onClick={() => go(step - 1)}>
+              ← {step > 0 ? STEPS[step - 1].label : "Précédent"}
+            </button>
+            <button type="button" className="cat-btn cat-btn--ghost" disabled={step === STEPS.length - 1} onClick={() => go(step + 1)}>
+              {step < STEPS.length - 1 ? STEPS[step + 1].label : "Suivant"} →
+            </button>
+          </>
+        )}
         <span className="cat-fd__barsep" />
         <span className={`cat-fd__etat${dirty ? " is-dirty" : ""}`} role="status" aria-live="polite">
           {dirty ? "● Modifications non enregistrées" : "✓ Tout est enregistré"}
@@ -1119,5 +1139,207 @@ export function ProjectProgress({ project, pages, onGo, current }) {
         </li>
       ))}
     </ol>
+  );
+}
+
+
+// ---- Menu unique du projet (2026-11-22, fichier « menu fondations.xlsx ») ----
+// 1 Produits et clients · 2 Preuves et offres · 3 Recherche client ·
+// 4 Marque et design · 5 Médias / 6 Message central · 7 Angles · 8 Textes ·
+// 9 Contenu des pages · 10 Pages · Exports. Les étapes 1, 2, 3, 6 et 9 sont
+// les parties des Fondations (fd = numéro de sous-étape).
+export const PROJECT_MENU = [
+  { id: "produit", label: "Produits et clients", fd: 0 },
+  { id: "preuves", label: "Preuves et offres", fd: 1 },
+  { id: "recherche", label: "Recherche client", fd: 2 },
+  { id: "marque", label: "Marque et design" },
+  { id: "images", label: "Médias" },
+  { id: "message", label: "Message central", fd: 3 },
+  { id: "angles", label: "Angles" },
+  { id: "textes", label: "Textes" },
+  { id: "contenus", label: "Contenu des pages", fd: 4 },
+  { id: "pages", label: "Pages" },
+  { id: "publication", label: "Exports", final: true },
+];
+
+export function ProjectMenu({ project, pages, onGo, current }) {
+  const f = project.fondations ?? {};
+  const rep = f.reponses ?? {};
+  const fd = f.statut;
+  const nbPreuves = Object.values(rep.preuves ?? {}).filter((p) => p?.oui).length;
+  const nbSources = TEXTES.collecte.filter(([k]) => filled(rep[k])).length;
+  const nbVideos = (rep.videosConcurrents ?? []).length;
+  const marque = project.marque ?? {};
+  const marqueOk = Boolean(marque.logos?.length || marque.brandBoard || marque.palette || marque.couleurs);
+  const nbTypes = Object.values(f.contenus ?? {}).filter((t) => Object.values(t ?? {}).some((sct) => Object.values(sct ?? {}).some((v) => realText(v)))).length;
+  const ang = anglesProgress(project, pages.map((p) => p.info?.name));
+  const audites = pages.filter((p) => p.score?.type && p.score.score >= 80).length;
+  const exported = Object.values(project.publication ?? {}).filter((p) => p.html).length;
+  const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
+  const st = {
+    produit: [foundationsFilled(project) ? "done" : filled(rep.role) || filled(rep.qui) ? "doing" : "todo", foundationsFilled(project) ? `rempli${nbVideos ? ` · ${nbVideos} vidéo(s)` : ""}` : "à remplir"],
+    preuves: [nbPreuves ? "done" : "todo", nbPreuves ? `${nbPreuves} preuve(s)` : "aucune preuve"],
+    recherche: [nbSources || f.resultats ? "done" : "todo", `${nbSources} source(s)${f.resultats ? " · Claude" : ""}`],
+    marque: [marqueOk ? "done" : "todo", marqueOk ? "commencée" : "logo, couleurs, planche"],
+    images: ["none", "photos et vidéos"],
+    message: [messageFilled(project) ? "done" : "todo", messageFilled(project) ? "rempli" : "à faire"],
+    angles: [ang.chosen ? "done" : "todo", ang.chosen ? `${ang.chosen} choisi(s)` : "à choisir"],
+    textes: ["none", "d'origine et corrigés"],
+    contenus: [nbTypes ? "done" : "todo", `${nbTypes} type(s) de page`],
+    pages: [pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
+    publication: [pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],
+  };
+  return (
+    <div className="cat-menu">
+      <nav className="cat-menu__grid" aria-label="Étapes du projet">
+        {PROJECT_MENU.map((m, i) => {
+          const [state, detail] = st[m.id] ?? ["none", ""];
+          return (
+            <button key={m.id} type="button" className={`cat-menu__item is-${state}${current === m.id ? " is-current" : ""}${m.final ? " is-final" : ""}`} aria-current={current === m.id ? "step" : undefined} onClick={() => onGo(m.id)}>
+              <i>{m.final ? "⤓" : state === "done" ? "✓" : i + 1}</i>
+              <b>{m.label}</b>
+              <small>{detail}</small>
+            </button>
+          );
+        })}
+      </nav>
+      <p className="cat-menu__fd">
+        Fondations : {fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? "chez Claude" : "brouillon"} (étapes 1, 2, 3, 6 et 9)
+      </p>
+    </div>
+  );
+}
+
+// ---- Vidéos des concurrents (2026-11-22) ----
+// Dans « Produits et clients » : des pubs vidéo de concurrents (du PC, ou
+// déjà dans le projet : imports WinningHunter, Canvas). « Analyser les
+// angles » : Gemini regarde la vidéo et en tire accroche, angle, promesse,
+// preuves, script. Claude lit ces analyses avec le reste des Fondations.
+function VideosConcurrents({ value, onChange, project, onMessage }) {
+  const list = Array.isArray(value) ? value : [];
+  const [busy, setBusy] = useState(null);
+  const [picker, setPicker] = useState(null);
+  const fileRef = useRef(null);
+  const page = `projet-${project.id}`;
+  const add = (items) => onChange([...list, ...items.filter((it) => !list.some((x) => x.url === it.url))]);
+  async function upload(files) {
+    setBusy("upload");
+    const added = [];
+    try {
+      for (const file of files) {
+        if (file.size > 70 * 1024 * 1024) {
+          onMessage?.({ error: true, text: `« ${file.name} » est trop lourde (70 Mo au plus).` });
+          continue;
+        }
+        const dataUrl = await new Promise((ok, ko) => {
+          const r = new FileReader();
+          r.onload = () => ok(r.result);
+          r.onerror = ko;
+          r.readAsDataURL(file);
+        });
+        const res = await fetch(`/api/medias/${page}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name, dataUrl }) });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || !body.url) throw new Error(body.error ?? "Envoi refusé");
+        added.push({ url: body.url, nom: file.name, source: "PC" });
+      }
+      if (added.length) add(added);
+    } catch (e) {
+      onMessage?.({ error: true, text: `Vidéo non envoyée : ${e.message}` });
+    } finally {
+      setBusy(null);
+    }
+  }
+  async function openPicker() {
+    try {
+      const all = await fetch(`/api/medias/${page}?detail=1`).then((r) => r.json());
+      setPicker((Array.isArray(all) ? all : []).filter((m) => m.kind === "video"));
+    } catch {
+      setPicker([]);
+    }
+  }
+  async function analyse(i) {
+    const v = list[i];
+    setBusy(i);
+    try {
+      const res = await fetch("/api/fondations-video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet: project.id, url: v.url }) });
+      const text = await res.text();
+      let body;
+      try {
+        body = JSON.parse(text);
+      } catch {
+        throw new Error(res.status >= 500 ? `le serveur n'a pas répondu (erreur ${res.status})` : "réponse inattendue");
+      }
+      if (!res.ok) throw new Error(body.error ?? `erreur ${res.status}`);
+      onChange(list.map((x, j) => (j === i ? { ...x, analyse: body.analyse, analyseLe: new Date().toISOString() } : x)));
+      onMessage?.({ text: "Analyse ajoutée. Pense à enregistrer." });
+    } catch (e) {
+      onMessage?.({ error: true, text: `Analyse impossible : ${e.message}` });
+    } finally {
+      setBusy(null);
+    }
+  }
+  const nameOf = (u) => decodeURIComponent(String(u).split("/").pop());
+  return (
+    <section className="cat-panel cat-fdv">
+      <h3>4. Vidéos des concurrents (facultatif)</h3>
+      <p className="cat-muted">Des pubs vidéo qui marchent chez tes concurrents (téléchargées de WinningHunter, par exemple). « Analyser les angles » en tire l'accroche, l'angle, la promesse, les preuves et le script ; Claude s'en sert pour la recherche client et les angles.</p>
+      <div className="cat-actions">
+        <button type="button" className="cat-btn cat-btn--ghost" disabled={busy === "upload"} onClick={() => fileRef.current?.click()}>
+          {busy === "upload" ? "Envoi…" : "+ Depuis le PC"}
+        </button>
+        <button type="button" className="cat-btn cat-btn--ghost" onClick={openPicker}>
+          Choisir dans les vidéos du projet
+        </button>
+        <input ref={fileRef} type="file" accept="video/mp4,video/webm,video/quicktime" multiple hidden onChange={(e) => (upload([...e.target.files]), (e.target.value = ""))} />
+      </div>
+      {picker && (
+        <div className="cat-fdv__picker">
+          {picker.length ? (
+            picker.map((m) => {
+              const on = list.some((x) => x.url === m.url);
+              return (
+                <label key={m.url} className={on ? "is-on" : ""}>
+                  <input type="checkbox" checked={on} onChange={() => (on ? onChange(list.filter((x) => x.url !== m.url)) : add([{ url: m.url, nom: nameOf(m.url), source: /\/wh-/.test(m.url) ? "WinningHunter" : "projet" }]))} />
+                  <video src={`${m.url}#t=0.5`} preload="metadata" muted playsInline />
+                  <span>{nameOf(m.url)}</span>
+                </label>
+              );
+            })
+          ) : (
+            <p className="cat-muted">Aucune vidéo dans le projet pour l'instant (importe-en avec WinningHunter dans le Canvas, ou envoie-les depuis le PC).</p>
+          )}
+          <button type="button" className="cat-link" onClick={() => setPicker(null)}>
+            Fermer la liste
+          </button>
+        </div>
+      )}
+      {list.length > 0 && (
+        <div className="cat-fdv__list">
+          {list.map((v, i) => (
+            <div key={v.url} className="cat-fdv__item">
+              <video src={v.url} controls preload="metadata" playsInline />
+              <div className="cat-fdv__info">
+                <b>{v.nom || nameOf(v.url)}</b>
+                <small className="cat-muted">{v.source ?? ""}{v.analyseLe ? ` · analysée le ${new Date(v.analyseLe).toLocaleDateString("fr-CA")}` : ""}</small>
+                <div className="cat-actions">
+                  <button type="button" className="cat-btn" disabled={busy != null} onClick={() => analyse(i)}>
+                    {busy === i ? "Gemini regarde la vidéo…" : v.analyse ? "Refaire l'analyse" : "Analyser les angles"}
+                  </button>
+                  <button type="button" className="cat-link" onClick={() => onChange(list.filter((_, j) => j !== i))}>
+                    Retirer
+                  </button>
+                </div>
+                {v.analyse && (
+                  <details className="cat-fdv__analyse" open>
+                    <summary>Analyse</summary>
+                    <div>{v.analyse}</div>
+                  </details>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

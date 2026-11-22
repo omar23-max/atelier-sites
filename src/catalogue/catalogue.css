@@ -4166,3 +4166,67 @@ textarea {
 .cat-fiche fieldset .cat-fiche__row select {
   width: auto;
 }
+
+/* Menu unique du projet (2026-11-22) */
+.cat-menu { margin: 14px 0 18px; }
+.cat-menu__grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(120px, auto); gap: 8px; }
+.cat-menu__item { display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; text-align: left; padding: 9px 12px; border: 1px solid #e3e3ea; border-radius: 12px; background: #fff; cursor: pointer; font: inherit; color: #1d1d27; }
+.cat-menu__item:nth-child(6) { grid-column: 1; }
+.cat-menu__item.is-final { grid-column: 6; grid-row: 2; }
+.cat-menu__item i { grid-row: 1 / span 2; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 12.5px; background: #f0f0f5; color: #55556a; }
+.cat-menu__item b { font-size: 13.5px; line-height: 1.2; }
+.cat-menu__item small { font-size: 11.5px; color: #75758a; line-height: 1.2; }
+.cat-menu__item.is-done i { background: #e6f6ec; color: #1b7f43; }
+.cat-menu__item.is-doing i { background: #fff4dc; color: #9a6400; }
+.cat-menu__item:hover { border-color: #c9c6ff; background: #fafaff; }
+.cat-menu__item.is-current { border-color: #4c5fd5; box-shadow: 0 0 0 2px rgba(76,95,213,.18); background: #f6f7ff; }
+.cat-menu__item.is-current i { background: #4c5fd5; color: #fff; }
+.cat-menu__item.is-final { background: #f7f7fb; }
+.cat-menu__fd { margin: 8px 2px 0; font-size: 12.5px; color: #75758a; }
+@media (max-width: 980px) { .cat-menu__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cat-menu__item:nth-child(6), .cat-menu__item.is-final { grid-column: auto; grid-row: auto; } }
+/* Vidéos des concurrents */
+.cat-fdv__picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; padding: 10px; border: 1px dashed #d8d8e2; border-radius: 10px; }
+.cat-fdv__picker label { display: flex; flex-direction: column; gap: 4px; padding: 6px; border: 1px solid #e3e3ea; border-radius: 8px; cursor: pointer; font-size: 12px; background: #fff; }
+.cat-fdv__picker label.is-on { border-color: #4c5fd5; background: #f6f7ff; }
+.cat-fdv__picker video { width: 100%; aspect-ratio: 9 / 12; object-fit: cover; border-radius: 6px; background: #000; }
+.cat-fdv__picker span { word-break: break-all; color: #55556a; }
+.cat-fdv__list { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+.cat-fdv__item { display: grid; grid-template-columns: 180px 1fr; gap: 14px; align-items: start; padding-top: 12px; border-top: 1px solid #f0f0f4; }
+.cat-fdv__item video { width: 180px; max-height: 320px; border-radius: 8px; background: #000; }
+.cat-fdv__info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cat-fdv__analyse > div { white-space: pre-wrap; font-size: 13px; line-height: 1.5; background: #f8f8fc; border-radius: 8px; padding: 10px 12px; max-height: 420px; overflow: auto; }
+
+.cat-fd__steps[hidden], .cat-fd [hidden] { display: none !important; }
+
+.cat-panel.cat-fdv { display: flex !important; flex-direction: column; align-items: stretch; gap: 8px; }
+.cat-fdv > p { max-width: 70ch; margin: 0; }
+.cat-fdv > .cat-actions { justify-content: flex-start; margin: 4px 0 0; }
+
+/* Menu du projet plus compact (2026-11-22) */
+.cat-menu { margin: 10px 0 14px; }
+.cat-menu__grid { gap: 6px; }
+.cat-menu__item { grid-template-columns: 22px 1fr; column-gap: 7px; padding: 6px 9px; border-radius: 9px; }
+.cat-menu__item i { width: 20px; height: 20px; font-size: 10.5px; }
+.cat-menu__item b { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-menu__item small { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-menu__item.is-current { box-shadow: 0 0 0 1.5px rgba(76,95,213,.2); }
+.cat-menu__fd { margin-top: 6px; font-size: 11.5px; }
+
+/* Intros des étapes du projet sur toute la largeur (2026-11-22) */
+.cat-pages__intro, .cat-fd > p.cat-muted { max-width: none !important; margin: 0 0 12px; padding: 9px 14px; border-radius: 9px; background: #f6f6fa; border: 1px solid #ececf2; font-size: 13px; line-height: 1.55; color: #55556a; }
+
+/* En-tête des colonnes dans chaque carte ouverte (2026-11-22) */
+.cat-typecard > .cat-table { table-layout: fixed; width: 100%; }
+.cat-typecard__head th { padding: 6px 12px; border: 0; border-bottom: 1px solid #ececf2; background: #fafafc; color: var(--cat-muted, #75758a); font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-typecard__head th:nth-child(1) { width: 26%; }
+.cat-typecard__head th:nth-child(2) { width: 15%; }
+.cat-typecard__head th:nth-child(3) { width: 18%; }
+.cat-typecard__head th:nth-child(4) { width: 7%; }
+.cat-typecard__head th:nth-child(5) { width: 9%; }
+.cat-typecard__head th:nth-child(6) { width: 12%; }
+.cat-typecard__head th:nth-child(7) { width: 172px; }
+@media (max-width: 900px) { .cat-typecard__head { display: none; } }
+
+/* Textes d explication sur toute la largeur, partout dans le catalogue (2026-11-22) */
+.cat-info, .cat-lead, .cat-panel > p.cat-muted, .cat-panel p.cat-muted, .cat-fd__sections > li > .cat-muted, .cat-fd__min { max-width: none !important; }
+.cat-fd__hint, .cat-fd__fiche { max-width: none !important; }

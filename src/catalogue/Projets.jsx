@@ -8,7 +8,7 @@ import { pageTexts } from "../engine/texts.js";
 import { changePageOrigin, confirmDelete, createPage, empreinte, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
 import { NewProjectDialog, isUrl, pageMenuGroups, requestImport } from "../pages-ui.jsx";
 import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf, request } from "./ProjectExtras.jsx";
-import { FoundationsTab, ProjectProgress } from "./Fondations.jsx";
+import { FoundationsTab, PROJECT_MENU, ProjectMenu } from "./Fondations.jsx";
 import { AnglesTab } from "./Angles.jsx";
 import { SourcePicker } from "./SourcePicker.jsx";
 import { ResultsTab } from "./ResultsTab.jsx";
@@ -154,7 +154,9 @@ const RESSOURCES = [
   { id: "images", label: "Médias" },
   { id: "textes", label: "Textes" },
 ];
-const OLD_TABS = { offre: "fondations", "images-origine": "images", "images-modifiees": "images", "textes-origine": "textes", "textes-corriges": "textes" };
+const OLD_TABS = { fondations: "produit", offre: "preuves", "images-origine": "images", "images-modifiees": "images", "textes-origine": "textes", "textes-corriges": "textes" };
+// Menu unique (2026-11-22) : étapes des Fondations → sous-étape du questionnaire.
+const FD_STEP = Object.fromEntries(PROJECT_MENU.filter((m) => m.fd != null).map((m) => [m.id, m.fd]));
 
 // Nom du projet avec un stylo ✎ pour le modifier sur place (Entrée = enregistrer,
 // Échap = annuler). Seul le nom change : l'identifiant et les pages restent.
@@ -323,7 +325,9 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   if (!project) return <div className="cat-empty">Projet introuvable.</div>;
   // Onglet d'ouverture : l'étape en cours (Fondations, puis Angles, puis Pages).
   const currentTab =
-    OLD_TABS[tab] ?? tab ?? (project.fondations?.statut !== "validée" ? "fondations" : (project.angles ?? []).some((a) => a.choisi) ? "pages" : "angles");
+    OLD_TABS[tab] ?? tab ?? (project.fondations?.statut !== "validée" ? "produit" : (project.angles ?? []).some((a) => a.choisi) ? "pages" : "angles");
+  const menuIndex = PROJECT_MENU.findIndex((m) => m.id === currentTab);
+  const navOf = (i) => (PROJECT_MENU[i] ? { label: PROJECT_MENU[i].label, go: () => setTab(PROJECT_MENU[i].id) } : null);
 
   return (
     <>
@@ -361,19 +365,24 @@ export function ProjectDetail({ id, onBack, onMessage }) {
         {project.description ? ` · ${project.description}` : ""} · créé le{" "}
         {new Date(project.creeLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}
       </div>
-      <ProjectProgress project={project} pages={pages} onGo={setTab} current={currentTab} />
-      <nav className="cat-res" aria-label="Ressources du projet">
-        <span>Ressources</span>
-        {RESSOURCES.map((t) => (
-          <button key={t.id} type="button" className={currentTab === t.id ? "is-on" : ""} onClick={() => setTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </nav>
+      <ProjectMenu project={project} pages={pages} onGo={setTab} current={currentTab} />
 
-      {currentTab === "fondations" && (
-        <FoundationsTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} request={request} offer={<OfferTab key={`o-${project.id}`} project={project} onSave={saveProjectPatch} onMessage={onMessage} />} />
-      )}
+      {/* Toujours monté (caché hors de ses étapes) : ce qui est tapé et pas
+          encore enregistré reste là quand on passe par Marque, Médias… */}
+      <div hidden={FD_STEP[currentTab] == null}>
+        <FoundationsTab
+          key={project.id}
+          project={project}
+          pages={pages}
+          onSave={saveProjectPatch}
+          onMessage={onMessage}
+          request={request}
+          offer={<OfferTab key={`o-${project.id}`} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
+          step={FD_STEP[currentTab] ?? 0}
+          onStep={(i) => setTab(PROJECT_MENU.find((m) => m.fd === i)?.id ?? "produit")}
+          nav={{ prev: navOf(menuIndex - 1), next: navOf(menuIndex + 1) }}
+        />
+      </div>
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}
       {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} project={project} onMessage={onMessage} />]} />}
@@ -517,22 +526,9 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
         // l'éditeur) : fermée, elle montre la page mère ; ouverte, la mère (★)
         // puis les pages des angles, puis les autres pages du type.
         <>
-          {/* En-tête des colonnes, une seule fois au-dessus des cartes (2026-11-08) */}
-          <div className="cat-typehead" aria-hidden="true">
-            <table className="cat-table">
-              <thead>
-                <tr>
-                  <th>Page</th>
-                  <th>Angle / profil client</th>
-                  <th>Origine</th>
-                  <th>Achat</th>
-                  <th title="Couverture de la structure conseillée (sections présentes, pas une note de vente)">Couverture</th>
-                  <th>Textes</th>
-                  <th />
-                </tr>
-              </thead>
-            </table>
-          </div>
+          {/* En-tête des colonnes : dans chaque carte ouverte, juste au-dessus
+              de ses pages (2026-11-22 ; avant, une seule fois au-dessus des
+              cartes, décalé par rapport aux cartes fermées). */}
           {pageMenuGroups(pages.map((p) => p.info), project).map((g) => {
           const mother = g.items.find((i) => i.mere);
           const angles = g.items.filter((i) => i.angle && !i.mere).length;
@@ -545,6 +541,17 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
                 <span className="cat-typecard__mere">{mother ? (declineParAngle(g.id) ? `★ Mère : ${mother.detail}` : `★ Page unique · tous les angles`) : declineParAngle(g.id) ? "Pas de page mère" : "Pas encore de page"}{angles ? ` · ${angles} angle${angles > 1 ? "s" : ""}` : ""}</span>
               </summary>
         <table className="cat-table">
+          <thead className="cat-typecard__head">
+            <tr>
+              <th>Page</th>
+              <th>Angle / profil client</th>
+              <th>Origine</th>
+              <th>Achat</th>
+              <th title="Couverture de la structure conseillée (sections présentes, pas une note de vente)">Couverture</th>
+              <th>Textes</th>
+              <th />
+            </tr>
+          </thead>
           <tbody>
             {g.items.map((item) => byName[item.name]).filter(Boolean).map((entry) => {
               const { info, data, score } = entry;

@@ -2291,3 +2291,32 @@ Original 80 % → retour Modifiable 80 %.
 - 2026-11-22 : barre flottante éloignée de ce qu on modifie : au-dessus de l élément
   avec 22 px d écart (14 px pour une section), en dessous s il n y a pas la
   place au-dessus ; ne recouvre plus l élément ni ses poignées.
+- 2026-11-22 : menu H1 à H4 de la barre réparé (la barre empêche le clic par
+  défaut pour garder la sélection du texte : le menu arrête ce clic avant elle) ;
+  titre ajouté sans titre du même niveau dans la section : tailles par défaut
+  (H1 2,6em, H2 2em, H3 1,5em, H4 1,2em). Barre plus aérée et à 34 px de
+  l élément.
+- 2026-11-22 : menu unique du projet (fichier « menu fondations.xlsx » de
+  l'utilisateur) : 1 Produits et clients · 2 Preuves et offres · 3 Recherche
+  client · 4 Marque et design · 5 Médias / 6 Message central · 7 Angles ·
+  8 Textes · 9 Contenu des pages · 10 Pages · Exports. Plus de ligne
+  « Ressources » ni de sous-étapes dans les Fondations : les étapes 1, 2, 3, 6
+  et 9 sont les parties du questionnaire (PROJECT_MENU et ProjectMenu dans
+  Fondations.jsx ; FoundationsTab reste monté, caché hors de ses étapes, pour
+  ne rien perdre avant l'enregistrement). Le logo n'est demandé qu'à l'étape 4.
+  Étape 1 : « 4. Vidéos des concurrents » (rep.videosConcurrents : url, nom,
+  source, analyse) : depuis le PC ou parmi les vidéos du projet (imports
+  WinningHunter, Canvas) ; « Analyser les angles » : Gemini 3.5 Flash regarde
+  la vidéo (server/fondations-video.mjs, POST /api/fondations-video ; ≤ 18 Mo
+  dans la requête, au-delà API Fichiers de Google) et rend accroche, angle,
+  promesse, preuves, script minuté, angles à reprendre pour le produit.
+- 2026-11-22 : menu du projet compacté (boutons de 40 px, pastilles 20 px, titres
+  12 px, détails 10,5 px ; textes trop longs coupés avec …).
+- 2026-11-22 : intros des étapes Pages et Fondations sur toute la largeur, dans
+  un encadré clair (avant : lignes de 62 caractères au plus).
+- 2026-11-22 : étape Pages, en-tête des colonnes (Page, Angle, Origine, Achat,
+  Couverture, Textes) dans chaque carte ouverte, au-dessus de ses pages ; plus
+  d en-tête unique au-dessus des cartes (décalé quand elles sont fermées).
+- 2026-11-22 : plus de limite de largeur des textes d explication dans tout le
+  catalogue (cat-info, cat-lead, cat-panel p.cat-muted, cat-fd__hint,
+  cat-fd__fiche…) : demande de l utilisateur, il préfère les lignes longues.

@@ -245,7 +245,9 @@ function ajoutHtml(html, a) {
   }
   if (a.type === "image") return `<img data-atl-slot="${id}" data-atl-ajout src="${escAttr(a.image || IMG_VIDE)}" alt="" style="width:100%;height:auto;display:block">`;
   const tag = a.type === "titre" ? level ?? "h2" : "p";
-  return `<${tag} data-atl-slot="${id}" data-atl-ajout>${asHtml(a.text ?? "")}</${tag}>`;
+  const TAILLES = { h1: "2.6em", h2: "2em", h3: "1.5em", h4: "1.2em", h5: "1.05em", h6: "1em" };
+  const st = a.type === "titre" ? ` style="font-size:${TAILLES[tag]};font-weight:700;line-height:1.2;margin:0 0 .4em"` : "";
+  return `<${tag} data-atl-slot="${id}" data-atl-ajout${st}>${asHtml(a.text ?? "")}</${tag}>`;
 }
 export function injectAjouts(html, ajouts) {
   if (!Array.isArray(ajouts) || !ajouts.length) return html;

@@ -3802,7 +3802,7 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
         // (poignées, bords, texte du dessus). Au-dessus avec 22 px d'écart ;
         // sans la place, en dessous ; sinon en haut de l'aperçu.
         const barH = barRef.current?.offsetHeight ?? 38;
-        const GAP = node ? 22 : 14;
+        const GAP = node ? 34 : 16;
         const above = top - barH - GAP;
         const below = bottom + GAP;
         const barTop = above >= fr.top + 6 ? above : below + barH <= fr.bottom - 6 ? below : fr.top + 6;
@@ -3886,7 +3886,7 @@ function CanvasToolbar({ sel, node, label, onParent, onUp, onDown, onAi, onEdit,
             ✨
           </button>
           {node?.ajout && node.ajoutType === "titre" && onLevel && (
-            <select className="atl-float__level" value={node.niveau ?? ""} onChange={(e) => onLevel(Number(e.target.value))} title="Niveau du titre">
+            <select className="atl-float__level" value={node.niveau ?? ""} onMouseDown={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()} onChange={(e) => onLevel(Number(e.target.value))} title="Niveau du titre">
               {!node.niveau && <option value="">H?</option>}
               {[1, 2, 3, 4].map((n) => (
                 <option key={n} value={n}>
