@@ -2320,3 +2320,30 @@ Original 80 % → retour Modifiable 80 %.
 - 2026-11-22 : plus de limite de largeur des textes d explication dans tout le
   catalogue (cat-info, cat-lead, cat-panel p.cat-muted, cat-fd__hint,
   cat-fd__fiche…) : demande de l utilisateur, il préfère les lignes longues.
+- 2026-11-22 : page « Agents army » dans le catalogue (menu Agents, #agents) :
+  les 62 agents de l abonnement Whitelabeler de l utilisateur (Ai Vault 3.0),
+  usage personnel. Liste à gauche (recherche), page de présentation d origine à
+  droite (cadre isolé, HTML glissé en srcdoc : par adresse il restait blanc),
+  bouton « Access AI Employee » vers la page de l agent sur Whitelabeler.
+  Fichiers agents/whitelabeler/<slug>.html + index.json ; server/agents.mjs
+  (GET /api/agents, /api/agents/<slug>) ; src/catalogue/AgentsArmy.jsx. La
+  route d import est désactivée (clé à usage unique supprimée).
+- 2026-11-22 : Agents army, consignes. Le bouton « Access AI Employee » de
+  Whitelabeler ne fait que copier le contenu d un <template id="…-prompt-store">
+  déjà présent dans la page : aucun appel, aucun crédit. 60 consignes sur 62
+  extraites dans agents/whitelabeler/consignes/<slug>.txt (manquent : Seedance
+  Prompt Engine, outil externe ; Viral Influencer Beauty, page modèle vide).
+  GET /api/agents/<slug>/consigne ; bouton « Consigne » + Copier dans la page.
+
+## 2026-11-22 — Agents army : « ▶ Lancer l'agent »
+- Conversation avec l'agent dans la page Agents army (src/catalogue/AgentsArmy.jsx, AgentChat ; server/agents.mjs, routes /api/agents/<slug>/chat, /moteurs, /cle-claude).
+- L'IA suit la consigne de l'agent avec les Fondations du projet choisi, les images jointes du projet (6 max) et la recherche web.
+- Choix ChatGPT (gpt-5.5) ou Claude (Opus 5.5) ; la clé Anthropic se colle dans la fenêtre (écrite dans .env.local).
+- Conversations : agents/conversations/<projet>/<slug>.json. Testé avec ChatGPT (texte + image) ; Claude à tester quand la clé sera collée.
+
+## 2026-11-22 — Agents army dans sa propre fenêtre
+- Nouvelle page agents.html (src/catalogue/agents-main.jsx), servie en production (server/production.mjs) et compilée (vite.config.js).
+- Menu du haut : Page · Agents army · Studio · Canvas · Catalogue (src/workspace-switch.jsx).
+- Rail de gauche de l'éditeur : « Agents » entre Médias et Couverture (src/left-ui.jsx).
+- Retiré du menu du Catalogue ; l'ancienne adresse catalogue.html#agents renvoie vers agents.html.
+- Rail de l'éditeur : Catalogue placé juste sous Agents (plus en bas).

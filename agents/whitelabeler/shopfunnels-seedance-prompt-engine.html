@@ -1,0 +1,85 @@
+<!doctype html><html><head><meta charset=utf-8><style>html,body{margin:0;background:#fff}</style></head><body><iframe src="https://aliakbar-ai.github.io/seedance-prompt-generator/" width="100%" height="900" style="border:none; border-radius:12px;" scrolling="yes"></iframe>
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels Seedance Prompt Engine";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body></html>

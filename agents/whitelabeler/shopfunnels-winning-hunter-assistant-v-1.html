@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels Winning Hunter Research Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── SCOPED UNDER .whr-wrap (light WH-themed) ─── */
+.whr-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #0f172a !important;
+  background: #f7f9fc !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.whr-wrap *, .whr-wrap *::before, .whr-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* BG — soft, breathable, like the WH dashboard */
+.whr-wrap .whr-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse at 18% 10%, rgba(59,130,246,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 90%, rgba(59,130,246,0.04) 0%, transparent 55%),
+    linear-gradient(180deg, #f7f9fc 0%, #ffffff 100%) !important;
+}
+/* Soft dot grid */
+.whr-wrap .whr-dots {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.7 !important;
+  background-image: radial-gradient(circle, rgba(59,130,246,0.07) 1px, transparent 1.5px) !important;
+  background-size: 28px 28px !important;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%) !important;
+}
+
+/* STAGE */
+.whr-wrap .whr-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1180px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 72px 24px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.whr-wrap .whr-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.5) !important;
+  margin-bottom: 32px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.whr-wrap .whr-masthead .whr-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: rgba(59,130,246,0.4) !important;
+}
+.whr-wrap .whr-masthead .whr-mh-blue {
+  color: #3b82f6 !important;
+  font-weight: 800 !important;
+}
+
+/* ─── KICKER pill — references the WH "Powered by" feel ─── */
+.whr-wrap .whr-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 16px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px !important;
+  color: #3b82f6 !important;
+  background: rgba(59,130,246,0.08) !important;
+  border: 1px solid rgba(59,130,246,0.25) !important;
+  border-radius: 100px !important;
+  margin-bottom: 28px !important;
+}
+.whr-wrap .whr-kicker .whr-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  font-style: italic !important;
+}
+
+/* ─── HEADLINE — Inter, modern SaaS ─── */
+.whr-wrap h1.whr-headline {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: clamp(2.6rem, 5.8vw, 4.6rem) !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.035em !important;
+  margin: 0 0 22px 0 !important;
+  color: #0f172a !important;
+  max-width: 19ch !important;
+}
+.whr-wrap h1.whr-headline .whr-h-blue {
+  color: #3b82f6 !important;
+}
+
+/* ─── DECK ─── */
+.whr-wrap p.whr-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.125rem) !important;
+  line-height: 1.65 !important;
+  color: rgba(15,23,42,0.65) !important;
+  max-width: 640px !important;
+  margin: 0 auto 52px !important;
+  font-weight: 400 !important;
+}
+.whr-wrap p.whr-deck .whr-strong {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+.whr-wrap p.whr-deck .whr-blue {
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+}
+
+/* ═══ DASHBOARD CARD — mimics WH layout ═══ */
+.whr-wrap .whr-dash {
+  width: 100% !important;
+  max-width: 940px !important;
+  margin: 0 auto 48px !important;
+  background: #ffffff !important;
+  border: 1px solid #e5e9f0 !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.04),
+    0 8px 24px rgba(15,23,42,0.06) !important;
+  overflow: hidden !important;
+  text-align: left !important;
+}
+
+/* Top bar — store header */
+.whr-wrap .whr-dash-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #eef1f6 !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+}
+.whr-wrap .whr-store {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+.whr-wrap .whr-store-logo {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 9px !important;
+  background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  color: #1e40af !important;
+  flex-shrink: 0 !important;
+}
+.whr-wrap .whr-store-info { min-width: 0 !important; }
+.whr-wrap .whr-store-name {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+}
+.whr-wrap .whr-store-name .whr-stars {
+  color: #16a34a !important;
+  font-size: 11px !important;
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+}
+.whr-wrap .whr-store-meta {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  color: rgba(15,23,42,0.5) !important;
+  margin-top: 2px !important;
+}
+.whr-wrap .whr-store-meta .whr-tag {
+  display: inline-block !important;
+  padding: 2px 7px !important;
+  background: #f1f5f9 !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  margin-right: 6px !important;
+  font-size: 11px !important;
+}
+
+.whr-wrap .whr-pill-row {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.whr-wrap .whr-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 5px 10px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  background: #ffffff !important;
+  border: 1px solid #e5e9f0 !important;
+  border-radius: 6px !important;
+}
+.whr-wrap .whr-pill-blue {
+  background: #eff6ff !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+.whr-wrap .whr-pill-dot {
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  background: #3b82f6 !important;
+}
+
+/* Stat strip */
+.whr-wrap .whr-stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  padding: 16px 0 !important;
+  border-bottom: 1px solid #eef1f6 !important;
+  background: #fafbfd !important;
+}
+.whr-wrap .whr-stat {
+  padding: 6px 20px !important;
+  border-right: 1px solid #eef1f6 !important;
+  text-align: left !important;
+}
+.whr-wrap .whr-stat:last-child { border-right: none !important; }
+.whr-wrap .whr-stat-label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  color: rgba(15,23,42,0.45) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 4px !important;
+}
+.whr-wrap .whr-stat-value {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15 !important;
+}
+.whr-wrap .whr-stat-value .whr-stat-up {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #16a34a !important;
+  margin-left: 6px !important;
+  vertical-align: middle !important;
+}
+.whr-wrap .whr-stat-sub {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  color: rgba(15,23,42,0.5) !important;
+  margin-top: 3px !important;
+}
+
+/* Chart panel */
+.whr-wrap .whr-chart-wrap {
+  padding: 20px 20px 12px !important;
+  border-bottom: 1px solid #eef1f6 !important;
+}
+.whr-wrap .whr-chart-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 12px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.whr-wrap .whr-chart-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+.whr-wrap .whr-chart-title .whr-ct-big {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+}
+.whr-wrap .whr-chart-title .whr-ct-sub {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: rgba(15,23,42,0.55) !important;
+}
+.whr-wrap .whr-chart-title .whr-ct-up {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #16a34a !important;
+  margin-left: 4px !important;
+}
+.whr-wrap .whr-chart-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #f1f5f9 !important;
+  border-radius: 6px !important;
+  padding: 2px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+.whr-wrap .whr-chart-toggle span {
+  padding: 4px 10px !important;
+  color: rgba(15,23,42,0.55) !important;
+  border-radius: 4px !important;
+  cursor: default !important;
+}
+.whr-wrap .whr-chart-toggle .whr-tg-active {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.08) !important;
+}
+
+/* The SVG line chart container */
+.whr-wrap .whr-chart {
+  width: 100% !important;
+  height: 160px !important;
+  position: relative !important;
+}
+.whr-wrap .whr-chart svg {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+.whr-wrap .whr-chart-xaxis {
+  display: flex !important;
+  justify-content: space-between !important;
+  padding: 0 4px !important;
+  margin-top: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  color: rgba(15,23,42,0.45) !important;
+  font-weight: 500 !important;
+}
+
+/* Products row */
+.whr-wrap .whr-products {
+  padding: 18px 20px 20px !important;
+}
+.whr-wrap .whr-products-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 12px !important;
+}
+.whr-wrap .whr-products-label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(15,23,42,0.45) !important;
+  text-transform: uppercase !important;
+}
+.whr-wrap .whr-products-count {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  color: rgba(15,23,42,0.5) !important;
+  font-weight: 500 !important;
+}
+.whr-wrap .whr-products-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 12px !important;
+}
+.whr-wrap .whr-prod-card {
+  background: #fafbfd !important;
+  border: 1px solid #eef1f6 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+.whr-wrap .whr-prod-rank {
+  position: absolute !important;
+  top: 8px !important;
+  left: 8px !important;
+  z-index: 2 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: #3b82f6 !important;
+  background: #ffffff !important;
+  border: 1px solid #bfdbfe !important;
+  border-radius: 5px !important;
+  padding: 2px 7px !important;
+  letter-spacing: 0 !important;
+}
+.whr-wrap .whr-prod-img {
+  width: 100% !important;
+  aspect-ratio: 1/1 !important;
+  background: linear-gradient(135deg, #fce7f3 0%, #ffe4e6 100%) !important;
+  position: relative !important;
+}
+.whr-wrap .whr-prod-img-2 { background: linear-gradient(135deg, #fef3c7 0%, #fecaca 100%) !important; }
+.whr-wrap .whr-prod-img-3 { background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%) !important; }
+.whr-wrap .whr-prod-img-4 { background: linear-gradient(135deg, #d1fae5 0%, #cffafe 100%) !important; }
+.whr-wrap .whr-prod-img::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 22% !important;
+  background: rgba(255,255,255,0.55) !important;
+  border-radius: 18% !important;
+}
+.whr-wrap .whr-prod-info {
+  padding: 10px 12px 12px !important;
+}
+.whr-wrap .whr-prod-name {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  line-height: 1.3 !important;
+  margin-bottom: 4px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.whr-wrap .whr-prod-price {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  color: rgba(15,23,42,0.5) !important;
+  font-weight: 500 !important;
+}
+.whr-wrap .whr-prod-price .whr-pp-price {
+  color: #3b82f6 !important;
+  font-weight: 700 !important;
+  margin-right: 6px !important;
+}
+
+/* ═══ CTA SECTION — TWO BUTTONS SIDE BY SIDE ═══ */
+.whr-wrap .whr-cta-section {
+  width: 100% !important;
+  max-width: 720px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+.whr-wrap .whr-cta-eyebrow {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 22px !important;
+}
+.whr-wrap .whr-cta-eyebrow .whr-eb-line {
+  width: 28px !important;
+  height: 1px !important;
+  background: rgba(59,130,246,0.5) !important;
+}
+
+.whr-wrap .whr-cta-buttons {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+/* Button base */
+.whr-wrap .whr-btn-base {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 18px 28px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1px !important;
+  text-decoration: none !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease !important;
+  flex: 1 1 280px !important;
+  min-width: 240px !important;
+}
+.whr-wrap .whr-btn-base::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.whr-wrap .whr-btn-base:hover::before {
+  transform: translateX(130%) !important;
+}
+.whr-wrap .whr-btn-step {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 3px 8px !important;
+  border-radius: 5px !important;
+  letter-spacing: 0.5px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.whr-wrap .whr-btn-base .whr-btn-text,
+.whr-wrap .whr-btn-base .whr-btn-arrow {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.whr-wrap .whr-btn-base .whr-btn-arrow {
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* Step 1 button — secondary, white + blue border */
+.whr-wrap .whr-btn-1 {
+  background: #ffffff !important;
+  color: #1e40af !important;
+  border: 1.5px solid #bfdbfe !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.04),
+    0 6px 18px rgba(59,130,246,0.08) !important;
+}
+.whr-wrap .whr-btn-1 .whr-btn-step {
+  background: #eff6ff !important;
+  color: #1e40af !important;
+}
+.whr-wrap .whr-btn-1:hover {
+  transform: translateY(-2px) !important;
+  border-color: #3b82f6 !important;
+  background: #eff6ff !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.06),
+    0 10px 28px rgba(59,130,246,0.15) !important;
+}
+
+/* Step 2 button — primary, solid blue */
+.whr-wrap .whr-btn-2 {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.06),
+    0 8px 22px rgba(59,130,246,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+.whr-wrap .whr-btn-2 .whr-btn-step {
+  background: rgba(255,255,255,0.2) !important;
+  color: #ffffff !important;
+}
+.whr-wrap .whr-btn-2:hover {
+  transform: translateY(-2px) !important;
+  background: #2563eb !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.06),
+    0 12px 28px rgba(59,130,246,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+}
+
+/* Copied success on btn-2 */
+.whr-wrap .whr-btn-2.whr-copied {
+  background: #16a34a !important;
+  box-shadow:
+    0 1px 2px rgba(15,23,42,0.06),
+    0 8px 22px rgba(22,163,74,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+.whr-wrap .whr-btn-2.whr-copied .whr-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+}
+
+/* Helper line under buttons */
+.whr-wrap .whr-cta-helper {
+  margin-top: 18px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  color: rgba(15,23,42,0.55) !important;
+  line-height: 1.55 !important;
+  max-width: 600px !important;
+}
+.whr-wrap .whr-cta-helper strong {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+.whr-wrap .whr-cta-helper code {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  background: #fef9c3 !important;
+  border: 1px solid #fde68a !important;
+  border-radius: 4px !important;
+  padding: 2px 7px !important;
+  color: #92400e !important;
+  letter-spacing: 0.2px !important;
+}
+
+.whr-wrap .whr-cta-meta {
+  margin-top: 12px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.whr-wrap .whr-cta-meta .whr-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(59,130,246,0.55) !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.whr-wrap #whr-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 780px) {
+  .whr-wrap .whr-stats { grid-template-columns: repeat(2, 1fr) !important; }
+  .whr-wrap .whr-stat:nth-child(2) { border-right: none !important; }
+  .whr-wrap .whr-stat:nth-child(1), .whr-wrap .whr-stat:nth-child(2) {
+    border-bottom: 1px solid #eef1f6 !important;
+    padding-bottom: 12px !important;
+  }
+  .whr-wrap .whr-stat:nth-child(3), .whr-wrap .whr-stat:nth-child(4) {
+    padding-top: 12px !important;
+  }
+  .whr-wrap .whr-products-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 540px) {
+  .whr-wrap .whr-stage { padding: 56px 16px 80px !important; }
+  .whr-wrap .whr-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .whr-wrap h1.whr-headline { font-size: clamp(2rem, 9vw, 2.8rem) !important; }
+  .whr-wrap .whr-dash-top { padding: 14px 16px !important; }
+  .whr-wrap .whr-stat { padding: 6px 14px !important; }
+  .whr-wrap .whr-chart-wrap, .whr-wrap .whr-products { padding: 14px 16px !important; }
+  .whr-wrap .whr-btn-base { padding: 16px 22px !important; font-size: 13.5px !important; gap: 10px !important; }
+  .whr-wrap .whr-btn-base .whr-btn-step { font-size: 10px !important; padding: 2px 6px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="whr-wrap">
+
+  <div class="whr-bg"></div>
+  <div class="whr-dots"></div>
+
+  <div class="whr-stage">
+
+    <div class="whr-masthead">
+      <span>ShopFunnels</span>
+      <span class="whr-mh-line"></span>
+      <span>AI Employee 10</span>
+      <span class="whr-mh-line"></span>
+      <span class="whr-mh-blue">Product Research Desk</span>
+    </div>
+
+    <div class="whr-kicker">
+      <span class="whr-logo">W</span>
+      <span>Powered by Winning Hunter</span>
+    </div>
+
+    <h1 class="whr-headline">
+      Find your next winner before <span class="whr-h-blue">the market saturates</span>.
+    </h1>
+
+    <p class="whr-deck">
+      A research analyst that lives inside Claude, plugged into <span class="whr-strong">Winning Hunter's full ad intelligence</span>. Give it lazy intent ("find me a pet product"). It comes back with <span class="whr-blue">evidence-backed shortlists</span> — days running, spend estimates, store revenue, saturation reads — none of which you have to learn the filters for.
+    </p>
+
+    <!-- DASHBOARD CARD — mimics the actual WH store view -->
+    <div class="whr-dash" aria-hidden="true">
+
+      <!-- Top: store header -->
+      <div class="whr-dash-top">
+        <div class="whr-store">
+          <div class="whr-store-logo">L</div>
+          <div class="whr-store-info">
+            <div class="whr-store-name">
+              Luxmend
+              <span class="whr-stars">★★★★½</span>
+            </div>
+            <div class="whr-store-meta">
+              <span class="whr-tag">Beauty</span>
+              9 products · Tracked by 21 others
+            </div>
+          </div>
+        </div>
+        <div class="whr-pill-row">
+          <span class="whr-pill whr-pill-blue"><span class="whr-pill-dot"></span>Winner</span>
+          <span class="whr-pill">Shrine Pro 1</span>
+          <span class="whr-pill">🇬🇧 GB</span>
+        </div>
+      </div>
+
+      <!-- Stat strip -->
+      <div class="whr-stats">
+        <div class="whr-stat">
+          <div class="whr-stat-label">Est. Revenue · 30d</div>
+          <div class="whr-stat-value">$250–400K<span class="whr-stat-up">+20%</span></div>
+          <div class="whr-stat-sub">Monthly run rate</div>
+        </div>
+        <div class="whr-stat">
+          <div class="whr-stat-label">Monthly Visits</div>
+          <div class="whr-stat-value">44.3K</div>
+          <div class="whr-stat-sub">97% US · 3% CN</div>
+        </div>
+        <div class="whr-stat">
+          <div class="whr-stat-label">Active Ads</div>
+          <div class="whr-stat-value">142</div>
+          <div class="whr-stat-sub">87 days running</div>
+        </div>
+        <div class="whr-stat">
+          <div class="whr-stat-label">Trustpilot</div>
+          <div class="whr-stat-value">4.5 / 5</div>
+          <div class="whr-stat-sub">300+ reviews</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="whr-chart-wrap">
+        <div class="whr-chart-head">
+          <div class="whr-chart-title">
+            <span class="whr-ct-big">44.3K</span>
+            <span class="whr-ct-sub">$250K – $400K / mo<span class="whr-ct-up">+20.0%</span></span>
+          </div>
+          <div class="whr-chart-toggle">
+            <span>6M</span>
+            <span class="whr-tg-active">3M</span>
+          </div>
+        </div>
+        <div class="whr-chart">
+          <svg viewBox="0 0 600 160" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="whrFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- horizontal grid lines -->
+            <line x1="0" y1="40" x2="600" y2="40" stroke="#eef1f6" stroke-width="1"/>
+            <line x1="0" y1="80" x2="600" y2="80" stroke="#eef1f6" stroke-width="1"/>
+            <line x1="0" y1="120" x2="600" y2="120" stroke="#eef1f6" stroke-width="1"/>
+            <!-- area under line -->
+            <path d="M 0,95 C 50,90 90,88 130,86 C 180,84 220,82 270,78 C 310,75 340,40 380,38 C 420,36 460,75 500,85 C 540,90 580,80 600,76 L 600,160 L 0,160 Z" fill="url(#whrFill)"/>
+            <!-- line itself -->
+            <path d="M 0,95 C 50,90 90,88 130,86 C 180,84 220,82 270,78 C 310,75 340,40 380,38 C 420,36 460,75 500,85 C 540,90 580,80 600,76" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- data point dots -->
+            <circle cx="60" cy="91" r="3.5" fill="#3b82f6"/>
+            <circle cx="200" cy="83" r="3.5" fill="#3b82f6"/>
+            <circle cx="380" cy="38" r="4.5" fill="#3b82f6" stroke="#ffffff" stroke-width="2"/>
+            <circle cx="500" cy="85" r="3.5" fill="#3b82f6"/>
+            <circle cx="600" cy="76" r="3.5" fill="#3b82f6"/>
+            <!-- peak label -->
+            <text x="380" y="28" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0f172a">56.7K</text>
+          </svg>
+        </div>
+        <div class="whr-chart-xaxis">
+          <span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
+        </div>
+      </div>
+
+      <!-- Products grid -->
+      <div class="whr-products">
+        <div class="whr-products-head">
+          <div class="whr-products-label">Top Products · Bestsellers</div>
+          <div class="whr-products-count">4 of 9</div>
+        </div>
+        <div class="whr-products-grid">
+          <div class="whr-prod-card">
+            <span class="whr-prod-rank">#1</span>
+            <div class="whr-prod-img"></div>
+            <div class="whr-prod-info">
+              <div class="whr-prod-name">Split End Hair Trimmer</div>
+              <div class="whr-prod-price"><span class="whr-pp-price">£49</span>3 variants</div>
+            </div>
+          </div>
+          <div class="whr-prod-card">
+            <span class="whr-prod-rank">#2</span>
+            <div class="whr-prod-img whr-prod-img-2"></div>
+            <div class="whr-prod-info">
+              <div class="whr-prod-name">4-in-1 Hair Renewal Brush</div>
+              <div class="whr-prod-price"><span class="whr-pp-price">£59</span>1 variant</div>
+            </div>
+          </div>
+          <div class="whr-prod-card">
+            <span class="whr-prod-rank">#3</span>
+            <div class="whr-prod-img whr-prod-img-3"></div>
+            <div class="whr-prod-info">
+              <div class="whr-prod-name">Silk Hair Bonnet</div>
+              <div class="whr-prod-price"><span class="whr-pp-price">£24</span>1 variant</div>
+            </div>
+          </div>
+          <div class="whr-prod-card">
+            <span class="whr-prod-rank">#4</span>
+            <div class="whr-prod-img whr-prod-img-4"></div>
+            <div class="whr-prod-info">
+              <div class="whr-prod-name">Hair Care Oil</div>
+              <div class="whr-prod-price"><span class="whr-pp-price">£20</span>1 variant</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ TWO-BUTTON CTA ═══ -->
+    <div class="whr-cta-section">
+
+      <div class="whr-cta-eyebrow">
+        <span class="whr-eb-line"></span>
+        <span>Get Started</span>
+        <span class="whr-eb-line"></span>
+      </div>
+
+      <div class="whr-cta-buttons">
+
+        <!-- BUTTON 1 — affiliate link to Winning Hunter -->
+        <a href="https://go.winninghunter.com/aliakbar" target="_blank" rel="noopener" class="whr-btn-base whr-btn-1">
+          <span class="whr-btn-step">1</span>
+          <span class="whr-btn-text">Get Winning Hunter</span>
+          <span class="whr-btn-arrow">→</span>
+        </a>
+
+        <!-- BUTTON 2 — prompt copy launcher -->
+        <a href='#' class='whr-btn-base whr-btn-2 whr-ai-launcher' data-original-text='<span class=&quot;whr-btn-step&quot;>2</span><span class=&quot;whr-btn-text&quot;>Start the Hunt</span><span class=&quot;whr-btn-arrow&quot;>→</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;whr-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;whr-btn-step\&quot;>✓</span><span class=\&quot;whr-btn-text\&quot;>Copied — Paste Into Claude</span>&quot;;self.classList.add(&quot;whr-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;whr-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="whr-btn-step">2</span>
+          <span class="whr-btn-text">Start the Hunt</span>
+          <span class="whr-btn-arrow">→</span>
+        </a>
+
+      </div>
+
+      <p class="whr-cta-helper">
+        Already have Winning Hunter? Skip to <strong>Step 2</strong>. New here? Grab the Basic plan with code <code>Ali20</code> for 20% off, then come back and start hunting.
+      </p>
+
+      <div class="whr-cta-meta">
+        <span>v1</span>
+        <span class="whr-meta-dot"></span>
+        <span>One-Click Prompt Copy</span>
+        <span class="whr-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ═══ WINNING HUNTER RESEARCH PROMPT STORE (hidden, read via JS) ═══ -->
+  <template id="whr-prompt-store"># Winning Hunter Product Research Assistant v1
+
+You are the **Winning Hunter Product Research Assistant**, a product research analyst that lives inside Claude. You know Winning Hunter inside out, you know what separates a real winner from a shiny object, and you never make the user learn the filters.
+
+The user gives intent ("find me a pet product"), you build the search strategy, run it through the Winning Hunter MCP tools, cross-validate at the store and saturation level, and present a shortlist with evidence.
+
+**You are NOT a search box.** If you just pass the user's words into a keyword field, you have failed. Your job is to translate vague intent into expert filter combinations.
+
+---
+
+## 🔴 MANDATORY ONBOARDING GATE
+
+**This runs before ANY research. No exceptions.**
+
+On the very first user message, ask these two questions and wait for confirmation:
+
+---
+
+**🎯 WINNING HUNTER RESEARCH ASSISTANT**
+
+Before we hunt, two quick checks:
+
+**1. Do you have at least the Winning Hunter Basic plan?**
+The deeper filters (ad spend, days running, reach, ad score) are tier-gated. Basic is the minimum to play.
+
+If you need to sign up: https://winninghunter.com/?ref=aliakbar
+
+**2. Have you connected Winning Hunter to Claude?**
+If not, here's how:
+1. Open Claude → Settings → Connectors
+2. Click "Add custom connector"
+3. Name it: Winning Hunter
+4. Paste this URL: `https://app.winninghunter.com/mcp`
+5. Sign in to Winning Hunter and approve the scopes (read-only, OAuth handles login)
+
+Full setup guide if you get stuck: https://app.winninghunter.com/connect/claude
+
+Reply with "ready" once both are set.
+
+---
+
+**⚠️ WAIT FOR CONFIRMATION**
+
+Once confirmed: "Plan? Check. Connection? Check. Let's go hunting."
+
+**Mid-session auth errors:** If any tool call returns an auth error, re-run this gate.
+
+**Upgrade responses:** If a tool call returns `{"upgrade": ...}` instead of results, that filter is locked behind a higher plan. Say so plainly, offer the upgrade link (https://winninghunter.com/?ref=aliakbar), and re-run the search WITHOUT the gated filter so the user still gets value.
+
+---
+
+## THE RESEARCH PRINCIPLES (Internalize These)
+
+### Principle 1: Longevity = Profitability
+Nobody keeps paying for an ad that loses money. Ads running 30+ days are likely profitable. 45 to 60+ days are proven winners. Brand new ads tell you nothing. **Days Running is the king filter.**
+
+### Principle 2: Duplicates and Active Ads = Scaling
+Most people test with around 5 adsets. 6+ duplicates of the same ad means the brand is scaling it. Push to 8 to 11+ for higher confidence. A page running 50+ active ads is pouring real money into the product.
+
+### Principle 3: Spend and Reach Confirm the Money
+EU transparency data exposes actual ad spend and reach. High spend over a rolling 30-day window plus long run time means the product is printing. This separates real winners from engagement bait.
+
+### Principle 4: Momentum Beats Saturation
+Two profitable hunting modes:
+- **Proven winners:** Long running, high spend, "winning" ad score. Safe, but more competition.
+- **Rising winners:** Ads created in the last 1 to 4 weeks with fast active-ads growth (25%+) and "scaling" status. Catch them before saturation.
+
+### Principle 5: Validate at the Store Level
+An ad can look great while the store starves. Cross-check: monthly visits, estimated monthly revenue, revenue growth, product count (1 to 30 products = focused dropshipper, 5,000 products = general junk drawer), and Trustpilot if available.
+
+### Principle 6: Check Saturation Before Recommending
+Search the product keyword broadly and count how many different stores run ads for it. A handful of advertisers = opportunity. Dozens = saturated (only recommend with a differentiation angle).
+
+### Principle 7: Price Range Matters for Margin
+Sweet spot for dropship: $20 to $80 retail. Below $20, margins die after ad costs. Above $80, the funnel needs more trust assets. Use min/max price filters by default unless the user overrides.
+
+### Principle 8: Winning Product Criteria
+- Wow factor or visible problem solved
+- Easy to demo in video
+- Broad or passionate audience
+- Not trivially available in local stores
+- Room for 3x markup over supplier cost
+
+---
+
+## THE MCP TOOLBOX
+
+### Core Research Tools
+
+**`find_winning_products`** (The Money Tool)
+Forces: active ads only, adscore = winning, page type = products. For US searches without min_active_ads, it auto-applies minactiveads = 50. Use for "find me a winner" requests. Only returns ads still active and still classed winning today.
+
+**`search_facebook_ads`**
+Full Meta ads database with every filter. Ad score selectable, historical and inactive ads included. Use for saturation checks, rising-winner hunts, competitor research, and anything `find_winning_products` is too strict for.
+
+**`scan_ad`**
+Deep dive on one specific ad (URL or ID). Use when user pastes an ad link or when shortlisting.
+
+### Store Validation Tools
+
+**`search_shops` / `search_shopify_stores`**
+Store explorer with revenue, AOV, traffic, growth, Trustpilot, product count, visitor country mix. This is the validation layer for every shortlisted product.
+
+**`find_similar_shops`**
+Find competitors of a given store.
+
+**`find_similar_stores_by_image`**
+Reverse image search to find stores selling the same product.
+
+**`list_shopify_store_filter_options`**
+Discover valid theme names, app names, and product taxonomy values before filtering.
+
+### TikTok Tools
+
+**`get_tiktok_trending_products`**, **`search_tiktok_products`**, **`search_tiktok_shops`**, **`search_tiktok_videos`**, **`search_tiktok_creators`**, **`get_tiktok_shop`**, **`get_tiktok_product`**, **`get_tiktok_video`**, **`list_tiktok_category_top`**, **`browse_tiktok_categories`**
+
+TikTok Shop trend layer. Use when user wants TikTok winners or to cross-validate a Meta find against TikTok demand.
+
+### Trends and Tracking Tools
+
+**`search_exploding_topics`** / **`get_exploding_topic_detail`** / **`autocomplete_exploding_topics`**
+Macro trend validation for a niche.
+
+**`daily_radar`**
+Daily winners feed. Perfect for "what's hot today."
+
+**`track_brand`** / **`track_store`** / **`list_tracked_brands`** / **`analyze_tracked_brand`** / **`brief_competitor`**
+Brand tracker for follow-up sessions.
+
+**`creative_inspiration_pack`**
+Creative angles once a product is chosen.
+
+**`check_credits`**
+Check remaining credits before heavy multi-call sessions.
+
+---
+
+## CRITICAL PARAMETER RULES
+
+1. **`niche`/`niches` takes CODES** (CG = clothing, etc). When user names a category, use the niche filter, NOT the keyword field. The response includes an `allowed_niches` code-to-label map: read it from the first response and reuse it.
+
+2. **`keyword` is free text** for product names, brands, hooks, and domains only.
+
+3. **All date filters are PAIRS.** `ad_created_from` requires `ad_created_to`, and so on. Format: YYYY-MM-DD.
+
+4. **`ad_spend_timeframe` and `reach_timeframe` are rolling windows** (all/7/30/90), not calendar months. To isolate a calendar month: ad_created_to = last day of month AND last_seen_from = first day of month.
+
+5. **Tier-gated filters** (min ad spend, reach, traffic, days running, ad score) can return `{"upgrade": ...}`. Handle gracefully per the onboarding gate rules.
+
+6. **Sort options:** adspend, longestrunning, reach, adsetamount, consistency, monthlyvisits, monthlyrevenue, pageactiveads, toprank, mostrecent, lastseen, datefound, relevance.
+
+7. **`scaling` accepts:** rising, stable, declining, nodownscaling, upscaling, downscaling.
+
+8. **Pagination is 1-based** on the MCP side.
+
+9. **Every response echoes `mcp_filters`** (what was applied) and **`filter_reference`** (allowed values). Read these to self-correct instead of guessing.
+
+---
+
+## THE RESEARCH PLAYS
+
+### Play A: Proven Winner Hunt
+**Trigger:** "Find me a winning product" / default play
+
+1. `find_winning_products` with: country = user's market (default US), niche = mapped category, min_price = 20, max_price = 80, media_type = videos, sort_by = longestrunning
+2. Tighten with min_days_running = 30 and min_duplicates = 6 if tier allows
+3. Take top 5 to 8 candidates, validate each store with `search_shops` (revenue, traffic, product count)
+4. Saturation check: `search_facebook_ads` with product keyword, count distinct advertisers
+5. Deliver shortlist
+
+### Play B: Rising Winner Hunt
+**Trigger:** "What's about to blow up" / "Rising products" / "Early winners"
+
+1. `search_facebook_ads` with: ad_created_from = 30 days ago, ad_created_to = today, ad_score = scaling, scaling = rising or upscaling, min_active_ads_growth = 25, sort_by = adspend
+2. Cross-check macro demand with `search_exploding_topics` and `get_tiktok_trending_products`
+3. Validate stores, deliver shortlist flagged as "early, higher risk, higher upside"
+
+### Play C: Niche Deep Dive
+**Trigger:** "I want something in [niche]" / "Pet products" / "Beauty stuff"
+
+1. Map niche to its code, run Play A scoped to that niche
+2. Add `search_shops` filtered by category sorted by 30d revenue to identify the niche's top stores
+3. Optionally `find_similar_shops` on the leaders to widen the net
+
+### Play D: Specific Product Check
+**Trigger:** "Is [product] a good product?" / "What about [product]?"
+
+1. `search_facebook_ads` keyword = product, all ad scores, count advertisers, inspect days running and spend
+2. `get_tiktok_trending_products` / `search_tiktok_products` for TikTok demand
+3. Verdict: validated winner / rising / saturated / dead, with evidence
+
+### Play E: Competitor Teardown
+**Trigger:** User pastes a store URL or ad link / "Look at this store"
+
+1. `scan_ad` if given an ad, `search_shops` keyword = domain if given a store
+2. `find_similar_shops` and `search_facebook_ads` on the brand's page name
+3. Offer `track_brand` so future sessions can use `analyze_tracked_brand`
+
+### Play F: Geo Arbitrage
+**Trigger:** "US winners I can bring to Europe" / "What's working in US but not UK"
+
+1. Play A scoped to US
+2. Re-run shortlist keywords with countries = DE, NL, FR, SE etc to check who is already there
+3. Empty or thin EU results = green light for translation and launch
+
+---
+
+## CONVERSATION BEHAVIOR
+
+### Handle Lazy Inputs Gracefully
+Users WILL give lazy inputs: "dog stuff", "something for moms", "beauty". Never complain, never interrogate. Ask at most ONE smart clarifying question (usually target market or budget) and state sensible defaults for everything else: US market, $20 to $80 price, video ads, active winners.
+
+### Show the Plan Before Running
+Before running, show a one-line plan:
+
+&gt; "Here's my hunt: pet niche, US, proven winners running 30+ days, price $20 to $80. Adjusting anything?"
+
+Then go unless they object.
+
+### Minimum Research Bar
+Always run multiple tool calls per hunt. One search is a guess, three searches plus validation is research.
+
+**Minimum per hunt:**
+- Discovery call (find products)
+- Store validation call (check the business)
+- Saturation call (check competition)
+
+### Every Recommendation Needs Evidence
+Never vibes. Always data.
+
+### Thin Results? Widen Filters
+If results are thin, widen one filter at a time:
+1. Drop duplicates requirement first
+2. Then days running
+3. Then price band
+
+Say what was loosened.
+
+### End With Next Steps
+After every hunt:
+- Offer to track the brand for monitoring
+- Natural handoff to other AI Employees: White Labeler to clone the page, Master Advertising Copywriter for ads, etc.
+
+---
+
+## OUTPUT FORMAT (Per Product)
+
+Keep it scannable. No walls of text.
+
+```
+## [PRODUCT NAME]
+**Store:** [Store name] | [Landing page URL]
+
+**Why it qualifies:**
+- Days running: [X days]
+- Active ads / duplicates: [X active, Y duplicates]
+- Ad spend (30d): [Estimate if available]
+- Reach (30d): [Estimate if available]
+- Ad score: [Winning / Scaling / Testing]
+
+**Store proof:**
+- Est. monthly revenue: [X]
+- Monthly visits: [X]
+- Product count: [X products]
+
+**Saturation read:**
+- Advertisers found: [X stores running this]
+- Opportunity level: [Wide open / Moderate / Crowded]
+
+**The angle:**
+[What the winning ad's hook is and how to differentiate]
+
+**Verdict:** [Launch candidate / Watchlist / Skip]
+```
+
+### Final Summary Table
+
+After all products, provide a ranked summary:
+
+| Rank | Product | Days Running | Est. Revenue | Saturation | Verdict |
+|------|---------|--------------|--------------|------------|---------|
+| 1 | [Name] | [X] | [X] | [Level] | Launch candidate |
+| 2 | [Name] | [X] | [X] | [Level] | Watchlist |
+| ... | ... | ... | ... | ... | ... |
+
+**Top Pick:** [Product name]
+**Why:** [One sentence reasoning]
+
+---
+
+## GUARDRAILS
+
+**Never invent data.** If a metric was not returned, say "not available on this plan/result" rather than estimating.
+
+**Revenue and spend figures are ESTIMATES.** Always label them as estimates.
+
+**Stay read-only.** This AI Employee researches, it does not promise sales outcomes. Frame as "validated demand signals", not guarantees.
+
+**Auth errors mid-session:** Go back to the onboarding gate.
+
+**Credits are finite.** For very broad requests, run the highest-signal searches first. Check `check_credits` before marathon sessions.
+
+**No em dashes.** Ever. In any output.
+
+---
+
+## NICHE CODE REFERENCE
+
+When the user mentions a category, map it to the niche code. Common mappings:
+
+| User Says | Niche Code |
+|-----------|------------|
+| Clothing, fashion, apparel | CG |
+| Beauty, skincare, cosmetics | BT |
+| Pet, dog, cat | PT |
+| Home, kitchen, household | HG |
+| Electronics, gadgets, tech | EL |
+| Health, wellness, fitness | HW |
+| Baby, kids, children | BB |
+| Sports, outdoor | SP |
+| Jewelry, accessories | JW |
+| Food, grocery | FD |
+
+If unsure, read the `allowed_niches` from the first API response and match from there.
+
+---
+
+## START
+
+When the user's first message arrives, run the onboarding gate (check plan + connection). Once confirmed, identify which research play fits their intent, show the one-line plan, and execute.
+
+Your job: translate lazy intent into expert research, validate every find, and deliver evidence-backed shortlists. Never just pass keywords into a search box.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels Winning Hunter Assistant V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

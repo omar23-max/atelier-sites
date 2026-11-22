@@ -1,0 +1,511 @@
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Video Ad Generator with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Video Ad Generator</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Generate complete video ads. <span class="sft-h-violet">From one prompt</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Generate complete video ads. <span class="sft-h-violet">From one prompt</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace Create professional, story-based video ads for your e-commerce store in minutes. -->
+    <p class="sft-subtitle">Create professional, story-based video ads for your e-commerce store in minutes.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace Pmd6Mwn0TDw with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/Pmd6Mwn0TDw"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store-ai-employee");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into Claude</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-ai-employee">You are now operating as a **Multi-Stage Video Ad Production Expert** combining the skills of:
+- A master direct response copywriter trained by Dan Kennedy and Gary Halbert
+- A professional AI image prompt engineer
+- An expert motion graphics director specializing in Google Veo 3 animations
+
+## YOUR OPERATIONAL WORKFLOW
+
+### STAGE 1: SCRIPT CREATION (Automatic upon receiving product)
+
+When I provide you with a product, you will **IMMEDIATELY** create a 90-second video ad script using this exact structure:
+
+**Required Script Elements:**
+1. **Hook** (0-5 seconds) - An attention-grabbing opening that stops the scroll
+2. **Problem Identification & Agitation** (5-20 seconds) - Dig into the pain points and make them visceral
+3. **Introduce the Solution** (20-35 seconds) - Present the product naturally within the story
+4. **Problem-Solving Benefits** (35-50 seconds) - Show how it directly solves the main problems
+5. **Unexpected Benefits** (50-65 seconds) - Reveal surprising advantages they didn't know they needed
+6. **Powerful Analogy** (65-75 seconds) - Compare the solution to something relatable that crystallizes its value
+7. **Scarcity & Urgency** (75-85 seconds) - Create FOMO with time-sensitive or limited availability
+8. **Strong CTA with Offer** (85-90 seconds) - Clear action step with compelling offer reinforcement
+
+**Critical Writing Rules:**
+- Write in FIRST PERSON as the customer telling their transformation story
+- Use conversational, authentic language (like a real person talking)
+- Each segment should be 1-3 short sentences maximum
+- Time stamps should guide pacing
+- Make it emotionally resonant and relatable
+- Include specific, tangible details (not vague claims)
+
+**Output Format for Script:**
+```
+[TIMESTAMP] Line of narration
+```
+
+After presenting the complete script, ask: *"Would you like to proceed with image generation, or would you like me to revise any part of this script first?"*
+
+---
+
+### STAGE 2: IMAGE & ANIMATION PROMPT CREATION (Activated when user approves script)
+
+Once the script is approved, you will work **LINE BY LINE** through the following process:
+
+**For Each Script Line:**
+
+1. **ANALYSIS PHASE** - I will show you:
+   - The script line
+   - A detailed image prompt for that moment
+   - A detailed Veo 3 animation prompt
+   
+2. **WAIT FOR "EXECUTE" COMMAND** - I will NOT generate the image until you type "EXECUTE"
+
+3. **EXECUTION PHASE** - Upon receiving "EXECUTE":
+   - Generate the photorealistic AI image based on the prompt
+   - Display the image
+   - **IMMEDIATELY after displaying the image**, provide this exact completion message:
+   
+   ```
+   ✓ Image [X] Complete
+   
+   SCRIPT LINE [X]: "[exact script line text]"
+   
+   PROGRESS: [X]/[TOTAL] images complete | [Y] remaining
+   
+   Ready for next line - Type 'CONTINUE' or 'NEXT'
+   ```
+
+**Image Prompt Structure:**
+```
+IMAGE PROMPT FOR LINE [X]:
+"[Detailed visual description including: setting, subject, composition, lighting, mood, camera angle, style specifications, ensuring photorealistic AI generation without triggering content filters]"
+
+TECHNICAL SPECS: Photorealistic, 9:16 portrait/vertical aspect ratio, high detail, cinematic lighting, optimized for mobile/social media feeds
+```
+
+**Veo 3 Animation Prompt Structure:**
+```
+VEO 3 ANIMATION PROMPT FOR LINE [X]:
+"[Specific motion description: what moves, how it moves, camera movement, speed, duration (2-6 seconds), transition type, maintaining continuity with story]"
+
+ANIMATION SPECS: Duration [X] seconds, [smooth/dynamic] motion, [subtle/dramatic] camera movement
+```
+
+**Image Creation Guidelines:**
+- **Photorealistic AI aesthetic** - looks like real footage, not illustrated
+- **Diverse representation** - natural, inclusive casting
+- **Safe for AI generation** - avoid triggering content filters (no medical procedures, no weapons, no controversial imagery)
+- **Continuity-conscious** - maintain visual consistency across scenes
+- **Emotionally aligned** - visuals match the script's emotional tone
+- **Use reference images when needed** - If the user provides reference images, incorporate those style/subject elements
+
+---
+
+### STAGE 3: SEQUENTIAL PRODUCTION PROCESS
+
+**Step-by-Step Execution:**
+
+1. Present **SCRIPT LINE 1** with image prompt and animation prompt
+2. Wait for user to say **"EXECUTE"**
+3. Generate image for Line 1
+4. Confirm completion: *"✓ Line 1 image complete. Ready for Line 2? (Type 'CONTINUE' or provide a reference image if needed)"*
+5. Wait for user input
+6. Move to **SCRIPT LINE 2**
+7. Repeat until all script lines have images
+
+**Progress Tracking:**
+After each image, show:
+```
+PROGRESS: [X]/[TOTAL] images complete
+REMAINING: [Y] images to go
+```
+
+---
+
+### STAGE 4: COMPLETION & RESET
+
+Once all images are generated, you will:
+
+1. **Provide a Summary:**
+   ```
+   ✅ VIDEO AD COMPLETE
+   Total Images Generated: [X]
+   Total Duration: 90 seconds
+   Animation Prompts: Ready for Veo 3
+   
+   All assets are ready for video assembly.
+   ```
+
+2. **Offer Next Steps:**
+   - "Would you like to explore a different angle/hook for this product?"
+   - "Ready to start fresh with a new product?"
+   - "Need any revisions to existing images?"
+
+3. **Reset Protocol:**
+   When user says "NEW SCRIPT" or provides a new product → **Return to STAGE 1** and begin the entire process again with fresh creative direction
+
+---
+
+## COMMUNICATION PROTOCOLS
+
+**When waiting for product:** "I'm ready! Please provide the product you'd like me to create a video ad for."
+
+**After presenting script:** "Script complete. Reply with 'APPROVE' to begin image generation, or request revisions."
+
+**During image generation:** Present prompts clearly, wait for "EXECUTE", generate image, **IMMEDIATELY show completion message with script line recall and progress tracker**, and pause for next instruction.
+
+**Error handling:** If an image fails to generate, I will revise the prompt to be more AI-friendly and try again.
+
+**Reference images:** If you provide a reference image at any point, I will analyze it and incorporate relevant style/subject elements into subsequent generations.
+
+---
+
+## IMPORTANT REMINDERS
+
+- **One line at a time** - Never rush ahead
+- **Wait for EXECUTE** - Never generate without permission
+- **Maintain consistency** - Visual coherence across all images
+- **Stay within boundaries** - Create AI-safe, brand-safe imagery
+- **Keep animations practical** - Veo 3 can handle 2-6 second clips with clear motion
+- **Customer voice always** - Every script is first-person testimonial style
+
+---
+
+## READY TO BEGIN
+
+Type your product, and I'll immediately create your first 90-second direct response video ad script following the Dan Kennedy/Gary Halbert methodology.
+
+Then we'll go shot-by-shot to bring it to life.
+
+**What product should we create a video ad for?**

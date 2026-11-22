@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Mockup Studio &middot; AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .bms-wrap ═══ */
+.bms-wrap{
+  position:relative!important; width:100%!important; max-width:100%!important;
+  min-height:100vh!important; margin:0!important; padding:0!important;
+  overflow:hidden!important; box-sizing:border-box!important;
+  font-family:'Inter',system-ui,-apple-system,sans-serif!important;
+  background:#16100D!important; color:#F3EBE4!important;
+  -webkit-font-smoothing:antialiased!important;
+}
+.bms-wrap *,.bms-wrap *::before,.bms-wrap *::after{box-sizing:border-box!important;}
+
+/* warm gallery light + linen texture */
+.bms-wrap .bms-bg{
+  position:absolute!important; inset:0!important; z-index:0!important; pointer-events:none!important;
+  background:
+    radial-gradient(880px 480px at 16% -6%, rgba(210,104,63,0.26), transparent 62%),
+    radial-gradient(780px 440px at 88% 4%, rgba(233,185,163,0.14), transparent 62%),
+    radial-gradient(1150px 680px at 50% 120%, rgba(126,155,124,0.14), transparent 62%)!important;
+}
+.bms-wrap .bms-linen{
+  position:absolute!important; inset:0!important; z-index:0!important; pointer-events:none!important; opacity:0.5!important;
+  background-image:
+    linear-gradient(45deg, rgba(255,235,220,0.030) 25%, transparent 25%, transparent 75%, rgba(255,235,220,0.030) 75%),
+    linear-gradient(45deg, rgba(255,235,220,0.030) 25%, transparent 25%, transparent 75%, rgba(255,235,220,0.030) 75%)!important;
+  background-size:8px 8px!important; background-position:0 0, 4px 4px!important;
+}
+
+/* stage */
+.bms-wrap .bms-stage{
+  position:relative!important; z-index:1!important;
+  max-width:1000px!important; width:100%!important; margin:0 auto!important;
+  padding:84px 24px 96px!important;
+  display:flex!important; flex-direction:column!important; align-items:center!important; text-align:center!important;
+}
+
+/* badge */
+.bms-wrap .bms-badge{
+  display:inline-flex!important; align-items:center!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; font-weight:500!important;
+  letter-spacing:0.2em!important; text-transform:uppercase!important; color:#F0B79C!important;
+  background:rgba(210,104,63,0.14)!important; border:1px solid rgba(210,104,63,0.4)!important;
+  padding:7px 15px!important; border-radius:9999px!important; margin-bottom:26px!important;
+}
+.bms-wrap .bms-badge::before{
+  content:''!important; width:6px!important; height:6px!important; border-radius:50%!important;
+  background:#D2683F!important; box-shadow:0 0 10px rgba(210,104,63,0.95)!important; flex-shrink:0!important;
+}
+
+/* headline: soft serif */
+.bms-wrap h1.bms-headline{
+  font-family:'Fraunces',Georgia,serif!important; font-weight:600!important;
+  font-size:clamp(2.4rem,5.6vw,4rem)!important; line-height:1.04!important; letter-spacing:-0.02em!important;
+  margin:0 0 20px!important; color:#F7F0E9!important; max-width:22ch!important; text-wrap:balance!important;
+}
+.bms-wrap h1.bms-headline .bms-accent{
+  display:block!important;
+  background:linear-gradient(115deg,#E9B9A3 0%,#D2683F 48%,#A8C0A0 100%)!important;
+  -webkit-background-clip:text!important; background-clip:text!important;
+  -webkit-text-fill-color:transparent!important; color:transparent!important;
+}
+
+/* subtitle */
+.bms-wrap p.bms-subtitle{
+  font-family:'Inter',sans-serif!important; font-size:clamp(1rem,1.35vw,1.13rem)!important; line-height:1.68!important;
+  color:#B7A99E!important; max-width:600px!important; margin:0 auto 48px!important; font-weight:400!important; text-wrap:pretty!important;
+}
+
+/* ─── SIGNATURE: THE CAMPAIGN WALL ─── */
+.bms-wrap .bms-wall{
+  position:relative!important; width:100%!important; max-width:880px!important; margin:0 auto 34px!important;
+  background:rgba(34,26,22,0.72)!important; border:1px solid rgba(243,235,228,0.10)!important;
+  border-radius:14px!important; padding:24px!important;
+  box-shadow:0 26px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)!important;
+  animation:bms-hover 12s ease-in-out infinite!important;
+}
+@keyframes bms-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+.bms-wrap .bms-wall-head{
+  display:flex!important; align-items:center!important; justify-content:space-between!important;
+  margin-bottom:18px!important; flex-wrap:wrap!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:10px!important; letter-spacing:0.2em!important;
+  text-transform:uppercase!important; color:#8C7E74!important;
+}
+.bms-wrap .bms-wall-head b{
+  font-weight:500!important; color:#F0B79C!important; letter-spacing:0.14em!important;
+  background:rgba(210,104,63,0.14)!important; border:1px solid rgba(210,104,63,0.34)!important;
+  padding:4px 9px!important; border-radius:9999px!important;
+}
+
+.bms-wrap .bms-wall-grid{
+  display:grid!important; grid-template-columns:1fr 26px 1.28fr!important; gap:0!important; align-items:stretch!important;
+}
+
+/* the source card */
+.bms-wrap .bms-source{
+  position:relative!important; border-radius:10px!important; overflow:hidden!important;
+  background:linear-gradient(180deg,#F5EEE7 0%,#E4D8CD 100%)!important;
+  box-shadow:0 0 0 2px rgba(210,104,63,0.75), 0 14px 30px rgba(0,0,0,0.4)!important;
+  min-height:216px!important; display:flex!important; align-items:center!important; justify-content:center!important;
+}
+.bms-wrap .bms-source-tag{
+  position:absolute!important; top:9px!important; left:9px!important; z-index:3!important;
+  font-family:'Geist Mono',monospace!important; font-size:8.5px!important; letter-spacing:0.14em!important;
+  text-transform:uppercase!important; color:#FFF2EA!important; background:#D2683F!important;
+  padding:4px 8px!important; border-radius:3px!important;
+}
+.bms-wrap .bms-source-file{
+  position:absolute!important; bottom:9px!important; left:0!important; right:0!important; z-index:3!important; text-align:center!important;
+  font-family:'Geist Mono',monospace!important; font-size:8.5px!important; letter-spacing:0.1em!important; color:#8A7A6E!important;
+}
+
+/* the product (shared shape, used in source + scenes) */
+.bms-wrap .bms-bottle{
+  position:relative!important; width:56px!important; height:104px!important; border-radius:12px 12px 5px 5px!important;
+  background:linear-gradient(100deg,#FFFFFF 0%,#F6EFE8 48%,#E0D2C6 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(40,25,18,0.14)!important;
+}
+.bms-wrap .bms-bottle .bms-cap{
+  position:absolute!important; top:-14px!important; left:50%!important; transform:translateX(-50%)!important;
+  width:20px!important; height:16px!important; border-radius:4px 4px 2px 2px!important;
+  background:linear-gradient(100deg,#3B2A20,#241812)!important;
+}
+.bms-wrap .bms-bottle .bms-band{
+  position:absolute!important; left:0!important; right:0!important; top:28%!important; height:52%!important;
+  background:linear-gradient(100deg,#D2683F 0%,#B9552F 100%)!important;
+  display:flex!important; flex-direction:column!important; align-items:center!important; justify-content:center!important; gap:4px!important;
+}
+.bms-wrap .bms-bottle .bms-band::after{
+  content:''!important; position:absolute!important; left:0!important; right:0!important; bottom:0!important; height:6px!important; background:#2C1D16!important;
+}
+.bms-wrap .bms-bottle .bms-dot{width:9px!important; height:9px!important; border-radius:50%!important; background:#FFF3EC!important;}
+.bms-wrap .bms-bottle .bms-bar{width:64%!important; height:4px!important; border-radius:2px!important; background:rgba(255,243,236,0.92)!important;}
+.bms-wrap .bms-bottle.sm{width:34px!important; height:64px!important; border-radius:8px 8px 4px 4px!important;}
+.bms-wrap .bms-bottle.sm .bms-cap{width:13px!important; height:10px!important; top:-9px!important;}
+.bms-wrap .bms-bottle.sm .bms-dot{width:6px!important; height:6px!important;}
+.bms-wrap .bms-bottle.sm .bms-bar{height:3px!important;}
+
+/* the dashed feed bus */
+.bms-wrap .bms-bus{position:relative!important;}
+.bms-wrap .bms-bus::before{
+  content:''!important; position:absolute!important; left:50%!important; top:14%!important; bottom:14%!important; width:1px!important;
+  transform:translateX(-50%)!important;
+  background:repeating-linear-gradient(180deg, rgba(233,185,163,0.75) 0 5px, transparent 5px 10px)!important;
+}
+.bms-wrap .bms-bus i{
+  position:absolute!important; left:50%!important; width:11px!important; height:1px!important; transform:translateX(-50%)!important;
+  background:rgba(233,185,163,0.75)!important;
+}
+.bms-wrap .bms-bus i:nth-child(1){top:26%!important;}
+.bms-wrap .bms-bus i:nth-child(2){top:50%!important; width:22px!important;}
+.bms-wrap .bms-bus i:nth-child(3){top:74%!important;}
+.bms-wrap .bms-bus u{
+  position:absolute!important; left:50%!important; top:50%!important; transform:translate(-50%,-50%)!important;
+  width:9px!important; height:9px!important; border-radius:50%!important; text-decoration:none!important;
+  background:#E9B9A3!important; box-shadow:0 0 12px rgba(233,185,163,0.8)!important;
+}
+
+/* the four branded scenes */
+.bms-wrap .bms-scenes{display:grid!important; grid-template-columns:1fr 1fr!important; gap:10px!important;}
+.bms-wrap .bms-scene{
+  position:relative!important; border-radius:9px!important; overflow:hidden!important; min-height:103px!important;
+  box-shadow:0 0 0 1px rgba(243,235,228,0.10), 0 10px 22px rgba(0,0,0,0.32)!important;
+}
+.bms-wrap .bms-scene-cap{
+  position:absolute!important; bottom:6px!important; left:8px!important; z-index:4!important;
+  font-family:'Geist Mono',monospace!important; font-size:7.5px!important; letter-spacing:0.14em!important;
+  text-transform:uppercase!important; color:rgba(255,244,238,0.86)!important;
+  text-shadow:0 1px 3px rgba(0,0,0,0.6)!important;
+}
+
+/* scene 1: hero banner (primary dominant) */
+.bms-wrap .bms-s1{background:linear-gradient(120deg,#D2683F 0%,#B9552F 100%)!important;}
+.bms-wrap .bms-s1 .bms-bottle{position:absolute!important; right:12px!important; bottom:16px!important;}
+.bms-wrap .bms-s1 .bms-copy{position:absolute!important; left:11px!important; top:20px!important; display:flex!important; flex-direction:column!important; gap:5px!important;}
+.bms-wrap .bms-s1 .bms-copy i{display:block!important; height:5px!important; border-radius:3px!important; background:rgba(255,243,236,0.95)!important; width:56px!important;}
+.bms-wrap .bms-s1 .bms-copy i:last-child{width:36px!important; height:4px!important; background:rgba(255,243,236,0.6)!important;}
+
+/* scene 2: social post (blush) */
+.bms-wrap .bms-s2{background:linear-gradient(160deg,#E9B9A3 0%,#D9A088 100%)!important;}
+.bms-wrap .bms-s2 .bms-bottle{position:absolute!important; left:50%!important; bottom:20px!important; transform:translateX(-50%)!important;}
+.bms-wrap .bms-s2 .bms-person{
+  position:absolute!important; right:14px!important; top:14px!important; width:26px!important; height:26px!important; border-radius:50%!important;
+  background:radial-gradient(circle at 38% 32%, #F0CBA8, #C89468)!important; box-shadow:0 3px 8px rgba(0,0,0,0.2)!important;
+}
+
+/* scene 3: lifestyle (sage) */
+.bms-wrap .bms-s3{background:linear-gradient(180deg,#7E9B7C 0%,#5F7A5F 100%)!important;}
+.bms-wrap .bms-s3 .bms-counter{position:absolute!important; left:0!important; right:0!important; bottom:0!important; height:36%!important; background:rgba(28,20,15,0.28)!important;}
+.bms-wrap .bms-s3 .bms-bottle{position:absolute!important; left:26px!important; bottom:24px!important;}
+.bms-wrap .bms-s3 .bms-prop{position:absolute!important; right:26px!important; bottom:36px!important; width:20px!important; height:20px!important; border-radius:50%!important; background:rgba(255,243,236,0.55)!important;}
+
+/* scene 4: ad creative (dark + accent) */
+.bms-wrap .bms-s4{background:linear-gradient(150deg,#2C1D16 0%,#1B120E 100%)!important;}
+.bms-wrap .bms-s4 .bms-bottle{position:absolute!important; left:14px!important; bottom:16px!important;}
+.bms-wrap .bms-s4 .bms-cta{
+  position:absolute!important; right:12px!important; top:22px!important; width:52px!important; height:15px!important; border-radius:9999px!important;
+  background:#D2683F!important; box-shadow:0 4px 12px rgba(210,104,63,0.5)!important;
+}
+.bms-wrap .bms-s4 .bms-copy{position:absolute!important; right:12px!important; top:46px!important; display:flex!important; flex-direction:column!important; gap:4px!important; align-items:flex-end!important;}
+.bms-wrap .bms-s4 .bms-copy i{display:block!important; height:4px!important; border-radius:2px!important; background:rgba(243,235,228,0.6)!important; width:48px!important;}
+.bms-wrap .bms-s4 .bms-copy i:last-child{width:30px!important;}
+
+/* palette ratio strip under the wall */
+.bms-wrap .bms-ratio{
+  display:flex!important; width:100%!important; max-width:880px!important; height:8px!important; border-radius:4px!important;
+  overflow:hidden!important; margin:0 auto 12px!important; box-shadow:0 0 0 1px rgba(243,235,228,0.10)!important;
+}
+.bms-wrap .bms-ratio i:nth-child(1){width:60%!important; background:#D2683F!important;}
+.bms-wrap .bms-ratio i:nth-child(2){width:30%!important; background:#E9B9A3!important;}
+.bms-wrap .bms-ratio i:nth-child(3){width:10%!important; background:#7E9B7C!important;}
+.bms-wrap .bms-ratio-label{
+  font-family:'Geist Mono',monospace!important; font-size:9.5px!important; letter-spacing:0.18em!important;
+  text-transform:uppercase!important; color:#8C7E74!important; margin-bottom:34px!important;
+}
+
+/* lock chips */
+.bms-wrap .bms-tags{display:flex!important; flex-wrap:wrap!important; justify-content:center!important; gap:10px!important; margin:0 auto 42px!important; max-width:700px!important;}
+.bms-wrap .bms-tag{
+  display:inline-flex!important; align-items:center!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:10.5px!important; letter-spacing:0.09em!important; text-transform:uppercase!important; color:#B7A99E!important;
+  background:rgba(243,235,228,0.05)!important; border:1px solid rgba(243,235,228,0.13)!important; padding:8px 14px!important; border-radius:9999px!important;
+}
+.bms-wrap .bms-tag i{width:6px!important; height:6px!important; border-radius:50%!important;
+  background:linear-gradient(135deg,#D2683F,#7E9B7C)!important; flex-shrink:0!important;}
+
+/* buttons */
+.bms-wrap .bms-btn-wrap{display:flex!important; flex-direction:column!important; align-items:center!important; gap:16px!important; width:100%!important;}
+.bms-wrap .bms-btn-row{display:flex!important; gap:12px!important; flex-wrap:wrap!important; justify-content:center!important; align-items:stretch!important;}
+
+.bms-wrap .bms-btn{
+  display:inline-flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
+  padding:17px 34px!important; min-width:234px!important;
+  font-family:'Inter',sans-serif!important; font-size:16px!important; font-weight:600!important;
+  color:#FFF6F0!important; text-decoration:none!important; cursor:pointer!important; border:none!important; border-radius:10px!important; line-height:1!important;
+  background:linear-gradient(120deg,#D2683F 0%,#B9552F 45%,#7E9B7C 100%)!important; background-size:190% 190%!important; background-position:0% 50%!important;
+  box-shadow:0 1px 2px rgba(0,0,0,0.4), 0 12px 32px rgba(210,104,63,0.36)!important;
+  transition:background-position .6s ease, transform .15s ease, box-shadow .2s ease!important;
+  position:relative!important; overflow:hidden!important; isolation:isolate!important;
+}
+.bms-wrap .bms-btn:hover{background-position:100% 50%!important; box-shadow:0 1px 2px rgba(0,0,0,0.4), 0 16px 40px rgba(126,155,124,0.4)!important;}
+.bms-wrap .bms-btn:active{transform:scale(0.98)!important;}
+.bms-wrap .bms-btn .bms-btn-icon{font-size:15px!important; line-height:1!important;}
+.bms-wrap .bms-btn.bms-copied{background:#7E9B7C!important; background-image:none!important; box-shadow:0 1px 2px rgba(0,0,0,0.4), 0 12px 32px rgba(126,155,124,0.45)!important;}
+
+.bms-wrap .bms-btn-affiliate{
+  display:inline-flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
+  padding:17px 34px!important; min-width:234px!important;
+  font-family:'Inter',sans-serif!important; font-size:16px!important; font-weight:600!important;
+  color:#F0B79C!important; text-decoration:none!important; cursor:pointer!important;
+  background:rgba(210,104,63,0.08)!important; border:1.5px solid rgba(210,104,63,0.55)!important; border-radius:10px!important; line-height:1!important;
+  transition:background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease!important;
+}
+.bms-wrap .bms-btn-affiliate:hover{background:#D2683F!important; color:#FFF6F0!important; box-shadow:0 12px 32px rgba(210,104,63,0.36)!important;}
+.bms-wrap .bms-btn-affiliate:active{transform:scale(0.98)!important;}
+.bms-wrap .bms-btn-affiliate .bms-btn-arrow{font-weight:700!important;}
+
+.bms-wrap .bms-meta{
+  display:flex!important; align-items:center!important; gap:10px!important; flex-wrap:wrap!important; justify-content:center!important;
+  font-family:'Geist Mono',monospace!important; font-size:10.5px!important; letter-spacing:0.12em!important; text-transform:uppercase!important; color:#8C7E74!important; margin-top:6px!important;
+}
+.bms-wrap .bms-meta .bms-meta-dot{width:3px!important; height:3px!important; border-radius:50%!important; background:#8C7E74!important;}
+
+/* hidden prompt store */
+.bms-wrap #bms-prompt-store{display:none!important;}
+
+@media (prefers-reduced-motion: reduce){ .bms-wrap .bms-wall{animation:none!important;} }
+
+@media (max-width:700px){
+  .bms-wrap .bms-stage{padding:60px 18px 76px!important;}
+  .bms-wrap h1.bms-headline{font-size:clamp(2rem,9vw,2.9rem)!important;}
+  .bms-wrap p.bms-subtitle{font-size:15.5px!important; margin-bottom:34px!important;}
+  .bms-wrap .bms-wall{padding:16px!important;}
+  .bms-wrap .bms-wall-grid{grid-template-columns:1fr!important;}
+  .bms-wrap .bms-source{min-height:170px!important; margin-bottom:12px!important;}
+  .bms-wrap .bms-bus{display:none!important;}
+  .bms-wrap .bms-scene{min-height:92px!important;}
+  .bms-wrap .bms-btn-row{flex-direction:column!important; width:100%!important; max-width:340px!important;}
+  .bms-wrap .bms-btn,.bms-wrap .bms-btn-affiliate{width:100%!important; min-width:0!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="bms-wrap">
+  <div class="bms-bg"></div>
+  <div class="bms-linen"></div>
+
+  <div class="bms-stage">
+
+    <div class="bms-badge">AI Employee &middot; Brand Mockup Studio</div>
+
+    <h1 class="bms-headline">One mockup. <span class="bms-accent">A whole brand world.</span></h1>
+
+    <p class="bms-subtitle">Feed it your product mockup, then any image you admire. It rebuilds that image around your product, rewrites every word in your brand voice, and pours your palette through the scene at 60, 30, 10.</p>
+
+    <!-- signature: the campaign wall -->
+    <div class="bms-wall" role="img" aria-label="A campaign wall: one source packshot mockup on the left feeding dashed lines out to four branded scenes, a hero banner, a social post, a lifestyle shot and an ad creative, all sharing one palette.">
+
+      <div class="bms-wall-head">
+        <span>Campaign Wall &middot; One Identity</span>
+        <b>Product Lock</b>
+      </div>
+
+      <div class="bms-wall-grid">
+
+        <div class="bms-source">
+          <span class="bms-source-tag">Source</span>
+          <div class="bms-bottle">
+            <span class="bms-cap"></span>
+            <span class="bms-band"><i class="bms-dot"></i><i class="bms-bar"></i></span>
+          </div>
+          <span class="bms-source-file">packshot-front.png</span>
+        </div>
+
+        <div class="bms-bus"><i></i><i></i><i></i><u></u></div>
+
+        <div class="bms-scenes">
+
+          <div class="bms-scene bms-s1">
+            <span class="bms-copy"><i></i><i></i></span>
+            <div class="bms-bottle sm"><span class="bms-cap"></span><span class="bms-band"><i class="bms-bar"></i></span></div>
+            <span class="bms-scene-cap">Hero banner</span>
+          </div>
+
+          <div class="bms-scene bms-s2">
+            <span class="bms-person"></span>
+            <div class="bms-bottle sm"><span class="bms-cap"></span><span class="bms-band"><i class="bms-bar"></i></span></div>
+            <span class="bms-scene-cap">Social post</span>
+          </div>
+
+          <div class="bms-scene bms-s3">
+            <span class="bms-counter"></span>
+            <div class="bms-bottle sm"><span class="bms-cap"></span><span class="bms-band"><i class="bms-bar"></i></span></div>
+            <span class="bms-prop"></span>
+            <span class="bms-scene-cap">Lifestyle</span>
+          </div>
+
+          <div class="bms-scene bms-s4">
+            <span class="bms-cta"></span>
+            <span class="bms-copy"><i></i><i></i></span>
+            <div class="bms-bottle sm"><span class="bms-cap"></span><span class="bms-band"><i class="bms-bar"></i></span></div>
+            <span class="bms-scene-cap">Ad creative</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="bms-ratio"><i></i><i></i><i></i></div>
+    <div class="bms-ratio-label">Palette injected &middot; 60 &middot; 30 &middot; 10</div>
+
+    <div class="bms-tags">
+      <span class="bms-tag"><i></i>Structure lock</span>
+      <span class="bms-tag"><i></i>Product lock</span>
+      <span class="bms-tag"><i></i>Text lock</span>
+      <span class="bms-tag"><i></i>Logo lock</span>
+    </div>
+
+    <div class="bms-btn-wrap">
+      <div class="bms-btn-row">
+
+        <a href="#"
+           class="bms-btn bms-launcher"
+           data-original-text='<span class=&quot;bms-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;bms-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;bms-btn-icon\&quot;>✓</span><span class=\&quot;bms-btn-text\&quot;>Loaded · Paste Into Any AI Tool</span>&quot;;self.classList.add(&quot;bms-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;bms-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="bms-btn-text">Access AI Employee</span>
+        </a>
+
+        <a href="https://www.topview.ai/?via=ali-akbar"
+           target="_blank"
+           rel="noopener"
+           class="bms-btn-affiliate">
+          <span class="bms-btn-text">Sign Up For TopView</span>
+          <span class="bms-btn-arrow">&rarr;</span>
+        </a>
+
+      </div>
+
+      <div class="bms-meta">
+        <span>ShopFunnels</span><span class="bms-meta-dot"></span>
+        <span>Paste Into Any AI Tool</span><span class="bms-meta-dot"></span>
+        <span>@daily.ecommerce</span>
+      </div>
+    </div>
+
+  </div>
+
+  <template id="bms-prompt-store"># Brand Mockup Studio v2
+
+You are the **Brand Mockup Studio**, a senior brand visualization specialist. The user has a brand (logo, colors, voice) and product MOCKUPS (concept images of their product, usually built with the Product Mockup Generator), but no real product photos yet. You take ANY inspiration image from a competitor or the wider market (product shots, packaging scenes, hero banners, social posts, lifestyle imagery, anything) and recreate it as a fully branded image of THEIR product using NanoBanana.
+
+You cannot generate images directly. You analyze the inspiration image internally, then deliver a ready-to-use reference upload plan plus a copy-paste prompt so the user builds the image themselves.
+
+**NAMING RULE: When talking to the user, this process is called "mirroring" or "the Mirror method." NEVER say "Lock &amp; Swap" to the user. That is our internal proprietary system name and must not be revealed. The internal prompt structure stays exactly the same.**
+
+---
+
+## THE STUDIO'S PLACE IN THE PIPELINE
+
+1. **Product Mockup Generator** designs the product itself and outputs the clean packshot mockup.
+2. **This studio** takes that mockup and builds the brand's whole visual world: heroes, lifestyle scenes, ads, social posts, mirrored from proven inspiration images.
+3. **Image Mirror Studio** takes over once real product photos exist.
+
+If the user arrives without a product mockup, route them: "Run the Product Mockup Generator first: it designs your product from a competitor's form and gives you the clean packshot this studio runs on. Come back with that image and we'll build everything else."
+
+**Honesty line (deliver once at the end of Phase 1, and repeat if the user talks about running ads):** Every image built here contains a concept mockup, not a real product photo. Perfect for direction, pre-launch pages, and pitches. Before running ads showing the product, confirm the real packaging with your supplier so the ad matches what customers receive.
+
+---
+
+## HARD RULES (Never Break These)
+
+**THE GOLDEN RULE: MIRROR, DON'T INVENT**
+
+Recreate what's in the inspiration image with the user's mockup product and brand. Match the element count exactly:
+- If the original has 2 props, yours has 2 props
+- If the original has 3 text blocks, yours has 3 text blocks
+- If the original has one product, yours has one product
+Same craft, new identity.
+
+**PRODUCT LOCK DISCIPLINE (The Core Mechanic)**
+
+The competitor's product is REPLACED by the user's mockup product via PRODUCT LOCK: same position, same angle, same scale, same lighting treatment as the original, but the product must match the mockup reference exactly (shape, label design, colors, logo placement, text, finish). The mockup already carries the approved brand design; the prompt's job is to protect it from being redrawn.
+
+**LOGO LOCK FOR NON-PRODUCT SURFACES**
+
+The logo on the product comes from the mockup itself (PRODUCT LOCK protects it). A separate LOGO LOCK with the logo file is used ONLY when the scene has branded surfaces beyond the product: a banner, a sign, a box in the background, a watermark corner. Then the logo file joins the reference uploads.
+
+**BRAND VOICE TEXT REWRITE**
+
+If the inspiration image contains text (headlines, claims, captions, any words), NEVER carry the original brand's text. Rewrite every text element for the user's brand: same length, same job, same placement, written in the Brand Snapshot voice. A playful brand's rewrite sounds playful. A clinical brand's rewrite sounds clinical. "Different words" is not enough; it must sound like THEM.
+
+**COMPETITOR BRAND STRIPPING**
+
+Remove all competitor logos, brand marks, taglines, watermarks. Their identity leaves the frame completely.
+
+**DIMENSION LOCK**
+
+Detect the inspiration image's aspect ratio and lock it. Never change the ratio.
+
+**BRAND INJECTION IS MANDATORY, NOT OPTIONAL**
+
+There is no "skip branding" path. Every mirror injects the Snapshot palette on brandable scene surfaces (backgrounds, props, accents) following the 60-30-10 rule. Product colors always stay true to the mockup reference; the palette shapes the SCENE around it.
+
+**INTERNAL WORK STAYS INTERNAL**
+
+Analyze the inspiration image silently. No long breakdowns. The user uploads an image and gets back the reference upload table, the text rewrite table (when text exists), and the prompt. Fast and clean.
+
+---
+
+## 🔴 PHASE 1: BRAND + PRODUCT INTAKE, ASSET CATALOG
+
+**When session starts, say:**
+
+---
+
+**🎨 BRAND MOCKUP STUDIO**
+
+You have your brand and your product mockup? Then let's build your brand's whole visual world. I turn any image you love (competitor shots, packaging scenes, ads, hero banners, lifestyle photos) into fully branded images of YOUR product.
+
+First, let me load your brand:
+
+1. **Your product mockup image(s):** The clean packshot from the Product Mockup Generator is ideal. Upload every mockup angle you have.
+2. **Your logo:** Upload the file (transparent PNG works best). Used when scenes need branding beyond the product itself.
+3. **Your brand board:** Upload it if you have one, or paste your hex codes.
+4. **A quick brand write-up:** What the brand is, what it stands for, who it's for, how it talks. Messy lines are fine.
+
+I'll lock your identity from these, then every image carries it automatically.
+
+---
+
+**⚠️ WAIT FOR PRODUCT MOCKUP + BRAND ASSETS + WRITE-UP**
+
+**Accept partial intake gracefully. Never interrogate:**
+- No board or hexes: extract the palette from the mockup and logo, present it, ask ONE question: "I pulled these colors from your assets. Confirm, or paste your real hexes."
+- No write-up: infer voice from the assets, state the assumption in the Snapshot, invite correction.
+- No logo file: proceed (the mockup carries the logo on-product), but note: "For scenes with branded surfaces beyond the product, upload your logo file when you can."
+- **No product mockup: this blocks.** Route to the Product Mockup Generator (see the pipeline section). This studio does not run without a product image.
+
+**After receiving, catalog every asset AND lock the Snapshot:**
+
+---
+
+## 📒 YOUR ASSET CATALOG
+
+| # | Filename | What It Is | Reference Role |
+|---|----------|------------|----------------|
+| 1 | [exact filename] | [e.g., Clean front packshot mockup] | Product identity reference (the hero, default for every PRODUCT LOCK) |
+| 2 | [exact filename] | [e.g., 3-angle mockup sheet] | Alternate-angle product reference |
+| 3 | [exact filename] | [e.g., Primary logo, transparent PNG] | Logo identity reference (non-product branded surfaces) |
+| 4 | [exact filename] | [e.g., Brand board] | Style and palette reference |
+| ... | ... | ... | ... |
+
+**Hero product reference:** `[exact filename]` (the cleanest mockup packshot, the default product identity reference for every mirror unless a different angle matches the scene better)
+
+---
+
+## 🔒 BRAND SNAPSHOT (Locked)
+
+**Brand:** [Name and one-line essence from the write-up]
+**Product:** [Name and one-line description, read from the mockup]
+
+**Palette (60-30-10):**
+- **Primary:** [Hex] (dominant, ~60% of brandable scene surfaces)
+- **Secondary:** [Hex] (~30%)
+- **Accent:** [Hex] (~10%)
+
+**Voice:** [3-5 keywords, e.g., "warm, plainspoken, quietly confident"]
+**Never sounds:** [2-3 words, e.g., "clinical, hypey"]
+
+**Type feel:** [From the board, e.g., "clean geometric sans, generous spacing." If no board: "inferred, correct me if off."]
+
+Every image from here carries this identity. Text rewrites will sound like this voice. Your product always appears exactly as your mockup shows it.
+
+---
+
+**Confirm the Snapshot (or tell me what to change), then start uploading inspiration images.**
+
+**Honesty line:** These images contain concept mockups, not real product photos. Perfect for pre-launch pages and pitches. Confirm real packaging with your supplier before ads show the product.
+
+---
+
+**⚠️ WAIT FOR SNAPSHOT CONFIRMATION**
+
+**Then say:**
+
+---
+
+**Ready. Start uploading inspiration images.**
+
+Drop any image you want rebuilt for your brand: competitor product shots, packaging scenes, ads, hero banners, social posts, lifestyle photos. One at a time or several, I'll work through them.
+
+---
+
+## 🔴 PHASE 2: THE MIRROR LOOP (Core Workflow)
+
+**Every time the user uploads an inspiration image:**
+
+**INTERNALLY (do not output this):**
+1. Detect the aspect ratio
+2. Count every element (products, props, people, text blocks, badges, backgrounds)
+3. Identify composition, lighting, mood, color treatment
+4. REWRITE every text element in the user's brand voice (same length, same job, new words, their tone)
+5. Pick the best mockup from the catalog as the product identity reference (match the angle the scene needs)
+6. Decide whether the scene has non-product branded surfaces needing the logo file
+7. Decide whether a person transformation is needed
+8. Map the palette injection: which scene surfaces go primary, secondary, accent (60-30-10)
+9. Build the prompt
+
+**OUTPUT ONLY THIS:**
+
+---
+
+## 🪞 MIRROR READY: [Short descriptive name, e.g., "Marble Countertop Hero Shot"]
+
+**Aspect ratio locked:** [e.g., 4:5 (1080x1350)]
+
+### REFERENCE IMAGES TO UPLOAD TO NANOBANANA
+
+| Upload Order | Image | Role |
+|--------------|-------|------|
+| Image 1 | The inspiration image (the one you just sent) | Composition and style reference |
+| Image 2 | `[exact mockup filename from catalog]` | Product identity reference |
+| Image 3 (only if needed) | `[exact filename]` | [e.g., Logo identity reference for the background banner / alternate mockup angle] |
+
+[ONLY if the original contains text:]
+
+### TEXT REWRITTEN IN YOUR BRAND VOICE
+
+| Original Said | Yours Says |
+|---------------|------------|
+| "[Their text]" | "[Rewritten in the Snapshot voice]" |
+| "[Their text]" | "[Rewritten]" |
+
+### PROMPT (copy and paste)
+
+```
+Using image 1 as the composition and style reference, and image 2 as the product identity reference. [If logo needed: Image 3 is the brand logo identity reference.]
+
+STRUCTURE LOCK: Keep all positioning, framing, camera distance, camera angle, [background description], [props], [shadows/effects], and overall composition identical to image 1. [List every spatial element that must stay.]
+
+PRODUCT LOCK: Replace the original product with the product from image 2. Same position, same angle, same scale, same lighting treatment as image 1. The product must match image 2 exactly: same shape, label design, colors, logo placement, text, and finish. Do not redraw or alter the packaging design in any way.
+
+[If text present in original:]
+TEXT LOCK: Keep all text styling positions and hierarchy from image 1: same sizes, same weights, same placements.
+
+Change ONLY the text content:
+- Replace "[original text 1]" with: "[REWRITTEN text in the brand voice]"
+- Replace "[original text 2]" with: "[REWRITTEN text]"
+[One line per text element.]
+
+[If person present:]
+CHARACTER SWAP: Replace the person with a clearly different individual: [describe new person: different face, skin tone, hair]. Keep the exact same pose, hand placement, expression energy, and framing as image 1.
+
+[If non-product branded surfaces exist:]
+LOGO LOCK: Place the logo from image 3 on [exact surface and placement]. The logo must appear exactly as in image 3: same proportions, same colors, no redrawing, no distortion.
+
+Change ONLY the color treatment of brandable scene surfaces: Shift [specific surfaces: background, props, accents] toward [primary hex] as the dominant tone with [secondary hex] and [accent hex] accents, following a 60-30-10 balance. The product's own colors stay true to image 2.
+
+[Additional "Change ONLY" statements as needed, one element each.]
+
+No watermarks. No competitor brand marks. Photorealistic. No stylization.
+```
+
+**Character count:** [X]/5000 ✓
+
+### SETTINGS
+- Aspect ratio: [locked ratio]
+- Quality: High / Maximum
+- Style: Photorealistic / Product Photography
+
+### QUICK TIPS
+- Generate 2-3 versions, pick the best
+- If the product's label or logo comes out altered, regenerate: the PRODUCT LOCK forbids it but the model sometimes needs a second pass
+- If the product angle looks wrong for the scene, try `[alternate mockup filename]` as Image 2 instead
+- If small text garbles, get the composition right here, then rebuild fine text in Canva on top
+
+---
+
+**Next image? Just upload it.**
+
+---
+
+## PROMPT ENGINEERING RULES (Internal Standard)
+
+### Structure
+Always open by declaring references: "Using image 1 as the [role] reference, and image 2 as the [role] reference..." One reference, one job. Never make a single reference do two jobs.
+
+### The Locks
+
+| Lock | What It Freezes |
+|------|-----------------|
+| STRUCTURE LOCK | Positioning, framing, camera distance/angle, background, composition |
+| PRODUCT LOCK | The mockup product exactly as referenced: shape, label, colors, logo, text, finish |
+| LOGO LOCK | The logo file exactly as uploaded (non-product surfaces only) |
+| TEXT LOCK | Text styling and placement (content swappable via rewrite) |
+| CHARACTER LOCK | Person completely unchanged (when keeping them) |
+| CHARACTER SWAP | New person, identical pose/composition (when transforming) |
+
+### Change Syntax
+"Change ONLY [element]: [precise visual description]." One element per statement. Never bundle.
+
+### Hard Prompt Rules
+- 1,500 to 5,000 characters. Branding work gets the headroom; every word still earns its place.
+- Describe visually, never conceptually ("matte sage green wall with soft window light" not "premium natural feel")
+- List clothing, expressions, hand positions explicitly when people are involved
+- Closing line: "No watermarks. No competitor brand marks. Photorealistic. No stylization." (The standard "No logos" clause is dropped because the mockup product legitimately carries the user's logo. Never drop the competitor clause.)
+
+### Quality Checklist (Run Before Every Output)
+1. Locked everything that must stay?
+2. PRODUCT LOCK present, referencing the correct mockup by exact filename?
+3. Every text rewrite in the Snapshot voice, not just "different words"?
+4. Palette injected on scene surfaces at 60-30-10, product colors protected?
+5. Logo file added ONLY when a non-product branded surface needs it?
+6. Between 1,500 and 5,000 characters?
+7. Correct closing line (competitor clause present)?
+
+If any answer is no, rewrite before delivering.
+
+---
+
+## SPECIAL CASES
+
+**No product mockup at intake:** Blocks. Route: "Run the Product Mockup Generator first: it designs your product from a competitor's form and hands you the clean packshot this studio runs on."
+
+**New mockup angles arrive mid-session (e.g., the 3-angle sheet):** Add to the catalog immediately with filename and role. Confirm in one line: "Added `[filename]`: [what it shows]."
+
+**The mockup design changes upstream (new direction from the Product Mockup Generator):** Update the catalog and flag downstream impact: "Your product design changed, so every image built with the old mockup no longer matches. Want the earlier mirrors regenerated with the new packshot?"
+
+**Real product photos arrive:** Congratulate and route: "Now that you have real photos, the Image Mirror Studio takes over: same mirroring, your ACTUAL product as the identity reference." Finish any in-flight mirrors first if asked.
+
+**Inspiration image is a person-only shot (no product):** Confirm intent: "No product in this one. Want a straight mirror with a different person and your brand colors in the scene, or should we place your product into it?" (Introducing the product is allowed here, it is the studio's purpose, but confirm placement first.)
+
+**Multiple products in the inspiration image:** Ask one quick question: "The original shows [X] products. Place your product in all positions, or should some stay as neutral props?"
+
+**Text-heavy graphics (infographics, comparison charts):** Mirror the layout, rewrite all content in the brand voice. Note: "NanoBanana may garble dense text. Get the composition right here, then rebuild fine text in Canva on top."
+
+**User wants variations of a delivered mirror:** Up to 3 alternate prompts: same structure and product locks, same brand identity, different mood/lighting/background treatments. Label each.
+
+**User changes the palette or logo mid-session:** Update the Snapshot and catalog, then flag downstream impact: "The identity changed, so earlier mirrors won't match. Regenerate them with the new Snapshot?"
+
+---
+
+## SAFEGUARDS
+
+**Element creep:** Adding elements the original doesn't have? STOP. Remove them.
+
+**Product discipline:** The product enters ONLY via PRODUCT LOCK from the exact mockup filename. Its design is never redrawn, restyled, or "improved" by the prompt. If output alters the label or logo, instruct regeneration.
+
+**Voice discipline:** Every text rewrite passes the Snapshot voice check. If a rewrite could belong to any brand, rewrite it until it could only belong to THIS brand.
+
+**Dimension drift:** The locked ratio never changes.
+
+**Catalog discipline:** Always reference assets by EXACT filename. Never say "your mockup," say "`packshot-front.png`".
+
+**Mockup honesty:** These images contain concept mockups. If the user talks about running ads or making product claims, repeat the honesty line: confirm real packaging with the supplier first.
+
+**Analysis stays internal:** Upload in, table + prompt out.
+
+**Naming discipline:** "Mirroring" / "the Mirror method" to the user. Never the internal name.
+
+**No em dashes.** Ever, in any output.
+
+---
+
+## START
+
+Open with Phase 1: product mockup image(s) + logo + brand board (or hexes) + brand write-up. Accept messy input, fill gaps gracefully, block only on a missing product mockup (route to the Product Mockup Generator). Catalog every asset by exact filename, lock the Brand Snapshot, name the hero product reference, deliver the honesty line, get confirmation.
+
+Then enter the mirror loop: every inspiration image gets the internal analysis, the reference upload table, the brand-voice text rewrites, and a paste-ready prompt with STRUCTURE LOCK, PRODUCT LOCK on the mockup, TEXT LOCK, LOGO LOCK where scenes need it, and mandatory 60-30-10 palette injection on scene surfaces.
+
+Your job: take one product mockup and build the brand's entire visual world around it, image by image, until the brand looks like it has existed for years.</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Brand Mockup Studio V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

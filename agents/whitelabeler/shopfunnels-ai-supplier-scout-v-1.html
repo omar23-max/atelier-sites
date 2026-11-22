@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Supplier Scout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─── SCOPED UNDER .sup-wrap ─── */
+.sup-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #dbe5f0 !important;
+  background: #0a1230 !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.sup-wrap *, .sup-wrap *::before, .sup-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* ─── BG: navy blueprint + orange spotlight ─── */
+.sup-wrap .sup-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(255,122,24,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 85%, rgba(61,213,243,0.08) 0%, transparent 55%),
+    linear-gradient(180deg, #0a1230 0%, #060a22 100%) !important;
+}
+/* Blueprint grid */
+.sup-wrap .sup-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+  background-image:
+    linear-gradient(rgba(61,213,243,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,213,243,0.04) 1px, transparent 1px) !important;
+  background-size: 60px 60px !important;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%) !important;
+}
+/* Tiny finer secondary grid */
+.sup-wrap .sup-grid-fine {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.4 !important;
+  background-image:
+    linear-gradient(rgba(255,122,24,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,122,24,0.025) 1px, transparent 1px) !important;
+  background-size: 12px 12px !important;
+  mask-image: radial-gradient(ellipse at center, black 10%, transparent 60%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 10%, transparent 60%) !important;
+}
+
+/* ─── STAGE ─── */
+.sup-wrap .sup-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1180px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 72px 24px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.sup-wrap .sup-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(219,229,240,0.5) !important;
+  margin-bottom: 32px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sup-wrap .sup-masthead .sup-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: rgba(255,122,24,0.55) !important;
+}
+.sup-wrap .sup-masthead .sup-mh-orange {
+  color: #ff7a18 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 12px rgba(255,122,24,0.4) !important;
+}
+
+/* ─── KICKER — manifest-style label ─── */
+.sup-wrap .sup-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 16px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: #ff7a18 !important;
+  background: rgba(255,122,24,0.06) !important;
+  border: 1px solid rgba(255,122,24,0.35) !important;
+  border-radius: 4px !important;
+  margin-bottom: 30px !important;
+}
+.sup-wrap .sup-kicker .sup-radar {
+  width: 12px !important;
+  height: 12px !important;
+  border: 1.5px solid #ff7a18 !important;
+  border-radius: 50% !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+}
+.sup-wrap .sup-kicker .sup-radar::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 25% !important;
+  background: #ff7a18 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 6px #ff7a18 !important;
+  animation: sup-blink 1.5s ease-in-out infinite !important;
+}
+@keyframes sup-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ─── HEADLINE — IBM Plex Sans, technical, industrial ─── */
+.sup-wrap h1.sup-headline {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: clamp(2.6rem, 6vw, 5rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.03em !important;
+  margin: 0 0 24px 0 !important;
+  color: #ffffff !important;
+  max-width: 19ch !important;
+}
+.sup-wrap h1.sup-headline .sup-h-orange {
+  color: #ff7a18 !important;
+  text-shadow: 0 0 22px rgba(255,122,24,0.4) !important;
+}
+.sup-wrap h1.sup-headline .sup-h-cyan {
+  color: #3dd5f3 !important;
+  text-shadow: 0 0 18px rgba(61,213,243,0.35) !important;
+}
+
+/* ─── DECK ─── */
+.sup-wrap p.sup-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.4vw, 1.15rem) !important;
+  line-height: 1.7 !important;
+  color: rgba(219,229,240,0.78) !important;
+  max-width: 680px !important;
+  margin: 0 auto 56px !important;
+  font-weight: 400 !important;
+}
+.sup-wrap p.sup-deck .sup-orange {
+  color: #ff7a18 !important;
+  font-weight: 700 !important;
+}
+.sup-wrap p.sup-deck .sup-cyan {
+  color: #3dd5f3 !important;
+  font-weight: 700 !important;
+}
+.sup-wrap p.sup-deck .sup-cream {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ═══ HERO DEVICE: THREE-LANE SOURCING MATRIX ═══ */
+.sup-wrap .sup-matrix {
+  width: 100% !important;
+  max-width: 980px !important;
+  margin: 0 auto 56px !important;
+  background: rgba(6,10,34,0.75) !important;
+  border: 1px solid rgba(255,122,24,0.22) !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  position: relative !important;
+  box-shadow:
+    0 0 0 1px rgba(255,122,24,0.05),
+    0 30px 80px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,122,24,0.08) !important;
+  overflow: hidden !important;
+}
+
+/* Top mission bar */
+.sup-wrap .sup-matrix-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 13px 20px !important;
+  background: linear-gradient(180deg, rgba(255,122,24,0.07) 0%, rgba(255,122,24,0.02) 100%) !important;
+  border-bottom: 1px solid rgba(255,122,24,0.18) !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+.sup-wrap .sup-matrix-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: #ff7a18 !important;
+  text-transform: uppercase !important;
+}
+.sup-wrap .sup-matrix-title .sup-mt-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #ff7a18 !important;
+  box-shadow: 0 0 8px #ff7a18 !important;
+  animation: sup-blink 1.8s ease-in-out infinite !important;
+}
+.sup-wrap .sup-matrix-meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 9px !important;
+  color: rgba(219,229,240,0.55) !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+}
+.sup-wrap .sup-matrix-meta .sup-meta-em {
+  color: #7afcc6 !important;
+  font-weight: 700 !important;
+}
+
+/* Reference screenshot row at top */
+.sup-wrap .sup-source {
+  padding: 18px 20px !important;
+  background: rgba(255,122,24,0.03) !important;
+  border-bottom: 1px solid rgba(255,122,24,0.1) !important;
+  display: grid !important;
+  grid-template-columns: 60px 1fr auto !important;
+  gap: 16px !important;
+  align-items: center !important;
+}
+.sup-wrap .sup-source-thumb {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, rgba(255,122,24,0.25) 0%, rgba(61,213,243,0.2) 100%) !important;
+  border: 1px solid rgba(255,122,24,0.3) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.sup-wrap .sup-source-thumb::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 22% !important;
+  background: rgba(255,255,255,0.4) !important;
+  border-radius: 26% 26% 8% 8% / 14% 14% 6% 6% !important;
+}
+.sup-wrap .sup-source-info { text-align: left !important; }
+.sup-wrap .sup-source-label {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(219,229,240,0.45) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 4px !important;
+}
+.sup-wrap .sup-source-name {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.01em !important;
+}
+.sup-wrap .sup-source-generic {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  color: #3dd5f3 !important;
+  margin-top: 4px !important;
+  font-weight: 500 !important;
+}
+.sup-wrap .sup-source-price {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  color: #ff7a18 !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: 0 0 12px rgba(255,122,24,0.3) !important;
+  text-align: right !important;
+}
+.sup-wrap .sup-source-price-label {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(219,229,240,0.5) !important;
+  text-transform: uppercase !important;
+  margin-top: 2px !important;
+}
+
+/* Three-lane container */
+.sup-wrap .sup-lanes {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 0 !important;
+}
+.sup-wrap .sup-lane {
+  padding: 18px 18px 20px !important;
+  border-right: 1px solid rgba(255,122,24,0.1) !important;
+  position: relative !important;
+}
+.sup-wrap .sup-lane:last-child { border-right: none !important; }
+
+/* Lane header */
+.sup-wrap .sup-lane-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid rgba(255,122,24,0.08) !important;
+}
+.sup-wrap .sup-lane-title {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: #ffffff !important;
+}
+.sup-wrap .sup-lane-title small {
+  display: block !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+  margin-top: 4px !important;
+}
+.sup-wrap .sup-lane-a .sup-lane-title small { color: #ff7a18 !important; }
+.sup-wrap .sup-lane-b .sup-lane-title small { color: #3dd5f3 !important; }
+.sup-wrap .sup-lane-c .sup-lane-title small { color: #7afcc6 !important; }
+
+.sup-wrap .sup-lane-badge {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  padding: 3px 7px !important;
+  border-radius: 3px !important;
+}
+.sup-wrap .sup-lane-a .sup-lane-badge {
+  color: #ff7a18 !important;
+  background: rgba(255,122,24,0.12) !important;
+  border: 1px solid rgba(255,122,24,0.4) !important;
+}
+.sup-wrap .sup-lane-b .sup-lane-badge {
+  color: #3dd5f3 !important;
+  background: rgba(61,213,243,0.1) !important;
+  border: 1px solid rgba(61,213,243,0.4) !important;
+}
+.sup-wrap .sup-lane-c .sup-lane-badge {
+  color: #7afcc6 !important;
+  background: rgba(122,252,198,0.1) !important;
+  border: 1px solid rgba(122,252,198,0.4) !important;
+}
+
+/* Lane subhead */
+.sup-wrap .sup-lane-purpose {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(219,229,240,0.45) !important;
+  margin-bottom: 14px !important;
+}
+
+/* Supplier cards within a lane */
+.sup-wrap .sup-supplier {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 8px !important;
+  align-items: start !important;
+  padding: 10px 12px !important;
+  background: rgba(255,255,255,0.025) !important;
+  border: 1px solid rgba(255,122,24,0.08) !important;
+  border-radius: 6px !important;
+  margin-bottom: 8px !important;
+  position: relative !important;
+}
+.sup-wrap .sup-supplier-top {
+  display: grid !important;
+  grid-template-columns: 24px 1fr !important;
+  gap: 10px !important;
+  align-items: center !important;
+  text-align: left !important;
+}
+.sup-wrap .sup-rank {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: rgba(255,255,255,0.6) !important;
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+.sup-wrap .sup-lane-a .sup-supplier:first-of-type .sup-rank {
+  color: #ff7a18 !important;
+  background: rgba(255,122,24,0.12) !important;
+  border-color: rgba(255,122,24,0.5) !important;
+}
+.sup-wrap .sup-lane-b .sup-supplier:first-of-type .sup-rank {
+  color: #3dd5f3 !important;
+  background: rgba(61,213,243,0.1) !important;
+  border-color: rgba(61,213,243,0.5) !important;
+}
+.sup-wrap .sup-lane-c .sup-supplier:first-of-type .sup-rank {
+  color: #7afcc6 !important;
+  background: rgba(122,252,198,0.1) !important;
+  border-color: rgba(122,252,198,0.5) !important;
+}
+
+.sup-wrap .sup-supplier-name {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-align: left !important;
+}
+.sup-wrap .sup-supplier-tag {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+  color: rgba(219,229,240,0.55) !important;
+  text-transform: uppercase !important;
+  margin-top: 2px !important;
+}
+
+.sup-wrap .sup-trust {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+.sup-wrap .sup-trust-good { color: #7afcc6 !important; }
+.sup-wrap .sup-trust-warn { color: #ff7a18 !important; }
+.sup-wrap .sup-trust small {
+  display: block !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(219,229,240,0.45) !important;
+  text-transform: uppercase !important;
+  margin-top: 2px !important;
+}
+
+/* Supplier stat row */
+.sup-wrap .sup-supplier-stats {
+  grid-column: 1 / -1 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 6px !important;
+  margin-top: 8px !important;
+  padding-top: 8px !important;
+  border-top: 1px dashed rgba(255,122,24,0.08) !important;
+}
+.sup-wrap .sup-stat-mini {
+  text-align: left !important;
+}
+.sup-wrap .sup-stat-mini-label {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  color: rgba(219,229,240,0.4) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 2px !important;
+}
+.sup-wrap .sup-stat-mini-value {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: 0 !important;
+}
+.sup-wrap .sup-stat-mini-value-orange { color: #ff7a18 !important; }
+.sup-wrap .sup-stat-mini-value-cyan { color: #3dd5f3 !important; }
+.sup-wrap .sup-stat-mini-value-mint { color: #7afcc6 !important; }
+
+/* Bottom margin summary bar */
+.sup-wrap .sup-margin-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 20px !important;
+  background: linear-gradient(180deg, rgba(255,122,24,0.02) 0%, rgba(255,122,24,0.08) 100%) !important;
+  border-top: 1px solid rgba(255,122,24,0.18) !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+.sup-wrap .sup-margin-block {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 10px !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
+}
+.sup-wrap .sup-margin-label {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(219,229,240,0.5) !important;
+  text-transform: uppercase !important;
+}
+.sup-wrap .sup-margin-value {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #7afcc6 !important;
+  letter-spacing: -0.02em !important;
+}
+.sup-wrap .sup-margin-value-warn {
+  color: #ff7a18 !important;
+}
+.sup-wrap .sup-margin-detail {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 9px !important;
+  color: rgba(219,229,240,0.55) !important;
+  letter-spacing: 1px !important;
+}
+.sup-wrap .sup-verdict-stamp {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 14px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: #0a1230 !important;
+  background: #ff7a18 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 0 18px rgba(255,122,24,0.45) !important;
+}
+.sup-wrap .sup-verdict-stamp::before {
+  content: '▸' !important;
+  font-size: 11px !important;
+}
+
+/* ─── BUTTON ─── */
+.sup-wrap .sup-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.sup-wrap .sup-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  padding: 22px 44px !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  text-decoration: none !important;
+  color: #0a1230 !important;
+  background: #ff7a18 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  box-shadow:
+    0 0 0 1px rgba(255,122,24,0.5),
+    0 8px 28px rgba(255,122,24,0.35),
+    0 14px 60px rgba(255,122,24,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.sup-wrap .sup-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.sup-wrap .sup-btn:hover {
+  transform: translateY(-2px) !important;
+  background: #ff9542 !important;
+  box-shadow:
+    0 0 0 1px rgba(255,122,24,0.6),
+    0 12px 36px rgba(255,122,24,0.5),
+    0 20px 70px rgba(255,122,24,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.45) !important;
+}
+.sup-wrap .sup-btn:hover::before {
+  transform: translateX(130%) !important;
+}
+.sup-wrap .sup-btn .sup-btn-icon,
+.sup-wrap .sup-btn .sup-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.sup-wrap .sup-btn .sup-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+}
+.sup-wrap .sup-btn.sup-copied {
+  background: #7afcc6 !important;
+  color: #0a1230 !important;
+  box-shadow:
+    0 0 0 1px rgba(122,252,198,0.7),
+    0 8px 28px rgba(122,252,198,0.5),
+    0 14px 60px rgba(122,252,198,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+.sup-wrap .sup-btn-meta {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(219,229,240,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sup-wrap .sup-btn-meta .sup-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(255,122,24,0.7) !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sup-wrap #sup-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 880px) {
+  .sup-wrap .sup-lanes {
+    grid-template-columns: 1fr !important;
+  }
+  .sup-wrap .sup-lane {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,122,24,0.1) !important;
+  }
+  .sup-wrap .sup-lane:last-child { border-bottom: none !important; }
+}
+@media (max-width: 540px) {
+  .sup-wrap .sup-stage { padding: 56px 16px 80px !important; }
+  .sup-wrap .sup-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .sup-wrap h1.sup-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+  .sup-wrap .sup-source { padding: 14px !important; grid-template-columns: 48px 1fr !important; }
+  .sup-wrap .sup-source-thumb { width: 48px !important; height: 48px !important; }
+  .sup-wrap .sup-source-price { grid-column: 2 !important; text-align: left !important; margin-top: 4px !important; font-size: 18px !important; }
+  .sup-wrap .sup-lane { padding: 14px !important; }
+  .sup-wrap .sup-margin-row { padding: 12px 14px !important; }
+  .sup-wrap .sup-btn { padding: 18px 28px !important; font-size: 13px !important; gap: 10px !important; }
+  .sup-wrap .sup-btn-meta { font-size: 9px !important; letter-spacing: 1px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sup-wrap">
+
+  <div class="sup-bg"></div>
+  <div class="sup-grid"></div>
+  <div class="sup-grid-fine"></div>
+
+  <div class="sup-stage">
+
+    <div class="sup-masthead">
+      <span>ShopFunnels</span>
+      <span class="sup-mh-line"></span>
+      <span>AI Employee 11</span>
+      <span class="sup-mh-line"></span>
+      <span class="sup-mh-orange">Sourcing Operations</span>
+    </div>
+
+    <div class="sup-kicker">
+      <span class="sup-radar"></span>
+      <span>One Screenshot · Three Sourcing Lanes</span>
+    </div>
+
+    <h1 class="sup-headline">
+      From <span class="sup-h-cyan">competitor screenshot</span> to <span class="sup-h-orange">vetted suppliers</span> in one mission.
+    </h1>
+
+    <p class="sup-deck">
+      Drop in a product screenshot. The Scout runs <span class="sup-orange">three parallel sourcing lanes</span> — AliExpress for testing, Alibaba for scaling, local networks for speed. Returns a <span class="sup-cream">complete sourcing report</span> with vetted suppliers, landed cost math, and ready-to-send RFQ messages.
+    </p>
+
+    <!-- HERO DEVICE: Three-lane sourcing matrix -->
+    <div class="sup-matrix" aria-hidden="true">
+
+      <!-- Mission status bar -->
+      <div class="sup-matrix-bar">
+        <div class="sup-matrix-title">
+          <span class="sup-mt-dot"></span>
+          <span>Mission · Sourcing Active</span>
+        </div>
+        <div class="sup-matrix-meta">
+          <span>3 LANES</span>
+          <span>·</span>
+          <span>9 SUPPLIERS</span>
+          <span>·</span>
+          <span class="sup-meta-em">VETTED</span>
+        </div>
+      </div>
+
+      <!-- Source product reference -->
+      <div class="sup-source">
+        <div class="sup-source-thumb"></div>
+        <div class="sup-source-info">
+          <div class="sup-source-label">Reference Screenshot · Analyzed</div>
+          <div class="sup-source-name">GlowDerm Sculpt Wand</div>
+          <div class="sup-source-generic">▸ microcurrent face massager · beauty / skincare device</div>
+        </div>
+        <div>
+          <div class="sup-source-price">$59.00</div>
+          <div class="sup-source-price-label">Retail · Premium</div>
+        </div>
+      </div>
+
+      <!-- THREE LANES -->
+      <div class="sup-lanes">
+
+        <!-- LANE A: ALIEXPRESS -->
+        <div class="sup-lane sup-lane-a">
+          <div class="sup-lane-head">
+            <div class="sup-lane-title">
+              Lane A
+              <small>AliExpress</small>
+            </div>
+            <span class="sup-lane-badge">Testing</span>
+          </div>
+          <div class="sup-lane-purpose">▸ Low risk · No MOQ · Dropship</div>
+
+          <div class="sup-supplier">
+            <div class="sup-supplier-top">
+              <span class="sup-rank">01</span>
+              <div>
+                <div class="sup-supplier-name">Shenzhen Glow Store</div>
+                <div class="sup-supplier-tag">4yr · 8.4K orders</div>
+              </div>
+            </div>
+            <div class="sup-trust sup-trust-good">9.2<small>Trust</small></div>
+            <div class="sup-supplier-stats">
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Unit</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-orange">$4.20</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Ship</div>
+                <div class="sup-stat-mini-value">12d</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Rating</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-mint">98%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sup-supplier">
+            <div class="sup-supplier-top">
+              <span class="sup-rank">02</span>
+              <div>
+                <div class="sup-supplier-name">Yiwu Beauty Direct</div>
+                <div class="sup-supplier-tag">3yr · 2.1K orders</div>
+              </div>
+            </div>
+            <div class="sup-trust sup-trust-good">8.6<small>Trust</small></div>
+            <div class="sup-supplier-stats">
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Unit</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-orange">$4.85</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Ship</div>
+                <div class="sup-stat-mini-value">10d</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Rating</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-mint">97%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LANE B: ALIBABA -->
+        <div class="sup-lane sup-lane-b">
+          <div class="sup-lane-head">
+            <div class="sup-lane-title">
+              Lane B
+              <small>Alibaba</small>
+            </div>
+            <span class="sup-lane-badge">Scaling</span>
+          </div>
+          <div class="sup-lane-purpose">▸ Private label · MOQ · Margins</div>
+
+          <div class="sup-supplier">
+            <div class="sup-supplier-top">
+              <span class="sup-rank">01</span>
+              <div>
+                <div class="sup-supplier-name">Shenzhen Aurora Tech</div>
+                <div class="sup-supplier-tag">Verified · 7yr Gold</div>
+              </div>
+            </div>
+            <div class="sup-trust sup-trust-good">9.5<small>Trust</small></div>
+            <div class="sup-supplier-stats">
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Unit·500</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-cyan">$3.10</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">MOQ</div>
+                <div class="sup-stat-mini-value">100</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Resp</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-mint">96%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sup-supplier">
+            <div class="sup-supplier-top">
+              <span class="sup-rank">02</span>
+              <div>
+                <div class="sup-supplier-name">Guangzhou Mfg Co.</div>
+                <div class="sup-supplier-tag">Verified · 5yr Gold</div>
+              </div>
+            </div>
+            <div class="sup-trust sup-trust-good">8.9<small>Trust</small></div>
+            <div class="sup-supplier-stats">
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Unit·500</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-cyan">$3.40</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">MOQ</div>
+                <div class="sup-stat-mini-value">200</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Resp</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-mint">92%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LANE C: LOCAL -->
+        <div class="sup-lane sup-lane-c">
+          <div class="sup-lane-head">
+            <div class="sup-lane-title">
+              Lane C
+              <small>Local</small>
+            </div>
+            <span class="sup-lane-badge">Speed</span>
+          </div>
+          <div class="sup-lane-purpose">▸ 2-5 day ship · Ad-safe</div>
+
+          <div class="sup-supplier">
+            <div class="sup-supplier-top">
+              <span class="sup-rank">01</span>
+              <div>
+                <div class="sup-supplier-name">Zendrop · US</div>
+                <div class="sup-supplier-tag">Network · Custom packaging</div>
+              </div>
+            </div>
+            <div class="sup-trust sup-trust-good">8.7<small>Trust</small></div>
+            <div class="sup-supplier-stats">
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Unit</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-mint">$8.50</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Ship</div>
+                <div class="sup-stat-mini-value">3-5d</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">MOQ</div>
+                <div class="sup-stat-mini-value">None</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sup-supplier">
+            <div class="sup-supplier-top">
+              <span class="sup-rank">02</span>
+              <div>
+                <div class="sup-supplier-name">Spocket · US/EU</div>
+                <div class="sup-supplier-tag">Network · Multi-warehouse</div>
+              </div>
+            </div>
+            <div class="sup-trust sup-trust-warn">7.8<small>Trust</small></div>
+            <div class="sup-supplier-stats">
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Unit</div>
+                <div class="sup-stat-mini-value sup-stat-mini-value-mint">$9.20</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">Ship</div>
+                <div class="sup-stat-mini-value">2-7d</div>
+              </div>
+              <div class="sup-stat-mini">
+                <div class="sup-stat-mini-label">MOQ</div>
+                <div class="sup-stat-mini-value">None</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Margin / verdict footer -->
+      <div class="sup-margin-row">
+        <div class="sup-margin-block">
+          <div class="sup-margin-label">Landed Cost (top pick)</div>
+          <div class="sup-margin-value sup-margin-value-warn">$6.18</div>
+          <div class="sup-margin-detail">$4.20 + $1.98 ship/fees</div>
+        </div>
+        <div class="sup-margin-block">
+          <div class="sup-margin-label">Gross Margin @ $59</div>
+          <div class="sup-margin-value">89.5%</div>
+          <div class="sup-margin-detail">▸ Above 65% floor</div>
+        </div>
+        <div>
+          <span class="sup-verdict-stamp">Launch Cleared</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="sup-btn-wrap">
+      <a href='#' class='sup-btn sup-ai-launcher' data-original-text='<span class=&quot;sup-btn-icon&quot;>▸</span><span class=&quot;sup-btn-text&quot;>Start Sourcing Mission</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;sup-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;sup-btn-icon\&quot;>✓</span><span class=\&quot;sup-btn-text\&quot;>Mission Loaded — Paste Into Claude</span>&quot;;self.classList.add(&quot;sup-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;sup-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+        <span class="sup-btn-icon">▸</span>
+        <span class="sup-btn-text">Start Sourcing Mission</span>
+      </a>
+      <div class="sup-btn-meta">
+        <span>v1</span>
+        <span class="sup-meta-dot"></span>
+        <span>Upload screenshot · Get full sourcing report</span>
+        <span class="sup-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI SUPPLIER SCOUT PROMPT STORE (hidden, read via JS) ═══ -->
+  <template id="sup-prompt-store"># AI Supplier Scout v1
+
+You are the **AI Supplier Scout**, a sourcing analyst that takes a single screenshot of a product page and runs a full supplier mission across three lanes: AliExpress for testing, Alibaba for scaling, and local suppliers for speed.
+
+You study the screenshot, identify exactly what the product is, translate it into supplier search terms, vet candidates against proven rubrics, and deliver a complete sourcing report with links, pricing, landed cost math, and a clear recommendation.
+
+---
+
+## 🔴 PHASE 0: INTAKE
+
+**When the user uploads a screenshot, say:**
+
+---
+
+**🔍 AI SUPPLIER SCOUT**
+
+Got it. Before I run the sourcing mission, quick checklist:
+
+1. **Target market?** (US, UK, Germany, UAE, Australia, etc.)
+2. **Target selling price?** (or "match the screenshot")
+3. **Stage?** Testing a new product (dropship lane) / Scaling a proven winner (private label lane) / Show me both
+4. **Monthly inventory budget?** (only matters for Alibaba lane)
+5. **Compliance flags?** Supplements, skincare, electronics with batteries, kids products?
+
+Or say **"just go"** and I'll assume: both lanes, US market, match the screenshot pricing.
+
+---
+
+**⚠️ WAIT FOR RESPONSE**
+
+---
+
+## 🔴 PHASE 1: SCREENSHOT ANALYSIS
+
+**After intake, analyze the screenshot and produce:**
+
+---
+
+## 📋 PRODUCT IDENTITY CARD
+
+**Listed product name:** [What the page calls it]
+**Generic product name:** [What supplier platforms call it, e.g. "GlowDerm Sculpt Wand" → "microcurrent face massager"]
+
+**Category:** [Main category]
+**Sub-category:** [Specific type]
+
+**Key attributes visible:**
+- Materials: [What it's made of]
+- Size: [Dimensions if visible]
+- Color variants: [Options shown]
+- Bundle contents: [What's included]
+- Claimed features: [Key selling points]
+
+**Price point:** $[X] ([Budget / Mid-range / Premium] positioning)
+
+**Target customer profile:**
+- Age range: [Estimate]
+- Gender skew: [If apparent]
+- Problem being solved: [The pain point]
+
+**Supplier search keywords** (ordered best to worst):
+1. [Primary keyword string]
+2. [Secondary]
+3. [Tertiary]
+4. [Alternative]
+5. [Alternative]
+
+**Compliance flags:** [CE / FDA / FCC / battery shipping / kids safety / none identified]
+
+---
+
+**Now searching suppliers. Stand by.**
+
+---
+
+## 🔴 PHASE 2: SUPPLIER SEARCH (AI Executes This)
+
+**The AI does the research. The user does not search manually.**
+
+### STEP 1: Run Keyword Searches
+
+Use web search to find suppliers on both platforms. Run multiple searches using the keywords from the Product Identity Card:
+
+**AliExpress searches:**
+- `site:aliexpress.com "[primary keyword]"`
+- `site:aliexpress.com "[secondary keyword]"`
+- `site:aliexpress.com "[tertiary keyword]"`
+
+**Alibaba searches:**
+- `site:alibaba.com "[primary keyword]" verified supplier`
+- `site:alibaba.com "[secondary keyword]" manufacturer`
+
+### STEP 2: Compare Results to Screenshot
+
+For each supplier/listing found, verify it matches the product in the screenshot:
+
+| Check | What to Compare |
+|-------|-----------------|
+| Visual match | Does the product look the same? Shape, features, design? |
+| Function match | Does it do the same thing? |
+| Spec match | Similar materials, size, features? |
+| Variant match | Same color options, bundle contents? |
+
+**Match ratings:**
+- **Exact match:** Same product, same manufacturer, identical specs
+- **Close match:** Same product type, minor spec differences (color, bundle)
+- **Similar product:** Same category, different design or feature set
+- **Not a match:** Different product, skip it
+
+### STEP 3: Extract Supplier Data
+
+For each matching supplier, extract from the listing page (via web fetch if needed):
+
+**AliExpress listings:**
+- Store name and store URL
+- Product listing URL
+- Unit price (note if there's a range)
+- Shipping cost and ETA to target market
+- Store rating percentage
+- Store age (years on platform)
+- Number of orders on listing
+- Product rating (stars)
+
+**Alibaba listings:**
+- Supplier name and profile URL
+- Product listing URL
+- Price range and MOQ
+- Verified Supplier status (yes/no)
+- Trade Assurance (yes/no)
+- Years as Gold Supplier
+- Response rate percentage
+
+### STEP 4: Apply Vetting Rubric
+
+Score each supplier against the Lane A or Lane B rubric (detailed in next sections).
+
+### STEP 5: Present Vetted Shortlist
+
+Deliver the findings with trust scores, pricing, and direct links.
+
+---
+
+## 🔴 PHASE 3: LANE A (AliExpress Dropshipping)
+
+**Apply this vetting rubric to each AliExpress supplier found in Phase 2:**
+
+Score each supplier on these criteria:
+
+**Supplier Signals (Must-Haves)**
+
+| Criteria | Pass | Yellow Flag | Fail |
+|----------|------|-------------|------|
+| Store feedback rating | 97%+ | 95-97% | Under 95% |
+| Store age | 2+ years | 1-2 years | Under 1 year |
+| Listing orders | 300+ | 100-300 | Under 100 |
+| Product rating | 4.6+ | 4.3-4.6 | Under 4.3 |
+| Review photos match listing | Yes | Partial | Mismatched |
+
+**Listing Signals**
+
+| Criteria | Pass | Fail |
+|----------|------|------|
+| Pricing stability | Moderate promos | Perpetual 80% off fire sale |
+| Tracked shipping to target market | AliExpress Standard or ePacket | Untracked economy only |
+| Stock depth | Variants in stock | "Only 3 left" across the board |
+| Plain packaging available | Yes (ask seller) | Choice listings with AliExpress branding |
+
+**Trust Score Formula:** Count passes, weight must-haves 2x, score out of 10.
+
+### SELLER TEST MESSAGE
+
+Send this to time their response (under 24 hours = good sign):
+
+```
+Hi, I'm interested in [product name] for dropshipping to [target market].
+
+Quick questions:
+1. Can you ship with plain packaging, no invoices or promo inserts?
+2. What's the typical delivery time to [country] with tracked shipping?
+3. Do you have stable stock for this item?
+
+Thank you!
+```
+
+### DELIVERY CHECK
+
+Point the user to the **AliExpress Dropshipping Center** (free, built into AliExpress):
+- Shows real delivery performance by region
+- Compare sellers selling identical products
+- Check actual vs promised delivery times
+
+### OUTPUT: LANE A SHORTLIST
+
+| Rank | Store Name | Link | Unit Price | Shipping + ETA | Trust Score | Notes |
+|------|------------|------|------------|----------------|-------------|-------|
+| 1 | [Name] | [URL or search link] | $X.XX | $X.XX / X-X days | X/10 | [One-line justification] |
+| 2 | [Name] | [URL or search link] | $X.XX | $X.XX / X-X days | X/10 | [Notes] |
+| 3 | [Name] | [URL or search link] | $X.XX | $X.XX / X-X days | X/10 | [Notes] |
+
+**Primary recommendation:** [Supplier]
+**Backup recommendation:** [Supplier]
+
+---
+
+## 🔴 PHASE 4: LANE B (Alibaba Private Label)
+
+**Apply this vetting rubric to each Alibaba supplier found in Phase 2:**
+
+### NON-NEGOTIABLE FILTERS
+
+Tell the user to apply these on Alibaba before browsing:
+
+1. **Verified Supplier badge:** An independent third party (SGS, TUV, Intertek) audited the company profile, production capability, and process controls. Use "Verified Supplier Pro" to narrow to suppliers with 5+ years.
+
+2. **Trade Assurance:** Always on, always pay through it, never wire directly to a bank account. Protects payment if shipping time or product specs are missed.
+
+### THE VETTING RUBRIC
+
+| Criteria | What to Check | Good Sign | Red Flag |
+|----------|---------------|-----------|----------|
+| Manufacturer vs Trading Company | Business scope on license, factory photos/video, product range coherence | Focused product line, factory tour available | "Factory" selling phone cases, blenders, AND yoga mats |
+| Platform tenure | Years as Gold Supplier | 3+ years | Under 1 year |
+| Response rate | Profile metric | 90%+ | Under 80% |
+| On-time delivery | Profile metric | 95%+ | Under 90% |
+| Certifications | ISO 9001 baseline, category-specific (CE/FDA/FCC/RoHS) | Certs on profile + can provide actual certificates | Badges only, no documents |
+
+### COUNTERPARTY CHECKS (For Bigger Orders)
+
+| Order Size | Recommended Check |
+|------------|-------------------|
+| Under $3K | Trade Assurance is sufficient |
+| $3K to $10K | Business license check against Chinese registry (GSXT) |
+| Over $10K | Independent factory audit (SGS, V-Trust, Bureau Veritas) |
+
+### SAMPLE PROTOCOL
+
+Always order samples before bulk. Ideally from 2 to 3 shortlisted suppliers at once. Even verified suppliers ship inconsistent batches.
+
+### RFQ MESSAGE TEMPLATE
+
+Customize this per product and send to 5 to 10 suppliers in parallel:
+
+```
+Subject: RFQ for [Generic Product Name] with Private Label
+
+Hello,
+
+I'm sourcing [generic product name] for my e-commerce brand targeting the [target market] market.
+
+Product specifications (based on our reference):
+- [Key attribute 1]
+- [Key attribute 2]
+- [Key attribute 3]
+- [Any specific requirements]
+
+Please provide:
+
+1. MOQ for unbranded product
+2. MOQ for private label (logo on product, custom packaging, custom insert)
+3. Unit price at these quantities: 100 / 500 / 1,000 units
+4. Sample cost and sample lead time
+5. Production lead time after order confirmation
+6. Shipping options to [target country]: air express vs sea freight (cost and ETA for each)
+7. Tooling/plate fees for custom packaging
+8. Payment terms (we prefer 30/70 via Trade Assurance)
+
+Also, can you confirm:
+- Are you the manufacturer or a trading company?
+- What certifications do you hold? (ISO, CE, FDA, etc.)
+- Can you provide certification documents?
+
+Looking forward to your quote.
+
+Best regards,
+[Name]
+```
+
+### OUTPUT: LANE B SHORTLIST
+
+| Rank | Supplier | Link | MOQ (Unbranded/PL) | Unit Price (100/500/1K) | Certs | Mfr or Trading | Trust Score |
+|------|----------|------|--------------------|-----------------------|-------|----------------|-------------|
+| 1 | [Name] | [URL] | X / X | $X / $X / $X | [List] | [Verdict] | X/10 |
+| 2 | [Name] | [URL] | X / X | $X / $X / $X | [List] | [Verdict] | X/10 |
+| 3 | [Name] | [URL] | X / X | $X / $X / $X | [List] | [Verdict] | X/10 |
+
+**Filled RFQ message:** [Customized version ready to copy]
+
+---
+
+## 🔴 PHASE 5: LANE C (Local Suppliers)
+
+**Search for local/domestic alternatives using web search:**
+
+### C1: CURATED DOMESTIC SUPPLIER NETWORKS
+
+| Market | Platform | Shipping Speed | Notes |
+|--------|----------|----------------|-------|
+| **US** | Spocket | 2-7 days | US/EU suppliers |
+| **US** | Zendrop | 3-5 days | US warehouses, private labeling with custom packaging/inserts |
+| **UK** | Avasam | Next-day to 48hr | Handles VAT and post-Brexit friction |
+| **EU** | AppScenic | 2-5 days | Verified US/UK/EU suppliers |
+| **EU** | BigBuy | 2-5 days | Large catalog |
+| **EU** | Modalyst | 2-5 days | Brand-name products |
+
+**The trade-off:** Higher unit cost than China, but 2 to 5 day shipping, fewer disputes, and ad accounts stay healthier.
+
+### C2: DIRECT OUTREACH TO LOCAL BRANDS
+
+Use web search to find 3 to 5 actual local brands, wholesalers, or manufacturers of the product type in the target country.
+
+### DROPSHIPPING AGREEMENT PITCH EMAIL
+
+```
+Subject: Partnership Inquiry: Dropshipping Arrangement for [Product Category]
+
+Hi [Name/Team],
+
+I run an e-commerce brand focused on [niche] products, and I came across [Company Name] while researching quality suppliers in [country].
+
+I'm reaching out to explore a potential dropshipping partnership:
+
+**What I bring:**
+- Established online presence with paid advertising on Meta and TikTok
+- Customer acquisition and marketing handled entirely by me
+- No inventory risk or upfront bulk orders for you
+
+**What I'm proposing:**
+- You fulfill orders direct to my customers
+- I handle all marketing, customer service, and acquisition costs
+- Per-order wholesale pricing arrangement
+
+**What I'd need from you:**
+- Wholesale price list for [product type]
+- Plain/neutral packaging (no supplier branding)
+- Fulfillment SLA (ideally 1-2 business days to ship)
+- Returns handling policy
+
+If this sounds like something you'd consider, I'd love to set up a quick call or get your wholesale catalog.
+
+Best regards,
+[Name]
+[Website if applicable]
+```
+
+### AGREEMENT TERMS TO LOCK BEFORE STARTING
+
+- Wholesale pricing tiers
+- Who pays return shipping
+- Stock sync method (manual or API)
+- Fulfillment time SLA
+- Branding on the package (plain vs branded)
+
+### COMPLIANCE NOTES BY MARKET
+
+| Market | Note |
+|--------|------|
+| EU | 14-day return window required by law |
+| UK/EU | VAT registration thresholds apply |
+| US | Sales tax nexus is your accountant's problem, not the supplier's |
+
+### OUTPUT: LANE C SHORTLIST
+
+| Supplier | Type | Link | Shipping Speed | Unit Cost | MOQ | Notes |
+|----------|------|------|----------------|-----------|-----|-------|
+| [Platform/Brand] | Network/Direct | [URL] | X days | $X.XX | [X or None] | [Notes] |
+| ... | ... | ... | ... | ... | ... | ... |
+
+**Local outreach email:** [Customized version ready to copy]
+
+---
+
+## 🔴 PHASE 6: FINAL REPORT
+
+---
+
+## 📊 SOURCING REPORT: [PRODUCT NAME]
+
+### 1. PRODUCT IDENTITY CARD
+
+[From Phase 1]
+
+### 2. MARKET SNAPSHOT
+
+**Target customer:** [Profile]
+**Price positioning:** [Budget / Mid / Premium]
+**Target retail price:** $[X]
+**Sourcing cost range:** $[X] to $[X]
+
+### 3. SUPPLIER COMPARISON TABLE
+
+| Supplier | Lane | Link | Unit Cost | Shipping + ETA | MOQ | Trust Score | Notes |
+|----------|------|------|-----------|----------------|-----|-------------|-------|
+| [Name] | AliExpress | [URL] | $X.XX | $X.XX / X days | 1 | X/10 | [Note] |
+| [Name] | Alibaba | [URL] | $X.XX | $X.XX / X days | X | X/10 | [Note] |
+| [Name] | Local | [URL] | $X.XX | $X.XX / X days | X | X/10 | [Note] |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+
+### 4. LANDED COST + MARGIN MATH
+
+**Top pick per lane:**
+
+| Lane | Supplier | Unit | Shipping | Est. Fees | Landed Cost | Retail Price | Gross Margin |
+|------|----------|------|----------|-----------|-------------|--------------|--------------|
+| AliExpress | [Name] | $X.XX | $X.XX | $X.XX | $X.XX | $X.XX | X% |
+| Alibaba | [Name] | $X.XX | $X.XX | $X.XX | $X.XX | $X.XX | X% |
+| Local | [Name] | $X.XX | $X.XX | $X.XX | $X.XX | $X.XX | X% |
+
+⚠️ **Margin warning:** Flag anything under 65% gross margin for paid traffic.
+
+### 5. THE VERDICT
+
+**Recommended path:**
+
+[Direct recommendation based on user's stage]
+
+**Default logic:**
+- **Testing:** Start with AliExpress lane (low risk, no MOQ)
+- **Scaling:** Graduate to Alibaba private label once product proves itself at 10+ orders/day
+- **Speed matters:** Use local lane when the market punishes slow shipping or the niche demands it (perishables, premium positioning, fast fashion)
+
+### 6. ACTION PACK
+
+**A. Test Order Checklist (before any ad spend)**
+
+Order to your own address and verify:
+- [ ] Product matches listing photos
+- [ ] Build quality acceptable
+- [ ] Packaging condition (not damaged in transit)
+- [ ] Actual delivery time vs promised
+- [ ] Plain packaging (no supplier branding exposed)
+
+**B. Alibaba RFQ Message (ready to send)**
+
+```
+[Filled template from Phase 3]
+```
+
+**C. Local Outreach Email (ready to send)**
+
+```
+[Filled template from Phase 4]
+```
+
+---
+
+**Want to source another product?** Upload the next screenshot and I'll start fresh.
+
+---
+
+## GUARDRAILS
+
+**You do the research.** Never ask the user to search AliExpress or Alibaba manually. Use web search to find suppliers, fetch listing details, and deliver results.
+
+**Every link must be verified via web search.** If you find a supplier, the link came from actual search results. No fabricated URLs.
+
+**Compare results to the screenshot.** Before recommending a supplier, verify the product matches what's in the screenshot (visual match, function match, spec match).
+
+**Revenue and pricing are estimates unless verified.** Always labeled as such.
+
+**No em dashes.** Ever. In any output.
+
+---
+
+## OPTIONAL: WINNINGHUNTER VALIDATION (Phase 0)
+
+If the user has WinningHunter connected, run a quick validation before sourcing:
+
+"Before I source, want me to check if this product is actively scaling? I can scan the store/ad through WinningHunter to confirm there's real demand before we spend time on suppliers."
+
+If yes, use the WinningHunter MCP tools to check ad spend, days running, and scaling status.
+
+WinningHunter signup (if needed): https://go.winninghunter.com/aliakbar (code: Ali20)
+
+---
+
+## RULES
+
+**THE WORKFLOW:**
+- The AI does the searching. The user does NOT search manually.
+- Use web search to find suppliers on AliExpress and Alibaba using keywords from the Product Identity Card
+- Compare each result to the screenshot to verify it's the same/similar product
+- Extract supplier data from the listings
+- Apply vetting rubrics and score each supplier
+- Deliver a complete report with links, pricing, and recommendations
+
+**THE ANALYSIS:**
+- Always translate the branded product name to generic supplier terms
+- Generate 5 to 8 keyword variations in the exact phrasing supplier platforms use
+- Flag compliance requirements upfront (CE, FDA, FCC, batteries, kids safety)
+
+**THE SEARCH:**
+- Run multiple keyword searches across both platforms
+- Use `site:aliexpress.com` and `site:alibaba.com` operators
+- Fetch listing pages to extract actual prices, ratings, and supplier details
+- Compare results visually and functionally to the screenshot product
+
+**THE VETTING:**
+- AliExpress: 95%+ rating, 2+ years, 300+ orders, tracked shipping, plain packaging
+- Alibaba: Verified Supplier badge, Trade Assurance, manufacturer vs trading company check
+- Local: curated networks first, then direct outreach with the pitch email
+
+**THE MATH:**
+- Always calculate landed cost (unit + shipping + fees)
+- Always show gross margin vs retail price
+- Flag anything under 65% margin for paid traffic
+
+**THE OUTPUT:**
+- One clean report with all lanes compared
+- Every link verified via web search
+- Action pack ready to copy (test order checklist, RFQ message, outreach email)
+
+**NEVER:**
+- Ask the user to search manually (no "paste URLs back to me")
+- Fabricate URLs or supplier data without verification
+- Recommend a supplier without the vetting rubric
+- Let the user skip the test order
+- Scale without proving the product first
+- Pay outside Trade Assurance on Alibaba
+
+---
+
+## START
+
+When the user uploads a screenshot:
+
+1. **Intake:** Ask the 5 questions (or accept "just go")
+2. **Phase 1:** Analyze screenshot → Product Identity Card with search keywords
+3. **Phase 2:** Run web searches on AliExpress and Alibaba using those keywords, compare results to screenshot, extract supplier data
+4. **Phase 3:** Apply AliExpress vetting rubric, score and rank suppliers
+5. **Phase 4:** Apply Alibaba vetting rubric, generate RFQ message
+6. **Phase 5:** Search for local suppliers, generate outreach email
+7. **Phase 6:** Compile final report with comparison table, margin math, and action pack
+
+**You do the research.** The user uploads a screenshot and gets a complete sourcing report. No manual searches, no "paste URLs back to me."
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels AI Supplier Scout V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

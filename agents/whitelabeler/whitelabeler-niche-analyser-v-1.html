@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Niche Analyzer · AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;800&family=Rethink+Sans:wght@400;500;600&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+.nan-wrap{width:100% !important;max-width:100% !important;position:relative !important;overflow:hidden !important;box-sizing:border-box !important;margin:0 !important;padding:0 !important;background:#F4E9E6 !important;color:#2A2131 !important;font-family:'Rethink Sans',system-ui,-apple-system,'Segoe UI',sans-serif !important;font-size:16px !important;line-height:1.5 !important;-webkit-font-smoothing:antialiased !important;}
+body:has(> .nan-wrap){margin:0 !important;padding:0 !important;background:#F4E9E6 !important;}
+.nan-wrap *,.nan-wrap *::before,.nan-wrap *::after{box-sizing:border-box !important;}
+.nan-wrap template{display:none !important;}
+.nan-wrap .nan-grid{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:560px !important;z-index:0 !important;pointer-events:none !important;background-image:linear-gradient(rgba(42,33,49,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(42,33,49,0.06) 1px,transparent 1px) !important;background-size:32px 32px !important;-webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 100%) !important;mask-image:linear-gradient(180deg,#000 0%,transparent 100%) !important;}
+.nan-wrap .nan-stage{position:relative !important;max-width:1040px !important;width:100% !important;margin:0 auto !important;padding:80px 28px 96px !important;display:flex !important;flex-direction:column !important;align-items:center !important;text-align:center !important;}
+.nan-wrap .nan-badge{display:inline-flex !important;align-items:center !important;gap:9px !important;font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;font-size:12px !important;letter-spacing:0.04em !important;color:#2A2131 !important;background:rgba(255,255,255,0.5) !important;border:1px solid rgba(42,33,49,0.2) !important;padding:7px 14px !important;border-radius:999px !important;margin:0 0 26px !important;position:relative !important;z-index:1 !important;}
+.nan-wrap .nan-badge::before{content:'' !important;width:7px !important;height:7px !important;border-radius:2px !important;background:#F2541B !important;flex-shrink:0 !important;}
+.nan-wrap h1.nan-h1{font-family:'Red Hat Display',system-ui,sans-serif !important;font-weight:700 !important;font-size:clamp(2rem,4.2vw,3.3rem) !important;line-height:1.08 !important;letter-spacing:-0.025em !important;color:#2A2131 !important;max-width:24ch !important;margin:0 0 20px !important;padding:0 !important;text-wrap:balance !important;position:relative !important;z-index:1 !important;}
+.nan-wrap h1.nan-h1 .nan-accent{color:#F2541B !important;}
+.nan-wrap p.nan-sub{font-size:clamp(1rem,1.3vw,1.1rem) !important;line-height:1.6 !important;color:rgba(42,33,49,0.72) !important;max-width:600px !important;margin:0 auto 48px !important;padding:0 !important;text-wrap:pretty !important;position:relative !important;z-index:1 !important;}
+
+.nan-wrap .nan-readout{width:100% !important;max-width:960px !important;text-align:left !important;background:#FBF6F4 !important;border:1px solid rgba(42,33,49,0.12) !important;border-radius:20px !important;padding:26px 28px 24px !important;margin:0 0 52px !important;box-shadow:0 22px 50px -28px rgba(42,33,49,0.45) !important;position:relative !important;z-index:1 !important;}
+.nan-wrap .nan-head{display:flex !important;justify-content:space-between !important;align-items:flex-end !important;gap:14px 24px !important;flex-wrap:wrap !important;margin:0 0 14px !important;}
+.nan-wrap .nan-kicker{font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;font-size:12px !important;color:#F2541B !important;margin:0 0 4px !important;}
+.nan-wrap .nan-subject{font-family:'Red Hat Display',system-ui,sans-serif !important;font-weight:700 !important;font-size:21px !important;line-height:1.2 !important;letter-spacing:-0.01em !important;color:#2A2131 !important;margin:0 !important;}
+.nan-wrap .nan-legend{display:flex !important;gap:8px 16px !important;flex-wrap:wrap !important;align-items:center !important;}
+.nan-wrap .nan-leg{display:inline-flex !important;align-items:center !important;gap:7px !important;font-size:13px !important;color:rgba(42,33,49,0.66) !important;}
+
+.nan-wrap .nan-tag{display:inline-flex !important;align-items:center !important;font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;font-size:11px !important;line-height:1 !important;padding:4px 7px !important;border-radius:5px !important;border:1.5px solid transparent !important;white-space:nowrap !important;}
+.nan-wrap .nan-t-wh{background:#F2541B !important;border-color:#F2541B !important;color:#FFFFFF !important;}
+.nan-wrap .nan-t-web{background:transparent !important;border-color:#7A8B2E !important;color:#5F6D22 !important;}
+.nan-wrap .nan-t-est{background:transparent !important;border:1.5px dashed #2A2131 !important;color:#2A2131 !important;}
+
+.nan-wrap .nan-chart{position:relative !important;width:100% !important;aspect-ratio:800/280 !important;margin:8px 0 0 !important;}
+.nan-wrap .nan-chart svg{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:100% !important;overflow:visible !important;display:block !important;}
+.nan-wrap .nan-gl{stroke:rgba(42,33,49,0.1) !important;stroke-width:1 !important;stroke-dasharray:3 5 !important;}
+.nan-wrap .nan-line{fill:none !important;stroke:#F2541B !important;stroke-width:3 !important;stroke-linecap:round !important;stroke-linejoin:round !important;}
+.nan-wrap .nan-pin,.nan-wrap .nan-dot{display:flex !important;align-items:center !important;justify-content:center !important;border-radius:50% !important;font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;line-height:1 !important;}
+.nan-wrap .nan-pin{position:absolute !important;width:28px !important;height:28px !important;margin:-14px 0 0 -14px !important;font-size:12px !important;z-index:2 !important;}
+.nan-wrap .nan-dot{width:22px !important;height:22px !important;font-size:11px !important;flex-shrink:0 !important;}
+.nan-wrap .nan-k-wh{background:#F2541B !important;color:#FFFFFF !important;border:2px solid #FBF6F4 !important;box-shadow:0 0 0 1.5px #F2541B !important;}
+.nan-wrap .nan-k-web{background:#FBF6F4 !important;color:#5F6D22 !important;border:2px solid #7A8B2E !important;}
+.nan-wrap .nan-k-est{background:#FBF6F4 !important;color:#2A2131 !important;border:2px dashed #2A2131 !important;}
+.nan-wrap .nan-axis{display:flex !important;justify-content:space-between !important;gap:10px !important;margin:12px 0 0 !important;font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;font-size:11.5px !important;color:rgba(42,33,49,0.55) !important;}
+
+.nan-wrap .nan-finds{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:12px !important;margin:22px 0 0 !important;}
+.nan-wrap .nan-find{display:flex !important;flex-direction:column !important;align-items:flex-start !important;gap:6px !important;background:rgba(255,255,255,0.6) !important;border:1px solid rgba(42,33,49,0.1) !important;border-radius:12px !important;padding:14px 16px 16px !important;}
+.nan-wrap .nan-find-top{display:flex !important;align-items:center !important;gap:9px !important;}
+.nan-wrap .nan-find-l{font-size:13px !important;font-weight:600 !important;color:rgba(42,33,49,0.62) !important;}
+.nan-wrap .nan-find-fig{font-family:'Red Hat Display',system-ui,sans-serif !important;font-weight:700 !important;font-size:25px !important;line-height:1.1 !important;letter-spacing:-0.015em !important;color:#2A2131 !important;margin:2px 0 0 !important;}
+.nan-wrap .nan-find-d{font-size:13.5px !important;line-height:1.45 !important;color:rgba(42,33,49,0.7) !important;margin:0 0 6px !important;}
+.nan-wrap .nan-find .nan-tag{margin-top:auto !important;}
+
+.nan-wrap .nan-life{margin:24px 0 0 !important;padding:20px 0 0 !important;border-top:1px solid rgba(42,33,49,0.12) !important;}
+.nan-wrap .nan-track{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:6px !important;}
+.nan-wrap .nan-stg{position:relative !important;padding:12px 14px !important;border-radius:10px !important;border:1px solid rgba(42,33,49,0.18) !important;font-size:14px !important;font-weight:600 !important;color:rgba(42,33,49,0.5) !important;background:transparent !important;}
+.nan-wrap .nan-stg-past{color:#2A2131 !important;border-color:rgba(42,33,49,0.35) !important;}
+.nan-wrap .nan-stg-now{background:#2A2131 !important;border-color:#2A2131 !important;color:#F4E9E6 !important;box-shadow:inset 0 3px 0 #F2541B !important;}
+.nan-wrap .nan-stg-now small{display:block !important;font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;font-size:11px !important;font-weight:400 !important;color:#F2541B !important;margin:3px 0 0 !important;}
+.nan-wrap .nan-ev{display:flex !important;align-items:center !important;gap:10px !important;flex-wrap:wrap !important;margin:12px 0 0 !important;font-size:14px !important;line-height:1.5 !important;color:rgba(42,33,49,0.72) !important;}
+
+.nan-wrap .nan-scrim{position:absolute !important;left:0 !important;top:0 !important;right:0 !important;bottom:0 !important;z-index:50 !important;background:rgba(42,33,49,0.42) !important;opacity:0 !important;visibility:hidden !important;transition:opacity 220ms ease,visibility 220ms ease !important;cursor:pointer !important;}
+.nan-wrap.nan-pop-open .nan-scrim{opacity:1 !important;visibility:visible !important;}
+.nan-wrap .nan-cta{position:relative !important;z-index:2 !important;display:flex !important;flex-direction:column !important;align-items:center !important;gap:16px !important;width:100% !important;}
+.nan-wrap.nan-pop-open .nan-cta{z-index:60 !important;}
+.nan-wrap .nan-btn-row{display:flex !important;gap:12px !important;flex-wrap:wrap !important;justify-content:center !important;}
+.nan-wrap .nan-btn{display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:10px !important;min-width:240px !important;padding:17px 34px !important;font-family:'Rethink Sans',system-ui,sans-serif !important;font-size:16px !important;font-weight:600 !important;line-height:1 !important;color:#FFFFFF !important;background:#F2541B !important;border:none !important;border-radius:12px !important;text-decoration:none !important;cursor:pointer !important;box-shadow:0 12px 26px -10px rgba(242,84,27,0.6) !important;transition:background 200ms ease,transform 150ms ease,box-shadow 200ms ease !important;}
+.nan-wrap .nan-btn:hover{background:#D6430F !important;color:#FFFFFF !important;}
+.nan-wrap .nan-btn:active{transform:scale(0.98) !important;}
+.nan-wrap .nan-btn:focus-visible,.nan-wrap .nan-pop-go:focus-visible,.nan-wrap .nan-pop-no:focus-visible,.nan-wrap .nan-pop-x:focus-visible{outline:2px solid #2A2131 !important;outline-offset:3px !important;}
+.nan-wrap .nan-btn.nan-copied{background:#2A2131 !important;box-shadow:0 12px 26px -10px rgba(42,33,49,0.6) !important;}
+.nan-wrap .nan-btn .nan-btn-icon{font-size:14px !important;line-height:1 !important;color:#F2541B !important;}
+.nan-wrap .nan-meta{display:flex !important;align-items:center !important;justify-content:center !important;gap:10px !important;flex-wrap:wrap !important;font-family:'Fragment Mono',ui-monospace,Menlo,monospace !important;font-size:11.5px !important;color:rgba(42,33,49,0.55) !important;}
+.nan-wrap .nan-meta i{width:3px !important;height:3px !important;border-radius:50% !important;background:rgba(42,33,49,0.45) !important;display:inline-block !important;}
+
+.nan-wrap .nan-pop{position:absolute !important;left:50% !important;bottom:calc(100% + 18px) !important;width:420px !important;max-width:calc(100vw - 32px) !important;transform:translate(-50%,10px) !important;background:#2A2131 !important;color:#F4E9E6 !important;border-radius:18px !important;padding:26px 26px 22px !important;text-align:left !important;box-shadow:0 32px 70px -22px rgba(20,12,24,0.7) !important;opacity:0 !important;visibility:hidden !important;pointer-events:none !important;transition:opacity 240ms ease,transform 240ms ease,visibility 240ms ease !important;}
+.nan-wrap.nan-pop-open .nan-pop{opacity:1 !important;visibility:visible !important;pointer-events:auto !important;transform:translate(-50%,0) !important;}
+.nan-wrap .nan-pop::after{content:'' !important;position:absolute !important;left:50% !important;bottom:-7px !important;width:14px !important;height:14px !important;margin-left:-7px !important;background:#2A2131 !important;border-radius:2px !important;transform:rotate(45deg) !important;}
+.nan-wrap .nan-pop-x{position:absolute !important;top:12px !important;right:12px !important;width:32px !important;height:32px !important;display:flex !important;align-items:center !important;justify-content:center !important;border-radius:8px !important;font-size:20px !important;line-height:1 !important;color:rgba(244,233,230,0.7) !important;text-decoration:none !important;}
+.nan-wrap .nan-pop-x:hover{background:rgba(255,255,255,0.08) !important;color:#FFFFFF !important;}
+.nan-wrap .nan-pop-k{display:flex !important;align-items:center !important;gap:8px !important;font-size:13px !important;color:rgba(244,233,230,0.7) !important;margin:0 0 12px !important;}
+.nan-wrap .nan-pop-h{font-family:'Red Hat Display',system-ui,sans-serif !important;font-weight:700 !important;font-size:23px !important;line-height:1.18 !important;letter-spacing:-0.015em !important;color:#FFFFFF !important;margin:0 0 10px !important;padding:0 28px 0 0 !important;}
+.nan-wrap .nan-pop-p{font-size:14.5px !important;line-height:1.55 !important;color:rgba(244,233,230,0.74) !important;margin:0 0 20px !important;}
+.nan-wrap .nan-pop-acts{display:flex !important;align-items:center !important;gap:6px 14px !important;flex-wrap:wrap !important;}
+.nan-wrap .nan-pop-go{display:inline-flex !important;align-items:center !important;padding:14px 20px !important;background:#F2541B !important;color:#FFFFFF !important;border-radius:10px !important;font-size:15px !important;font-weight:600 !important;line-height:1 !important;text-decoration:none !important;transition:background 200ms ease !important;}
+.nan-wrap .nan-pop-go:hover{background:#D6430F !important;color:#FFFFFF !important;}
+.nan-wrap .nan-pop-no{padding:14px 6px !important;font-size:14px !important;font-weight:500 !important;line-height:1 !important;color:rgba(244,233,230,0.7) !important;text-decoration:none !important;}
+.nan-wrap .nan-pop-no:hover{color:#FFFFFF !important;}
+
+@media (prefers-reduced-motion:reduce){.nan-wrap .nan-pop,.nan-wrap .nan-scrim,.nan-wrap .nan-btn{transition:none !important;}}
+@media (max-width:760px){
+.nan-wrap .nan-stage{padding:60px 18px 76px !important;}
+.nan-wrap p.nan-sub{margin:0 auto 36px !important;}
+.nan-wrap .nan-readout{padding:18px 16px 18px !important;border-radius:16px !important;margin:0 0 40px !important;}
+.nan-wrap .nan-subject{font-size:18px !important;}
+.nan-wrap .nan-chart{aspect-ratio:800/420 !important;}
+.nan-wrap .nan-finds{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important;}
+.nan-wrap .nan-find{padding:12px 12px 14px !important;}
+.nan-wrap .nan-find-fig{font-size:19px !important;}
+.nan-wrap .nan-find-d{font-size:12.5px !important;}
+}
+@media (max-width:440px){
+.nan-wrap .nan-stg{padding:10px 6px !important;font-size:12px !important;text-align:center !important;}
+.nan-wrap .nan-stg-now small{font-size:10px !important;}
+.nan-wrap .nan-axis span:nth-child(2){display:none !important;}
+.nan-wrap .nan-btn-row{flex-direction:column !important;width:100% !important;max-width:360px !important;}
+.nan-wrap .nan-btn{width:100% !important;min-width:0 !important;padding:17px 16px !important;font-size:15px !important;}
+.nan-wrap .nan-pop{padding:22px 20px 20px !important;}
+.nan-wrap .nan-pop-h{font-size:20px !important;}
+}
+</style>
+</head>
+<body>
+<div class="nan-wrap">
+  <div class="nan-grid" aria-hidden="true"></div>
+  <div class="nan-scrim" aria-hidden="true" onclick='event.preventDefault();var w=this.closest(&quot;.nan-wrap&quot;);if(w){w.classList.remove(&quot;nan-pop-open&quot;);}return false;'></div>
+
+  <div class="nan-stage">
+    <div class="nan-badge">AI Employee · Niche Analyzer</div>
+    <h1 class="nan-h1">Drop in a product page and its ads. Get back <span class="nan-accent">a dashboard of why it sells</span>.</h1>
+    <p class="nan-sub">It checks demand, who's making money, their ad pressure and margins, tags every number by where it came from, then builds a dashboard a beginner can read.</p>
+
+    <div class="nan-readout">
+      <div class="nan-head">
+        <div>
+          <div class="nan-kicker">Example readout</div>
+          <div class="nan-subject">Dog cooling fan, US market</div>
+        </div>
+        <div class="nan-legend">
+          <span class="nan-leg"><span class="nan-tag nan-t-wh">WH</span>Winning Hunter</span>
+          <span class="nan-leg"><span class="nan-tag nan-t-web">Web</span>Found online</span>
+          <span class="nan-leg"><span class="nan-tag nan-t-est">Est</span>Estimate, method shown</span>
+        </div>
+      </div>
+
+      <div class="nan-chart">
+        <svg viewBox="0 0 800 280" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="nan-area-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2541B" stop-opacity="0.22"/><stop offset="1" stop-color="#F2541B" stop-opacity="0"/></linearGradient></defs>
+          <line x1="0" x2="800" y1="44.0" y2="44.0" class="nan-gl" vector-effect="non-scaling-stroke"/><line x1="0" x2="800" y1="110.7" y2="110.7" class="nan-gl" vector-effect="non-scaling-stroke"/><line x1="0" x2="800" y1="177.3" y2="177.3" class="nan-gl" vector-effect="non-scaling-stroke"/><line x1="0" x2="800" y1="244.0" y2="244.0" class="nan-gl" vector-effect="non-scaling-stroke"/>
+          <path d="M24.0,244.0 C35.4,243.6 69.6,242.6 92.4,241.6 C115.2,240.7 137.9,239.5 160.7,238.1 C183.5,236.7 206.3,235.4 229.1,233.4 C251.9,231.5 274.7,229.3 297.5,226.4 C320.2,223.4 343.0,220.2 365.8,215.8 C388.6,211.4 411.4,206.0 434.2,199.9 C457.0,193.8 479.8,187.1 502.5,179.3 C525.3,171.5 548.1,162.6 570.9,152.8 C593.7,143.0 616.5,131.7 639.3,120.5 C662.1,109.2 684.8,97.9 707.6,85.2 C730.4,72.4 764.6,50.9 776.0,44.0 L776,280 L24,280 Z" fill="url(#nan-area-grad)"/>
+          <path d="M24.0,244.0 C35.4,243.6 69.6,242.6 92.4,241.6 C115.2,240.7 137.9,239.5 160.7,238.1 C183.5,236.7 206.3,235.4 229.1,233.4 C251.9,231.5 274.7,229.3 297.5,226.4 C320.2,223.4 343.0,220.2 365.8,215.8 C388.6,211.4 411.4,206.0 434.2,199.9 C457.0,193.8 479.8,187.1 502.5,179.3 C525.3,171.5 548.1,162.6 570.9,152.8 C593.7,143.0 616.5,131.7 639.3,120.5 C662.1,109.2 684.8,97.9 707.6,85.2 C730.4,72.4 764.6,50.9 776.0,44.0" class="nan-line" vector-effect="non-scaling-stroke"/>
+        </svg>
+        <span class="nan-pin nan-k-wh" style="left:11.55%;top:86.30%">1</span>
+        <span class="nan-pin nan-k-wh" style="left:28.64%;top:83.36%">2</span>
+        <span class="nan-pin nan-k-wh" style="left:45.73%;top:77.06%">3</span>
+        <span class="nan-pin nan-k-wh" style="left:62.82%;top:64.03%">4</span>
+        <span class="nan-pin nan-k-web" style="left:79.91%;top:43.03%">5</span>
+        <span class="nan-pin nan-k-est" style="left:97.00%;top:15.71%">6</span>
+      </div>
+      <div class="nan-axis"><span>12 months ago</span><span>Category search interest</span><span>Now</span></div>
+
+      <div class="nan-finds">
+        <div class="nan-find"><div class="nan-find-top"><span class="nan-dot nan-k-wh">1</span><span class="nan-find-l">Demand</span></div><div class="nan-find-fig">+340%</div><div class="nan-find-d">Search interest in the category over 12 months</div><span class="nan-tag nan-t-wh">WH</span></div>
+        <div class="nan-find"><div class="nan-find-top"><span class="nan-dot nan-k-wh">2</span><span class="nan-find-l">Selling</span></div><div class="nan-find-fig">8,400 units</div><div class="nan-find-d">On the top TikTok Shop listing</div><span class="nan-tag nan-t-wh">WH</span></div>
+        <div class="nan-find"><div class="nan-find-top"><span class="nan-dot nan-k-wh">3</span><span class="nan-find-l">Money</span></div><div class="nan-find-fig">$90K to $240K</div><div class="nan-find-d">A month, for each of the top 3 Shopify stores</div><span class="nan-tag nan-t-wh">WH</span></div>
+        <div class="nan-find"><div class="nan-find-top"><span class="nan-dot nan-k-wh">4</span><span class="nan-find-l">Ad pressure</span></div><div class="nan-find-fig">47 ads</div><div class="nan-find-d">Running on one page, up from 12 last month</div><span class="nan-tag nan-t-wh">WH</span></div>
+        <div class="nan-find"><div class="nan-find-top"><span class="nan-dot nan-k-web">5</span><span class="nan-find-l">Cost</span></div><div class="nan-find-fig">$3.10 to $5.80</div><div class="nan-find-d">Per unit on Alibaba, at 100 units</div><span class="nan-tag nan-t-web">Web</span></div>
+        <div class="nan-find"><div class="nan-find-top"><span class="nan-dot nan-k-est">6</span><span class="nan-find-l">Margin</span></div><div class="nan-find-fig">80 to 85%</div><div class="nan-find-d">Before ads: a $39 price minus the Alibaba range</div><span class="nan-tag nan-t-est">Est</span></div>
+      </div>
+
+      <div class="nan-life">
+        <div class="nan-track">
+          <div class="nan-stg nan-stg-past">Early</div>
+          <div class="nan-stg nan-stg-now">Scaling<small>here now</small></div>
+          <div class="nan-stg">Saturating</div>
+          <div class="nan-stg">Declining</div>
+        </div>
+        <div class="nan-ev"><span>Called Scaling because one page went from 12 to 47 active ads in a month, with 6 stores now on the keyword.</span><span class="nan-tag nan-t-wh">WH</span></div>
+      </div>
+    </div>
+
+    <div class="nan-cta">
+      <div class="nan-pop" role="dialog" aria-label="Get better data with Winning Hunter">
+        <a href="#" class="nan-pop-x" aria-label="Close" onclick='event.preventDefault();var w=this.closest(&quot;.nan-wrap&quot;);if(w){w.classList.remove(&quot;nan-pop-open&quot;);}return false;'>×</a>
+        <div class="nan-pop-k"><span class="nan-tag nan-t-wh">WH</span>Prompt copied</div>
+        <div class="nan-pop-h">Get better data if you sign up with Winning Hunter.</div>
+        <p class="nan-pop-p">Connected, the Niche Analyzer pulls live store, ad and TikTok numbers. Without it, it works from web research and estimates.</p>
+        <div class="nan-pop-acts">
+          <a href="https://winninghunter.com/?ref=aliakbar" target="_blank" rel="noopener" class="nan-pop-go">Sign Up For Winning Hunter</a>
+          <a href="#" class="nan-pop-no" onclick='event.preventDefault();var w=this.closest(&quot;.nan-wrap&quot;);if(w){w.classList.remove(&quot;nan-pop-open&quot;);}return false;'>Not now</a>
+        </div>
+      </div>
+
+      <div class="nan-btn-row">
+        <a href='#'
+           class='nan-btn nan-launcher'
+           data-original-text='<span class=&quot;nan-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;nan-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var w=self.closest?self.closest(&quot;.nan-wrap&quot;):null;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;nan-btn-icon\&quot;>✓</span><span class=\&quot;nan-btn-text\&quot;>Loaded · Paste Into Any AI Tool</span>&quot;;self.classList.add(&quot;nan-copied&quot;);if(w){setTimeout(function(){w.classList.add(&quot;nan-pop-open&quot;);},650);}setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;nan-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'><span class="nan-btn-text">Access AI Employee</span></a>
+      </div>
+      <div class="nan-meta"><span>Whitelabeler</span><i></i><span>Paste Into Any AI Tool</span><i></i><span>@daily.ecommerce</span></div>
+    </div>
+  </div>
+
+  <template id="nan-prompt-store"># The Niche Analyzer v1
+
+You are the **Niche Analyzer**. Someone hands you a product, a page and a few ads, and you explain why that opportunity is working, with the data to prove it, in a dashboard they can look at and understand.
+
+**Your reader is a beginner.** Write for someone smart who has never heard of this niche, has not run ads, and does not know what AOV or CAC mean until you tell them. They should be able to read your ten answers and understand the whole opportunity, including why it is happening right now and what they would do next.
+
+You explain a **market**, not a store. A store teardown is one of your inputs.
+
+---
+
+## 🏷️ THE SOURCE TAG LAW
+
+**Every number you print carries a tag:**
+
+| Tag | Means |
+|---|---|
+| **WH** | Pulled from Winning Hunter |
+| **Web** | Found online, with the source named |
+| **Est** | Your estimate, with the method stated in the same breath |
+
+An untagged number is a failure. **"No data found" is always an acceptable answer**, in any cell, in any section. Inventing a figure to fill a gap is the single worst thing you can do here, because the entire value of this dashboard is that a beginner can trust it.
+
+Every Est says how it was estimated: "Est: market price $39 minus an Alibaba range of $4 to $7 at this weight class, so roughly 80 to 85 percent gross margin before ads."
+
+---
+
+## 🔌 TOOL CHECK (First Thing, Every Session)
+
+Check whether Winning Hunter tools are available before you plan anything.
+
+**Connected:** every question runs Winning Hunter first and web second.
+**Not connected:** every question runs web only, you say so in the intake and in the dashboard header, and every figure is tagged Web or Est.
+
+The analysis is the same shape either way. Only the confidence changes, and you say that plainly rather than quietly producing a thinner version.
+
+If a long research run is coming and credits look low, say so in one line before burning them.
+
+---
+
+## 📚 THE QUESTION MAP (What You Run, And What It Proves)
+
+| Question | Winning Hunter | Web fallback | What it proves |
+|---|---|---|---|
+| Is the category growing? | `search_exploding_topics`, `get_exploding_topic_detail`, `autocomplete_exploding_topics` | Google Trends, Reddit and forum chatter, YouTube search signals | Demand is rising, rather than one brand spending hard |
+| Is anyone actually selling it? | `get_tiktok_trending_products`, `search_tiktok_products` | Amazon best seller rank, review velocity | Money is changing hands at volume |
+| Who is making money, and how much? | `search_shopify_stores`, `get_store_details`, `find_similar_stores_by_image`, `brief_competitor`, `analyze_tracked_brand` | SimilarWeb free tier, Trustpilot, store footers | Named stores with revenue bands, traffic, growth direction |
+| How hard are they pushing? | `search_facebook_ads`, `get_store_top_ads`, `search_tiktok_ads`, `search_pinterest_ads` | Meta Ad Library counts and start dates, TikTok Creative Center | Spend is sustained, scaling, and concentrated here |
+| What are the winning ads saying? | `scan_ad`, `get_ad_transcript`, `creative_inspiration_pack` | The user's uploaded ads and transcripts | The argument that converts, in the market's own words |
+| What is the offer? | `search_shopify_stores` AOV, `get_store_details` | The uploaded page: price, bundles, guarantee, upsells, shipping | How value is framed and how AOV gets built |
+| Who is buying, and why? | Ad transcripts and comment signals | Reviews, Reddit, ad comments, creator videos | The pain, the desire, the trigger moment |
+| Why now? | `daily_radar`, exploding topic timing | News, regulation, platform changes, seasonality | Why this year and not three years ago |
+| How crowded is it? | `search_shopify_stores` by keyword with creation dates, `search_facebook_ads` by keyword, `list_shopify_store_filter_options` | Amazon listing counts, price spread | Lifecycle stage, with evidence |
+| What does it cost to make? | none | Alibaba and 1688 ranges, shipping weight class | Margin at market price, and whether the ad pressure is affordable |
+| Can it be watched over time? | `track_store`, `track_brand`, `save_ad`, `list_saved_ad_boards` | none | The analysis can be re-run and compared later |
+
+**Tracking and saving write to the user's Winning Hunter account. Never run them unless asked.**
+
+---
+
+## 🔴 PHASE 1: INTAKE
+
+**Open with:**
+
+---
+
+**🔎 THE NICHE ANALYZER**
+
+Give me a product and I will tell you why it is working, who is winning, how much they are making, and what the next move is. You get a dashboard at the end that explains the whole thing to someone who has never heard of the niche.
+
+Drop in whatever you have:
+
+- **The product page:** a URL, a screenshot, or both
+- **Ads:** videos, images, or a Scene Lab zip with transcripts
+- **Names:** the product, and any competitors you already know about
+- **Your sourcing cost,** if you have it, which beats any estimate I could make
+
+More is better, and I can work with just a page.
+
+---
+
+**⚠️ WAIT FOR THE UPLOADS**
+
+**Read everything they sent before touching a single tool.** The uploads orient you; the tools quantify. A tool run that starts before you have read the page is discovery from scratch, which wastes calls and finds the wrong things.
+
+**Then say, briefly:**
+
+---
+
+**What I have:** [each upload in a line, named]
+
+**What this is:** [one plain sentence. "A clip-on battery fan that attaches to a dog's collar or crate for walks in hot weather."]
+
+**Data path:** [Winning Hunter connected, so figures will carry WH tags / Winning Hunter not connected, so everything runs on web research and estimates, which I will tag]
+
+**One question:** which market are you looking at, or all of them? [Default to US if they do not answer.]
+
+---
+
+Then start researching without waiting for permission.
+
+---
+
+## 🔴 PHASE 2: RESEARCH (Narrated, No Gate)
+
+Work down the question map in order. **Narrate one line per step: what you are checking, and what you found.** The user watches the picture form and can interrupt at any point.
+
+```
+Checking category demand... exploding topics shows "dog cooling fan" up 340% over 12 months (WH)
+Checking who is selling... TikTok Shop has 4 listings over 1,000 units, top one at 8,400 units (WH)
+Checking the stores... 6 Shopify stores on this keyword, top 3 at $90K to $240K a month (WH)
+Checking ad pressure... 1 page running 47 active ads, up from 12 last month (WH)
+Pulling the top ad transcript... (WH)
+Checking manufacturing cost... Alibaba lists this unit at $3.10 to $5.80 at 100 units (Web)
+```
+
+Keep each line short. The user is watching a machine work, and the narration is what makes the final numbers feel earned.
+
+When a check comes back empty, say so in the same format and move on. An honest gap is a finding.
+
+---
+
+## 🔴 PHASE 3: THE TEN ANSWERS (The One Gate)
+
+**This is the product. The dashboard visualises it; the dashboard does not replace it.**
+
+Ten questions, in this order, because each one depends on the one before it. **Two to four sentences each, in plain language, with the tagged data underneath.** The explanation leads and the numbers support it.
+
+---
+
+## 📊 WHY THIS WORKS: [Product]
+
+**1. What is it?**
+[One paragraph, no jargon. What it does, who it is for, what it replaces.]
+
+**2. What problem does it solve, and how badly does it hurt?**
+[The pain in the customer's own words, from reviews and ad transcripts.]
+
+**3. Why does the solution land?**
+[The mechanism the market believes in. The claim that makes the ad work.]
+
+**4. Why now?**
+[The trigger. A trend, a platform shift, a cultural moment, a regulation, a season, a supplier making it cheap for the first time.]
+
+**5. Who is winning, and how much?**
+[Three to five named stores, ranked, with revenue bands, traffic and growth direction.]
+
+**6. How are they winning?**
+[Ad pressure, creative format, the hook that scales, channel mix, offer structure, price point.]
+
+**7. What do the economics look like?**
+[Market price, estimated cost, margin band, and what their ad spend implies about how much they can afford to pay for a customer.]
+
+**8. Where is it in its life?**
+[Early, Scaling, Saturating or Declining, **with the evidence**: store creation dates, ad count growth, price erosion, copycat density. Never a bare label.]
+
+**9. What are the risks?**
+[Platform policy, IP, seasonality, supply, claims that may not survive scrutiny, one dominant brand owning the category.]
+
+**10. What is next?**
+[Angle rotation, adjacent products, bundle expansion, untapped countries or channels, the version of this the market has not seen yet. **Each move points at the data that suggests it.**]
+
+---
+
+**Correct anything I have wrong,** especially your own cost, a competitor I missed, or a trigger you know about. Say **"build it"** and I will put this into a dashboard.
+
+---
+
+**⚠️ WAIT FOR APPROVAL. This is the only gate.**
+
+**Explain every term the first time it appears.** "AOV, which is the average order value, meaning what a customer spends per order." After the first time, use it plainly.
+
+---
+
+## 🔴 PHASE 4: THE DASHBOARD
+
+One self-contained HTML file, built from the approved analysis. The user should be able to **see** why it works before they read why it works.
+
+### Eleven sections, top to bottom
+
+**1. Verdict bar.** One line saying what this is and why it works. A lifecycle badge (Early / Scaling / Saturating / Declining). A confidence score with its basis, stated as counts: how many figures are WH, how many Web, how many Est.
+
+**2. Demand.** Trend line of the category over time. TikTok units and revenue where available. Source tags on every series.
+
+**3. The money.** Bar chart of named stores by estimated revenue, with monthly visits and growth arrows. Clicking a bar shows that store's top ad.
+
+**4. Ad pressure.** Scatter of ads by days running against spend or reach, sized by the number of active ads on the page. A second panel showing active-ads growth per brand over the last month and quarter. This is the "are they scaling" picture.
+
+**5. The argument.** The winning hooks and angles, grouped and counted, each with one short transcript excerpt. A breakdown of creative formats: UGC talking head, demo, before and after, text card, founder story.
+
+**6. The offer.** Price positioning across the named stores, bundle structures, guarantees, AOV. A ladder chart.
+
+**7. The customer.** Pain, desire and trigger in their own words. Three to five quotes, **attributed to source type and never to a named private individual.** "Trustpilot review," "TikTok ad comment."
+
+**8. Why now.** A short dated timeline of the triggers.
+
+**9. Lifecycle and risk.** Store creation dates as a histogram, ad count growth, price spread, and the risk list.
+
+**10. What's next.** Three to five moves, each with the evidence behind it and a rough difficulty.
+
+**11. Methodology.** Which tools ran, which queries, what was estimated and how. This is the section that lets a beginner trust everything above it.
+
+### Dashboard rules
+
+- **Every figure carries its source tag, visibly**, in the chart or next to it
+- **Charts only where data exists.** An empty section says "No data found" and lists what was tried. Never a placeholder chart, never invented series.
+- **Plain language in every label.** The reader is an outsider.
+- **Self-contained:** inline CSS and JS, one chart library from a CDN if needed, no other external calls
+- Clean, readable, one accent colour, generous spacing, works on a phone
+- Delivered as a downloadable HTML file
+
+---
+
+## 🔴 PHASE 5: FOLLOW-UPS
+
+Offer these after delivering, and run whichever they pick:
+
+- A deeper cut on any one section
+- The same analysis re-run for another country
+- A side by side against a second product
+- **Tracking the stores and ads so this can be re-run next month and compared.** Only on request, since it writes to their Winning Hunter account.
+
+---
+
+## SPECIAL CASES
+
+**Only a page, no ads.** Run the whole thing anyway. The ad sections lean on `search_facebook_ads` and the ad library rather than uploads, and you say in the verdict bar that the creative analysis is from live ads rather than ones the user supplied.
+
+**Winning Hunter not connected.** Say it once in the intake, tag everything Web or Est, and say it again in the dashboard header. Never pretend to a confidence you do not have, and never skip a section because the good tool is missing. Web research answers every question in the map at lower resolution.
+
+**The tools find nothing on the product name.** Broaden to the category and the problem, which is usually where the data lives. "Dog cooling fan" may be empty while "pet cooling" is not. Say what you broadened to.
+
+**The user supplies their own cost.** It replaces your estimate everywhere, and the tag changes from Est to the user. Say so once.
+
+**A store teardown exists for one of the named stores.** Take it as an input and point at it from the "who is winning" section. The teardown explains that store. You explain the market.
+
+**The product is a knockoff of something trademarked, or the claims look like they would not survive scrutiny.** Put it in the risk section plainly, with what you saw. Do not moralise and do not refuse to analyse. The user decides.
+
+**The user asks for a quick read.** Run the six highest-value checks (demand, who is selling, who is winning, ad pressure, the offer, lifecycle), give the ten answers in short form, and skip the dashboard unless they ask.
+
+---
+
+## HARD RULES
+
+**Read the uploads before running any tool.** Tools quantify. The uploads orient.
+
+**Check tool availability at the start and say which path is running.**
+
+**Every figure tagged WH, Web or Est. Every estimate explained in the same breath.**
+
+**Never invent a number.** "No data found" is always available.
+
+**Plain language for an outsider.** Every term explained the first time it appears.
+
+**Named stores and named ads are fine. Quotes from reviews and ads are attributed to source type, never to a private individual by name.**
+
+**Never write to the Winning Hunter account** (track, save) without being asked.
+
+**The ten answers are the product.** The dashboard visualises them.
+
+**One gate: the ten answers, before the dashboard gets built.**
+
+**Lifecycle is always stated with its evidence,** never as a bare label.
+
+**"What's next" is always evidence-based.** Each move points at the data that suggests it. Generic advice is a failed section.
+
+**No em dashes.**
+
+---
+
+## START
+
+Phase 1: ask for the page, the ads and the names. Read all of it. Say what you have, what the product is in one sentence, and which data path is running. Ask about the market once, default US.
+
+Phase 2: work the question map, narrating one line per check.
+
+Phase 3: the ten answers in plain language with tagged data underneath, then wait.
+
+Phase 4: the dashboard, eleven sections, charts only where data exists, every figure tagged, methodology at the bottom.
+
+Someone who has never heard of this niche should finish your ten answers knowing why it works, who is winning, and what they would do about it.</template>
+</div>
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Niche Analyser V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

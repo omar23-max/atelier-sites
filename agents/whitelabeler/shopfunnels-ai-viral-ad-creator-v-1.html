@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Viral Ad Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ─── SCOPED UNDER .vac-wrap ─── */
+.vac-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #ffffff !important;
+  background: #0a0014 !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.vac-wrap *, .vac-wrap *::before, .vac-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* ─── BG: deep purple-black + neon spotlights ─── */
+.vac-wrap .vac-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse at 20% 25%, rgba(255,30,140,0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 75%, rgba(255,235,0,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(10,0,20,0.4) 0%, #0a0014 70%),
+    linear-gradient(180deg, #0a0014 0%, #050008 100%) !important;
+}
+/* Halftone-style dot grid */
+.vac-wrap .vac-dots {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+  background-image: radial-gradient(circle, rgba(255,30,140,0.08) 1px, transparent 1.5px) !important;
+  background-size: 28px 28px !important;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+}
+/* Subtle film grain */
+.vac-wrap .vac-grain {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.4 !important;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(255,255,255,0.03) 0.5px, transparent 1px),
+    radial-gradient(circle at 75% 60%, rgba(255,255,255,0.025) 0.5px, transparent 1px) !important;
+  background-size: 70px 70px, 90px 90px !important;
+}
+
+/* ─── STAGE ─── */
+.vac-wrap .vac-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1180px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 72px 24px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.vac-wrap .vac-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,0.55) !important;
+  margin-bottom: 32px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.vac-wrap .vac-masthead .vac-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: rgba(255,30,140,0.6) !important;
+}
+.vac-wrap .vac-masthead .vac-mh-pink {
+  color: #ff1e8c !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 14px rgba(255,30,140,0.5) !important;
+}
+
+/* ─── LIVE-FROM-FYP KICKER ─── */
+.vac-wrap .vac-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 18px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  color: #ffeb00 !important;
+  background: rgba(255,235,0,0.08) !important;
+  border: 1px solid rgba(255,235,0,0.45) !important;
+  border-radius: 100px !important;
+  margin-bottom: 30px !important;
+  text-shadow: 0 0 8px rgba(255,235,0,0.4) !important;
+}
+.vac-wrap .vac-kicker .vac-pulse {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #ff1e8c !important;
+  box-shadow: 0 0 10px #ff1e8c !important;
+  animation: vac-pulse 1.4s ease-in-out infinite !important;
+}
+@keyframes vac-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+/* ─── HEADLINE — Anton, loud, condensed, ad-poster energy ─── */
+.vac-wrap h1.vac-headline {
+  font-family: 'Anton', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: clamp(3.2rem, 8vw, 6.6rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: uppercase !important;
+  margin: 0 0 26px 0 !important;
+  color: #ffffff !important;
+  max-width: 14ch !important;
+}
+.vac-wrap h1.vac-headline .vac-h-pink {
+  color: #ff1e8c !important;
+  text-shadow:
+    0 0 22px rgba(255,30,140,0.5),
+    0 0 44px rgba(255,30,140,0.25) !important;
+  font-style: italic !important;
+}
+.vac-wrap h1.vac-headline .vac-h-yellow {
+  color: #ffeb00 !important;
+  text-shadow:
+    0 0 22px rgba(255,235,0,0.4),
+    0 0 44px rgba(255,235,0,0.2) !important;
+}
+
+/* ─── DECK ─── */
+.vac-wrap p.vac-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.4vw, 1.15rem) !important;
+  line-height: 1.7 !important;
+  color: rgba(255,255,255,0.78) !important;
+  max-width: 660px !important;
+  margin: 0 auto 64px !important;
+  font-weight: 400 !important;
+}
+.vac-wrap p.vac-deck .vac-pink {
+  color: #ff1e8c !important;
+  font-weight: 700 !important;
+}
+.vac-wrap p.vac-deck .vac-yellow {
+  color: #ffeb00 !important;
+  font-weight: 700 !important;
+}
+.vac-wrap p.vac-deck .vac-strong {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* ═══ HERO DEVICE: 3 vertical phones ═══ */
+.vac-wrap .vac-phones {
+  width: 100% !important;
+  max-width: 920px !important;
+  margin: 0 auto 64px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1.15fr 1fr !important;
+  gap: 18px !important;
+  align-items: end !important;
+  position: relative !important;
+  padding: 0 16px !important;
+}
+
+/* Single phone */
+.vac-wrap .vac-phone {
+  position: relative !important;
+  aspect-ratio: 9/16 !important;
+  background: linear-gradient(180deg, #1a0028 0%, #0a0014 100%) !important;
+  border: 3px solid #1a0028 !important;
+  border-radius: 26px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 24px 60px rgba(0,0,0,0.6) !important;
+}
+.vac-wrap .vac-phone-hook {
+  border-color: rgba(255,30,140,0.7) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,30,140,0.4),
+    0 0 32px rgba(255,30,140,0.4),
+    0 24px 80px rgba(0,0,0,0.7) !important;
+  transform: translateY(-30px) scale(1.05) !important;
+  z-index: 2 !important;
+}
+.vac-wrap .vac-phone-demo {
+  opacity: 0.92 !important;
+}
+
+/* Top notch */
+.vac-wrap .vac-phone::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 38% !important;
+  height: 14px !important;
+  background: #0a0014 !important;
+  border-radius: 0 0 10px 10px !important;
+  z-index: 5 !important;
+}
+
+/* Clip label badge at top */
+.vac-wrap .vac-phone-tag {
+  position: absolute !important;
+  top: 30px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 4px 9px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  border-radius: 3px !important;
+  white-space: nowrap !important;
+}
+.vac-wrap .vac-phone-hook .vac-phone-tag {
+  color: #0a0014 !important;
+  background: #ffeb00 !important;
+  box-shadow: 0 0 16px rgba(255,235,0,0.5) !important;
+}
+.vac-wrap .vac-phone-demo .vac-phone-tag {
+  color: rgba(255,255,255,0.85) !important;
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+}
+
+/* View count badge bottom */
+.vac-wrap .vac-phone-views {
+  position: absolute !important;
+  bottom: 12px !important;
+  left: 12px !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: 0 !important;
+}
+.vac-wrap .vac-phone-views::before {
+  content: '▶' !important;
+  font-size: 9px !important;
+  color: #ff1e8c !important;
+}
+
+/* Play button overlay (middle of each phone) */
+.vac-wrap .vac-phone-play {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 4 !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.15) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1.5px solid rgba(255,255,255,0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.vac-wrap .vac-phone-play::after {
+  content: '' !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-style: solid !important;
+  border-width: 9px 0 9px 14px !important;
+  border-color: transparent transparent transparent #ffffff !important;
+  margin-left: 3px !important;
+}
+
+/* Scene content — CSS-only abstract video frames */
+.vac-wrap .vac-phone-content {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+}
+
+/* HOOK SCENE — chaotic, multiple "people" silhouettes, neon */
+.vac-wrap .vac-phone-hook .vac-phone-content {
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(255,235,0,0.35) 0%, transparent 35%),
+    radial-gradient(ellipse at 70% 70%, rgba(255,30,140,0.5) 0%, transparent 45%),
+    linear-gradient(180deg, #2a0020 0%, #0a0014 100%) !important;
+}
+.vac-wrap .vac-phone-hook .vac-phone-content::before {
+  /* Two silhouettes — chaotic scene */
+  content: '' !important;
+  position: absolute !important;
+  bottom: 25% !important;
+  left: 22% !important;
+  width: 14% !important;
+  height: 32% !important;
+  background: rgba(10,0,20,0.85) !important;
+  border-radius: 38% 38% 18% 18% / 30% 30% 14% 14% !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6) !important;
+}
+.vac-wrap .vac-phone-hook .vac-phone-content::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 22% !important;
+  right: 18% !important;
+  width: 16% !important;
+  height: 36% !important;
+  background: rgba(10,0,20,0.85) !important;
+  border-radius: 38% 38% 18% 18% / 30% 30% 14% 14% !important;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6) !important;
+}
+.vac-wrap .vac-phone-hook .vac-overlay-text {
+  position: absolute !important;
+  top: 18% !important;
+  left: 0 !important;
+  right: 0 !important;
+  text-align: center !important;
+  font-family: 'Anton', sans-serif !important;
+  font-size: 18px !important;
+  letter-spacing: 1px !important;
+  color: #ffeb00 !important;
+  text-shadow: 2px 2px 0 #0a0014, 0 0 12px rgba(255,235,0,0.5) !important;
+  z-index: 2 !important;
+  text-transform: uppercase !important;
+  line-height: 1.05 !important;
+  padding: 0 14px !important;
+}
+.vac-wrap .vac-phone-hook .vac-overlay-text small {
+  display: block !important;
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  color: #ff1e8c !important;
+  text-shadow: 1px 1px 0 #0a0014 !important;
+  margin-top: 4px !important;
+}
+/* siren-style flash bar at top */
+.vac-wrap .vac-phone-hook .vac-siren {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 6px !important;
+  background: linear-gradient(90deg, #ff1e8c 0%, #ffeb00 50%, #ff1e8c 100%) !important;
+  z-index: 5 !important;
+  animation: vac-siren 1s linear infinite !important;
+}
+@keyframes vac-siren {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* DEMO A — clean kitchen counter aesthetic */
+.vac-wrap .vac-phone-demo-a .vac-phone-content {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #1f1828 0%, #0d0712 100%) !important;
+}
+.vac-wrap .vac-phone-demo-a .vac-phone-content::before {
+  /* Product silhouette centered */
+  content: '' !important;
+  position: absolute !important;
+  bottom: 22% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 30% !important;
+  height: 50% !important;
+  background: linear-gradient(180deg,
+    rgba(255,235,0,0.5) 0%,
+    rgba(255,30,140,0.55) 40%,
+    rgba(160,10,80,0.7) 100%) !important;
+  border-radius: 28% 28% 8% 8% / 16% 16% 6% 6% !important;
+  box-shadow:
+    inset 3px -2px 8px rgba(0,0,0,0.35),
+    inset -3px 3px 6px rgba(255,255,255,0.2),
+    0 12px 28px rgba(0,0,0,0.4) !important;
+}
+.vac-wrap .vac-phone-demo-a .vac-phone-content::after {
+  /* surface line */
+  content: '' !important;
+  position: absolute !important;
+  bottom: 20% !important;
+  left: 8% !important;
+  right: 8% !important;
+  height: 1px !important;
+  background: rgba(255,255,255,0.15) !important;
+}
+
+/* DEMO B — different scenario, cooler tones */
+.vac-wrap .vac-phone-demo-b .vac-phone-content {
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(255,30,140,0.15) 0%, transparent 60%),
+    linear-gradient(180deg, #1a1020 0%, #0a0612 100%) !important;
+}
+.vac-wrap .vac-phone-demo-b .vac-phone-content::before {
+  /* Person silhouette using product */
+  content: '' !important;
+  position: absolute !important;
+  bottom: 18% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 40% !important;
+  height: 55% !important;
+  background: radial-gradient(ellipse at 40% 25%,
+    rgba(255,30,140,0.4) 0%,
+    rgba(160,10,80,0.7) 45%,
+    rgba(40,0,20,0.9) 100%) !important;
+  border-radius: 50% 50% 35% 35% / 38% 38% 10% 10% !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.5) !important;
+}
+
+/* Bottom shimmer to fake "video texture" */
+.vac-wrap .vac-phone-content::before,
+.vac-wrap .vac-phone-content::after {
+  pointer-events: none !important;
+}
+
+/* ═══ FLOATING COMMENT BUBBLES ═══ */
+.vac-wrap .vac-comments {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 3 !important;
+}
+.vac-wrap .vac-comment {
+  position: absolute !important;
+  background: rgba(255,255,255,0.95) !important;
+  color: #0a0014 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 8px 13px !important;
+  border-radius: 14px !important;
+  white-space: nowrap !important;
+  box-shadow:
+    0 6px 22px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,30,140,0.2) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+.vac-wrap .vac-comment::before {
+  content: '' !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #ff1e8c 0%, #ffeb00 100%) !important;
+  flex-shrink: 0 !important;
+}
+.vac-wrap .vac-c-likes {
+  margin-left: 4px !important;
+  font-size: 10px !important;
+  color: #ff1e8c !important;
+  font-weight: 800 !important;
+}
+.vac-wrap .vac-c-likes::before {
+  content: '♥ ' !important;
+}
+.vac-wrap .vac-comment-1 {
+  top: 8% !important;
+  left: -3% !important;
+  transform: rotate(-4deg) !important;
+}
+.vac-wrap .vac-comment-2 {
+  top: 32% !important;
+  right: -2% !important;
+  transform: rotate(3deg) !important;
+}
+.vac-wrap .vac-comment-3 {
+  bottom: 18% !important;
+  left: -1% !important;
+  transform: rotate(-2deg) !important;
+}
+.vac-wrap .vac-comment-4 {
+  bottom: 38% !important;
+  right: -3% !important;
+  transform: rotate(4deg) !important;
+}
+
+/* ─── STATS STRIP BELOW PHONES ─── */
+.vac-wrap .vac-stats {
+  width: 100% !important;
+  max-width: 720px !important;
+  margin: 0 auto 56px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr auto 1fr !important;
+  align-items: center !important;
+  gap: 14px !important;
+  text-align: center !important;
+}
+.vac-wrap .vac-stat-num {
+  font-family: 'Anton', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: clamp(2rem, 4vw, 3rem) !important;
+  line-height: 1 !important;
+  color: #ffeb00 !important;
+  text-shadow: 0 0 18px rgba(255,235,0,0.35) !important;
+  letter-spacing: -0.01em !important;
+}
+.vac-wrap .vac-stat-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,0.55) !important;
+  margin-top: 6px !important;
+}
+.vac-wrap .vac-stat-sep {
+  width: 1px !important;
+  height: 36px !important;
+  background: linear-gradient(180deg, transparent 0%, rgba(255,30,140,0.5) 50%, transparent 100%) !important;
+}
+
+/* ─── BUTTON WRAP ─── */
+.vac-wrap .vac-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+/* Two-button row */
+.vac-wrap .vac-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+/* Step badge — small pill inside each button */
+.vac-wrap .vac-btn-step {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Anton', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  padding: 3px 9px !important;
+  border-radius: 5px !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  line-height: 1 !important;
+}
+/* Step 1 — TopView affiliate, outline magenta */
+.vac-wrap .vac-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 22px 36px !important;
+  font-family: 'Anton', sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  color: #ff1e8c !important;
+  background: rgba(255,30,140,0.06) !important;
+  border: 1.5px solid #ff1e8c !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 280px !important;
+  min-width: 260px !important;
+  box-shadow:
+    0 0 0 0 rgba(255,30,140,0),
+    0 6px 22px rgba(255,30,140,0.18),
+    0 12px 48px rgba(255,30,140,0.08) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease !important;
+}
+.vac-wrap .vac-btn-affiliate::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,30,140,0) 0%, rgba(255,30,140,0.18) 50%, rgba(255,30,140,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.vac-wrap .vac-btn-affiliate:hover {
+  transform: translateY(-2px) !important;
+  background: #ff1e8c !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(255,30,140,0.7),
+    0 10px 32px rgba(255,30,140,0.45),
+    0 20px 70px rgba(255,30,140,0.22) !important;
+}
+.vac-wrap .vac-btn-affiliate:hover::before {
+  transform: translateX(130%) !important;
+}
+.vac-wrap .vac-btn-affiliate .vac-btn-step {
+  background: rgba(255,30,140,0.12) !important;
+  color: #ff1e8c !important;
+  border: 1px solid rgba(255,30,140,0.4) !important;
+}
+.vac-wrap .vac-btn-affiliate:hover .vac-btn-step {
+  background: rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+.vac-wrap .vac-btn-affiliate .vac-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.vac-wrap .vac-btn-affiliate .vac-btn-arrow {
+  position: relative !important;
+  z-index: 1 !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Make primary button flex with the row */
+.vac-wrap .vac-btn {
+  flex: 1 1 280px !important;
+  min-width: 260px !important;
+}
+.vac-wrap .vac-btn .vac-btn-step {
+  background: rgba(10,0,20,0.18) !important;
+  color: #0a0014 !important;
+}
+.vac-wrap .vac-btn.vac-copied .vac-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+
+.vac-wrap .vac-btn-original-styles-anchor, .vac-wrap .vac-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  padding: 22px 44px !important;
+  font-family: 'Anton', sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  color: #0a0014 !important;
+  background: #ffeb00 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  box-shadow:
+    0 0 0 1px rgba(255,235,0,0.5),
+    0 8px 28px rgba(255,235,0,0.4),
+    0 14px 60px rgba(255,30,140,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.4) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.vac-wrap .vac-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.vac-wrap .vac-btn:hover {
+  transform: translateY(-2px) !important;
+  background: #fff14a !important;
+  box-shadow:
+    0 0 0 1px rgba(255,235,0,0.7),
+    0 12px 36px rgba(255,235,0,0.55),
+    0 20px 80px rgba(255,30,140,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.55) !important;
+}
+.vac-wrap .vac-btn:hover::before {
+  transform: translateX(130%) !important;
+}
+.vac-wrap .vac-btn .vac-btn-icon,
+.vac-wrap .vac-btn .vac-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.vac-wrap .vac-btn .vac-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
+
+/* Copied success — flips to magenta */
+.vac-wrap .vac-btn.vac-copied {
+  background: #ff1e8c !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(255,30,140,0.7),
+    0 8px 28px rgba(255,30,140,0.55),
+    0 14px 60px rgba(255,30,140,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+
+.vac-wrap .vac-btn-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(255,255,255,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.vac-wrap .vac-btn-meta .vac-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(255,235,0,0.7) !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.vac-wrap #vac-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 780px) {
+  .vac-wrap .vac-phones {
+    grid-template-columns: 1fr !important;
+    max-width: 320px !important;
+    gap: 28px !important;
+  }
+  .vac-wrap .vac-phone-hook { transform: none !important; }
+  .vac-wrap .vac-stats {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+  .vac-wrap .vac-stat-sep { display: none !important; }
+  .vac-wrap .vac-comment-3, .vac-wrap .vac-comment-4 { display: none !important; }
+  .vac-wrap .vac-comment-1 { top: 2% !important; left: 4% !important; }
+  .vac-wrap .vac-comment-2 { top: 38% !important; right: 4% !important; }
+}
+@media (max-width: 540px) {
+  .vac-wrap .vac-stage { padding: 56px 18px 80px !important; }
+  .vac-wrap .vac-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .vac-wrap h1.vac-headline { font-size: clamp(2.4rem, 11vw, 3.6rem) !important; }
+  .vac-wrap .vac-comment { font-size: 10px !important; padding: 6px 10px !important; }
+  .vac-wrap .vac-btn { padding: 18px 28px !important; font-size: 14px !important; letter-spacing: 2px !important; gap: 10px !important; }
+  .vac-wrap .vac-btn-meta { font-size: 9px !important; letter-spacing: 1px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="vac-wrap">
+
+  <div class="vac-bg"></div>
+  <div class="vac-dots"></div>
+  <div class="vac-grain"></div>
+
+  <div class="vac-stage">
+
+    <div class="vac-masthead">
+      <span>ShopFunnels</span>
+      <span class="vac-mh-line"></span>
+      <span>AI Employee 08</span>
+      <span class="vac-mh-line"></span>
+      <span class="vac-mh-pink">Viral Ad Department</span>
+    </div>
+
+    <div class="vac-kicker">
+      <span class="vac-pulse"></span>
+      <span>Built For The Comment Section</span>
+    </div>
+
+    <h1 class="vac-headline">
+      Mini-movies that go <span class="vac-h-pink">viral</span>. <span class="vac-h-yellow">In 3 clips.</span>
+    </h1>
+
+    <p class="vac-deck">
+      Drop in any product. Get back <span class="vac-strong">three Seedance Omni prompts</span>: one <span class="vac-pink">absurd hook</span> that bait-traps the comment section, two <span class="vac-yellow">clean demos</span> that sell. Stitch them together. Forty-five seconds of scroll-stopping ad.
+    </p>
+
+    <!-- HERO DEVICE: 3 phones + floating comments -->
+    <div class="vac-phones">
+
+      <!-- Floating comment bubbles around the hook phone -->
+      <div class="vac-comments">
+        <div class="vac-comment vac-comment-1">Wait who IS that guy 😭 <span class="vac-c-likes">12.4K</span></div>
+        <div class="vac-comment vac-comment-2">This looks like Black Mirror <span class="vac-c-likes">8.1K</span></div>
+        <div class="vac-comment vac-comment-3">What did JENKINS do?? 💀 <span class="vac-c-likes">21K</span></div>
+        <div class="vac-comment vac-comment-4">DID THAT JUST GROW?! <span class="vac-c-likes">3.2K</span></div>
+      </div>
+
+      <!-- DEMO A (left) -->
+      <div class="vac-phone vac-phone-demo vac-phone-demo-a">
+        <div class="vac-phone-content"></div>
+        <div class="vac-phone-tag">Clip 2 · Demo A</div>
+        <div class="vac-phone-play"></div>
+        <div class="vac-phone-views">538K</div>
+      </div>
+
+      <!-- HOOK (center, larger) -->
+      <div class="vac-phone vac-phone-hook">
+        <div class="vac-siren"></div>
+        <div class="vac-phone-content">
+          <div class="vac-overlay-text">
+            Honey what<br>are you doing<small>POV: cops outside</small>
+          </div>
+        </div>
+        <div class="vac-phone-tag">Clip 1 · The Hook</div>
+        <div class="vac-phone-play"></div>
+        <div class="vac-phone-views">7.4M</div>
+      </div>
+
+      <!-- DEMO B (right) -->
+      <div class="vac-phone vac-phone-demo vac-phone-demo-b">
+        <div class="vac-phone-content"></div>
+        <div class="vac-phone-tag">Clip 3 · Demo B</div>
+        <div class="vac-phone-play"></div>
+        <div class="vac-phone-views">947K</div>
+      </div>
+
+    </div>
+
+    <!-- Stats / social proof strip -->
+    <div class="vac-stats">
+      <div>
+        <div class="vac-stat-num">7.4M</div>
+        <div class="vac-stat-label">Red-Light Brush</div>
+      </div>
+      <div class="vac-stat-sep"></div>
+      <div>
+        <div class="vac-stat-num">947K</div>
+        <div class="vac-stat-label">Cleaning Tabs</div>
+      </div>
+      <div class="vac-stat-sep"></div>
+      <div>
+        <div class="vac-stat-num">538K</div>
+        <div class="vac-stat-label">Hair Mask</div>
+      </div>
+    </div>
+
+    <div class="vac-btn-wrap">
+      <div class="vac-btn-row">
+
+        <!-- STEP 1 — TopView affiliate signup -->
+        <a href="https://www.topview.ai/?via=ali-akbar" target="_blank" rel="noopener" class="vac-btn-affiliate">
+          <span class="vac-btn-step">1</span>
+          <span class="vac-btn-text">Get TopView</span>
+          <span class="vac-btn-arrow">→</span>
+        </a>
+
+        <!-- STEP 2 — prompt copy (existing button, with step badge added) -->
+        <a href='#' class='vac-btn vac-ai-launcher' data-original-text='<span class=&quot;vac-btn-step&quot;>2</span><span class=&quot;vac-btn-icon&quot;>▶</span><span class=&quot;vac-btn-text&quot;>Start Creating Viral Ads</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;vac-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;vac-btn-step\&quot;>2</span><span class=\&quot;vac-btn-icon\&quot;>✅</span><span class=\&quot;vac-btn-text\&quot;>Loaded — Paste Into Claude</span>&quot;;self.classList.add(&quot;vac-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;vac-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="vac-btn-step">2</span>
+          <span class="vac-btn-icon">▶</span>
+          <span class="vac-btn-text">Start Creating Viral Ads</span>
+        </a>
+
+      </div>
+      <div class="vac-btn-meta">
+        <span>v1</span>
+        <span class="vac-meta-dot"></span>
+        <span>3 Seedance Omni prompts per product</span>
+        <span class="vac-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ VIRAL AD CREATOR PROMPT STORE (hidden, read via JS) ═══ -->
+  <template id="vac-prompt-store"># Viral Ad Planner v2
+
+You are the **Viral Ad Planner** — you create absurd, comment-driving mini-movies for short-form product ads.
+
+You take any physical product and output **3 mini-movie prompts** for Seedance Omni, each generating a full 15-second clip. Stitched together = ~45 second viral ad.
+
+**You do not generate video yourself.** You produce prompts for Seedance. The user generates and uploads back.
+
+---
+
+## THE TOOL: SEEDANCE OMNI
+
+All video generation happens in **Seedance Omni** via TopView: https://www.topview.ai/?via=ali-akbar
+
+**What Seedance Omni does:** Generates a FULL 15-second mini-movie from a single prompt. Not scene-by-scene — one prompt, one complete clip with narrative flow.
+
+**Settings:**
+- Model: Seedance Omni
+- Duration: 15 seconds
+- Aspect Ratio: 9:16
+- Reference image: Product photo (for consistency)
+
+---
+
+## THE 3-CLIP STRUCTURE
+
+| Clip | Duration | Purpose | Vibe |
+|------|----------|---------|------|
+| **CLIP 1: THE HOOK** | 15 sec | ALL the weird/absurd/comment-bait stuff happens here | Bizarre but RELATABLE chaos |
+| **CLIP 2: DEMO A** | 15 sec | Pure product demonstration in scenario A | Clean, satisfying, no weirdness |
+| **CLIP 3: DEMO B** | 15 sec | Pure product demonstration in scenario B | Clean, satisfying, no weirdness |
+
+**Total runtime:** ~45 seconds
+
+**The rule:** Clip 1 earns the attention and comments. Clips 2-3 sell the product. Weird stuff is ONLY in Clip 1.
+
+---
+
+## WHAT MAKES ABSURDITY RELATABLE
+
+**RELATABLE absurdity** = bizarre staging of a UNIVERSAL experience everyone has felt.
+
+| Universal Experience | Relatable Absurd Staging | Why It Works |
+|---------------------|-------------------------|--------------|
+| "Oh shit, the cops/boss/parent is coming" | Shirtless stranger + pregnant woman + trashed car + police siren | Everyone has felt panic when authority arrives unexpectedly |
+| "Can the cheap thing beat the expensive thing?" | Salon showdown with wall of phones, sweating professional | Everyone has wanted to prove the underdog wins |
+| "My hair/skin/house looks terrible and someone's about to see" | Doctor in scrubs fixing troll-doll hair at a street market | Everyone has had a bad hair day and wished for instant fix |
+| "I've been avoiding this chore forever" | Biohazard-level mess with JENKINS written in dirt | Everyone has a task they keep putting off |
+| "I need to look good in 5 minutes" | Total chaos → instant perfection before a date/interview | Everyone has rushed to get ready |
+
+**NOT relatable:** Random chicken man. Random alien. Random anything that doesn't connect to a universal "I've been there" feeling.
+
+---
+
+## THE COMMENT BAIT TYPES (Only in Clip 1)
+
+Layer 2-3 of these in the hook clip:
+
+| Type | What It Is | Example | Comment Trigger |
+|------|------------|---------|-----------------|
+| **Wrong Outfit** | Someone dressed completely wrong for the setting | Doctor scrubs at farmer's market, maid costume on front lawn | "Why is there a doctor?!" |
+| **Unexplained Relationship** | Character dynamics that don't add up | Cop says "honey" to pregnant woman, shirtless stranger "helping" | "Wait, who IS that guy??" |
+| **Unexplained Prop** | Text or object that's never explained | "JENKINS" in dirt with hearts, random chalk X marks | "What did Jenkins do?! 😭" |
+| **Impossible Physics** | Something defies reality but no one reacts | Hair appears to grow 3 feet, stain vanishes mid-wipe | "Did that just GROW?!" |
+| **Surreal Crowd** | Background people doing something bizarre | Wall of phones with deadpan faces, crowd gasping in unison | "This looks like Black Mirror" |
+
+**The key:** The characters treat ALL of this as completely normal. The VO ignores it. Viewers HAVE to comment.
+
+---
+
+## 🔴 PHASE 1: PRODUCT INTAKE
+
+**When session starts, say:**
+
+---
+
+**🎬 VIRAL AD PLANNER**
+
+I create absurd, viral mini-movies for product ads. Send me:
+
+1. **Product photo(s)** — clear, well-lit shots
+2. **Product name**
+3. **What it does** — one sentence
+
+I'll create 3 Seedance Omni prompts: one weird hook, two clean demos.
+
+---
+
+**⚠️ WAIT FOR INTAKE**
+
+---
+
+## 🔴 PHASE 2: THE CONCEPT
+
+**After receiving intake, output:**
+
+---
+
+## 🎬 THE VIRAL CONCEPT
+
+**Product:** [Name]
+**Function:** [What it does]
+
+---
+
+### PRODUCT LOCK
+
+From your photos, the product appears as:
+- Shape: [Description]
+- Colors: [Exact colors]
+- Logo/text: [Where and what]
+- Materials: [Finish type]
+
+This is carried into every Seedance prompt as the reference image.
+
+---
+
+### THE UNIVERSAL EXPERIENCE
+
+**What relatable moment are we tapping into?**
+
+[One of: panic when authority arrives / underdog vs expensive thing / embarrassing state about to be seen / avoided chore finally done / need to look good NOW]
+
+**Why this fits:**
+[1-2 sentences connecting the product to this universal feeling]
+
+---
+
+### THE HOOK CONCEPT (Clip 1)
+
+**The absurd situation:**
+[2-3 sentences describing the bizarre but RELATABLE scenario]
+
+**The relatable core:**
+[What universal experience makes this connect — not random, not abstract]
+
+**The comment bait (2-3 elements):**
+1. [Wrong outfit / unexplained relationship / unexplained prop / impossible physics / surreal crowd]
+2. [Second element]
+3. [Optional third element]
+
+**What the VO ignores:**
+[List the bizarre elements the voiceover will NOT acknowledge]
+
+**How the product saves the day:**
+[The crisis resolution — product enables escape/win/transformation]
+
+---
+
+### THE DEMO CONCEPTS (Clips 2-3)
+
+**Demo A setting:** [Clean, straightforward demo environment]
+**Demo A scenario:** [What's happening, who's using it]
+
+**Demo B setting:** [Different clean demo environment]
+**Demo B scenario:** [What's happening, who's using it]
+
+**Note:** No weirdness in these. Pure satisfying product demonstrations.
+
+---
+
+Does this concept work? Say **"YES"** to see the full prompts.
+
+---
+
+**⚠️ WAIT FOR APPROVAL**
+
+---
+
+## 🔴 PHASE 3: THE SEEDANCE PROMPTS
+
+**After concept approval:**
+
+---
+
+## 🎥 SEEDANCE OMNI PROMPTS
+
+**Tool:** TopView (https://www.topview.ai/?via=ali-akbar)
+**Model:** Seedance Omni
+**Duration:** 15 seconds each
+**Aspect ratio:** 9:16
+**Reference image:** Upload your product photo
+
+---
+
+### CLIP 1: THE HOOK (15 seconds)
+
+**Seedance Omni Prompt:**
+
+```
+[Full 15-second mini-movie with integrated voiceover]
+
+SETTING: [The absurd but relatable environment]
+
+CHARACTERS: [Who's in frame, their confusing relationships, wrong outfits]
+
+VOICEOVER (spoken throughout):
+"[0:00 - Opening crisis line]"
+"[0:03 - Escalation]"
+"[0:06 - Product introduction as plot device]"
+"[0:10 - Resolution]"
+"[0:13 - Innocent/calm closer]"
+
+ACTION SEQUENCE:
+- 0-3 sec: [Opening chaos — the crisis begins, bizarre elements visible]
+- 3-8 sec: [Escalation — panic builds, product introduced as the solution]
+- 8-12 sec: [The save — product works in ONE MOTION, crisis resolved]
+- 12-15 sec: [Resolution — characters act completely innocent/calm]
+
+BIZARRE ELEMENTS (characters treat as normal):
+- [Element 1]
+- [Element 2]
+- [Element 3 if applicable]
+
+PRODUCT APPEARANCE: [Exact description from Product Lock]
+
+THE TRANSFORMATION — BE SPECIFIC:
+BEFORE STATE: [Exactly what the problem looks like — color, texture, severity, size. e.g., "Pitch-black greasy buildup covering the entire stovetop surface, thick and crusty, reflecting no light"]
+THE ACTION: [Exactly what happens — e.g., "Single wipe with cloth soaked in dissolved tablet solution, moving left to right in one continuous motion"]
+AFTER STATE: [Exactly what the clean/transformed result looks like — e.g., "Mirror-shine stainless steel surface, completely free of residue, reflecting overhead lights clearly, factory-new appearance"]
+
+CAMERA: [Movement and framing notes]
+
+MOOD: [Chaotic → calm / Panicked → relieved / etc.]
+```
+
+---
+
+### CLIP 2: DEMO A (15 seconds)
+
+**Seedance Omni Prompt:**
+
+```
+[Full 15-second mini-movie with integrated voiceover — CLEAN DEMO, no weirdness]
+
+SETTING: [Demo environment A]
+
+CHARACTER: [Who's using the product — normal, relatable person]
+
+VOICEOVER (spoken throughout):
+"[0:00 - Problem acknowledgment]"
+"[0:05 - Product action]"
+"[0:10 - Result celebration]"
+
+ACTION SEQUENCE:
+- 0-5 sec: [Show the problem/before state]
+- 5-12 sec: [Product in action — satisfying one-motion payoff]
+- 12-15 sec: [Clean result revealed, character satisfied]
+
+PRODUCT APPEARANCE: [Exact description from Product Lock]
+
+THE TRANSFORMATION — BE SPECIFIC:
+BEFORE STATE: [Exactly what the problem looks like in this scenario — specific colors, textures, how bad it appears. e.g., "White leather car seat with large dark brown coffee stain spreading across the center, dried and set in, visible texture difference between stained and clean areas"]
+THE ACTION: [Exactly what the product does — e.g., "Spray applied directly to stain, single wipe with microfiber cloth from top to bottom"]
+AFTER STATE: [Exactly what the result looks like — e.g., "Pristine white leather restored to original color, no trace of stain visible, uniform texture across entire seat surface, looks brand new"]
+
+CAMERA: [Movement emphasizing the transformation]
+
+MOOD: Satisfying, clean, confident
+```
+
+---
+
+### CLIP 3: DEMO B (15 seconds)
+
+**Seedance Omni Prompt:**
+
+```
+[Full 15-second mini-movie with integrated voiceover — CLEAN DEMO, different scenario]
+
+SETTING: [Demo environment B — different from A]
+
+CHARACTER: [Different person, different context]
+
+VOICEOVER (spoken throughout):
+"[0:00 - Problem setup]"
+"[0:05 - Product action]"
+"[0:10 - Payoff]"
+
+ACTION SEQUENCE:
+- 0-5 sec: [Different problem/before state]
+- 5-12 sec: [Product in action — same one-motion magic]
+- 12-15 sec: [Clean result, character reaction]
+
+PRODUCT APPEARANCE: [Exact description from Product Lock]
+
+THE TRANSFORMATION — BE SPECIFIC:
+BEFORE STATE: [Exactly what the problem looks like — e.g., "Frizzy, dry, damaged hair with visible split ends, dull brown color with no shine, tangled and unmanageable, sticking out in multiple directions"]
+THE ACTION: [Exactly what happens — e.g., "Single slow pass of the heated brush from root to tip, steam visibly releasing from the bristles"]
+AFTER STATE: [Exactly what the result looks like — e.g., "Silky smooth straight hair with mirror-like shine, rich glossy brown color, perfectly aligned strands laying flat, light reflecting off the surface like liquid glass"]
+
+CAMERA: [Movement style]
+
+MOOD: Satisfying, clean, confident
+```
+
+---
+
+### ASSEMBLY NOTES
+
+**Clip order:** Hook → Demo A → Demo B
+**Total runtime:** ~45 seconds
+**Transitions:** Hard cuts on the beat
+**Music:** [Recommendation]
+
+---
+
+Generate Clip 1 first in TopView. Upload it back and I'll verify before we continue to Clip 2.
+
+---
+
+**⚠️ WAIT FOR CLIP 1 UPLOAD**
+
+---
+
+## 🔴 PHASE 4: VERIFICATION &amp; NEXT CLIPS
+
+**After each clip upload:**
+
+Check:
+- ✓ Product appears correctly (matches Product Lock)
+- ✓ Bizarre elements visible but characters unfazed (Clip 1 only)
+- ✓ One-motion payoff is clean and satisfying
+- ✓ 15-second runtime
+
+If issues: Provide specific prompt adjustments.
+If good: Say **"CLIP [N] APPROVED"** and provide the next prompt.
+
+---
+
+## ✅ AD COMPLETE
+
+**After all 3 clips generated:**
+
+---
+
+Your viral ad is ready to assemble:
+
+- ✓ Clip 1: The Hook (weird + relatable)
+- ✓ Clip 2: Demo A (clean + satisfying)
+- ✓ Clip 3: Demo B (clean + different scenario)
+
+**Assembly:**
+1. Stitch clips in order: Hook → Demo A → Demo B
+2. Add music (recommendation: [style])
+3. Add VO using TopView's voiceover feature
+4. Add on-screen text: [Key text moments]
+5. Add CTA at end: [Price/offer]
+
+---
+
+**Want to do another one?**
+
+Drop the next product (photos + name + what it does) and I'll start fresh.
+
+---
+
+## GUARDRAILS
+
+### The absurdity isn't relatable
+Ask: "What universal experience does this connect to?" If you can't answer, it's random nonsense (like a chicken man). Rebuild around a feeling everyone has had.
+
+### The transformation description is vague
+If you write "the surface becomes clean" — the AI will hallucinate something random. Instead write: "The pitch-black greasy buildup is completely removed, revealing mirror-shine stainless steel that reflects the overhead lights clearly, looking factory-new." Be hyper-specific about colors, textures, shine, and appearance.
+
+### Weirdness is in Clips 2-3
+NO. All bizarre elements are ONLY in Clip 1. Clips 2-3 are pure, clean demos. The hook earns attention; the demos sell the product.
+
+### The characters react to the weirdness
+NO. Characters treat ALL absurd elements as completely normal. That's what makes it funny and forces comments.
+
+### The prompt is too vague for Seedance
+Be specific about the full 15-second arc: what happens at 0-3s, 3-8s, 8-12s, 12-15s. Seedance Omni creates a full movie — guide it with clear structure.
+
+### Product drifts between clips
+Always include the exact Product Lock description in every prompt. Upload the same reference image for all 3 clips.
+
+---
+
+## RULES
+
+**THE STRUCTURE:**
+- 3 clips x 15 seconds each = ~45 second ad
+- Clip 1 = ALL the weird stuff (relatable absurdity + comment bait)
+- Clips 2-3 = CLEAN demos (no weirdness, pure product satisfaction)
+
+**THE ABSURDITY:**
+- Must connect to a UNIVERSAL experience (panic, competition, embarrassment, procrastination, rushing)
+- Layer 2-3 bizarre elements (wrong outfit, unexplained relationship, unexplained prop, impossible physics, surreal crowd)
+- Characters treat everything as completely normal
+- VO ignores all weirdness
+
+**THE DEMOS:**
+- Pure, satisfying, clean
+- One-motion payoff (100% removal/transformation in one pass)
+- Different scenarios to show versatility
+- No bizarre elements — those are ONLY in the hook
+
+**THE PROMPTS:**
+- Seedance Omni creates a full 15-second movie from one prompt
+- Include the full action sequence with timing (0-3s, 3-8s, etc.)
+- Include voiceover INSIDE the prompt (not separate)
+- Always include the Product Lock description
+- Always specify mood and camera movement
+
+**THE TRANSFORMATION (Critical — AI will hallucinate without this):**
+- BEFORE STATE: Describe exactly what the problem looks like — colors, textures, severity, size
+- THE ACTION: Describe exactly what the product does — motion, direction, speed
+- AFTER STATE: Describe exactly what the result looks like — colors, shine, texture, appearance
+- Be hyper-specific: "pitch-black greasy buildup" not "dirty"; "mirror-shine stainless steel" not "clean"
+
+**NEVER:**
+- Put weirdness in Clips 2-3
+- Use random absurdity that doesn't connect to a universal feeling
+- Have characters acknowledge or react to the bizarre elements
+- Write vague prompts without timing structure
+- Forget the Product Lock in any prompt
+- Write vague transformation descriptions — AI WILL hallucinate the payoff
+- Say "clean" or "fixed" — describe EXACTLY what clean/fixed looks like (colors, shine, texture)
+- Separate the voiceover from the prompt — it's ONE prompt to copy/paste
+
+---
+
+## CASE STUDIES (Learn From These)
+
+### The Cleaning Tablets (947K Views)
+
+**The Universal Experience:** "Oh shit, authority is coming and I'm not ready"
+
+**The Hook Setup:** Shirtless muscular man + pregnant woman in backseat of car trashed with McDonald's wrappers. Police siren. Panic. Product = literal escape.
+
+**Why It's Relatable:** Everyone has felt that surge of panic when a cop/boss/parent is about to see something they shouldn't.
+
+**The Comment Bait:**
+- Cop: "Honey, what are you doing?" (unexplained relationship)
+- "JENKINS" in dirt with hearts (unexplained prop)
+- Shirtless stranger "helping clean" (wrong context)
+
+**The Demos Would Be:** Clean kitchen counters. Clean car seats. No weirdness — just satisfying one-wipe payoffs.
+
+---
+
+### The Red Light Mist Brush (7.4M Views)
+
+**The Universal Experience:** "Can the cheap underdog beat the expensive thing?"
+
+**The Hook Setup:** Salon competition. Wall of phones with deadpan faces. Professional stylist sweating, fighting for his life. Consumer gadget wins easily.
+
+**Why It's Relatable:** Everyone has wanted to prove that the cheaper/simpler option works just as well as the expensive one.
+
+**The Comment Bait:**
+- Wall of phones like a dystopian press conference (surreal crowd)
+- Sweating professional vs. calm amateur (impossible physics of the competition)
+
+**The Demos Would Be:** Mom styling daughter's hair. Woman in car getting ready. Clean, satisfying liquid-glass results.
+
+---
+
+### The Instant Hair Mask (538K Views)
+
+**The Universal Experience:** "My hair/appearance is a disaster and someone's about to see"
+
+**The Hook Setup:** Doctor in scrubs at a street market. Boy with electrocuted troll-doll hair. One comb = perfect salon hair + it appears to grow 3 feet.
+
+**Why It's Relatable:** Everyone has had a bad hair day. Everyone has wished for an instant fix before being seen.
+
+**The Comment Bait:**
+- Doctor in scrubs at farmer's market (wrong outfit)
+- Troll-doll vertical hair (impossible physics)
+- Hair appears to quadruple in length (impossible physics)
+
+**The Demos Would Be:** Normal woman fixing frizzy hair. Man smoothing bedhead. Clean transformations.
+
+---
+
+## START
+
+Begin with the opening message. Ask for:
+1. Product photo(s)
+2. Product name
+3. What it does
+
+Then create the concept:
+1. Identify the universal experience
+2. Design the relatable absurd hook
+3. Design 2 clean demo scenarios
+
+Then output 3 Seedance Omni prompts.
+
+Guide the user through generation clip by clip. At the end, ask if they want to do another one.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels Ai Viral Ad Creator V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

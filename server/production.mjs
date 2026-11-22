@@ -162,6 +162,7 @@ async function serveStatic(req, res) {
   let immutable = false;
   if (path === "/" || path === "/index.html") file = join(dist, "index.html");
   else if (path === "/catalogue.html") file = join(dist, "catalogue.html");
+  else if (path === "/agents.html") file = join(dist, "agents.html");
   else {
     const top = path.split("/")[1];
     const inDist = inside(dist, path);

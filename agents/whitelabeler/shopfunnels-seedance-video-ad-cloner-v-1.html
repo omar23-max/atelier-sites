@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels Seedance Video Cloner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── SCOPED UNDER .clo-wrap ─── */
+.clo-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  color: #d6ffd9 !important;
+  background: #050807 !important;
+  position: relative !important;
+  min-height: 760px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.clo-wrap *, .clo-wrap *::before, .clo-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* ─── BG layers: deep green vignette + scanlines + grain ─── */
+.clo-wrap .clo-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(38,255,107,0.16) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(255,36,76,0.10) 0%, transparent 60%),
+    linear-gradient(180deg, #050807 0%, #02050a 100%) !important;
+}
+.clo-wrap .clo-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background-image:
+    linear-gradient(rgba(38,255,107,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38,255,107,0.05) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+}
+.clo-wrap .clo-scan {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(38,255,107,0) 0px,
+    rgba(38,255,107,0) 2px,
+    rgba(38,255,107,0.03) 3px,
+    rgba(38,255,107,0) 4px
+  ) !important;
+  mix-blend-mode: screen !important;
+}
+.clo-wrap .clo-vignette {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  box-shadow: inset 0 0 220px 70px rgba(0,0,0,0.9) !important;
+}
+
+/* ─── STAGE ─── */
+.clo-wrap .clo-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1080px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 72px 28px 96px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── TOP BAR: SOURCE → CLONE indicator ─── */
+.clo-wrap .clo-topbar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin-bottom: 36px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.clo-wrap .clo-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 14px !important;
+  border: 1px solid currentColor !important;
+  background: rgba(0,0,0,0.4) !important;
+  border-radius: 2px !important;
+  font-weight: 800 !important;
+}
+.clo-wrap .clo-tag-src { color: #ff244c !important; text-shadow: 0 0 8px rgba(255,36,76,0.6) !important; }
+.clo-wrap .clo-tag-clone { color: #26ff6b !important; text-shadow: 0 0 8px rgba(38,255,107,0.6) !important; }
+.clo-wrap .clo-tag-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: currentColor !important;
+  box-shadow: 0 0 8px currentColor !important;
+  animation: clo-pulse 1.6s ease-in-out infinite !important;
+}
+@keyframes clo-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.clo-wrap .clo-arrow {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 14px !important;
+  color: rgba(214,255,217,0.5) !important;
+  letter-spacing: 2px !important;
+}
+
+/* ─── BRAND LINE ─── */
+.clo-wrap .clo-brand {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 5px !important;
+  text-transform: uppercase !important;
+  color: rgba(214,255,217,0.5) !important;
+  margin-bottom: 26px !important;
+  font-weight: 700 !important;
+}
+.clo-wrap .clo-brand .clo-bar {
+  display: inline-block !important;
+  width: 22px !important;
+  height: 1px !important;
+  background: rgba(38,255,107,0.6) !important;
+  vertical-align: middle !important;
+  margin: 0 14px !important;
+}
+
+/* ─── HEADLINE — chromatic split IS the clone effect ─── */
+.clo-wrap h1.clo-headline {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: clamp(2.6rem, 6.5vw, 5.4rem) !important;
+  line-height: 0.95 !important;
+  letter-spacing: -0.035em !important;
+  text-transform: uppercase !important;
+  margin: 0 0 28px 0 !important;
+  color: #ffffff !important;
+  position: relative !important;
+  display: inline-block !important;
+}
+.clo-wrap h1.clo-headline .clo-h-line {
+  display: block !important;
+  position: relative !important;
+}
+.clo-wrap h1.clo-headline .clo-h-strong {
+  color: #26ff6b !important;
+  font-style: italic !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 22px rgba(38,255,107,0.5) !important;
+}
+/* Chromatic clone: red ghost left, green ghost right — the headline IS being cloned in real time */
+.clo-wrap h1.clo-headline .clo-h-line::before,
+.clo-wrap h1.clo-headline .clo-h-line::after {
+  content: attr(data-text) !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  mix-blend-mode: screen !important;
+}
+.clo-wrap h1.clo-headline .clo-h-line::before {
+  color: #ff244c !important;
+  transform: translate(-3px, 0) !important;
+  opacity: 0.55 !important;
+  animation: clo-shift-a 5s steps(1, end) infinite !important;
+}
+.clo-wrap h1.clo-headline .clo-h-line::after {
+  color: #26ff6b !important;
+  transform: translate(3px, 0) !important;
+  opacity: 0.55 !important;
+  animation: clo-shift-b 5s steps(1, end) infinite !important;
+}
+@keyframes clo-shift-a {
+  0%, 88%, 100% { transform: translate(-3px, 0); }
+  89% { transform: translate(-6px, 1px); }
+  90% { transform: translate(2px, -2px); }
+  91% { transform: translate(-3px, 0); }
+}
+@keyframes clo-shift-b {
+  0%, 88%, 100% { transform: translate(3px, 0); }
+  89% { transform: translate(6px, -1px); }
+  90% { transform: translate(-2px, 2px); }
+  91% { transform: translate(3px, 0); }
+}
+
+/* ─── SUBHEADLINE ─── */
+.clo-wrap p.clo-sub {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: clamp(0.92rem, 1.35vw, 1.05rem) !important;
+  line-height: 1.7 !important;
+  color: rgba(214,255,217,0.72) !important;
+  max-width: 660px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+}
+.clo-wrap p.clo-sub .clo-acid {
+  color: #26ff6b !important;
+  font-weight: 700 !important;
+}
+.clo-wrap p.clo-sub .clo-red {
+  color: #ff244c !important;
+  font-weight: 700 !important;
+}
+
+/* ─── DUAL FILMSTRIP — source ↔ clone visual demo ─── */
+.clo-wrap .clo-strip {
+  width: 100% !important;
+  max-width: 760px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin: 0 auto 48px !important;
+}
+.clo-wrap .clo-strip-side {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 6px !important;
+}
+.clo-wrap .clo-frame {
+  position: relative !important;
+  aspect-ratio: 9/16 !important;
+  border: 1px solid rgba(214,255,217,0.18) !important;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.018), rgba(255,255,255,0.018) 2px, transparent 2px, transparent 6px),
+    linear-gradient(180deg, #0f1612 0%, #06090a 100%) !important;
+  overflow: hidden !important;
+}
+.clo-wrap .clo-frame.clo-source { border-color: rgba(255,36,76,0.45) !important; }
+.clo-wrap .clo-frame.clo-clone { border-color: rgba(38,255,107,0.45) !important; }
+.clo-wrap .clo-frame::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important; bottom: 0 !important;
+  left: 50% !important;
+  width: 1px !important;
+  background: rgba(214,255,217,0.15) !important;
+  transform: translateX(-50%) !important;
+}
+.clo-wrap .clo-frame::after {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important; right: 0 !important;
+  top: 50% !important;
+  height: 1px !important;
+  background: rgba(214,255,217,0.15) !important;
+  transform: translateY(-50%) !important;
+}
+.clo-wrap .clo-frame .clo-frame-num {
+  position: absolute !important;
+  bottom: 4px !important;
+  left: 4px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  color: rgba(214,255,217,0.4) !important;
+  text-transform: uppercase !important;
+}
+.clo-wrap .clo-frame.clo-source .clo-frame-num { color: rgba(255,36,76,0.75) !important; }
+.clo-wrap .clo-frame.clo-clone .clo-frame-num { color: rgba(38,255,107,0.75) !important; }
+/* "subject" — abstract product silhouette using gradients */
+.clo-wrap .clo-frame .clo-subject {
+  position: absolute !important;
+  left: 50% !important;
+  top: 52% !important;
+  width: 60% !important;
+  height: 38% !important;
+  transform: translate(-50%, -50%) !important;
+  border-radius: 4px !important;
+  background: radial-gradient(ellipse at 35% 35%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.06) 60%, transparent 100%) !important;
+}
+.clo-wrap .clo-frame.clo-source .clo-subject {
+  background: radial-gradient(ellipse at 35% 35%, rgba(255,170,170,0.4) 0%, rgba(255,36,76,0.18) 50%, transparent 100%) !important;
+}
+.clo-wrap .clo-frame.clo-clone .clo-subject {
+  background: radial-gradient(ellipse at 35% 35%, rgba(170,255,190,0.4) 0%, rgba(38,255,107,0.18) 50%, transparent 100%) !important;
+}
+
+.clo-wrap .clo-strip-arrow {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: rgba(38,255,107,0.7) !important;
+  letter-spacing: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.clo-wrap .clo-strip-arrow span:first-child {
+  text-shadow: 0 0 12px rgba(38,255,107,0.5) !important;
+}
+.clo-wrap .clo-strip-arrow .clo-strip-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(214,255,217,0.5) !important;
+  text-transform: uppercase !important;
+}
+
+/* ─── BUTTON SHELL — terminal frame ─── */
+.clo-wrap .clo-btn-shell {
+  position: relative !important;
+  display: inline-block !important;
+  padding: 0 !important;
+  margin-bottom: 28px !important;
+}
+.clo-wrap .clo-btn-shell::before,
+.clo-wrap .clo-btn-shell::after {
+  content: '' !important;
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 1.5px solid rgba(38,255,107,0.7) !important;
+  pointer-events: none !important;
+}
+.clo-wrap .clo-btn-shell::before {
+  top: -8px !important;
+  left: -8px !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+.clo-wrap .clo-btn-shell::after {
+  bottom: -8px !important;
+  right: -8px !important;
+  border-left: none !important;
+  border-top: none !important;
+}
+.clo-wrap .clo-btn-shell .clo-shell-tr,
+.clo-wrap .clo-btn-shell .clo-shell-bl {
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  border: 1.5px solid rgba(38,255,107,0.7) !important;
+  pointer-events: none !important;
+}
+.clo-wrap .clo-btn-shell .clo-shell-tr {
+  top: -8px !important;
+  right: -8px !important;
+  border-left: none !important;
+  border-bottom: none !important;
+}
+.clo-wrap .clo-btn-shell .clo-shell-bl {
+  bottom: -8px !important;
+  left: -8px !important;
+  border-right: none !important;
+  border-top: none !important;
+}
+
+/* ─── BUTTON ─── */
+.clo-wrap .clo-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  padding: 22px 44px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  color: #050807 !important;
+  background: #26ff6b !important;
+  border: none !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  box-shadow:
+    0 0 0 1px rgba(38,255,107,0.5),
+    0 0 32px rgba(38,255,107,0.55),
+    0 0 60px rgba(38,255,107,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.5) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.clo-wrap .clo-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.65s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.clo-wrap .clo-btn:hover {
+  transform: translateY(-2px) !important;
+  background: #5cff8e !important;
+  box-shadow:
+    0 0 0 1px rgba(38,255,107,0.8),
+    0 0 44px rgba(38,255,107,0.7),
+    0 0 88px rgba(38,255,107,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.65) !important;
+}
+.clo-wrap .clo-btn:hover::before {
+  transform: translateX(130%) !important;
+}
+.clo-wrap .clo-btn .clo-btn-icon,
+.clo-wrap .clo-btn .clo-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.clo-wrap .clo-btn .clo-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
+
+/* Copied state — switch to acid teal so it reads as "saved/locked" */
+.clo-wrap .clo-btn.clo-copied {
+  background: linear-gradient(95deg, #00ffe1 0%, #1affd1 100%) !important;
+  color: #042621 !important;
+  box-shadow:
+    0 0 0 1px rgba(0,255,225,0.7),
+    0 0 44px rgba(0,255,225,0.6),
+    0 0 88px rgba(0,255,225,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.6) !important;
+}
+
+/* ─── FOOTER STATUS LINE ─── */
+.clo-wrap .clo-foot {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(214,255,217,0.42) !important;
+  margin-top: 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.clo-wrap .clo-foot .clo-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(38,255,107,0.6) !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.clo-wrap #clo-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 740px) {
+  .clo-wrap .clo-strip { max-width: 100% !important; gap: 10px !important; }
+  .clo-wrap .clo-strip-side { gap: 4px !important; }
+  .clo-wrap .clo-strip-arrow { font-size: 18px !important; }
+}
+@media (max-width: 540px) {
+  .clo-wrap .clo-stage { padding: 56px 18px 80px !important; }
+  .clo-wrap .clo-topbar { gap: 10px !important; }
+  .clo-wrap .clo-tag { font-size: 8px !important; letter-spacing: 2px !important; padding: 6px 10px !important; }
+  .clo-wrap .clo-brand { letter-spacing: 3px !important; }
+  .clo-wrap .clo-btn { padding: 18px 26px !important; font-size: 11px !important; letter-spacing: 2px !important; gap: 10px !important; }
+  .clo-wrap .clo-foot { font-size: 9px !important; letter-spacing: 1.5px !important; }
+  .clo-wrap .clo-strip-side { grid-template-columns: repeat(2, 1fr) !important; }
+  .clo-wrap .clo-strip-side .clo-frame:nth-child(3) { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="clo-wrap">
+
+  <div class="clo-bg"></div>
+  <div class="clo-grid"></div>
+  <div class="clo-scan"></div>
+  <div class="clo-vignette"></div>
+
+  <div class="clo-stage">
+
+    <!-- Source → Clone status bar -->
+    <div class="clo-topbar">
+      <span class="clo-tag clo-tag-src"><span class="clo-tag-dot"></span>SOURCE DETECTED</span>
+      <span class="clo-arrow">&gt;&gt;</span>
+      <span class="clo-tag clo-tag-clone"><span class="clo-tag-dot"></span>CLONE READY</span>
+    </div>
+
+    <div class="clo-brand">
+      <span>ShopFunnels</span>
+      <span class="clo-bar"></span>
+      <span>AI Employee 05</span>
+    </div>
+
+    <h1 class="clo-headline">
+      <span class="clo-h-line" data-text="Any Competitor Ad.">Any Competitor Ad.</span>
+      <span class="clo-h-line clo-h-strong" data-text="Cloned In Minutes.">Cloned In Minutes.</span>
+    </h1>
+
+    <p class="clo-sub">
+      Drop in any <span class="clo-red">competitor video</span>. Get back a <span class="clo-acid">paste-ready Seedance prompt</span> for TopView. One winning ad becomes <span class="clo-acid">20 to 40 variations</span>. That is the ROI.
+    </p>
+
+    <!-- Source ↔ Clone film strip demo -->
+    <div class="clo-strip">
+      <div class="clo-strip-side">
+        <div class="clo-frame clo-source"><div class="clo-subject"></div><div class="clo-frame-num">SRC 01</div></div>
+        <div class="clo-frame clo-source"><div class="clo-subject"></div><div class="clo-frame-num">SRC 02</div></div>
+        <div class="clo-frame clo-source"><div class="clo-subject"></div><div class="clo-frame-num">SRC 03</div></div>
+      </div>
+      <div class="clo-strip-arrow">
+        <span>&gt;&gt;</span>
+        <span class="clo-strip-label">CLONE</span>
+      </div>
+      <div class="clo-strip-side">
+        <div class="clo-frame clo-clone"><div class="clo-subject"></div><div class="clo-frame-num">CLN 01</div></div>
+        <div class="clo-frame clo-clone"><div class="clo-subject"></div><div class="clo-frame-num">CLN 02</div></div>
+        <div class="clo-frame clo-clone"><div class="clo-subject"></div><div class="clo-frame-num">CLN 03</div></div>
+      </div>
+    </div>
+
+    <div class="clo-btn-shell">
+      <span class="clo-shell-tr"></span>
+      <span class="clo-shell-bl"></span>
+      <a href='#' class='clo-btn clo-ai-launcher' data-original-text='<span class=&quot;clo-btn-icon&quot;>▶</span><span class=&quot;clo-btn-text&quot;>Initialize Clone Protocol</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;clo-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;clo-btn-icon\&quot;>✅</span><span class=\&quot;clo-btn-text\&quot;>Clone Loaded — Paste Into Claude</span>&quot;;self.classList.add(&quot;clo-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;clo-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+        <span class="clo-btn-icon">▶</span>
+        <span class="clo-btn-text">Initialize Clone Protocol</span>
+      </a>
+    </div>
+
+    <div class="clo-foot">
+      <span>v2.0</span>
+      <span class="clo-dot"></span>
+      <span>Seedance 2.0 · TopView · Canva</span>
+      <span class="clo-dot"></span>
+      <span>One Click · Paste Into Any Claude Chat</span>
+    </div>
+
+  </div>
+
+  <!-- ═══ SEEDANCE CLONER PROMPT STORE (hidden, read via JS) ═══ -->
+  <template id="clo-prompt-store"># ShopFunnels Seedance Video Cloner v2
+
+You are the **Seedance Video Cloner** — an AI production assistant that takes competitor ecommerce ads and outputs paste-ready Seedance 2.0 Omni Reference prompts for TopView.
+
+You turn one winning ad into 20–40 variations. That's the ROI.
+
+---
+
+## CHANGELOG (v2)
+
+1. **Two-step intake** — ZIP first, then Gemini description (not everything at once)
+2. **Mandatory frame scan** — Unzip and view key frames before breakdown
+3. **Full ad clone default** — Multi-part workflow for ads &gt;15s, not forced trimming
+4. **Variation decision upfront** — Before prompt build, not after
+5. **Option A vs B for color overrides** — Clear choice with success rates
+6. **Multi-part clone protocol** — Split at narrative beats, consistent overrides across parts
+7. **Original ZIP filenames** — No renaming, reference exact files
+8. **Canva for trimming** — Replaces CapCut (cleaner re-encode)
+9. **TopView as platform** — Replaces Higgsfield references
+10. **Tighter communication** — Minimum viable instruction in execution mode
+
+---
+
+## WHAT YOU DO
+
+**Input:**
+- Video-to-JPEG ZIP of the competitor ad (frame extraction)
+- Gemini video description (audio + motion + text reading)
+- Product/brand context
+
+**Output:**
+- Canva trim instructions with exact timestamps
+- TopView link + upload order table (using original ZIP filenames)
+- Complete, paste-ready Seedance Omni Reference prompt
+- TopView settings recommendations
+- Variation strategy for 5–10+ alternate creatives
+
+---
+
+## YOUR SEEDANCE 2.0 KNOWLEDGE
+
+### The Platform
+
+- **Released:** February 10, 2026 by ByteDance
+- **Type:** First truly multimodal video model (text + image + video + audio)
+- **Duration:** 4–15 seconds per generation (HARD CEILING — never promise longer)
+- **Resolution:** 1080p standard, 2K available
+- **Aspect ratios:** 16:9, 9:16, 4:3, 3:4, 21:9, 1:1
+- **Prompt length:** 1,500 characters max
+
+### The @ Reference System (Critical)
+
+Seedance accepts up to 12 reference assets, but **TopView caps at 4-5 total**. You work within this ceiling.
+
+**Asset types:**
+- Up to 9 images → `@Image1` through `@Image9`
+- Up to 3 videos → `@Video1`, `@Video2`, `@Video3` (≤15s total)
+- Up to 3 audio → `@Audio1`, `@Audio2`, `@Audio3` (≤15s, MP3)
+
+**The principle:** Uploading assets is not enough. Seedance does NOT reliably infer what each file does. **You assign jobs by name in the prompt.**
+
+❌ Bad: "Use these images to make a product video"
+✅ Good: "@Image1 as scene layout reference, @Image2 as hero product reference, @Video1 as camera movement and pacing reference"
+
+**Priority order for slot allocation:**
+
+| Priority | Slot | Purpose |
+|----------|------|---------|
+| 1 | `@Video1` | Motion template — camera, pacing, physics |
+| 2 | `@Image1` | Scene/establishing — locks layout and composition |
+| 3 | `@Image2` | Hero product — locks product appearance |
+| 4 | `@Image3` | Payoff shot — locks climax framing |
+| 5 | `@Image4` | Flexibility — branded swap or alternate angle (optional) |
+
+### Timeline Prompting
+
+Seedance reads `[0:00–0:05]` timestamps as **hard editorial cut instructions**. This is the unlock for multi-phase demonstration videos.
+
+**4-Layer Ad Structure:**
+
+| Layer | Seconds | Purpose |
+|-------|---------|---------|
+| 1. Subject/scene setup | — | Who/what is in frame, 3 specific visual details |
+| 2. Hook | 0–3s | Visual moment that stops the scroll |
+| 3. Product moment | 4–10s | Demonstration, close-ups, reveals |
+| 4. Closing frame | 11–15s | Hero shot, CTA, brand resolve |
+
+### Shot &amp; Style Vocabulary
+
+**Shot types:** Wide, Medium, Close-up, Extreme close-up, Macro, POV, Top-down, Over-the-shoulder
+
+**Camera movements:** Dolly in/out, push-in, pull-back, tracking, pan, tilt, orbit, crane, handheld, snap zoom
+
+**Lighting:** Softbox, ring light, golden hour, natural window light, rim light, premium commercial
+
+**Style cues:**
+- "Shot with iPhone, handheld" → UGC feel
+- "Sony A7S3, cinema camera, 4K ultra-clear" → broadcast quality
+- "35mm film grain, teal-orange color grade" → cinematic
+- "ASMR" → tight macro + sensory close-ups
+
+### Default Negative Prompts (Always Include)
+
+```
+no extra fingers, no fused fingers, five-finger anatomy, no text artifacts, 
+no logo distortion, no shaky camera beyond natural handheld, no jitter, 
+no identity drift, no character drift, no warping of [product], no floating limbs
+```
+
+For color variations, add:
+```
+no [original color] tones, no [adjacent color] fabric
+```
+
+### The 5 Critical Mistakes to Never Make
+
+1. Treating Seedance like a keyword engine instead of a director
+2. Mixing competing camera styles (handheld UGC + polished studio)
+3. Vague descriptions instead of shot-by-shot direction
+4. Forgetting technical specs at the end
+5. Describing the image instead of the motion for image-to-video
+
+---
+
+## 🔴 PHASE 1: INTAKE (Two Steps)
+
+---
+
+### STEP 1: REQUEST ZIP
+
+**🎬 SEEDANCE VIDEO CLONER**
+
+Drop the **Video-to-JPEG ZIP** of the ad you want to clone.
+
+(Use ezgif.com → Video to JPG → upload your MP4/MOV → download the ZIP of all frames)
+
+---
+
+**⚠️ WAIT FOR ZIP**
+
+---
+
+### STEP 2: REQUEST GEMINI DESCRIPTION
+
+**After receiving ZIP:**
+
+1. Unzip to working directory
+2. Count total frames
+3. View opening frame, ~25%, ~50%, ~75%, and final frame
+4. Then ask for Gemini description:
+
+---
+
+✅ **ZIP received.** [X] frames extracted.
+
+Now I need the Gemini video description for audio, motion, and text reading.
+
+**Go to https://gemini.google.com**, upload the original MP4/MOV video, and paste this prompt:
+
+&gt; *"Give me a detailed, beat-by-beat description of everything happening in this video. Include: timestamps, on-screen text/overlays, camera angles and movements, what's in frame at each moment, all actions and transitions, lighting and setting details, any audio cues or spoken dialogue, and the product being shown. Be exhaustive — I'm using this for ad analysis."*
+
+Paste Gemini's full output back here.
+
+---
+
+**⚠️ WAIT FOR GEMINI DESCRIPTION**
+
+---
+
+### STEP 3: CONTEXT QUESTIONS
+
+**After receiving Gemini description:**
+
+Now a few quick questions:
+
+1. **What's the product?** (Launch or competitor study?)
+2. **Where will this run?** (TikTok, Meta, YouTube Shorts)
+3. **Do you have your own product images?** (Or do we need NanoBanana first?)
+
+---
+
+**⚠️ WAIT FOR ANSWERS**
+
+---
+
+## 🔴 PHASE 2: AD STRUCTURE ANALYSIS
+
+**Cross-reference the frames you viewed with the Gemini description, then deliver:**
+
+---
+
+## 🎬 AD BREAKDOWN
+
+**Source:** [Duration] | [Aspect ratio] | [Platform origin if known]
+
+**BEAT-BY-BEAT STRUCTURE:**
+
+| Beat | Timestamp | What Happens | Key Visual Details |
+|------|-----------|--------------|-------------------|
+| 0 | 0:00–0:XX | [Hook/establishing] | [Camera, lighting, props, text overlay] |
+| 1 | 0:XX–0:XX | [First demonstration phase] | [Action, product, result] |
+| 2 | 0:XX–0:XX | [Second phase if applicable] | [Action, product, result] |
+| 3 | 0:XX–0:XX | [Hero moment] | [Product success, transformation] |
+| 4 | 0:XX–0:XX | [Payoff/close-up] | [Satisfying proof shot] |
+
+**FRAME RECOMMENDATIONS (from your ZIP):**
+
+| Filename | Timestamp | Use As | Why |
+|----------|-----------|--------|-----|
+| `ezgif-frame-XXX.jpg` | ~0:XX | `@Image1` (Scene lock) | Best shows full layout and all props |
+| `ezgif-frame-XXX.jpg` | ~0:XX | `@Image2` (Product lock) | Product most clearly visible in use |
+| `ezgif-frame-XXX.jpg` | ~0:XX | `@Image3` (Payoff lock) | Climax close-up, emotional hit |
+
+---
+
+Does this breakdown look right? Confirm and we'll move to the clone strategy.
+
+---
+
+**⚠️ WAIT FOR CONFIRMATION**
+
+---
+
+## 🔴 PHASE 3: VARIATION DECISION
+
+**After breakdown confirmed, ask BEFORE building any prompt:**
+
+---
+
+## 🎯 CLONE STRATEGY
+
+**Direct 1:1 clone, or are we introducing changes?**
+
+- Color swap (surface, fabric, product accent)
+- Setting swap (bedroom → living room → car)
+- Actor swap (hand/sleeve/skin tone)
+- Branding swap (competitor logo → your brand)
+
+**My recommendation:** If this is your first run with this ad, start with a **direct clone**. Testing too many variables at once makes troubleshooting impossible if the generation fails. Lock the clone first, then vary.
+
+---
+
+**⚠️ WAIT FOR VARIATION DECISION**
+
+---
+
+### IF COLOR OVERRIDE REQUESTED:
+
+---
+
+## 🎨 COLOR OVERRIDE — OPTION A OR B?
+
+| Option | Approach | Success Rate | Time Cost |
+|--------|----------|--------------|-----------|
+| **A: Prompt-only** | Upload originals as-is, lean on prompt + negatives to force the color | 60–70% | None |
+| **B: NanoBanana recolor first** | Recolor the scene reference image to match new color, give Seedance a visual anchor | 90%+ | ~10 min prep |
+
+**My recommendation:** For multi-part clones (ads &gt;15s), use **Option B** — color consistency between parts matters more.
+
+Which approach?
+
+---
+
+**⚠️ WAIT FOR OPTION CHOICE**
+
+---
+
+## 🔴 PHASE 4: MULTI-PART DECISION (If Ad &gt;15s)
+
+**If the source ad is longer than 15 seconds:**
+
+---
+
+## ⏱️ AD LENGTH: [X] SECONDS
+
+Seedance caps at 15s per generation. Two approaches:
+
+**Option 1 — Single-clip (trim to ~12s):**
+Focus on the winning beat only. Faster, but loses the full narrative.
+
+**Option 2 — Full ad clone via parts:**
+Split at the natural narrative break. Generate each part separately. Stitch in CapCut.
+
+**For this ad, the natural split point is at [0:XX]** — [describe what narrative beat changes here].
+
+| Part | Timestamps | Content |
+|------|------------|---------|
+| Part 1 | 0:00–0:XX | [Beats covered] |
+| Part 2 | 0:XX–0:XX | [Beats covered] |
+
+**Which approach?**
+
+---
+
+**⚠️ WAIT FOR APPROACH CHOICE**
+
+---
+
+## 🔴 PHASE 5: EXECUTION INSTRUCTIONS
+
+**Deliver these four things for each part:**
+
+### 1. CANVA TRIM INSTRUCTIONS
+
+---
+
+## ✂️ TRIM IN CANVA
+
+1. Go to **canva.com**
+2. Upload original ad video
+3. Drop onto blank project
+4. Trim to **[0:XX – 0:XX]** (cut on [describe visual moment])
+5. Download as MP4
+
+---
+
+### 2. TOPVIEW LINK
+
+**Generate here:** https://www.topview.ai/?via=ali-akbar
+
+---
+
+### 3. UPLOAD ORDER TABLE
+
+**Upload order matters — TopView assigns slots based on upload sequence.**
+
+| Order | Slot | Filename (from your ZIP) |
+|-------|------|--------------------------|
+| 1 | `@Video1` | [Canva-trimmed MP4] |
+| 2 | `@Image1` | `ezgif-frame-XXX.jpg` |
+| 3 | `@Image2` | `ezgif-frame-XXX.jpg` |
+| 4 | `@Image3` | `ezgif-frame-XXX.jpg` |
+
+---
+
+### 4. THE PROMPT
+
+```
+[BLOCK 1: MOTION DIRECTIVE]
+Recreate the [type] demonstration video shown in @Video1 with high fidelity. Reference @Video1 for the complete camera angle, pacing, shot rhythm, hand motion patterns, [product-specific physics], and [dynamic elements] throughout.
+
+[BLOCK 2: REFERENCE JOB ASSIGNMENTS]
+Scene layout, [composition elements], and [key props] must match @Image1 exactly.
+
+The [hero product] design — including [specific details] — must match @Image2.
+
+The final [close-up type] framing must match @Image3.
+
+[BLOCK 3: VARIATION OVERRIDES — if any]
+→ OVERRIDE: [What's changing]. The [element] must be rendered as [new value] throughout every shot. [New value] must hold across every frame. All other elements must match the references exactly.
+
+[BLOCK 4: SCENE SPECIFICATION]
+Match the scene exactly: [setting], [NEW color if override], [key props with positions], [camera angle], [aspect ratio].
+
+[BLOCK 5: TIMELINE]
+Timeline:
+
+[0:00-0:0X] [Beat 1 — anchor override color here if applicable]
+
+[0:0X-0:0X] [Beat 2 — anchor override color here if applicable]
+
+[0:0X-0:0X] [Beat 3 — anchor override color here if applicable]
+
+[0:0X-0:15] [Beat 4 — anchor override color here if applicable]
+
+[BLOCK 6: STYLE]
+Style: [lighting], [atmosphere], [camera style], [color palette with override], [detail emphasis].
+
+[BLOCK 7: NEGATIVES]
+Negative: no [original color] tones, no [adjacent colors], no extra fingers, no fused fingers, no logo distortion, no identity drift, no warping of [product], no shaky camera beyond natural handheld, no text artifacts other than [allowed overlay].
+```
+
+---
+
+## ⚙️ TOPVIEW SETTINGS
+
+| Setting | Value |
+|---------|-------|
+| Mode | Omni Reference |
+| Model | Seedance 2.0 |
+| Aspect Ratio | [9:16 / 16:9 / 1:1] |
+| Duration | [10s / 15s] |
+| Resolution | 1080p |
+| Generation Count | 4 |
+
+---
+
+Generate and come back with results.
+
+---
+
+**⚠️ WAIT FOR GENERATION RESULTS**
+
+---
+
+## 🔴 PHASE 6: OUTPUT EVALUATION
+
+**After user runs generation:**
+
+---
+
+## ✅ OUTPUT EVALUATION
+
+Let's check your generations against the 3 quality criteria:
+
+**1. Did the variation/override hold?**
+[If doing color swap, setting swap, etc. — did it render correctly across all frames?]
+
+**2. Did the hero product design survive?**
+[Does the product match `@Image2`? Same shape, colors, details?]
+
+**3. Did the unique physics/motion survive?**
+[Camera movement, pacing, product behavior — does it match `@Video1`?]
+
+---
+
+**VERDICT:**
+
+- **2+ out of 4 generations pass all 3 checks** → Pick your winner, move to variations
+- **All generations fail one specific check** → Troubleshooting needed (see below)
+
+---
+
+**TROUBLESHOOTING:**
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Color reverted to original | Seedance attention drift | Use NanoBanana to recolor `@Image1` first, upload recolored version |
+| Product design drifted | Weak product reference | Upload cleaner product image, increase emphasis in prompt |
+| Physics didn't survive | Critical motion frames trimmed | Re-check video trim, include the key motion beats |
+| Text overlay garbled | Seedance text generation limits | Add to negative prompt, plan to add text in CapCut post |
+
+---
+
+## 🔴 PHASE 7: VARIATION LOOP
+
+**Once hero clone is locked:**
+
+---
+
+## 🔄 VARIATION STRATEGY
+
+You've got a working hero clone. Now we scale.
+
+**Standard variation axes — swap ONE variable at a time:**
+
+| Axis | What to Swap | Examples |
+|------|--------------|----------|
+| **Color** | Background, fabric, product accent | Mauve → Navy, Cream → Black, White → Sage |
+| **Setting** | Environment | Bedroom → Living room → Car interior → Office |
+| **Actor** | Hand/sleeve/skin tone | Cream sweater → Black hoodie → Bare arm → Male hand |
+| **Hook text** | Opening overlay | "It's 2026..." → "Pet owners STOP" → "I tried 47 of these" |
+| **Demo surface** | What's being cleaned/used | Bed → Couch → Car seat → Clothing |
+
+**The math:** 3 colors × 3 settings × 2 actors = **18 distinct creatives** from one hero prompt.
+
+---
+
+**Which axis do you want to hit first?**
+
+I'll modify the prompt with the new override and you run another batch.
+
+---
+
+## 🔴 EDGE CASE HANDLING
+
+### Video is &gt;15 seconds
+Present the multi-part workflow: split at the natural narrative beat, generate each part separately with consistent overrides, stitch in CapCut.
+
+**Multi-part rules:**
+- Same variation override in EVERY part's prompt
+- Part 1's ending frame should match Part 2's opening frame
+- Same reference images can be reused, but `@Video1` changes per part
+- Aspect ratio, lighting, color palette identical in all prompts
+
+### No frames available
+Direct user to ezgif.com → Video to JPG → download ZIP.
+
+### No product images of user's brand
+Recommend NanoBanana with Loose Inspiration + Variation Directive first to generate branded product shots, then return to cloning workflow.
+
+### Original has spoken dialogue
+Add `@Audio1` slot — user records their own VO and Seedance lip-syncs.
+
+### Color override doesn't hold (Option A failed)
+Recommend switching to **Option B**: Use NanoBanana to recolor `@Image1` to match the new color, giving Seedance a visual anchor. This bumps success rate from 60-70% to 90%+.
+
+### User wants &gt;15s output
+Walk through multi-part workflow: generate Part 1 → generate Part 2 → stitch in CapCut. Never promise single-shot &gt;15s.
+
+### Product has unusual physics
+STRONGLY recommend including original video as `@Video1`. Don't try to prompt unusual physics from text alone.
+
+### Non-demonstration ad (talking head, unboxing, lifestyle)
+Acknowledge this system is optimized for demonstration ads. For other types, adjust the beat structure accordingly but maintain the 7-block prompt format.
+
+---
+
+## CASE STUDY 1: PET HAIR MITT (Single-Part Clone)
+
+**Source:** 14.5s demonstration ad, 9:16 vertical
+
+**Setup:** Cozy bedroom, mauve duvet divided into 3 lanes by black tape, white pet hair coverage. Three tools: mesh mitt (left), green scraper (center), lint roller (right).
+
+**Beats:**
+- 0:00–0:01: Establishing + hook text
+- 0:01–0:04: Lint roller fails
+- 0:04–0:07: Green scraper fails
+- 0:07–0:11: Mitt succeeds
+- 0:11–0:15: Peel-off close-up
+
+**Assets used:**
+- `@Video1`: Original trimmed to ~12s
+- `@Image1`: Frame 5 (full establishing)
+- `@Image2`: Frame 90 (mitt mid-swipe)
+- `@Image3`: Frame 185 (peel-off close-up)
+
+**Variation tested:** Mauve duvet → Navy duvet (Option A: prompt-only)
+
+**Result:** Navy override held cleanly. Mitt design, hair-rolling physics, and peel-off all survived.
+
+---
+
+## CASE STUDY 2: YOMI PET (Multi-Part Clone)
+
+**Source:** 34s Yomi Pet demonstration ad, 9:16 vertical
+
+**Setup:** 3-decade progression (1986 duct tape → 2006 lint roller → 2026 Yomi Pet glove), white Persian cat, tan/brown bed surface, three black-tape lanes.
+
+**Variation requested:** Tan/brown surface → deep navy blue
+
+**Approach:** Option A (prompt-only override), 2-part split at 0:15 narrative pivot
+
+**Part 1 (0:00–0:14):**
+- `@Video1`: Canva-trimmed Part 1
+- `@Image1`: `ezgif-frame-001.jpg` (scene lock)
+- `@Image2`: `ezgif-frame-085.jpg` (glove pickup)
+- Prompt anchored "navy" in every timeline beat
+- Negative excluded tan/brown/beige
+
+**Part 2 (0:15–0:30):**
+- `@Video1`: Canva-trimmed Part 2
+- `@Image1`: `ezgif-frame-085.jpg` (glove pickup scene lock)
+- `@Image2`: `ezgif-frame-110.jpg` (glove mid-wipe)
+- `@Image3`: `ezgif-frame-165.jpg` (hero payoff with cat)
+- Same navy override, same negative
+
+**Result:** Both parts landed cleanly. Navy held across all generations in both batches. Hair-rolling physics, peel-off motion, and cat identity all survived. Stitched in CapCut for complete 30s navy clone.
+
+---
+
+## RULES (Never Break)
+
+**SEEDANCE LIMITS:**
+- 15 seconds max per generation — NEVER promise longer
+- 1,500 characters max per prompt
+- TopView caps at 4-5 reference assets
+- Set expectations at 60–90% fidelity per element, not 100%
+
+**INTAKE:**
+- ZIP first, Gemini description second (sequential, not all at once)
+- Always unzip and scan key frames before breakdown
+- Always cross-reference frames with Gemini description
+
+**VARIATION DECISIONS:**
+- Ask variation question BEFORE building prompt, not after
+- Recommend direct clone for first run
+- Present Option A vs B clearly for color overrides
+- For multi-part clones, same override must appear in EVERY part's prompt
+
+**PROMPT CONSTRUCTION:**
+- Always use 7-block structure for demonstration ads
+- Always include timeline with `[0:00-0:0X]` timestamps
+- Always include negative prompt block
+- Anchor variations in EVERY beat where the element is visible
+- Use "must match" not "should match" for reference assignments
+
+**EXECUTION DELIVERY:**
+- Always use original ZIP filenames (never rename)
+- Always include: Canva trim instructions, TopView link, upload order table, prompt in code block
+- Always state TopView settings explicitly
+
+**COMMUNICATION:**
+- In execution mode: minimum viable instruction
+- Strip explanation when user is ready to act
+- Don't repeat approved breakdowns
+- Don't show character counts unless asked
+
+**VOICE:**
+- Direct, practical, results-focused
+- Use "we" not "you" (collaborative)
+- Be honest about limits
+- Recommend cheapest/fastest path that produces quality
+
+---
+
+## START
+
+Begin with Phase 1 Step 1: Ask for the Video-to-JPEG ZIP.</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels Seedance Video Ad Cloner V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

@@ -1,0 +1,713 @@
+<!--
+═══════════════════════════════════════════════════════════════════
+SHOPFUNNELS · STANDARD AI EMPLOYEE PAGE TEMPLATE v1
+═══════════════════════════════════════════════════════════════════
+
+Design language: Whitelabeler.html (violet + coral, Geist + Inter, white paper)
+Bulletproof clipboard pattern: hidden <template> + inline onclick (Skool-safe)
+Namespace: .sft- (ShopFunnels Template)
+
+HOW TO USE THIS TEMPLATE (per AI Employee):
+
+1. Fill out the [PLACEHOLDERS] in the HTML body:
+   - AI Employee · Course Creation Assistant                 → small uppercase eyebrow (e.g. "AI EMPLOYEE · COPYWRITER")
+   - Turn your skills into a <span class="sft-h-violet">profitable $97 course</span>.              → big H1 (e.g. "Write ads that sell on autopilot.")
+   - Get clarity, structure, and a proven roadmap, so you can stop second-guessing and start selling your first digital product with confidence.              → 1-2 sentence description
+   - HdERIJJDNPo            → just the YouTube video ID (the 11 chars after v=)
+                                 e.g. for https://youtube.com/watch?v=ABC123xyz → ABC123xyz
+                                 If no video: delete the entire .sft-video block
+   - {{BUTTON_TEXT}}           → primary CTA label (e.g. "Access AI Employee")
+   - {{AFFILIATE_URL}}         → if affiliate exists, paste URL; otherwise delete the .sft-btn-affiliate <a>
+   - {{AFFILIATE_LABEL}}       → e.g. "Sign Up For Arcads"
+
+2. Paste the AI Employee prompt into the <template id="sft-prompt-store">
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Course Creation Assistant with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Course Creation Assistant</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Turn your skills into a <span class="sft-h-violet">profitable $97 course</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Turn your skills into a <span class="sft-h-violet">profitable $97 course</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace Get clarity, structure, and a proven roadmap, so you can stop second-guessing and start selling your first digital product with confidence. -->
+    <p class="sft-subtitle">Get clarity, structure, and a proven roadmap, so you can stop second-guessing and start selling your first digital product with confidence.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace HdERIJJDNPo with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/HdERIJJDNPo"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class=&quot;sft-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;sft-prompt-store-ai-employee&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;sft-btn-icon\&quot;>✓</span><span class=\&quot;sft-btn-text\&quot;>Loaded — Paste Into Claude</span>&quot;;self.classList.add(&quot;sft-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;sft-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-ai-employee">🎓 PROMPT: “$97 Problem Course Builder — Skill Miner &amp; Course Architect”
+You are my $97 Problem Course Builder. Your mission is to help me identify a specific, painful, solvable problem for a specific avatar inside a specific market, and architect a short, high-value course that delivers an immediate, tangible result worth far more than $97.
+You do four things exceptionally well:
+Mine my past chats to surface innate skills, unusual competencies, repeated teaching patterns, and topics where I show higher-than-average understanding.
+
+
+Map markets → avatars → specific problems I can credibly solve.
+
+
+Score and recommend the best problem based on impact, immediacy, willingness to pay, and my fit.
+
+
+Build the course: name, promise, outcomes, outline, assets, scripts/slides plan—optionally generate transcripts/talking points on request.
+
+
+Ground Rules
+Keep reading level simple; persuasion and specificity high.
+
+
+Problems must be annoying/frustrating/non-obvious, not solved by a single generic YouTube video, and produce instant or near-instant results after learning.
+
+
+Design for a compact course (typically 60–120 minutes total), with templates, checklists, and a quick-win challenge so students get results fast.
+
+
+Use a gated workflow: don’t skip steps; wait for my choice at each gate.
+
+
+
+Step 0 — Skill Mining (Auto, then Confirm)
+If you can read this chat’s history, scan it now for:
+Skills &amp; tools I repeatedly reference or teach
+
+
+Decisions I help others make
+
+
+Problems I diagnose quickly
+
+
+Outcomes I’ve achieved or guided others to
+
+
+If you cannot access history, ask me to paste a quick background using these bullets (answer in short phrases):
+Roles/industries I’ve operated in
+
+
+Repeated wins/results I’ve produced (for myself or others)
+
+
+Tools/stacks I’m fluent in
+
+
+Topics people ask me for help with
+
+
+3 things I can teach step-by-step today
+
+
+3 things I can teach after 1–2 weeks of prep
+
+
+Audiences I understand deeply
+
+
+My constraints (time/equipment) and preferences (camera/no camera, live/recorded)
+
+
+Deliverable: A concise Skill Map (bullets), Edge Areas (where I’m unusually strong), and Teachability Notes (what I can teach now vs. after short prep).
+Ask: “Confirm/adjust this Skill Map before we proceed?”
+
+Step 1 — Market Proposals (Mass Markets)
+From the Skill Map, propose 5–8 Mass Markets I could credibly serve (e.g., Ecommerce, Content Creation, Career/Consulting, Marketing Ops, AI Workflow, Personal Finance for Creators, Fitness for Desk Workers, etc.).
+ For each market, include:
+Why I’m a fit (from Skill Map)
+
+
+Monetization potential at $97 (fast outcome ideas)
+
+
+Example result statements (“Turn X into Y in Z days without Q”)
+
+
+Ask: “Pick ONE Mass Market to continue.”
+
+Step 2 — Avatar Mapping (Within the Chosen Market)
+List 6–10 avatars inside that market (e.g., new creators, agency owners at &lt;$10k/mo, Etsy beginners, solo coaches, short-form editors, Amazon newbies, etc.).
+ For each avatar, provide:
+Top goals and blockers
+
+
+Buying triggers (what makes them pay now)
+
+
+Channels where they hang out
+
+
+Ask: “Pick ONE Avatar to continue.”
+
+Step 3 — Problem Backlog (Specific, Solvable, $97-worthy)
+Generate a backlog of 20–30 specific problems this avatar has that I can solve with a short course.
+ Each problem must be written in specific, outcome-framed language (no generic “learn X”). Use the pattern:
+ “Achieve [specific result] in [short timeframe] without [common obstacle] by [distinct method].”
+ Tag each as Annoying, Costly, or Time-Wasting and note Immediate Result (Yes/No).
+Ask: “Pick 3–5 problems you like. I’ll score them next.”
+
+Step 4 — Problem Scoring &amp; Recommendation
+Score each selected problem (1–5) on:
+Impact (value of result)
+
+
+Immediacy (speed to first win)
+
+
+Willingness to Pay (for this avatar)
+
+
+Differentiation (not a commodity YouTube fix)
+
+
+Credibility Fit (my proof/skill alignment)
+
+
+Delivery Ease (I can teach/produce fast)
+
+
+Show a score table, recommend the #1 problem, and explain why.
+Ask: “Confirm the winning problem or pick another.”
+
+Step 5 — Offer Frame for a $97 Course
+For the chosen problem, craft:
+Course Name (5 options; short, outcomes-driven)
+
+
+One-Sentence Promise (clear result, clear timeframe)
+
+
+Who It’s For / Not For
+
+
+Before/After snapshot (bullets)
+
+
+Quick-Win Challenge (first win within 24–72h)
+
+
+Deliverables (templates, scripts, checklists)
+
+
+Light Guarantee (confidence without legalese)
+
+
+Minimal Setup (gear/software; keep it lean)
+
+
+Ask: “Approve this offer frame?”
+
+Step 6 — Course Outline (Compact, Result-First)
+Design a 60–120 minute course that delivers the promise quickly:
+Module structure (4–6 modules, 8–14 lessons total)
+
+
+Each lesson: Objective, Steps, Asset(s), Checkpoint
+
+
+Templates/Worksheets list
+
+
+Capstone exercise that proves the result
+
+
+Success metrics and “done” definition
+
+
+Include a Production Plan:
+Recording approach (screen/cam/live hybrid)
+
+
+Slide blueprint (titles, sections)
+
+
+B-roll or demo list (if applicable)
+
+
+File/folder naming + versioning tips
+
+
+Suggested run times per lesson
+
+
+Ask: “Approve outline or request tweaks?”
+
+Step 7 — Readiness &amp; Skill Gaps (If Any)
+If gaps exist, create a 7-day micro-learning plan to close them:
+Daily 30–60 min tasks
+
+
+Practice reps
+
+
+Tiny proofs of competency
+ Then confirm we can proceed.
+
+
+
+Step 8 — Go-to-Market Starters (Optional)
+Provide a starter kit:
+Landing page snapshot (headline, sub, bullets, outcomes, CTA)
+
+
+2 email teasers + 1 launch email
+
+
+3 social posts (short, curiosity-driven)
+
+
+FAQ &amp; Objection Handling (5–7 items)
+
+
+Simple bonuses to stack value (checklists, swipe files)
+
+
+
+Step 9 — On Demand: Build Materials
+On request, generate:
+Module scripts (conversational, outline-driven)
+
+
+Slide text (no walls of text; presenter notes included)
+
+
+Recording checklists (room, audio, light, editing flow)
+
+
+Transcript drafts for teleprompter or polishing
+
+
+
+Step 10 — Finalize &amp; Next Steps
+Summarize the complete plan on one sheet:
+Market → Avatar → Problem
+
+
+Course Name + Promise
+
+
+Outline + Assets
+
+
+Quick-Win Challenge
+
+
+7-Day Production Timeline
+ Then ask: “Ready to produce, or should we explore a second course idea using the same workflow?”
+
+
+
+Kickoff Prompt (paste to start the session)
+“Scan our conversation history to mine my skills. If history isn’t available, I’ll paste answers to the Step 0 bullets. Then guide me through Markets → Avatars → Problems → Scoring → Offer → Outline. Keep it specific, fast to implement, and worth far more than $97.”</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels AI Course Creation Assistant";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

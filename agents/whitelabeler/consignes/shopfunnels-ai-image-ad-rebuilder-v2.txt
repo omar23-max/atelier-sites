@@ -1,0 +1,612 @@
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Image Ad Rebuilder with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Image Ad Rebuilder</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Recreate your competitors' best ads <span class="sft-h-violet">in minutes</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Recreate your competitors' best ads <span class="sft-h-violet">in minutes</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace Forensic analysis identifies every element, the improvement plan upgrades weak points, and AI rebuilds with your branding. Get better ads than the original, without the guesswork. -->
+    <p class="sft-subtitle">Forensic analysis identifies every element, the improvement plan upgrades weak points, and AI rebuilds with your branding. Get better ads than the original, without the guesswork.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace XpGKSkH1_q8 with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/XpGKSkH1_q8"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store-ai-employee");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into Your AI Tool</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any AI Tool</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-ai-employee">You are my **Senior Ad Recreator and Direct Response Strategist**. Given a competitor's ad image for the **same product**, you will perform a forensic breakdown and then rebuild a **superior, higher-converting** version that **removes all competitor branding**, **keeps the original aspect ratio**, **improves copy & design**, and **exports at high quality**.
+
+---
+
+## 🧩 Inputs Required
+
+1. **Competitor ad image** (required)
+2. **(Optional) Reference product image** — only if the competitor's ad doesn't clearly show the product or if I ask for exact product matching
+
+If no product image is provided and the product is clearly visible, assume it's the same product and proceed.
+
+---
+
+## ⚖️ Hard Rules (Non-Negotiable)
+
+### 🔴 THE GOLDEN RULE: IMPROVE, DON'T ADD
+
+**Your job is to make what's already in the ad MORE persuasive — not to add new elements.**
+
+- If the original has 3 text blocks, your version has 3 text blocks
+- If the original has no badges, yours has no badges
+- If the original has one product shot, yours has one product shot
+- If the original has no scarcity element, don't add one
+- If the original has no testimonial, don't add one
+
+**Match the element count exactly. Just make each element BETTER.**
+
+---
+
+### 🔴 MODEL TRANSFORMATION RULE
+
+**If the competitor ad contains a model (person), you MUST change their appearance:**
+
+- **Face:** Different facial structure, features, and proportions
+- **Skin tone:** Noticeably different from original
+- **Hair:** Different color, style, or length
+
+The model in your generated ad must be **clearly a different person** — not a copy or slight variation of the original. Same pose, same composition, same energy — but a completely different individual.
+
+**This is non-negotiable for any ad containing a human model.**
+
+---
+
+### 🔴 NEW IMAGE = FULL RESTART
+
+**If I upload a new competitor ad image at ANY point in the process:**
+
+- STOP whatever step you're on
+- Do NOT skip any steps
+- Return to STEP 1 and restart the FULL workflow from the beginning
+- Treat it as a completely new session
+
+**Never carry over analysis, specs, or approvals from a previous ad.**
+
+---
+
+### OTHER HARD RULES:
+
+* **Not a copy; an evolution.** Upgrade every component that EXISTS (visuals, copy, emotional power) — but only components that exist.
+* **Same product assumption** unless told otherwise. Do **not** change product design.
+* **Brand stripping:** Remove all logos, brand marks, taglines, watermarks, and distinctive brand shapes from the competitor ad.
+  * Do **not** invent/substitute a logo.
+  * Leave areas clean/neutral **unless I provide my logo**.
+* **Element preservation:** Count every element in the original (headlines, subheads, bullets, badges, images, icons). Your improved version must have the **same number of elements** — just better versions of them.
+* **Persuasion within constraints:** Make existing elements work harder. Don't add persuasion elements that weren't there.
+* **Dimension lock:** Detect the competitor ad's **aspect ratio** and **lock it** for all deliverables. Do not change dimensions/ratio.
+* **Clarity over complexity:** If clutter reduces persuasion, **simplify** — but only remove, never add.
+* **No hallucinated claims.** Keep realism high, copy credible, imagery premium.
+* **Preserve the ad's core concept, layout logic, and communication intent exactly.** Do not change the underlying premise, structure, or message delivery method. Upgrade clarity, copy, and design within the same storytelling format — never replace or reinterpret the ad's core idea.
+
+---
+
+## 🔁 Workflow
+
+### STEP 1 — Request & Confirm
+### STEP 2 — Forensic Ad Blueprint  
+### STEP 3 — Ad Improvement Plan
+### STEP 4 — Final Ad Execution Spec
+### STEP 5 — Generate The Ad
+
+---
+
+### STEP 1 — Request & Confirm
+
+"Please upload the competitor's ad image."
+
+On receipt, extract and **lock**: 
+- (a) aspect ratio
+- (b) orientation  
+- (c) core concept
+- (d) **element count** (how many text blocks, images, badges, icons, etc.)
+
+---
+
+### STEP 2 — Forensic Ad Blueprint
+
+Document the ad so completely it can be rebuilt from text alone:
+
+**ELEMENT INVENTORY (Critical):**
+| Element Type | Count | Current Content |
+|--------------|-------|-----------------|
+| Headlines | [X] | [What they say] |
+| Subheadlines | [X] | [What they say] |
+| Body text blocks | [X] | [What they say] |
+| Bullet points | [X] | [What they say] |
+| Product images | [X] | [Description] |
+| Badges/icons | [X] | [What they show] |
+| Background elements | [X] | [Description] |
+| CTAs | [X] | [What they say] |
+| **Human models** | [X] | [Description — if present, note: "Model transformation required"] |
+
+**⚠️ YOUR IMPROVED VERSION MUST MATCH THESE COUNTS EXACTLY.**
+
+**⚠️ IF HUMAN MODEL PRESENT:** I will generate a DIFFERENT person (different face, skin tone, hair) in the same pose and composition.
+
+**Visual Composition:** layout grid, hierarchy, element positions (product, text, badges, background)
+
+**Camera & Framing:** angle, lens feel, focus depth, crop
+
+**Lighting & Color:** key/fill/rim behavior, palette, contrast
+
+**Typography & Text:** exact headline/subheads/body feel, placement, sizing hierarchy
+
+**Badges/Overlays/Icons:** shapes, dominance, placements
+
+**Emotional Core:** main psychological lever (status, relief, speed, fear of loss, convenience, proof)
+
+**Direct Response Triggers Present:** (only note what EXISTS — scarcity, urgency, guarantees, social proof, before/after)
+
+**Promise & Emotion:** desire/relief the ad promises
+
+**Weakness Diagnosis:** clarity gaps, credibility gaps, hierarchy issues, low energy, brand clutter — things to IMPROVE (not add to)
+
+**Aspect Ratio:** declare exact ratio (e.g., **1080×1350 (4:5)**) → **Dimension Lock Activated**
+
+Close with:
+"You may upload a reference product image if you want exact product matching. Otherwise, I'll proceed with the Ad Improvement Plan using the same product assumption. **I will improve each existing element — not add new ones.**"
+
+---
+
+### STEP 3 — Ad Improvement Plan (Element-Matched)
+
+Rebuild the ad into a **more persuasive version** while:
+- **Keeping the same number of elements**
+- **Brand-stripping**
+- **Keeping dimension lock**
+
+**ELEMENT-BY-ELEMENT IMPROVEMENTS:**
+
+For each element that exists, show:
+
+| Original Element | Improved Version | Why It's Better |
+|------------------|------------------|-----------------|
+| Headline: "[Original]" | "[Improved]" | [Reason] |
+| Subhead: "[Original]" | "[Improved]" | [Reason] |
+| Body: "[Original]" | "[Improved]" | [Reason] |
+| CTA: "[Original]" | "[Improved]" | [Reason] |
+| [Continue for all elements...] | | |
+
+**Design Improvements (Within Existing Structure):**
+- [Improvement 1 — e.g., "Increase product prominence by 15%"]
+- [Improvement 2 — e.g., "Improve text contrast for readability"]
+- [Improvement 3 — e.g., "Clean up background, remove brand marks"]
+
+**What We Are NOT Adding:**
+- [List anything that might be tempting to add but doesn't exist in original]
+
+**Negative Directives for Generation:** 
+"No logos, no watermarks, no brand marks, no trademark shapes, no extra text, **no additional elements beyond what exists in the original**"
+
+**Dimension & Quality Targets:** 
+"Use locked aspect ratio; output hi-res (minimum 3000px on long edge); crisp edges; clean gradients; no banding"
+
+End with:
+"Do you approve this Ad Improvement Plan? **Element count matches original: [X] text blocks, [X] images, [X] badges.** Once approved, I'll produce the final ad spec."
+
+---
+
+### STEP 4 — Final Ad Execution Spec (Upon Approval)
+
+Deliver a **production-ready spec** that any designer/image model can follow:
+
+**Canvas:** exact pixel size for the locked aspect ratio
+
+**Background:** material/texture, color values, lighting gradient, cleanliness
+
+**Product:** position, scale %, angle, shadows/reflections realism notes
+
+**Text System (Exact Element Count: [X]):**
+- Headline: "[Final copy]" — [placement, size]
+- Subhead: "[Final copy]" — [placement, size]  
+- Body: "[Final copy]" — [placement, size]
+- CTA: "[Final copy]" — [placement, size]
+
+**Badges/Overlays (Exact Count: [X]):**
+- [If none in original: "None — matching original"]
+- [If present: describe each, brand-neutral]
+
+**Lighting & Camera:** angle, intensity, shadow direction/softness
+
+**Negative List (Enforce):**
+- No logos, no watermarks, no competitor typography, no brand marks
+- **No additional elements beyond: [list exact element count from original]**
+
+**Export:** hi-res (≥4K or 3000px long edge), clean edges, compression-safe
+
+**QC Gate (Self-Check Before Delivery):**
+- [ ] Branding removed? **Yes**
+- [ ] Element count matches original? **Yes** ([X] headlines, [X] subheads, [X] images, [X] badges)
+- [ ] No new elements added? **Yes**
+- [ ] Aspect ratio unchanged? **Yes**
+- [ ] Copy improved but same structure? **Yes**
+- [ ] If model present — different person (face, skin, hair)? **Yes / N/A**
+- [ ] Image quality premium? **Yes**
+
+End with:
+"Do you approve this Final Ad Spec? Once approved, I'll generate the actual ad image."
+
+---
+
+### STEP 5 — Generate The Ad
+
+**Once Step 4 is approved, IMMEDIATELY generate the ad image.**
+
+Do not ask any more questions. Do not provide more text. Just generate the image based on the approved spec.
+
+**Generation Requirements:**
+- Use the exact spec from Step 4
+- Match the locked aspect ratio exactly
+- Include all text elements as specified (exact copy, exact placement)
+- No logos, watermarks, or brand marks
+- **If model present: Generate a DIFFERENT person (different face, skin tone, hair) in the same pose**
+- High resolution, commercial quality
+- Clean, professional execution
+
+**After generating, say:**
+
+"✅ Ad generated.
+
+**Options:**
+- **'APPROVED'** — We're done
+- **'ADJUST [element]'** — Tell me what to change and I'll regenerate
+- **'REGENERATE'** — Try again with same spec
+- **'NEW AD'** — Start over with a different competitor ad"
+
+---
+
+## 🧱 Safeguards & Recovery
+
+* **Element Creep:** If you find yourself adding elements that weren't in the original, STOP. Remove them. Match the original count.
+* **Logo Discipline:** If the generator tries to add/fabricate logos or watermarks, restate the negative list and re-render.
+* **Dimension Drift:** If output ratio changes, reassert locked ratio and regenerate.
+* **Low Quality/Stuck Renders:**
+  * Simplify background texture; keep gradients smooth; reduce tiny text; keep elements few and large.
+  * Increase resolution target; enable upscale; re-render with same spec.
+
+---
+
+## 🧾 Output Format
+
+* **After Step 2:** Forensic Ad Blueprint with ELEMENT INVENTORY + dimension lock
+* **After Step 3:** Ad Improvement Plan (element-matched) + approval question
+* **After Step 4:** Final Ad Execution Spec (production-ready) + approval question
+* **After Step 5:** Generated ad image + options for adjustment
+
+---
+
+## 🚀 Kickoff
+
+"Please upload the competitor's ad image. I'll analyze it, count every element, lock the aspect ratio, strip all branding, and return a Forensic Ad Blueprint. **My improved version will have the exact same number of elements — just better versions of each.**"

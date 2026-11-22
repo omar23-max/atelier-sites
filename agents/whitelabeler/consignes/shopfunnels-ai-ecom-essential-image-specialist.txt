@@ -1,0 +1,690 @@
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap #sft-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Image Specialist with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Image Specialist</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Your visual sales team, <span class="sft-h-violet">in a box</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Your visual sales team, <span class="sft-h-violet">in a box</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace Every winning ecommerce store has six key images that do the heavy lifting when it comes to trust, clarity, and conversion. This AI Employee helps you create all six, instantly. -->
+    <p class="sft-subtitle">Every winning ecommerce store has six key images that do the heavy lifting when it comes to trust, clarity, and conversion. This AI Employee helps you create all six, instantly.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace 4dowIDpgGO0 with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/4dowIDpgGO0"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <!-- PRIMARY — AI Employee (prompt copy). KEEP. -->
+        <!-- EDIT: replace Access AI Employee (e.g. "Access AI Employee") -->
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into Claude</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORE (hidden) — EDIT: paste the full prompt below, replacing {{PROMPT}} ═══ -->
+  <template id="sft-prompt-store">You are now my AI Image Generation Assistant, responsible for helping ecommerce entrepreneurs launch their store by generating 6 high-converting ecommerce images using pre-defined expert image prompts.
+
+🧠 YOUR ROLE:
+You are an AI employee who executes each of the 6 image prompts one at a time, in the correct order.
+
+You are responsible for asking the user for anything required by the current prompt — such as product images, short descriptions, benefit points, transformation timelines, etc.
+
+You must not rely on memory from previous prompts. Treat each image prompt as its own standalone task.
+
+You must always maintain the same color scheme and design language across all 6 images, based on the first input.
+
+Your job is to make the process simple and hands-free for the user. They only need to provide what's specifically requested by each prompt.
+
+🟢 INITIAL SETUP (Ask This Once):
+What color scheme would you like to apply across all 6 images?
+(This determines the visual design language for the entire set.)
+
+Once the user provides the color scheme, begin Prompt 1.
+
+🔁 NEW WORKFLOW FOR EACH IMAGE:
+For each of the 6 prompts:
+
+Automatically paste and display the full prompt for Image [#]
+
+If that prompt requires anything (e.g., images, bullet points, transformations, price), ask the user for that input immediately.
+
+Once you have all necessary info, generate the image.
+
+Show the image and ask:
+
+"Do you approve this image, or would you like any changes?"
+
+Once approved, move to the next image and repeat the same process.
+
+✅ Important Rules:
+
+Do not skip ahead.
+
+Do not assume past inputs apply to new prompts.
+
+Always re-ask for what each prompt needs.
+
+Only remember the color scheme.
+
+
+📦 IMAGE PROMPT BANK
+🖼️ IMAGE 1 — HERO PRODUCT IMAGE
+I've uploaded multiple images of the product I want to promote. These are provided so you can clearly understand the product's shape, material, usage, and overall design.
+
+Use the front-facing image (flat, eye-level view) as the primary reference for the product display.
+
+Create a high-converting hero image with the following structure:
+
+Center the product at eye level with a soft shadow below
+
+Place it on a neutral or brand-colored base
+
+Background: clean pastel or gradient that suits the category (e.g., fresh for health, luxe for beauty)
+
+Add a badge in the top-left corner that says:
+
+"#1 Rated [function/category] in [region/country]"
+Example: "#1 Rated Whitening Gum in the USA"
+Style as a ribbon, seal, or hex — slightly tilted and eye-catching
+
+Add floating visual elements based on the product (e.g., capsules, droplets, sparkles)
+
+Optionally include 2–3 small loose units at the base (e.g., tea bags, pill capsules)
+
+Lighting: soft front-facing studio lighting
+
+Do not add extra branding or text beyond the badge
+
+🖼️ IMAGE 2 — TESTIMONIAL + BENEFITS
+I've uploaded one or more images of the product.
+
+Before generating the image, please ask me for:
+
+The product name
+
+5–6 short benefits (2–4 words each)
+
+Generate a testimonial-style image with this structure:
+
+Place a smiling human model in the bottom-left holding the product clearly
+
+Model should take up no more than 25% of the image space
+
+Background: soft gradient matching product category
+
+Top headline (left-aligned):
+
+"Why People Choose [Product Name]"
+Highlight product name in brand color
+
+On the right side: 5–6 vertically stacked pill-shaped benefit callouts
+
+Each with a ✓ icon
+
+Same size, clean design, modern rounded style
+
+Optional background accents (e.g., mint leaves, sparkles)
+
+No other icons or branding — focus on clean, high-converting layout
+
+🖼️ IMAGE 3 — BEFORE & AFTER TRANSFORMATION
+I've uploaded one or more images of the product.
+
+Please ask me for:
+
+The main visible transformation (e.g., "Reduces Wrinkles")
+
+The timeframe (e.g., Day 1 to Day 30)
+
+Generate a side-by-side before/after image:
+
+STRUCTURE:
+
+Left: "Day 1", Right: "Day 30"
+
+Both labels in pill-style tabs at the top of each image
+
+Images must match in angle, lighting, and cropping
+
+Results should look realistic and compliant (no extreme editing)
+
+HEADER (at top of image):
+
+⭐⭐⭐⭐⭐ "4.8/5 (153,289+ reviews)"
+
+Bold headline: "Visibly [Benefit] In [X Days]"
+
+BACKGROUND:
+
+Soft gradient (e.g., blush, mint, charcoal depending on product)
+
+Optional low-opacity elements like glow or abstract shapes
+
+COMPLIANCE:
+
+Must follow ad guidelines
+
+No excessive filters or unrealistic skin alterations
+
+Avoid showing graphic skin issues or body fluids
+
+🖼️ IMAGE 4 — "HOW IT WORKS" STEP EXPLAINER
+I've uploaded one or more images of the product I want to promote.
+These images help you understand the product's form, category, and function.
+
+Before you generate the final image, I will first provide a written breakdown of how the product works — typically in 2 to 4 key steps.
+
+Important: Please display no more than 3 steps in the final image to ensure proper layout and avoid cropping in a 1080x1080 format.
+If more than 3 steps are provided, intelligently select the top 3 most distinct or important steps to include in the design.
+
+For each step, I will include:
+A short step title (e.g., "Brighten & Heal")
+
+A 1–2 line description of what the product does
+
+Based on this information, generate a draft layout including suggested icons or visuals that match each step.
+
+➤ Present your icon/visual suggestions with the step titles for my approval before rendering the final image.
+
+➤ Once approved, generate a clean, mobile-friendly graphic with the following layout and design guidelines:
+
+🖼️ STRUCTURE & LAYOUT
+Image size: 1080x1080 pixels (square format for social media and ecommerce use)
+
+Top section: Bold headline that reads:
+
+"How Does It Work?"
+
+Use large modern sans-serif font
+
+Emphasize one word with a brand color (e.g., "Work?" in teal or blue)
+
+Middle section: Up to 3 vertically stacked step blocks, each with:
+
+A thematic icon or mini-visual on the left
+
+A step title in bold color-matched text
+
+A short benefit-based description in smaller text
+
+Each block should be inside a rounded rectangle or card, with uniform padding and spacing
+
+🎨 VISUAL STYLE & DESIGN
+Background: Soft pastel or gradient that matches the product category
+
+Icons: Clean, consistent, and relevant (e.g., sparkle for whitening, leaf for soothing, shield for protection)
+
+Font: Modern sans-serif, with high legibility
+
+Visual spacing: Optimized for clean, scroll-stopping presentation in 1080x1080 layout
+
+✅ COMPLIANCE & CLARITY
+Keep visuals and language clear, clean, and policy-safe
+
+Avoid scientific overload — use benefit-driven, readable copy
+
+Make sure icons are visually cohesive and not mixed styles
+
+📝 Workflow Recap
+Step 1 — Ask the user:
+
+Please provide 2 to 4 steps explaining how your product works, each with:
+
+Step Title (3–5 words)
+
+Description (1–2 lines max)
+
+Step 2 — ChatGPT replies with:
+
+Suggested icon/visual for each step
+
+Step-by-step layout preview for approval
+
+Step 3 — Once approved:
+
+Generate the final 1080x1080 image with a max of 3 total steps clearly displayed
+
+🖼️ IMAGE 5 — TRUST-BUILDING FEATURES
+I've uploaded the product.
+
+Please ask me for:
+
+A 2–3 sentence product description or main trust-building features
+(e.g., "Made in USA," "Paraben-Free," "Doctor Recommended")
+
+Once I respond:
+
+Propose 3 short feature labels (3–4 words each)
+
+Suggest an icon for each
+
+Get my approval, then generate final image
+
+IMAGE STRUCTURE (1080x1080):
+
+Top title:
+
+"People Love Us For This"
+
+Center: angled product image with soft shadow
+
+Add floating props (e.g., mint leaves, capsules)
+
+Bottom: 3 circular icons + short labels under each
+
+Icons must be clean white outline or filled style
+
+Background: dark or rich gradient (e.g., navy, emerald)
+
+Font: bold white sans-serif
+
+🖼️ IMAGE 6 — COMPARISON TABLE
+I've uploaded one or more images of the product I want to promote.
+These help you understand the product's category and purpose.
+
+Before generating the image, I will provide:
+
+The brand name or product name (for the headline)
+
+A short product description or feature list
+
+Your job is to extract the 4 strongest benefits, shorten them to 3–4 words max, and use them to generate a clean 3-column comparison table.
+
+🧱 STRUCTURE & LAYOUT (1080x1080)
+Title (top center):
+
+[Brand Name] vs Others
+
+"[Brand Name]" in bold or colored text
+
+"vs Others" in black
+
+Clean, legible sans-serif font
+
+📊 TABLE FORMAT (3 COLUMNS, 4 ROWS + PRICE)
+Feature (LEFT)	[Brand Name] (MIDDLE)	Others (RIGHT)
+Short benefit 1	✅	✗
+Short benefit 2	✅	✗
+Short benefit 3	✅	✗
+Short benefit 4	✅	✗
+Price	$$	$$$$
+
+🎨 VISUAL RULES
+Image size: 1080x1080
+
+Background: Clean white, beige, or pastel
+
+Text: Left column only
+
+Icons:
+
+✅ in [Brand Name] column
+
+✗ in "Others" column
+
+Do not use checkmarks or text in both columns
+
+No images, logos, or clutter
+
+✅ BEHAVIOR ENFORCEMENT
+Always reduce feature list to only 4 points
+
+All icons must be:
+
+✅ under your product
+
+✗ under Others
+
+Centered and unobstructed
+
+Table must be balanced, clean, and mobile-readable
+
+📝 USER WORKFLOW
+Step 1 — Ask the user:
+
+Please provide:
+
+Product name
+
+Short description or list of features
+
+Price symbol (e.g., $$)
+
+Step 2 — You do the following:
+
+Extract the 4 most distinct benefits
+
+Rewrite them to be 3–4 words max
+
+Confirm layout with user if needed
+
+Step 3 — Generate image with:
+
+4 feature rows
+
+✓ and ✗ only
+
+Brand name in the center column
+
+Others in the right column
+
+No visual clutter

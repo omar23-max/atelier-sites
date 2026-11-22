@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style Mirror Image Creator · AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   STYLE MIRROR IMAGE CREATOR · namespace .smc-
+   Palette : ink teal #0B1E22 / bone #E9E3D6
+             mint #4FE0A8 (learned and live) · rose #D98A8A (retired)
+   Type    : Newsreader display · Figtree body · Spline Sans Mono labels
+   Device  : the retirement, studied pixels struck out above a
+             purely typographic Style DNA below
+   ══════════════════════════════════════════════════════════════ */
+
+.smc-wrap {
+  --smc-paper: #0B1E22;
+  --smc-surf:  #123037;
+  --smc-surf2: #163A42;
+  --smc-edge:  #1F4C55;
+  --smc-bone:  #E9E3D6;
+  --smc-muted: #93ACAD;
+  --smc-dim:   #5F7B7E;
+  --smc-mint:  #4FE0A8;
+  --smc-rose:  #D98A8A;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #0B1E22 !important;
+  color: #E9E3D6 !important;
+  font-family: 'Figtree', system-ui, -apple-system, sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  min-height: 100vh !important;
+}
+.smc-wrap *, .smc-wrap *::before, .smc-wrap *::after { box-sizing: border-box !important; }
+
+.smc-wrap .smc-glow {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important; height: 640px !important;
+  z-index: 0 !important; pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 780px 400px at 20% -8%, rgba(79,224,168,0.11) 0%, transparent 62%),
+    radial-gradient(ellipse 620px 320px at 86% 0%, rgba(217,138,138,0.07) 0%, transparent 60%) !important;
+}
+
+.smc-wrap .smc-stage {
+  position: relative !important; z-index: 1 !important;
+  max-width: 1120px !important; width: 100% !important;
+  margin: 0 auto !important;
+  padding: 84px 28px 96px !important;
+  display: flex !important; flex-direction: column !important;
+  align-items: center !important; text-align: center !important;
+}
+
+/* ─── badge ─── */
+.smc-wrap .smc-badge {
+  display: inline-flex !important; align-items: center !important; gap: 9px !important;
+  font-family: 'Spline Sans Mono', ui-monospace, monospace !important;
+  font-size: 11px !important; font-weight: 500 !important;
+  letter-spacing: 0.15em !important; text-transform: uppercase !important;
+  color: var(--smc-mint) !important;
+  background: rgba(79,224,168,0.07) !important;
+  border: 1px solid rgba(79,224,168,0.28) !important;
+  padding: 7px 15px !important; border-radius: 2px !important;
+  margin: 0 0 30px 0 !important;
+}
+.smc-wrap .smc-badge::before {
+  content: '' !important; width: 5px !important; height: 5px !important;
+  background: var(--smc-mint) !important;
+  box-shadow: 0 0 9px rgba(79,224,168,0.7) !important; flex-shrink: 0 !important;
+}
+
+/* ─── headline ─── */
+.smc-wrap h1.smc-headline {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.3rem, 5.4vw, 4.15rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 22px 0 !important;
+  color: var(--smc-bone) !important;
+  max-width: 20ch !important;
+  text-wrap: balance !important;
+}
+.smc-wrap h1.smc-headline em {
+  font-style: italic !important;
+  font-weight: 500 !important;
+  color: var(--smc-mint) !important;
+}
+
+/* ─── subtitle ─── */
+.smc-wrap p.smc-sub {
+  font-family: 'Figtree', sans-serif !important;
+  font-size: clamp(1rem, 1.25vw, 1.1rem) !important;
+  line-height: 1.68 !important; font-weight: 400 !important;
+  color: var(--smc-muted) !important;
+  max-width: 660px !important; margin: 0 auto 56px !important;
+  text-wrap: pretty !important;
+}
+
+/* ═══════════ SIGNATURE DEVICE: THE RETIREMENT ═══════════ */
+.smc-wrap .smc-device { width: 100% !important; max-width: 880px !important; margin: 0 auto 56px !important; text-align: left !important; }
+
+.smc-wrap .smc-panel {
+  position: relative !important;
+  background: var(--smc-surf) !important;
+  border: 1px solid var(--smc-edge) !important;
+  border-radius: 7px !important;
+  box-shadow: 0 22px 54px rgba(0,0,0,0.38) !important;
+}
+.smc-wrap .smc-bar {
+  display: flex !important; align-items: baseline !important;
+  justify-content: space-between !important; gap: 10px !important; flex-wrap: wrap !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid var(--smc-edge) !important;
+}
+.smc-wrap .smc-bar-t {
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 10.5px !important; font-weight: 600 !important;
+  letter-spacing: 0.14em !important; text-transform: uppercase !important;
+  color: var(--smc-bone) !important;
+}
+.smc-wrap .smc-bar-s {
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 10px !important; letter-spacing: 0.08em !important;
+  text-transform: uppercase !important; color: var(--smc-dim) !important;
+}
+
+/* the studied strip, struck out */
+.smc-wrap .smc-strip-pad { position: relative !important; padding: 18px 16px !important; }
+.smc-wrap .smc-strip { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 10px !important; }
+.smc-wrap .smc-ref {
+  position: relative !important;
+  aspect-ratio: 4 / 5 !important;
+  border: 1px solid rgba(233,227,214,0.18) !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  background: #10272D !important;
+  opacity: 0.5 !important;
+  filter: grayscale(1) !important;
+}
+.smc-wrap .smc-ref svg { display: block !important; width: 100% !important; height: 100% !important; }
+.smc-wrap .smc-ref-tag {
+  position: absolute !important; top: 5px !important; left: 5px !important;
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 9px !important; font-weight: 600 !important; letter-spacing: 0.06em !important;
+  color: var(--smc-paper) !important; background: rgba(233,227,214,0.85) !important;
+  border-radius: 2px !important; padding: 2px 5px !important; line-height: 1.2 !important;
+}
+.smc-wrap .smc-strike {
+  position: absolute !important;
+  left: 10px !important; right: 10px !important;
+  top: 50% !important;
+  height: 2px !important;
+  background: var(--smc-rose) !important;
+  transform: rotate(-1.6deg) !important;
+  opacity: 0.85 !important;
+  pointer-events: none !important;
+}
+.smc-wrap .smc-stamp {
+  position: absolute !important;
+  bottom: -13px !important; right: 20px !important;
+  transform: rotate(-4deg) !important;
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 9px !important; font-weight: 600 !important;
+  letter-spacing: 0.16em !important; text-transform: uppercase !important;
+  color: var(--smc-rose) !important;
+  background: var(--smc-surf) !important;
+  border: 1.5px solid var(--smc-rose) !important;
+  border-radius: 2px !important; padding: 5px 10px !important;
+  white-space: nowrap !important;
+}
+
+/* the connector */
+.smc-wrap .smc-link { display: flex !important; flex-direction: column !important; align-items: center !important; }
+.smc-wrap .smc-link i { display: block !important; width: 1px !important; height: 18px !important; background: linear-gradient(to bottom, rgba(79,224,168,0.15), rgba(79,224,168,0.5)) !important; }
+.smc-wrap .smc-link i.smc-link-b { background: linear-gradient(to bottom, rgba(79,224,168,0.5), rgba(79,224,168,0.15)) !important; }
+.smc-wrap .smc-link span {
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 9.5px !important; font-weight: 600 !important;
+  letter-spacing: 0.18em !important; text-transform: uppercase !important;
+  color: var(--smc-mint) !important;
+  background: rgba(79,224,168,0.08) !important;
+  border: 1px solid rgba(79,224,168,0.34) !important;
+  border-radius: 2px !important; padding: 5px 11px !important;
+  margin: 6px 0 !important;
+}
+
+/* the DNA card, words only */
+.smc-wrap .smc-lead {
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-style: italic !important;
+  font-size: clamp(1.05rem, 1.7vw, 1.4rem) !important;
+  line-height: 1.42 !important; font-weight: 400 !important;
+  color: var(--smc-bone) !important;
+  padding: 18px 16px 16px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--smc-edge) !important;
+}
+.smc-wrap .smc-dna { padding: 4px 0 !important; }
+.smc-wrap .smc-dna-row {
+  display: grid !important;
+  grid-template-columns: 128px 1fr !important;
+  gap: 14px !important;
+  padding: 10px 16px !important;
+  border-bottom: 1px solid rgba(31,76,85,0.55) !important;
+}
+.smc-wrap .smc-dna-row:last-child { border-bottom: none !important; }
+.smc-wrap .smc-dna-k {
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 9.5px !important; font-weight: 600 !important;
+  letter-spacing: 0.15em !important; text-transform: uppercase !important;
+  color: var(--smc-mint) !important;
+  padding-top: 2px !important;
+}
+.smc-wrap .smc-dna-v {
+  font-family: 'Figtree', sans-serif !important;
+  font-size: 13px !important; line-height: 1.5 !important;
+  color: var(--smc-muted) !important;
+  min-width: 0 !important;
+}
+
+.smc-wrap .smc-excl {
+  display: flex !important; align-items: center !important; gap: 7px !important; flex-wrap: wrap !important;
+  padding: 13px 16px !important;
+  border-top: 1px solid var(--smc-edge) !important;
+  background: rgba(11,30,34,0.5) !important;
+}
+.smc-wrap .smc-excl-k {
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 9.5px !important; font-weight: 600 !important;
+  letter-spacing: 0.15em !important; text-transform: uppercase !important;
+  color: var(--smc-rose) !important; margin-right: 3px !important;
+}
+.smc-wrap .smc-excl span.smc-x {
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 9.5px !important; letter-spacing: 0.05em !important;
+  color: var(--smc-dim) !important;
+  text-decoration: line-through !important;
+  text-decoration-color: var(--smc-rose) !important;
+  text-decoration-thickness: 1.5px !important;
+  border: 1px solid rgba(217,138,138,0.3) !important;
+  border-radius: 2px !important; padding: 4px 8px !important;
+}
+.smc-wrap .smc-excl em {
+  font-style: normal !important;
+  font-family: 'Figtree', sans-serif !important;
+  font-size: 11.5px !important; color: var(--smc-dim) !important;
+  margin-left: 3px !important;
+}
+
+/* ─── disciplines ─── */
+.smc-wrap .smc-facts {
+  display: grid !important; grid-template-columns: repeat(3, 1fr) !important;
+  gap: 30px !important; width: 100% !important; max-width: 880px !important;
+  margin: 0 auto 56px !important; text-align: left !important;
+  padding-top: 34px !important; border-top: 1px solid var(--smc-edge) !important;
+}
+.smc-wrap .smc-fact-k {
+  display: block !important;
+  font-family: 'Newsreader', Georgia, serif !important;
+  font-size: 17.5px !important; font-weight: 600 !important;
+  color: var(--smc-bone) !important; margin: 0 0 9px 0 !important;
+}
+.smc-wrap .smc-fact p {
+  font-family: 'Figtree', sans-serif !important;
+  font-size: 13.5px !important; line-height: 1.62 !important;
+  color: var(--smc-muted) !important; margin: 0 !important;
+}
+
+/* ─── buttons ─── */
+.smc-wrap .smc-cta { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 18px !important; width: 100% !important; }
+.smc-wrap .smc-cta-row { display: flex !important; align-items: stretch !important; justify-content: center !important; gap: 12px !important; flex-wrap: wrap !important; }
+
+.smc-wrap .smc-btn {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  gap: 10px !important; min-width: 232px !important; padding: 17px 32px !important;
+  font-family: 'Figtree', sans-serif !important;
+  font-size: 15.5px !important; font-weight: 600 !important; line-height: 1 !important;
+  text-decoration: none !important; cursor: pointer !important;
+  color: #06231B !important; background: var(--smc-mint) !important;
+  border: 1px solid var(--smc-mint) !important; border-radius: 5px !important;
+  box-shadow: 0 10px 30px rgba(79,224,168,0.2) !important;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 140ms ease !important;
+}
+.smc-wrap .smc-btn:hover { background: #77EBBF !important; border-color: #77EBBF !important; box-shadow: 0 14px 38px rgba(79,224,168,0.3) !important; }
+.smc-wrap .smc-btn:active { transform: scale(0.985) !important; }
+.smc-wrap .smc-btn:focus-visible { outline: 2px solid var(--smc-bone) !important; outline-offset: 3px !important; }
+.smc-wrap .smc-btn.smc-copied {
+  background: var(--smc-surf2) !important; border-color: var(--smc-mint) !important;
+  color: var(--smc-mint) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+}
+.smc-wrap .smc-btn .smc-btn-icon { font-size: 13px !important; line-height: 1 !important; }
+
+.smc-wrap .smc-btn-alt {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  gap: 10px !important; min-width: 232px !important; padding: 17px 32px !important;
+  font-family: 'Figtree', sans-serif !important;
+  font-size: 15.5px !important; font-weight: 600 !important; line-height: 1 !important;
+  text-decoration: none !important; cursor: pointer !important;
+  color: var(--smc-bone) !important; background: transparent !important;
+  border: 1px solid rgba(233,227,214,0.28) !important; border-radius: 5px !important;
+  transition: background 180ms ease, border-color 180ms ease, transform 140ms ease !important;
+}
+.smc-wrap .smc-btn-alt:hover { background: rgba(233,227,214,0.07) !important; border-color: rgba(233,227,214,0.55) !important; }
+.smc-wrap .smc-btn-alt:active { transform: scale(0.985) !important; }
+.smc-wrap .smc-btn-alt:focus-visible { outline: 2px solid var(--smc-bone) !important; outline-offset: 3px !important; }
+.smc-wrap .smc-btn-alt .smc-arrow { font-weight: 600 !important; font-size: 15px !important; line-height: 1 !important; }
+
+/* ─── meta ─── */
+.smc-wrap .smc-meta {
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  gap: 11px !important; flex-wrap: wrap !important;
+  font-family: 'Spline Sans Mono', monospace !important;
+  font-size: 10.5px !important; letter-spacing: 0.12em !important;
+  text-transform: uppercase !important; color: var(--smc-dim) !important;
+  margin-top: 6px !important;
+}
+.smc-wrap .smc-meta i { width: 3px !important; height: 3px !important; border-radius: 50% !important; background: var(--smc-dim) !important; display: block !important; }
+
+/* hidden prompt store */
+.smc-wrap #smc-prompt-store { display: none !important; }
+
+/* ─── responsive ─── */
+@media (max-width: 900px) {
+  .smc-wrap .smc-facts { grid-template-columns: 1fr !important; gap: 24px !important; }
+}
+@media (max-width: 620px) {
+  .smc-wrap .smc-stage { padding: 62px 18px 76px !important; }
+  .smc-wrap .smc-badge { font-size: 9px !important; letter-spacing: 0.1em !important; padding: 6px 11px !important; }
+  .smc-wrap h1.smc-headline { font-size: clamp(1.95rem, 8.2vw, 2.7rem) !important; max-width: 16ch !important; }
+  .smc-wrap p.smc-sub { font-size: 15px !important; margin-bottom: 40px !important; }
+  .smc-wrap .smc-device { margin-bottom: 42px !important; }
+  .smc-wrap .smc-strip { gap: 6px !important; }
+  .smc-wrap .smc-strip-pad { padding: 14px 12px !important; }
+  .smc-wrap .smc-ref-tag { font-size: 7.5px !important; padding: 1px 3px !important; top: 3px !important; left: 3px !important; }
+  .smc-wrap .smc-stamp { right: 12px !important; bottom: -11px !important; font-size: 8px !important; padding: 4px 8px !important; letter-spacing: 0.11em !important; }
+  .smc-wrap .smc-dna-row { grid-template-columns: 1fr !important; gap: 4px !important; padding: 10px 13px !important; }
+  .smc-wrap .smc-lead { padding: 15px 13px 14px !important; }
+  .smc-wrap .smc-excl { padding: 12px 13px !important; }
+  .smc-wrap .smc-cta-row { flex-direction: column !important; width: 100% !important; max-width: 340px !important; }
+  .smc-wrap .smc-btn, .smc-wrap .smc-btn-alt { width: 100% !important; min-width: 0 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smc-wrap * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="smc-wrap">
+
+  <div class="smc-glow"></div>
+
+  <div class="smc-stage">
+
+    <div class="smc-badge">AI Employee · Style Mirror Image Creator</div>
+
+    <h1 class="smc-headline">Study the look once. <em>Then never need it again.</em></h1>
+
+    <p class="smc-sub">Show it the images whose style you want to own. It studies them one time, writes the look down as a DNA it can rebuild from words alone, then retires them for good. Every prompt after that carries the style in your brand, with one product reference and nothing borrowed.</p>
+
+    <!-- ═══ SIGNATURE DEVICE: THE RETIREMENT ═══ -->
+    <div class="smc-device">
+
+      <div class="smc-panel">
+        <div class="smc-bar">
+          <span class="smc-bar-t">Style study</span>
+          <span class="smc-bar-s">14 of 31 viewed · every shot type covered</span>
+        </div>
+        <div class="smc-strip-pad">
+          <div class="smc-strip">
+
+            <div class="smc-ref">
+              <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Studied reference S1, an overhead detail flat lay">
+                <rect width="80" height="100" fill="#10272D"/>
+                <rect x="14" y="30" width="30" height="40" rx="4" fill="#E9E3D6" opacity="0.5"/>
+                <circle cx="56" cy="42" r="9" fill="#E9E3D6" opacity="0.34"/>
+                <rect x="46" y="58" width="22" height="7" rx="3" fill="#E9E3D6" opacity="0.26"/>
+              </svg>
+              <span class="smc-ref-tag">S1</span>
+            </div>
+
+            <div class="smc-ref">
+              <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Studied reference S2, a candid in use moment at home">
+                <rect width="80" height="100" fill="#10272D"/>
+                <rect x="8" y="12" width="26" height="34" rx="2" fill="#E9E3D6" opacity="0.16"/>
+                <circle cx="46" cy="40" r="12" fill="#E9E3D6" opacity="0.44"/>
+                <path d="M30 100 v-28 q0-10 16-10 q16 0 16 10 v28 z" fill="#E9E3D6" opacity="0.36"/>
+                <rect x="0" y="82" width="80" height="18" fill="#E9E3D6" opacity="0.1"/>
+              </svg>
+              <span class="smc-ref-tag">S2</span>
+            </div>
+
+            <div class="smc-ref">
+              <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Studied reference S3, a phone real cluttered counter proof shot">
+                <rect width="80" height="100" fill="#10272D"/>
+                <rect x="0" y="66" width="80" height="34" fill="#E9E3D6" opacity="0.12"/>
+                <rect x="20" y="34" width="17" height="34" rx="3" fill="#E9E3D6" opacity="0.46" transform="rotate(-5 28 51)"/>
+                <rect x="42" y="48" width="12" height="20" rx="3" fill="#E9E3D6" opacity="0.24"/>
+                <circle cx="63" cy="61" r="6" fill="#E9E3D6" opacity="0.2"/>
+              </svg>
+              <span class="smc-ref-tag">S3</span>
+            </div>
+
+            <div class="smc-ref">
+              <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Studied reference S4, a benefit callout carrying short on image text">
+                <rect width="80" height="100" fill="#10272D"/>
+                <rect x="26" y="20" width="28" height="40" rx="4" fill="#E9E3D6" opacity="0.42"/>
+                <rect x="0" y="70" width="80" height="30" fill="#0B1E22" opacity="0.6"/>
+                <rect x="12" y="79" width="42" height="6" rx="3" fill="#E9E3D6" opacity="0.6"/>
+                <rect x="12" y="89" width="26" height="4" rx="2" fill="#E9E3D6" opacity="0.34"/>
+              </svg>
+              <span class="smc-ref-tag">S4</span>
+            </div>
+
+            <div class="smc-ref">
+              <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Studied reference S5, a tight product closeup">
+                <rect width="80" height="100" fill="#10272D"/>
+                <rect x="18" y="16" width="44" height="68" rx="6" fill="#E9E3D6" opacity="0.48"/>
+                <rect x="26" y="40" width="28" height="5" rx="2" fill="#0B1E22" opacity="0.5"/>
+                <rect x="26" y="50" width="18" height="4" rx="2" fill="#0B1E22" opacity="0.35"/>
+              </svg>
+              <span class="smc-ref-tag">S5</span>
+            </div>
+
+          </div>
+          <div class="smc-strike" aria-hidden="true"></div>
+        </div>
+        <span class="smc-stamp">Studied once · Retired</span>
+      </div>
+
+      <div class="smc-link" aria-hidden="true">
+        <i></i>
+        <span>Written down</span>
+        <i class="smc-link-b"></i>
+      </div>
+
+      <div class="smc-panel">
+        <div class="smc-bar">
+          <span class="smc-bar-t">Style DNA</span>
+          <span class="smc-bar-s">Locked · rebuilt from words alone</span>
+        </div>
+
+        <p class="smc-lead">Warm lit, lived in realism with clean studio product moments as punctuation.</p>
+
+        <div class="smc-dna">
+          <div class="smc-dna-row"><span class="smc-dna-k">Light</span><span class="smc-dna-v">One window, hard side light from camera left, late afternoon warmth, long soft falloff.</span></div>
+          <div class="smc-dna-row"><span class="smc-dna-k">Grade</span><span class="smc-dna-v">Warm bias, low saturation, deep contrast held in the shadows.</span></div>
+          <div class="smc-dna-row"><span class="smc-dna-k">Composition</span><span class="smc-dna-v">Product on the lower two thirds, generous negative space above, slight off axis angle.</span></div>
+          <div class="smc-dna-row"><span class="smc-dna-k">Environments</span><span class="smc-dna-v">Worn oak, crumpled linen, matte ceramic, kitchens that look used.</span></div>
+          <div class="smc-dna-row"><span class="smc-dna-k">Text habits</span><span class="smc-dna-v">Benefit shots carry 3 to 5 word callouts, lower third, clean sans on a soft scrim. Heroes carry none.</span></div>
+          <div class="smc-dna-row"><span class="smc-dna-k">Mood</span><span class="smc-dna-v">Unhurried, warm, tactile, real.</span></div>
+        </div>
+
+        <div class="smc-excl">
+          <span class="smc-excl-k">Excluded</span>
+          <span class="smc-x">Their palette</span>
+          <span class="smc-x">Their logo treatment</span>
+          <span class="smc-x">Their brand props</span>
+          <em>Color comes from your Snapshot.</em>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="smc-facts">
+      <div class="smc-fact">
+        <span class="smc-fact-k">It never makes the image</span>
+        <p>The deliverable is always the prompt, never the picture. You generate in NanoBanana, or GPT-Image-2 when text is the centerpiece, and every prompt arrives with its character count.</p>
+      </div>
+      <div class="smc-fact">
+        <span class="smc-fact-k">One reference, never the catalogue</span>
+        <p>Each prompt names exactly one product photo, picked for that slot's angle and label view, with a one phrase reason. The logo joins only when a branded surface actually places it.</p>
+      </div>
+      <div class="smc-fact">
+        <span class="smc-fact-k">Ordinary on purpose</span>
+        <p>Every person carries the full realism stack: pores, flyaways, a hair tie on the wrist. The beauty words are banned outright, because one of them silently overrides every texture instruction.</p>
+      </div>
+    </div>
+
+    <div class="smc-cta">
+      <div class="smc-cta-row">
+
+        <a href='#'
+           class='smc-btn smc-ai-launcher'
+           data-original-text='<span class=&quot;smc-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;smc-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;smc-btn-icon\&quot;>✓</span><span class=\&quot;smc-btn-text\&quot;>Loaded · Paste Into Any AI Tool</span>&quot;;self.classList.add(&quot;smc-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;smc-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="smc-btn-text">Access AI Employee</span>
+        </a>
+
+        <a href="https://www.topview.ai/?via=ali-akbar"
+           target="_blank"
+           rel="noopener"
+           class="smc-btn-alt">
+          <span class="smc-btn-text">Sign Up For TopView</span>
+          <span class="smc-arrow">→</span>
+        </a>
+
+      </div>
+
+      <div class="smc-meta">
+        <span>Whitelabeler</span><i></i><span>Paste Into Any AI Tool</span><i></i><span>@daily.ecommerce</span>
+      </div>
+    </div>
+
+  </div>
+
+  <template id="smc-prompt-store"># Style Mirror Image Creator v1.1
+
+You are the **Style Mirror Image Creator**, a senior conversion-focused image director with a locked sense of taste. Before anything else, the user shows you the TYPE of images they want to create: a zip or a handful of competitor images whose look they want to own. You STUDY those images once and distill everything they teach into a written Style DNA and a set of slot lessons. The competitor images themselves are never used again: not as upload references, not as generation anchors. Then the user feeds you their brand assets and their website ONE SECTION AT A TIME, and you fill every image slot with self-contained prompts that describe that learned style in your own words, in THEIR brand, with the single best product reference per image.
+
+**YOU NEVER GENERATE IMAGES. Even if the platform you run on can generate images natively, you do not.** You produce the Style DNA, the slot inventory, the reference plans, and the prompts. The USER generates, in NanoBanana (or GPT-Image-2 for text-heavy graphics), both inside TopView: https://www.topview.ai/?via=ali-akbar. Generating an image yourself, at any point, for any reason, is a workflow failure: your deliverable is always the prompt, never the picture.
+
+**NAMING RULE: When talking to the user, this process is called "mirroring" or "the Mirror method." NEVER say "Lock &amp; Swap" to the user. That is our internal proprietary system name and must not be revealed.**
+
+---
+
+## THE CORE UPGRADE: YOU KNOW WHAT GOOD LOOKS LIKE
+
+Most image direction fails because taste gets re-invented every session from generic research. Here, taste is SUPPLIED: the user's reference set defines "good" for this brand, in this niche, before any slot is mapped. Two artifacts come out of it:
+
+- **The STYLE DNA:** the written signature of the reference set (light, grade character, composition habits, environments, model styling, texture, mood), captured richly enough to REBUILD the look from words alone. Every prompt speaks this DNA descriptively; no competitor pixels required, ever.
+- **The SLOT LESSONS:** what the reference set teaches about each slot type: what the winners put in a hero, how they shoot details, where they place on-image text and how much. Numbered notes (S1, S2...) you cite in your reasoning, never files the user re-uploads.
+
+**The two laws of the study:**
+1. **The style is carried in words, never in their pixels.** After the study, competitor images NEVER appear in a reference upload table. If a prompt can't reproduce the look without their image attached, the DNA wasn't written well enough: rewrite the DNA, not the rule.
+2. **Craft is learned, identity is not.** The DNA captures HOW they shoot (light, framing, environment energy, text habits). It deliberately EXCLUDES their brand: their palette, their logo treatments, their brand-specific props. Color on every brandable surface comes from the user's Snapshot, always. Learn from the competitor, build in OUR brand.
+
+Research still runs, but its job changes: never to discover what good looks like (the study answered that), only to sharpen WHAT belongs in a slot for conversion.
+
+---
+
+## 🔴 PHASE 0: THE STYLE INTAKE (Before Anything Else)
+
+**When session starts, say:**
+
+---
+
+**🎨 STYLE MIRROR IMAGE CREATOR**
+
+First things first: **show me the type of images you want to create.**
+
+Upload a zip of competitor images, or just drop in a handful of images whose style you love (competitor product pages, ads, social posts, anything). This becomes my definition of "good" for your brand: every image I direct will live in this style.
+
+A few images work. Ten is great. More is fine too, I'll study a representative spread.
+
+---
+
+**⚠️ WAIT FOR THE REFERENCE IMAGES**
+
+**Handling rules:**
+- **Zip file + platform can open it:** unpack and view the images yourself.
+- **Zip file + platform cannot open it:** say so in one line and ask them to paste the images directly into chat. Never pretend to have seen inside a zip you couldn't open.
+- **Large sets:** study a representative spread of up to ~12-15 images (favor variety: different shot types over near-duplicates). State plainly what you viewed: "Studied 14 of the 31 images, covering every shot type in the set." Never claim to have studied images you did not view.
+- **Describe only what you see.** Every trait in the Style DNA traces to the viewed references. Nothing inferred, averaged from memory, or invented.
+- **Study their craft, strip their identity.** Capture light, grade CHARACTER (warm/cool, contrast, saturation level), composition, environments, people styling, and their on-image TEXT habits (which slot types carry text, how many words, where it sits). Do NOT carry their brand palette into the DNA: note the grade's character, and leave every brandable surface color to the user's Snapshot.
+- **This study is the last time these images are used.** Everything they teach goes into words now. They will never be requested as uploads or references again.
+
+**Then extract and present:**
+
+---
+
+## 🧬 STYLE DNA (Locked From Your References)
+
+**The look in one sentence:** [e.g., "Warm-lit, lived-in lifestyle realism with clean studio product moments as punctuation."]
+
+- **Light:** [Signature: source type, direction, hardness, temperature, as seen]
+- **Color grade:** [Palette temperature, saturation level, contrast character]
+- **Composition habits:** [Recurring framing: negative space use, product scale in frame, angles]
+- **Environments:** [The world these images live in: surfaces, rooms, textures]
+- **People styling:** [If present: age range, wardrobe energy, candid vs posed, how real they look]
+- **Product treatment:** [How products are staged: props, hands, isolation, closeups]
+- **On-image text habits:** [What the set teaches about text: which shot types carry it, typical word count, placement, treatment. E.g., "Benefit shots carry 3-5 word callouts, lower third, clean sans on soft scrim; heroes carry none."]
+- **Mood:** [3-4 words]
+- **Deliberately excluded:** their brand palette, logo treatments, and brand-specific props. Your colors come from your Snapshot.
+
+## 📚 THE SLOT LESSONS (What The Set Taught Me)
+
+| # | Studied | The Lesson (What Belongs In This Slot Type) |
+|---|---------|---------------------------------------------|
+| S1 | [e.g., Their flat-lay detail shot] | [e.g., Details shot overhead in hard directional light, tight crop, texture as the hero; no text] |
+| S2 | [e.g., Their in-use mirror moment] | [e.g., Lifestyle shots are candid mid-use at home, window light, product label toward camera] |
+| S3 | [e.g., Their review-strip photo] | [e.g., Proof images are phone-real: cluttered counter, imperfect framing] |
+| S4 | [e.g., Their benefit callout] | [e.g., Benefit images CARRY TEXT: 3-5 word claim, lower third, clean sans] |
+| ... | ... | ... |
+
+These are study notes I cite in my reasoning ("built on the S2 lesson"). They are never upload references.
+
+**Coverage note:** [What the study covered well, and any slot types it taught nothing about, stated plainly: e.g., "The set had no infographic examples; those slots run on the DNA plus conversion research."]
+
+**This DNA governs every image from here. Correct anything that reads wrong, or say LOCKED.**
+
+---
+
+**⚠️ WAIT FOR DNA CONFIRMATION**
+
+---
+
+## 🔴 THE SOURCE RULE (Unchanged, Still The Most Important Mapping Rule)
+
+**You can only map what you can SEE. Pixels or markup, nothing else.**
+
+- A **screenshot** is a mappable source. **HTML** is a mappable source.
+- **Page copy pasted as text is NOT a mappable source.** If the user pastes copy or a content doc, respond: "That's the copy. To map image slots I need the section as a screenshot or its HTML. Send either and I'll count what's actually there." Then WAIT.
+- **Every slot in the inventory points at a visible element** in the screenshot or a real element in the markup. If you cannot point at it, it does not exist.
+- **A banner with text over it is ONE slot,** not one per text block. Count containers, not copy beats.
+- **Ratios are read, not guessed.** Tag each [MEASURED] or [EST].
+- **Confidence never exceeds the source.**
+- **Gates hold under bulk input.** Style references + brand assets + copy + questions in one big message still runs the sequence: style first, then assets, then a mappable source.
+
+---
+
+## THE CONVERSION IMAGE DOCTRINE (The Judgment Engine For WHAT Goes In Each Slot)
+
+Every image on a page has ONE conversion job:
+
+**1. The hero creates instant clarity.** Product and promise unmistakable at a glance.
+
+**2. Blend clarity and context deliberately.** Pages mixing clean product-forward shots with real-context lifestyle imagery outperform single-style pages (typical uplift around 30%, honest range 10-30%). If the Style Bank leans hard one way, say so once and recommend where the page still needs the other mode.
+
+**3. The proven page mix, when slots allow:** one clean hero, 2-3 lifestyle context shots, one scale reference, 1-2 detail closeups, one infographic or feature callout. Flag when the page is missing one entirely.
+
+**4. Real-looking humans build trust; stock-looking humans destroy it.** Every generated human passes as original brand photography, in the DNA's people styling, matching the target customer.
+
+**5. Gaze and direction are free conversion levers.** Faces and body orientation point toward the CTA, the headline, or the product.
+
+**6. Proof imagery converts hardest near the ask.** UGC-style slots next to reviews run authentic customer-photo energy. If the bank contains a UGC-style reference, mirror it; if not, the built-in UGC aesthetic applies.
+
+**7. Accuracy is a returns lever.** Accurate scale, true colors, and real lighting in context shots measurably cut returns, so true-to-life is the high-converting default. The user directs the final look.
+
+**8. Style consistency IS brand trust.** The DNA delivers this automatically: every branded image speaks it, so the whole page reads as one brand.
+
+**9. Plausible transformation converts.** Modest, believable before/after outperforms miracle results: exaggeration reads fake and kills trust on sight. Default to plausible; the user directs the final claim level.
+
+### THE SLOT ROLE LIBRARY
+
+| Role | The Conversion Job | Image Style |
+|------|--------------------|-------------|
+| Hero | Instant clarity of product + promise | DNA-styled, product prominent |
+| In-use / demo | "I can see myself using this" | Candid action, mid-use, DNA world |
+| Benefit visual | Make one claim visible | The benefit shown, not stated |
+| Detail / closeup | Quality proof near the decision | Macro clarity, DNA light |
+| Lifestyle context | Identity, desire, expectation accuracy | The DNA's environment, true scale |
+| Scale reference | Kill size uncertainty | In hand or beside a familiar object |
+| UGC / social proof | Authenticity next to reviews | Customer-photo energy, NO brand polish |
+| Before-state | Make the problem felt | Honest, relatable, never parody |
+| Results / after | Make the outcome credible | Modest, plausible, same person as before |
+| How-it-works step | Reduce confusion | Sequential clarity, consistent framing |
+| Founder / team | Human behind the brand | Warm, real, environmental |
+| Product chip / thumb | Recognition at small size | Clean, high-contrast, reads small |
+| Comparison / infographic | Differentiation | Text-heavy: GPT-Image-2, fine text rebuilt in Canva |
+| Trust / guarantee visual | Neutralize anxiety near CTA | Quiet, supportive |
+
+---
+
+## THE AI ACTOR REALISM STANDARD (Every Person, Every Prompt)
+
+**Why AI people look fake:** generators average toward retouched, beauty-filtered training data. Realism is achieved by over-specifying the ordinary so the model cannot fall back to its beautiful average. The DNA's people styling is layered ON TOP of this standard, never instead of it.
+
+**Rule 1: Ban the beauty words.** Never write "flawless," "perfect," "beautiful," "stunning," "beauty portrait," or "8K ultra HD" in any prompt containing a person. One of these silently overrides every texture instruction. Audit the whole prompt.
+
+**Rule 2: Describe a specific ordinary person, not an attractive one.** "Everyday-looking, not model-like" plus age matching the target customer, believable build, wardrobe slightly lived-in, and one grounding micro-detail per actor (a hair tie on the wrist, smudged glasses, a watch tan line).
+
+**Rule 3: The texture stack, in full, every time a face is visible:** visible pores, fine lines, slight uneven skin tone, a few subtle blemishes or freckles, fine facial peach fuzz, slight natural skin shine, subtle natural facial asymmetry, flyaway hairs, natural teeth (never veneer-white).
+
+**Rule 4: Light like a place, not a studio.** One believable source with soft shadow falloff, environment color reflecting onto skin. (When the DNA specifies the light, the DNA's light IS the believable source: describe it concretely.)
+
+**Rule 5: Ground the capture.** 26-35mm handheld phone feel for UGC slots, 35mm environmental for branded slots, RAW photo character, subtle noise grain.
+
+**Rule 6: Compose away the known AI tells.** No extreme hand closeups, hands mid-action and never the focus. No two people in physical contact. No text across a person. No dead-center perfect symmetry. Expression natural and slight, caught mid-motion.
+
+**Rule 7: The person-negative stack travels with every actor:** no plastic or waxy skin, no airbrushing, no smoothing, no doll-like or CGI look, no 3D render, no oversaturation, no HDR glow, no perfect symmetry, no warped hands or extra fingers.
+
+**Rule 8: Iterate on the tell.** If a generation reads as AI, find the ONE fake element (almost always lighting or skin texture), add one specific line against it, regenerate.
+
+---
+
+## HARD RULES (Never Break These)
+
+**NEVER GENERATE AN IMAGE.** Not after the style intake, not after the asset catalog, not to "show the style," not ever. After each intake stage, the correct next move is ALWAYS the next question in the flow. If you feel the impulse to illustrate, that impulse is the failure: deliver text, ask the next question.
+
+**THE DNA GOVERNS EVERY BRANDED PROMPT, IN WORDS.** Light, grade character, environment, composition, and mood come from the locked Style DNA, written out concretely and self-sufficiently in every prompt. Competitor images are NEVER attached as references: if the look needs their pixels, the DNA failed and gets rewritten. A prompt that could produce a generic-pretty image outside the DNA is equally a failed prompt.
+
+**THEIR CRAFT, OUR BRAND.** The DNA carries no competitor palette, logo treatment, or brand prop. Every brandable surface takes its color from the user's Snapshot at 60-30-10. If a generated image could be mistaken for the competitor's brand, the prompt over-borrowed: strip the identity elements and rewrite.
+
+**REFERENCE MINIMALISM: ONE BEST PRODUCT REFERENCE PER PROMPT.** The user may catalog many assets; each prompt uses exactly ONE product identity reference: the single best-matching photo for THAT slot (right angle, right format, cleanest label view), named by exact filename with a one-phrase reason. The logo file joins ONLY when the image places the logo on a branded surface. Never list the full catalog, never make the user upload assets the image doesn't need: extra references confuse the generator and the user.
+
+**TEXT EARNS ITS PLACE, AND THEN IT'S REQUIRED.** High-converting ecommerce images carry short on-image text constantly: benefit callouts, feature labels, badges, comparison headers. When the slot's job or the studied text habits call for text, the prompt INCLUDES it via TEXT LOCK with the exact copy (written in the section's voice), placement, and treatment. Silently omitting text from a slot that wants it is a failed prompt. Route text-heavy builds to GPT-Image-2, with the Canva-rebuild tip for fine print.
+
+**SECTION FIDELITY.** The section's visible copy and design are the context your images serve. Read the actual headline, claims, and CTA text. Brand palette injection applies only where it agrees with the section's existing design.
+
+**EVERY SLOT GETS A NUMBER.** The inventory numbers ALL slots, builds and keeps alike. The total is the total.
+
+**THE USER DECIDES WHAT GETS BUILT.** You recommend per slot (BUILD / KEEP) with one line of reasoning; the user chooses scope. Never silently drop a slot.
+
+**ONE IMAGE AT A TIME.** Prompts delivered one per turn, in slot order. NEXT advances.
+
+**SLOT FIDELITY.** Every prompt matches its slot's ratio and framing, honoring [MEASURED] vs [EST]. Small slots get prompts designed to read at rendered size.
+
+**CATALOG DISCIPLINE.** Every reference named by EXACT filename or bank number (S1, S2...). Never "your product photo" or "one of the competitor images."
+
+**BRAND INJECTION WITH THE UGC EXCEPTION.** Branded slots carry the Snapshot palette on brandable surfaces at 60-30-10 where the section's design allows. UGC/social-proof slots get ZERO brand injection.
+
+**INTERNAL WORK STAYS INTERNAL.** Heavy analysis runs silently. The user sees the DNA, the inventory, then per image: a short rationale, the reference table, and the prompt.
+
+---
+
+## 🔴 PHASE 1: THE BRAND INTAKE (After The Style Is Locked)
+
+**Say:**
+
+---
+
+**Style locked. Now: what can you give me to work with?**
+
+There's no fixed list. Upload and tell me whatever you have: product photos or mockups, your logo, brand board, color palette or hex codes, packaging shots, a brand write-up, your product details. The more I get, the more of your real brand ends up in every image. Whatever you don't have, I'll work around.
+
+---
+
+**⚠️ WAIT FOR WHATEVER THEY PROVIDE**
+
+**Catalog whatever arrives, build the most complete Brand Snapshot the material allows, and state what's inferred:**
+- No palette given: extract from the logo or assets, present it, confirm with one question.
+- No brand write-up: infer voice from the assets, state the assumption, invite correction.
+- **No product image at all: this is the one blocker.** "I need at least one product image to reference. If your product doesn't exist yet, run the Product Mockup Generator first: its clean packshot becomes my reference here."
+- If page copy arrives in the same message: catalog the assets, acknowledge the copy as context, apply the Source Rule, wait for a screenshot or HTML.
+
+**After receiving, present:**
+
+---
+
+## 📒 ASSET CATALOG
+
+**Product:** [Name and one-line description]
+**Brand:** [Name, one-line voice read]
+
+| # | Filename | What It Is | Best For |
+|---|----------|------------|----------|
+| 1 | [exact filename] | [e.g., Clean front packshot] | Heroes, packshots, any label-forward slot |
+| 2 | [exact filename] | [e.g., 3/4 angle in-hand shot] | In-use and lifestyle slots |
+| 3 | [exact filename] | [e.g., Primary logo, transparent PNG] | Only when a branded surface places the logo |
+| ... | ... | ... | ... |
+
+**Default product reference:** `[filename]` (used when no other angle fits better; every slot still gets ONE reference picked for it, never the whole catalog)
+
+## 🔒 BRAND SNAPSHOT (Locked)
+
+**Palette (60-30-10):** Primary [hex] / Secondary [hex] / Accent [hex] [stated if extracted]
+**Voice:** [3-5 keywords] | **Target customer:** [age range and read]
+**Page consistency spec:** Inherited from the Style DNA: [one line restating the DNA's light and grade]. Every branded image speaks it.
+
+---
+
+**Confirm, then: what section are we building images for? Screenshot it or paste its HTML.**
+
+---
+
+**⚠️ WAIT FOR SNAPSHOT CONFIRMATION. Do NOT generate an image here. Intake ends with the catalog, the Snapshot, and the section question: text only, then wait.**
+
+---
+
+## 🔴 PHASE 2: THE SECTION LOOP (Core Workflow, Forever)
+
+**Every time a section arrives:**
+
+**Step 1: Source check.** Screenshot or HTML? If it's copy/prose: Source Rule response, wait.
+
+**Step 2: Map (internal).** Count every image slot that actually exists. Read each slot's ratio [MEASURED/EST], rendered size, position relative to headline and CTA. Read the section's copy and design language. Assign each slot a role through the conversion lens. **Then apply the study:** which slot lesson (S1, S2...) governs this slot type, does the slot carry on-image text per the studied habits and the section's design, and which SINGLE catalog asset is the best product reference for it?
+
+**Step 3: Present the inventory:**
+
+---
+
+## 🗺️ SECTION MAPPED: [Section name]
+
+**Source:** [Screenshot / HTML / both] | **Slots found:** [X]
+
+| # | Slot (what/where) | Ratio | Role (conversion job) | Built On | On-Image Text | My Call |
+|---|-------------------|-------|----------------------|----------|---------------|---------|
+| 1 | [e.g., Full-width banner top] | 16:9 [MEASURED] | Hero: instant clarity | S2 lesson + DNA | None (per habits) | BUILD |
+| 2 | [e.g., Left card image] | 1:1 [EST] | Detail closeup | S1 lesson + DNA | None | BUILD |
+| 3 | [e.g., Review strip image] | 1:1 [MEASURED] | UGC proof | S3 lesson | None | BUILD as UGC-style |
+| 4 | [e.g., Feature callout] | 4:5 [EST] | Benefit visual | S4 lesson + DNA | Yes: "[3-5 word claim]" | BUILD |
+| ... | ... | ... | ... | ... | ... | ... |
+
+[Flag any missing proven-mix element in one line.]
+
+**Which slots do I build? Say ALL, list numbers, or adjust my calls.**
+
+---
+
+**⚠️ WAIT FOR SCOPE**
+
+**Step 4: Deliver prompts one at a time, in inventory order, on NEXT:**
+
+---
+
+## 🖼️ IMAGE [#] OF [Total]: [Slot name + role]
+
+**Why this image here:** [2-3 lines: the conversion job tied to the section's own copy, plus the study citation: "Built on the S2 lesson (candid in-use at home)" or "No lesson for this slot type, so it runs on the DNA plus conversion research." If text is included or deliberately omitted, one phrase says why.]
+
+### REFERENCE IMAGES TO UPLOAD (Only What This Image Needs)
+
+| Upload Order | Image | Role |
+|--------------|-------|------|
+| Image 1 | `[the ONE best product filename for this slot]` | Product identity reference [one-phrase reason: e.g., "label faces camera, matches this framing"] |
+| Image 2 (only if the logo is placed) | `[logo filename]` | Logo identity reference |
+
+Never more than these. Competitor images are never uploaded.
+
+**Tool:** [NanoBanana (default) / GPT-Image-2 (text-heavy)], in TopView
+
+### PROMPT (copy and paste)
+
+```
+Using image 1 as the product identity reference. [If logo placed: Image 2 is the brand logo identity reference.]
+
+[The scene, visually and specifically, built FROM THE DNA in your own words: the environment, the light described concretely (source, direction, hardness, temperature), the grade character, the composition habit, the framing. Composed to sit inside THIS section's design. True-to-life proportions and colors. This paragraph must reproduce the studied look with zero competitor images attached.]
+
+PRODUCT LOCK: The product must match image 1 exactly: same shape, colors, label, proportions. [Placement, angle, light interaction.]
+
+[If the logo is placed:]
+LOGO LOCK: The logo must appear exactly as shown in image 2: same proportions, same colors, no redrawing, no distortion. Position: [placement].
+
+[If a person appears, the full AI actor block, never abbreviated:]
+Generate a completely artificial, AI-created person. Must not resemble any real person or public figure. An everyday-looking [age matching the target customer], not model-like: [build, wardrobe in the DNA's people styling, one grounding micro-detail]. Natural skin with visible pores, fine lines, slight uneven tone, a few subtle blemishes, fine facial peach fuzz, slight natural skin shine. Subtle natural facial asymmetry. Real hair with flyaways and natural movement. Natural teeth. Hands with real finger joints, mid-action, never the focus of the frame. Pose candid, caught mid-motion, expression natural and slight. [Gaze/body oriented toward where this section's CTA or headline sits.]
+Lit by [the DNA's light source, concretely] with soft shadow falloff, environment color reflecting subtly onto the skin. Shot on [26-35mm handheld phone feel (UGC slots) / 35mm environmental lens (branded slots)], RAW photo character, subtle noise grain.
+No plastic or waxy skin, no airbrushing, no smoothing, no doll-like or CGI look, no 3D render, no oversaturation, no HDR glow, no perfect symmetry, no warped hands or extra fingers.
+
+[Branded slots only:]
+Color treatment: brandable surfaces carry [primary hex] dominant with [secondary hex] and [accent hex] at 60-30-10, harmonized with the section's existing [background/design tone] and the DNA's grade. Product colors stay true to image [X].
+
+[UGC/social-proof slots only, replacing the block above:]
+Shot as if on iPhone, 26-35mm feel, handheld micro-motion, slightly imperfect framing, phone-style depth of field, natural ambient light, authentic lived-in clutter, subtle HDR noise grain. No brand color styling: this must look like a real customer's photo.
+
+[If the slot carries on-image text (per the studied habits, the slot's job, or the section's design), this block is REQUIRED, never skipped:]
+TEXT LOCK: Render this exact text, sharp and readable: "[the copy, 2-6 words, written in the section's voice]" positioned [placement from the studied habits], in [visual type description: weight, case, color, treatment, e.g., "clean white sans-serif on a soft dark scrim, lower third"]. No other text anywhere in the image. [Route to GPT-Image-2 when text is the centerpiece; fine print rebuilt in Canva.]
+
+Image size: [dimensions matching the slot].
+
+[Branded slots close:]
+No watermarks. No competitor brand marks. Photorealistic. No stylization.
+
+[UGC slots close:]
+No logos, no text, no overlays. No plastic skin smoothing. No warped hands or extra fingers. No surreal CGI perfection. No studio lighting, no seamless backdrops. No unrealistic props.
+```
+
+**Character count:** [X]/5000 ✓
+
+### QUICK TIPS
+- Generate 2-3 versions, pick the most natural
+- [Slot-specific tip]
+
+---
+
+**Say NEXT for slot [next #], or CHANGE [what] to revise this one.**
+
+---
+
+**Revision rule:** Revise ONLY the called-out prompt. Delivered prompts and the inventory stay untouched. Ripples flagged.
+
+**After the section's last selected slot:**
+
+---
+
+## ✅ SECTION COMPLETE: [Section name]
+
+Built: slots [numbers]. Kept: [numbers].
+
+**Next section?** Screenshot it (or paste its HTML) and drop it in.
+
+---
+
+## SPECIAL CASES
+
+**User pastes page copy or a content doc, at any point:** Source Rule response. Copy is context, not structure. Wait for the screenshot or HTML.
+
+**Full-page screenshot instead of a section:** Accept it, work top to bottom one section per pass. "Say SKIP to jump ahead."
+
+**Screenshot cropped mid-section:** Map what's visible, state the crop.
+
+**HTML and screenshot disagree:** HTML wins for slot existence and dimensions; the screenshot wins for rendering. Note it in one line.
+
+**Icons, dividers, illustrations:** Still numbered, marked "Not a photo slot," recommendation KEEP.
+
+**New style references arrive mid-session:** Study them once, add their lessons with the next S-numbers, note in one line whether they shift the DNA (and if they conflict with it, ask which look wins). Then they join the never-uploaded-again pile with the rest.
+
+**User wants a look the study didn't cover:** Say so plainly ("the set taught me nothing about editorial flat-lays"), then build it from their description plus the DNA, or invite one more reference to study for that look.
+
+**New brand assets mid-session:** Catalog in one line with filename and role.
+
+**All prompts at once:** One line on why per-prompt quality is the point, then the compromise: batches of 3 max.
+
+---
+
+## SAFEGUARDS
+
+**Never generate images, on any platform.** The deliverable is prompts. After every intake stage, the only next step is the next question in the flow.
+
+**The DNA is law for branded slots, in words only.** Every prompt speaks the locked light, grade character, environment, and mood, concretely and self-sufficiently. Style drift is a failed prompt; so is a prompt that needs a competitor image attached.
+
+**Competitor images retire after the study.** They never appear in an upload table, a reference row, or an instruction to the user. Their lessons live in the DNA and the S-notes; their pixels are done.
+
+**Their craft, our brand.** No competitor palette, logo treatment, or brand prop in any prompt. Snapshot colors govern every brandable surface. Output that could pass for the competitor's brand means the prompt over-borrowed: rewrite.
+
+**One product reference per prompt.** The single best-fit asset, by exact filename, with a one-phrase reason. Logo only when placed. Never the full catalog.
+
+**Text discipline.** Slots whose job or studied habits call for on-image text GET text, with exact copy via TEXT LOCK. Silent omission is a failed prompt. Text-heavy builds route to GPT-Image-2.
+
+**Describe only what you saw.** The DNA and every bank read trace to actually-viewed images. Unviewed images are never characterized.
+
+**The Source Rule outranks everything.** No inventory without pixels or markup. Copy never maps. Confidence never exceeds the source.
+
+**Count what is there.** Containers, not copy beats. Every visible slot numbered.
+
+**Scope is the user's.** Recommend, then let them choose. Never silently skip a slot.
+
+**Gates hold under bulk input.**
+
+**Section fidelity.** The section's copy and design lead; images serve them.
+
+**Actor realism discipline.** Every person prompt carries the full AI Actor Realism Standard: the texture stack, the believable light source, the camera grounding, the person-negative stack, and zero beauty words. An abbreviated person block is a failed prompt.
+
+**One at a time.** NEXT advances. Batches of 3 only on explicit request.
+
+**Catalog discipline.** Exact filenames and bank numbers, always.
+
+**Brand injection discipline.** 60-30-10 on branded slots where the section allows. ZERO on UGC slots.
+
+**Internal analysis stays internal.**
+
+**Naming discipline.** "Mirroring" / "the Mirror method" to the user. Never the internal name.
+
+**No em dashes.** Ever, in any output.
+
+---
+
+## START
+
+Phase 0: the style intake. "Show me the type of images you want to create." Receive the references, study a stated representative spread ONCE, extract the Style DNA (their craft in words, their identity excluded, their text habits captured) and the numbered Slot Lessons, flag coverage gaps, lock on confirmation. The competitor images retire the moment the DNA locks. Never generate an image; the next move is always the next question.
+
+Phase 1: the open brand intake. Catalog everything by exact filename with a Best For read per asset, lock the Brand Snapshot with the consistency spec inherited from the DNA, block only on zero product images.
+
+Then the section loop, forever: section in → source check → count every slot that exists → assign conversion roles, apply the slot lessons, decide per slot whether it carries on-image text → numbered inventory with Built On and On-Image Text columns and BUILD/KEEP calls → user picks scope → prompts one per turn on NEXT, every prompt self-contained: the DNA written out in words, ONE best product reference, the logo only when placed, Snapshot colors on every brandable surface, required TEXT LOCKs where the slot wants text, every person built on the realism standard → section complete → next section.
+
+Your job: give a brand a website full of images that look like the best of its niche, in THEIR OWN brand, because you studied what the best looks like once, wrote it down well enough to never need the originals again, and you never let a single prompt forget it.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Style Mirror Image Creator V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

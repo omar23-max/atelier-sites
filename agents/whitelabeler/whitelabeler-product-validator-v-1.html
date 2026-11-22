@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whitelabeler Product Validator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .pval-wrap ═══ */
+.pval-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.pval-wrap *, .pval-wrap *::before, .pval-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* BG · white with WH-blue + amber soft ambient (verdict energy) */
+.pval-wrap .pval-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 640px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 15% 0%, rgba(59,130,246,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(245,158,11,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 300px at 50% 100%, rgba(16,185,129,0.05) 0%, transparent 70%) !important;
+}
+/* Fine graph grid */
+.pval-wrap .pval-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+  background-image:
+    linear-gradient(rgba(15,23,42,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.025) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+}
+
+/* STAGE */
+.pval-wrap .pval-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1180px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 72px 26px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.pval-wrap .pval-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.5) !important;
+  margin-bottom: 30px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.pval-wrap .pval-masthead .pval-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: #3b82f6 !important;
+}
+.pval-wrap .pval-masthead .pval-mh-wh {
+  color: #3b82f6 !important;
+  font-weight: 800 !important;
+}
+
+/* KICKER · verdict plate */
+.pval-wrap .pval-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: #f59e0b !important;
+  background: rgba(245,158,11,0.06) !important;
+  border: 1px solid rgba(245,158,11,0.35) !important;
+  border-radius: 9999px !important;
+  margin-bottom: 26px !important;
+}
+.pval-wrap .pval-kicker .pval-radar {
+  position: relative !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  background: #f59e0b !important;
+  box-shadow: 0 0 10px #f59e0b !important;
+  animation: pval-pulse 1.5s ease-in-out infinite !important;
+}
+@keyframes pval-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.25); }
+}
+
+/* HEADLINE */
+.pval-wrap h1.pval-headline {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: clamp(2.6rem, 5.8vw, 4.6rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.03em !important;
+  margin: 0 0 22px 0 !important;
+  color: #0f172a !important;
+  max-width: 20ch !important;
+  text-wrap: balance !important;
+}
+.pval-wrap h1.pval-headline .pval-h-wh {
+  background: linear-gradient(135deg, #3b82f6 0%, #1877f2 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+.pval-wrap h1.pval-headline .pval-h-amber {
+  color: #f59e0b !important;
+}
+
+/* DECK */
+.pval-wrap p.pval-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.35vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #475569 !important;
+  max-width: 720px !important;
+  margin: 0 auto 52px !important;
+  font-weight: 400 !important;
+}
+.pval-wrap p.pval-deck .pval-wh { color: #3b82f6 !important; font-weight: 700 !important; }
+.pval-wrap p.pval-deck .pval-amber { color: #f59e0b !important; font-weight: 700 !important; }
+.pval-wrap p.pval-deck .pval-emerald { color: #10b981 !important; font-weight: 700 !important; }
+.pval-wrap p.pval-deck .pval-red { color: #ef4444 !important; font-weight: 700 !important; }
+.pval-wrap p.pval-deck .pval-strong { color: #0f172a !important; font-weight: 600 !important; }
+
+/* ═══ HERO DEVICE: VALIDATION REPORT ═══ */
+.pval-wrap .pval-report {
+  width: 100% !important;
+  max-width: 1080px !important;
+  margin: 0 auto 40px !important;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,0.06),
+    0 8px 24px rgba(15,23,42,0.06),
+    0 30px 80px rgba(15,23,42,0.10) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+}
+
+/* Top status bar */
+.pval-wrap .pval-report-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 22px !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(15,23,42,0.06) !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+.pval-wrap .pval-report-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: #f59e0b !important;
+  text-transform: uppercase !important;
+}
+.pval-wrap .pval-report-title::before {
+  content: '' !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #f59e0b !important;
+  box-shadow: 0 0 8px #f59e0b !important;
+  animation: pval-pulse 1.8s ease-in-out infinite !important;
+}
+.pval-wrap .pval-report-meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(15,23,42,0.5) !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+}
+.pval-wrap .pval-report-meta .pval-em-wh { color: #3b82f6 !important; }
+
+/* ═══ PRODUCT HEADER + BIG SCORE ═══ */
+.pval-wrap .pval-hero {
+  padding: 28px 24px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  gap: 20px !important;
+  align-items: center !important;
+  border-bottom: 1px solid rgba(15,23,42,0.06) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%) !important;
+}
+
+/* Product info (left) */
+.pval-wrap .pval-product {
+  text-align: left !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.pval-wrap .pval-product-avatar {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffffff !important;
+  flex-shrink: 0 !important;
+  box-shadow:
+    0 4px 12px rgba(59,130,246,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  position: relative !important;
+}
+.pval-wrap .pval-product-avatar::before {
+  /* pill/capsule icon */
+  content: '' !important;
+  width: 22px !important;
+  height: 12px !important;
+  background: #ffffff !important;
+  border-radius: 6px !important;
+  box-shadow: inset 0 -6px 0 rgba(59,130,246,0.4) !important;
+  transform: rotate(-25deg) !important;
+}
+.pval-wrap .pval-product-info { min-width: 0 !important; }
+.pval-wrap .pval-product-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(15,23,42,0.5) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 3px !important;
+}
+.pval-wrap .pval-product-name {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 20px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.1 !important;
+}
+.pval-wrap .pval-product-cat {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  color: #3b82f6 !important;
+  font-weight: 600 !important;
+  margin-top: 4px !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Big central score */
+.pval-wrap .pval-score-wrap {
+  position: relative !important;
+  width: 148px !important;
+  height: 148px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+.pval-wrap .pval-score-ring {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+}
+.pval-wrap .pval-score-ring svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  transform: rotate(-90deg) !important;
+}
+.pval-wrap .pval-score-inner {
+  position: relative !important;
+  z-index: 2 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+}
+.pval-wrap .pval-score-num {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 900 !important;
+  font-size: 44px !important;
+  line-height: 1 !important;
+  letter-spacing: -0.04em !important;
+  color: #f59e0b !important;
+  text-shadow: 0 0 22px rgba(245,158,11,0.35) !important;
+}
+.pval-wrap .pval-score-denom {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(15,23,42,0.55) !important;
+  margin-top: 2px !important;
+}
+.pval-wrap .pval-score-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: rgba(15,23,42,0.45) !important;
+  text-transform: uppercase !important;
+  margin-top: 4px !important;
+}
+
+/* Verdict stamp (right) */
+.pval-wrap .pval-verdict {
+  text-align: right !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 8px !important;
+}
+.pval-wrap .pval-verdict-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(15,23,42,0.55) !important;
+  text-transform: uppercase !important;
+}
+.pval-wrap .pval-verdict-stamp {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 18px !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  box-shadow:
+    0 4px 14px rgba(245,158,11,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+}
+.pval-wrap .pval-verdict-stamp::before {
+  content: '▸' !important;
+  font-size: 13px !important;
+}
+.pval-wrap .pval-verdict-note {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11.5px !important;
+  color: #475569 !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  max-width: 220px !important;
+  font-style: italic !important;
+}
+
+/* ═══ SECTION HEADER ═══ */
+.pval-wrap .pval-sec-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 24px 12px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.pval-wrap .pval-sec-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: rgba(15,23,42,0.7) !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.pval-wrap .pval-sec-title .pval-sec-num {
+  color: #3b82f6 !important;
+  font-weight: 800 !important;
+}
+.pval-wrap .pval-sec-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(15,23,42,0.45) !important;
+  text-transform: uppercase !important;
+}
+.pval-wrap .pval-sec-meta .pval-em-em { color: #10b981 !important; }
+
+/* ═══ SIX SIGNAL GRID ═══ */
+.pval-wrap .pval-signals {
+  padding: 0 24px 18px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+}
+.pval-wrap .pval-signal {
+  padding: 14px 14px 14px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  border-radius: 10px !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  position: relative !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.03) !important;
+}
+.pval-wrap .pval-signal-head {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+.pval-wrap .pval-signal-num {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(15,23,42,0.4) !important;
+  text-transform: uppercase !important;
+}
+.pval-wrap .pval-signal-weight {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  color: rgba(15,23,42,0.55) !important;
+  background: rgba(15,23,42,0.05) !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+}
+.pval-wrap .pval-signal-name {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 14.5px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15 !important;
+  margin-top: 2px !important;
+}
+.pval-wrap .pval-signal-desc {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11px !important;
+  color: rgba(15,23,42,0.55) !important;
+  line-height: 1.35 !important;
+}
+
+/* Score bar row */
+.pval-wrap .pval-signal-bar-row {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  margin-top: 6px !important;
+}
+.pval-wrap .pval-signal-track {
+  position: relative !important;
+  height: 6px !important;
+  background: rgba(15,23,42,0.08) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+}
+.pval-wrap .pval-signal-fill {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100% !important;
+  border-radius: 3px !important;
+}
+.pval-wrap .pval-signal-fill-em {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 0 6px rgba(16,185,129,0.4) !important;
+}
+.pval-wrap .pval-signal-fill-amber {
+  background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%) !important;
+  box-shadow: 0 0 6px rgba(245,158,11,0.4) !important;
+}
+.pval-wrap .pval-signal-fill-red {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%) !important;
+  box-shadow: 0 0 6px rgba(239,68,68,0.35) !important;
+}
+.pval-wrap .pval-signal-score {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  min-width: 40px !important;
+  text-align: right !important;
+}
+.pval-wrap .pval-signal-score-em { color: #10b981 !important; }
+.pval-wrap .pval-signal-score-amber { color: #f59e0b !important; }
+.pval-wrap .pval-signal-score-red { color: #ef4444 !important; }
+
+/* Signal verdict pill */
+.pval-wrap .pval-signal-verdict {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  align-self: flex-start !important;
+  margin-top: 4px !important;
+  display: inline-block !important;
+}
+.pval-wrap .pval-signal-verdict-em {
+  color: #059669 !important;
+  background: rgba(16,185,129,0.1) !important;
+  border: 1px solid rgba(16,185,129,0.35) !important;
+}
+.pval-wrap .pval-signal-verdict-amber {
+  color: #d97706 !important;
+  background: rgba(245,158,11,0.1) !important;
+  border: 1px solid rgba(245,158,11,0.4) !important;
+}
+.pval-wrap .pval-signal-verdict-red {
+  color: #dc2626 !important;
+  background: rgba(239,68,68,0.08) !important;
+  border: 1px solid rgba(239,68,68,0.35) !important;
+}
+
+/* ═══ CONDITIONS TO LAUNCH ═══ */
+.pval-wrap .pval-conditions {
+  padding: 0 24px 22px !important;
+}
+.pval-wrap .pval-cond-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+}
+.pval-wrap .pval-cond {
+  padding: 14px 14px !important;
+  background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(245,158,11,0.02) 100%) !important;
+  border: 1px solid rgba(245,158,11,0.3) !important;
+  border-left: 3px solid #f59e0b !important;
+  border-radius: 8px !important;
+  text-align: left !important;
+}
+.pval-wrap .pval-cond-tag {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: #d97706 !important;
+  text-transform: uppercase !important;
+  margin-bottom: 5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.pval-wrap .pval-cond-tag::before { content: '✓' !important; font-size: 11px !important; }
+.pval-wrap .pval-cond-title {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+  margin-bottom: 3px !important;
+}
+.pval-wrap .pval-cond-desc {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11.5px !important;
+  color: rgba(15,23,42,0.6) !important;
+  line-height: 1.4 !important;
+}
+.pval-wrap .pval-cond-desc em {
+  font-style: normal !important;
+  color: #d97706 !important;
+  font-weight: 700 !important;
+}
+
+/* ═══ BUTTONS ═══ */
+.pval-wrap .pval-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.pval-wrap .pval-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+.pval-wrap .pval-btn-step {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  line-height: 1 !important;
+}
+
+/* STEP 1 · WH sign-up, blue outline */
+.pval-wrap .pval-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 20px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  text-decoration: none !important;
+  color: #3b82f6 !important;
+  background: rgba(59,130,246,0.04) !important;
+  border: 1.5px solid #3b82f6 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 260px !important;
+  min-width: 250px !important;
+  box-shadow:
+    0 4px 18px rgba(59,130,246,0.12),
+    0 8px 40px rgba(59,130,246,0.06) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease !important;
+}
+.pval-wrap .pval-btn-affiliate::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(59,130,246,0) 0%, rgba(59,130,246,0.18) 50%, rgba(59,130,246,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.pval-wrap .pval-btn-affiliate:hover {
+  transform: translateY(-2px) !important;
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.6),
+    0 10px 32px rgba(59,130,246,0.45),
+    0 20px 70px rgba(59,130,246,0.22) !important;
+}
+.pval-wrap .pval-btn-affiliate:hover::before { transform: translateX(130%) !important; }
+.pval-wrap .pval-btn-affiliate .pval-btn-step {
+  background: rgba(59,130,246,0.12) !important;
+  color: #3b82f6 !important;
+  border: 1px solid rgba(59,130,246,0.4) !important;
+}
+.pval-wrap .pval-btn-affiliate:hover .pval-btn-step {
+  background: rgba(255,255,255,0.2) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+.pval-wrap .pval-btn-affiliate .pval-btn-text,
+.pval-wrap .pval-btn-affiliate .pval-btn-arrow {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.pval-wrap .pval-btn-affiliate .pval-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+/* Ali20 code pill inside Step 1 */
+.pval-wrap .pval-code-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2px 7px !important;
+  background: rgba(16,185,129,0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16,185,129,0.5) !important;
+  border-radius: 3px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.pval-wrap .pval-btn-affiliate:hover .pval-code-pill {
+  background: rgba(255,255,255,0.2) !important;
+  color: #d1fae5 !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+
+/* STEP 2 · primary amber (verdict color) */
+.pval-wrap .pval-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 20px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 260px !important;
+  min-width: 250px !important;
+  box-shadow:
+    0 0 0 1px rgba(245,158,11,0.4),
+    0 8px 28px rgba(245,158,11,0.4),
+    0 14px 60px rgba(217,119,6,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.28) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.pval-wrap .pval-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.42) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.pval-wrap .pval-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 0 0 1px rgba(245,158,11,0.6),
+    0 12px 36px rgba(245,158,11,0.55),
+    0 20px 70px rgba(217,119,6,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+.pval-wrap .pval-btn:hover::before { transform: translateX(130%) !important; }
+.pval-wrap .pval-btn .pval-btn-icon,
+.pval-wrap .pval-btn .pval-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.pval-wrap .pval-btn .pval-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+}
+.pval-wrap .pval-btn .pval-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+/* Success · flips to emerald (verdict GO) */
+.pval-wrap .pval-btn.pval-copied {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(16,185,129,0.6),
+    0 8px 28px rgba(16,185,129,0.45),
+    0 14px 60px rgba(16,185,129,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+}
+.pval-wrap .pval-btn.pval-copied .pval-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+
+.pval-wrap .pval-btn-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.3px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.pval-wrap .pval-btn-meta .pval-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #f59e0b !important;
+  border-radius: 50% !important;
+}
+
+.pval-wrap #pval-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .pval-wrap .pval-hero {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+    text-align: center !important;
+  }
+  .pval-wrap .pval-product {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .pval-wrap .pval-product-info { text-align: left !important; }
+  .pval-wrap .pval-verdict {
+    align-items: center !important;
+    text-align: center !important;
+  }
+  .pval-wrap .pval-verdict-note { max-width: 320px !important; text-align: center !important; }
+  .pval-wrap .pval-signals { grid-template-columns: 1fr 1fr !important; }
+  .pval-wrap .pval-cond-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 640px) {
+  .pval-wrap .pval-stage { padding: 56px 16px 80px !important; }
+  .pval-wrap .pval-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .pval-wrap h1.pval-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+  .pval-wrap .pval-signals { grid-template-columns: 1fr !important; }
+  .pval-wrap .pval-score-wrap { width: 128px !important; height: 128px !important; }
+  .pval-wrap .pval-score-num { font-size: 38px !important; }
+  .pval-wrap .pval-report-bar { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .pval-wrap .pval-btn-affiliate,
+  .pval-wrap .pval-btn { padding: 18px 22px !important; font-size: 13.5px !important; gap: 10px !important; flex-wrap: wrap !important; }
+  .pval-wrap .pval-btn-meta { font-size: 9px !important; letter-spacing: 1px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="pval-wrap">
+
+  <div class="pval-bg"></div>
+  <div class="pval-grid"></div>
+
+  <div class="pval-stage">
+
+    <div class="pval-masthead">
+      <span>Whitelabeler AI</span>
+      <span class="pval-mh-line"></span>
+      <span class="pval-mh-wh">Powered by Winning Hunter</span>
+    </div>
+
+    <div class="pval-kicker">
+      <span class="pval-radar"></span>
+      <span>Six Scans · One Verdict</span>
+    </div>
+
+    <h1 class="pval-headline">
+      Stress-test any product <span class="pval-h-amber">before you spend a dollar</span>.
+    </h1>
+
+    <p class="pval-deck">
+      Drop a product idea and get back a data-backed verdict in minutes. This AI runs <span class="pval-strong">6 targeted scans</span> across <span class="pval-wh">Meta ads, funnels, and storefronts</span>. Measuring momentum, winner concentration, angle vitality, store health, competitive moat, and Meta policy fit. Returns one clear verdict: <span class="pval-emerald">GO</span>, <span class="pval-amber">GO WITH CONDITIONS</span>, or <span class="pval-red">DO NOT LAUNCH</span>. Never launch blind again.
+    </p>
+
+    <!-- HERO DEVICE: Product Validation Report -->
+    <div class="pval-report" aria-hidden="true">
+
+      <!-- Top status bar -->
+      <div class="pval-report-bar">
+        <div class="pval-report-title">Validation Report · Live</div>
+        <div class="pval-report-meta">
+          <span><span class="pval-em-wh">6</span> SCANS COMPLETE</span>
+          <span>·</span>
+          <span>WEIGHTED MODEL</span>
+          <span>·</span>
+          <span>DATA · 07 JUL 26</span>
+        </div>
+      </div>
+
+      <!-- Product header + big score + verdict -->
+      <div class="pval-hero">
+
+        <!-- Product info -->
+        <div class="pval-product">
+          <div class="pval-product-avatar"></div>
+          <div class="pval-product-info">
+            <div class="pval-product-label">▸ Product Tested</div>
+            <div class="pval-product-name">Sleep Bundle</div>
+            <div class="pval-product-cat">Magnesium + L-Theanine · Health</div>
+          </div>
+        </div>
+
+        <!-- Big central score -->
+        <div class="pval-score-wrap">
+          <div class="pval-score-ring">
+            <svg viewBox="0 0 148 148" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="pvalScoreGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#d97706"/>
+                </linearGradient>
+              </defs>
+              <!-- track -->
+              <circle cx="74" cy="74" r="64" fill="none" stroke="rgba(15,23,42,0.08)" stroke-width="10"/>
+              <!-- progress: 7.2/10 = 72% of 402 circumference -->
+              <circle cx="74" cy="74" r="64" fill="none" stroke="url(#pvalScoreGrad)" stroke-width="10"
+                stroke-linecap="round"
+                stroke-dasharray="402"
+                stroke-dashoffset="113"
+                style="filter: drop-shadow(0 0 6px rgba(245,158,11,0.35));"/>
+            </svg>
+          </div>
+          <div class="pval-score-inner">
+            <span class="pval-score-num">7.2</span>
+            <span class="pval-score-denom">/ 10</span>
+            <span class="pval-score-label">Weighted</span>
+          </div>
+        </div>
+
+        <!-- Verdict -->
+        <div class="pval-verdict">
+          <div class="pval-verdict-label">▸ Final Verdict</div>
+          <span class="pval-verdict-stamp">Go With Conditions</span>
+          <div class="pval-verdict-note">Real demand, proven playbook. Watch Meta policy on health claims.</div>
+        </div>
+
+      </div>
+
+      <!-- 6 SIGNALS -->
+      <div class="pval-sec-head">
+        <div class="pval-sec-title"><span class="pval-sec-num">01</span> The Six Signals · Weighted</div>
+        <div class="pval-sec-meta"><span class="pval-em-em">Each scan</span> feeds the verdict</div>
+      </div>
+
+      <div class="pval-signals">
+
+        <div class="pval-signal">
+          <div class="pval-signal-head">
+            <span class="pval-signal-num">01</span>
+            <span class="pval-signal-weight">20%</span>
+          </div>
+          <div class="pval-signal-name">Ad Momentum</div>
+          <div class="pval-signal-desc">Active advertisers + spend + recency</div>
+          <div class="pval-signal-bar-row">
+            <div class="pval-signal-track"><div class="pval-signal-fill pval-signal-fill-em" style="width:85%"></div></div>
+            <span class="pval-signal-score pval-signal-score-em">8.5</span>
+          </div>
+          <span class="pval-signal-verdict pval-signal-verdict-em">Strong</span>
+        </div>
+
+        <div class="pval-signal">
+          <div class="pval-signal-head">
+            <span class="pval-signal-num">02</span>
+            <span class="pval-signal-weight">15%</span>
+          </div>
+          <div class="pval-signal-name">Winner Concentration</div>
+          <div class="pval-signal-desc">Clarity of dominant playbook</div>
+          <div class="pval-signal-bar-row">
+            <div class="pval-signal-track"><div class="pval-signal-fill pval-signal-fill-em" style="width:78%"></div></div>
+            <span class="pval-signal-score pval-signal-score-em">7.8</span>
+          </div>
+          <span class="pval-signal-verdict pval-signal-verdict-em">Clear Playbook</span>
+        </div>
+
+        <div class="pval-signal">
+          <div class="pval-signal-head">
+            <span class="pval-signal-num">03</span>
+            <span class="pval-signal-weight">15%</span>
+          </div>
+          <div class="pval-signal-name">Angle Vitality</div>
+          <div class="pval-signal-desc">Room for fresh creative angles</div>
+          <div class="pval-signal-bar-row">
+            <div class="pval-signal-track"><div class="pval-signal-fill pval-signal-fill-amber" style="width:66%"></div></div>
+            <span class="pval-signal-score pval-signal-score-amber">6.6</span>
+          </div>
+          <span class="pval-signal-verdict pval-signal-verdict-amber">Room to Zag</span>
+        </div>
+
+        <div class="pval-signal">
+          <div class="pval-signal-head">
+            <span class="pval-signal-num">04</span>
+            <span class="pval-signal-weight">20%</span>
+          </div>
+          <div class="pval-signal-name">Store Level</div>
+          <div class="pval-signal-desc">Modeled store revenue + credibility</div>
+          <div class="pval-signal-bar-row">
+            <div class="pval-signal-track"><div class="pval-signal-fill pval-signal-fill-em" style="width:82%"></div></div>
+            <span class="pval-signal-score pval-signal-score-em">8.2</span>
+          </div>
+          <span class="pval-signal-verdict pval-signal-verdict-em">Real Business</span>
+        </div>
+
+        <div class="pval-signal">
+          <div class="pval-signal-head">
+            <span class="pval-signal-num">05</span>
+            <span class="pval-signal-weight">15%</span>
+          </div>
+          <div class="pval-signal-name">Competitive Moat</div>
+          <div class="pval-signal-desc">Space for a challenger to enter</div>
+          <div class="pval-signal-bar-row">
+            <div class="pval-signal-track"><div class="pval-signal-fill pval-signal-fill-amber" style="width:62%"></div></div>
+            <span class="pval-signal-score pval-signal-score-amber">6.2</span>
+          </div>
+          <span class="pval-signal-verdict pval-signal-verdict-amber">Contestable</span>
+        </div>
+
+        <div class="pval-signal">
+          <div class="pval-signal-head">
+            <span class="pval-signal-num">06</span>
+            <span class="pval-signal-weight">15%</span>
+          </div>
+          <div class="pval-signal-name">Meta Ad Fit</div>
+          <div class="pval-signal-desc">Policy compliance survivability</div>
+          <div class="pval-signal-bar-row">
+            <div class="pval-signal-track"><div class="pval-signal-fill pval-signal-fill-red" style="width:45%"></div></div>
+            <span class="pval-signal-score pval-signal-score-red">4.5</span>
+          </div>
+          <span class="pval-signal-verdict pval-signal-verdict-red">Compliance Risk</span>
+        </div>
+
+      </div>
+
+      <!-- CONDITIONS TO LAUNCH -->
+      <div class="pval-sec-head">
+        <div class="pval-sec-title"><span class="pval-sec-num">02</span> Conditions To Launch</div>
+        <div class="pval-sec-meta"><span class="pval-em-em">Do these first</span></div>
+      </div>
+
+      <div class="pval-conditions">
+        <div class="pval-cond-grid">
+
+          <div class="pval-cond">
+            <div class="pval-cond-tag">Do This 01</div>
+            <div class="pval-cond-title">Lead with the UGC angle</div>
+            <div class="pval-cond-desc">Winning ads are polished. <em>UGC framing will differentiate you fast.</em></div>
+          </div>
+
+          <div class="pval-cond">
+            <div class="pval-cond-tag">Do This 02</div>
+            <div class="pval-cond-title">Vague wellness claims only</div>
+            <div class="pval-cond-desc">Category has Meta policy risk. <em>Use "supports rest" not "cures insomnia."</em></div>
+          </div>
+
+          <div class="pval-cond">
+            <div class="pval-cond-tag">Do This 03</div>
+            <div class="pval-cond-title">Test in DE + AU first</div>
+            <div class="pval-cond-desc">Category leader ignores both. <em>Prove demand outside their turf.</em></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ TWO-BUTTON CTA ═══ -->
+    <div class="pval-btn-wrap">
+      <div class="pval-btn-row">
+
+        <!-- STEP 1 · Winning Hunter affiliate -->
+        <a href="https://go.winninghunter.com/aliakbar" target="_blank" rel="noopener" class="pval-btn-affiliate">
+          <span class="pval-btn-step">1</span>
+          <span class="pval-btn-text">Get Winning Hunter</span>
+          <span class="pval-code-pill">CODE · ALI20</span>
+          <span class="pval-btn-arrow">→</span>
+        </a>
+
+        <!-- STEP 2 · prompt copy -->
+        <a href='#' class='pval-btn pval-ai-launcher' data-original-text='<span class=&quot;pval-btn-step&quot;>2</span><span class=&quot;pval-btn-icon&quot;>▸</span><span class=&quot;pval-btn-text&quot;>Start the Validation</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;pval-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;pval-btn-step\&quot;>2</span><span class=\&quot;pval-btn-icon\&quot;>✓</span><span class=\&quot;pval-btn-text\&quot;>Verdict Loaded · Paste Into Claude</span>&quot;;self.classList.add(&quot;pval-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;pval-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="pval-btn-step">2</span>
+          <span class="pval-btn-icon">▸</span>
+          <span class="pval-btn-text">Start the Validation</span>
+        </a>
+
+      </div>
+      <div class="pval-btn-meta">
+        <span>v1</span>
+        <span class="pval-meta-dot"></span>
+        <span>Requires Winning Hunter Basic + MCP connected</span>
+        <span class="pval-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ WHITELABELER PRODUCT VALIDATOR PROMPT STORE (hidden) ═══ -->
+  <template id="pval-prompt-store"># Whitelabeler Product Validator v2
+
+You are the **Whitelabeler Product Validator**, an ecommerce due-diligence analyst that stress-tests any product idea before the founder invests time, ad spend, or inventory.
+
+Your ONE job: run a full validation pass across ad activity, market demand, the funnel, and the storefront. Reveal exactly whether a product has real momentum, real winning creative velocity, real audience diversity, and a real store behind it, or whether it just looks hot from the outside.
+
+You are NOT a research assistant. You are a validation gate. You return one of four verdicts: GO, GO WITH CONDITIONS, CONSIDER ALTERNATIVES, DO NOT LAUNCH.
+
+---
+
+## 🔴 THE RESEARCH DOCTRINE (Read This First)
+
+**Web research is the FOUNDATION. Winning Hunter is the ENHANCEMENT.**
+
+Every validation ALWAYS includes external web analysis: Google Trends, Amazon signals, TikTok velocity, Reddit sentiment, Meta Ad Library. This runs no matter what.
+
+If Winning Hunter is connected, you ADD its data on top: exact ad run-lengths, spend estimates, store revenue. WH makes the scores more precise. It never replaces the web layer.
+
+**A validation that only used Winning Hunter is an INCOMPLETE validation.** WH sees Meta ads and Shopify stores. It does not see search demand, Amazon momentum, TikTok organic velocity, or Reddit pain language. Those signals catch fads, seasonality, and dying trends that ad data alone misses.
+
+---
+
+## 🔴 ONBOARDING
+
+**On first message:**
+
+---
+
+**🔬 WHITELABELER PRODUCT VALIDATOR**
+
+I stress-test products before you spend a dollar on them. Full validation across search demand, social velocity, ad activity, competition, and the store behind it.
+
+One optional check: **Do you have Winning Hunter connected to Claude?**
+
+- **Yes** → I'll pull exact ad run-lengths, spend data, and store revenue for sharper scores
+- **No** → I'll validate fully using web research (still a complete validation)
+
+If you want to connect it: https://winninghunter.com/?ref=aliakbar then Settings → Connectors → Add custom connector → `https://app.winninghunter.com/mcp`
+
+Either way, drop your product and let's validate:
+
+**1. What's the product?** (Name, description, link, or photo)
+**2. Where did you find it?** (A store, an ad, a listing, or "just testing the idea")
+
+---
+
+**⚠️ WAIT FOR INTAKE. Do not block on WH. Proceed with or without it.**
+
+---
+
+## 🔴 THE VALIDATION SEQUENCE
+
+Run ALL scans. Web scans are mandatory. WH scans run additionally when connected.
+
+### SCAN 1: Demand Reality (Web — ALWAYS RUNS)
+
+**Purpose:** Is there real, growing search and marketplace demand, or a fad that already peaked?
+
+**Searches to run:**
+- `web_search` "[product] google trends 2026" — 12-month momentum
+- `web_search` "[product] trend" — trajectory and seasonality
+- `web_search` "[product] amazon best seller" — marketplace demand, review velocity
+- `web_search` "[product] tiktok viral" — organic social velocity
+
+**Read for:**
+- Trend slope: rising / flat / declining / spiked-and-crashed
+- Amazon presence: review counts, review velocity, BSR mentions
+- TikTok: view velocity, "where do I buy this" comments
+
+**Red flags:**
+- Single sharp spike then drop = fad window closed
+- Flat and declining 12-month interest
+- Amazon reviews growing FAST on top listings = review moat you can't beat
+
+### SCAN 2: Ad Momentum (Web ALWAYS + WH when connected)
+
+**Purpose:** Confirm real advertisers are behind this product NOW.
+
+**Web (always):**
+- `web_search` "[product] facebook ad library"
+- `web_search` "[product] 'tiktok made me buy'"
+- Check the free Meta Ad Library signals: active advertisers, ad recency
+
+**WH (if connected):**
+```
+search_facebook_ads:
+- keyword = [product name / key noun]
+- sort_by = adspend
+- last_seen = 7 days
+```
+
+**Read for:**
+- Total active ads and distinct advertisers
+- Spend estimates (WH) or impression tiers (web)
+- Recency: anyone still running this in the last 7 days?
+
+**Red flags:**
+- Under 10 active ads = no proven demand
+- Only 1 advertiser = single-shop test, not a category
+- Zero ads in last 7 days = trend has died
+
+### SCAN 3: Winner Concentration (WH when connected; web fallback)
+
+**Purpose:** Is there a proven creative playbook?
+
+**WH (if connected):**
+```
+search_facebook_ads: keyword = [product], sort_by = longestrunning, limit = 20
+scan_ad: [top 3-5 ads]
+```
+
+**Web fallback (if no WH):**
+- Meta Ad Library: browse the product keyword, note the longest-visible advertisers and their creative patterns
+- `web_search` "[product] best ads" / "[product] ad examples"
+
+**Read for:**
+- Dominant format (video/image/carousel), hook style, angle
+- Convergent (proven playbook) vs divergent (open market)
+
+### SCAN 4: Store Level (WH when connected; web fallback)
+
+**Purpose:** Is the modeled store a real business?
+
+**WH (if connected):**
+```
+search_shops: keyword = [store domain]
+```
+
+**Web fallback (always available):**
+- `web_fetch` the store itself: catalog depth, professionalism, reviews
+- The Shopify best-seller trick: `store.com/collections/all?sort_by=best-selling`
+- `web_search` "[store name] reviews trustpilot"
+
+**Read for:**
+- Revenue estimate (WH) or credibility signals (web)
+- Store age, catalog focus (specialist vs junk drawer)
+- Customer sentiment
+
+**Red flags:**
+- Under $10K/mo revenue (if measurable) = not proven
+- 100+ unrelated SKUs = classic dropshipper, no brand
+- Bad Trustpilot pattern = product or fulfillment problems you'd inherit
+
+### SCAN 5: Competitive Moat (Web ALWAYS + WH when connected)
+
+**Purpose:** How crowded is the winning tier?
+
+**Web (always):**
+- `web_search` "[product] shopify store" — count sellers
+- `web_search` "[product] amazon" — count listings, check review leads
+- Google Shopping presence and price spread
+
+**WH (if connected):**
+```
+find_winning_products: niche = [mapped], keyword = [product noun], sort_by = pageactiveads
+```
+
+**Read the signals:**
+- 1-3 dominant winners = defensible, room for a challenger
+- 10+ dominant winners = crowded
+- Zero winners = untested market or dead product
+- Price spread eroding = race to the bottom
+
+### SCAN 6: Meta Ad Fit (Knowledge + web — ALWAYS RUNS)
+
+**Purpose:** Will Meta actually let you scale this?
+
+**Policy risk check:**
+- Health/wellness claims, supplements = high risk
+- Weight loss = severe restrictions
+- Before-after skin/body imagery = moderate-high risk
+- Children/baby = moderate
+- Everyday goods (kitchen, pet, home, gadgets) = low risk
+
+**Web check:**
+- `web_search` "[product category] meta ads policy banned"
+- Are current advertisers using compliant hooks, or angles that will get accounts banned?
+
+---
+
+## 🔴 THE SCORING MODEL
+
+After all scans, compute the weighted score. Show your math.
+
+| Signal | Weight | Score Basis |
+|--------|--------|-------------|
+| Demand Reality | 20% | Trend slope + marketplace + social velocity |
+| Ad Momentum | 15% | Active ads + advertiser diversity + recency |
+| Winner Concentration | 10% | Clarity of proven playbook |
+| Store Level | 20% | Modeled store credibility + revenue proof |
+| Competitive Moat | 20% | Space for a challenger |
+| Meta Ad Fit | 15% | Policy survivability |
+
+Each signal scores 0-10. Weighted total = Product Validation Score (out of 10).
+
+**Data source tagging:** Every signal score notes its source: [WEB], [WH], or [WEB+WH]. If a signal relied on estimates or thin data, tag [LOW CONFIDENCE] and note what data would firm it up.
+
+### VERDICT THRESHOLDS
+
+| Score | Verdict |
+|-------|---------|
+| 8.0-10.0 | **GO** — Launch aggressively |
+| 6.5-7.9 | **GO WITH CONDITIONS** — Launch with specific guardrails |
+| 4.0-6.4 | **CONSIDER ALTERNATIVES** — Weaker signal, hunt for a better product |
+| 0-3.9 | **DO NOT LAUNCH** — Signal is bad, wait or move on |
+
+---
+
+## 🔴 THE DELIVERABLE: VALIDATION REPORT
+
+---
+
+# 🔬 PRODUCT VALIDATION REPORT: [PRODUCT NAME]
+
+**Modeled from:** [Store if known] | [URL if given]
+**Data pulled:** [Date]
+**Data sources used:** [Web research / Web + Winning Hunter]
+**Verdict window:** ~30 days
+
+---
+
+## 🎯 OVERALL SCORE: **[X.X] / 10**
+
+## VERDICT: **[GO / GO WITH CONDITIONS / CONSIDER ALTERNATIVES / DO NOT LAUNCH]**
+
+[One sentence summary]
+
+---
+
+## THE 6 SIGNALS
+
+### 1. Demand Reality — [X.X/10] (20%) [WEB]
+
+**What we found:**
+- Trend trajectory: [Rising / flat / declining / spiked]
+- Amazon signal: [Review counts, velocity]
+- TikTok signal: [Velocity, buy-intent comments]
+
+**Verdict:** [Real growing demand / Stable / Fading / Fad passed]
+**One-line takeaway:** [Sentence]
+
+### 2. Ad Momentum — [X.X/10] (15%) [Source tag]
+
+**What we found:**
+- Active ads: [X] | Distinct advertisers: [X]
+- Spend estimate: [$X-Y] or [impression tier from web]
+- Recency: [Last seen]
+
+**Verdict:** [Strong / Moderate / Weak]
+**One-line takeaway:** [Sentence]
+
+### 3. Winner Concentration — [X.X/10] (10%) [Source tag]
+
+**What we found:**
+- Dominant format / hook / angle: [Description]
+- Convergence: [Convergent / Divergent]
+
+**Verdict:** [Clear playbook / Emerging / None]
+**One-line takeaway:** [Sentence]
+
+### 4. Store Level — [X.X/10] (20%) [Source tag]
+
+**What we found:**
+- Store: [Name] | Revenue: [$X or "not measurable"]
+- Catalog focus: [Specialist / Generalist / Dropshipper]
+- Sentiment: [Trustpilot/review pattern]
+
+**Verdict:** [Real business / Emerging / Risky]
+**One-line takeaway:** [Sentence]
+
+### 5. Competitive Moat — [X.X/10] (20%) [Source tag]
+
+**What we found:**
+- Sellers counted: [X] | Dominant winners: [X]
+- Review leads: [Beatable / Growing fast]
+- Price stability: [Stable / Eroding]
+
+**Verdict:** [Defensible / Contestable / Saturated]
+**One-line takeaway:** [Sentence]
+
+### 6. Meta Ad Fit — [X.X/10] (15%) [WEB]
+
+**What we found:**
+- Category risk: [Low / Moderate / High]
+- Compliance of current winners: [Compliant / Mixed / Risky]
+
+**Verdict:** [Safe to scale / Care needed / Meta will punish]
+**One-line takeaway:** [Sentence]
+
+---
+
+## THE CONDITIONS TO LAUNCH
+(If GO WITH CONDITIONS or better)
+
+1. **[Condition]** — [Specific action from the signal analysis]
+2. **[Condition]** — [Specific action]
+3. **[Condition]** — [Specific action]
+
+---
+
+## THE RED FLAGS
+(If CONSIDER ALTERNATIVES or DO NOT LAUNCH)
+
+1. **[Red flag]** — [Why disqualifying, with the measurement]
+2. **[Red flag]** — [Why]
+
+**Alternative direction:** [Better product in the same space, or pivot recommendation]
+
+---
+
+## DATA GAPS
+
+[What couldn't be measured this session, and what would firm it up. E.g., "Store revenue not measurable without Winning Hunter. Connect it and re-run Scan 4 for a firmer Store Level score."]
+
+---
+
+**Want to:**
+- Validate another product?
+- Deep-dive the modeled store's ad strategy? (Hand off to the Facebook Ad Strategist)
+- Get the winning creative playbook? (Hand off to the Hook Creator or Viral Ad Planner)
+
+---
+
+## GUARDRAILS
+
+**Web research always runs.** A validation with zero web scans is invalid, even with WH connected. Demand Reality and Meta Ad Fit are web-only signals and cannot be skipped.
+
+**WH enhances, never replaces.** When connected, run its scans IN ADDITION to web scans, and tag which data came from where.
+
+**Never skip a scan.** If a scan fails or returns nothing, note it, default that signal to 5/10, tag [LOW CONFIDENCE], and list it under Data Gaps.
+
+**Never invent scores.** Every number traces to a scan result.
+
+**Verdict is binary-firm.** Never "maybe" or "it depends." Do the math, commit.
+
+**Conditions must be specific and actionable.** Not "test more hooks" but "test the pattern-interrupt hook because 80% of current winners use it."
+
+**Red flags must be measurable.** Not "vibes are off" but "zero active ads in the last 7 days."
+
+**No em dashes.** Ever.
+
+---
+
+## START
+
+Open with onboarding (WH optional, never blocking). Intake the product. Run ALL scans: web always, WH additionally when connected. Score, tag sources, commit to the verdict.
+
+Your job: stop founders from wasting money on bad products, and green-light good ones with the exact conditions to succeed. Full-spectrum validation, never single-source.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Product Validator V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

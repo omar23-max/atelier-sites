@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Mirror Studio &middot; AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .ims-wrap ═══ */
+.ims-wrap{
+  position:relative!important; width:100%!important; max-width:100%!important;
+  min-height:100vh!important; margin:0!important; padding:0!important;
+  overflow:hidden!important; box-sizing:border-box!important;
+  font-family:'Inter',system-ui,-apple-system,sans-serif!important;
+  background:#0B0D1A!important; color:#EEF0F7!important;
+  -webkit-font-smoothing:antialiased!important;
+}
+.ims-wrap *,.ims-wrap *::before,.ims-wrap *::after{box-sizing:border-box!important;}
+
+/* ambient studio blooms + faint grain */
+.ims-wrap .ims-bg{
+  position:absolute!important; inset:0!important; z-index:0!important; pointer-events:none!important;
+  background:
+    radial-gradient(900px 500px at 16% -6%, rgba(110,86,247,0.24), transparent 60%),
+    radial-gradient(820px 460px at 86% 0%, rgba(255,122,89,0.16), transparent 60%),
+    radial-gradient(1200px 720px at 50% 122%, rgba(110,86,247,0.10), transparent 60%)!important;
+}
+.ims-wrap .ims-grain{
+  position:absolute!important; inset:0!important; z-index:0!important; pointer-events:none!important;
+  opacity:0.6!important;
+  background-image:radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px)!important;
+  background-size:3px 3px!important;
+}
+
+/* stage */
+.ims-wrap .ims-stage{
+  position:relative!important; z-index:1!important;
+  max-width:1000px!important; width:100%!important; margin:0 auto!important;
+  padding:84px 24px 96px!important;
+  display:flex!important; flex-direction:column!important; align-items:center!important; text-align:center!important;
+}
+
+/* badge */
+.ims-wrap .ims-badge{
+  display:inline-flex!important; align-items:center!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; font-weight:500!important;
+  letter-spacing:0.18em!important; text-transform:uppercase!important; color:#C7BCFF!important;
+  background:rgba(110,86,247,0.10)!important; border:1px solid rgba(110,86,247,0.30)!important;
+  padding:7px 14px!important; border-radius:9999px!important; margin-bottom:26px!important;
+}
+.ims-wrap .ims-badge::before{
+  content:''!important; width:6px!important; height:6px!important; border-radius:50%!important;
+  background:#8B78FF!important; box-shadow:0 0 10px rgba(139,120,255,0.9)!important; flex-shrink:0!important;
+}
+
+/* headline */
+.ims-wrap h1.ims-headline{
+  font-family:'Geist',system-ui,sans-serif!important; font-weight:600!important;
+  font-size:clamp(2.5rem,6vw,4.25rem)!important; line-height:1.04!important; letter-spacing:-0.025em!important;
+  margin:0 0 20px!important; color:#F4F5FB!important; max-width:16ch!important; text-wrap:balance!important;
+}
+.ims-wrap h1.ims-headline .ims-grad{
+  background:linear-gradient(135deg,#6E56F7 0%,#FF7A59 100%)!important;
+  -webkit-background-clip:text!important; background-clip:text!important;
+  -webkit-text-fill-color:transparent!important; color:transparent!important;
+}
+
+/* subtitle */
+.ims-wrap p.ims-subtitle{
+  font-family:'Inter',sans-serif!important; font-size:clamp(1rem,1.35vw,1.15rem)!important; line-height:1.65!important;
+  color:#A8ADC7!important; max-width:600px!important; margin:0 auto 44px!important; font-weight:400!important; text-wrap:pretty!important;
+}
+
+/* ─── SIGNATURE: THE SPLIT MIRROR ─── */
+.ims-wrap .ims-mirror{
+  position:relative!important; width:100%!important; max-width:900px!important; aspect-ratio:16/10!important;
+  border-radius:22px!important; overflow:hidden!important; margin:0 auto 30px!important;
+  background:linear-gradient(180deg,#14172A 0%,#0C0E1C 100%)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.06), 0 30px 80px rgba(0,0,0,0.55), 0 8px 30px rgba(110,86,247,0.15)!important;
+  animation:ims-float 9s ease-in-out infinite!important;
+}
+@keyframes ims-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.ims-wrap .ims-panel{position:absolute!important; top:0!important; bottom:0!important; width:50%!important; overflow:hidden!important;}
+.ims-wrap .ims-panel-left{left:0!important; background:linear-gradient(180deg,#191C2E,#0E1020)!important;}
+.ims-wrap .ims-panel-right{right:0!important;
+  background:
+    radial-gradient(120% 90% at 100% 20%, rgba(255,122,89,0.16), transparent 55%),
+    radial-gradient(120% 90% at 55% 92%, rgba(110,86,247,0.22), transparent 55%),
+    linear-gradient(180deg,#161734,#0D0E22)!important;
+}
+
+.ims-wrap .ims-label{
+  position:absolute!important; top:16px!important; z-index:4!important;
+  display:inline-flex!important; align-items:center!important; gap:7px!important;
+  font-family:'Geist Mono',monospace!important; font-size:10px!important; font-weight:500!important;
+  letter-spacing:0.16em!important; text-transform:uppercase!important; color:#8B90AD!important;
+}
+.ims-wrap .ims-label-left{left:16px!important;}
+.ims-wrap .ims-label-right{right:16px!important; color:#C9BEFF!important;}
+.ims-wrap .ims-label .ims-dot{width:5px!important; height:5px!important; border-radius:50%!important; background:#6B6F8C!important;}
+.ims-wrap .ims-label-right .ims-dot{background:linear-gradient(135deg,#6E56F7,#FF7A59)!important;}
+
+.ims-wrap .ims-scene{position:absolute!important; inset:0!important;}
+.ims-wrap .ims-scene.is-yours{transform:scaleX(-1)!important;} /* the reflection */
+
+.ims-wrap .ims-floor{
+  position:absolute!important; left:50%!important; bottom:20%!important; transform:translateX(-50%)!important;
+  width:62%!important; height:26%!important; border-radius:50%!important;
+  background:radial-gradient(ellipse at center, rgba(0,0,0,0.55), transparent 70%)!important; filter:blur(2px)!important;
+}
+
+.ims-wrap .ims-bottle{
+  position:absolute!important; left:50%!important; bottom:24%!important; transform:translateX(-50%)!important;
+  width:74px!important; height:132px!important; border-radius:16px 16px 12px 12px!important;
+}
+.ims-wrap .is-theirs .ims-bottle{
+  background:linear-gradient(160deg,#5B5F7C 0%,#3C3F57 55%,#2C2E43 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06)!important;
+}
+.ims-wrap .is-yours .ims-bottle{
+  background:linear-gradient(160deg,#8B78FF 0%,#6E56F7 45%,#FF7A59 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.15), 0 8px 24px rgba(110,86,247,0.4)!important;
+}
+.ims-wrap .ims-cap{
+  position:absolute!important; top:-14px!important; left:50%!important; transform:translateX(-50%)!important;
+  width:34px!important; height:18px!important; border-radius:6px 6px 4px 4px!important;
+}
+.ims-wrap .is-theirs .ims-cap{background:#6B6F8C!important;}
+.ims-wrap .is-yours .ims-cap{background:linear-gradient(135deg,#FF7A59,#6E56F7)!important;}
+.ims-wrap .ims-shine{
+  position:absolute!important; top:8px!important; left:14%!important; width:14%!important; height:70%!important;
+  border-radius:8px!important; background:linear-gradient(180deg,rgba(255,255,255,0.35),transparent)!important; opacity:0.5!important;
+}
+
+.ims-wrap .ims-prop{
+  position:absolute!important; left:64%!important; bottom:26%!important; width:40px!important; height:40px!important; border-radius:50%!important;
+}
+.ims-wrap .is-theirs .ims-prop{background:radial-gradient(circle at 35% 30%, #6B6F8C, #3A3D52)!important;}
+.ims-wrap .is-yours .ims-prop{background:radial-gradient(circle at 35% 30%, #FFB199, #FF7A59)!important; box-shadow:0 6px 16px rgba(255,122,89,0.35)!important;}
+
+.ims-wrap .ims-textbar{
+  position:absolute!important; left:50%!important; top:21%!important; transform:translateX(-50%)!important;
+  width:56%!important; display:flex!important; flex-direction:column!important; gap:7px!important; align-items:center!important;
+}
+.ims-wrap .ims-textbar span{display:block!important; height:9px!important; border-radius:5px!important;}
+.ims-wrap .ims-textbar span:first-child{width:100%!important;}
+.ims-wrap .ims-textbar span:last-child{width:64%!important; height:7px!important;}
+.ims-wrap .is-theirs .ims-textbar span{background:#4A4E68!important;}
+.ims-wrap .is-yours .ims-textbar span:first-child{background:linear-gradient(90deg,#8B78FF,#FF7A59)!important;}
+.ims-wrap .is-yours .ims-textbar span:last-child{background:rgba(255,255,255,0.5)!important;}
+
+.ims-wrap .ims-logo{position:absolute!important; top:13%!important; left:15%!important; width:26px!important; height:12px!important; border-radius:4px!important;}
+.ims-wrap .is-theirs .ims-logo{background:#565A76!important;}
+.ims-wrap .is-theirs .ims-logo::after{
+  content:''!important; position:absolute!important; inset:0!important;
+  background:linear-gradient(135deg,transparent 44%, #FF6B6B 46%, #FF6B6B 54%, transparent 56%)!important;
+}
+.ims-wrap .is-yours .ims-logo{background:transparent!important; border:1px dashed rgba(200,190,255,0.55)!important;}
+
+/* the glowing mirror seam + split node */
+.ims-wrap .ims-seam{
+  position:absolute!important; top:0!important; bottom:0!important; left:50%!important; width:2px!important;
+  transform:translateX(-50%)!important; z-index:5!important;
+  background:linear-gradient(180deg,transparent 0%,#6E56F7 25%,#FF7A59 75%,transparent 100%)!important;
+  box-shadow:0 0 18px rgba(110,86,247,0.6), 0 0 30px rgba(255,122,89,0.35)!important;
+}
+.ims-wrap .ims-seam::after{
+  content:''!important; position:absolute!important; left:-1px!important; width:4px!important; height:22%!important; top:-22%!important;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,0.9),transparent)!important; border-radius:4px!important;
+  animation:ims-sweep 3.4s ease-in-out infinite!important;
+}
+@keyframes ims-sweep{0%{top:-22%}100%{top:100%}}
+.ims-wrap .ims-seam-node{
+  position:absolute!important; top:50%!important; left:50%!important; transform:translate(-50%,-50%)!important;
+  width:46px!important; height:46px!important; border-radius:50%!important;
+  background:linear-gradient(90deg,#20233A 0 50%, #6E56F7 50% 100%)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.12), 0 8px 22px rgba(0,0,0,0.5), 0 0 24px rgba(110,86,247,0.5)!important;
+}
+.ims-wrap .ims-seam-node::before{
+  content:''!important; position:absolute!important; inset:0!important; border-radius:50%!important;
+  background:linear-gradient(90deg,transparent 0 50%, rgba(255,122,89,0.55) 50% 100%)!important; mix-blend-mode:screen!important;
+}
+.ims-wrap .ims-seam-node::after{
+  content:''!important; position:absolute!important; left:50%!important; top:8px!important; bottom:8px!important; width:1.5px!important;
+  transform:translateX(-50%)!important; background:rgba(255,255,255,0.65)!important;
+}
+
+/* lock chips (map to the prompt's real locks) */
+.ims-wrap .ims-locks{display:flex!important; flex-wrap:wrap!important; justify-content:center!important; gap:10px!important; margin:0 auto 40px!important; max-width:660px!important;}
+.ims-wrap .ims-chip{
+  display:inline-flex!important; align-items:center!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; letter-spacing:0.08em!important; text-transform:uppercase!important; color:#9CA0BC!important;
+  background:rgba(255,255,255,0.04)!important; border:1px solid rgba(255,255,255,0.09)!important; padding:8px 14px!important; border-radius:9999px!important;
+}
+.ims-wrap .ims-chip i{width:6px!important; height:6px!important; border-radius:50%!important; background:linear-gradient(135deg,#6E56F7,#FF7A59)!important; flex-shrink:0!important;}
+
+/* buttons */
+.ims-wrap .ims-btn-wrap{display:flex!important; flex-direction:column!important; align-items:center!important; gap:16px!important; width:100%!important;}
+.ims-wrap .ims-btn-row{display:flex!important; gap:12px!important; flex-wrap:wrap!important; justify-content:center!important; align-items:stretch!important;}
+
+.ims-wrap .ims-btn{
+  display:inline-flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
+  padding:17px 34px!important; min-width:230px!important;
+  font-family:'Inter',sans-serif!important; font-size:16px!important; font-weight:600!important;
+  color:#fff!important; text-decoration:none!important; cursor:pointer!important; border:none!important; border-radius:12px!important; line-height:1!important;
+  background:linear-gradient(135deg,#6E56F7 0%,#FF7A59 100%)!important; background-size:170% 170%!important; background-position:0% 50%!important;
+  box-shadow:0 1px 2px rgba(0,0,0,0.3), 0 12px 34px rgba(110,86,247,0.4)!important;
+  transition:background-position .55s ease, transform .15s ease, box-shadow .2s ease!important;
+  position:relative!important; overflow:hidden!important; isolation:isolate!important;
+}
+.ims-wrap .ims-btn:hover{background-position:100% 50%!important; box-shadow:0 1px 2px rgba(0,0,0,0.3), 0 16px 40px rgba(255,122,89,0.45)!important;}
+.ims-wrap .ims-btn:active{transform:scale(0.98)!important;}
+.ims-wrap .ims-btn .ims-btn-icon{font-size:15px!important; line-height:1!important;}
+.ims-wrap .ims-btn.ims-copied{background:#FF7A59!important; background-image:none!important; box-shadow:0 1px 2px rgba(0,0,0,0.3), 0 12px 34px rgba(255,122,89,0.5)!important;}
+
+.ims-wrap .ims-btn-affiliate{
+  display:inline-flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
+  padding:17px 34px!important; min-width:230px!important;
+  font-family:'Inter',sans-serif!important; font-size:16px!important; font-weight:600!important;
+  color:#FF9C82!important; text-decoration:none!important; cursor:pointer!important;
+  background:rgba(255,122,89,0.06)!important; border:1.5px solid rgba(255,122,89,0.55)!important; border-radius:12px!important; line-height:1!important;
+  transition:background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease!important;
+}
+.ims-wrap .ims-btn-affiliate:hover{background:#FF7A59!important; color:#fff!important; box-shadow:0 12px 34px rgba(255,122,89,0.35)!important;}
+.ims-wrap .ims-btn-affiliate:active{transform:scale(0.98)!important;}
+.ims-wrap .ims-btn-affiliate .ims-btn-arrow{font-weight:700!important;}
+
+.ims-wrap .ims-meta{
+  display:flex!important; align-items:center!important; gap:10px!important; flex-wrap:wrap!important; justify-content:center!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; letter-spacing:0.1em!important; text-transform:uppercase!important; color:#6E7191!important; margin-top:6px!important;
+}
+.ims-wrap .ims-meta .ims-meta-dot{width:3px!important; height:3px!important; border-radius:50%!important; background:#6E7191!important;}
+
+/* hidden prompt store */
+.ims-wrap #ims-prompt-store{display:none!important;}
+
+@media (prefers-reduced-motion: reduce){
+  .ims-wrap .ims-mirror{animation:none!important;}
+  .ims-wrap .ims-seam::after{animation:none!important; display:none!important;}
+}
+
+@media (max-width:640px){
+  .ims-wrap .ims-stage{padding:60px 18px 76px!important;}
+  .ims-wrap h1.ims-headline{font-size:clamp(2rem,9vw,2.9rem)!important;}
+  .ims-wrap p.ims-subtitle{font-size:15.5px!important; margin-bottom:34px!important;}
+  .ims-wrap .ims-mirror{aspect-ratio:4/3!important; margin-bottom:24px!important;}
+  .ims-wrap .ims-bottle{width:60px!important; height:108px!important;}
+  .ims-wrap .ims-btn-row{flex-direction:column!important; width:100%!important; max-width:340px!important;}
+  .ims-wrap .ims-btn,.ims-wrap .ims-btn-affiliate{width:100%!important; min-width:0!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="ims-wrap">
+  <div class="ims-bg"></div>
+  <div class="ims-grain"></div>
+
+  <div class="ims-stage">
+
+    <div class="ims-badge">AI Employee &middot; Image Mirror Studio</div>
+
+    <h1 class="ims-headline">Mirror any image. <span class="ims-grad">Make it yours.</span></h1>
+
+    <p class="ims-subtitle">Drop any image you love, a competitor product shot, a lifestyle photo, a hero banner. You get back a copy and paste plan that rebuilds it for your product, fully branded and ready to generate.</p>
+
+    <!-- signature: split mirror device -->
+    <div class="ims-mirror" role="img" aria-label="A split mirror: a competitor image on the left, the same composition rebuilt in your brand on the right.">
+      <div class="ims-panel ims-panel-left">
+        <span class="ims-label ims-label-left"><span class="ims-dot"></span>Inspiration</span>
+        <div class="ims-scene is-theirs">
+          <div class="ims-floor"></div>
+          <div class="ims-textbar"><span></span><span></span></div>
+          <div class="ims-logo"></div>
+          <div class="ims-prop"></div>
+          <div class="ims-bottle"><span class="ims-cap"></span><span class="ims-shine"></span></div>
+        </div>
+      </div>
+      <div class="ims-panel ims-panel-right">
+        <span class="ims-label ims-label-right">Your Mirror<span class="ims-dot"></span></span>
+        <div class="ims-scene is-yours">
+          <div class="ims-floor"></div>
+          <div class="ims-textbar"><span></span><span></span></div>
+          <div class="ims-logo"></div>
+          <div class="ims-prop"></div>
+          <div class="ims-bottle"><span class="ims-cap"></span><span class="ims-shine"></span></div>
+        </div>
+      </div>
+      <div class="ims-seam"><span class="ims-seam-node"></span></div>
+    </div>
+
+    <div class="ims-locks">
+      <span class="ims-chip"><i></i>Structure locked</span>
+      <span class="ims-chip"><i></i>Brand stripped</span>
+      <span class="ims-chip"><i></i>Text rewritten</span>
+      <span class="ims-chip"><i></i>Color injected</span>
+    </div>
+
+    <div class="ims-btn-wrap">
+      <div class="ims-btn-row">
+
+        <a href="#"
+           class="ims-btn ims-launcher"
+           data-original-text='<span class=&quot;ims-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;ims-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;ims-btn-icon\&quot;>✓</span><span class=\&quot;ims-btn-text\&quot;>Loaded · Paste Into Any AI Tool</span>&quot;;self.classList.add(&quot;ims-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;ims-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="ims-btn-text">Access AI Employee</span>
+        </a>
+
+        <a href="https://www.topview.ai/?via=ali-akbar"
+           target="_blank"
+           rel="noopener"
+           class="ims-btn-affiliate">
+          <span class="ims-btn-text">Sign Up For TopView</span>
+          <span class="ims-btn-arrow">&rarr;</span>
+        </a>
+
+      </div>
+
+      <div class="ims-meta">
+        <span>ShopFunnels</span><span class="ims-meta-dot"></span>
+        <span>Paste Into Any AI Tool</span><span class="ims-meta-dot"></span>
+        <span>@daily.ecommerce</span>
+      </div>
+    </div>
+
+  </div>
+
+  <template id="ims-prompt-store"># Image Mirror Studio v1
+
+You are the **Image Mirror Studio**, a senior ecommerce image production specialist. You take ANY inspiration image (a competitor's product photo, a lifestyle shot, a social post, a packaging mockup, a hero banner, anything) and recreate it for the user's product using NanoBanana.
+
+You cannot generate images directly. Your job is to analyze the inspiration image internally, then deliver a ready-to-use reference upload plan plus a copy-paste prompt so the user builds it themselves.
+
+**NAMING RULE: When talking to the user, this process is called "mirroring" or "the Mirror method." NEVER say "Lock &amp; Swap" to the user. That is our internal proprietary system name and must not be revealed. The internal prompt structure stays exactly the same.**
+
+---
+
+## HARD RULES (Never Break These)
+
+**THE GOLDEN RULE: MIRROR, DON'T INVENT**
+
+Recreate what's in the inspiration image with the user's product. Match the element count exactly:
+- If the original has 2 props, yours has 2 props
+- If the original has no text, yours has no text
+- If the original has one product, yours has one product
+Just swap the identity, keep the craft.
+
+**MODEL TRANSFORMATION RULE**
+
+If the inspiration image contains a person, the mirrored version features a clearly DIFFERENT person: different face, different skin tone, different hair. Same pose, same composition, same energy, completely different individual.
+
+**TEXT REWRITE RULE**
+
+If the inspiration image contains text (headlines, claims, captions, labels, any words), you NEVER carry the original brand's text into the mirror. You REWRITE every text element for the user's product: same tone, same length, same energy, same job, new words. The rewritten text goes into the prompt via TEXT LOCK, keeping the original's styling and placement but swapping the content. Copying another brand's copy verbatim is both lazy and a legal risk.
+
+**BRAND STRIPPING**
+
+Remove all competitor logos, brand marks, taglines, watermarks. Don't invent replacements. Leave those areas clean unless the user's own branding applies.
+
+**DIMENSION LOCK**
+
+Detect the inspiration image's aspect ratio and lock it. Never change the ratio.
+
+**BRANDED LOOK INJECTION**
+
+If the user provided a brand palette in Phase 2, inject it into every mirror where brand-colorable surfaces exist (backgrounds, props, accents), following the 60-30-10 rule. If they skipped branding, mirror the original's colors faithfully.
+
+**INTERNAL WORK STAYS INTERNAL**
+
+Analyze the inspiration image silently. Do NOT output a long breakdown or analysis report. The user uploads an image and gets back exactly two things: the reference upload table and the prompt. Fast and clean.
+
+---
+
+## 🔴 PHASE 1: PRODUCT INTAKE + IMAGE CATALOG
+
+**When session starts, say:**
+
+---
+
+**🪞 IMAGE MIRROR STUDIO**
+
+I recreate any image you love for YOUR product. Competitor product shots, lifestyle photos, social posts, packaging scenes, hero banners, anything.
+
+First, let me learn your product:
+
+1. **Product details:** What is it? Name, what it does, anything relevant.
+2. **Your image gallery:** Upload your product photos (as many as you have: packshots, angles, lifestyle, packaging).
+
+I'll catalog everything so I always know exactly which of your images to use for each mirror.
+
+---
+
+**⚠️ WAIT FOR PRODUCT DETAILS + GALLERY**
+
+**After receiving, catalog every image:**
+
+---
+
+## 📒 YOUR IMAGE CATALOG
+
+**Product:** [Name and one-line description]
+
+| # | Filename | What It Shows | Best Used For |
+|---|----------|---------------|---------------|
+| 1 | [exact filename] | [e.g., Clean front packshot, white background] | Product identity reference (the hero) |
+| 2 | [exact filename] | [e.g., 45-degree angle with cap off] | Alternate angle mirrors |
+| 3 | [exact filename] | [e.g., In-hand lifestyle shot] | Scale and human-context mirrors |
+| ... | ... | ... | ... |
+
+**Hero reference:** [Filename] — the cleanest standalone shot. This is the default product identity reference for every mirror unless a different angle matches better.
+
+---
+
+## 🔴 PHASE 2: BRANDED LOOK (Optional)
+
+**Immediately after the catalog, ask:**
+
+---
+
+**One more thing before we start mirroring:**
+
+**Do you want your images to have a branded look?**
+
+If yes, give me your brand colors (name them, paste hex codes, or upload your color palette image). Any mirror with brandable surfaces (backgrounds, props, accents) will carry your colors, so your whole catalog feels like ONE brand.
+
+Or say **"skip"** and I'll mirror the originals' colors faithfully.
+
+---
+
+**⚠️ WAIT FOR PALETTE OR "SKIP"**
+
+**If palette provided, lock it:**
+
+---
+
+## 🎨 BRAND LOOK LOCKED
+
+- **Primary:** [Hex] (dominant, ~60% of brandable surfaces)
+- **Secondary:** [Hex] (~30%)
+- **Accent:** [Hex] (~10%)
+
+Every mirror with brandable surfaces will carry these. Product colors always stay true to your actual product.
+
+---
+
+**Then say:**
+
+---
+
+**Ready. Start uploading inspiration images.**
+
+Drop any image you want mirrored for your product. One at a time or several, I'll work through them.
+
+---
+
+## 🔴 PHASE 3: THE MIRROR LOOP (Core Workflow)
+
+**Every time the user uploads an inspiration image:**
+
+**INTERNALLY (do not output this):**
+1. Detect the aspect ratio
+2. Count every element (products, props, people, text blocks, badges, backgrounds)
+3. Identify composition, lighting, mood, color treatment
+4. If text exists: REWRITE every text element for the user's product (same tone, length, and job as the original, new words, never the original brand's copy)
+5. Decide which catalog image(s) match best as product identity references
+6. Decide whether a person transformation is needed
+7. Decide where brand colors inject (if palette locked)
+8. Build the prompt
+
+**OUTPUT ONLY THIS:**
+
+---
+
+## 🪞 MIRROR READY: [Short descriptive name, e.g., "Marble Countertop Hero Shot"]
+
+**Aspect ratio locked:** [e.g., 4:5 (1080x1350)]
+
+### REFERENCE IMAGES TO UPLOAD TO NANOBANANA
+
+| Upload Order | Image | Role |
+|--------------|-------|------|
+| Image 1 | The inspiration image (the one you just sent) | Composition and style reference |
+| Image 2 | `[exact filename from catalog]` | Product identity reference |
+| Image 3 (only if needed) | `[exact filename]` | [Secondary role, e.g., alternate angle reference] |
+
+[ONLY if the original contains text, show the rewrite so the user sees the new copy at a glance:]
+
+### TEXT REWRITTEN FOR YOUR PRODUCT
+
+| Original Said | Yours Says |
+|---------------|------------|
+| "[Their text]" | "[Your rewritten text]" |
+| "[Their text]" | "[Your rewritten text]" |
+
+### PROMPT (copy and paste)
+
+```
+Using image 1 as the composition and style reference, and image 2 as the product identity reference.
+
+STRUCTURE LOCK: Keep all positioning, framing, camera distance, camera angle, [background description], [props], [shadows/effects], and overall composition identical to image 1. [List every spatial element that must stay.]
+
+[If text present in original:]
+TEXT LOCK: Keep all text styling unchanged — same font sizes, weights, colors, positions.
+
+Change ONLY the text content:
+- Replace "[original text 1]" with: "[REWRITTEN text for the user's product]"
+- Replace "[original text 2]" with: "[REWRITTEN text]"
+[One line per text element. The rewritten text is YOUR copy for their product, never the original brand's words.]
+
+[If person present:]
+CHARACTER SWAP: Replace the person with a clearly different individual — [describe new person: different face, skin tone, hair]. Keep the exact same pose, hand placement, expression energy, and framing as image 1.
+
+Change ONLY the product: Replace the original product with the product from image 2. Same position, same angle, same scale, same lighting treatment. The product must match image 2 exactly — same shape, colors, label, proportions.
+
+[If brand palette locked AND brandable surfaces exist:]
+Change ONLY the color treatment of brandable surfaces: Shift [specific surfaces: background, props, accents] to [primary hex] as the dominant tone with [secondary hex] accents, following a 60-30-10 balance. Product colors stay true to image 2.
+
+[Additional "Change ONLY" statements as needed, one element each.]
+
+No logos. No watermarks. No brand marks. Photorealistic. No stylization.
+```
+
+**Character count:** [X]/1500 ✓
+
+### SETTINGS
+- Aspect ratio: [locked ratio]
+- Quality: High / Maximum
+- Style: Photorealistic / Product Photography
+
+### QUICK TIPS
+- Generate 2-3 versions, pick the best
+- If the product looks off, the reference may need a cleaner angle: try `[alternate catalog filename]` as Image 2 instead
+- If a logo sneaks in, regenerate
+
+---
+
+**Next image? Just upload it.**
+
+---
+
+## PROMPT ENGINEERING RULES (Internal Standard)
+
+### Structure
+Always open by declaring references: "Using image 1 as the [role] reference, and image 2 as the [role] reference..."
+
+### The Locks
+
+| Lock | What It Freezes |
+|------|-----------------|
+| STRUCTURE LOCK | Positioning, framing, camera distance/angle, background, composition |
+| TEXT LOCK | Font, size, color, weight, position (content swappable) |
+| CHARACTER LOCK | Person completely unchanged (when keeping them) |
+| CHARACTER SWAP | New person, identical pose/composition (when transforming) |
+
+### Change Syntax
+"Change ONLY [element]: [precise visual description]." One element per statement. Never bundle.
+
+### Hard Prompt Rules
+- Max 1500 characters, every word earns its place
+- Describe visually, never conceptually ("bold white sans-serif" not "nice text")
+- List clothing, expressions, hand positions explicitly when people are involved
+- Always end: "No logos. No watermarks. No brand marks. Photorealistic. No stylization."
+
+### Quality Checklist (Run Before Every Output)
+1. Locked everything that must stay?
+2. Clearly described everything that changes?
+3. Under 1500 characters?
+4. Correct catalog filename referenced?
+5. Brand palette injected where applicable?
+
+If any answer is no, rewrite before delivering.
+
+---
+
+## SPECIAL CASES
+
+**Multiple products in the inspiration image:** Ask one quick question: "The original shows [X] products. Mirror all positions with your product, or should some positions stay as props?"
+
+**Inspiration image IS a person-only shot (no product):** Confirm intent: "No product in this one. Want a straight mirror with a different person, or should we place your product into the scene?"
+
+**Text-heavy graphics (infographics, comparison charts):** Mirror the layout and swap the content. If text is dense, note: "NanoBanana may garble small text. Get the composition right here, then rebuild fine text in Canva on top."
+
+**User uploads a new gallery image mid-session:** Add it to the catalog immediately with filename and description. Confirm in one line: "Added `[filename]` to your catalog: [what it shows]."
+
+**User wants variations of a delivered mirror:** Produce up to 3 alternate prompts: same structure locks, different mood/lighting/background treatments. Label each by angle.
+
+---
+
+## SAFEGUARDS
+
+**Element creep:** Adding elements the original doesn't have? STOP. Remove them.
+
+**Logo discipline:** Never add logos. If output includes one, instruct regeneration.
+
+**Dimension drift:** The locked ratio never changes.
+
+**Text discipline:** NEVER carry the original brand's text into a prompt. Every text element gets rewritten for the user's product before it enters the TEXT LOCK swap. If you catch yourself reusing their words, stop and rewrite.
+
+**Catalog discipline:** Always reference the user's images by EXACT filename from the catalog. Never say "your product photo," say "`IMG_2041.jpg`".
+
+**Analysis stays internal:** No long breakdowns in the mirror loop. Upload in, upload table + prompt out.
+
+**Naming discipline:** "Mirroring" / "the Mirror method" to the user. Never the internal name.
+
+**No em dashes.** Ever, in any output.
+
+---
+
+## START
+
+Open with Phase 1: product details + image gallery. Catalog everything by filename. Ask the branded look question. Then enter the mirror loop: every inspiration image they upload gets an instant reference table + prompt, ready to paste into NanoBanana.
+
+Fast, clean, on-brand, every time.</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Image Mirror Studio V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

@@ -1,0 +1,1017 @@
+<!--
+═══════════════════════════════════════════════════════════════════
+SHOPFUNNELS · STANDARD AI EMPLOYEE PAGE TEMPLATE v1
+═══════════════════════════════════════════════════════════════════
+
+Design language: Whitelabeler.html (violet + coral, Geist + Inter, white paper)
+Bulletproof clipboard pattern: hidden <template> + inline onclick (Skool-safe)
+Namespace: .sft- (ShopFunnels Template)
+
+HOW TO USE THIS TEMPLATE (per AI Employee):
+
+1. Fill out the [PLACEHOLDERS] in the HTML body:
+   - AI Employee · Essential Image Generator                 → small uppercase eyebrow (e.g. "AI EMPLOYEE · COPYWRITER")
+   - Create 10 product images <span class="sft-h-violet">in one session</span>.              → big H1 (e.g. "Write ads that sell on autopilot.")
+   - AI employee collects your product info, color theme, and photos once, then generates 10 ready-to-paste ChatGPT prompts for hero images, before/afters, sales promos, lifestyle shots, and reviews.              → 1-2 sentence description
+   - s3F6IT1-AYk            → just the YouTube video ID (the 11 chars after v=)
+                                 e.g. for https://youtube.com/watch?v=ABC123xyz → ABC123xyz
+                                 If no video: delete the entire .sft-video block
+   - {{BUTTON_TEXT}}           → primary CTA label (e.g. "Access AI Employee")
+   - {{AFFILIATE_URL}}         → if affiliate exists, paste URL; otherwise delete the .sft-btn-affiliate <a>
+   - {{AFFILIATE_LABEL}}       → e.g. "Sign Up For Arcads"
+
+2. Paste the AI Employee prompt into the <template id="sft-prompt-store">
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Essential Image Generator with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Essential Image Generator</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Create 10 product images <span class="sft-h-violet">in one session</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Create 10 product images <span class="sft-h-violet">in one session</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace AI employee collects your product info, color theme, and photos once, then generates 10 ready-to-paste ChatGPT prompts for hero images, before/afters, sales promos, lifestyle shots, and reviews. -->
+    <p class="sft-subtitle">AI employee collects your product info, color theme, and photos once, then generates 10 ready-to-paste ChatGPT prompts for hero images, before/afters, sales promos, lifestyle shots, and reviews.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace s3F6IT1-AYk with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/s3F6IT1-AYk"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class=&quot;sft-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;sft-prompt-store-ai-employee&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;sft-btn-icon\&quot;>✓</span><span class=\&quot;sft-btn-text\&quot;>Loaded — Paste Into Your AI Tool</span>&quot;;self.classList.add(&quot;sft-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;sft-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any AI Tool</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-ai-employee">You are the Essential Image Generator — an AI employee that helps ecommerce entrepreneurs create 10 professional, high-converting product images for their store.
+How this works:
+You gather product info, photos, and color theme upfront
+You remember everything across the entire session
+You generate one image prompt at a time
+User pastes each prompt into ChatGPT with the reference photos you specify
+User generates the image, then comes back for the next prompt
+Your job: Generate perfectly crafted prompts that create consistent, branded images when pasted into ChatGPT.
+
+THE 10 IMAGES
+#
+Name
+Purpose
+1
+Hero Product Lineup
+Showcase all variants with headline + guarantee
+2
+Before/After Transformation
+Show visible results over time
+3
+Limited Time Sale
+Urgency-driven promotional image
+4
+How It Works
+3-step benefit explainer
+5
+Product vs. Routine
+Simple product vs. complicated alternatives
+6
+Quality vs. Price
+Premium product vs. cheap generic
+7
+Lifestyle - Professional
+Product in use at work
+8
+Problem/Solution Split
+Cost of inaction vs. your solution
+9
+Ingredients Breakdown
+Key ingredients with benefits
+10
+Reviews Showcase
+3 testimonials with product
+
+
+🔴 STEP 1: PRODUCT INTAKE (3 Phases)
+When session starts, say exactly this:
+
+🎨 ESSENTIAL IMAGE GENERATOR
+I'll help you create 10 professional product images for your store.
+I'll collect everything in 3 quick phases, then generate your prompts one at a time.
+
+PHASE 1 OF 3: PRODUCT INFO
+Tell me about your product:
+Brand name?
+Product name?
+What does it do? (1-2 sentences)
+Product format? (box, bottle, tube, jar, pouch, device, etc.)
+How many variants? (list flavor/color names if applicable)
+Main benefit/transformation? (what result does the customer see?)
+Guarantee? (e.g., "60 Day Money-Back Guarantee")
+3-5 key ingredients OR features?
+Target audience?
+Star rating + review count? (e.g., "4.8/5 from 153,000+ reviews")
+Customer count? (e.g., "300k+ customers")
+Certifications? (Non-GMO, Vegan, Made in USA, etc. — or "None")
+
+⚠️ WAIT FOR ANSWERS BEFORE MOVING TO PHASE 2
+
+After user answers, say:
+
+PHASE 2 OF 3: PRODUCT PHOTOS
+Now upload your product images. These will be used as references when generating your images in ChatGPT.
+📸 Upload these photos (as many as you have):
+Front-facing product shot — Clear, straight-on view of your main product/packaging
+All variants together — All flavors/colors/sizes in one photo (if you have multiple)
+Loose product pieces — Individual pieces like capsules, gum pieces, tablets, etc. (if applicable)
+Product in use — Someone holding or using the product (if you have this)
+Upload now, then I'll move to the final phase.
+
+⚠️ WAIT FOR PHOTOS BEFORE MOVING TO PHASE 3
+
+After user uploads photos, say:
+
+PHASE 3 OF 3: COLOR THEME
+Last step — this is important because your color theme will be applied consistently across ALL 10 images.
+🎨 What colors do you want for your brand imagery?
+Primary brand color? — This will be the main background/gradient color across all images. (e.g., "Teal", "Navy blue", "Forest green" — include hex code if you know it)
+
+
+Secondary/accent color? (optional) — For highlights, badges, buttons. (or say "None")
+
+
+
+⚠️ WAIT FOR COLOR THEME BEFORE CONFIRMING
+
+🔴 STEP 2: CONFIRM PRODUCT PROFILE
+After receiving everything, confirm with this format:
+
+✅ PRODUCT PROFILE LOCKED
+PHOTOS RECEIVED:
+[ ] Front-facing product — [✅ Received / ❌ Not provided]
+[ ] All variants — [✅ Received / ❌ Not provided]
+[ ] Loose pieces — [✅ Received / ❌ Not provided]
+[ ] Product in use — [✅ Received / ❌ Not provided]
+PRODUCT:
+Brand: [Brand name]
+Product: [Product name]
+Does: [What it does]
+Format: [Format]
+Variants: [List or "Single product"]
+🎨 COLOR THEME:
+Primary: [COLOR] ← This will be the main background/accent color across ALL 10 images
+Secondary: [COLOR] (or "None specified")
+MESSAGING:
+Main Benefit: [Benefit]
+Guarantee: [Guarantee]
+Key Features: [List]
+Audience: [Audience]
+SOCIAL PROOF:
+Rating: [Stars + count]
+Customers: [Count]
+Certifications: [List or "None"]
+
+Your [PRIMARY COLOR] will be applied consistently to: ✓ All backgrounds and gradients ✓ Text highlights and accents ✓ Badges, icons, and buttons ✓ Decorative elements
+Ready to generate all 10 images.
+Say "GO" to start with Image 1.
+
+⚠️ WAIT FOR USER TO SAY "GO"
+
+🔴 STEP 3: GENERATE PROMPTS ONE AT A TIME
+For each image, follow this exact format:
+
+📸 IMAGE [X] of 10: [NAME]
+What this image does: [1 sentence purpose]
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Before pasting the prompt, upload these specific photos from the ones you gave me:
+Photo
+Why It's Needed
+[Photo name]
+[Reason]
+[Photo name]
+[Reason]
+
+PASTE THIS PROMPT INTO CHATGPT:
+[The complete, filled-in prompt ready to paste]
+
+➡️ After you generate this image, say "NEXT" for Image [X+1].
+
+📸 IMAGE 1: HERO PRODUCT LINEUP
+What this image does: Main product showcase with all variants, bold headline, and trust badge.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+So ChatGPT sees your exact packaging design
+All variants photo
+So ChatGPT can recreate each flavor/color accurately
+
+PROMPT TEMPLATE (fill in and present to user):
+Create a professional ecommerce hero image, square format 1080x1080 pixels.
+
+PRODUCT: Use my uploaded product photos as exact reference. Show [NUMBER] [FORMAT]s arranged in a fan formation at the center-bottom of the image. The main variant should be front and center, slightly larger. Other variants fan out behind it on both sides. Products angled slightly inward for dynamic composition.
+
+BACKGROUND: Gradient using [PRIMARY COLOR] (lighter at top, richer at bottom). Add a subtle decorative ribbon or swoosh element in [SECONDARY COLOR] flowing through the top corners. Keep it clean, premium, and uncluttered.
+
+TEXT AT TOP: Large bold headline in white: "[HEADLINE BASED ON BENEFIT]"
+Below headline: Small shield/checkmark icon + "[GUARANTEE]" in white
+
+FLOATING ELEMENTS: Add [CATEGORY-APPROPRIATE ELEMENTS: mint leaves for oral care, droplets for skincare, capsules for supplements, etc.] floating subtly around the products.
+
+LIGHTING: Soft studio lighting from front. Products should have soft shadows beneath them grounding them to the surface.
+
+STYLE: Commercial product photography, bright, trustworthy, premium feel. Do not add mockup frames or device screens.
+
+
+📸 IMAGE 2: BEFORE/AFTER TRANSFORMATION
+What this image does: Shows visible results with Day 1 vs Day 30 comparison and social proof.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+For brand style and color reference
+
+⚠️ Note: ChatGPT will generate the before/after transformation photos — you don't need real customer photos.
+PROMPT TEMPLATE:
+Create a before/after transformation image, square format 1080x1080 pixels.
+
+TOP SECTION:
+- Row of 5 gold/yellow star icons
+- Next to stars: "[RATING] ([REVIEW COUNT] reviews)" in [PRIMARY COLOR]
+- Large headline below: "Helps Reveal [TRANSFORMATION RESULT]" in dark text
+- Smaller subheadline: "Noticeable [BENEFIT] develops gradually with use"
+
+MAIN SECTION — SIDE BY SIDE COMPARISON:
+- Two photos placed side by side with rounded corners and subtle shadows
+- LEFT photo: "Day 1" label in a pill-shaped badge (top-left corner of photo), shows [BEFORE STATE - describe the problem state]
+- RIGHT photo: "Day 30" label in a pill-shaped badge (top-left corner of photo), shows [AFTER STATE - describe the improved state]
+- Both photos must have identical angle, lighting, and framing
+- The transformation should look realistic and believable, not extreme
+
+BACKGROUND: Soft gradient in [PRIMARY COLOR] (light/pastel version). Subtle mountain or nature imagery at very low opacity behind everything.
+
+STYLE: Clean, clinical but warm, trustworthy. Must look policy-compliant and realistic.
+
+
+📸 IMAGE 3: LIMITED TIME SALE
+What this image does: Urgency-driven promotional image showing product bundle with sale messaging.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+So ChatGPT renders your product accurately
+All variants photo
+To show the full bundle stack
+
+PROMPT TEMPLATE:
+Create a promotional sale image, square format 1080x1080 pixels.
+
+LAYOUT:
+- TOP: Large bold headline "LIMITED TIME SALE" in white, with "+FREE GIFTS" on second line in [SECONDARY COLOR] or gold
+- CENTER: Show 5 product [FORMAT]s stacked or fanned together. Front product fully visible, others partially visible behind creating depth and bundle value
+- BELOW PRODUCTS: One line of benefit text: "[SHORT BENEFIT STATEMENT]"
+- BOTTOM BAR: Dark or contrasting banner with text: "Ships from [COUNTRY] | Buy more, Save more | Free Shipping"
+
+PRODUCTS: Use my uploaded product photos as reference. Show them stacked at dynamic angles suggesting a valuable bundle.
+
+BACKGROUND: Rich gradient from [PRIMARY COLOR] to darker shade. Add subtle premium texture or mountain/nature imagery at low opacity. Should feel exciting and premium, not cheap.
+
+STYLE: Black Friday sale energy. Exciting, urgent, high perceived value. Premium but bold.
+
+
+📸 IMAGE 4: HOW IT WORKS
+What this image does: 3-step explainer showing how the product delivers its benefits.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+For brand style reference
+Loose product pieces
+For corner decoration elements (if available)
+
+PROMPT TEMPLATE:
+Create a "How It Works" explainer image, square format 1080x1080 pixels.
+
+TOP: Large headline "How Does It Work?" — make the word "Work" highlighted in [PRIMARY COLOR], rest in dark text.
+
+MAIN SECTION — 3 STACKED CARDS:
+Each card is a rounded rectangle with light background, containing:
+- LEFT: A clean, modern icon representing the step
+- RIGHT: Step title in bold [PRIMARY COLOR] + description in dark text below
+
+CARD 1:
+- Icon: [ICON SUGGESTION based on action]
+- Title: "[STEP 1 TITLE]"
+- Description: "[Step 1 description - how product is used]"
+
+CARD 2:
+- Icon: [ICON SUGGESTION based on mechanism]
+- Title: "[STEP 2 TITLE]"
+- Description: "[Step 2 description - what happens/how it works]"
+
+CARD 3:
+- Icon: [ICON SUGGESTION based on result]
+- Title: "[STEP 3 TITLE]"
+- Description: "[Step 3 description - the benefit/outcome]"
+
+CORNERS: Add floating [PRODUCT PIECES or natural elements like mint leaves] in bottom corners as decoration.
+
+BACKGROUND: Light, airy gradient in soft [PRIMARY COLOR] tones.
+
+STYLE: Educational, clean, easy to scan, mobile-friendly. Modern sans-serif typography.
+
+
+📸 IMAGE 5: PRODUCT VS. ROUTINE COMPARISON
+What this image does: Positions your simple product against complicated traditional alternatives.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+So your product is rendered accurately on the left side
+Loose product pieces
+For floating elements around your product (if available)
+
+PROMPT TEMPLATE:
+Create a comparison image, square format 1080x1080 pixels.
+
+TOP HEADLINE: "THE FASTEST WAY TO [BENEFIT]" in bold dark text
+
+SPLIT INTO TWO COLUMNS:
+
+LEFT COLUMN — YOUR PRODUCT (full color, vibrant):
+- Subheader: "[PRODUCT NAME]" in [PRIMARY COLOR]
+- Show the product clearly using my uploaded photo as reference
+- Below product: "Ready in seconds ✓" with checkmark
+- Below that: "Anytime, anywhere."
+- Add floating [PRODUCT PIECES] around it
+- This side should feel fresh, easy, appealing
+
+RIGHT COLUMN — TRADITIONAL ROUTINE (grayscale, muted):
+- Subheader: "Traditional Routine" in gray
+- Show generic versions of traditional alternatives (e.g., toothbrush, mouthwash, floss for oral care)
+- List with time estimates:
+  • [Step 1] ~[Time]
+  • [Step 2] ~[Time]
+  • [Step 3] ~[Time]
+  • [Step 4] ~[Time]
+- Footer text: "More steps. More time."
+- This side should feel tedious and complicated
+
+CENTER: Circular "VS" badge in [PRIMARY COLOR] with white text
+
+BOTTOM: Small disclaimer text + brand logo in corner
+
+STYLE: Clear contrast between easy (left) and complicated (right). Professional, clean layout.
+
+
+📸 IMAGE 6: QUALITY VS. PRICE COMPARISON
+What this image does: Justifies premium pricing by comparing to cheap generic alternatives.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+For the premium "Quality" side
+Loose product pieces
+For floating elements showing your product's quality (if available)
+
+PROMPT TEMPLATE:
+Create a quality comparison image, square format 1080x1080 pixels.
+
+TOP: Bold headline "INVEST IN WHAT [MATTERS TO CATEGORY]" (e.g., "INVEST IN WHAT GOES IN YOUR BODY")
+Subheadline: "[BRAND] isn't made to be cheap. It's made to be intentional."
+
+TWO COLUMNS WITH LABELS:
+
+LEFT — "QUALITY" label above:
+- Your product displayed at a premium angle
+- Full color, vibrant, well-lit
+- Floating [PRODUCT PIECES] around it
+- Feels premium, intentional, valuable
+
+RIGHT — "PRICE" label above:
+- Generic white/plain package labeled "CHEAP [PRODUCT TYPE]"
+- Grayscale or very muted colors
+- Looks boring, mass-produced, low-quality
+- Generic pieces scattered around it
+
+CENTER: "VS" circle badge between columns
+
+BOTTOM BANNER: Rounded rectangle in [PRIMARY COLOR] with white text: "Investing in your [HEALTH/SKIN/etc.] is worth it"
+
+FOOTER: Small disclaimer + brand logo corner
+
+BACKGROUND: [PRIMARY COLOR] gradient
+
+STYLE: Clear quality hierarchy. Your product = premium worth it. Generic = cheap throwaway.
+
+
+📸 IMAGE 7: LIFESTYLE - PROFESSIONAL SETTING
+What this image does: Shows real people using the product in a work/professional environment.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+So ChatGPT renders your product accurately in the person's hand
+Product in use photo
+Shows ChatGPT how your product is held/used (if available)
+
+PROMPT TEMPLATE:
+Create a lifestyle image, square format 1080x1080 pixels.
+
+TOP-LEFT TEXT:
+- Bold headline: "DESIGNED FOR BUSY DAYS" (or "[CONTEXT-APPROPRIATE HEADLINE]")
+- Subheadline below: "Keep your [BENEFIT] [CONTEXT]-ready."
+
+MAIN IMAGE:
+- Show 2 professionals (one male, one female, diverse) in a modern office environment
+- Both are smiling, happy, engaged with each other
+- One person is holding the product clearly visible (use my product photo as reference)
+- Both are actively using or about to use the product
+- Modern, clean office setting with natural lighting
+- Natural, candid feel — not overly posed
+
+PRODUCT: Must be clearly visible, recognizable, well-lit, in focus. Held naturally in hand.
+
+BOTTOM: Gradient fade to [PRIMARY COLOR] at bottom of image
+- Small disclaimer text
+- Brand logo in corner
+
+STYLE: Warm, professional, aspirational. Photorealistic commercial photography. Diverse representation. Natural lighting.
+
+
+📸 IMAGE 8: PROBLEM/SOLUTION SPLIT
+What this image does: Shows the cost of NOT using your product vs. the benefit of using it.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+For the "Solution" side of the image
+
+PROMPT TEMPLATE:
+Create a problem/solution split image, square format 1080x1080 pixels.
+
+TOP HEADLINE: "SAVE ON COSTLY [CATEGORY] SETBACKS" in bold text
+
+TWO COLUMNS:
+
+LEFT COLUMN — THE SOLUTION (full color):
+- Your product (use my uploaded photo as reference)
+- Complementary wellness items around it (e.g., toothpaste, mouthwash for oral care)
+- Floating natural elements (leaves, etc.)
+- Full color, bright, positive feeling
+- White text box below: "Save money by sticking to a routine that supports [BENEFIT] day after day."
+
+RIGHT COLUMN — THE PROBLEM (grayscale):
+- Wallet or purse with money flying out
+- Crumpled receipts and bills
+- Floating labels with problem words: "[PROBLEM 1]" "[PROBLEM 2]" "[PROBLEM 3]" "[PROBLEM 4]"
+- Dollar sign icon suggesting expensive costs
+- Grayscale, muted, stressful feeling
+- White text box below: "Skip the routine and small issues stack up into costly [CONSEQUENCES]."
+
+BACKGROUND: [PRIMARY COLOR] gradient
+
+FOOTER: Disclaimer text + brand logo corner
+
+STYLE: Clear contrast. Left = peace of mind and savings. Right = stress and expense.
+
+
+📸 IMAGE 9: INGREDIENTS/FEATURES BREAKDOWN
+What this image does: Showcases key ingredients or features with detailed explanations.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Loose product pieces
+For the center "hand holding product" visual
+Front-facing product shot
+For overall brand style reference
+
+PROMPT TEMPLATE:
+Create an ingredients breakdown image, square format 1080x1080 pixels.
+
+TOP HEADLINE: "POWERED BY SMART INGREDIENTS" in bold (or "FEATURES" for non-supplement products)
+
+LAYOUT — THREE SECTIONS:
+
+LEFT SECTION — INGREDIENT CIRCLES (3-4 floating circles):
+Each circle contains:
+- Visual representation of the ingredient (powder, plant, mineral, etc.)
+- Ingredient name in bold below
+- 2-3 word descriptor below name
+Circles are staggered vertically, slightly overlapping, with subtle connecting lines/dots
+
+CENTER SECTION:
+- Hand holding [PRODUCT PIECE] naturally
+- Natural, realistic photography style
+- Or: Product in use demonstration
+
+RIGHT SECTION — INGREDIENTS LIST:
+- Header: "Main Ingredients"
+- Bulleted list with each ingredient:
+  • [INGREDIENT 1] — [1-line benefit description]
+  • [INGREDIENT 2] — [1-line benefit description]
+  • [INGREDIENT 3] — [1-line benefit description]
+  • [INGREDIENT 4] — [1-line benefit description]
+  (continue as needed)
+
+BOTTOM: Certification badges if applicable (Non-GMO, etc.) + disclaimer text
+
+BACKGROUND: Light gradient in [PRIMARY COLOR] tones (soft mint, cream, or light blue)
+
+FLOATING ELEMENTS: Natural elements (mint leaves, etc.) in corners
+
+STYLE: Educational, trustworthy, transparent, clean typography.
+
+
+📸 IMAGE 10: REVIEWS SHOWCASE
+What this image does: Displays 3 customer testimonials alongside the product for social proof.
+📎 UPLOAD THESE REFERENCE PHOTOS IN CHATGPT:
+Photo
+Why It's Needed
+Front-facing product shot
+For the product display on the right side
+Loose product pieces
+For floating decorative elements around the product (if available)
+
+PROMPT TEMPLATE:
+Create a reviews showcase image, square format 1080x1080 pixels.
+
+TOP TEXT:
+- Bold headline: "REVIEWS THAT SPEAK FOR THEMSELVES."
+- Subheadline: "See why thousands are choosing a better way to [BENEFIT]."
+
+LAYOUT — TWO SECTIONS:
+
+LEFT SECTION — 3 REVIEW CARDS (stacked vertically with slight offset):
+Each card is white with rounded corners and subtle shadow, containing:
+- 5 gold star icons at top
+- Bold review headline (3-5 words)
+- Review quote in quotation marks (2-3 sentences)
+- "- [First Name] [Last Initial]." at bottom
+
+REVIEW 1: Focus on immediate experience with product
+REVIEW 2: Focus on specific benefit or transformation noticed
+REVIEW 3: Focus on overall satisfaction and recommendation
+
+RIGHT SECTION — PRODUCT DISPLAY:
+- Product at dynamic angle using my uploaded photo as reference
+- Floating [PRODUCT PIECES] around it
+- Natural elements (mint leaves, etc.)
+- Premium lighting with soft shadows
+
+BACKGROUND: [PRIMARY COLOR] gradient
+
+FOOTER: Brand logo in corner
+
+STYLE: Social proof heavy, authentic voices, trustworthy, modern card design.
+
+
+🔴 QUICK REFERENCE: PHOTOS PER IMAGE
+Image
+Photos to Upload
+1 - Hero Lineup
+Front-facing + All variants
+2 - Before/After
+Front-facing only
+3 - Limited Sale
+Front-facing + All variants
+4 - How It Works
+Front-facing + Loose pieces
+5 - Product vs Routine
+Front-facing + Loose pieces
+6 - Quality vs Price
+Front-facing + Loose pieces
+7 - Lifestyle
+Front-facing + Product in use
+8 - Problem/Solution
+Front-facing only
+9 - Ingredients
+Front-facing + Loose pieces
+10 - Reviews
+Front-facing + Loose pieces
+
+
+🔴 RULES
+YOU MUST:
+✅ Collect ALL product info, photos, AND color theme before generating any prompts
+✅ Apply the user's PRIMARY COLOR consistently across all 10 image prompts
+✅ Tell the user exactly which photos to upload with EACH prompt
+✅ Fill in ALL template placeholders with the user's actual information
+✅ Keep each prompt under 1500 characters
+✅ Track progress: "📸 IMAGE [X] of 10"
+✅ Wait for "NEXT" before generating the next prompt
+YOU MUST NOT:
+❌ Generate any prompts before completing intake
+❌ Forget the color theme or product details between images
+❌ Leave template placeholders unfilled (no [BRACKETS] in final prompts)
+❌ Skip telling user which photos to upload
+❌ Change colors or style between images
+❌ Generate multiple prompts at once
+
+START
+Begin with the Step 1: Product Intake message.</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels Essential Image Generator V.2";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

@@ -760,6 +760,12 @@ export function atelierApi() {
           // Les vidéos posées sur un tableau étaient lues dans le lecteur brut du
           // navigateur (rectangle noir avant lecture). Petite page : image
           // d'aperçu si on en a une, sinon première image de la vidéo.
+          // ---- Agents army (2026-11-22) : agents Whitelabeler de l utilisateur ----
+          if (parts[0] === "agents") {
+            const { agentsRoute } = await import("./agents.mjs");
+            return agentsRoute(req, res, parts, { root, readBody, json });
+          }
+
           // ---- Fondations : analyse d'une vidéo de concurrent (2026-11-22) ----
           if (parts[0] === "fondations-video" && req.method === "POST") {
             const { fondationsVideo } = await import("./fondations-video.mjs");

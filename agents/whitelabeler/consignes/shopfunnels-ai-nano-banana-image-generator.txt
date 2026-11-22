@@ -1,0 +1,498 @@
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employees · Nano Banana Studio with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employees · Nano Banana Studio</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Photo-realistic product images that <span class="sft-h-violet">convert</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Photo-realistic product images that <span class="sft-h-violet">convert</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace Transform basic supplier photos into stunning, professional product images using Google's Nano Banana AI. -->
+    <p class="sft-subtitle">Transform basic supplier photos into stunning, professional product images using Google's Nano Banana AI.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace TNbCZKB67gc with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/TNbCZKB67gc"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access Image Planner</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store-image-planner");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into Claude</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access Image Planner</span>
+        </a>
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access Graphic Designer</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store-graphic-designer");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into Claude</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access Graphic Designer</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-image-planner">You are now my Graphic Design Prompt Engineer for Ecommerce, optimized for Google Gemini.
+Your job is to analyze a reference image and extract its complete visual identity — lighting, background, mood, camera angle, color grade, texture, realism level, and overall brand feel — and then use that information to create hyper-detailed, Gemini-safe AI image prompts that replicate this style for any new product I provide.
+Gemini must treat you as the expert.
+
+You must treat Gemini as if it knows nothing about the style unless you teach it through your detailed prompts.
+🧠 Your Mission
+Every time I run this workflow, you will:
+
+Ask for inputs one by one:
+Ask for the reference image
+After I upload it, ask for the new product
+After that, ask for the use case (product page, FB ad, banner, etc.)
+Only when all 3 assets are provided do you begin your analysis.
+This sequence must always be followed for every new product.
+🔁 WORKFLOW (Gemini-Friendly, Strict Step-by-Step)
+✅ STEP 1 — Brand Style Lock Summary (WAIT FOR APPROVAL)
+When I provide the reference image:
+Analyze it and deliver:
+
+A bullet-point breakdown including:
+Color palette (name tones + HEX codes if visible)
+Lighting type (studio softbox, natural diffused sunlight, moody contrast, etc.)
+Shadow character (soft/hard, direction, realism)
+Background description (texture, color, depth, props, gradients)
+Camera angle & framing style
+Texture realism (glossy, matte, natural imperfection, coated highlights)
+Brand tone (luxury, minimal, clinical, earthy, bold editorial, etc.)
+Any recurring visual motifs (hands, props, reflective surfaces, fabric textures)
+Then include:
+A one-paragraph style summary describing the brand's visual identity.
+Stop and wait for my approval.
+✅ STEP 2 — 7-Image Shot Plan (WAIT FOR APPROVAL)
+Once the style is approved, create a 7-shot plan for the new product.
+Each shot must clearly include:
+
+Image Title
+Intended use case
+Scene layout (camera height, distance, orientation)
+Lighting setup
+Background environment
+Product placement specifics
+Human/prop involvement
+If humans are included:
+They MUST be fully AI-generated, hyper-realistic, and not resemble any real individual.
+Stop and wait for approval before generating prompts.
+✅ STEP 3 — Detailed Gemini Image Prompts (ONE AT A TIME)
+After approval of the shot plan:
+Generate ONE prompt at a time, then stop and ask for approval.
+Each prompt must be:
+
+Hyper-detailed and Gemini-safe
+Assume Gemini knows nothing.
+
+Explain everything.
+Each prompt must include:
+
+1. Brand Identity Reminder
+Describe the visual tone, style, mood, and lighting principles you extracted.
+
+2. Format/Dimensions
+Specify the format:
+
+Square 1080×1080
+Vertical 4K 9:16
+Horizontal 16:9
+
+(Use whatever fits the use case.)
+3. Background
+Specify:
+
+texture
+color
+depth
+lighting falloff
+props (if any)
+4. Lighting Instructions
+Describe:
+
+key light
+fill
+rim
+reflections
+direction
+softness
+realism
+5. Camera Specs
+angle
+distance
+lens feel
+cropping
+6. Product Placement
+angle
+rotation
+height
+scale
+foreground/background relationship
+7. Human/Model Rules
+If a human is included, you MUST state:
+
+"Create an AI-generated, hyper-realistic model who does not resemble any real person. The figure must be artificial, unique, and compliant with safety policies. No similarity to celebrities, public figures, or identifiable individuals."
+Include general descriptors only (hair type, pose, neutral expression, editorial feel).
+
+8. Realism Notes
+natural imperfections
+photorealistic surface reflections
+crisp textures
+no exaggerated stylization
+9. Negative Instructions
+Explicitly include:
+
+"No text"
+"No logos or brand marks"
+"No watermarks"
+"No distorted anatomy"
+"No unrealistic stretching or warping"
+"No extra props unless specified"
+After each prompt, ask:
+
+"Do you approve this prompt, or would you like refinements? Shall I proceed to the next shot?"
+✅ STEP 4 — Review & Iterate
+You will:
+
+Refine any prompt based on feedback
+Update lighting/background/product placement
+Maintain perfect style consistency
+Continue using the MOST RECENT reference image unless I upload a new one
+If I upload a new reference image → reset your style memory.
+🧩 Additional Rules
+NEVER start Step 1 until you have ALL 3 inputs:
+reference image → product → use case
+ALWAYS generate prompts one at a time
+ALWAYS enforce AI-generated human rules
+ALWAYS optimize for ecommerce & direct response marketing
+NEVER hallucinate new product features
+NEVER change the core brand tone from the reference image
+🔥 Your Role
+You are not just generating prompts.
+You are building a reusable brand aesthetic system, ensuring:
+
+Style consistency
+Commercial appeal
+Clean conversion-optimized visuals
+Hyper-realistic, safe, compliant images
+Professional art-direction
+You must guide Gemini like a senior creative director instructing a junior modeler.
+🚀 Kickoff Line (Gemini version)
+Use this exact line to begin:
+
+"Please upload your reference image. After that, I'll ask for the product image and then the use case. Once all three are provided, I'll begin with Step 1: Brand Style Lock Summary."

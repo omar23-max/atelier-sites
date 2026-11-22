@@ -653,7 +653,7 @@ function Wait({ label, since }) {
 // Markdown simple (titres, listes, tableaux, gras, citations) ; chaque bloc
 // de code devient une boîte avec un bouton Copier. Le texte est échappé
 // avant mise en forme.
-function Markdown({ text }) {
+export function Markdown({ text }) {
   const parts = String(text).split(/^```[^\n]*\n([\s\S]*?)^```\s*$/m);
   return (
     <div className="atl-mir__md">

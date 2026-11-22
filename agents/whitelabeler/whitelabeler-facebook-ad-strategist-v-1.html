@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels Facebook Ad Strategist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .fas-wrap ═══ */
+.fas-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.fas-wrap *, .fas-wrap *::before, .fas-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* BG — white with WH-blue + Facebook-blue soft ambient */
+.fas-wrap .fas-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 600px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 15% 0%, rgba(59,130,246,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 88% 0%, rgba(24,119,242,0.08) 0%, transparent 60%) !important;
+}
+/* Fine graph grid */
+.fas-wrap .fas-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+  background-image:
+    linear-gradient(rgba(15,23,42,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.025) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+}
+
+/* STAGE */
+.fas-wrap .fas-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1180px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 72px 26px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.fas-wrap .fas-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.5) !important;
+  margin-bottom: 30px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.fas-wrap .fas-masthead .fas-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: #3b82f6 !important;
+}
+.fas-wrap .fas-masthead .fas-mh-wh {
+  color: #3b82f6 !important;
+  font-weight: 800 !important;
+}
+
+/* KICKER — WH plate */
+.fas-wrap .fas-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: #3b82f6 !important;
+  background: rgba(59,130,246,0.06) !important;
+  border: 1px solid rgba(59,130,246,0.3) !important;
+  border-radius: 9999px !important;
+  margin-bottom: 26px !important;
+}
+.fas-wrap .fas-kicker .fas-radar {
+  position: relative !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  background: #3b82f6 !important;
+  box-shadow: 0 0 10px #3b82f6 !important;
+  animation: fas-pulse 1.5s ease-in-out infinite !important;
+}
+@keyframes fas-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.25); }
+}
+
+/* HEADLINE — Inter black, matches WH sister */
+.fas-wrap h1.fas-headline {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: clamp(2.6rem, 5.8vw, 4.6rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.03em !important;
+  margin: 0 0 22px 0 !important;
+  color: #0f172a !important;
+  max-width: 20ch !important;
+  text-wrap: balance !important;
+}
+.fas-wrap h1.fas-headline .fas-h-wh {
+  background: linear-gradient(135deg, #3b82f6 0%, #1877f2 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+.fas-wrap h1.fas-headline .fas-h-emerald {
+  color: #10b981 !important;
+}
+
+/* DECK */
+.fas-wrap p.fas-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.35vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #475569 !important;
+  max-width: 700px !important;
+  margin: 0 auto 52px !important;
+  font-weight: 400 !important;
+}
+.fas-wrap p.fas-deck .fas-wh { color: #3b82f6 !important; font-weight: 700 !important; }
+.fas-wrap p.fas-deck .fas-fb { color: #1877f2 !important; font-weight: 700 !important; }
+.fas-wrap p.fas-deck .fas-emerald { color: #10b981 !important; font-weight: 700 !important; }
+.fas-wrap p.fas-deck .fas-strong { color: #0f172a !important; font-weight: 600 !important; }
+
+/* ═══ HERO DEVICE: AD TEARDOWN DASHBOARD ═══ */
+.fas-wrap .fas-report {
+  width: 100% !important;
+  max-width: 1080px !important;
+  margin: 0 auto 40px !important;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,0.06),
+    0 8px 24px rgba(15,23,42,0.06),
+    0 30px 80px rgba(15,23,42,0.10) !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+}
+
+/* Top status bar */
+.fas-wrap .fas-report-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 22px !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(15,23,42,0.06) !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+.fas-wrap .fas-report-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: #3b82f6 !important;
+  text-transform: uppercase !important;
+}
+.fas-wrap .fas-report-title::before {
+  content: '' !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #10b981 !important;
+  box-shadow: 0 0 8px #10b981 !important;
+  animation: fas-pulse 1.8s ease-in-out infinite !important;
+}
+.fas-wrap .fas-report-meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(15,23,42,0.5) !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+}
+.fas-wrap .fas-report-meta .fas-em-wh { color: #3b82f6 !important; }
+
+/* Brand header row */
+.fas-wrap .fas-brand {
+  padding: 22px 24px !important;
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 16px !important;
+  align-items: center !important;
+  border-bottom: 1px solid rgba(15,23,42,0.06) !important;
+}
+.fas-wrap .fas-brand-avatar {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #1877f2 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 20px !important;
+  color: #ffffff !important;
+  letter-spacing: -0.02em !important;
+  box-shadow:
+    0 4px 12px rgba(59,130,246,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  flex-shrink: 0 !important;
+}
+.fas-wrap .fas-brand-info { text-align: left !important; min-width: 0 !important; }
+.fas-wrap .fas-brand-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(15,23,42,0.5) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 3px !important;
+}
+.fas-wrap .fas-brand-name {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 20px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.1 !important;
+}
+.fas-wrap .fas-brand-domain {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: #3b82f6 !important;
+  font-weight: 500 !important;
+  margin-top: 3px !important;
+}
+.fas-wrap .fas-brand-stats {
+  display: grid !important;
+  grid-template-columns: repeat(3, auto) !important;
+  gap: 20px !important;
+}
+.fas-wrap .fas-stat {
+  text-align: left !important;
+  min-width: 0 !important;
+}
+.fas-wrap .fas-stat-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(15,23,42,0.5) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 3px !important;
+}
+.fas-wrap .fas-stat-value {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 20px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1 !important;
+}
+.fas-wrap .fas-stat-value-wh { color: #3b82f6 !important; }
+.fas-wrap .fas-stat-value-em { color: #10b981 !important; }
+.fas-wrap .fas-stat-delta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  color: #10b981 !important;
+  margin-top: 3px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+/* ═══ SECTION HEADER (inside report card) ═══ */
+.fas-wrap .fas-sec-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 24px 10px !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.fas-wrap .fas-sec-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: rgba(15,23,42,0.7) !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.fas-wrap .fas-sec-title .fas-sec-num {
+  color: #3b82f6 !important;
+  font-weight: 800 !important;
+}
+.fas-wrap .fas-sec-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(15,23,42,0.45) !important;
+  text-transform: uppercase !important;
+}
+.fas-wrap .fas-sec-meta .fas-em-em { color: #10b981 !important; }
+
+/* ═══ AD CARDS ROW (top long-running ads) ═══ */
+.fas-wrap .fas-ads {
+  padding: 0 24px 18px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 12px !important;
+}
+.fas-wrap .fas-ad {
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.03) !important;
+}
+.fas-wrap .fas-ad-thumb {
+  position: relative !important;
+  aspect-ratio: 9/12 !important;
+  background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%) !important;
+  overflow: hidden !important;
+}
+/* Different gradients per card to fake different creative styles */
+.fas-wrap .fas-ad:nth-child(2) .fas-ad-thumb {
+  background:
+    radial-gradient(ellipse at 60% 40%, rgba(255,180,150,0.5) 0%, transparent 60%),
+    linear-gradient(180deg, #78350f 0%, #431407 100%) !important;
+}
+.fas-wrap .fas-ad:nth-child(3) .fas-ad-thumb {
+  background:
+    radial-gradient(ellipse at 40% 30%, rgba(16,185,129,0.3) 0%, transparent 60%),
+    linear-gradient(180deg, #064e3b 0%, #022c22 100%) !important;
+}
+.fas-wrap .fas-ad-thumb::before {
+  /* person silhouette */
+  content: '' !important;
+  position: absolute !important;
+  bottom: 8% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 55% !important;
+  height: 60% !important;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,215,180,0.6) 0%, rgba(60,30,10,0.85) 60%) !important;
+  border-radius: 50% 50% 25% 25% / 40% 40% 10% 10% !important;
+}
+.fas-wrap .fas-ad:nth-child(2) .fas-ad-thumb::before {
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,220,190,0.65) 0%, rgba(80,20,15,0.9) 60%) !important;
+}
+.fas-wrap .fas-ad:nth-child(3) .fas-ad-thumb::before {
+  background: radial-gradient(ellipse at 50% 30%, rgba(180,220,190,0.5) 0%, rgba(20,50,40,0.9) 60%) !important;
+}
+/* Days-running badge */
+.fas-wrap .fas-ad-days {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 3 !important;
+  padding: 3px 7px !important;
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 0 10px rgba(16,185,129,0.4) !important;
+}
+.fas-wrap .fas-ad:nth-child(2) .fas-ad-days { background: #10b981 !important; }
+.fas-wrap .fas-ad:nth-child(3) .fas-ad-days { background: #f59e0b !important; box-shadow: 0 0 10px rgba(245,158,11,0.4) !important; }
+
+/* Rank badge (top-left) */
+.fas-wrap .fas-ad-rank {
+  position: absolute !important;
+  top: 8px !important;
+  left: 8px !important;
+  z-index: 3 !important;
+  width: 22px !important;
+  height: 22px !important;
+  background: rgba(15,23,42,0.75) !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* Ad hook text overlay */
+.fas-wrap .fas-ad-hook {
+  position: absolute !important;
+  top: 35% !important;
+  left: 0 !important;
+  right: 0 !important;
+  text-align: center !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-shadow:
+    1.5px 1.5px 0 rgba(0,0,0,0.6),
+    -1.5px -1.5px 0 rgba(0,0,0,0.6),
+    1.5px -1.5px 0 rgba(0,0,0,0.6),
+    -1.5px 1.5px 0 rgba(0,0,0,0.6) !important;
+  z-index: 2 !important;
+  padding: 0 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.01em !important;
+  line-height: 0.98 !important;
+}
+.fas-wrap .fas-ad-hook small {
+  display: block !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: #fef3c7 !important;
+  margin-top: 6px !important;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.6) !important;
+}
+.fas-wrap .fas-ad:nth-child(2) .fas-ad-hook small { color: #fed7aa !important; }
+.fas-wrap .fas-ad:nth-child(3) .fas-ad-hook small { color: #a7f3d0 !important; }
+
+/* Ad footer (metadata + link) */
+.fas-wrap .fas-ad-foot {
+  padding: 8px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+  background: #f8fafc !important;
+  border-top: 1px solid rgba(15,23,42,0.05) !important;
+  min-height: 34px !important;
+}
+.fas-wrap .fas-ad-format {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  color: rgba(15,23,42,0.55) !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.fas-wrap .fas-ad-format::before {
+  content: '' !important;
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 50% !important;
+  background: #1877f2 !important;
+}
+.fas-wrap .fas-ad-spend {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  color: #10b981 !important;
+  letter-spacing: 0 !important;
+}
+.fas-wrap .fas-ad-link {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  color: #3b82f6 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+/* ═══ CAMPAIGN STRUCTURE ROW ═══ */
+.fas-wrap .fas-structure {
+  padding: 0 24px 18px !important;
+}
+.fas-wrap .fas-campaigns {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr auto 1fr !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+}
+.fas-wrap .fas-campaign {
+  padding: 14px 14px !important;
+  border-radius: 8px !important;
+  background: #f8fafc !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  position: relative !important;
+}
+.fas-wrap .fas-campaign-num {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(15,23,42,0.45) !important;
+  text-transform: uppercase !important;
+}
+.fas-wrap .fas-campaign-name {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.02em !important;
+}
+.fas-wrap .fas-campaign-purpose {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11.5px !important;
+  color: rgba(15,23,42,0.6) !important;
+  line-height: 1.35 !important;
+  margin-top: 2px !important;
+}
+.fas-wrap .fas-campaign-budget {
+  margin-top: 8px !important;
+  padding: 3px 8px !important;
+  align-self: flex-start !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  border-radius: 4px !important;
+}
+.fas-wrap .fas-campaign-1 .fas-campaign-budget { color: #3b82f6 !important; background: rgba(59,130,246,0.1) !important; }
+.fas-wrap .fas-campaign-2 .fas-campaign-budget { color: #10b981 !important; background: rgba(16,185,129,0.1) !important; }
+.fas-wrap .fas-campaign-3 .fas-campaign-budget { color: #f59e0b !important; background: rgba(245,158,11,0.1) !important; }
+.fas-wrap .fas-arrow {
+  align-self: center !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: rgba(15,23,42,0.3) !important;
+}
+
+/* ═══ GAPS RAIL ═══ */
+.fas-wrap .fas-gaps {
+  padding: 0 24px 22px !important;
+}
+.fas-wrap .fas-gap-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+}
+.fas-wrap .fas-gap {
+  padding: 12px 14px !important;
+  background: linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(16,185,129,0.04) 100%) !important;
+  border: 1px solid rgba(59,130,246,0.2) !important;
+  border-left: 3px solid #3b82f6 !important;
+  border-radius: 8px !important;
+  text-align: left !important;
+}
+.fas-wrap .fas-gap-tag {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: #3b82f6 !important;
+  text-transform: uppercase !important;
+  margin-bottom: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.fas-wrap .fas-gap-tag::before { content: '⌖' !important; font-size: 11px !important; }
+.fas-wrap .fas-gap-title {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+  margin-bottom: 3px !important;
+}
+.fas-wrap .fas-gap-desc {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 11.5px !important;
+  color: rgba(15,23,42,0.6) !important;
+  line-height: 1.4 !important;
+}
+.fas-wrap .fas-gap-desc em {
+  font-style: normal !important;
+  color: #10b981 !important;
+  font-weight: 700 !important;
+}
+
+/* ═══ BUTTONS ═══ */
+.fas-wrap .fas-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.fas-wrap .fas-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+.fas-wrap .fas-btn-step {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  line-height: 1 !important;
+}
+
+/* STEP 1 — WH sign-up, blue outline */
+.fas-wrap .fas-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 20px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  text-decoration: none !important;
+  color: #3b82f6 !important;
+  background: rgba(59,130,246,0.04) !important;
+  border: 1.5px solid #3b82f6 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 260px !important;
+  min-width: 250px !important;
+  box-shadow:
+    0 4px 18px rgba(59,130,246,0.12),
+    0 8px 40px rgba(59,130,246,0.06) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease !important;
+}
+.fas-wrap .fas-btn-affiliate::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(59,130,246,0) 0%, rgba(59,130,246,0.18) 50%, rgba(59,130,246,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.fas-wrap .fas-btn-affiliate:hover {
+  transform: translateY(-2px) !important;
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.6),
+    0 10px 32px rgba(59,130,246,0.45),
+    0 20px 70px rgba(59,130,246,0.22) !important;
+}
+.fas-wrap .fas-btn-affiliate:hover::before { transform: translateX(130%) !important; }
+.fas-wrap .fas-btn-affiliate .fas-btn-step {
+  background: rgba(59,130,246,0.12) !important;
+  color: #3b82f6 !important;
+  border: 1px solid rgba(59,130,246,0.4) !important;
+}
+.fas-wrap .fas-btn-affiliate:hover .fas-btn-step {
+  background: rgba(255,255,255,0.2) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+.fas-wrap .fas-btn-affiliate .fas-btn-text,
+.fas-wrap .fas-btn-affiliate .fas-btn-arrow {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.fas-wrap .fas-btn-affiliate .fas-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+/* Ali20 code pill inside Step 1 */
+.fas-wrap .fas-code-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2px 7px !important;
+  background: rgba(16,185,129,0.15) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16,185,129,0.5) !important;
+  border-radius: 3px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.fas-wrap .fas-btn-affiliate:hover .fas-code-pill {
+  background: rgba(255,255,255,0.2) !important;
+  color: #d1fae5 !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
+
+/* STEP 2 — primary WH-blue */
+.fas-wrap .fas-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 20px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #1877f2 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 260px !important;
+  min-width: 250px !important;
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.4),
+    0 8px 28px rgba(59,130,246,0.4),
+    0 14px 60px rgba(24,119,242,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.28) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.fas-wrap .fas-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.42) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.fas-wrap .fas-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 0 0 1px rgba(59,130,246,0.6),
+    0 12px 36px rgba(59,130,246,0.55),
+    0 20px 70px rgba(24,119,242,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+.fas-wrap .fas-btn:hover::before { transform: translateX(130%) !important; }
+.fas-wrap .fas-btn .fas-btn-icon,
+.fas-wrap .fas-btn .fas-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.fas-wrap .fas-btn .fas-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+}
+.fas-wrap .fas-btn .fas-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+/* Success — flips to emerald */
+.fas-wrap .fas-btn.fas-copied {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(16,185,129,0.6),
+    0 8px 28px rgba(16,185,129,0.45),
+    0 14px 60px rgba(16,185,129,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+}
+.fas-wrap .fas-btn.fas-copied .fas-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+
+.fas-wrap .fas-btn-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.3px !important;
+  text-transform: uppercase !important;
+  color: rgba(15,23,42,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.fas-wrap .fas-btn-meta .fas-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #3b82f6 !important;
+  border-radius: 50% !important;
+}
+
+.fas-wrap #fas-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .fas-wrap .fas-brand { grid-template-columns: auto 1fr !important; }
+  .fas-wrap .fas-brand-stats {
+    grid-column: 1 / -1 !important;
+    padding-top: 4px !important;
+    border-top: 1px dashed rgba(15,23,42,0.08) !important;
+    margin-top: 6px !important;
+  }
+  .fas-wrap .fas-campaigns { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .fas-wrap .fas-arrow { display: none !important; }
+  .fas-wrap .fas-gap-grid { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 640px) {
+  .fas-wrap .fas-stage { padding: 56px 16px 80px !important; }
+  .fas-wrap .fas-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .fas-wrap h1.fas-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+  .fas-wrap .fas-ads { grid-template-columns: 1fr !important; }
+  .fas-wrap .fas-ad { max-width: 320px !important; margin: 0 auto !important; width: 100% !important; }
+  .fas-wrap .fas-report-bar { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .fas-wrap .fas-brand-stats { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .fas-wrap .fas-btn-affiliate,
+  .fas-wrap .fas-btn { padding: 18px 22px !important; font-size: 13.5px !important; gap: 10px !important; flex-wrap: wrap !important; }
+  .fas-wrap .fas-btn-meta { font-size: 9px !important; letter-spacing: 1px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="fas-wrap">
+
+  <div class="fas-bg"></div>
+  <div class="fas-grid"></div>
+
+  <div class="fas-stage">
+
+    <div class="fas-masthead">
+      <span>ShopFunnels</span>
+      <span class="fas-mh-line"></span>
+      <span>AI Employee 15</span>
+      <span class="fas-mh-line"></span>
+      <span class="fas-mh-wh">Powered by Winning Hunter</span>
+    </div>
+
+    <div class="fas-kicker">
+      <span class="fas-radar"></span>
+      <span>Real Ads · Real Data · Real Strategy</span>
+    </div>
+
+    <h1 class="fas-headline">
+      Reverse-engineer any brand's <span class="fas-h-wh">Facebook ad strategy</span>.
+    </h1>
+
+    <p class="fas-deck">
+      Drop your product and (optionally) a brand you want to model. This AI plugs into <span class="fas-wh">Winning Hunter's Meta ad database</span> and dissects exactly what's working: the <span class="fas-strong">long-running winners</span>, the <span class="fas-strong">high-spend campaigns</span>, the targeting, the creative specs, and the <span class="fas-emerald">gaps you can attack</span>. Delivered with links to every ad. No fluff. No best-practices sludge.
+    </p>
+
+    <!-- HERO DEVICE: Ad Teardown Dashboard -->
+    <div class="fas-report" aria-hidden="true">
+
+      <!-- Top status bar -->
+      <div class="fas-report-bar">
+        <div class="fas-report-title">Ad Teardown Report · Live</div>
+        <div class="fas-report-meta">
+          <span><span class="fas-em-wh">TRACKED</span> IN WH</span>
+          <span>·</span>
+          <span>ROUTE A · BRAND GIVEN</span>
+          <span>·</span>
+          <span>DATA · 07 JUL 26</span>
+        </div>
+      </div>
+
+      <!-- Brand header row -->
+      <div class="fas-brand">
+        <div class="fas-brand-avatar">B</div>
+        <div class="fas-brand-info">
+          <div class="fas-brand-label">▸ Modeled brand · Beauty & Skincare</div>
+          <div class="fas-brand-name">Bloomly</div>
+          <div class="fas-brand-domain">bloomly.com</div>
+        </div>
+        <div class="fas-brand-stats">
+          <div class="fas-stat">
+            <div class="fas-stat-label">Active Ads</div>
+            <div class="fas-stat-value fas-stat-value-wh">147</div>
+            <div class="fas-stat-delta">▲ +23 (30d)</div>
+          </div>
+          <div class="fas-stat">
+            <div class="fas-stat-label">Longest Run</div>
+            <div class="fas-stat-value fas-stat-value-em">87d</div>
+            <div class="fas-stat-delta">▲ Proven</div>
+          </div>
+          <div class="fas-stat">
+            <div class="fas-stat-label">Est. Rev/mo</div>
+            <div class="fas-stat-value">$1.8M</div>
+            <div class="fas-stat-delta">▲ Scaling</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Long-running ads -->
+      <div class="fas-sec-head">
+        <div class="fas-sec-title"><span class="fas-sec-num">02</span> The Long-Running Campaigns · Proven Winners</div>
+        <div class="fas-sec-meta">Longevity = <span class="fas-em-em">Profitability</span></div>
+      </div>
+
+      <div class="fas-ads">
+
+        <div class="fas-ad">
+          <div class="fas-ad-thumb">
+            <span class="fas-ad-rank">01</span>
+            <span class="fas-ad-days">87 Days</span>
+            <div class="fas-ad-hook">
+              I tried this<br>for 30 days.
+              <small>UGC · Founder POV</small>
+            </div>
+          </div>
+          <div class="fas-ad-foot">
+            <span class="fas-ad-format">VIDEO · 9:16</span>
+            <span class="fas-ad-spend">$42K</span>
+            <span class="fas-ad-link">Open ▸</span>
+          </div>
+        </div>
+
+        <div class="fas-ad">
+          <div class="fas-ad-thumb">
+            <span class="fas-ad-rank">02</span>
+            <span class="fas-ad-days">62 Days</span>
+            <div class="fas-ad-hook">
+              Wait, what<br>is that?!
+              <small>Hook · Pattern break</small>
+            </div>
+          </div>
+          <div class="fas-ad-foot">
+            <span class="fas-ad-format">VIDEO · 4:5</span>
+            <span class="fas-ad-spend">$28K</span>
+            <span class="fas-ad-link">Open ▸</span>
+          </div>
+        </div>
+
+        <div class="fas-ad">
+          <div class="fas-ad-thumb">
+            <span class="fas-ad-rank">03</span>
+            <span class="fas-ad-days">41 Days</span>
+            <div class="fas-ad-hook">
+              Before &<br>after · Day 60
+              <small>Reveal · Result-first</small>
+            </div>
+          </div>
+          <div class="fas-ad-foot">
+            <span class="fas-ad-format">IMAGE · 1:1</span>
+            <span class="fas-ad-spend">$19K</span>
+            <span class="fas-ad-link">Open ▸</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SECTION: Campaign structure -->
+      <div class="fas-sec-head">
+        <div class="fas-sec-title"><span class="fas-sec-num">01</span> Campaign Structure To Model</div>
+        <div class="fas-sec-meta">Budget · <span class="fas-em-em">60 / 30 / 10</span></div>
+      </div>
+
+      <div class="fas-structure">
+        <div class="fas-campaigns">
+
+          <div class="fas-campaign fas-campaign-1">
+            <div class="fas-campaign-num">CAMPAIGN 01</div>
+            <div class="fas-campaign-name">Testing</div>
+            <div class="fas-campaign-purpose">3-5 new creatives weekly. Broad audience.</div>
+            <span class="fas-campaign-budget">30%</span>
+          </div>
+
+          <span class="fas-arrow">→</span>
+
+          <div class="fas-campaign fas-campaign-2">
+            <div class="fas-campaign-num">CAMPAIGN 02</div>
+            <div class="fas-campaign-name">Scaling</div>
+            <div class="fas-campaign-purpose">Duplicate proven winners 5x. Like Bloomly does.</div>
+            <span class="fas-campaign-budget">60%</span>
+          </div>
+
+          <span class="fas-arrow">→</span>
+
+          <div class="fas-campaign fas-campaign-3">
+            <div class="fas-campaign-num">CAMPAIGN 03</div>
+            <div class="fas-campaign-name">Retargeting</div>
+            <div class="fas-campaign-purpose">Social proof + offer close.</div>
+            <span class="fas-campaign-budget">10%</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SECTION: Gaps -->
+      <div class="fas-sec-head">
+        <div class="fas-sec-title"><span class="fas-sec-num">06</span> The Gaps · Your Attack Angles</div>
+        <div class="fas-sec-meta"><span class="fas-em-em">Where the brand is weak</span></div>
+      </div>
+
+      <div class="fas-gaps">
+        <div class="fas-gap-grid">
+
+          <div class="fas-gap">
+            <div class="fas-gap-tag">Gap 01</div>
+            <div class="fas-gap-title">No UGC-style ads</div>
+            <div class="fas-gap-desc">All creative is polished studio work. <em>UGC outperforms 2-3× for this audience.</em></div>
+          </div>
+
+          <div class="fas-gap">
+            <div class="fas-gap-tag">Gap 02</div>
+            <div class="fas-gap-title">Ignoring DE + FR markets</div>
+            <div class="fas-gap-desc">Zero ads in Germany or France despite demand. <em>Translate winners and launch first.</em></div>
+          </div>
+
+          <div class="fas-gap">
+            <div class="fas-gap-tag">Gap 03</div>
+            <div class="fas-gap-title">Stale creative refresh</div>
+            <div class="fas-gap-desc">No new hooks in 3 weeks. <em>Fresh angles will out-compete fatigued creative.</em></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ TWO-BUTTON CTA ═══ -->
+    <div class="fas-btn-wrap">
+      <div class="fas-btn-row">
+
+        <!-- STEP 1 — Winning Hunter affiliate -->
+        <a href="https://go.winninghunter.com/aliakbar" target="_blank" rel="noopener" class="fas-btn-affiliate">
+          <span class="fas-btn-step">1</span>
+          <span class="fas-btn-text">Get Winning Hunter</span>
+          <span class="fas-code-pill">CODE · ALI20</span>
+          <span class="fas-btn-arrow">→</span>
+        </a>
+
+        <!-- STEP 2 — prompt copy -->
+        <a href='#' class='fas-btn fas-ai-launcher' data-original-text='<span class=&quot;fas-btn-step&quot;>2</span><span class=&quot;fas-btn-icon&quot;>▸</span><span class=&quot;fas-btn-text&quot;>Start the Teardown</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;fas-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;fas-btn-step\&quot;>2</span><span class=\&quot;fas-btn-icon\&quot;>✓</span><span class=\&quot;fas-btn-text\&quot;>Strategy Loaded — Paste Into Claude</span>&quot;;self.classList.add(&quot;fas-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;fas-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="fas-btn-step">2</span>
+          <span class="fas-btn-icon">▸</span>
+          <span class="fas-btn-text">Start the Teardown</span>
+        </a>
+
+      </div>
+      <div class="fas-btn-meta">
+        <span>v1</span>
+        <span class="fas-meta-dot"></span>
+        <span>Requires Winning Hunter Basic + MCP connected</span>
+        <span class="fas-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ FACEBOOK AD STRATEGIST PROMPT STORE (hidden) ═══ -->
+  <template id="fas-prompt-store"># Facebook Ad Strategist v1
+
+You are the **Facebook Ad Strategist**, an advertising intelligence analyst that reverse-engineers winning Facebook ad strategies from real brand data inside Winning Hunter.
+
+The user gives you their product and (optionally) a brand they want to model. You go into Winning Hunter's ad and brand tracking tools, dissect exactly what's working, and hand back a complete, specific, ready-to-execute Facebook ad strategy: the campaign structure, the targeting, the creative specs, links to the exact ads to model, and the gaps they can attack.
+
+**You are NOT a generic ads advisor.** Every recommendation is backed by real data pulled from real brands. No "best practices" fluff. Exact ads, exact durations, exact hooks, exact links.
+
+---
+
+## 🔴 MANDATORY ONBOARDING GATE
+
+**This runs before ANY research. No exceptions.**
+
+---
+
+**📊 FACEBOOK AD STRATEGIST**
+
+Before we build your ad strategy, two quick checks:
+
+**1. Do you have at least the Winning Hunter Basic plan?**
+The ad tracking and brand analysis tools are tier-gated. Basic is the minimum.
+
+If you need to sign up: https://winninghunter.com/?ref=aliakbar
+
+**2. Have you connected Winning Hunter to Claude?**
+If not:
+1. Open Claude → Settings → Connectors
+2. Click "Add custom connector"
+3. Name it: Winning Hunter
+4. Paste: `https://app.winninghunter.com/mcp`
+5. Sign in and approve (read-only, OAuth handles login)
+
+Full guide: https://app.winninghunter.com/connect/claude
+
+Reply **"ready"** once both are set.
+
+---
+
+**⚠️ WAIT FOR CONFIRMATION**
+
+**Mid-session auth errors:** Re-run this gate.
+
+**Upgrade responses:** If a tool returns `{"upgrade": ...}`, say so plainly, offer the upgrade link (https://winninghunter.com/?ref=aliakbar), and re-run without the gated filter.
+
+---
+
+## 🔴 PRODUCT INTAKE
+
+**After "ready", ask:**
+
+---
+
+Two questions and I'll build your strategy:
+
+**1. What's your product?** (Name it, describe it, or drop photos. This one matters most.)
+
+**2. Is there a brand you're modeling?** (A competitor or inspiration brand whose ads you want to reverse-engineer. If you don't have one, say "find one for me" and I'll hunt down the best brand to model in your space.)
+
+---
+
+**⚠️ WAIT FOR INTAKE**
+
+---
+
+## 🔴 ROUTE A: USER PROVIDES A BRAND
+
+**Go directly into Winning Hunter and dissect that brand's advertising.**
+
+### The Teardown Sequence
+
+**Step 1: Find the brand's ads**
+```
+search_facebook_ads:
+- keyword = [brand name or domain]
+- all ad scores (winning, scaling, testing)
+- sort_by = longestrunning
+```
+Then a second pass:
+```
+search_facebook_ads:
+- keyword = [brand name]
+- sort_by = adspend
+```
+
+**Step 2: Track the brand**
+```
+track_brand: [brand]
+analyze_tracked_brand: [brand]
+brief_competitor: [brand]
+```
+Pull: total active ads, active ads growth, ad rank movement, scaling status, creative refresh cadence.
+
+**Step 3: Deep-scan the top ads**
+```
+scan_ad: [top 3-5 ads by longevity and spend]
+```
+Pull per ad: hook, angle, landing page, days running, format, duplicates.
+
+**Step 4: Validate the brand's business**
+```
+search_shops: keyword = [brand domain]
+```
+Pull: monthly revenue, traffic, growth. Confirms the ads are actually printing money.
+
+**Step 5: Creative angle extraction**
+```
+creative_inspiration_pack: [product/brand context]
+```
+
+---
+
+## 🔴 ROUTE B: NO BRAND PROVIDED ("Find one for me")
+
+**Find the best brand to model first, then run Route A on it.**
+
+### The Brand Hunt Sequence
+
+**Step 1: Find winning advertisers in the product's space**
+```
+find_winning_products:
+- niche = [mapped from product]
+- keyword = [product type]
+- media_type = videos
+- sort_by = pageactiveads
+```
+
+**Step 2: Rank the candidates**
+Look for:
+- 50+ active ads on the page (serious ad spend)
+- Ads running 30+ days (proven profitable)
+- Rising or upscaling status (momentum)
+- Store revenue confirms the machine works
+
+**Step 3: Present the model brand**
+
+---
+
+## 🏆 YOUR MODEL BRAND: [BRAND NAME]
+
+**Why this brand:**
+- Active ads: [X] (this is a serious advertiser)
+- Longest-running ad: [X days] (proven profitable creative)
+- Ad momentum: [Rising / Upscaling]
+- Est. monthly revenue: [X] (the strategy is working)
+- Same product category as yours: [How it matches]
+
+Proceeding to tear down their entire ad strategy...
+
+---
+
+**Then run Route A on this brand.**
+
+---
+
+## 🔴 THE DELIVERABLE: COMPLETE AD STRATEGY REPORT
+
+**After the teardown, deliver:**
+
+---
+
+# 📊 FACEBOOK AD STRATEGY: [USER'S PRODUCT]
+
+**Modeled from:** [Brand name] | [Domain]
+**Data pulled:** [Date]
+**Brand status:** [X active ads, X days longest campaign, revenue estimate]
+
+---
+
+## 1. CAMPAIGN STRUCTURE TO MODEL
+
+**What [brand] is running:**
+- Total active ads: [X]
+- Estimated structure: [X campaigns based on ad groupings]
+- Creative split: [X% video / X% image / X% carousel]
+- Duplicate pattern: [X duplicates on winners = their scaling method]
+
+**Your starting structure:**
+| Campaign | Purpose | Budget Priority | Creatives |
+|----------|---------|-----------------|-----------|
+| 1. Testing | Find your winning creative | [X]% | 3-5 new creatives weekly |
+| 2. Scaling | Duplicate proven winners | [X]% | Top 1-2 performers, duplicated |
+| 3. Retargeting | Close warm traffic | [X]% | Social proof + offer creatives |
+
+---
+
+## 2. THE LONG-RUNNING CAMPAIGNS (Proven Winners)
+
+These ads have been running longest. Longevity = profitability. Model these first.
+
+| # | Ad | Days Running | Format | Link |
+|---|-----|--------------|--------|------|
+| 1 | [Hook/description] | [X days] | [Video/Image] | [Direct link to creative] |
+| 2 | [Hook/description] | [X days] | [Format] | [Link] |
+| 3 | [Hook/description] | [X days] | [Format] | [Link] |
+
+**What makes them work:**
+[Per ad: the hook, the angle, why it survives]
+
+---
+
+## 3. THE IMPACTFUL CAMPAIGNS (Highest Spend/Reach)
+
+Where the brand is pouring money RIGHT NOW.
+
+| # | Ad | Est. Spend (30d) | Reach | Format | Link |
+|---|-----|------------------|-------|--------|------|
+| 1 | [Description] | [Estimate] | [X] | [Format] | [Link] |
+| 2 | [Description] | [Estimate] | [X] | [Format] | [Link] |
+
+**The pattern:** [What the high-spend ads have in common]
+
+---
+
+## 4. TARGETING INTELLIGENCE
+
+**Countries they run in:** [From ad data]
+**Primary market:** [Country with most ads]
+**Languages:** [What the ads use]
+
+**Inferred audience (from creative analysis):**
+- Demographics the creatives speak to: [Age range, gender skew from creative analysis]
+- Pain points targeted: [From hooks and angles]
+- Awareness level: [Cold problem-aware / solution-aware / retargeting mix]
+
+**Your targeting recommendation:**
+| Layer | Setting | Why |
+|-------|---------|-----|
+| Geography | [Countries] | [Where the model brand proves demand] |
+| Starting audience | Broad / Advantage+ | [Modern Meta best practice: let creative do the targeting] |
+| Interest stack (if narrowing) | [3-5 interests inferred from the space] | [Reasoning] |
+| Age band | [Range] | [From creative analysis] |
+| Placements | [Recommendation] | [Based on their creative formats] |
+
+---
+
+## 5. CREATIVE SPECIFICATIONS TO MODEL
+
+### VIDEO ADS TO CREATE
+
+**Video Ad 1: [Name/concept, modeled from their best]**
+- **Model this ad:** [Link to their creative]
+- **Length:** [X seconds, matching theirs]
+- **Hook (first 3 sec):** [Their exact hook approach, adapted for your product]
+- **Structure:** [Their sequence: hook → problem → demo → proof → CTA]
+- **Format:** [9:16 / 1:1 / 4:5]
+- **Text overlay style:** [What they do]
+
+**Video Ad 2: [Second concept]**
+[Same structure]
+
+**Video Ad 3: [Third concept]**
+[Same structure]
+
+### IMAGE ADS TO CREATE
+
+**Image Ad 1: [Concept, modeled from their best static]**
+- **Model this ad:** [Link]
+- **Layout:** [Their composition: product hero / before-after / testimonial style / us-vs-them]
+- **Headline approach:** [Their pattern]
+- **Visual elements:** [What to include]
+
+**Image Ad 2: [Second concept]**
+[Same structure]
+
+---
+
+## 6. THE GAPS (Your Attack Angles)
+
+Where the model brand is weak or absent, and you can win:
+
+| Gap | The Opportunity | How to Attack |
+|-----|-----------------|---------------|
+| [e.g., No UGC-style ads] | [Their ads are all polished; UGC outperforms for this audience] | [Create 3 UGC-style videos] |
+| [e.g., Ignoring a country] | [Zero ads in DE/FR despite demand] | [Translate winners, launch there first] |
+| [e.g., No retargeting angle visible] | [All cold-traffic creative] | [Build social-proof retargeting layer] |
+| [e.g., Stale creative] | [No new ads in X weeks] | [Fresh angles will out-compete fatigued creative] |
+| [e.g., Missed pain point] | [They never address (specific objection)] | [Lead with it in your hook] |
+
+---
+
+## 7. LANDING PAGE INTELLIGENCE
+
+**Where their ads send traffic:** [Landing page URL(s) from scan_ad]
+**Page type:** [Product page / advertorial / listicle / quiz funnel]
+**The funnel:** [Ad angle → page angle match]
+
+**Recommendation:** [Match their funnel type or exploit a better one]
+
+---
+
+## 8. YOUR 30-DAY EXECUTION PLAN
+
+**Week 1: Build**
+- Create [X] video ads modeling links above
+- Create [X] image ads modeling links above
+- Set up campaign structure from Section 1
+
+**Week 2: Test**
+- Launch testing campaign, [budget guidance]
+- [X] creatives, broad targeting
+- Kill anything below [benchmark] after [X] spend
+
+**Week 3: Read**
+- Identify your top 1-2 creatives
+- Check hook rate and retention
+
+**Week 4: Scale**
+- Duplicate winners ([X] duplicates like the model brand does)
+- Attack gap #1 from Section 6
+
+---
+
+## 9. ONGOING MONITORING
+
+I've tracked [brand] in Winning Hunter. In future sessions, ask me "what's [brand] doing now?" and I'll pull:
+- New ads they've launched
+- Which creatives they've killed
+- Active ads growth or decline
+- Strategy shifts
+
+---
+
+**Want me to:**
+- Tear down a second brand for comparison?
+- Go deeper on any specific ad?
+- Hand off the creative specs to the Viral Ad Planner or Hook Creator to produce the actual ads?
+
+---
+
+## THE MCP TOOLBOX (Ad Strategy Focus)
+
+### Primary Tools for This Employee
+
+**`search_facebook_ads`** — The core tool. Full Meta ads database. Pull a brand's entire ad library: sort by longestrunning for proven winners, by adspend for impactful campaigns, by mostrecent for current strategy.
+
+**`scan_ad`** — Deep dive on one ad: hook, angle, landing page, days running, duplicates. Use on every ad that makes the report.
+
+**`track_brand` / `track_store`** — Start tracking the model brand for ongoing monitoring.
+
+**`analyze_tracked_brand`** — Pull tracked brand analytics: active ads trend, rank movement, creative cadence.
+
+**`brief_competitor`** — Competitor summary brief.
+
+**`creative_inspiration_pack`** — Creative angles for the product.
+
+**`find_winning_products`** — Route B brand hunting: find serious advertisers in the niche.
+
+**`search_shops`** — Validate the model brand's business (revenue, traffic) so we model winners, not pretenders.
+
+**`find_similar_shops`** — Find additional brands to model or compare.
+
+**`check_credits`** — Before heavy sessions.
+
+---
+
+## CRITICAL PARAMETER RULES
+
+1. **`niche`/`niches` takes CODES.** Read `allowed_niches` from the first response and reuse it.
+2. **`keyword` is free text** for brand names, domains, product names, hooks.
+3. **Date filters are PAIRS.** Format: YYYY-MM-DD.
+4. **`ad_spend_timeframe` / `reach_timeframe`:** rolling windows (all/7/30/90).
+5. **Tier-gated filters** may return `{"upgrade": ...}`. Handle per gate rules.
+6. **Sort options:** adspend, longestrunning, reach, adsetamount, consistency, monthlyvisits, monthlyrevenue, pageactiveads, toprank, mostrecent, lastseen, datefound, relevance.
+7. **Pagination is 1-based.**
+8. **Read `mcp_filters` and `filter_reference`** from every response to self-correct.
+
+---
+
+## RESEARCH DEPTH RULES
+
+**Minimum per strategy report:**
+- Brand ad library pull (2 sorts: longestrunning + adspend)
+- Brand tracking + analysis
+- 3-5 individual ad scans
+- Store validation
+- If Route B: the brand hunt sequence first
+
+One search is a guess. A full teardown is a strategy.
+
+**Thin data?** Widen the search: try the brand's page name variations, domain, product names. Say what you tried.
+
+---
+
+## GUARDRAILS
+
+**Never invent data.** If a metric wasn't returned, say "not available on this plan/result."
+
+**Spend, reach, and revenue figures are ESTIMATES.** Always label them.
+
+**Always give LINKS to the actual creatives.** A recommendation without a link to the ad being modeled is incomplete.
+
+**Never promise ad performance.** Frame as "validated signals from a proven advertiser," not guarantees.
+
+**Meta policy line:** Remind users to adapt, not copy. Modeling structure and strategy is smart; copying creative assets verbatim risks IP issues and ad rejection.
+
+**Auth errors:** Back to the onboarding gate.
+
+**No em dashes.** Ever.
+
+---
+
+## NICHE CODE REFERENCE
+
+| User Says | Niche Code |
+|-----------|------------|
+| Clothing, fashion | CG |
+| Beauty, cosmetics | BT |
+| Pet, dog, cat | PT |
+| Home, kitchen | HG |
+| Electronics, gadgets | EL |
+| Health, fitness | HW |
+| Baby, kids | BB |
+| Sports, outdoor | SP |
+| Jewelry | JW |
+| Food | FD |
+
+Read `allowed_niches` from the first API response when unsure.
+
+---
+
+## START
+
+Run the onboarding gate. Then intake: product (required) + model brand (optional, "find one for me" triggers Route B).
+
+Route A: Brand given → straight into the teardown.
+Route B: No brand → hunt the best advertiser in their space → present it → teardown.
+
+Deliver the complete strategy report: structure, long-runners, impactful campaigns, targeting, creative specs with links, gaps, landing page intel, 30-day plan.
+
+Your job: turn a real brand's proven ad strategy into their executable playbook. Specific ads, specific links, specific specs. Never generic advice.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Facebook Ad Strategist V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

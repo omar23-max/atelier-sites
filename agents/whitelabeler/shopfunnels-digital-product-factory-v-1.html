@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels Digital Product Factory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── SCOPED UNDER .dpf-wrap ─── */
+.dpf-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', sans-serif !important;
+  color: #ece9f5 !important;
+  background: #1a0f2e !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.dpf-wrap *, .dpf-wrap *::before, .dpf-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* BG — deep aubergine + chartreuse spotlight + violet ambient */
+.dpf-wrap .dpf-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse at 15% 18%, rgba(196,245,61,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 80%, rgba(157,108,255,0.14) 0%, transparent 55%),
+    linear-gradient(180deg, #1a0f2e 0%, #110720 100%) !important;
+}
+/* Soft engineering grid */
+.dpf-wrap .dpf-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.5 !important;
+  background-image:
+    linear-gradient(rgba(196,245,61,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,245,61,0.045) 1px, transparent 1px) !important;
+  background-size: 56px 56px !important;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%) !important;
+}
+/* Ambient grain */
+.dpf-wrap .dpf-grain {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.35 !important;
+  background-image:
+    radial-gradient(circle at 30% 40%, rgba(236,233,245,0.025) 0.5px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(236,233,245,0.02) 0.5px, transparent 1px) !important;
+  background-size: 60px 60px, 80px 80px !important;
+}
+
+/* STAGE */
+.dpf-wrap .dpf-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1200px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 80px 28px 110px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.dpf-wrap .dpf-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(236,233,245,0.5) !important;
+  margin-bottom: 36px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.dpf-wrap .dpf-masthead .dpf-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: rgba(196,245,61,0.45) !important;
+}
+.dpf-wrap .dpf-masthead .dpf-mh-lime {
+  color: #c4f53d !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 14px rgba(196,245,61,0.4) !important;
+}
+
+/* KICKER */
+.dpf-wrap .dpf-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: #c4f53d !important;
+  background: rgba(196,245,61,0.06) !important;
+  border: 1px solid rgba(196,245,61,0.4) !important;
+  border-radius: 6px !important;
+  margin-bottom: 30px !important;
+}
+.dpf-wrap .dpf-kicker .dpf-status {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #c4f53d !important;
+  box-shadow: 0 0 10px #c4f53d !important;
+  animation: dpf-pulse 1.4s ease-in-out infinite !important;
+}
+@keyframes dpf-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+/* HEADLINE — Space Grotesk SaaS modern */
+.dpf-wrap h1.dpf-headline {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: clamp(2.8rem, 6.2vw, 5.2rem) !important;
+  line-height: 1.0 !important;
+  letter-spacing: -0.035em !important;
+  margin: 0 0 26px 0 !important;
+  color: #ffffff !important;
+  max-width: 18ch !important;
+}
+.dpf-wrap h1.dpf-headline .dpf-h-lime {
+  color: #c4f53d !important;
+  text-shadow: 0 0 22px rgba(196,245,61,0.4) !important;
+}
+.dpf-wrap h1.dpf-headline .dpf-h-violet {
+  color: #9d6cff !important;
+  text-shadow: 0 0 18px rgba(157,108,255,0.45) !important;
+}
+
+/* DECK */
+.dpf-wrap p.dpf-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.4vw, 1.15rem) !important;
+  line-height: 1.7 !important;
+  color: rgba(236,233,245,0.78) !important;
+  max-width: 680px !important;
+  margin: 0 auto 56px !important;
+  font-weight: 400 !important;
+}
+.dpf-wrap p.dpf-deck .dpf-lime {
+  color: #c4f53d !important;
+  font-weight: 700 !important;
+}
+.dpf-wrap p.dpf-deck .dpf-violet {
+  color: #9d6cff !important;
+  font-weight: 700 !important;
+}
+.dpf-wrap p.dpf-deck .dpf-strong {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ═══ HERO DEVICE ═══ */
+.dpf-wrap .dpf-factory {
+  width: 100% !important;
+  max-width: 1040px !important;
+  margin: 0 auto 32px !important;
+  background: rgba(11,5,24,0.6) !important;
+  border: 1px solid rgba(196,245,61,0.22) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 0 0 1px rgba(196,245,61,0.05),
+    0 30px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(196,245,61,0.05) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Top bar */
+.dpf-wrap .dpf-factory-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 22px !important;
+  border-bottom: 1px solid rgba(236,233,245,0.08) !important;
+  background: linear-gradient(180deg, rgba(196,245,61,0.05) 0%, rgba(196,245,61,0.01) 100%) !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+.dpf-wrap .dpf-factory-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: #c4f53d !important;
+  text-transform: uppercase !important;
+}
+.dpf-wrap .dpf-factory-title .dpf-ft-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #c4f53d !important;
+  box-shadow: 0 0 10px #c4f53d !important;
+  animation: dpf-pulse 1.8s ease-in-out infinite !important;
+}
+.dpf-wrap .dpf-factory-meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  color: rgba(236,233,245,0.5) !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+}
+.dpf-wrap .dpf-factory-meta .dpf-fm-lime { color: #c4f53d !important; font-weight: 800 !important; }
+.dpf-wrap .dpf-factory-meta .dpf-fm-violet { color: #9d6cff !important; font-weight: 800 !important; }
+
+/* Pipeline */
+.dpf-wrap .dpf-pipeline {
+  padding: 22px 22px 8px !important;
+  border-bottom: 1px solid rgba(236,233,245,0.06) !important;
+}
+.dpf-wrap .dpf-pipeline-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(236,233,245,0.45) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 14px !important;
+  text-align: left !important;
+}
+.dpf-wrap .dpf-stages {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 8px !important;
+}
+.dpf-wrap .dpf-stage-item {
+  position: relative !important;
+  padding: 12px 10px 14px !important;
+  background: rgba(236,233,245,0.025) !important;
+  border: 1px solid rgba(236,233,245,0.08) !important;
+  border-radius: 6px !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+.dpf-wrap .dpf-stage-num {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(236,233,245,0.4) !important;
+}
+.dpf-wrap .dpf-stage-name {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  line-height: 1.15 !important;
+  color: rgba(236,233,245,0.85) !important;
+  letter-spacing: -0.01em !important;
+}
+.dpf-wrap .dpf-stage-check {
+  margin-top: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  color: rgba(236,233,245,0.4) !important;
+  text-transform: uppercase !important;
+}
+.dpf-wrap .dpf-stage-check::before {
+  content: '○' !important;
+  font-size: 9px !important;
+  color: rgba(236,233,245,0.3) !important;
+}
+/* Done — violet */
+.dpf-wrap .dpf-stage-done {
+  background: rgba(157,108,255,0.07) !important;
+  border-color: rgba(157,108,255,0.35) !important;
+}
+.dpf-wrap .dpf-stage-done .dpf-stage-num { color: #9d6cff !important; }
+.dpf-wrap .dpf-stage-done .dpf-stage-name { color: #ffffff !important; }
+.dpf-wrap .dpf-stage-done .dpf-stage-check { color: #9d6cff !important; }
+.dpf-wrap .dpf-stage-done .dpf-stage-check::before {
+  content: '●' !important;
+  color: #9d6cff !important;
+}
+/* Active — chartreuse */
+.dpf-wrap .dpf-stage-active {
+  background: rgba(196,245,61,0.1) !important;
+  border-color: rgba(196,245,61,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(196,245,61,0.2), 0 8px 20px rgba(196,245,61,0.15) !important;
+}
+.dpf-wrap .dpf-stage-active .dpf-stage-num { color: #c4f53d !important; }
+.dpf-wrap .dpf-stage-active .dpf-stage-name { color: #ffffff !important; }
+.dpf-wrap .dpf-stage-active .dpf-stage-check { color: #c4f53d !important; }
+.dpf-wrap .dpf-stage-active .dpf-stage-check::before {
+  content: '◉' !important;
+  color: #c4f53d !important;
+  animation: dpf-pulse 1.4s ease-in-out infinite !important;
+}
+
+/* Assembly line */
+.dpf-wrap .dpf-line {
+  padding: 24px 22px 22px !important;
+  position: relative !important;
+}
+.dpf-wrap .dpf-line-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(236,233,245,0.45) !important;
+  text-transform: uppercase !important;
+}
+.dpf-wrap .dpf-line-label .dpf-ll-em { color: #c4f53d !important; }
+.dpf-wrap .dpf-conveyor {
+  position: relative !important;
+  padding-bottom: 22px !important;
+}
+.dpf-wrap .dpf-conveyor::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(196,245,61,0.55) 8%, rgba(157,108,255,0.55) 50%, rgba(196,245,61,0.55) 92%, transparent 100%) !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 16px rgba(196,245,61,0.25) !important;
+}
+.dpf-wrap .dpf-conveyor::before {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -4px !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 8px !important;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%) !important;
+  z-index: -1 !important;
+}
+.dpf-wrap .dpf-assets {
+  display: grid !important;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr !important;
+  gap: 14px !important;
+  align-items: end !important;
+}
+.dpf-wrap .dpf-asset {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+.dpf-wrap .dpf-asset-card {
+  position: relative !important;
+  background: #ece9f5 !important;
+  border-radius: 6px 6px 0 0 !important;
+  overflow: hidden !important;
+  box-shadow:
+    inset -2px 0 4px rgba(0,0,0,0.06),
+    0 14px 28px rgba(0,0,0,0.55) !important;
+  aspect-ratio: 5/7 !important;
+}
+.dpf-wrap .dpf-asset-tag {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  z-index: 3 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  color: #1a0f2e !important;
+  background: #c4f53d !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  text-transform: uppercase !important;
+}
+
+/* Ebook cover */
+.dpf-wrap .dpf-asset-ebook .dpf-asset-card { background: #ece9f5 !important; }
+.dpf-wrap .dpf-asset-ebook .dpf-asset-top {
+  background: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 100%) !important;
+  padding: 14px 14px 18px !important;
+  position: relative !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-asset-top::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-top: 1.5px solid #c4f53d !important;
+  border-left: 1.5px solid #c4f53d !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-eyebrow {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: #c4f53d !important;
+  text-transform: uppercase !important;
+  margin-bottom: 10px !important;
+  margin-top: 8px !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  line-height: 0.95 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.025em !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-title em {
+  font-style: normal !important;
+  color: #c4f53d !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-mid { padding: 14px 14px 10px !important; }
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-art {
+  width: 100% !important;
+  aspect-ratio: 1/0.78 !important;
+  background: linear-gradient(135deg, #2d1b4e 0%, #1a0f2e 100%) !important;
+  border-radius: 4px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(196,245,61,0.2) !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-art::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 50% !important;
+  height: 50% !important;
+  transform: translate(-50%, -50%) rotate(45deg) !important;
+  background: linear-gradient(135deg, #c4f53d 0%, #9d6cff 100%) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 0 20px rgba(196,245,61,0.4),
+    inset 1px -1px 4px rgba(0,0,0,0.3) !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-art::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image:
+    linear-gradient(rgba(196,245,61,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,245,61,0.06) 1px, transparent 1px) !important;
+  background-size: 14px 14px !important;
+  opacity: 0.7 !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-foot {
+  padding: 0 14px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-author {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 10px !important;
+  color: rgba(26,15,46,0.75) !important;
+}
+.dpf-wrap .dpf-asset-ebook .dpf-ebook-pages {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: #9d6cff !important;
+  text-transform: uppercase !important;
+}
+
+/* Workbook */
+.dpf-wrap .dpf-asset-workbook .dpf-asset-card { padding: 14px 12px !important; }
+.dpf-wrap .dpf-wb-eyebrow {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: #9d6cff !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+.dpf-wrap .dpf-wb-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  line-height: 1.05 !important;
+  color: #1a0f2e !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 12px !important;
+}
+.dpf-wrap .dpf-wb-title em {
+  font-style: normal !important;
+  color: #9d6cff !important;
+}
+.dpf-wrap .dpf-wb-rows {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+}
+.dpf-wrap .dpf-wb-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+.dpf-wrap .dpf-wb-checkbox {
+  width: 9px !important;
+  height: 9px !important;
+  border: 1.5px solid rgba(26,15,46,0.5) !important;
+  border-radius: 2px !important;
+  flex-shrink: 0 !important;
+}
+.dpf-wrap .dpf-wb-checkbox-done {
+  background: #c4f53d !important;
+  border-color: #c4f53d !important;
+  position: relative !important;
+  box-shadow: 0 0 6px rgba(196,245,61,0.4) !important;
+}
+.dpf-wrap .dpf-wb-checkbox-done::after {
+  content: '✓' !important;
+  position: absolute !important;
+  inset: -3px 0 0 0 !important;
+  text-align: center !important;
+  color: #1a0f2e !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+}
+.dpf-wrap .dpf-wb-line {
+  flex: 1 !important;
+  height: 3px !important;
+  background: rgba(26,15,46,0.18) !important;
+  border-radius: 1px !important;
+}
+.dpf-wrap .dpf-wb-line-done { background: rgba(157,108,255,0.55) !important; }
+
+/* Tracker */
+.dpf-wrap .dpf-asset-tracker .dpf-asset-card { background: #ece9f5 !important; padding: 0 !important; }
+.dpf-wrap .dpf-tr-tab-bar {
+  background: #9d6cff !important;
+  padding: 6px 10px !important;
+  display: flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+.dpf-wrap .dpf-tr-tab {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  padding: 2px 5px !important;
+  background: rgba(26,15,46,0.18) !important;
+  color: rgba(236,233,245,0.85) !important;
+  border-radius: 2px !important;
+  text-transform: uppercase !important;
+}
+.dpf-wrap .dpf-tr-tab-active { background: #ece9f5 !important; color: #1a0f2e !important; }
+.dpf-wrap .dpf-tr-cells {
+  padding: 10px 10px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 1px !important;
+  background: rgba(26,15,46,0.12) !important;
+}
+.dpf-wrap .dpf-tr-head {
+  background: #1a0f2e !important;
+  color: #c4f53d !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 6px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  padding: 3px 4px !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+}
+.dpf-wrap .dpf-tr-cell {
+  background: #ece9f5 !important;
+  padding: 3px 4px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  color: rgba(26,15,46,0.75) !important;
+  text-align: center !important;
+}
+.dpf-wrap .dpf-tr-cell-num { color: #9d6cff !important; }
+.dpf-wrap .dpf-tr-formula {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  color: rgba(26,15,46,0.5) !important;
+  padding: 8px 10px 0 !important;
+  text-align: left !important;
+}
+.dpf-wrap .dpf-tr-formula em {
+  font-style: normal !important;
+  color: #c4f53d !important;
+  background: #1a0f2e !important;
+  padding: 1px 3px !important;
+  border-radius: 2px !important;
+}
+
+/* Prompts */
+.dpf-wrap .dpf-asset-prompts .dpf-asset-card { padding: 12px 12px !important; }
+.dpf-wrap .dpf-pr-eyebrow {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+  color: #9d6cff !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+.dpf-wrap .dpf-pr-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  line-height: 1.05 !important;
+  color: #1a0f2e !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 10px !important;
+}
+.dpf-wrap .dpf-pr-title em { font-style: normal !important; color: #9d6cff !important; }
+.dpf-wrap .dpf-pr-block {
+  background: #1a0f2e !important;
+  border-radius: 3px !important;
+  padding: 7px 8px !important;
+  margin-bottom: 7px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  line-height: 1.4 !important;
+  color: rgba(236,233,245,0.7) !important;
+  border: 1px solid rgba(196,245,61,0.15) !important;
+}
+.dpf-wrap .dpf-pr-block .dpf-pr-key { color: #c4f53d !important; }
+.dpf-wrap .dpf-pr-copy {
+  display: inline-block !important;
+  background: #c4f53d !important;
+  color: #1a0f2e !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 7px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  padding: 3px 7px !important;
+  border-radius: 2px !important;
+  text-transform: uppercase !important;
+  margin-top: 2px !important;
+  box-shadow: 0 0 8px rgba(196,245,61,0.35) !important;
+}
+
+/* Asset labels */
+.dpf-wrap .dpf-asset-file {
+  margin-top: 12px !important;
+  text-align: center !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: rgba(236,233,245,0.65) !important;
+  letter-spacing: 0.3px !important;
+}
+.dpf-wrap .dpf-asset-file .dpf-ext {
+  color: #c4f53d !important;
+  font-weight: 800 !important;
+}
+.dpf-wrap .dpf-asset-name {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 600 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(236,233,245,0.4) !important;
+  text-transform: uppercase !important;
+  margin-top: 3px !important;
+  text-align: center !important;
+}
+
+/* Delivery pack */
+.dpf-wrap .dpf-delivery {
+  margin: 0 22px 22px !important;
+  padding: 18px 20px !important;
+  background: linear-gradient(135deg, rgba(196,245,61,0.08) 0%, rgba(157,108,255,0.08) 100%) !important;
+  border: 1px solid rgba(196,245,61,0.4) !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+}
+.dpf-wrap .dpf-delivery-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.dpf-wrap .dpf-zip-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #c4f53d 0%, #9d6cff 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  color: #1a0f2e !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 0 18px rgba(196,245,61,0.4) !important;
+  flex-shrink: 0 !important;
+}
+.dpf-wrap .dpf-delivery-info { text-align: left !important; min-width: 0 !important; }
+.dpf-wrap .dpf-delivery-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: rgba(236,233,245,0.55) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 2px !important;
+}
+.dpf-wrap .dpf-delivery-name {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+}
+.dpf-wrap .dpf-delivery-name .dpf-ext { color: #c4f53d !important; }
+.dpf-wrap .dpf-delivery-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(236,233,245,0.55) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.dpf-wrap .dpf-delivery-meta .dpf-dm-em { color: #c4f53d !important; }
+.dpf-wrap .dpf-delivery-stamp {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 7px 14px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: #1a0f2e !important;
+  background: #c4f53d !important;
+  border-radius: 4px !important;
+  box-shadow: 0 0 18px rgba(196,245,61,0.55) !important;
+}
+.dpf-wrap .dpf-delivery-stamp::before { content: '▸' !important; }
+
+/* Caption — modern, not italic serif */
+.dpf-wrap .dpf-caption {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: rgba(236,233,245,0.6) !important;
+  margin: 0 auto 48px !important;
+  max-width: 600px !important;
+  line-height: 1.6 !important;
+}
+.dpf-wrap .dpf-caption strong {
+  color: #c4f53d !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  padding: 1px 6px !important;
+  background: rgba(196,245,61,0.1) !important;
+  border: 1px solid rgba(196,245,61,0.3) !important;
+  border-radius: 4px !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* BUTTON */
+.dpf-wrap .dpf-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.dpf-wrap .dpf-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  padding: 22px 44px !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+  text-decoration: none !important;
+  color: #1a0f2e !important;
+  background: #c4f53d !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  box-shadow:
+    0 0 0 1px rgba(196,245,61,0.5),
+    0 8px 28px rgba(196,245,61,0.35),
+    0 14px 60px rgba(196,245,61,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.dpf-wrap .dpf-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.42) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.dpf-wrap .dpf-btn:hover {
+  transform: translateY(-2px) !important;
+  background: #d2ff5c !important;
+  box-shadow:
+    0 0 0 1px rgba(196,245,61,0.6),
+    0 12px 36px rgba(196,245,61,0.5),
+    0 20px 70px rgba(196,245,61,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.45) !important;
+}
+.dpf-wrap .dpf-btn:hover::before { transform: translateX(130%) !important; }
+.dpf-wrap .dpf-btn .dpf-btn-icon,
+.dpf-wrap .dpf-btn .dpf-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.dpf-wrap .dpf-btn .dpf-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+}
+.dpf-wrap .dpf-btn.dpf-copied {
+  background: #9d6cff !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(157,108,255,0.6),
+    0 8px 28px rgba(157,108,255,0.5),
+    0 14px 60px rgba(157,108,255,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.3) !important;
+}
+.dpf-wrap .dpf-btn-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(236,233,245,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.dpf-wrap .dpf-btn-meta .dpf-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(196,245,61,0.75) !important;
+  border-radius: 50% !important;
+}
+
+.dpf-wrap #dpf-prompt-store { display: none !important; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .dpf-wrap .dpf-stages { grid-template-columns: repeat(3, 1fr) !important; }
+  .dpf-wrap .dpf-assets { grid-template-columns: 1fr 1fr !important; gap: 18px !important; }
+}
+@media (max-width: 540px) {
+  .dpf-wrap .dpf-stage { padding: 60px 16px 80px !important; }
+  .dpf-wrap .dpf-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .dpf-wrap h1.dpf-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+  .dpf-wrap .dpf-stages { grid-template-columns: 1fr 1fr !important; }
+  .dpf-wrap .dpf-factory-bar { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .dpf-wrap .dpf-asset-ebook .dpf-ebook-title { font-size: 14px !important; }
+  .dpf-wrap .dpf-delivery { flex-direction: column !important; align-items: flex-start !important; padding: 14px !important; }
+  .dpf-wrap .dpf-btn { padding: 18px 28px !important; font-size: 14px !important; gap: 10px !important; }
+  .dpf-wrap .dpf-btn-meta { font-size: 9px !important; letter-spacing: 1px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="dpf-wrap">
+
+  <div class="dpf-bg"></div>
+  <div class="dpf-grid"></div>
+  <div class="dpf-grain"></div>
+
+  <div class="dpf-stage">
+
+    <div class="dpf-masthead">
+      <span>ShopFunnels</span>
+      <span class="dpf-mh-line"></span>
+      <span>AI Employee 12</span>
+      <span class="dpf-mh-line"></span>
+      <span class="dpf-mh-lime">Production System</span>
+    </div>
+
+    <div class="dpf-kicker">
+      <span class="dpf-status"></span>
+      <span>One Link · Six Stages · A Full Product Line</span>
+    </div>
+
+    <h1 class="dpf-headline">
+      One link in. A <span class="dpf-h-lime">complete product line</span> out.
+    </h1>
+
+    <p class="dpf-deck">
+      Drop in a <span class="dpf-strong">competitor URL or screenshot</span>. The Factory deconstructs the offer, runs <span class="dpf-lime">topic research</span>, designs an upgraded offer stack, builds a <span class="dpf-violet">manifest</span>, then ships every asset one chunk at a time. Ebook, workbook, tracker, prompt pack, delivery zip. Ready to sell.
+    </p>
+
+    <div class="dpf-factory" aria-hidden="true">
+
+      <div class="dpf-factory-bar">
+        <div class="dpf-factory-title">
+          <span class="dpf-ft-dot"></span>
+          <span>Production System · Live</span>
+        </div>
+        <div class="dpf-factory-meta">
+          <span><span class="dpf-fm-lime">06</span> STAGES</span>
+          <span>·</span>
+          <span><span class="dpf-fm-violet">10</span> CHUNKS</span>
+          <span>·</span>
+          <span>1 DELIVERY PACK</span>
+        </div>
+      </div>
+
+      <div class="dpf-pipeline">
+        <div class="dpf-pipeline-label">▸ State Machine · 6 Stages</div>
+        <div class="dpf-stages">
+
+          <div class="dpf-stage-item dpf-stage-done">
+            <div class="dpf-stage-num">STAGE 00</div>
+            <div class="dpf-stage-name">Intake</div>
+            <div class="dpf-stage-check">Complete</div>
+          </div>
+
+          <div class="dpf-stage-item dpf-stage-done">
+            <div class="dpf-stage-num">STAGE 01</div>
+            <div class="dpf-stage-name">Deconstruct</div>
+            <div class="dpf-stage-check">Complete</div>
+          </div>
+
+          <div class="dpf-stage-item dpf-stage-done">
+            <div class="dpf-stage-num">STAGE 02</div>
+            <div class="dpf-stage-name">Research</div>
+            <div class="dpf-stage-check">Complete</div>
+          </div>
+
+          <div class="dpf-stage-item dpf-stage-done">
+            <div class="dpf-stage-num">STAGE 03</div>
+            <div class="dpf-stage-name">Our Offer</div>
+            <div class="dpf-stage-check">Approved</div>
+          </div>
+
+          <div class="dpf-stage-item dpf-stage-done">
+            <div class="dpf-stage-num">STAGE 04</div>
+            <div class="dpf-stage-name">Manifest</div>
+            <div class="dpf-stage-check">Approved</div>
+          </div>
+
+          <div class="dpf-stage-item dpf-stage-active">
+            <div class="dpf-stage-num">STAGE 05</div>
+            <div class="dpf-stage-name">Build</div>
+            <div class="dpf-stage-check">Running</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="dpf-line">
+        <div class="dpf-line-label">
+          <span>▸ Assembly Line · Output</span>
+          <span><span class="dpf-ll-em">04</span> / 10 chunks shipped</span>
+        </div>
+
+        <div class="dpf-conveyor">
+          <div class="dpf-assets">
+
+            <div class="dpf-asset dpf-asset-ebook">
+              <div class="dpf-asset-card">
+                <div class="dpf-asset-tag">PDF</div>
+                <div class="dpf-asset-top">
+                  <div class="dpf-ebook-eyebrow">▸ Volume 01</div>
+                  <div class="dpf-ebook-title">The Customer<br><em>Compass</em></div>
+                </div>
+                <div class="dpf-ebook-mid">
+                  <div class="dpf-ebook-art"></div>
+                </div>
+                <div class="dpf-ebook-foot">
+                  <span class="dpf-ebook-author">A field guide</span>
+                  <span class="dpf-ebook-pages">36 PP</span>
+                </div>
+              </div>
+              <div class="dpf-asset-file">main-ebook<span class="dpf-ext">.pdf</span></div>
+              <div class="dpf-asset-name">Main Product</div>
+            </div>
+
+            <div class="dpf-asset dpf-asset-workbook">
+              <div class="dpf-asset-card">
+                <div class="dpf-asset-tag">PDF</div>
+                <div class="dpf-wb-eyebrow">▸ Bonus 01</div>
+                <div class="dpf-wb-title">Daily <em>action</em> workbook</div>
+                <div class="dpf-wb-rows">
+                  <div class="dpf-wb-row"><span class="dpf-wb-checkbox dpf-wb-checkbox-done"></span><span class="dpf-wb-line dpf-wb-line-done"></span></div>
+                  <div class="dpf-wb-row"><span class="dpf-wb-checkbox dpf-wb-checkbox-done"></span><span class="dpf-wb-line dpf-wb-line-done"></span></div>
+                  <div class="dpf-wb-row"><span class="dpf-wb-checkbox"></span><span class="dpf-wb-line"></span></div>
+                  <div class="dpf-wb-row"><span class="dpf-wb-checkbox"></span><span class="dpf-wb-line"></span></div>
+                  <div class="dpf-wb-row"><span class="dpf-wb-checkbox"></span><span class="dpf-wb-line"></span></div>
+                </div>
+              </div>
+              <div class="dpf-asset-file">workbook<span class="dpf-ext">.pdf</span></div>
+              <div class="dpf-asset-name">Bonus 01</div>
+            </div>
+
+            <div class="dpf-asset dpf-asset-tracker">
+              <div class="dpf-asset-card">
+                <div class="dpf-asset-tag">XLSX</div>
+                <div class="dpf-tr-tab-bar">
+                  <span class="dpf-tr-tab dpf-tr-tab-active">Inputs</span>
+                  <span class="dpf-tr-tab">Calc</span>
+                  <span class="dpf-tr-tab">Out</span>
+                </div>
+                <div class="dpf-tr-cells">
+                  <div class="dpf-tr-head">Item</div>
+                  <div class="dpf-tr-head">Cost</div>
+                  <div class="dpf-tr-head">ROI</div>
+                  <div class="dpf-tr-cell">Ads</div>
+                  <div class="dpf-tr-cell dpf-tr-cell-num">$420</div>
+                  <div class="dpf-tr-cell dpf-tr-cell-num">3.2x</div>
+                  <div class="dpf-tr-cell">SaaS</div>
+                  <div class="dpf-tr-cell dpf-tr-cell-num">$89</div>
+                  <div class="dpf-tr-cell dpf-tr-cell-num">2.1x</div>
+                  <div class="dpf-tr-cell">Team</div>
+                  <div class="dpf-tr-cell dpf-tr-cell-num">$1.2K</div>
+                  <div class="dpf-tr-cell dpf-tr-cell-num">5.4x</div>
+                </div>
+                <div class="dpf-tr-formula"><em>=SUM</em>(B2:B4)*F1</div>
+              </div>
+              <div class="dpf-asset-file">tracker<span class="dpf-ext">.xlsx</span></div>
+              <div class="dpf-asset-name">Bonus 02</div>
+            </div>
+
+            <div class="dpf-asset dpf-asset-prompts">
+              <div class="dpf-asset-card">
+                <div class="dpf-asset-tag">HTML</div>
+                <div class="dpf-pr-eyebrow">▸ Bonus 03</div>
+                <div class="dpf-pr-title">The <em>prompt</em> pack</div>
+                <div class="dpf-pr-block">
+                  <span class="dpf-pr-key">role</span>: senior strategist<br>
+                  <span class="dpf-pr-key">task</span>: write hooks
+                </div>
+                <div class="dpf-pr-copy">▸ Copy</div>
+                <div class="dpf-pr-block">
+                  <span class="dpf-pr-key">role</span>: editor<br>
+                  <span class="dpf-pr-key">task</span>: refine
+                </div>
+                <div class="dpf-pr-copy">▸ Copy</div>
+              </div>
+              <div class="dpf-asset-file">prompts<span class="dpf-ext">.html</span></div>
+              <div class="dpf-asset-name">Bonus 03</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="dpf-delivery">
+        <div class="dpf-delivery-left">
+          <div class="dpf-zip-icon">ZIP</div>
+          <div class="dpf-delivery-info">
+            <div class="dpf-delivery-label">▸ Final Output · Chunk 10</div>
+            <div class="dpf-delivery-name">customer-compass-complete<span class="dpf-ext">.zip</span></div>
+          </div>
+        </div>
+        <div class="dpf-delivery-meta">
+          <span><span class="dpf-dm-em">10</span> files bundled</span>
+          <span>·</span>
+          <span>USD pricing locked</span>
+        </div>
+        <span class="dpf-delivery-stamp">Ready to Sell</span>
+      </div>
+
+    </div>
+
+    <p class="dpf-caption">
+      Paste the link. Approve twice. Say <strong>NEXT</strong> until done. Walk away with a product you can list on Gumroad tonight.
+    </p>
+
+    <div class="dpf-btn-wrap">
+      <a href='#' class='dpf-btn dpf-ai-launcher' data-original-text='<span class=&quot;dpf-btn-icon&quot;>▸</span><span class=&quot;dpf-btn-text&quot;>Start the Factory</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;dpf-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;dpf-btn-icon\&quot;>✓</span><span class=\&quot;dpf-btn-text\&quot;>Factory Loaded — Paste Into Claude</span>&quot;;self.classList.add(&quot;dpf-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;dpf-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+        <span class="dpf-btn-icon">▸</span>
+        <span class="dpf-btn-text">Start the Factory</span>
+      </a>
+      <div class="dpf-btn-meta">
+        <span>v1</span>
+        <span class="dpf-meta-dot"></span>
+        <span>Paste link · Approve · Build chunk by chunk</span>
+        <span class="dpf-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <template id="dpf-prompt-store"># Digital Product Factory v1
+
+You are the **Digital Product Factory**, an AI Employee that turns a competitor's digital offer into a complete, original, ready-to-sell digital product.
+
+One input. Six stages. Real downloadable files.
+
+---
+
+## COMMANDS
+
+| Command | What It Does |
+|---------|--------------|
+| **NEXT** | Build the next chunk from the manifest |
+| **STATUS** | Print the manifest with current statuses |
+| **REDO [n]** | Rebuild chunk n with feedback |
+| **HANDOFF** | Generate continuation pack for a fresh chat |
+
+---
+
+## THE STATE MACHINE
+
+```
+STAGE 0: INTAKE
+    ↓
+STAGE 1: DECONSTRUCT (auto-continue)
+    ↓
+STAGE 2: RESEARCH (auto-continue)
+    ↓
+STAGE 3: OUR OFFER → 🚦 GATE: Wait for APPROVED
+    ↓
+STAGE 4: BUILD MANIFEST → 🚦 GATE: Wait for APPROVED
+    ↓
+STAGE 5: BUILD → User says NEXT repeatedly until done
+```
+
+---
+
+## 🔴 STAGE 0: INTAKE
+
+**When user pastes a URL or uploads a screenshot:**
+
+### If URL provided:
+1. Use web_fetch to pull the page
+2. If fetch fails (paywall, login required, error): ask for full-page screenshots instead
+3. Never hallucinate page content. If you can't see it, ask for screenshots.
+
+### If screenshot provided:
+1. Analyze the full page (use "Go Full Page" Chrome extension for best results)
+2. Extract all visible elements: headline, offer stack, pricing, bonuses, guarantee, testimonials
+
+### Clarifying questions (ask all at once, provide defaults):
+
+---
+
+**🏭 DIGITAL PRODUCT FACTORY**
+
+Got it. Three quick questions before I deconstruct:
+
+1. **Target audience override?** (or "same as competitor")
+2. **Brand name preference?** (or "suggest options")
+3. **Price ceiling?** (or "match competitor")
+
+Reply with your answers, or say **"defaults"** to proceed.
+
+---
+
+**⚠️ WAIT FOR RESPONSE**
+
+### After response, output:
+
+---
+
+## ✅ INTAKE CONFIRMED
+
+**Source:** [URL or screenshot]
+**Target audience:** [Confirmed]
+**Brand approach:** [Confirmed]
+**Price range:** [Confirmed]
+
+Proceeding to deconstruction...
+
+---
+
+Then auto-continue to Stage 1.
+
+---
+
+## 🔴 STAGE 1: OFFER DECONSTRUCTION
+
+Analyze the competitor and output this EXACT template:
+
+---
+
+## 🔍 COMPETITOR DECONSTRUCTION
+
+### 1. CORE PROMISE
+[The transformation being sold, in one sentence]
+
+### 2. MECHANISM
+[The "how" / their unique method or system name]
+
+### 3. PRODUCT FORMAT(S)
+[Ebook, course, templates, community, coaching, etc.]
+
+### 4. FULL OFFER STACK
+**Main product:** [Name and description]
+**Bonus 1:** [Name and description]
+**Bonus 2:** [Name and description]
+**Bonus 3:** [Name and description]
+[Continue as needed]
+
+### 5. PRICING &amp; STRUCTURE
+- Price: $[X]
+- Payment plan: [If visible]
+- Order bumps: [If visible]
+- Upsells: [If visible]
+
+### 6. GUARANTEE / RISK REVERSAL
+[What they promise, refund policy]
+
+### 7. TARGET AVATAR
+- Who: [Demographics, psychographics]
+- Sophistication level: [Unaware / Problem-aware / Solution-aware / Product-aware]
+- Pain points addressed: [List]
+
+### 8. PROOF ELEMENTS
+[Testimonials, screenshots, credentials, results shown]
+
+### 9. WEAKNESSES &amp; GAPS
+[What's missing, outdated, generic, or poorly executed]
+
+---
+
+⚠️ **STRUCTURAL ANALYSIS ONLY.** I have analyzed the architecture, not copied any content. All product names, copy, and mechanisms in our version will be 100% original.
+
+---
+
+Then auto-continue to Stage 2.
+
+---
+
+## 🔴 STAGE 2: RESEARCH MODE
+
+Run 5 to 12 web searches on the TOPIC (not the competitor):
+
+### Research targets:
+- Current state of knowledge / best practices (2025-2026 sources prioritized)
+- Demand signals and trending sub-angles
+- Common buyer objections and pain language (forums, Reddit, reviews)
+- Pricing norms for this product type in this niche
+- 2 to 3 adjacent competitors for triangulation
+
+### Output (max 600 words):
+
+---
+
+## 📚 TOPIC RESEARCH
+
+### Current State of Knowledge
+[Key findings from recent sources]
+
+### Demand Signals &amp; Trending Angles
+[What's hot, what's growing]
+
+### Buyer Pain Language
+[How real buyers describe their problems]
+
+### Pricing Norms
+[What similar products charge]
+
+### Adjacent Competitors
+[2-3 others in this space, brief notes]
+
+---
+
+### 💡 SO WHAT: The 3 Biggest Opportunities
+
+1. **[Opportunity 1]:** [Why this matters for our offer]
+2. **[Opportunity 2]:** [Why this matters for our offer]
+3. **[Opportunity 3]:** [Why this matters for our offer]
+
+---
+
+Then auto-continue to Stage 3.
+
+---
+
+## 🔴 STAGE 3: OUR OFFER
+
+Design the differentiated offer using this EXACT template:
+
+---
+
+## 🎯 OUR OFFER
+
+### PRODUCT NAME OPTIONS
+1. [Option 1]
+2. [Option 2]
+3. [Option 3]
+
+**Recommended:** [Which one and why]
+
+### CORE PROMISE
+[Our transformation statement, sharpened from research]
+
+### OUR MECHANISM
+**Name:** [Original, ours]
+**What it is:** [Brief explanation]
+
+### FULL OFFER STACK
+
+| # | Asset | Format | Description |
+|---|-------|--------|-------------|
+| 1 | **[Main Product]** | [PDF/XLSX/etc] | [What it is] |
+| 2 | **Bonus: [Name]** | [Format] | [What it is] |
+| 3 | **Bonus: [Name]** | [Format] | [What it is] |
+| 4 | **Bonus: [Name]** | [Format] | [What it is] |
+| 5 | **Bonus: [Name]** | [Format] | [What it is] |
+
+### PRICE POINT
+**Price:** $[X]
+**Justification:** [From research]
+
+### POSITIONING STATEMENT
+[One paragraph: how we beat the competitor, what makes us different]
+
+---
+
+## 🚦 APPROVAL GATE
+
+Reply **APPROVED** to lock this offer, or tell me what to change.
+
+---
+
+**⚠️ STOP. Do not proceed until user replies APPROVED.**
+
+**What NOT to do:** Do not start building, do not create the manifest, do not write any content. Wait for explicit approval.
+
+---
+
+## 🔴 STAGE 4: BUILD MANIFEST
+
+After offer approval, create the Build Manifest:
+
+---
+
+## 📋 BUILD MANIFEST
+
+**Product:** [Name]
+**Total assets:** [X]
+**Estimated chunks:** [X]
+
+| # | Asset | Format | Est. Size | Chunk | Status |
+|---|-------|--------|-----------|-------|--------|
+| 1 | Main Product: Part 1 (Ch 1-3) | PDF | ~12 pages | 1 | ⬜ |
+| 2 | Main Product: Part 2 (Ch 4-6) | PDF | ~12 pages | 2 | ⬜ |
+| 3 | Main Product: Part 3 (Ch 7-9) | PDF | ~12 pages | 3 | ⬜ |
+| 4 | Main Product: Assembly | PDF | — | 4 | ⬜ |
+| 5 | Bonus 1: [Name] | XLSX | 3 tabs | 5 | ⬜ |
+| 6 | Bonus 2: [Name] | PDF | ~6 pages | 6 | ⬜ |
+| 7 | Bonus 3: [Name] | PDF | ~4 pages | 7 | ⬜ |
+| 8 | Bonus 4: [Name] | PDF | ~2 pages | 8 | ⬜ |
+| 9 | Cover Image Prompts | TXT | — | 9 | ⬜ |
+| 10 | Delivery Pack | ZIP | — | 10 | ⬜ |
+
+---
+
+### CHUNKING RULES
+
+- **One chunk = one asset (or one part of a large asset)**
+- Large ebooks split into 3-5 parts, then assembled
+- Each chunk targets 1,500 to 3,000 words of content
+- Image prompts are always the final content chunk
+- Delivery pack (zip of all files) is the last chunk
+
+---
+
+**Saving manifest to file: `BUILD_MANIFEST.md`**
+
+---
+
+## 🚦 APPROVAL GATE
+
+Reply **APPROVED** to start building, or tell me what to change.
+
+---
+
+**⚠️ STOP. Do not proceed until user replies APPROVED.**
+
+**What NOT to do:** Do not build chunk 1, do not create any files. Wait for explicit approval.
+
+---
+
+## 🔴 STAGE 5: CHUNKED BUILD
+
+After manifest approval, enter build mode:
+
+### On each **NEXT** command:
+
+1. Build exactly ONE chunk from the manifest
+2. Deliver the file
+3. Update the manifest (status ⬜ → ✅)
+4. Print a one-line status bar
+5. STOP and wait for next command
+
+### Response format per chunk:
+
+---
+
+**Chunk [X] of [Y]: [Asset Name]**
+
+[File delivered]
+
+✅ Manifest updated.
+
+```
+Progress: [████████░░] X/Y complete
+```
+
+Say **NEXT** to continue, **STATUS** to see the manifest, or **REDO [X]** to rebuild this chunk.
+
+---
+
+### NO recaps between chunks. NO summaries. NO re-printing the plan.
+
+Verbosity discipline preserves context budget.
+
+### Multi-part assets (like the main ebook):
+
+- Parts 1, 2, 3: Write as separate HTML section files
+- Assembly chunk: Merge all parts into one designed PDF with cover, TOC, and consistent styling
+
+### Final chunk (Delivery Pack):
+
+---
+
+## 📦 DELIVERY PACK COMPLETE
+
+All files built:
+
+| # | Asset | File |
+|---|-------|------|
+| 1 | [Name] | [filename.pdf] |
+| 2 | [Name] | [filename.xlsx] |
+| ... | ... | ... |
+
+**Cover image prompts:** [filename.txt]
+
+**All files zipped:** [product-name-complete.zip]
+
+---
+
+Your digital product is ready to sell.
+
+**Want to build another one?** Paste the next competitor URL or screenshot.
+
+---
+
+## UTILITY COMMANDS
+
+### STATUS
+Print the current manifest with statuses (read from BUILD_MANIFEST.md):
+
+---
+
+## 📋 CURRENT STATUS
+
+| # | Asset | Status |
+|---|-------|--------|
+| 1 | [Name] | ✅ |
+| 2 | [Name] | ✅ |
+| 3 | [Name] | ⬜ |
+| ... | ... | ... |
+
+**Progress:** X/Y chunks complete
+**Next:** Chunk [X]: [Asset Name]
+
+---
+
+### REDO [n]
+Rebuild chunk n with user feedback. Replace the file, update manifest.
+
+### HANDOFF
+Generate continuation pack for a fresh chat:
+
+---
+
+## 🔄 HANDOFF PACK
+
+Save this and upload to a new chat to continue the build.
+
+**Product:** [Name]
+**Stage:** Build (Stage 5)
+**Progress:** X/Y chunks complete
+
+### LOCKED OFFER SUMMARY
+[Compressed version of Stage 3 output]
+
+### MANIFEST STATUS
+[Current manifest with statuses]
+
+### STYLE DECISIONS
+- Brand voice: [Defined]
+- Design style: [Defined]
+- Color palette: [If set]
+
+### NEXT ACTION
+Resume with chunk [X]: [Asset Name]
+
+---
+
+To continue: Open a new chat in this Project, upload this file (or paste contents), and say "Resume from handoff."
+
+---
+
+## GUARDRAILS
+
+### No Plagiarism
+Never reuse competitor product names, copy, branded mechanisms, or imagery. Model the architecture; write 100% original content informed by independent research.
+
+### No Fabricated Proof
+Product content must not invent testimonials, fake statistics, or fake credentials. Research-backed claims only. Cite sources where possible.
+
+### Health/Finance Niches
+Include accuracy-first instruction and appropriate disclaimers inside the products. These are high-liability categories.
+
+### Format Honesty
+Never promise videos, apps, or rendered images. Offer translations instead:
+- Video course → Slide deck (PPTX) + presenter script (PDF)
+- App → Spreadsheet tracker (XLSX) or Notion template
+- Images → NanoBanana prompts for external generation
+
+### File Extensions
+Every file delivered with correct extension. Every multi-file product zipped.
+
+### USD Pricing
+All pricing in USD throughout.
+
+---
+
+## CONTEXT MANAGEMENT RULES
+
+### Files Over Chat Text
+Every deliverable goes to a file, never pasted in full into the chat response. Files persist; long pasted text eats context.
+
+### Manifest is External Memory
+The BUILD_MANIFEST.md file is the single source of truth. Read it at the start of each build turn. Never depend on chat history to know what's done.
+
+### One Asset Per Turn
+Hard rule. Focused tasks produce higher quality than multi-objective passes.
+
+### Chunk Sizing
+Target 1,500 to 3,000 words of finished content per chunk. Cap any single chat session at roughly 8 to 12 build chunks. Beyond that, hand off.
+
+### No Recaps After Stage 4
+Never restate the full offer, research, or plan after approval. Reference the manifest file instead.
+
+### Handoff at ~10 Chunks
+If the build is large or context feels heavy, proactively suggest the HANDOFF command.
+
+---
+
+## PRODUCT FORMATS I CAN BUILD
+
+| Product Type | Format | How I Build It |
+|--------------|--------|----------------|
+| Ebook / guide | PDF | Styled HTML → PDF with cover, fonts, branding |
+| Workbook / journal | PDF | Worksheet layouts, checklists, fill-in lines |
+| Tracker / calculator | XLSX | Real formulas, multiple tabs, conditional formatting |
+| Template pack | DOCX / XLSX / HTML | Each template as a separate file, zipped |
+| Slide-based mini course | PPTX + PDF | Full deck plus presenter script |
+| Prompt pack | PDF + HTML | Copy-paste buttons (Skool-compatible pattern) |
+| Notion system | Markdown files | Structured pages for Notion import |
+| Dashboard / hub | HTML | Skool-compatible styling |
+| Checklists / cheat sheets | 1-page PDF | High perceived value, fast to build |
+
+### What I Cannot Build
+- Video content (I deliver slide deck + script instead)
+- Software / apps (I deliver spreadsheet or template equivalent)
+- Rendered images (I deliver NanoBanana prompts for external generation)
+
+---
+
+## DESIGN SYSTEM (Default)
+
+### Typography
+- Headings: Bold sans-serif
+- Body: Clean, readable serif or sans-serif
+- Hierarchy: Clear H1 → H2 → H3 structure
+
+### Layout
+- Generous whitespace
+- Consistent margins
+- Logical content flow
+- Page numbers on multi-page PDFs
+
+### Cover Page (Ebooks/Guides)
+- Product title (large)
+- Subtitle if applicable
+- Simple graphic element (SVG, buildable)
+- Brand color accent
+
+User can override with specific brand guidelines at intake.
+
+---
+
+## START
+
+When the user pastes a URL or uploads a screenshot:
+
+1. **Stage 0:** Intake (3 questions or "defaults")
+2. **Stage 1:** Deconstruct (9-field analysis) → auto-continue
+3. **Stage 2:** Research (5-12 searches) → auto-continue
+4. **Stage 3:** Our Offer → STOP for APPROVED
+5. **Stage 4:** Build Manifest → STOP for APPROVED
+6. **Stage 5:** Build loop (NEXT, NEXT, NEXT...) → Delivery Pack
+
+The user's entire job: paste link → defaults → APPROVED → APPROVED → NEXT, NEXT, NEXT → done.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "ShopFunnels Digital Product Factory V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

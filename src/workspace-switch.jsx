@@ -6,6 +6,7 @@
 // rouvrent la page puis s'ouvrent tout seuls (?ouvrir=studio|canvas).
 const SPACES = [
   { id: "page", label: "Page", title: "Revenir à la page" },
+  { id: "agents", label: "Agents army", title: "Agents army (fenêtre à part)" },
   { id: "studio", label: "Studio", title: "Studio d'images" },
   { id: "canvas", label: "Canvas", title: "Canvas du projet" },
   { id: "catalogue", label: "Catalogue", title: "Catalogue (sections, templates, designs, projets)" },
@@ -14,10 +15,19 @@ const SPACES = [
 export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNoPage = null }) {
   async function go(id) {
     if (id === current) return;
-    if (current === "catalogue") {
+    // Agents army : sa propre page, on y va directement depuis partout.
+    if (id === "agents") {
+      await onLeave();
+      const q = new URLSearchParams(location.search);
+      const p = q.get("page") ?? page;
+      location.href = `/agents.html${p ? `?page=${encodeURIComponent(p)}` : ""}`;
+      return;
+    }
+    if (current === "catalogue" || current === "agents") {
+      if (!page && id === "catalogue") return void (location.href = "/catalogue.html#tout");
       if (!page) return onNoPage?.();
       const q = `?page=${encodeURIComponent(page)}`;
-      location.href = id === "page" ? `/${q}` : `/${q}&ouvrir=${id}`;
+      location.href = id === "catalogue" ? `/catalogue.html${q}#tout` : id === "page" ? `/${q}` : `/${q}&ouvrir=${id}`;
       return;
     }
     await onLeave();
@@ -33,7 +43,7 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
           type="button"
           className={s.id === current ? "is-on" : ""}
           aria-current={s.id === current ? "page" : undefined}
-          title={current === "catalogue" && !page && s.id !== current ? "Choisis d'abord une page à ouvrir" : s.title}
+          title={(current === "catalogue" || current === "agents") && !page && s.id !== current && s.id !== "agents" && s.id !== "catalogue" ? "Choisis d'abord une page à ouvrir" : s.title}
           onClick={() => go(s.id)}
         >
           {s.label}

@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whitelabeler Customer Experience Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .mces-wrap ═══ */
+.mces-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #f0e6d2 !important;
+  background: #1a1614 !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.mces-wrap *, .mces-wrap *::before, .mces-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* BG. warm charcoal + terracotta glow + mustard highlight */
+.mces-wrap .mces-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 900px 500px at 22% 10%, rgba(217,132,107,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 700px 400px at 82% 85%, rgba(212,165,58,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 500px 300px at 50% 50%, rgba(61,34,51,0.20) 0%, transparent 70%),
+    linear-gradient(180deg, #1a1614 0%, #100c0a 100%) !important;
+}
+/* Fine editorial grid. columns */
+.mces-wrap .mces-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.35 !important;
+  background-image:
+    linear-gradient(rgba(240,230,210,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,230,210,0.025) 1px, transparent 1px) !important;
+  background-size: 44px 44px !important;
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 25%, transparent 80%) !important;
+}
+/* Paper grain */
+.mces-wrap .mces-grain {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.35 !important;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(240,230,210,0.02) 0.5px, transparent 1px),
+    radial-gradient(circle at 75% 60%, rgba(240,230,210,0.018) 0.5px, transparent 1px) !important;
+  background-size: 70px 70px, 90px 90px !important;
+}
+
+/* STAGE */
+.mces-wrap .mces-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1200px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 78px 28px 110px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── MASTHEAD ─── */
+.mces-wrap .mces-masthead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 4px !important;
+  text-transform: uppercase !important;
+  color: rgba(240,230,210,0.5) !important;
+  margin-bottom: 30px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.mces-wrap .mces-masthead .mces-mh-line {
+  width: 32px !important;
+  height: 1px !important;
+  background: rgba(217,132,107,0.5) !important;
+}
+.mces-wrap .mces-masthead .mces-mh-em {
+  color: #d9846b !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 12px rgba(217,132,107,0.35) !important;
+}
+
+/* KICKER. mustard plate */
+.mces-wrap .mces-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 18px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: #d4a53a !important;
+  background: rgba(212,165,58,0.06) !important;
+  border: 1px solid rgba(212,165,58,0.35) !important;
+  border-radius: 3px !important;
+  margin-bottom: 28px !important;
+  position: relative !important;
+}
+.mces-wrap .mces-kicker::before,
+.mces-wrap .mces-kicker::after {
+  content: '' !important;
+  width: 4px !important;
+  height: 4px !important;
+  background: #d4a53a !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 6px rgba(212,165,58,0.4) !important;
+}
+
+/* HEADLINE. Playfair Display italic accent */
+.mces-wrap h1.mces-headline {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 700 !important;
+  font-size: clamp(2.8rem, 6.4vw, 5.4rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 26px 0 !important;
+  color: #f0e6d2 !important;
+  max-width: 19ch !important;
+}
+.mces-wrap h1.mces-headline .mces-h-terra {
+  color: #d9846b !important;
+  font-style: italic !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 22px rgba(217,132,107,0.35) !important;
+}
+.mces-wrap h1.mces-headline .mces-h-mustard {
+  color: #d4a53a !important;
+  font-style: italic !important;
+}
+
+/* DECK */
+.mces-wrap p.mces-deck {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.4vw, 1.15rem) !important;
+  line-height: 1.7 !important;
+  color: rgba(240,230,210,0.78) !important;
+  max-width: 720px !important;
+  margin: 0 auto 58px !important;
+  font-weight: 400 !important;
+}
+.mces-wrap p.mces-deck .mces-terra { color: #d9846b !important; font-weight: 700 !important; }
+.mces-wrap p.mces-deck .mces-mustard { color: #d4a53a !important; font-weight: 700 !important; }
+.mces-wrap p.mces-deck .mces-cream { color: #ffffff !important; font-weight: 600 !important; }
+
+/* ═══ HERO DEVICE. CASTING BOARD ═══ */
+.mces-wrap .mces-board {
+  width: 100% !important;
+  max-width: 1080px !important;
+  margin: 0 auto 40px !important;
+  background: linear-gradient(180deg, #f0e6d2 0%, #e8dcc4 100%) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 0 0 1px rgba(217,132,107,0.3),
+    0 4px 20px rgba(0,0,0,0.4),
+    0 30px 80px rgba(0,0,0,0.55) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Portfolio-style top bar */
+.mces-wrap .mces-board-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 14px 22px !important;
+  background: linear-gradient(180deg, #1a1614 0%, #241e1a 100%) !important;
+  color: #f0e6d2 !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+.mces-wrap .mces-board-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: #d4a53a !important;
+  text-transform: uppercase !important;
+}
+.mces-wrap .mces-board-title::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #d9846b !important;
+  box-shadow: 0 0 8px #d9846b !important;
+  animation: mces-pulse 1.8s ease-in-out infinite !important;
+}
+@keyframes mces-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.25); }
+}
+.mces-wrap .mces-board-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  color: rgba(240,230,210,0.55) !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.mces-wrap .mces-board-meta .mces-bm-em { color: #d9846b !important; font-weight: 800 !important; }
+
+/* Client header */
+.mces-wrap .mces-client {
+  padding: 22px 26px 16px !important;
+  border-bottom: 1px solid rgba(26,22,20,0.1) !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+.mces-wrap .mces-client-info { text-align: left !important; }
+.mces-wrap .mces-client-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(26,22,20,0.55) !important;
+  margin-bottom: 6px !important;
+}
+.mces-wrap .mces-client-name {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 700 !important;
+  font-size: 30px !important;
+  line-height: 1.0 !important;
+  color: #1a1614 !important;
+  letter-spacing: -0.015em !important;
+}
+.mces-wrap .mces-client-name em {
+  font-style: italic !important;
+  color: #d9846b !important;
+}
+.mces-wrap .mces-client-tag {
+  font-family: 'Playfair Display', serif !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  color: rgba(26,22,20,0.65) !important;
+  margin-top: 4px !important;
+}
+.mces-wrap .mces-client-stats {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+}
+.mces-wrap .mces-stat {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 2px !important;
+}
+.mces-wrap .mces-stat-num {
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 800 !important;
+  font-size: 26px !important;
+  color: #d9846b !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
+}
+.mces-wrap .mces-stat-num em {
+  font-style: italic !important;
+  color: #d4a53a !important;
+}
+.mces-wrap .mces-stat-label {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(26,22,20,0.55) !important;
+}
+.mces-wrap .mces-stat-divide {
+  width: 1px !important;
+  height: 32px !important;
+  background: rgba(26,22,20,0.15) !important;
+}
+
+/* ═══ SECTION LABEL ═══ */
+.mces-wrap .mces-sec {
+  padding: 18px 26px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  text-align: left !important;
+}
+.mces-wrap .mces-sec-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: rgba(26,22,20,0.6) !important;
+  text-transform: uppercase !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.mces-wrap .mces-sec-title::before {
+  content: '' !important;
+  width: 16px !important;
+  height: 1px !important;
+  background: #d9846b !important;
+}
+.mces-wrap .mces-sec-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  color: rgba(26,22,20,0.5) !important;
+  text-transform: uppercase !important;
+}
+.mces-wrap .mces-sec-meta .mces-em-num { color: #d4a53a !important; font-weight: 800 !important; }
+
+/* ═══ VIDEO TESTIMONIAL CARDS (9:16 phone previews) ═══ */
+.mces-wrap .mces-reel {
+  padding: 4px 26px 20px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 16px !important;
+}
+.mces-wrap .mces-vid {
+  background: #ffffff !important;
+  border: 1px solid rgba(26,22,20,0.1) !important;
+  border-radius: 10px !important;
+  padding: 12px 12px 12px !important;
+  text-align: left !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  position: relative !important;
+  box-shadow: 0 2px 8px rgba(26,22,20,0.05) !important;
+}
+
+/* Phone frame. 9:16 aspect */
+.mces-wrap .mces-phone {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 9/16 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 3px #0e0a08,
+    0 6px 18px rgba(0,0,0,0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.05) !important;
+}
+
+/* Warm ambient backdrops per card (studio lighting feel, no face) */
+.mces-wrap .mces-vid-1 .mces-phone {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,180,140,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(217,132,107,0.25) 0%, transparent 60%),
+    linear-gradient(160deg, #4a2818 0%, #2a1610 55%, #180a06 100%) !important;
+}
+.mces-wrap .mces-vid-2 .mces-phone {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,220,160,0.35) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(212,165,58,0.25) 0%, transparent 60%),
+    linear-gradient(160deg, #4a3612 0%, #2a1e08 55%, #181206 100%) !important;
+}
+.mces-wrap .mces-vid-3 .mces-phone {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(210,180,200,0.30) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(122,80,101,0.30) 0%, transparent 60%),
+    linear-gradient(160deg, #3d2a3a 0%, #201220 55%, #100610 100%) !important;
+}
+
+/* Creator handle strip (top of screen, under badges) */
+.mces-wrap .mces-handle {
+  position: absolute !important;
+  top: 34px !important;
+  left: 8px !important;
+  right: 8px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+.mces-wrap .mces-handle-avatar {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid rgba(255,255,255,0.9) !important;
+  flex-shrink: 0 !important;
+}
+.mces-wrap .mces-vid-1 .mces-handle-avatar { background: linear-gradient(135deg, #d9846b 0%, #8a4530 100%) !important; }
+.mces-wrap .mces-vid-2 .mces-handle-avatar { background: linear-gradient(135deg, #d4a53a 0%, #6b4a05 100%) !important; }
+.mces-wrap .mces-vid-3 .mces-handle-avatar { background: linear-gradient(135deg, #a67a92 0%, #3d2233 100%) !important; }
+.mces-wrap .mces-handle-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+.mces-wrap .mces-handle-name {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 10px !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
+  letter-spacing: -0.01em !important;
+}
+.mces-wrap .mces-handle-meta {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 8px !important;
+  color: rgba(255,255,255,0.7) !important;
+  line-height: 1.1 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  margin-top: 1px !important;
+}
+.mces-wrap .mces-handle-follow {
+  margin-left: auto !important;
+  padding: 3px 8px !important;
+  background: rgba(255,255,255,0.15) !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  border-radius: 3px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 8.5px !important;
+  color: #ffffff !important;
+  letter-spacing: 0.3px !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+/* Right-side action stack (like, comment, share) */
+.mces-wrap .mces-actions {
+  position: absolute !important;
+  right: 8px !important;
+  bottom: 60px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+.mces-wrap .mces-action {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+.mces-wrap .mces-action-icon {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.18) !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5) !important;
+}
+.mces-wrap .mces-action-heart .mces-action-icon { background: rgba(217,132,107,0.35) !important; border-color: rgba(217,132,107,0.6) !important; }
+.mces-wrap .mces-action-count {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 8.5px !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* Sound-strip at bottom */
+.mces-wrap .mces-sound {
+  position: absolute !important;
+  bottom: 16px !important;
+  left: 8px !important;
+  right: 44px !important;
+  z-index: 3 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 4px 8px !important;
+  background: rgba(0,0,0,0.35) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  border-radius: 3px !important;
+}
+.mces-wrap .mces-sound::before {
+  content: '\266B' !important;
+  font-size: 10px !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+}
+.mces-wrap .mces-sound-text {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 8.5px !important;
+  color: rgba(255,255,255,0.9) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  letter-spacing: 0.2px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Archetype tag (top-left of phone) */
+.mces-wrap .mces-arch-tag {
+  position: absolute !important;
+  top: 12px !important;
+  left: 8px !important;
+  z-index: 4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 4px 8px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+  border-radius: 4px !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+.mces-wrap .mces-arch-tag::before { content: '▸' !important; font-size: 9px !important; }
+.mces-wrap .mces-arch-1 { background: rgba(217,132,107,0.85) !important; color: #ffffff !important; }
+.mces-wrap .mces-arch-2 { background: rgba(212,165,58,0.85) !important; color: #1a1614 !important; }
+.mces-wrap .mces-arch-3 { background: rgba(61,34,51,0.85) !important; color: #f0e6d2 !important; border: 1px solid rgba(217,132,107,0.4) !important; }
+
+/* Duration badge (top-right of phone) */
+.mces-wrap .mces-duration {
+  position: absolute !important;
+  top: 12px !important;
+  right: 8px !important;
+  z-index: 4 !important;
+  padding: 3px 6px !important;
+  background: rgba(0,0,0,0.6) !important;
+  color: #ffffff !important;
+  border-radius: 4px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.3px !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+.mces-wrap .mces-duration::before {
+  content: '' !important;
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  background: #ff4444 !important;
+  box-shadow: 0 0 4px #ff4444 !important;
+  animation: mces-rec 1.2s ease-in-out infinite !important;
+}
+@keyframes mces-rec {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Big caption overlay (TikTok/UGC style, sound-off friendly) */
+.mces-wrap .mces-caption {
+  position: absolute !important;
+  bottom: 42px !important;
+  left: 8% !important;
+  right: 44px !important;
+  z-index: 3 !important;
+  text-align: left !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  line-height: 1.15 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.01em !important;
+  text-shadow:
+    1.5px 1.5px 0 rgba(0,0,0,0.65),
+    -1.5px -1.5px 0 rgba(0,0,0,0.65),
+    1.5px -1.5px 0 rgba(0,0,0,0.65),
+    -1.5px 1.5px 0 rgba(0,0,0,0.65),
+    0 3px 12px rgba(0,0,0,0.6) !important;
+}
+.mces-wrap .mces-caption em {
+  font-style: normal !important;
+  background: #d4a53a !important;
+  color: #1a1614 !important;
+  padding: 1px 5px !important;
+  border-radius: 3px !important;
+  text-shadow: none !important;
+  display: inline-block !important;
+}
+.mces-wrap .mces-vid-1 .mces-caption em { background: #d9846b !important; color: #ffffff !important; }
+
+/* Progress bar at very top (TikTok playback indicator style) */
+.mces-wrap .mces-progress {
+  position: absolute !important;
+  top: 4px !important;
+  left: 8px !important;
+  right: 8px !important;
+  z-index: 4 !important;
+  height: 2px !important;
+  background: rgba(255,255,255,0.25) !important;
+  border-radius: 1px !important;
+  overflow: hidden !important;
+}
+.mces-wrap .mces-progress::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 auto 0 0 !important;
+  background: #ffffff !important;
+  border-radius: 1px !important;
+}
+.mces-wrap .mces-vid-1 .mces-progress::after { width: 62% !important; }
+.mces-wrap .mces-vid-2 .mces-progress::after { width: 45% !important; }
+.mces-wrap .mces-vid-3 .mces-progress::after { width: 78% !important; }
+
+/* Timecode + platform label under phone */
+.mces-wrap .mces-vid-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 2px 4px 0 !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+.mces-wrap .mces-vid-title {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  color: #1a1614 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.2 !important;
+}
+.mces-wrap .mces-vid-title em {
+  font-style: italic !important;
+  color: #b0553c !important;
+  font-weight: 700 !important;
+}
+.mces-wrap .mces-vid-cast {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  color: rgba(26,22,20,0.55) !important;
+  text-transform: uppercase !important;
+  margin-top: 3px !important;
+}
+
+/* Source line (mined-from stamp) */
+.mces-wrap .mces-src {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 8px 6px 2px !important;
+  border-top: 1px dotted rgba(26,22,20,0.12) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  color: rgba(26,22,20,0.55) !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+.mces-wrap .mces-src-label {
+  color: rgba(26,22,20,0.4) !important;
+  letter-spacing: 1.2px !important;
+}
+.mces-wrap .mces-src-name {
+  color: #b0553c !important;
+  font-weight: 800 !important;
+}
+.mces-wrap .mces-src-star { color: #d4a53a !important; letter-spacing: 0 !important; }
+.mces-wrap .mces-src-date { color: rgba(26,22,20,0.4) !important; }
+
+/* ═══ ARCHETYPE RAIL ═══ */
+.mces-wrap .mces-rail {
+  padding: 18px 26px 22px !important;
+  background: rgba(26,22,20,0.04) !important;
+  border-top: 1px solid rgba(26,22,20,0.08) !important;
+}
+.mces-wrap .mces-rail-label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 12px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  color: rgba(26,22,20,0.55) !important;
+  text-transform: uppercase !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  text-align: left !important;
+}
+.mces-wrap .mces-rail-legend {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 8px !important;
+  letter-spacing: 1.5px !important;
+}
+.mces-wrap .mces-legend-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+.mces-wrap .mces-legend-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+}
+.mces-wrap .mces-legend-active { background: #d9846b !important; }
+.mces-wrap .mces-rail-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 6px !important;
+}
+.mces-wrap .mces-arch-chip {
+  padding: 8px 8px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(26,22,20,0.1) !important;
+  border-radius: 5px !important;
+  font-family: 'Playfair Display', serif !important;
+  font-weight: 600 !important;
+  font-size: 11.5px !important;
+  color: rgba(26,22,20,0.7) !important;
+  text-align: center !important;
+  letter-spacing: -0.01em !important;
+  position: relative !important;
+  line-height: 1.1 !important;
+}
+.mces-wrap .mces-arch-chip::before {
+  content: attr(data-num) !important;
+  position: absolute !important;
+  top: 3px !important;
+  left: 5px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-style: normal !important;
+  font-size: 7px !important;
+  font-weight: 700 !important;
+  color: rgba(26,22,20,0.35) !important;
+}
+.mces-wrap .mces-arch-chip-active {
+  background: linear-gradient(180deg, #d9846b 0%, #c56b52 100%) !important;
+  color: #ffffff !important;
+  border-color: #d9846b !important;
+  box-shadow: 0 0 12px rgba(217,132,107,0.4) !important;
+  font-weight: 700 !important;
+}
+.mces-wrap .mces-arch-chip-active::before { color: rgba(255,255,255,0.75) !important; }
+
+/* ═══ BUTTONS ═══ */
+.mces-wrap .mces-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.mces-wrap .mces-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+.mces-wrap .mces-btn-step {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  line-height: 1 !important;
+}
+
+/* STEP 1. MaxFusion affiliate, mustard outline */
+.mces-wrap .mces-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 22px 36px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-decoration: none !important;
+  color: #d4a53a !important;
+  background: rgba(212,165,58,0.06) !important;
+  border: 1.5px solid #d4a53a !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 260px !important;
+  min-width: 250px !important;
+  box-shadow:
+    0 6px 22px rgba(212,165,58,0.15),
+    0 12px 48px rgba(212,165,58,0.06) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease !important;
+}
+.mces-wrap .mces-btn-affiliate::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(212,165,58,0) 0%, rgba(212,165,58,0.22) 50%, rgba(212,165,58,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.mces-wrap .mces-btn-affiliate:hover {
+  transform: translateY(-2px) !important;
+  background: #d4a53a !important;
+  color: #1a1614 !important;
+  box-shadow:
+    0 0 0 1px rgba(212,165,58,0.6),
+    0 10px 32px rgba(212,165,58,0.45),
+    0 20px 70px rgba(212,165,58,0.22) !important;
+}
+.mces-wrap .mces-btn-affiliate:hover::before { transform: translateX(130%) !important; }
+.mces-wrap .mces-btn-affiliate .mces-btn-step {
+  background: rgba(212,165,58,0.12) !important;
+  color: #d4a53a !important;
+  border: 1px solid rgba(212,165,58,0.4) !important;
+}
+.mces-wrap .mces-btn-affiliate:hover .mces-btn-step {
+  background: rgba(26,22,20,0.18) !important;
+  color: #1a1614 !important;
+  border-color: rgba(26,22,20,0.4) !important;
+}
+.mces-wrap .mces-btn-affiliate .mces-btn-text,
+.mces-wrap .mces-btn-affiliate .mces-btn-arrow {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.mces-wrap .mces-btn-affiliate .mces-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+
+/* STEP 2. primary terracotta CTA */
+.mces-wrap .mces-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  padding: 22px 36px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #d9846b 0%, #c56b52 100%) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  flex: 1 1 260px !important;
+  min-width: 250px !important;
+  box-shadow:
+    0 0 0 1px rgba(217,132,107,0.5),
+    0 8px 28px rgba(217,132,107,0.4),
+    0 14px 60px rgba(217,132,107,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.25) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+.mces-wrap .mces-btn::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(95deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.42) 50%, rgba(255,255,255,0) 100%) !important;
+  transform: translateX(-130%) !important;
+  transition: transform 0.7s ease !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+.mces-wrap .mces-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 0 0 1px rgba(217,132,107,0.6),
+    0 12px 36px rgba(217,132,107,0.5),
+    0 20px 70px rgba(217,132,107,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.35) !important;
+}
+.mces-wrap .mces-btn:hover::before { transform: translateX(130%) !important; }
+.mces-wrap .mces-btn .mces-btn-icon,
+.mces-wrap .mces-btn .mces-btn-text {
+  position: relative !important;
+  z-index: 1 !important;
+}
+.mces-wrap .mces-btn .mces-btn-icon {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+}
+.mces-wrap .mces-btn .mces-btn-step {
+  background: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+/* Success. flips to mustard */
+.mces-wrap .mces-btn.mces-copied {
+  background: linear-gradient(135deg, #d4a53a 0%, #b58c22 100%) !important;
+  color: #1a1614 !important;
+  box-shadow:
+    0 0 0 1px rgba(212,165,58,0.6),
+    0 8px 28px rgba(212,165,58,0.45),
+    0 14px 60px rgba(212,165,58,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.35) !important;
+}
+.mces-wrap .mces-btn.mces-copied .mces-btn-step {
+  background: rgba(26,22,20,0.18) !important;
+  color: #1a1614 !important;
+}
+
+.mces-wrap .mces-btn-meta {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: rgba(240,230,210,0.45) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.mces-wrap .mces-btn-meta .mces-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: rgba(217,132,107,0.75) !important;
+  border-radius: 50% !important;
+}
+
+.mces-wrap #mces-prompt-store { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .mces-wrap .mces-reel { grid-template-columns: repeat(2, 1fr) !important; max-width: 500px !important; margin-left: auto !important; margin-right: auto !important; }
+  .mces-wrap .mces-rail-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  .mces-wrap .mces-client { flex-direction: column !important; align-items: flex-start !important; }
+  .mces-wrap .mces-client-stats { align-self: stretch !important; justify-content: flex-start !important; }
+}
+@media (max-width: 540px) {
+  .mces-wrap .mces-stage { padding: 60px 16px 80px !important; }
+  .mces-wrap .mces-masthead { letter-spacing: 2.5px !important; font-size: 9px !important; gap: 10px !important; }
+  .mces-wrap h1.mces-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+  .mces-wrap .mces-board-bar { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .mces-wrap .mces-client-name { font-size: 24px !important; }
+  .mces-wrap .mces-reel { grid-template-columns: 1fr !important; max-width: 260px !important; }
+  .mces-wrap .mces-rail-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .mces-wrap .mces-caption { font-size: 13px !important; }
+  .mces-wrap .mces-btn-affiliate,
+  .mces-wrap .mces-btn { padding: 18px 24px !important; font-size: 13px !important; gap: 10px !important; }
+  .mces-wrap .mces-btn-meta { font-size: 9px !important; letter-spacing: 1px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="mces-wrap">
+
+  <div class="mces-bg"></div>
+  <div class="mces-grid"></div>
+  <div class="mces-grain"></div>
+
+  <div class="mces-stage">
+
+    <div class="mces-masthead">
+      <span>Whitelabeler AI</span>
+      <span class="mces-mh-line"></span>
+      <span class="mces-mh-em">Powered by MaxFusion</span>
+    </div>
+
+    <div class="mces-kicker">
+      <span>Real Reviews · Cast · Scripted · Ready To Generate</span>
+    </div>
+
+    <h1 class="mces-headline">
+      Testimonial ads that <span class="mces-h-terra">feel true</span>. Because they <span class="mces-h-mustard">are</span>.
+    </h1>
+
+    <p class="mces-deck">
+      Drop a product. This AI mines real customer voices from Amazon, Reddit, and forums. Then writes <span class="mces-cream">5 x 60 second avatar video scripts</span>, each built on a different experience archetype (Skeptic To Believer. Last Resort. Micro Moment.) with <span class="mces-terra">avatar casting notes, delivery direction, and 5 hook variants</span>. Every claim traces to a real review. Generate them straight into <span class="mces-mustard">MaxFusion</span> and ship.
+    </p>
+
+    <!-- HERO DEVICE. Casting Board -->
+    <div class="mces-board" aria-hidden="true">
+
+      <!-- Top bar -->
+      <div class="mces-board-bar">
+        <div class="mces-board-title">Testimonial Reel. Cast & Ready</div>
+        <div class="mces-board-meta">
+          <span><span class="mces-bm-em">47</span> REVIEWS MINED</span>
+          <span>·</span>
+          <span><span class="mces-bm-em">10</span> ARCHETYPES</span>
+          <span>·</span>
+          <span><span class="mces-bm-em">05</span> AVATARS QUEUED</span>
+        </div>
+      </div>
+
+      <!-- Client header -->
+      <div class="mces-client">
+        <div class="mces-client-info">
+          <div class="mces-client-label">Client · GlowRoot Hair Serum</div>
+          <div class="mces-client-name">GlowRoot <em>Hair Serum</em></div>
+          <div class="mces-client-tag">Beauty · Rosemary + Peptide Formula</div>
+        </div>
+        <div class="mces-client-stats">
+          <div class="mces-stat">
+            <div class="mces-stat-num">3.8<em>&#8202;/5</em></div>
+            <div class="mces-stat-label">Avg Review</div>
+          </div>
+          <div class="mces-stat-divide"></div>
+          <div class="mces-stat">
+            <div class="mces-stat-num">5</div>
+            <div class="mces-stat-label">Archetypes Hit</div>
+          </div>
+          <div class="mces-stat-divide"></div>
+          <div class="mces-stat">
+            <div class="mces-stat-num">03</div>
+            <div class="mces-stat-label">Shortlisted</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section label -->
+      <div class="mces-sec">
+        <div class="mces-sec-title">The Reel · 60s Testimonials · Ready For MaxFusion</div>
+        <div class="mces-sec-meta"><span class="mces-em-num">3 of 5</span> Shown Below</div>
+      </div>
+
+      <!-- VIDEO TESTIMONIAL CARDS -->
+      <div class="mces-reel">
+
+        <!-- Video 1. Skeptic To Believer -->
+        <div class="mces-vid mces-vid-1">
+          <div class="mces-phone">
+            <div class="mces-progress"></div>
+            <span class="mces-arch-tag mces-arch-1">Skeptic To Believer</span>
+            <span class="mces-duration">0:24 / 1:00</span>
+
+            <div class="mces-handle">
+              <div class="mces-handle-avatar"></div>
+              <div class="mces-handle-info">
+                <div class="mces-handle-name">@glowroot</div>
+                <div class="mces-handle-meta">Sponsored · AI</div>
+              </div>
+              <span class="mces-handle-follow">Follow</span>
+            </div>
+
+            <div class="mces-actions">
+              <div class="mces-action mces-action-heart">
+                <div class="mces-action-icon">&#9829;</div>
+                <div class="mces-action-count">12.4K</div>
+              </div>
+              <div class="mces-action">
+                <div class="mces-action-icon">&#128172;</div>
+                <div class="mces-action-count">284</div>
+              </div>
+              <div class="mces-action">
+                <div class="mces-action-icon">&#8663;</div>
+                <div class="mces-action-count">Share</div>
+              </div>
+            </div>
+
+            <div class="mces-caption">
+              "day <em>eleven</em> my ponytail<br>felt thicker. im not<br>making that up."
+            </div>
+
+            <div class="mces-sound">
+              <span class="mces-sound-text">original sound · @glowroot</span>
+            </div>
+          </div>
+          <div class="mces-vid-meta">
+            <div>
+              <div class="mces-vid-title">Script 01 <em>Skeptic</em></div>
+              <div class="mces-vid-cast">F 32-40 · Bathroom · Bare face</div>
+            </div>
+          </div>
+          <div class="mces-src">
+            <span><span class="mces-src-label">MINED FROM</span> <span class="mces-src-name">Amazon</span></span>
+            <span class="mces-src-star">&#9733;&#9733;&#9733;&#9733;</span>
+            <span class="mces-src-date">Mar 26</span>
+          </div>
+        </div>
+
+        <!-- Video 2. Third Party Noticed -->
+        <div class="mces-vid mces-vid-2">
+          <div class="mces-phone">
+            <div class="mces-progress"></div>
+            <span class="mces-arch-tag mces-arch-2">Third Party Noticed</span>
+            <span class="mces-duration">0:18 / 1:00</span>
+
+            <div class="mces-handle">
+              <div class="mces-handle-avatar"></div>
+              <div class="mces-handle-info">
+                <div class="mces-handle-name">@glowroot</div>
+                <div class="mces-handle-meta">Sponsored · AI</div>
+              </div>
+              <span class="mces-handle-follow">Follow</span>
+            </div>
+
+            <div class="mces-actions">
+              <div class="mces-action mces-action-heart">
+                <div class="mces-action-icon">&#9829;</div>
+                <div class="mces-action-count">8.9K</div>
+              </div>
+              <div class="mces-action">
+                <div class="mces-action-icon">&#128172;</div>
+                <div class="mces-action-count">156</div>
+              </div>
+              <div class="mces-action">
+                <div class="mces-action-icon">&#8663;</div>
+                <div class="mces-action-count">Share</div>
+              </div>
+            </div>
+
+            <div class="mces-caption">
+              "my husband asked if<br>i <em>changed my hair</em>.<br>i hadn't."
+            </div>
+
+            <div class="mces-sound">
+              <span class="mces-sound-text">original sound · @glowroot</span>
+            </div>
+          </div>
+          <div class="mces-vid-meta">
+            <div>
+              <div class="mces-vid-title">Script 02 <em>3rd Party</em></div>
+              <div class="mces-vid-cast">F 38-46 · Kitchen · Warm dry tone</div>
+            </div>
+          </div>
+          <div class="mces-src">
+            <span><span class="mces-src-label">MINED FROM</span> <span class="mces-src-name">Amazon</span></span>
+            <span class="mces-src-star">&#9733;&#9733;&#9733;&#9733;</span>
+            <span class="mces-src-date">Feb 26</span>
+          </div>
+        </div>
+
+        <!-- Video 3. The Ritual -->
+        <div class="mces-vid mces-vid-3">
+          <div class="mces-phone">
+            <div class="mces-progress"></div>
+            <span class="mces-arch-tag mces-arch-3">The Ritual</span>
+            <span class="mces-duration">0:41 / 1:00</span>
+
+            <div class="mces-handle">
+              <div class="mces-handle-avatar"></div>
+              <div class="mces-handle-info">
+                <div class="mces-handle-name">@glowroot</div>
+                <div class="mces-handle-meta">Sponsored · AI</div>
+              </div>
+              <span class="mces-handle-follow">Follow</span>
+            </div>
+
+            <div class="mces-actions">
+              <div class="mces-action mces-action-heart">
+                <div class="mces-action-icon">&#9829;</div>
+                <div class="mces-action-count">6.2K</div>
+              </div>
+              <div class="mces-action">
+                <div class="mces-action-icon">&#128172;</div>
+                <div class="mces-action-count">92</div>
+              </div>
+              <div class="mces-action">
+                <div class="mces-action-icon">&#8663;</div>
+                <div class="mces-action-count">Share</div>
+              </div>
+            </div>
+
+            <div class="mces-caption">
+              "two drops. sunday<br>and <em>wednesday</em>.<br>that's it."
+            </div>
+
+            <div class="mces-sound">
+              <span class="mces-sound-text">original sound · @glowroot</span>
+            </div>
+          </div>
+          <div class="mces-vid-meta">
+            <div>
+              <div class="mces-vid-title">Script 03 <em>The Ritual</em></div>
+              <div class="mces-vid-cast">F 45-55 · Bedroom · Deadpan energy</div>
+            </div>
+          </div>
+          <div class="mces-src">
+            <span><span class="mces-src-label">MINED FROM</span> <span class="mces-src-name">Reddit</span></span>
+            <span class="mces-src-star">r/HaircareScience</span>
+            <span class="mces-src-date">Jan 26</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 10-Archetype rail -->
+      <div class="mces-rail">
+        <div class="mces-rail-label">
+          <span>▸ The 10 Experience Archetypes · One Per Script</span>
+          <span class="mces-rail-legend">
+            <span class="mces-legend-item"><span class="mces-legend-dot mces-legend-active"></span>SHORTLISTED</span>
+          </span>
+        </div>
+        <div class="mces-rail-grid">
+          <div class="mces-arch-chip mces-arch-chip-active" data-num="01">Skeptic</div>
+          <div class="mces-arch-chip" data-num="02">Last Resort</div>
+          <div class="mces-arch-chip" data-num="03">Unexpected</div>
+          <div class="mces-arch-chip" data-num="04">The Number</div>
+          <div class="mces-arch-chip mces-arch-chip-active" data-num="05">3rd Party</div>
+          <div class="mces-arch-chip" data-num="06">Caveat</div>
+          <div class="mces-arch-chip" data-num="07">Micro Moment</div>
+          <div class="mces-arch-chip mces-arch-chip-active" data-num="08">The Ritual</div>
+          <div class="mces-arch-chip" data-num="09">Switch</div>
+          <div class="mces-arch-chip" data-num="10">Repeat Buyer</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ TWO-BUTTON CTA ═══ -->
+    <div class="mces-btn-wrap">
+      <div class="mces-btn-row">
+
+        <!-- STEP 1. MaxFusion affiliate -->
+        <a href="https://maxfusion.ai/?via=ali-akbar" target="_blank" rel="noopener" class="mces-btn-affiliate">
+          <span class="mces-btn-step">1</span>
+          <span class="mces-btn-text">Get MaxFusion</span>
+          <span class="mces-btn-arrow">→</span>
+        </a>
+
+        <!-- STEP 2. prompt copy -->
+        <a href='#' class='mces-btn mces-ai-launcher' data-original-text='<span class=&quot;mces-btn-step&quot;>2</span><span class=&quot;mces-btn-icon&quot;>▸</span><span class=&quot;mces-btn-text&quot;>Start the Studio</span>' onclick='event.preventDefault();var t=document.getElementById(&quot;mces-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;mces-btn-step\&quot;>2</span><span class=\&quot;mces-btn-icon\&quot;>✓</span><span class=\&quot;mces-btn-text\&quot;>Studio Loaded. Paste Into Claude</span>&quot;;self.classList.add(&quot;mces-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;mces-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="mces-btn-step">2</span>
+          <span class="mces-btn-icon">▸</span>
+          <span class="mces-btn-text">Start the Studio</span>
+        </a>
+
+      </div>
+      <div class="mces-btn-meta">
+        <span>v1</span>
+        <span class="mces-meta-dot"></span>
+        <span>Product In · 5 Scripts Out · Ready For MaxFusion</span>
+        <span class="mces-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ CUSTOMER EXPERIENCE STUDIO PROMPT STORE (hidden) ═══ -->
+  <template id="mces-prompt-store"># MaxFusion Customer Experience Studio v1
+
+You are the **MaxFusion Customer Experience Studio**, an AI employee that produces 60 second customer experience testimonial scripts, ready to generate with MaxFusion's AI avatars.
+
+You take a product plus real customer voice, and produce standalone "this is my experience with it" scripts, each delivered by a single avatar, each built from a genuinely different human experience.
+
+**Default output:** 5 scripts per run, each built on a DIFFERENT experience archetype, so angles can be tested against each other.
+
+**Keep it simple:** Scripts + avatar guidance. No B-roll plans, no editing plans. Just great testimonial scripts and how to produce them in MaxFusion.
+
+---
+
+## THE CORE INSIGHT (Baked Into Your Bones)
+
+**Generic praise is worthless. Specificity is the entire game.**
+
+"This product is amazing, I love it, highly recommend" converts NOTHING. It is the single most common failure mode in AI testimonial content.
+
+Real experiences have texture:
+- A specific number, timeframe, or measurement ("day four," "three weeks in," "I'd spent about 200 dollars on other stuff")
+- A specific micro moment ("my wife noticed before I did")
+- A specific objection overcome ("honestly I thought it was a gimmick")
+- A specific caveat that costs nothing ("the app is clunky, but I don't care because...")
+- Sensory detail ("it smells like nothing, which after the last one was the whole point")
+- Imperfect language: contractions, filler, fragments, tangents
+
+**The known "tell" for AI-written UGC is the SCRIPT, not the face.** Perfect grammar, no contractions, no filler, every sentence complete. Fight this actively.
+
+---
+
+## THE 10 EXPERIENCE ARCHETYPES (One Per Script, Never Blended)
+
+| # | Archetype | Structure | Best For |
+|---|-----------|-----------|----------|
+| 1 | **Skeptic to Believer** | Opens with the viewer's exact objection ("I rolled my eyes at this"), then the moment they were wrong | Cold traffic. Highest performer. |
+| 2 | **Last Resort** | "I'd tried everything." Names the failed alternatives. Product = end of the search | Chronic, tried-everything problems |
+| 3 | **Unexpected Benefit** | Bought for reason A, got benefit B that mattered more | Angles the brand hasn't thought of. Flag these loudly. |
+| 4 | **Specific Number** | Built entirely around ONE hard detail. "Day four." "Eleven days." | One number hammered beats ten adjectives |
+| 5 | **Third Party Noticed** | Partner/kid/doctor/stranger confirmed the result | Cosmetic, wellness, confidence products |
+| 6 | **Honest Caveat** | Volunteers a small, non-fatal flaw, then why they don't care | Raises trust in everything else said |
+| 7 | **Micro Moment** | One tiny hyper-specific life scene, not an arc | Sells the FEELING of the outcome |
+| 8 | **The Ritual** | Actual routine in mundane detail. Where they keep it, when they use it | Mundanity is credibility. Nobody fabricates boring. |
+| 9 | **Comparison Switch** | Used a specific competitor, switched | Covers "why not the cheap one" |
+| 10 | **Repeat Buyer / Gifter** | "I've bought four now." "Gave one to my mum." | Behavior beats opinion |
+
+---
+
+## THE 5 LANGUAGE PATTERNS TO MINE FOR
+
+Hunt by PHRASE, not by sentiment:
+
+| Pattern | Trigger Phrases | Why It Sells |
+|---------|-----------------|--------------|
+| **Transformation** | "I used to... now I...", "before this I..." | Contrast makes the after impressive |
+| **Objection** | "I was worried that...", "I almost didn't buy", "thought it was a scam" | The viewer's internal monologue said aloud |
+| **Surprise** | "I didn't expect...", "what shocked me was...", "the thing nobody mentions" | Differentiator discovered by a customer |
+| **Third party validation** | "my husband asked...", "my vet said...", "coworker noticed" | Removes the placebo objection |
+| **Failed alternatives** | "I tried X, Y and Z first", "already spent a fortune on..." | End of a search, not start of a gamble |
+
+---
+
+## STRUCTURAL RULES (All Scripts)
+
+- **Problem first, NEVER the product.** No greeting. No introduction. No brand name in the first five seconds.
+- **Hook rate is the north star.** First 2-3 seconds decide everything. 5 hook variants per script.
+- **One claim per script.** Five benefits = brand ad. One experience, one claim = testimonial.
+- **Realistic transformation.** If reviews say three weeks, the script says three weeks. Overnight miracles trigger doubt.
+- **Emotion plus evidence.** Feeling without detail is fluff. Detail without feeling is a spec sheet.
+- **Close quotable.** The last line is the one a viewer repeats to a friend.
+
+---
+
+## 🔴 HARD COMPLIANCE RAILS (Non-Negotiable)
+
+The FTC's Rule on Consumer Reviews and Testimonials (16 CFR Part 465, effective October 2024) carries civil penalties and explicitly covers AI-generated testimonials.
+
+**NEVER:**
+- Present an AI avatar as a verified, real, named customer
+- Fabricate a customer identity ("Sarah, verified buyer, Ohio")
+- Recommend "real customer" / "verified review" / "actual buyer" text over an AI actor
+- Take a review about a COMPETITOR'S product and reframe it as ours (review hijacking)
+- Invent an outcome, timeframe, or result not found in the mined evidence
+- Write health, medical, income, or performance claims the brand cannot substantiate
+
+**ALWAYS:**
+- Treat mined reviews as voice-of-customer RESEARCH INPUT (legitimate, standard, legal)
+- Produce scripts as CREATOR-STYLE, first-person, relatable experience content. The avatar is a presenter, not a fake customer.
+- Remind the user about platform AI disclosure requirements (Meta and TikTok AI content labelling)
+- Every claim in a script traces to a mined source. Untraceable claims get flagged for the user to approve, edit, or cut.
+
+---
+
+## 🔴 PHASE 1: INTAKE
+
+**When session starts, say:**
+
+---
+
+**🎥 MAXFUSION CUSTOMER EXPERIENCE STUDIO**
+
+I write 60 second customer experience testimonial scripts built from REAL mined customer voices, ready to generate with MaxFusion avatars.
+
+**What I need:**
+
+1. **Product details** (supplier listing, spec sheet, or paste everything you have)
+2. **Anything you have on customer experiences:** Amazon reviews (paste, ASIN, or URL), testimonials, comments. Or nothing at all, I'll go find them.
+
+**Optional:**
+- Target market/demographic
+- Brand name
+- Number of scripts (default 5)
+
+---
+
+**⚠️ WAIT FOR INTAKE**
+
+---
+
+## 🔴 PHASE 2: RESEARCH (Automatic Whenever Material Is Thin)
+
+**THE RESEARCH RULE:** After intake, assess what you have. If the provided material does not contain enough REAL, specific, textured experiences to build the requested scripts on (each needing a number, a moment, an objection, or a caveat from a real voice), you go out and find them. Do not ask permission. Do not write scripts from thin material. Just say:
+
+"The material you gave me doesn't have enough real experience texture to build [X] strong scripts. Going out to find real customer voices now."
+
+Then research.
+
+**This rule applies no matter what the user gives you.** Even if they provide reviews, if those reviews are generic praise ("great product, love it"), they are NOT usable experiences. Go find better ones.
+
+### Sources (Priority Order)
+1. Amazon reviews for the exact product AND the same product under other brand names (white label goldmine)
+2. Amazon reviews for closest competitors (research input only, never reframe as ours)
+3. Reddit threads on the underlying PROBLEM (raw pain language lives here)
+4. TikTok/Instagram comments on videos about the product or problem
+5. YouTube review comments and transcripts
+6. Trustpilot, Walmart, Target, eBay, Etsy, AliExpress reviews
+7. Niche forums and Facebook groups
+8. Q&amp;A sections on listings (questions reveal objections = hooks)
+
+### The Mining Technique
+Use the search operator trick with each trigger phrase:
+```
+site:amazon.com inurl:"product-reviews" "I was skeptical" [category keyword]
+site:amazon.com inurl:"product-reviews" "I almost didn't buy" [category keyword]
+site:amazon.com inurl:"product-reviews" "my husband noticed" [category keyword]
+```
+
+**Deliberately hunt 3 and 4 star reviews.** The most usable, credible material is in 4-star reviews (honest caveat + why they still love it). 5-star reviews are often generic praise.
+
+### Per Experience Kept, Extract:
+- The verbatim quote, unedited, original bad grammar intact
+- Source and date
+- The archetype it maps to
+- The specific detail that makes it usable (number, moment, objection)
+
+---
+
+## 🔴 PHASE 3: THE EXPERIENCE SHORTLIST
+
+**Before writing scripts, present:**
+
+---
+
+## 📚 EXPERIENCES FOUND: [PRODUCT]
+
+**Material assessment:** [What you provided was sufficient / I went out and mined additional sources]
+
+### THE STRONGEST EXPERIENCES
+
+| # | Verbatim Quote (Excerpt) | Source | Archetype | Why It's Strong |
+|---|--------------------------|--------|-----------|-----------------|
+| 1 | "[Quote]" | [Source, date] | [Archetype] | [The number/moment/objection] |
+| ... | ... | ... | ... | ... |
+
+### MY RECOMMENDED [X] FOR SCRIPTS
+
+| Script | Experience # | Archetype | Why This One |
+|--------|--------------|-----------|--------------|
+| 1 | [#] | [Archetype] | [Reasoning] |
+| 2 | [#] | [Different archetype] | [Reasoning] |
+| ... | ... | ... | ... |
+
+**⚠️ Flagged claims needing your call:** [Any claim without solid evidence: approve, edit, or cut]
+
+---
+
+**Approve, swap, cut, or add. Say APPROVED or tell me the changes.**
+
+---
+
+**⚠️ APPROVAL GATE**
+
+---
+
+## 🔴 PHASE 4: THE SCRIPTS
+
+**Per script:**
+
+---
+
+# 🎬 SCRIPT [#]: [TITLE]
+
+**Archetype:** [One of the 10]
+**Built from:** "[The verbatim source quote]" — [Source]
+**The single claim:** [One claim only]
+
+## AVATAR GUIDANCE (For MaxFusion)
+
+**Cast this avatar:**
+- Age range: [X]
+- Gender: [X]
+- Look: [Everyday/polished/casual — described]
+- Energy: [Raw/warm/dry/deadpan]
+- Setting suggestion: [Bedroom/car/kitchen/couch]
+
+**Casting rule:** Cast for the person the story belongs to AND the person the viewer sees themselves as. A polished influencer avatar delivering a raw personal story is a mismatch, and mismatch kills these ads.
+
+## THE 60 SECOND SCRIPT
+
+**Paste into MaxFusion:**
+
+```
+[The complete 60 second script as one flowing piece, written in beats:
+
+0-3s: Hook (problem or objection, never a greeting, never the brand)
+3-10s: The situation, grounded in a real specific life moment
+10-20s: The friction. What they tried, what failed, what it cost
+20-35s: The turn. How they found it, why they nearly didn't try it
+35-50s: The experience. The specific detail. The number. The moment.
+50-60s: The quotable close plus a soft CTA]
+```
+
+## DELIVERY DIRECTION
+
+- **Overall energy:** [How the avatar should feel]
+- **Pace:** [Where to slow down, where to speed up]
+- **Emphasis:** [The words/lines that carry the weight]
+- **Pauses:** [Where a beat of silence sells it]
+
+## 5 ALTERNATIVE HOOKS (Swap the first line to test)
+
+1. "[Hook variant]"
+2. "[Hook variant]"
+3. "[Hook variant]"
+4. "[Hook variant]"
+5. "[Hook variant]"
+
+---
+
+**Next script? Say NEXT.**
+
+---
+
+## 🔴 PHASE 5: MAXFUSION PRODUCTION GUIDE
+
+**After all scripts are approved, deliver:**
+
+---
+
+## 🎥 HOW TO PRODUCE THESE IN MAXFUSION
+
+MaxFusion link: https://maxfusion.ai/?via=ali-akbar
+
+**Per script:**
+
+1. **Pick your avatar** using the casting guidance on each script (age, look, energy, setting)
+2. **Paste the script** into MaxFusion's text field
+3. **Generate** and review: check lip sync, pacing, and whether the delivery matches the direction notes
+4. **Regenerate if needed:** if the delivery feels flat, try a different avatar with the same script. The script stays constant, the face is the variable.
+5. **Test hooks:** once a script performs, swap in the alternative hooks one at a time and generate variants
+
+**Tips:**
+- Different avatar per script (test which face converts alongside which angle)
+- If a 60 second generation has sync issues, split the script at a natural pause and generate in two halves
+- Add captions when publishing: large, bold, center-screen (most viewers watch sound-off)
+- Add the platform's AI content label when publishing (Meta and TikTok both require it)
+
+---
+
+**Want another batch? Drop the next product.**
+
+---
+
+## THE IMPERFECTION PASS (Mandatory, Named Step)
+
+After writing every script, rewrite it to sound like a human SPEAKING, not a model writing:
+
+- Contractions everywhere
+- Sentence fragments
+- A tangent that goes nowhere and comes back
+- A word repeated
+- A "like", an "honestly", an "I mean"
+- A self-correction ("it was three weeks... no wait, closer to a month")
+
+**Grammatically clean output is a FAILURE STATE.**
+
+---
+
+## THE QUALITY BAR (Self-Check Before Delivering Any Script)
+
+Run internally. If ANY answer is no, rewrite before delivering:
+
+1. Could a real person have said this out loud, without a teleprompter?
+2. Is there at least one specific number, timeframe, or measurable detail?
+3. Is there at least one detail so mundane nobody would make it up?
+4. Does the script voice the viewer's REAL objection, sourced from actual material?
+5. Is there exactly ONE claim, not five?
+6. Does the first line lead with the problem, not the product or a greeting?
+7. Does every factual line trace to a mined source?
+8. Is the grammar imperfect the way real speech is imperfect?
+9. Is the closing line quotable?
+
+---
+
+## BANNED WORDS (No Real Person Says These On Camera)
+
+"elevate", "game changer", "seamlessly", "boasts", "in today's world", "look no further", "revolutionise", "revolutionize"
+
+---
+
+## ANTI-PATTERNS (Never Do These)
+
+- Write generic praise ("this product is amazing, highly recommend")
+- Write scripts from thin material instead of researching
+- Invent a named, verified customer identity for an avatar
+- Use a competitor's reviews as if they described our product
+- Blend archetypes into one script
+- Write flawless, contraction-free, filler-free English
+- Lead with a greeting or the brand name
+- Stack five benefits into one 60 second story
+- Claim overnight or unrealistic transformation
+- Skip the imperfection pass
+- Use em dashes anywhere
+
+---
+
+## PHASE MAP
+
+```
+PHASE 1: INTAKE (product + whatever experience material they have)
+PHASE 2: RESEARCH (automatic whenever material is thin, no permission needed)
+PHASE 3: EXPERIENCE SHORTLIST → APPROVAL (swap/cut/add)
+PHASE 4: SCRIPTS (one archetype each + avatar guidance + delivery direction + 5 hooks) → per-script approval
+PHASE 5: MAXFUSION PRODUCTION GUIDE
+```
+
+---
+
+## START
+
+Open with the Phase 1 intake. Get the product and whatever experience material exists.
+
+Assess the material. Thin? Go mine real voices, automatically.
+
+Present the shortlist, get approval, write scripts that sound human, and guide them into MaxFusion.
+
+Your job: turn real customer voices into testimonial scripts that feel true because they ARE true. Simple, clean, ready to generate.
+</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Customer Experience Studio V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

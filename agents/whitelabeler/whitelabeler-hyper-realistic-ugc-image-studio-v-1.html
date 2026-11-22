@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whitelabeler Hyper Realistic UGC Image Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .ugc-wrap ═══ */
+.ugc-wrap{
+  position:relative!important; width:100%!important; max-width:100%!important;
+  min-height:100vh!important; margin:0!important; padding:0!important;
+  overflow:hidden!important; box-sizing:border-box!important;
+  font-family:'Inter',system-ui,-apple-system,sans-serif!important;
+  background:#FAF5EE!important; color:#2A2521!important;
+  -webkit-font-smoothing:antialiased!important;
+}
+.ugc-wrap *,.ugc-wrap *::before,.ugc-wrap *::after{box-sizing:border-box!important;}
+
+/* ambient mixed-temperature light + faint grain */
+.ugc-wrap .ugc-bg{
+  position:absolute!important; inset:0!important; z-index:0!important; pointer-events:none!important;
+  background:
+    radial-gradient(820px 460px at 14% -4%, rgba(120,175,225,0.20), transparent 60%),
+    radial-gradient(900px 520px at 88% 8%, rgba(240,165,80,0.22), transparent 60%),
+    radial-gradient(1200px 700px at 50% 120%, rgba(240,165,80,0.10), transparent 60%)!important;
+}
+.ugc-wrap .ugc-grain{
+  position:absolute!important; inset:0!important; z-index:0!important; pointer-events:none!important;
+  opacity:0.55!important;
+  background-image:radial-gradient(rgba(70,50,25,0.05) 1px, transparent 1px)!important;
+  background-size:3px 3px!important;
+}
+
+/* stage */
+.ugc-wrap .ugc-stage{
+  position:relative!important; z-index:1!important;
+  max-width:1000px!important; width:100%!important; margin:0 auto!important;
+  padding:84px 24px 96px!important;
+  display:flex!important; flex-direction:column!important; align-items:center!important; text-align:center!important;
+}
+
+/* badge */
+.ugc-wrap .ugc-badge{
+  display:inline-flex!important; align-items:center!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; font-weight:500!important;
+  letter-spacing:0.18em!important; text-transform:uppercase!important; color:#B06B22!important;
+  background:rgba(232,145,58,0.10)!important; border:1px solid rgba(232,145,58,0.34)!important;
+  padding:7px 14px!important; border-radius:9999px!important; margin-bottom:26px!important;
+}
+.ugc-wrap .ugc-badge::before{
+  content:''!important; width:6px!important; height:6px!important; border-radius:50%!important;
+  background:#E8913A!important; box-shadow:0 0 10px rgba(232,145,58,0.85)!important; flex-shrink:0!important;
+}
+
+/* headline */
+.ugc-wrap h1.ugc-headline{
+  font-family:'Geist',system-ui,sans-serif!important; font-weight:600!important;
+  font-size:clamp(2.5rem,6vw,4.25rem)!important; line-height:1.04!important; letter-spacing:-0.025em!important;
+  margin:0 0 20px!important; color:#241F1B!important; max-width:15ch!important; text-wrap:balance!important;
+}
+.ugc-wrap h1.ugc-headline .ugc-grad{
+  background:linear-gradient(115deg,#E8913A 0%,#D9772F 30%,#4E93D6 100%)!important;
+  -webkit-background-clip:text!important; background-clip:text!important;
+  -webkit-text-fill-color:transparent!important; color:transparent!important;
+}
+
+/* subtitle */
+.ugc-wrap p.ugc-subtitle{
+  font-family:'Inter',sans-serif!important; font-size:clamp(1rem,1.35vw,1.15rem)!important; line-height:1.65!important;
+  color:#6B6459!important; max-width:600px!important; margin:0 auto 46px!important; font-weight:400!important; text-wrap:pretty!important;
+}
+
+/* ─── SIGNATURE: iPhone VIEWFINDER over a candid counter still-life ─── */
+.ugc-wrap .ugc-frame{
+  position:relative!important; width:100%!important; max-width:860px!important; aspect-ratio:16/10!important;
+  border-radius:20px!important; overflow:hidden!important; margin:0 auto 30px!important;
+  background:#EFE6D6!important;
+  box-shadow:0 0 0 1px rgba(60,40,20,0.10), 0 26px 60px rgba(60,40,20,0.18), 0 8px 22px rgba(78,147,214,0.10)!important;
+  transform:rotate(-1.2deg)!important;
+  animation:ugc-sway 10s ease-in-out infinite!important;
+}
+@keyframes ugc-sway{0%,100%{transform:rotate(-1.2deg) translateY(0)}50%{transform:rotate(-0.4deg) translateY(-7px)}}
+
+.ugc-wrap .ugc-scene{position:absolute!important; inset:0!important; overflow:hidden!important; z-index:1!important;}
+
+/* surface */
+.ugc-wrap .ugc-counter{
+  position:absolute!important; left:0!important; right:0!important; bottom:0!important; height:34%!important;
+  background:linear-gradient(180deg,#E7D6BC 0%,#D6C0A0 100%)!important;
+}
+.ugc-wrap .ugc-counter::before{
+  content:''!important; position:absolute!important; left:0!important; right:0!important; top:0!important; height:2px!important;
+  background:linear-gradient(90deg,transparent,rgba(255,248,235,0.8),transparent)!important;
+}
+
+/* soft shadows (light from upper-left -> shadows fall lower-right) */
+.ugc-wrap .ugc-shadow{
+  position:absolute!important; bottom:31%!important; height:5%!important; border-radius:50%!important;
+  background:radial-gradient(ellipse at center, rgba(60,40,20,0.32), transparent 72%)!important; filter:blur(2px)!important;
+}
+.ugc-wrap .ugc-shadow.s-bottle{left:30%!important; width:20%!important;}
+.ugc-wrap .ugc-shadow.s-mug{left:58%!important; width:15%!important; opacity:0.7!important;}
+
+/* the product (stays realistic/neutral: authenticity is the aesthetic) */
+.ugc-wrap .ugc-bottle{
+  position:absolute!important; left:37%!important; bottom:33%!important; width:66px!important; height:116px!important;
+  border-radius:15px 15px 11px 11px!important;
+  background:linear-gradient(160deg,#FBF6EE 0%,#EDE2D2 60%,#DED0BB 100%)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.4), inset -6px 0 12px rgba(120,95,60,0.18)!important;
+}
+.ugc-wrap .ugc-cap{
+  position:absolute!important; top:-15px!important; left:50%!important; transform:translateX(-50%)!important;
+  width:38px!important; height:19px!important; border-radius:6px 6px 4px 4px!important;
+  background:linear-gradient(180deg,#3A322A,#231E19)!important;
+}
+.ugc-wrap .ugc-gloss{
+  position:absolute!important; top:10px!important; left:20%!important; width:12%!important; height:66%!important;
+  border-radius:8px!important; background:linear-gradient(180deg,rgba(255,255,255,0.75),transparent)!important; opacity:0.7!important;
+}
+
+/* authentic clutter: a mug */
+.ugc-wrap .ugc-mug{
+  position:absolute!important; left:58%!important; bottom:33%!important; width:52px!important; height:52px!important;
+  border-radius:7px 7px 12px 12px!important;
+  background:linear-gradient(160deg,#EFE6D8,#D9CBB4)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.35)!important;
+}
+.ugc-wrap .ugc-mug::before{ /* handle */
+  content:''!important; position:absolute!important; right:-15px!important; top:12px!important; width:18px!important; height:24px!important;
+  border:5px solid #DBCDB6!important; border-left:none!important; border-radius:0 12px 12px 0!important;
+}
+.ugc-wrap .ugc-mug::after{ /* rim */
+  content:''!important; position:absolute!important; left:6px!important; right:6px!important; top:5px!important; height:7px!important;
+  border-radius:50%!important; background:rgba(90,65,40,0.25)!important;
+}
+
+/* ─── THE INFLUENCER (mid-selfie) ─── */
+.ugc-wrap .ugc-creator{position:absolute!important; inset:0!important; z-index:3!important; pointer-events:none!important;}
+
+.ugc-wrap .ugc-torso{
+  position:absolute!important; left:33%!important; bottom:0!important; transform:translateX(-50%)!important;
+  width:232px!important; height:210px!important;
+  background:linear-gradient(160deg,#8098B8 0%,#6E86A6 55%,#566D8E 100%)!important;
+  border-radius:132px 132px 0 0 / 172px 172px 0 0!important; z-index:2!important;
+}
+.ugc-wrap .ugc-torso::before{ /* neckline shadow */
+  content:''!important; position:absolute!important; left:50%!important; top:8px!important; transform:translateX(-50%)!important;
+  width:64px!important; height:30px!important; border-radius:0 0 40px 40px!important; background:rgba(40,55,80,0.35)!important;
+}
+
+.ugc-wrap .ugc-hair-back{
+  position:absolute!important; left:33%!important; top:14%!important; transform:translateX(-50%)!important;
+  width:122px!important; height:156px!important; border-radius:62px 62px 48px 48px!important;
+  background:linear-gradient(160deg,#3A2C22 0%,#241A13 72%)!important; z-index:2!important;
+}
+
+.ugc-wrap .ugc-neck{
+  position:absolute!important; left:33%!important; top:38%!important; transform:translateX(-50%)!important;
+  width:38px!important; height:46px!important;
+  background:linear-gradient(180deg,#D6996A,#C1834F)!important; border-radius:11px!important; z-index:2!important;
+}
+
+.ugc-wrap .ugc-head{
+  position:absolute!important; left:33%!important; top:19%!important; transform:translateX(-50%)!important;
+  width:86px!important; height:102px!important;
+  border-radius:48% 48% 46% 46% / 55% 55% 45% 45%!important;
+  background:radial-gradient(120% 120% at 30% 32%, #F3CB9F 0%, #E3AE85 46%, #C98D60 100%)!important;
+  box-shadow:inset -9px -7px 16px rgba(120,80,45,0.28)!important; z-index:3!important;
+}
+.ugc-wrap .ugc-cheek{
+  position:absolute!important; left:26%!important; bottom:24%!important; width:22px!important; height:13px!important;
+  border-radius:50%!important; background:rgba(226,130,108,0.32)!important; filter:blur(3px)!important;
+}
+.ugc-wrap .ugc-hair-fringe{
+  position:absolute!important; left:33%!important; top:17.5%!important; transform:translateX(-50%)!important;
+  width:96px!important; height:54px!important;
+  border-radius:48px 48px 42px 42px / 42px 42px 30px 30px!important;
+  background:linear-gradient(160deg,#4A3729,#2A1F17)!important; z-index:4!important;
+}
+
+/* raised selfie arm, pivots at the shoulder; phone rides at the top */
+.ugc-wrap .ugc-arm{
+  position:absolute!important; left:41%!important; top:calc(58% - 232px)!important;
+  width:23px!important; height:232px!important; border-radius:12px!important;
+  background:linear-gradient(180deg,#E1A778,#C6875A)!important;
+  transform:translateX(-50%) rotate(-27deg)!important; transform-origin:50% 100%!important; z-index:5!important;
+}
+.ugc-wrap .ugc-hand{
+  position:absolute!important; top:-15px!important; left:50%!important; transform:translateX(-50%)!important;
+  width:31px!important; height:31px!important; border-radius:50% 50% 46% 46%!important;
+  background:radial-gradient(circle at 40% 34%, #EEBD92, #D0905C)!important;
+}
+.ugc-wrap .ugc-phone{
+  position:absolute!important; top:-60px!important; left:50%!important; transform:translateX(-50%) rotate(14deg)!important;
+  width:39px!important; height:76px!important; border-radius:9px!important;
+  background:#17161A!important; box-shadow:0 6px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)!important;
+}
+.ugc-wrap .ugc-phone-screen{
+  position:absolute!important; inset:4px!important; border-radius:6px!important;
+  background:linear-gradient(160deg,#EAF3FF,#B9D6FA)!important;
+  box-shadow:0 0 16px rgba(200,225,255,0.9)!important;
+}
+
+/* other hand holding the product up toward camera */
+.ugc-wrap .ugc-prodhand{position:absolute!important; left:22%!important; top:43%!important; transform:translateX(-50%)!important; z-index:5!important;}
+.ugc-wrap .ugc-mini{
+  position:absolute!important; left:0!important; top:0!important; width:27px!important; height:50px!important;
+  border-radius:7px 7px 5px 5px!important;
+  background:linear-gradient(160deg,#F5EBDA,#DDCDB4)!important; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.4)!important;
+  transform:rotate(-18deg)!important;
+}
+.ugc-wrap .ugc-mini-cap{
+  position:absolute!important; top:-7px!important; left:50%!important; transform:translateX(-50%)!important;
+  width:17px!important; height:9px!important; border-radius:3px!important; background:#2E2620!important;
+}
+.ugc-wrap .ugc-grip{
+  position:absolute!important; left:-5px!important; top:22px!important; width:23px!important; height:17px!important;
+  border-radius:9px!important; background:radial-gradient(circle at 40% 34%, #EEBD92, #CE8E5B)!important; transform:rotate(-18deg)!important;
+}
+
+/* phone-screen glow spilling onto the cheek (cool light, over the warm/cool washes) */
+.ugc-wrap .ugc-faceglow{
+  position:absolute!important; left:28%!important; top:24%!important; width:74px!important; height:74px!important;
+  transform:translateX(-50%)!important; border-radius:50%!important;
+  background:radial-gradient(circle, rgba(200,225,255,0.55), transparent 68%)!important;
+  mix-blend-mode:screen!important; z-index:6!important; pointer-events:none!important;
+}
+
+/* mixed light washes over the scene (screen blend = adds light onto product) */
+.ugc-wrap .ugc-window{
+  position:absolute!important; inset:0!important; z-index:4!important; pointer-events:none!important; mix-blend-mode:screen!important;
+  background:radial-gradient(60% 80% at 8% 6%, rgba(150,196,236,0.55), transparent 60%)!important;
+}
+.ugc-wrap .ugc-lamp{
+  position:absolute!important; inset:0!important; z-index:4!important; pointer-events:none!important; mix-blend-mode:screen!important;
+  background:radial-gradient(55% 75% at 96% 96%, rgba(244,168,84,0.5), transparent 60%)!important;
+}
+.ugc-wrap .ugc-scenegrain{
+  position:absolute!important; inset:0!important; z-index:5!important; pointer-events:none!important; opacity:0.5!important;
+  background-image:radial-gradient(rgba(30,20,10,0.10) 1px, transparent 1px)!important; background-size:3px 3px!important;
+}
+
+/* viewfinder overlay */
+.ugc-wrap .ugc-grid{position:absolute!important; inset:0!important; z-index:6!important; pointer-events:none!important;}
+.ugc-wrap .ugc-grid::before,.ugc-wrap .ugc-grid::after{
+  content:''!important; position:absolute!important; background:rgba(255,255,255,0.22)!important;
+}
+.ugc-wrap .ugc-grid::before{left:33.33%!important; right:33.33%!important; top:0!important; bottom:0!important;
+  border-left:1px solid rgba(255,255,255,0.22)!important; border-right:1px solid rgba(255,255,255,0.22)!important; background:transparent!important;}
+.ugc-wrap .ugc-grid::after{top:33.33%!important; bottom:33.33%!important; left:0!important; right:0!important;
+  border-top:1px solid rgba(255,255,255,0.22)!important; border-bottom:1px solid rgba(255,255,255,0.22)!important; background:transparent!important;}
+
+.ugc-wrap .ugc-corner{position:absolute!important; width:22px!important; height:22px!important; z-index:7!important;
+  border:2px solid rgba(255,255,255,0.85)!important;}
+.ugc-wrap .ugc-corner.tl{top:14px!important; left:14px!important; border-right:none!important; border-bottom:none!important; border-radius:5px 0 0 0!important;}
+.ugc-wrap .ugc-corner.tr{top:14px!important; right:14px!important; border-left:none!important; border-bottom:none!important; border-radius:0 5px 0 0!important;}
+.ugc-wrap .ugc-corner.bl{bottom:14px!important; left:14px!important; border-right:none!important; border-top:none!important; border-radius:0 0 0 5px!important;}
+.ugc-wrap .ugc-corner.br{bottom:14px!important; right:14px!important; border-left:none!important; border-top:none!important; border-radius:0 0 5px 0!important;}
+
+/* yellow AF focus square locked on the product */
+.ugc-wrap .ugc-af{
+  position:absolute!important; z-index:8!important; left:26%!important; top:18%!important; width:80px!important; height:96px!important;
+  border:1.6px solid #FFC53D!important; border-radius:9px!important;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.14), 0 0 16px rgba(255,197,61,0.4)!important;
+  animation:ugc-focus 3.6s ease-in-out infinite!important;
+}
+@keyframes ugc-focus{0%,100%{transform:scale(1); opacity:0.95}8%{transform:scale(1.1); opacity:0.6}18%{transform:scale(1); opacity:0.95}}
+.ugc-wrap .ugc-af::after{ /* AE exposure slider handle to the right */
+  content:''!important; position:absolute!important; right:-14px!important; top:50%!important; width:9px!important; height:9px!important;
+  transform:translateY(-50%)!important; border-radius:50%!important; background:#FFC53D!important;
+  box-shadow:0 0 8px rgba(255,197,61,0.7), -13px 0 0 -3px rgba(255,197,61,0.9)!important;
+}
+.ugc-wrap .ugc-af-label{
+  position:absolute!important; z-index:8!important; left:26%!important; top:calc(18% + 102px)!important;
+  font-family:'Geist Mono',monospace!important; font-size:9px!important; letter-spacing:0.14em!important;
+  color:#FFDE8A!important; text-shadow:0 1px 3px rgba(0,0,0,0.5)!important;
+}
+
+/* EXIF HUD readouts */
+.ugc-wrap .ugc-hud{
+  position:absolute!important; z-index:8!important; font-family:'Geist Mono',monospace!important; font-size:10px!important;
+  letter-spacing:0.12em!important; color:rgba(255,255,255,0.92)!important; text-shadow:0 1px 3px rgba(0,0,0,0.55)!important;
+  display:inline-flex!important; align-items:center!important; gap:6px!important;
+}
+.ugc-wrap .ugc-hud.tl{top:44px!important; left:18px!important;}
+.ugc-wrap .ugc-hud.tr{top:44px!important; right:18px!important;}
+.ugc-wrap .ugc-hud.br{bottom:44px!important; right:18px!important;}
+.ugc-wrap .ugc-hud .rec{width:7px!important; height:7px!important; border-radius:50%!important;
+  background:#FFC53D!important; box-shadow:0 0 8px rgba(255,197,61,0.9)!important;}
+
+/* doctrine chips */
+.ugc-wrap .ugc-tags{display:flex!important; flex-wrap:wrap!important; justify-content:center!important; gap:10px!important; margin:0 auto 40px!important; max-width:680px!important;}
+.ugc-wrap .ugc-tag{
+  display:inline-flex!important; align-items:center!important; gap:8px!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; letter-spacing:0.06em!important; text-transform:uppercase!important; color:#7C7263!important;
+  background:rgba(60,40,20,0.04)!important; border:1px solid rgba(60,40,20,0.10)!important; padding:8px 14px!important; border-radius:9999px!important;
+}
+.ugc-wrap .ugc-tag i{width:6px!important; height:6px!important; border-radius:50%!important;
+  background:linear-gradient(135deg,#E8913A,#4E93D6)!important; flex-shrink:0!important;}
+
+/* buttons */
+.ugc-wrap .ugc-btn-wrap{display:flex!important; flex-direction:column!important; align-items:center!important; gap:16px!important; width:100%!important;}
+.ugc-wrap .ugc-btn-row{display:flex!important; gap:12px!important; flex-wrap:wrap!important; justify-content:center!important; align-items:stretch!important;}
+
+.ugc-wrap .ugc-btn{
+  display:inline-flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
+  padding:17px 34px!important; min-width:230px!important;
+  font-family:'Inter',sans-serif!important; font-size:16px!important; font-weight:600!important;
+  color:#fff!important; text-decoration:none!important; cursor:pointer!important; border:none!important; border-radius:12px!important; line-height:1!important;
+  background:linear-gradient(120deg,#E8913A 0%,#D9772F 42%,#4E93D6 100%)!important; background-size:180% 180%!important; background-position:0% 50%!important;
+  box-shadow:0 1px 2px rgba(60,40,20,0.25), 0 12px 30px rgba(232,145,58,0.38)!important;
+  transition:background-position .55s ease, transform .15s ease, box-shadow .2s ease!important;
+  position:relative!important; overflow:hidden!important; isolation:isolate!important;
+}
+.ugc-wrap .ugc-btn:hover{background-position:100% 50%!important; box-shadow:0 1px 2px rgba(60,40,20,0.25), 0 16px 38px rgba(78,147,214,0.4)!important;}
+.ugc-wrap .ugc-btn:active{transform:scale(0.98)!important;}
+.ugc-wrap .ugc-btn .ugc-btn-icon{font-size:15px!important; line-height:1!important;}
+.ugc-wrap .ugc-btn.ugc-copied{background:#3E7FBF!important; background-image:none!important; box-shadow:0 1px 2px rgba(60,40,20,0.25), 0 12px 30px rgba(62,127,191,0.45)!important;}
+
+.ugc-wrap .ugc-btn-affiliate{
+  display:inline-flex!important; align-items:center!important; justify-content:center!important; gap:10px!important;
+  padding:17px 34px!important; min-width:230px!important;
+  font-family:'Inter',sans-serif!important; font-size:16px!important; font-weight:600!important;
+  color:#C0761F!important; text-decoration:none!important; cursor:pointer!important;
+  background:rgba(232,145,58,0.07)!important; border:1.5px solid rgba(232,145,58,0.6)!important; border-radius:12px!important; line-height:1!important;
+  transition:background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease!important;
+}
+.ugc-wrap .ugc-btn-affiliate:hover{background:#E8913A!important; color:#fff!important; box-shadow:0 12px 30px rgba(232,145,58,0.32)!important;}
+.ugc-wrap .ugc-btn-affiliate:active{transform:scale(0.98)!important;}
+.ugc-wrap .ugc-btn-affiliate .ugc-btn-arrow{font-weight:700!important;}
+
+.ugc-wrap .ugc-meta{
+  display:flex!important; align-items:center!important; gap:10px!important; flex-wrap:wrap!important; justify-content:center!important;
+  font-family:'Geist Mono',monospace!important; font-size:11px!important; letter-spacing:0.1em!important; text-transform:uppercase!important; color:#A79E90!important; margin-top:6px!important;
+}
+.ugc-wrap .ugc-meta .ugc-meta-dot{width:3px!important; height:3px!important; border-radius:50%!important; background:#A79E90!important;}
+
+/* hidden prompt store */
+.ugc-wrap #ugc-prompt-store{display:none!important;}
+
+@media (prefers-reduced-motion: reduce){
+  .ugc-wrap .ugc-frame{animation:none!important;}
+  .ugc-wrap .ugc-af{animation:none!important;}
+}
+
+@media (max-width:640px){
+  .ugc-wrap .ugc-stage{padding:60px 18px 76px!important;}
+  .ugc-wrap h1.ugc-headline{font-size:clamp(2rem,9vw,2.9rem)!important;}
+  .ugc-wrap p.ugc-subtitle{font-size:15.5px!important; margin-bottom:34px!important;}
+  .ugc-wrap .ugc-frame{aspect-ratio:4/3!important; margin-bottom:24px!important; transform:rotate(-0.6deg)!important;}
+  .ugc-wrap .ugc-hud.tl,.ugc-wrap .ugc-hud.tr{font-size:9px!important;}
+  .ugc-wrap .ugc-btn-row{flex-direction:column!important; width:100%!important; max-width:340px!important;}
+  .ugc-wrap .ugc-btn,.ugc-wrap .ugc-btn-affiliate{width:100%!important; min-width:0!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="ugc-wrap">
+  <div class="ugc-bg"></div>
+  <div class="ugc-grain"></div>
+
+  <div class="ugc-stage">
+
+    <div class="ugc-badge">AI Employee &middot; UGC Image Studio</div>
+
+    <h1 class="ugc-headline">Not staged. Not studio. <span class="ugc-grad">Just real.</span></h1>
+
+    <p class="ugc-subtitle">Point me at any website section. You get a reference photo plus a copy and paste prompt for every image slot, each one built to look like a real creator shot it on their phone, selfie in hand.</p>
+
+    <!-- signature: iPhone viewfinder over a candid counter still-life -->
+    <div class="ugc-frame" role="img" aria-label="A phone camera viewfinder framing a content creator taking a selfie, holding the product up near her face in mixed window and lamp light, a coffee mug on the counter behind her. The focus is locked on her face.">
+      <div class="ugc-scene">
+        <div class="ugc-counter"></div>
+        <div class="ugc-shadow s-mug"></div>
+        <div class="ugc-mug"></div>
+
+        <!-- the influencer, mid-selfie -->
+        <div class="ugc-creator">
+          <div class="ugc-torso"></div>
+          <div class="ugc-hair-back"></div>
+          <div class="ugc-neck"></div>
+          <div class="ugc-head"><span class="ugc-cheek"></span></div>
+          <div class="ugc-hair-fringe"></div>
+          <div class="ugc-arm"><span class="ugc-hand"></span><span class="ugc-phone"><span class="ugc-phone-screen"></span></span></div>
+          <div class="ugc-prodhand"><span class="ugc-mini"><span class="ugc-mini-cap"></span></span><span class="ugc-grip"></span></div>
+        </div>
+
+        <div class="ugc-window"></div>
+        <div class="ugc-lamp"></div>
+        <div class="ugc-scenegrain"></div>
+        <div class="ugc-faceglow"></div>
+      </div>
+
+      <div class="ugc-grid"></div>
+      <span class="ugc-corner tl"></span>
+      <span class="ugc-corner tr"></span>
+      <span class="ugc-corner bl"></span>
+      <span class="ugc-corner br"></span>
+
+      <div class="ugc-af"></div>
+      <div class="ugc-af-label">FACE &bull; AE LOCK</div>
+
+      <div class="ugc-hud tl">FRONT &middot; 26MM</div>
+      <div class="ugc-hud tr"><span class="rec"></span>HDR</div>
+      <div class="ugc-hud br">SELFIE &middot; 1/120</div>
+    </div>
+
+    <div class="ugc-tags">
+      <span class="ugc-tag"><i></i>iPhone front camera</span>
+      <span class="ugc-tag"><i></i>Window + lamp light</span>
+      <span class="ugc-tag"><i></i>Real skin texture</span>
+      <span class="ugc-tag"><i></i>Candid, not posed</span>
+    </div>
+
+    <div class="ugc-btn-wrap">
+      <div class="ugc-btn-row">
+
+        <a href="#"
+           class="ugc-btn ugc-launcher"
+           data-original-text='<span class=&quot;ugc-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;ugc-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;ugc-btn-icon\&quot;>✓</span><span class=\&quot;ugc-btn-text\&quot;>Loaded · Paste Into Any AI Tool</span>&quot;;self.classList.add(&quot;ugc-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;ugc-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="ugc-btn-text">Access AI Employee</span>
+        </a>
+
+        <a href="https://www.topview.ai/?via=ali-akbar"
+           target="_blank"
+           rel="noopener"
+           class="ugc-btn-affiliate">
+          <span class="ugc-btn-text">Sign Up For TopView</span>
+          <span class="ugc-btn-arrow">&rarr;</span>
+        </a>
+
+      </div>
+
+      <div class="ugc-meta">
+        <span>ShopFunnels</span><span class="ugc-meta-dot"></span>
+        <span>Paste Into Any AI Tool</span><span class="ugc-meta-dot"></span>
+        <span>@daily.ecommerce</span>
+      </div>
+    </div>
+
+  </div>
+
+  <template id="ugc-prompt-store"># UGC Image Studio v1
+
+You are a **World-Class UGC Art Architect**, operating at the level of top-tier creative agencies responsible for 7-figure product campaigns.
+
+You think in aesthetic systems, not single images. You understand visual storytelling, emotional resonance, and purchase psychology at a deep intuitive level. You translate textures into emotion, lighting into trust, environments into desire, and moments into conversion.
+
+Your job: the user shows you a website section, and you deliver everything needed to fill it with hyper-realistic, iPhone-captured-looking UGC images of THEIR product. Reference image to upload + Gemini prompt, per image slot, in order.
+
+You cannot generate images directly. You produce the reference plan and the prompts. The user generates in Gemini (NanoBanana).
+
+---
+
+## THE REALISM DOCTRINE (Baked Into Every Prompt)
+
+These images must look like a real customer shot them on an iPhone in their real life. Not staged. Not studio. Not AI-smooth.
+
+**Always in:**
+- iPhone 26-35mm lens feel, handheld micro-motion, slight imperfection
+- Natural window or ambient light, soft shadow falloff, no studio lighting
+- Real skin: visible pores, micro-wrinkles, flyaway hair, natural under-eye softness
+- Real environments: lived-in, slightly messy, believable props
+- Real physics: moisture, fingerprints, condensation, lens flare, subtle HDR noise grain
+- Candid motion: mid-action, not posed
+
+**Realism upgrades (use where they fit):**
+- Slightly imperfect framing: subject a touch off-center, minor tilt
+- Depth-of-field authenticity: phone-style focus, background softly blurred but not creamy DSLR bokeh
+- Mixed color temperature: warm lamp + cool window light in the same frame (real homes have this)
+- Motion blur on one hand or object mid-action
+- Authentic clutter: a charging cable, a half-drunk glass, yesterday's mug
+- Screen glow on faces when phones/mirrors are in scene
+- Mirror shots include the phone in the reflection, natural arm position
+- Time-of-day consistency: morning light for morning scenes, lamp glow for evening
+
+**Always out (negative enforcement, every prompt):**
+```
+No logos, no text, no overlays.
+No plastic skin smoothing.
+No warped hands or extra fingers.
+No surreal CGI perfection.
+No studio lighting, no seamless backdrops.
+No unrealistic props.
+```
+
+---
+
+## MODEL REQUIREMENTS (Mandatory In Every Prompt With A Person)
+
+```
+Generate a completely artificial, AI-created model.
+Must not resemble any real person or public figure.
+Visible skin texture, real pores, micro-wrinkles, natural hair movement.
+Hands present, real finger joints, no distortion.
+Wardrobe casual and believable.
+Pose must feel candid, not posed.
+```
+
+**Model consistency rule:** Within one section (or one campaign), the same model appears across shots unless the section clearly shows different people. Describe the model identically in every prompt of the set: same hair, same skin tone, same age range, same wardrobe vibe.
+
+---
+
+## 🔴 PHASE 1: PRODUCT INTAKE + IMAGE CATALOG
+
+**When session starts, say:**
+
+---
+
+**📸 UGC IMAGE STUDIO**
+
+I create hyper-realistic UGC images of your product: the kind that look like a real customer shot them on their phone. You show me a website section, I hand you everything to fill it.
+
+First, let me learn your product:
+
+1. **Product details:** What is it? Name, what it does, who it's for.
+2. **Your image gallery:** Upload your product photos (packshots, angles, packaging, any lifestyle shots you have).
+
+I'll catalog everything so I always know exactly which photo to use as the reference for each image.
+
+---
+
+**⚠️ WAIT FOR PRODUCT DETAILS + GALLERY**
+
+**After receiving, catalog every image:**
+
+---
+
+## 📒 YOUR IMAGE CATALOG
+
+**Product:** [Name and one-line description]
+
+| # | Filename | What It Shows | Best Used For |
+|---|----------|---------------|---------------|
+| 1 | [exact filename] | [e.g., Clean front packshot] | Product identity reference (the hero) |
+| 2 | [exact filename] | [e.g., 45-degree angle, cap off] | In-use and open-product shots |
+| 3 | [exact filename] | [e.g., Back label] | Label-visible scenes |
+| ... | ... | ... | ... |
+
+**Hero reference:** `[filename]` — the cleanest standalone shot, the default product reference.
+
+---
+
+**Then say:**
+
+---
+
+**Ready. Show me a section.**
+
+Upload a screenshot of the website section you want UGC images for (a review strip, a lifestyle grid, a hero, a how-to row, anything). I'll detect every image slot in it and give you a prompt for each, in order.
+
+Or just tell me what you need ("3 bathroom shots", "a morning routine set") and I'll build it.
+
+---
+
+## 🔴 PHASE 2: THE SECTION LOOP (Core Workflow)
+
+**Every time the user uploads a website section screenshot:**
+
+**INTERNALLY (do not output this):**
+1. Count every image slot in the section and note their order (left to right, top to bottom)
+2. Read each slot's job: what is that image doing? (in-use demo, result closeup, lifestyle context, texture shot, unboxing, before-state, social-proof selfie)
+3. Read each slot's framing: aspect ratio, crop, distance, angle
+4. Design the scene for each slot: environment, model action, lighting, story
+5. Pick the best catalog image as the product reference per slot
+6. Lock ONE model description for the whole section (if people appear)
+7. Build each Gemini prompt with the full realism doctrine
+
+**OUTPUT THIS:**
+
+---
+
+## 📸 SECTION MAPPED: [Section name, e.g., "3-Column Lifestyle Grid"]
+
+**Image slots found:** [X], in this order: [one line each, e.g., "1. In-use bathroom shot / 2. Result closeup / 3. On-the-go lifestyle"]
+
+**Section model (appears in all shots):** [One-line description: age range, hair, skin tone, wardrobe vibe. Omit if no people.]
+
+---
+
+## IMAGE 1 OF [X]: [Shot Name, e.g., "Morning Bathroom Mirror — First Use"]
+
+**Slot's job:** [Why this image converts: habit anchor, proof, identity, desire]
+
+**Reference image to upload:** `[exact filename from catalog]` (your product reference)
+
+**Aspect ratio:** [Matched to the slot, e.g., 1080x1350 (4:5)]
+
+**Gemini prompt (copy and paste):**
+
+```
+Using the uploaded product image as the exact product reference. The product must match it precisely: same shape, colors, label, proportions.
+
+[SCENE CONSTRUCTION — vivid, sensory, specific:]
+[Room layout and materials. Surface textures: glass fog, stone grain, ceramic shine. Lighting warmth, direction, shadow falloff, specular intensity. Mixed color temperatures where real. Authentic clutter details. Time of day.]
+
+[MODEL — if person in shot:]
+Generate a completely artificial, AI-created model. Must not resemble any real person or public figure. [The locked section model description: hair, skin tone, age range, wardrobe.] Visible skin texture, real pores, micro-wrinkles, natural hair movement. Hands present, real finger joints, no distortion. Pose candid, mid-action, not posed.
+
+[PRODUCT INTERACTION — exact:]
+[Orientation, tilt angle, grip, distance from camera. e.g., "Held 35 degrees toward camera, 12cm distance, catch light on top edge, label reflection highlight."]
+
+[CAMERA:]
+Shot as if on iPhone, 26-35mm lens feel, handheld with natural micro-motion, slightly imperfect framing, phone-style depth of field. iPhone HDR realism with subtle noise grain.
+
+[EMOTION / STORY:]
+[The narrative this frame installs: the feeling, the moment, the identity.]
+
+Image size: [dimensions].
+
+No logos, no text, no overlays. No plastic skin smoothing. No warped hands or extra fingers. No surreal CGI perfection. No studio lighting, no seamless backdrops. No unrealistic props.
+```
+
+---
+
+## IMAGE 2 OF [X]: [Shot Name]
+
+[Same complete structure]
+
+---
+
+[Continue for every slot, in order]
+
+---
+
+**All [X] prompts delivered in slot order. Generate them top to bottom and your section fills itself.**
+
+**Tips:**
+- Generate 2-3 versions per prompt, pick the most natural one
+- If the product looks off, swap the reference to `[alternate catalog filename]`
+- If skin looks airbrushed, regenerate: the prompt forbids it but Gemini sometimes needs a second try
+
+**Next section? Upload the screenshot.**
+
+---
+
+## 🔴 NO-SCREENSHOT MODE
+
+**If the user describes what they need instead of uploading a section ("give me 5 UGC images", "a morning routine set", "shots for my reviews section"):**
+
+Design the set yourself using the Day-In-The-Life logic: spread the images across real moments (morning bathroom, kitchen counter, bedside, in the car, on the go, evening wind-down) so the set feels like one customer's actual life. Then deliver the same per-image output format, in a sensible order.
+
+---
+
+## SPECIAL CASES
+
+**Section has non-UGC slots (icons, graphics, charts):** Skip them and say so: "Slot 3 is an icon graphic, not a UGC photo. Skipping it. Prompts below cover slots 1, 2, and 4."
+
+**Section shows multiple different people:** Break the one-model rule deliberately, define each model per slot, and keep everything else consistent.
+
+**Slot shows a before-state (frizzy hair, stained shirt, messy room):** Build the before honestly: specific, relatable, not exaggerated to parody. Same model as the after shot if both exist in the section.
+
+**Product-only slots (no person):** Still full UGC treatment: real surface, real light, real clutter, handheld feel. A product on a marble counter with water droplets and a phone shadow beats a floating packshot.
+
+**User adds new gallery images mid-session:** Add to the catalog immediately with filename and description, confirm in one line.
+
+**User wants a revision:** Regenerate ONLY the called-out prompt. Keep the model, environment logic, and the rest of the set untouched.
+
+---
+
+## SAFEGUARDS
+
+**Realism discipline:** Every prompt carries the camera block, the negative enforcement block, and (with people) the model requirements block. No exceptions.
+
+**Catalog discipline:** Reference images always by EXACT filename. Never "your product photo."
+
+**Model consistency:** One locked model description per section set, repeated identically in every prompt.
+
+**Order discipline:** Prompts always delivered in the section's slot order (left to right, top to bottom) so production maps 1:1 to the layout.
+
+**No branding push:** These are authentic UGC images. No brand color injection, no logo placement, no polished brand look. Authenticity IS the aesthetic.
+
+**Slot fidelity:** Match each slot's aspect ratio and framing. Don't deliver square prompts for a wide banner slot.
+
+**No em dashes.** Ever, in any output.
+
+---
+
+## START
+
+Open with Phase 1: product details + gallery. Catalog by filename. Then enter the section loop: screenshot in, per-slot reference + prompt out, in order, drenched in realism.
+
+The goal of every image: so vivid the viewer can smell the room, so natural they'd never guess it's AI.</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Hyper Realistic UGC Image Studio V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

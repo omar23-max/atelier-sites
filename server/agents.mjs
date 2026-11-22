@@ -1,0 +1,327 @@
+// Agents army (2026-11-22) : les agents de l'abonnement Whitelabeler de
+// l'utilisateur (Ai Vault 3.0), pour son usage personnel. Chaque agent :
+// agents/whitelabeler/<slug>.html (sa page de présentation, telle quelle)
+// et une ligne dans agents/whitelabeler/index.json.
+//   GET  /api/agents            → { agents: [{ slug, titre, url, ordre, accroche }] }
+//   GET  /api/agents/<slug>     → la page de présentation (HTML)
+//   POST /api/agents/import     → reçu depuis l'onglet Whitelabeler de
+//        l'utilisateur (clé à usage unique dans agents/.import-key) ;
+//        OPTIONS : autorisations du navigateur (CORS, réseau local).
+import { existsSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+
+const ORIGIN = "https://app.whitelabeler.ai";
+
+export async function agentsRoute(req, res, parts, { root, readBody, json }) {
+  const dir = join(root, "agents", "whitelabeler");
+  const indexFile = join(dir, "index.json");
+  const readIndex = async () => {
+    try {
+      return JSON.parse(await readFile(indexFile, "utf8"));
+    } catch {
+      return { agents: [] };
+    }
+  };
+  const cors = () => {
+    res.setHeader("Access-Control-Allow-Origin", ORIGIN);
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Private-Network", "true");
+    res.setHeader("Vary", "Origin");
+  };
+
+  if (parts[1] === "import") {
+    cors();
+    if (req.method === "OPTIONS") {
+      res.statusCode = 204;
+      return res.end();
+    }
+    if (req.method !== "POST") return json(res, 405, { error: "POST seulement." });
+    const keyFile = join(root, "agents", ".import-key");
+    const key = existsSync(keyFile) ? (await readFile(keyFile, "utf8")).trim() : "";
+    const b = await readBody(req);
+    if (!key || b.key !== key) return json(res, 403, { error: "Clé d'import invalide." });
+    const slug = String(b.slug ?? "");
+    if (!/^[a-z0-9][a-z0-9-]{2,90}$/.test(slug)) return json(res, 400, { error: "Nom invalide." });
+    const html = String(b.html ?? "");
+    if (!/<html|<!doctype/i.test(html) || html.length > 2_000_000) return json(res, 400, { error: "Page invalide." });
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, `${slug}.html`), html, "utf8");
+    const idx = await readIndex();
+    const entry = { slug, titre: String(b.titre ?? slug).slice(0, 200), url: String(b.url ?? "").slice(0, 300), ordre: Number(b.ordre) || 0, accroche: String(b.accroche ?? "").slice(0, 300) };
+    idx.agents = [...idx.agents.filter((a) => a.slug !== slug), entry].sort((a, c) => a.ordre - c.ordre);
+    idx.source = "Whitelabeler · Ai Vault 3.0";
+    idx.modifie = new Date().toISOString();
+    await writeFile(indexFile, JSON.stringify(idx, null, 1) + "\n", "utf8");
+    return json(res, 200, { ok: true, total: idx.agents.length });
+  }
+
+  if (!parts[1] && req.method === "GET") return json(res, 200, await readIndex());
+
+  // ---- Lancer l'agent (2026-11-22) : conversation où l'IA de l'atelier suit
+  // la consigne de l'agent, avec les infos du projet et la recherche web.
+  //   GET  /api/agents/<slug>/chat?projet=<id>  → { messages, statut, erreur }
+  //   POST /api/agents/<slug>/chat { projet, message, images: [/medias/…], web, nouvelle }
+  // Conversation : agents/conversations/<projet|_aucun>/<slug>.json. Réponse
+  // en tâche de fond (la recherche web peut dépasser les 100 s de Cloudflare).
+  if (parts[1] && parts[2] === "chat") {
+    const slug = parts[1];
+    if (!/^[a-z0-9][a-z0-9-]{2,90}$/.test(slug)) return json(res, 400, { error: "Nom invalide." });
+    const u = new URL(req.url, "http://x");
+    const b = req.method === "POST" ? await readBody(req) : {};
+    const projet = String((req.method === "POST" ? b.projet : u.searchParams.get("projet")) ?? "");
+    if (projet && !/^[a-z0-9][a-z0-9-]*$/.test(projet)) return json(res, 400, { error: "Projet invalide." });
+    const convDir = join(root, "agents", "conversations", projet || "_aucun");
+    const convFile = join(convDir, `${slug}.json`);
+    const load = async () => {
+      try {
+        return JSON.parse(await readFile(convFile, "utf8"));
+      } catch {
+        return { slug, projet: projet || null, messages: [], statut: "pret" };
+      }
+    };
+    const save = async (c) => {
+      await mkdir(convDir, { recursive: true });
+      c.modifie = new Date().toISOString();
+      await writeFile(convFile, JSON.stringify(c, null, 1) + "\n", "utf8");
+    };
+    if (req.method === "GET") return json(res, 200, await load());
+    if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
+    const consFile = join(dir, "consignes", `${slug}.txt`);
+    if (!existsSync(consFile)) return json(res, 404, { error: "Pas de consigne pour cet agent." });
+    let c = await load();
+    if (b.nouvelle) c = { slug, projet: projet || null, messages: [], statut: "pret" };
+    if (c.statut === "en cours") return json(res, 409, { error: "L'agent répond déjà, attends sa réponse." });
+    const text = String(b.message ?? "").trim();
+    const images = (Array.isArray(b.images) ? b.images : []).filter((x) => typeof x === "string" && /^\/medias\/[\w./-]+\.(png|jpe?g|webp)$/i.test(x) && !x.includes("..")).slice(0, 6);
+    if (!text && !images.length) {
+      await save(c);
+      return json(res, 200, c);
+    }
+    c.messages.push({ role: "user", text: text || "(images jointes)", images, le: new Date().toISOString() });
+    c.statut = "en cours";
+    c.erreur = null;
+    c.web = b.web !== false;
+    c.moteur = b.moteur === "claude" ? "claude" : "chatgpt";
+    await save(c);
+    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur).catch(() => {});
+    return json(res, 200, c);
+  }
+
+  // GET /api/agents/moteurs → moteurs disponibles (clé présente ou non).
+  if (parts[1] === "moteurs" && req.method === "GET") {
+    const { loadEnv } = await import("vite");
+    const env = loadEnv("development", root, "");
+    return json(res, 200, { chatgpt: Boolean(env.OPENAI_API_KEY), claude: Boolean(env.ANTHROPIC_API_KEY) });
+  }
+  // POST /api/agents/cle-claude { cle } → clé Anthropic de l'utilisateur,
+  // rangée dans .env.local (comme la clé WinningHunter).
+  if (parts[1] === "cle-claude" && req.method === "POST") {
+    const b = await readBody(req);
+    const key = String(b.cle ?? "").trim();
+    if (!/^sk-ant-[A-Za-z0-9_-]{20,}$/.test(key)) return json(res, 400, { error: "Clé invalide : elle commence par sk-ant-." });
+    const envFile = join(root, ".env.local");
+    let env = existsSync(envFile) ? await readFile(envFile, "utf8") : "";
+    env = /^ANTHROPIC_API_KEY=.*$/m.test(env) ? env.replace(/^ANTHROPIC_API_KEY=.*$/m, `ANTHROPIC_API_KEY=${key}`) : `${env.replace(/\n*$/, "\n")}ANTHROPIC_API_KEY=${key}\n`;
+    await writeFile(envFile, env, { encoding: "utf8", mode: 0o600 });
+    return json(res, 200, { ok: true });
+  }
+
+  // GET /api/agents/<slug>/consigne → la consigne (prompt) de l'agent, texte.
+  if (parts[1] && parts[2] === "consigne" && req.method === "GET") {
+    if (!/^[a-z0-9][a-z0-9-]{2,90}$/.test(parts[1])) return json(res, 400, { error: "Nom invalide." });
+    const f = join(dir, "consignes", `${parts[1]}.txt`);
+    if (!existsSync(f)) return json(res, 404, { error: "Pas de consigne pour cet agent." });
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    return res.end(await readFile(f, "utf8"));
+  }
+
+  if (parts[1] && req.method === "GET") {
+    const slug = parts[1];
+    if (!/^[a-z0-9][a-z0-9-]{2,90}$/.test(slug)) return json(res, 400, { error: "Nom invalide." });
+    const f = join(dir, `${slug}.html`);
+    if (!existsSync(f)) return json(res, 404, { error: "Agent introuvable." });
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache");
+    // Liens de la présentation : dans un nouvel onglet.
+    const html = await readFile(f, "utf8");
+    return res.end(/<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => `${m}<base target="_blank">`) : `<base target="_blank">${html}`);
+  }
+  return json(res, 404, { error: "Route agents inconnue." });
+}
+
+// ---- Moteur des agents : API Responses d'OpenAI (gpt-5.5) ----
+const MODEL = process.env.AGENTS_MODEL || "gpt-5.5";
+const ADAPTER = `
+---
+COMMENT TU TOURNES ICI (prime sur la consigne ci-dessus en cas de conflit)
+- Tu tournes dans l'atelier de l'utilisateur, une conversation : il te répond directement. Tu peux poser tes questions et attendre ses réponses, comme le prévoit ta consigne.
+- L'utilisateur parle français (Québec) : explique, questionne et rédige en français, en tutoyant. Garde en anglais les prompts destinés aux outils d'image ou de vidéo (Nano Banana, GPT Image, Midjourney, Seedance…), sauf demande contraire.
+- Tu ne génères pas d'images ni de vidéos toi-même : tu écris les prompts, l'atelier s'occupe de la génération.
+- Ignore les liens d'inscription ou d'affiliation (TopView ou autres) mentionnés dans ta consigne.
+- N'invente jamais de preuve, de chiffre, d'avis, de certification ou de résultat : écris [À VÉRIFIER] ou demande-le.
+- Si une recherche web est possible, sers-t'en quand ta consigne le demande, et cite tes sources (lien).
+- Mets en forme en Markdown ; chaque prompt prêt à copier dans un bloc de code.
+- Pas de tiret long.`;
+
+async function projectContext(root, projet) {
+  if (!projet) return "";
+  let p;
+  try {
+    p = JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8"));
+  } catch {
+    return "";
+  }
+  const f = p.fondations ?? {};
+  const r = { ...(f.reponses ?? {}) };
+  const videos = (r.videosConcurrents ?? []).map((v) => ({ nom: v.nom, analyse: String(v.analyse ?? "").slice(0, 1800) }));
+  delete r.videosConcurrents;
+  const data = {
+    projet: p.nom,
+    produit: p.produit && typeof p.produit === "object" ? p.produit.nom : p.produit,
+    description: p.description,
+    questionnaire: r,
+    offre: p.offre,
+    messageCentral: f.message,
+    mecanismeChoisi: f.mecanismeChoisi,
+    marque: p.marque ? { ...p.marque, logos: (p.marque.logos ?? []).length ? `${p.marque.logos.length} logo(s)` : undefined } : undefined,
+    videosConcurrents: videos.length ? videos : undefined,
+  };
+  const json = JSON.stringify(data, null, 1);
+  return `\n---\nPROJET DE L'UTILISATEUR (ses Fondations dans l'atelier : sers-t'en au lieu de redemander ce qui y est déjà ; [MANQUE] = inconnu)\n${json.slice(0, 14000)}`;
+}
+
+async function imageInput(root, url) {
+  const { execFile } = await import("node:child_process");
+  const { tmpdir } = await import("node:os");
+  const { rm } = await import("node:fs/promises");
+  const file = join(root, url);
+  if (!existsSync(file)) return null;
+  const tmp = join(tmpdir(), `agent-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`);
+  try {
+    await new Promise((ok, ko) => execFile("vipsthumbnail", [file, "-s", "1024x1024", "-o", `${tmp}[Q=82]`], (e) => (e ? ko(e) : ok())));
+    return `data:image/jpeg;base64,${(await readFile(tmp)).toString("base64")}`;
+  } catch {
+    return null;
+  } finally {
+    rm(tmp, { force: true }).catch(() => {});
+  }
+}
+
+async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt") {
+  const { loadEnv } = await import("vite");
+  const env = loadEnv("development", root, "");
+  const read = async () => JSON.parse(await readFile(convFile, "utf8"));
+  try {
+    const c = await read();
+    const instructions = (await readFile(consFile, "utf8")) + ADAPTER + (await projectContext(root, projet));
+    if (moteur === "claude") {
+      const r = await runClaude(root, env, instructions, c.messages, web);
+      const c2 = await read();
+      c2.messages.push({ role: "assistant", text: r.text, sources: r.sources, recherche: r.searched, moteur: "claude", le: new Date().toISOString() });
+      c2.statut = "pret";
+      await save(c2);
+      return;
+    }
+    if (!env.OPENAI_API_KEY) throw new Error("Clé OpenAI absente (OPENAI_API_KEY).");
+    const input = [];
+    for (const m of c.messages.slice(-40)) {
+      if (m.role === "assistant") input.push({ role: "assistant", content: [{ type: "output_text", text: m.text }] });
+      else {
+        const content = [{ type: "input_text", text: m.text }];
+        for (const u of m.images ?? []) {
+          const d = await imageInput(root, u);
+          if (d) content.push({ type: "input_image", image_url: d });
+        }
+        input.push({ role: "user", content });
+      }
+    }
+    const res = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: MODEL, instructions, input, ...(web ? { tools: [{ type: "web_search" }] } : {}) }),
+      signal: AbortSignal.timeout(10 * 60 * 1000),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(`OpenAI (${res.status}) : ${String(body.error?.message ?? "erreur inconnue").slice(0, 300)}`);
+    const out = (body.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []);
+    const text = out.filter((x) => x.type === "output_text").map((x) => x.text).join("\n\n").trim();
+    const sources = [...new Map(out.flatMap((x) => x.annotations ?? []).filter((a) => a.type === "url_citation" && a.url).map((a) => [a.url, { url: a.url, titre: a.title ?? "" }])).values()].slice(0, 12);
+    const searched = (body.output ?? []).some((o) => o.type === "web_search_call");
+    if (!text) throw new Error("Réponse vide de l'IA.");
+    const c2 = await read();
+    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", le: new Date().toISOString() });
+    c2.statut = "pret";
+    await save(c2);
+  } catch (e) {
+    const c2 = await read().catch(() => null);
+    if (c2) {
+      c2.statut = "erreur";
+      c2.erreur = e.message;
+      await save(c2);
+    }
+  }
+}
+
+// ---- Moteur Claude (SDK officiel d'Anthropic) : Claude Opus 5.5, réflexion
+// adaptative, recherche web côté serveur, réponse en flux (longues réponses).
+async function runClaude(root, env, system, messages, web) {
+  if (!env.ANTHROPIC_API_KEY) throw new Error("Clé Claude absente : colle ta clé Anthropic dans la fenêtre de l'agent.");
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  const history = [];
+  for (const m of messages.slice(-40)) {
+    if (m.role === "assistant") {
+      history.push({ role: "assistant", content: m.text });
+      continue;
+    }
+    const content = [];
+    for (const u of m.images ?? []) {
+      const d = await imageInput(root, u);
+      if (d) content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: d.replace(/^data:image\/jpeg;base64,/, "") } });
+    }
+    content.push({ type: "text", text: m.text });
+    history.push({ role: "user", content });
+  }
+  const params = {
+    model: "claude-opus-5-5",
+    max_tokens: 64000,
+    system,
+    thinking: { type: "adaptive" },
+    output_config: { effort: "high" },
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    ...(web ? { tools: [{ type: "web_search_20260209", name: "web_search", max_uses: 8 }] } : {}),
+  };
+  let convo = history;
+  let msg;
+  // Recherche web : la réponse peut s'arrêter en « pause_turn » ; on la relance
+  // avec ce qui a déjà été produit.
+  for (let i = 0; i < 4; i++) {
+    msg = await client.beta.messages.stream({ ...params, messages: convo }).finalMessage();
+    if (msg.stop_reason !== "pause_turn") break;
+    convo = [...convo, { role: "assistant", content: msg.content }];
+  }
+  if (msg.stop_reason === "refusal") throw new Error("Claude a refusé cette demande.");
+  const blocks = msg.content ?? [];
+  const text = blocks
+    .filter((b) => b.type === "text")
+    .map((b) => b.text)
+    .join("")
+    .trim();
+  const sources = [
+    ...new Map(
+      blocks
+        .flatMap((b) => (b.type === "text" ? b.citations ?? [] : []))
+        .filter((ct) => ct.url)
+        .map((ct) => [ct.url, { url: ct.url, titre: ct.title ?? "" }]),
+    ).values(),
+  ].slice(0, 12);
+  const searched = blocks.some((b) => b.type === "server_tool_use" || b.type === "web_search_tool_result");
+  if (!text) throw new Error(msg.stop_reason === "max_tokens" ? "Réponse trop longue, coupée : redemande en plus court." : "Réponse vide de Claude.");
+  return { text, sources, searched };
+}

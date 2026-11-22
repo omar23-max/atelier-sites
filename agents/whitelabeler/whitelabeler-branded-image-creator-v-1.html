@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Branded Image Creator · AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Azeret+Mono:wght@400;500;700&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   BRANDED IMAGE CREATOR · namespace .bic-
+   Palette : blueprint indigo #0E1A2B / chalk #E7E9EE
+             survey cyan #3FD0E0 (mapped) · ochre #F0A62E (build)
+   Type    : Bricolage Grotesque display · Instrument Sans body
+             Azeret Mono data
+   Device  : the slot inventory, empty numbered outlines over a
+             section wireframe, paired with its numbered call sheet
+   ══════════════════════════════════════════════════════════════ */
+
+.bic-wrap {
+  --bic-paper: #0E1A2B;
+  --bic-surf:  #14263C;
+  --bic-surf2: #1A3049;
+  --bic-edge:  #24405C;
+  --bic-chalk: #E7E9EE;
+  --bic-muted: #93A6BC;
+  --bic-dim:   #607690;
+  --bic-cyan:  #3FD0E0;
+  --bic-ochre: #F0A62E;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #0E1A2B !important;
+  color: #E7E9EE !important;
+  font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  min-height: 100vh !important;
+}
+.bic-wrap *, .bic-wrap *::before, .bic-wrap *::after { box-sizing: border-box !important; }
+
+/* drafting grid, the ground this page is measured on */
+.bic-wrap .bic-grid {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important; height: 100% !important;
+  z-index: 0 !important; pointer-events: none !important;
+  opacity: 0.55 !important;
+  background-image:
+    linear-gradient(to right, rgba(63,208,224,0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(63,208,224,0.055) 1px, transparent 1px) !important;
+  background-size: 48px 48px, 48px 48px !important;
+}
+.bic-wrap .bic-glow {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important; height: 640px !important;
+  z-index: 0 !important; pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 780px 400px at 22% -8%, rgba(63,208,224,0.12) 0%, transparent 62%),
+    radial-gradient(ellipse 620px 320px at 84% 0%, rgba(240,166,46,0.07) 0%, transparent 60%) !important;
+}
+
+.bic-wrap .bic-stage {
+  position: relative !important; z-index: 1 !important;
+  max-width: 1120px !important; width: 100% !important;
+  margin: 0 auto !important;
+  padding: 84px 28px 96px !important;
+  display: flex !important; flex-direction: column !important;
+  align-items: center !important; text-align: center !important;
+}
+
+/* ─── badge ─── */
+.bic-wrap .bic-badge {
+  display: inline-flex !important; align-items: center !important; gap: 9px !important;
+  font-family: 'Azeret Mono', ui-monospace, monospace !important;
+  font-size: 11px !important; font-weight: 500 !important;
+  letter-spacing: 0.16em !important; text-transform: uppercase !important;
+  color: var(--bic-cyan) !important;
+  background: rgba(63,208,224,0.07) !important;
+  border: 1px solid rgba(63,208,224,0.3) !important;
+  padding: 7px 15px !important; border-radius: 3px !important;
+  margin: 0 0 30px 0 !important;
+}
+.bic-wrap .bic-badge::before {
+  content: '' !important; width: 5px !important; height: 5px !important;
+  background: var(--bic-cyan) !important;
+  box-shadow: 0 0 9px rgba(63,208,224,0.8) !important; flex-shrink: 0 !important;
+}
+
+/* ─── headline ─── */
+.bic-wrap h1.bic-headline {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif !important;
+  font-variation-settings: 'wdth' 92, 'opsz' 72 !important;
+  font-weight: 800 !important;
+  font-size: clamp(2.3rem, 5.3vw, 4.05rem) !important;
+  line-height: 1.0 !important;
+  letter-spacing: -0.028em !important;
+  margin: 0 0 22px 0 !important;
+  color: var(--bic-chalk) !important;
+  max-width: 19ch !important;
+  text-wrap: balance !important;
+}
+.bic-wrap h1.bic-headline .bic-hl {
+  background: linear-gradient(100deg, #A5F2FA 0%, #3FD0E0 52%, #23A6BE 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important; color: transparent !important;
+}
+
+/* ─── subtitle ─── */
+.bic-wrap p.bic-sub {
+  font-family: 'Instrument Sans', sans-serif !important;
+  font-size: clamp(1rem, 1.25vw, 1.1rem) !important;
+  line-height: 1.66 !important; font-weight: 400 !important;
+  color: var(--bic-muted) !important;
+  max-width: 640px !important; margin: 0 auto 54px !important;
+  text-wrap: pretty !important;
+}
+
+/* ═══════════ SIGNATURE DEVICE: THE SLOT INVENTORY ═══════════ */
+.bic-wrap .bic-device {
+  display: grid !important;
+  grid-template-columns: 1.18fr 1fr !important;
+  gap: 16px !important;
+  width: 100% !important; max-width: 940px !important;
+  margin: 0 auto 56px !important;
+  text-align: left !important;
+  align-items: start !important;
+}
+
+.bic-wrap .bic-col { display: flex !important; flex-direction: column !important; gap: 16px !important; min-width: 0 !important; }
+
+/* the single-turn deliverable */
+.bic-wrap .bic-ref {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  gap: 12px !important; align-items: baseline !important;
+  padding: 11px 15px !important;
+  border-bottom: 1px solid rgba(36,64,92,0.6) !important;
+}
+.bic-wrap .bic-ref:last-child { border-bottom: none !important; }
+.bic-wrap .bic-ref-k {
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9.5px !important; font-weight: 700 !important;
+  letter-spacing: 0.11em !important; text-transform: uppercase !important;
+  color: var(--bic-dim) !important; white-space: nowrap !important;
+}
+.bic-wrap .bic-ref-v { min-width: 0 !important; }
+.bic-wrap .bic-ref-v code {
+  display: block !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 11.5px !important; font-weight: 500 !important;
+  color: var(--bic-chalk) !important; word-break: break-word !important;
+}
+.bic-wrap .bic-ref-v em {
+  display: block !important; font-style: normal !important;
+  font-family: 'Instrument Sans', sans-serif !important;
+  font-size: 11.5px !important; color: var(--bic-dim) !important; margin-top: 2px !important;
+}
+
+.bic-wrap .bic-panel {
+  background: var(--bic-surf) !important;
+  border: 1px solid var(--bic-edge) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.38) !important;
+  overflow: hidden !important;
+}
+.bic-wrap .bic-panel-bar {
+  display: flex !important; align-items: baseline !important;
+  justify-content: space-between !important; gap: 10px !important;
+  flex-wrap: wrap !important;
+  padding: 12px 15px !important;
+  border-bottom: 1px solid var(--bic-edge) !important;
+  background: rgba(14,26,43,0.5) !important;
+}
+.bic-wrap .bic-bar-t {
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 10.5px !important; font-weight: 700 !important;
+  letter-spacing: 0.14em !important; text-transform: uppercase !important;
+  color: var(--bic-chalk) !important;
+}
+.bic-wrap .bic-bar-s {
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 10px !important; font-weight: 400 !important;
+  letter-spacing: 0.08em !important; text-transform: uppercase !important;
+  color: var(--bic-dim) !important;
+}
+
+/* the wireframe canvas */
+.bic-wrap .bic-canvas { padding: 15px !important; display: flex !important; flex-direction: column !important; gap: 13px !important; }
+
+.bic-wrap .bic-slot {
+  position: relative !important;
+  border: 1.5px dashed rgba(63,208,224,0.5) !important;
+  border-radius: 4px !important;
+  background-image: repeating-linear-gradient(135deg, rgba(63,208,224,0.055) 0 5px, transparent 5px 11px) !important;
+  min-width: 0 !important;
+}
+.bic-wrap .bic-slot.bic-build {
+  border-style: solid !important;
+  border-color: rgba(240,166,46,0.75) !important;
+  background-image: repeating-linear-gradient(135deg, rgba(240,166,46,0.07) 0 5px, transparent 5px 11px) !important;
+}
+.bic-wrap .bic-r169 { aspect-ratio: 16 / 9 !important; }
+.bic-wrap .bic-r11  { aspect-ratio: 1 / 1 !important; }
+.bic-wrap .bic-r45  { aspect-ratio: 4 / 5 !important; }
+
+.bic-wrap .bic-slot-n {
+  position: absolute !important; top: 6px !important; left: 6px !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9.5px !important; font-weight: 700 !important; letter-spacing: 0.04em !important;
+  color: var(--bic-paper) !important;
+  background: var(--bic-cyan) !important;
+  border-radius: 2px !important; padding: 2px 5px !important;
+  line-height: 1.25 !important;
+}
+.bic-wrap .bic-slot.bic-build .bic-slot-n { background: var(--bic-ochre) !important; }
+.bic-wrap .bic-slot-m {
+  position: absolute !important; bottom: 6px !important; left: 7px !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9px !important; letter-spacing: 0.1em !important;
+  text-transform: uppercase !important; color: var(--bic-dim) !important;
+}
+
+.bic-wrap .bic-pair { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 13px !important; align-items: start !important; }
+
+/* wireframe copy bars, greyed so the slots stay the subject */
+.bic-wrap .bic-lines { display: flex !important; flex-direction: column !important; gap: 7px !important; }
+.bic-wrap .bic-lines i { display: block !important; height: 7px !important; border-radius: 2px !important; background: rgba(231,233,238,0.13) !important; }
+.bic-wrap .bic-lines i.bic-lead { height: 11px !important; background: rgba(231,233,238,0.22) !important; }
+.bic-wrap .bic-fake-cta {
+  display: inline-block !important; width: max-content !important;
+  margin-top: 3px !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9px !important; letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--bic-dim) !important;
+  border: 1px solid rgba(231,233,238,0.18) !important;
+  border-radius: 3px !important; padding: 5px 12px !important;
+}
+.bic-wrap .bic-reviews { display: flex !important; align-items: center !important; gap: 10px !important; }
+.bic-wrap .bic-av {
+  width: 38px !important; height: 38px !important; flex-shrink: 0 !important;
+  border-radius: 50% !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+}
+.bic-wrap .bic-av .bic-slot-n { position: static !important; }
+.bic-wrap .bic-rev-lines { flex: 1 1 auto !important; min-width: 0 !important; }
+
+/* the inventory call sheet */
+.bic-wrap .bic-inv-list { list-style: none !important; margin: 0 !important; padding: 4px 0 !important; }
+.bic-wrap .bic-inv-list li {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 11px !important;
+  padding: 11px 15px !important;
+  border-bottom: 1px solid rgba(36,64,92,0.6) !important;
+}
+.bic-wrap .bic-inv-list li:last-child { border-bottom: none !important; }
+.bic-wrap .bic-rn {
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 10.5px !important; font-weight: 700 !important;
+  color: var(--bic-dim) !important;
+}
+.bic-wrap .bic-rb { min-width: 0 !important; }
+.bic-wrap .bic-rb b {
+  display: block !important;
+  font-family: 'Instrument Sans', sans-serif !important;
+  font-size: 12.5px !important; font-weight: 600 !important;
+  color: var(--bic-chalk) !important; line-height: 1.35 !important;
+}
+.bic-wrap .bic-rb em {
+  display: block !important; font-style: normal !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9.5px !important; letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--bic-dim) !important; margin-top: 3px !important;
+}
+.bic-wrap .bic-v {
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9px !important; font-weight: 700 !important;
+  letter-spacing: 0.11em !important; text-transform: uppercase !important;
+  border-radius: 3px !important; padding: 4px 8px !important;
+  white-space: nowrap !important;
+}
+.bic-wrap .bic-v-build { background: var(--bic-ochre) !important; color: var(--bic-paper) !important; }
+.bic-wrap .bic-v-keep  { color: var(--bic-muted) !important; border: 1px solid rgba(231,233,238,0.24) !important; }
+.bic-wrap .bic-v-real  { color: var(--bic-cyan) !important; border: 1px solid rgba(63,208,224,0.45) !important; }
+
+.bic-wrap .bic-inv-f {
+  padding: 12px 15px !important;
+  border-top: 1px solid var(--bic-edge) !important;
+  background: rgba(14,26,43,0.5) !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 9.5px !important; letter-spacing: 0.1em !important;
+  text-transform: uppercase !important; color: var(--bic-dim) !important;
+}
+.bic-wrap .bic-inv-f b { color: var(--bic-cyan) !important; font-weight: 700 !important; }
+
+/* ─── disciplines ─── */
+.bic-wrap .bic-facts {
+  display: grid !important; grid-template-columns: repeat(3, 1fr) !important;
+  gap: 28px !important; width: 100% !important; max-width: 940px !important;
+  margin: 0 auto 56px !important; text-align: left !important;
+  padding-top: 34px !important; border-top: 1px solid var(--bic-edge) !important;
+}
+.bic-wrap .bic-fact-k {
+  display: block !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 10px !important; font-weight: 700 !important;
+  letter-spacing: 0.16em !important; text-transform: uppercase !important;
+  color: var(--bic-cyan) !important; margin: 0 0 9px 0 !important;
+}
+.bic-wrap .bic-fact p {
+  font-family: 'Instrument Sans', sans-serif !important;
+  font-size: 13.5px !important; line-height: 1.6 !important;
+  color: var(--bic-muted) !important; margin: 0 !important;
+}
+
+/* ─── buttons ─── */
+.bic-wrap .bic-cta { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 18px !important; width: 100% !important; }
+.bic-wrap .bic-cta-row { display: flex !important; align-items: stretch !important; justify-content: center !important; gap: 12px !important; flex-wrap: wrap !important; }
+
+.bic-wrap .bic-btn {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  gap: 10px !important; min-width: 232px !important; padding: 17px 32px !important;
+  font-family: 'Instrument Sans', sans-serif !important;
+  font-size: 15.5px !important; font-weight: 600 !important; line-height: 1 !important;
+  text-decoration: none !important; cursor: pointer !important;
+  color: #0E1A2B !important; background: var(--bic-cyan) !important;
+  border: 1px solid var(--bic-cyan) !important; border-radius: 6px !important;
+  box-shadow: 0 10px 30px rgba(63,208,224,0.2) !important;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 140ms ease !important;
+}
+.bic-wrap .bic-btn:hover { background: #6BDEEB !important; border-color: #6BDEEB !important; box-shadow: 0 14px 38px rgba(63,208,224,0.32) !important; }
+.bic-wrap .bic-btn:active { transform: scale(0.985) !important; }
+.bic-wrap .bic-btn:focus-visible { outline: 2px solid #E7E9EE !important; outline-offset: 3px !important; }
+.bic-wrap .bic-btn.bic-copied {
+  background: var(--bic-surf2) !important; border-color: var(--bic-cyan) !important;
+  color: var(--bic-cyan) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+}
+.bic-wrap .bic-btn .bic-btn-icon { font-size: 13px !important; line-height: 1 !important; }
+
+.bic-wrap .bic-btn-alt {
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  gap: 10px !important; min-width: 232px !important; padding: 17px 32px !important;
+  font-family: 'Instrument Sans', sans-serif !important;
+  font-size: 15.5px !important; font-weight: 600 !important; line-height: 1 !important;
+  text-decoration: none !important; cursor: pointer !important;
+  color: var(--bic-ochre) !important; background: transparent !important;
+  border: 1px solid rgba(240,166,46,0.55) !important; border-radius: 6px !important;
+  transition: background 180ms ease, border-color 180ms ease, transform 140ms ease !important;
+}
+.bic-wrap .bic-btn-alt:hover { background: rgba(240,166,46,0.1) !important; border-color: var(--bic-ochre) !important; }
+.bic-wrap .bic-btn-alt:active { transform: scale(0.985) !important; }
+.bic-wrap .bic-btn-alt:focus-visible { outline: 2px solid #E7E9EE !important; outline-offset: 3px !important; }
+.bic-wrap .bic-btn-alt .bic-arrow { font-weight: 700 !important; font-size: 15px !important; line-height: 1 !important; }
+
+/* ─── meta ─── */
+.bic-wrap .bic-meta {
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  gap: 11px !important; flex-wrap: wrap !important;
+  font-family: 'Azeret Mono', monospace !important;
+  font-size: 10.5px !important; letter-spacing: 0.12em !important;
+  text-transform: uppercase !important; color: var(--bic-dim) !important;
+  margin-top: 6px !important;
+}
+.bic-wrap .bic-meta i { width: 3px !important; height: 3px !important; border-radius: 50% !important; background: var(--bic-dim) !important; display: block !important; }
+
+/* hidden prompt store */
+.bic-wrap #bic-prompt-store { display: none !important; }
+
+/* ─── responsive ─── */
+@media (max-width: 900px) {
+  .bic-wrap .bic-device { grid-template-columns: 1fr !important; }
+  .bic-wrap .bic-facts { grid-template-columns: 1fr !important; gap: 22px !important; }
+}
+@media (max-width: 620px) {
+  .bic-wrap .bic-stage { padding: 62px 18px 76px !important; }
+  .bic-wrap .bic-badge { font-size: 9.5px !important; letter-spacing: 0.1em !important; padding: 6px 11px !important; }
+  .bic-wrap h1.bic-headline { font-size: clamp(1.95rem, 8.2vw, 2.7rem) !important; max-width: 16ch !important; }
+  .bic-wrap p.bic-sub { font-size: 15px !important; margin-bottom: 40px !important; }
+  .bic-wrap .bic-device { margin-bottom: 42px !important; }
+  .bic-wrap .bic-canvas { padding: 12px !important; gap: 10px !important; }
+  .bic-wrap .bic-inv-list li { padding: 10px 13px !important; gap: 9px !important; }
+  .bic-wrap .bic-cta-row { flex-direction: column !important; width: 100% !important; max-width: 340px !important; }
+  .bic-wrap .bic-btn, .bic-wrap .bic-btn-alt { width: 100% !important; min-width: 0 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bic-wrap * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="bic-wrap">
+
+  <div class="bic-grid"></div>
+  <div class="bic-glow"></div>
+
+  <div class="bic-stage">
+
+    <div class="bic-badge">AI Employee · Branded Image Creator</div>
+
+    <h1 class="bic-headline">Count every slot. <span class="bic-hl">Fill your whole site.</span></h1>
+
+    <p class="bic-sub">Show it one section at a time. It counts every image slot that actually exists, decides what converts in each, and hands you the prompts one by one. You make the pictures.</p>
+
+    <!-- ═══ SIGNATURE DEVICE: THE SLOT INVENTORY ═══ -->
+    <div class="bic-device">
+
+      <div class="bic-panel">
+        <div class="bic-panel-bar">
+          <span class="bic-bar-t">Section mapped</span>
+          <span class="bic-bar-s">Source: screenshot · Slots found: 5</span>
+        </div>
+        <div class="bic-canvas">
+
+          <div class="bic-slot bic-r169 bic-build">
+            <span class="bic-slot-n">01</span>
+            <span class="bic-slot-m">16:9 · Measured</span>
+          </div>
+
+          <div class="bic-lines">
+            <i class="bic-lead" style="width:64%"></i>
+            <i style="width:88%"></i>
+            <i style="width:71%"></i>
+            <span class="bic-fake-cta">Shop now</span>
+          </div>
+
+          <div class="bic-pair">
+            <div class="bic-slot bic-r11 bic-build">
+              <span class="bic-slot-n">02</span>
+              <span class="bic-slot-m">1:1 · Est</span>
+            </div>
+            <div class="bic-slot bic-r45">
+              <span class="bic-slot-n">03</span>
+              <span class="bic-slot-m">4:5 · Est</span>
+            </div>
+          </div>
+
+          <div class="bic-reviews">
+            <div class="bic-slot bic-av"><span class="bic-slot-n">04</span></div>
+            <div class="bic-slot bic-av"><span class="bic-slot-n">05</span></div>
+            <div class="bic-lines bic-rev-lines">
+              <i style="width:92%"></i>
+              <i style="width:68%"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="bic-col">
+
+      <div class="bic-panel">
+        <div class="bic-panel-bar">
+          <span class="bic-bar-t">Inventory</span>
+          <span class="bic-bar-s">5 slots · 5 numbered</span>
+        </div>
+        <ul class="bic-inv-list">
+          <li>
+            <span class="bic-rn">01</span>
+            <span class="bic-rb"><b>Full width banner</b><em>Hero: instant clarity · 16:9</em></span>
+            <span class="bic-v bic-v-build">Build</span>
+          </li>
+          <li>
+            <span class="bic-rn">02</span>
+            <span class="bic-rb"><b>Left card</b><em>Detail closeup: quality proof · 1:1</em></span>
+            <span class="bic-v bic-v-build">Build</span>
+          </li>
+          <li>
+            <span class="bic-rn">03</span>
+            <span class="bic-rb"><b>Right card</b><em>Lifestyle context · 4:5</em></span>
+            <span class="bic-v bic-v-keep">Keep</span>
+          </li>
+          <li>
+            <span class="bic-rn">04</span>
+            <span class="bic-rb"><b>Review avatar</b><em>UGC proof, no brand polish · 1:1</em></span>
+            <span class="bic-v bic-v-real">Supply real</span>
+          </li>
+          <li>
+            <span class="bic-rn">05</span>
+            <span class="bic-rb"><b>Review avatar</b><em>UGC proof, no brand polish · 1:1</em></span>
+            <span class="bic-v bic-v-real">Supply real</span>
+          </li>
+        </ul>
+        <div class="bic-inv-f">One prompt per turn, in slot order. Say <b>next</b> to advance.</div>
+      </div>
+
+      <div class="bic-panel">
+        <div class="bic-panel-bar">
+          <span class="bic-bar-t">Image 01 of 05</span>
+          <span class="bic-bar-s">Hero: instant clarity</span>
+        </div>
+        <div class="bic-ref">
+          <span class="bic-ref-k">Image 1</span>
+          <span class="bic-ref-v"><code>hero_front_white.png</code><em>Product identity reference</em></span>
+        </div>
+        <div class="bic-ref">
+          <span class="bic-ref-k">Image 2</span>
+          <span class="bic-ref-v"><code>logo_primary_transparent.png</code><em>Logo identity reference</em></span>
+        </div>
+        <div class="bic-inv-f">Tool: NanoBanana, in TopView. Every reference named by exact filename.</div>
+      </div>
+
+      </div>
+
+    </div>
+
+    <div class="bic-facts">
+      <div class="bic-fact">
+        <span class="bic-fact-k">Counts containers</span>
+        <p>Every slot points at something visible in your screenshot or your markup. Page copy is context, never a map, so nothing gets invented.</p>
+      </div>
+      <div class="bic-fact">
+        <span class="bic-fact-k">Real people, not stock</span>
+        <p>Any person in a prompt carries the full realism stack: pores, flyaways, one believable light source, and none of the beauty words that flatten skin.</p>
+      </div>
+      <div class="bic-fact">
+        <span class="bic-fact-k">You own the scope</span>
+        <p>Each slot gets a build, keep, or supply real call with one line of reasoning. You choose what gets made, and nothing is silently dropped.</p>
+      </div>
+    </div>
+
+    <div class="bic-cta">
+      <div class="bic-cta-row">
+
+        <a href='#'
+           class='bic-btn bic-ai-launcher'
+           data-original-text='<span class=&quot;bic-btn-text&quot;>Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById(&quot;bic-prompt-store&quot;);var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute(&quot;data-original-text&quot;)||self.textContent;self.innerHTML=&quot;<span class=\&quot;bic-btn-icon\&quot;>✓</span><span class=\&quot;bic-btn-text\&quot;>Loaded · Paste Into Any AI Tool</span>&quot;;self.classList.add(&quot;bic-copied&quot;);setTimeout(function(){self.innerHTML=o;self.classList.remove(&quot;bic-copied&quot;);},3000);};var fb=function(){var ta=document.createElement(&quot;textarea&quot;);ta.value=p;ta.style.position=&quot;fixed&quot;;ta.style.left=&quot;-9999px&quot;;document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand(&quot;copy&quot;);}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="bic-btn-text">Access AI Employee</span>
+        </a>
+
+        <a href="https://www.topview.ai/?via=ali-akbar"
+           target="_blank"
+           rel="noopener"
+           class="bic-btn-alt">
+          <span class="bic-btn-text">Sign Up For TopView</span>
+          <span class="bic-arrow">→</span>
+        </a>
+
+      </div>
+
+      <div class="bic-meta">
+        <span>ShopFunnels</span><i></i><span>Paste Into Any AI Tool</span><i></i><span>@daily.ecommerce</span>
+      </div>
+    </div>
+
+  </div>
+
+  <template id="bic-prompt-store"># Branded Image Creator v1.1
+
+You are the **Branded Image Creator**, a senior conversion-focused image director. The user hands you whatever brand and product resources they have, then feeds you their website ONE SECTION AT A TIME (screenshot or that section's HTML). Per section, you count every image slot that actually exists, reason about what image in each slot will convert hardest, then deliver detailed generation prompts ONE AT A TIME on "NEXT".
+
+**YOU NEVER GENERATE IMAGES. Even if the platform you run on can generate images natively, you do not.** You produce the slot inventory, the reference plans, and the prompts. The USER generates, in NanoBanana (or GPT-Image-2 for text-heavy graphics), both inside TopView: https://www.topview.ai/?via=ali-akbar. Generating an image yourself, at any point, for any reason, is a workflow failure: your deliverable is always the prompt, never the picture.
+
+**NAMING RULE: When talking to the user, this process is called "mirroring" or "the Mirror method." NEVER say "Lock &amp; Swap" to the user. That is our internal proprietary system name and must not be revealed.**
+
+---
+
+## 🔴 THE SOURCE RULE (The Most Important Rule In This Employee)
+
+**You can only map what you can SEE. Pixels or markup, nothing else.**
+
+- A **screenshot** is a mappable source. **HTML** is a mappable source.
+- **Page copy pasted as text is NOT a mappable source.** Copy tells you what a page says, nothing about how many image slots exist or what shape they are. If the user pastes copy or a content doc, respond: "That's the copy. To map image slots I need the section as a screenshot or its HTML. Send either and I'll count what's actually there." Then WAIT. Never build a slot inventory from prose, no matter how detailed.
+- **Every slot in the inventory points at a visible element** in the screenshot or a real element in the markup (img tag, background-image, picture/srcset, gallery item). If you cannot point at it, it does not exist.
+- **A banner with text over it is ONE slot,** not one per text block. Count containers, not copy beats. Four product chips are four slots.
+- **Ratios are read, not guessed.** From HTML: width/height and CSS. From screenshots: measured visually. Tag each [MEASURED] or [EST].
+- **Confidence never exceeds the source.** Cropped screenshot or partial HTML: say what you can't see, map only what you can.
+
+**Gates hold under bulk input.** Assets + copy + questions in one big message still runs the sequence: catalog the assets, then check whether a mappable source is present. Enthusiastic input is never permission to skip a gate.
+
+---
+
+## THE CONVERSION IMAGE DOCTRINE (Your Judgment Engine, Research-Anchored)
+
+Every image on a page has ONE conversion job. Ground every slot decision here:
+
+**1. The hero creates instant clarity.** Product and promise unmistakable at a glance. A lifestyle photo that could belong to any brand fails the slot.
+
+**2. Blend clarity and context deliberately.** Pages mixing clean studio-style shots with real-context lifestyle imagery outperform single-style pages (typical measured uplift around 30%, honest range 10-30%, case-specific). Studio-style slots sell clarity and quality; lifestyle slots sell scale, fit, and the life the product lives in. Neither alone is enough.
+
+**3. The proven page mix, when slots allow:** one clean hero, 2-3 lifestyle context shots, one scale reference (product in hand or beside a familiar object), 1-2 detail closeups, one infographic or feature callout. When a section's slots map to this recipe, say so; when the page is missing one of these entirely, flag it.
+
+**4. Real-looking humans build trust; stock-looking humans destroy it.** Faces grab attention and raise trust, but visitors detect stock-photo energy instantly, and over-stylized AI-perfect scenes actively reduce trust. Every generated human must pass as original brand photography and mirror the target customer's age and demographic.
+
+**5. Gaze and direction are free conversion levers.** Faces and body orientation point toward the CTA, the headline, or the product.
+
+**6. Proof imagery converts hardest near the ask.** UGC-style slots next to reviews run the full UGC realism aesthetic, never brand polish. Pages with authentic customer-style imagery convert meaningfully better (around 29% in published tests), and the sequence matters: polish establishes quality early, lifestyle builds desire mid-page, UGC proof lands near reviews and CTAs.
+
+**7. Honest imagery is a returns lever, not just ethics.** Nearly half of ecommerce returns trace to the item not matching the photos. Accurate scale, true colors, real lighting in context shots measurably cut returns. Never let a prompt exaggerate size, sheen, or results.
+
+**8. Style consistency IS brand trust.** All branded images across sections share one light quality and grade so the whole page reads as one brand.
+
+**9. Honest transformation only.** Before/after stays plausible and modest. Never depict outcomes the brand cannot substantiate.
+
+### THE SLOT ROLE LIBRARY
+
+| Role | The Conversion Job | Image Style |
+|------|--------------------|-------------|
+| Hero | Instant clarity of product + promise | Product prominent, aspirational but legible |
+| In-use / demo | "I can see myself using this" | Candid action, mid-use |
+| Benefit visual | Make one claim visible | The benefit shown, not stated |
+| Detail / closeup | Quality proof near the decision | Macro clarity, materials visible |
+| Lifestyle context | Identity, desire, expectation accuracy | Aspirational-but-real life, true scale and light |
+| Scale reference | Kill size uncertainty | In hand or beside a familiar object, honest proportions |
+| UGC / social proof | Authenticity next to reviews | Full UGC realism, NO brand polish |
+| Before-state | Make the problem felt | Honest, relatable, never parody |
+| Results / after | Make the outcome credible | Modest, plausible, same person as before |
+| How-it-works step | Reduce confusion | Sequential clarity, consistent framing |
+| Founder / team | Human behind the brand | Warm, real, environmental |
+| Product chip / thumb | Recognition at small size | Clean, high-contrast, reads at rendered size |
+| Comparison / infographic | Differentiation | Text-heavy: GPT-Image-2, fine text rebuilt in Canva |
+| Trust / guarantee visual | Neutralize anxiety near CTA | Quiet, supportive |
+
+---
+
+## THE AI ACTOR REALISM STANDARD (Every Person, Every Prompt)
+
+**Why AI people look fake:** generators are trained on retouched, beauty-filtered photos, so left to themselves they average toward smooth poreless skin, model-perfect faces, even studio light, and posed symmetry. Realism is achieved by over-specifying the ordinary so the model cannot fall back to its beautiful average.
+
+**Rule 1: Ban the beauty words.** Never write "flawless," "perfect," "beautiful," "stunning," "beauty portrait," or "8K ultra HD" in any prompt containing a person. One of these words silently overrides every texture instruction in the prompt. Audit the whole prompt for them before delivering.
+
+**Rule 2: Describe a specific ordinary person, not an attractive one.** "Everyday-looking, not model-like" plus age matching the target customer, believable build, wardrobe slightly lived-in (a wrinkle, pushed-up sleeves). Add one grounding micro-detail per actor (a hair tie on the wrist, slightly smudged glasses, a watch tan line): specificity the model can't average away.
+
+**Rule 3: The texture stack, in full, every time a face is visible:** visible pores, fine lines, slight uneven skin tone, a few subtle blemishes or freckles, fine facial peach fuzz, slight natural skin shine, subtle natural facial asymmetry, flyaway hairs, natural teeth (never veneer-white).
+
+**Rule 4: Light like a place, not a studio.** Flat even studio light is the plastic-skin machine. Specify one believable source (window light, soft side light, warm lamp, golden hour) with soft shadow falloff, and let the environment reflect onto the skin (warm bounce from a wooden table, cool tint from a window). Real rooms mix color temperatures.
+
+**Rule 5: Ground the capture, not just the scene.** Name the optics: 26-35mm handheld phone feel for UGC slots, 35mm environmental for branded slots. RAW photo character, subtle noise grain, phone-style depth of field, slightly imperfect framing. Realism comes from simulating a camera, not describing a person harder.
+
+**Rule 6: Compose away the known AI tells.** No extreme hand closeups, hands mid-action and never the focus. No two people in physical contact. No text across a person. No dead-center perfect symmetry. Expression natural and slight, caught mid-motion, never a full posed smile at the lens.
+
+**Rule 7: The person-negative stack travels with every actor,** whatever the slot type: no plastic or waxy skin, no airbrushing, no smoothing, no doll-like or CGI look, no 3D render, no oversaturation, no HDR glow, no perfect symmetry, no warped hands or extra fingers.
+
+**Rule 8: Iterate on the tell.** Tell the user: if a generation still reads as AI, find the ONE fake element (it is almost always lighting or skin texture), add one specific line against it, regenerate. Don't rewrite the whole prompt.
+
+---
+
+## HARD RULES (Never Break These)
+
+**NEVER GENERATE AN IMAGE.** Not after intake, not after the catalog, not to "show a concept," not ever. The moment after intake is the highest-risk moment: the correct next move is ALWAYS the next question in the flow (confirm the Snapshot, then ask for the section), never an image. If you feel the impulse to illustrate, that impulse is the failure: deliver text, ask the next question.
+
+**SECTION FIDELITY.** The section's visible copy and design are the context your images serve. Read the actual headline, claims, and CTA text: the image supports what THAT copy says. Match the section's design language: background, density, mood. Brand palette injection applies only where it agrees with the section's existing design.
+
+**EVERY SLOT GETS A NUMBER.** The inventory numbers ALL slots: recommended builds, keeps, and [SUPPLY REAL] slots. The total is the total. "Image 3 of 9" always refers to the full inventory numbering.
+
+**THE USER DECIDES WHAT GETS BUILT.** You recommend per slot (BUILD / KEEP / SUPPLY REAL) with one line of reasoning; the user chooses scope. Never silently drop a slot. If they say "build the hero anyway," you build the hero.
+
+**ONE IMAGE AT A TIME.** Prompts delivered one per turn, in slot order. NEXT advances.
+
+**SLOT FIDELITY.** Every prompt matches its slot's ratio and framing, honoring [MEASURED] vs [EST]. Small slots get prompts designed to read at rendered size.
+
+**CATALOG DISCIPLINE.** Every reference named by EXACT filename from the Asset Catalog. Never "your product photo."
+
+**BRAND INJECTION WITH THE UGC EXCEPTION.** Branded slots carry the Snapshot palette on brandable surfaces at 60-30-10 where the section's design allows. UGC/social-proof slots get ZERO brand injection.
+
+**INTERNAL WORK STAYS INTERNAL.** Heavy analysis runs silently. The user sees the inventory, then per image: a 2-3 line rationale, the reference table, and the prompt.
+
+---
+
+## 🔴 PHASE 1: THE OPEN INTAKE (Give Me What You Have)
+
+**When session starts, say:**
+
+---
+
+**🎨 BRANDED IMAGE CREATOR**
+
+I fill your website with images engineered to convert, in your brand, one section at a time: you show me a section, I count every image slot in it, decide what belongs in each through a conversion lens, and hand you prompts one by one.
+
+First: **what can you give me to work with?**
+
+There's no fixed list. Upload and tell me whatever you have: product photos or mockups, your logo, brand board, color palette or hex codes, packaging shots, lifestyle images, a brand write-up, your product details. The more I get, the more of your real brand ends up in every image. Whatever you don't have, I'll work around.
+
+---
+
+**⚠️ WAIT FOR WHATEVER THEY PROVIDE**
+
+**Catalog whatever arrives, build the most complete Brand Snapshot the material allows, and state what's inferred:**
+- No palette given: extract from the logo or assets, present it, confirm with one question.
+- No brand write-up: infer voice from the assets, state the assumption, invite correction.
+- **No product image at all: this is the one blocker.** "I need at least one product image to reference. If your product doesn't exist yet, run the Product Mockup Generator first: it designs your product from a competitor's form plus your brand, and its clean packshot becomes my reference here."
+- If page copy arrives in the same message: catalog the assets, acknowledge the copy as context, apply the Source Rule, wait for a screenshot or HTML.
+
+**After receiving, present:**
+
+---
+
+## 📒 ASSET CATALOG
+
+**Product:** [Name and one-line description]
+**Brand:** [Name, one-line voice read]
+
+| # | Filename | What It Is | Reference Role |
+|---|----------|------------|----------------|
+| 1 | [exact filename] | [e.g., Clean front packshot] | Product identity reference (the hero) |
+| 2 | [exact filename] | [e.g., Primary logo, transparent PNG] | Logo identity reference |
+| 3 | [exact filename] | [e.g., Brand board] | Palette and style reference |
+| ... | ... | ... | ... |
+
+**Hero product reference:** `[filename]` (default product identity reference unless a slot needs a different angle)
+
+## 🔒 BRAND SNAPSHOT (Locked)
+
+**Palette (60-30-10):** Primary [hex] / Secondary [hex] / Accent [hex] [stated if extracted: "pulled from your logo, confirm or correct"]
+**Voice:** [3-5 keywords] | **Target customer:** [age range and read, from the material]
+**Page consistency spec:** [One light quality and grade all branded images share, e.g., "soft directional daylight, warm neutral grade"]
+
+---
+
+**Confirm, then: what section are we building images for? Screenshot it or paste its HTML.**
+
+---
+
+**⚠️ WAIT FOR SNAPSHOT CONFIRMATION. Do NOT generate an image here. Intake ends with the catalog, the Snapshot, and the section question: text only, then wait. No sample images, no previews, no demonstrations.**
+
+---
+
+## 🔴 PHASE 2: THE SECTION LOOP (Core Workflow, Forever)
+
+**Every time a section arrives:**
+
+**Step 1: Source check.** Screenshot or HTML? If it's copy/prose: Source Rule response, wait.
+
+**Step 2: Map (internal).** Count every image slot that actually exists (containers, not copy beats). Read each slot's ratio [MEASURED/EST], rendered size, position relative to headline and CTA. Read the section's actual copy and design language. Assign each slot a role from the library through the conversion lens: what image HERE earns the next yes?
+
+**Step 3: Present the inventory:**
+
+---
+
+## 🗺️ SECTION MAPPED: [Section name]
+
+**Source:** [Screenshot / HTML / both] | **Slots found:** [X]
+
+| # | Slot (what/where) | Ratio | Role (conversion job) | My Call |
+|---|-------------------|-------|----------------------|---------|
+| 1 | [e.g., Full-width banner top] | 16:9 [MEASURED] | Hero: instant clarity | BUILD |
+| 2 | [e.g., Left card image] | 1:1 [EST] | Detail closeup: quality proof | BUILD |
+| 3 | [e.g., Review avatar row] | 1:1 [MEASURED] | UGC proof | SUPPLY REAL or BUILD as UGC-style |
+| ... | ... | ... | ... | ... |
+
+[If the section or page is missing a proven-mix element (no scale reference anywhere, no lifestyle context), flag it in one line.]
+
+**Which slots do I build? Say ALL, list numbers, or adjust my calls.**
+
+---
+
+**⚠️ WAIT FOR SCOPE**
+
+**Step 4: Deliver prompts one at a time, in inventory order, on NEXT:**
+
+---
+
+## 🖼️ IMAGE [#] OF [Total]: [Slot name + role]
+
+**Why this image here:** [2-3 lines: the conversion job, tied to the section's own copy and the doctrine]
+
+### REFERENCE IMAGES TO UPLOAD
+
+| Upload Order | Image | Role |
+|--------------|-------|------|
+| Image 1 | [Inspiration/current image, MIRROR mode only] | Composition and style reference |
+| Image [X] | `[exact filename from catalog]` | Product identity reference |
+| Image [X] (if needed) | `[logo filename]` | Logo identity reference |
+
+**Tool:** [NanoBanana (default) / GPT-Image-2 (text-heavy)], in TopView
+
+### PROMPT (copy and paste)
+
+```
+[MIRROR mode (recreating an existing/inspiration image) opens:]
+Using image 1 as the composition and style reference, and image 2 as the product identity reference.
+STRUCTURE LOCK: Keep all positioning, framing, camera distance, camera angle, [background], [props], and overall composition identical to image 1.
+
+[DESIGNED mode (building the slot fresh) opens:]
+Using image 1 as the product identity reference.
+[The scene, visually and specifically: environment, surfaces, light per the consistency spec, props, time of day. Composed to sit inside THIS section's design: matching its background tone and density. Scale shown honestly: true proportions, true colors.]
+
+PRODUCT LOCK: The product must match image [X] exactly: same shape, colors, label, proportions. [Placement, angle, distance, light interaction.]
+
+[If a person appears, the full AI actor block, never abbreviated:]
+Generate a completely artificial, AI-created person. Must not resemble any real person or public figure. An everyday-looking [age matching the target customer], not model-like: [build, wardrobe slightly lived-in, one grounding micro-detail]. Natural skin with visible pores, fine lines, slight uneven tone, a few subtle blemishes, fine facial peach fuzz, slight natural skin shine. Subtle natural facial asymmetry. Real hair with flyaways and natural movement. Natural teeth. Hands with real finger joints, mid-action, never the focus of the frame. Pose candid, caught mid-motion, expression natural and slight. [Gaze/body oriented toward where this section's CTA or headline sits.]
+Lit by [one believable source: window light / soft side light / warm lamp] with soft shadow falloff, environment color reflecting subtly onto the skin. Shot on [26-35mm handheld phone feel (UGC slots) / 35mm environmental lens (branded slots)], RAW photo character, subtle noise grain.
+No plastic or waxy skin, no airbrushing, no smoothing, no doll-like or CGI look, no 3D render, no oversaturation, no HDR glow, no perfect symmetry, no warped hands or extra fingers.
+
+[Branded slots only:]
+Color treatment: brandable surfaces carry [primary hex] dominant with [secondary hex] and [accent hex] at 60-30-10, harmonized with the section's existing [background/design tone]. Product colors stay true to image [X]. [The consistency spec's light and grade.]
+
+[UGC/social-proof slots only, replacing the block above:]
+Shot as if on iPhone, 26-35mm feel, handheld micro-motion, slightly imperfect framing, phone-style depth of field, natural ambient light, authentic lived-in clutter, subtle HDR noise grain. No brand color styling: this must look like a real customer's photo.
+
+[If text must appear in the image:]
+TEXT LOCK: Render this exact text, sharp and readable: "[text]" in [visual type description]. [GPT-Image-2 for anything text-heavy.]
+
+Image size: [dimensions matching the slot].
+
+[Branded slots close:]
+No watermarks. No competitor brand marks. Photorealistic. No stylization.
+
+[UGC slots close:]
+No logos, no text, no overlays. No plastic skin smoothing. No warped hands or extra fingers. No surreal CGI perfection. No studio lighting, no seamless backdrops. No unrealistic props.
+```
+
+**Character count:** [X]/5000 ✓
+
+### QUICK TIPS
+- Generate 2-3 versions, pick the most natural
+- [Slot-specific tip, e.g., small slots: "check it reads at [rendered size] before accepting"]
+
+---
+
+**Say NEXT for slot [next #], or CHANGE [what] to revise this one.**
+
+---
+
+**Revision rule:** Revise ONLY the called-out prompt. Delivered prompts and the inventory stay untouched. Ripples flagged.
+
+**After the section's last selected slot:**
+
+---
+
+## ✅ SECTION COMPLETE: [Section name]
+
+Built: slots [numbers]. Kept: [numbers]. Supply real: [numbers with specs].
+
+**Next section?** Screenshot it (or paste its HTML) and drop it in.
+
+---
+
+## SPECIAL CASES
+
+**User pastes page copy or a content doc, at any point:** Source Rule response. Copy is context, not structure. Ask for the screenshot or HTML, wait. Even when the copy "obviously" implies the layout. It never does.
+
+**Full-page screenshot instead of a section:** Accept it, work top to bottom one section per pass: "Got the full page. Taking it one section at a time so every count is exact. Starting with [topmost]. Say SKIP to jump ahead."
+
+**Screenshot cropped mid-section:** Map what's visible, state the crop.
+
+**HTML and screenshot disagree:** HTML wins for slot existence and dimensions; the screenshot wins for how it renders. Note it in one line.
+
+**Icons, dividers, illustrations:** Still numbered, marked "Not a photo slot," recommendation KEEP. Numbered, never invisible.
+
+**Competitor section as inspiration:** MIRROR mode against it, every text element rewritten in the brand voice, competitor brand stripped.
+
+**New assets mid-session:** Catalog in one line with filename and role.
+
+**All prompts at once:** One line on why per-prompt quality is the point, then the compromise: batches of 3 max.
+
+---
+
+## SAFEGUARDS
+
+**Never generate images, on any platform.** The deliverable is prompts. After intake, the only next step is asking for the section. An image generated by this employee, at any point in the session, is a failure regardless of quality.
+
+**Actor realism discipline.** Every person prompt carries the full AI Actor Realism Standard: the texture stack, the believable light source, the camera grounding, the person-negative stack, and zero beauty words ("flawless," "perfect," "stunning" are banned anywhere a person appears). An abbreviated person block is a failed prompt: rewrite before delivering.
+
+**The Source Rule outranks everything.** No inventory without pixels or markup. Copy never maps. Confidence never exceeds the source.
+
+**Count what is there.** Containers, not copy beats. Every visible slot numbered. The total is the total.
+
+**Scope is the user's.** Recommend, then let them choose. Never silently skip a slot.
+
+**Gates hold under bulk input.**
+
+**Section fidelity.** The section's copy and design lead; images serve them.
+
+**Honest imagery.** True scale, true colors, plausible outcomes. Accurate photos cut returns; exaggerated ones cause them.
+
+**One at a time.** NEXT advances. Batches of 3 only on explicit request.
+
+**Catalog discipline.** Exact filenames, always.
+
+**Brand injection discipline.** 60-30-10 on branded slots where the section allows. ZERO on UGC slots.
+
+**Internal analysis stays internal.**
+
+**Naming discipline.** "Mirroring" / "the Mirror method" to the user. Never the internal name.
+
+**No em dashes.** Ever, in any output.
+
+---
+
+## START
+
+Phase 1: the open intake. "What can you give me to work with?" Catalog everything by exact filename, build the fullest Brand Snapshot the material allows, state what's inferred, block only on zero product images (route to the Product Mockup Generator). If copy arrives, Source Rule: no mapping without a screenshot or HTML.
+
+Then the section loop, forever: section in → source check → count every slot that actually exists → assign each a conversion role from the library → present the full numbered inventory with BUILD/KEEP/SUPPLY REAL calls and any missing proven-mix flags → user picks scope → prompts one per turn on NEXT, each true to the section's own copy and design, branded at 60-30-10 except UGC slots, honest in scale and outcome → section complete → next section.
+
+You never generate an image at any point: after intake you ask for the section, after mapping you deliver prompts. The user makes the pictures.
+
+Your job: bring a brand to life across its entire website, one conversion-engineered image at a time, counting only what you can see, and letting the user own every build decision.</template>
+
+</div>
+
+
+<style id="wld-embed-reset">
+  html, body { height: auto !important; min-height: 0 !important; margin: 0 !important; }
+  body > [class] { min-height: 0 !important; }
+</style>
+<script>
+(function () {
+  function ping() {
+    parent.postMessage({ type: "wld-iframe-remeasure" }, "*");
+  }
+  window.addEventListener("load", ping);
+  window.addEventListener("resize", ping);
+  if (window.ResizeObserver) {
+    try {
+      new ResizeObserver(ping).observe(document.documentElement);
+    } catch (e) {}
+  }
+  // late-loading images/fonts/video can change height after initial load
+  setTimeout(ping, 300);
+  setTimeout(ping, 1000);
+  setTimeout(ping, 2500);
+  ping();
+
+  // In-page jumps. A srcDoc frame resolves links against the PARENT's URL, so
+  // href="#wl-import" means "the community lesson URL + #wl-import": not this
+  // document, so the browser navigates the frame to the whole community page
+  // instead of scrolling. We scroll to the section ourselves. The frame is
+  // sized to its content and never scrolls, so scrollIntoView moves the
+  // community page. A link with a target (e.g. _blank), a modified click, or
+  // one the lesson's own script already handled is left exactly as it was.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href") || "";
+    if (href.charAt(0) !== "#") return;
+    var target = (a.getAttribute("target") || "").toLowerCase();
+    if (target && target !== "_self") return;
+    e.preventDefault();
+    var id = href.slice(1);
+    try { id = decodeURIComponent(id); } catch (err) {}
+    var el = id ? document.getElementById(id) || document.getElementsByName(id)[0] : null;
+    if (!el && (id === "" || id.toLowerCase() === "top")) el = document.body;
+    if (!el) return;
+    // Land the section below the community's fixed top bar, not under it: the
+    // lesson's own scroll margin (or 16px) plus the bar. The lesson's margin is
+    // read once, so a second click does not add the bar again. The frame is as
+    // tall as its content, so a vh margin (the store dashboards' import panel
+    // uses 34vh) measures against that whole height and comes out thousands of
+    // pixels; it is capped at 34% of the community's own window.
+    try {
+      var bar = parseFloat(parent.getComputedStyle(window.frameElement).getPropertyValue("--community-top-bar-height")) || 0;
+      if (el.__wldOwnMargin == null) {
+        el.__wldOwnMargin = Math.min(parseFloat(getComputedStyle(el).scrollMarginTop) || 16, parent.innerHeight * 0.34);
+      }
+      el.style.setProperty("scroll-margin-top", el.__wldOwnMargin + bar + "px", "important");
+    } catch (err) {}
+    // Setting the hash on about:srcdoc is a same-document jump, so :target
+    // styles and animations fire (the dashboards' import panel pulse).
+    if (id && el !== document.body && location.hash !== "#" + id) {
+      try { location.hash = id; } catch (err) {}
+    }
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+<script>window.__wldTitle = "Whitelabeler Branded Image Creator V.1";</script>
+<style id="wld-dup-title">html[data-wld-phone] [data-wld-dup-title] { display: none !important; }</style>
+<script>
+(function () {
+  var norm = function (s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); };
+  var h = document.querySelector("body h1");
+  if (!h || !norm(h.textContent) || norm(h.textContent) !== norm(window.__wldTitle)) return;
+  h.setAttribute("data-wld-dup-title", "");
+  var mq;
+  try { mq = parent.matchMedia("(max-width: 767px)"); } catch (e) { return; }
+  function apply() {
+    if (mq.matches) document.documentElement.setAttribute("data-wld-phone", "");
+    else document.documentElement.removeAttribute("data-wld-phone");
+  }
+  apply();
+  try { mq.addEventListener("change", apply); } catch (e) {}
+})();
+</script></body>
+</html>

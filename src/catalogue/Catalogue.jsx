@@ -13,6 +13,7 @@ import { Menu, TemplatesView } from "./Templates.jsx";
 import { PageSelect, Viewer } from "./Viewer.jsx";
 import { ProjectDetail, ProjectsView } from "./Projets.jsx";
 import { PagesView } from "./Pages.jsx";
+if (location.hash === "#agents") location.replace(`/agents.html${location.search}`);
 import { confirmDelete, listPages, listProjects, listTemplates, templateScore } from "../projects.js";
 import { PAGE_TYPES } from "../engine/page-types.js";
 

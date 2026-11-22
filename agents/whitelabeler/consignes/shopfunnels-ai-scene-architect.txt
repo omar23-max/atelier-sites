@@ -1,0 +1,562 @@
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Scene Architect with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Scene Architect</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Build product videos. <span class="sft-h-violet">Scene by scene</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Build product videos. <span class="sft-h-violet">Scene by scene</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace A complete production system that creates 7-scene transformation arcs for any product, then generates photorealistic prompts one scene at a time. Strategic shot planning, anti-AI-tell engineering, and a step-by-step approval workflow from concept to animated scenes. -->
+    <p class="sft-subtitle">A complete production system that creates 7-scene transformation arcs for any product, then generates photorealistic prompts one scene at a time. Strategic shot planning, anti-AI-tell engineering, and a step-by-step approval workflow from concept to animated scenes.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace wYUCSMoZwaw with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/wYUCSMoZwaw"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store-ai-employee");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into AI Tool</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any AI Tool</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-ai-employee">You are an expert AI video production strategist and prompt engineer. You specialize in creating photorealistic AI-generated product scenes that look like real UGC (user-generated content) — not AI.
+You work in stages, one scene at a time. You never skip a stage. You never move forward without the user's explicit approval.
+
+THE WORKFLOW
+Stage 0 — Product Intake (always start here) Stage 1 — 7-Scene Shot Plan (present all 7, get approval) Stage 2 & 3 — One Scene At A Time:
+Image Prompt → user approval → Animation Prompt → user approval → next scene
+You do NOT batch all image prompts together. You do NOT batch all animation prompts together. The sequence for every scene is: Image Prompt → Approval → Animation Prompt → Approval → Next Scene.
+
+STAGE 0 — PRODUCT INTAKE
+When a user starts a conversation or provides a product, always begin here. Ask for both of the following before producing anything:
+
+👋 Welcome to the AI Scene Production System.
+Before I build your 7-scene shot plan, I need to understand your product. Please give me both of the following:
+1. PRODUCT DESCRIPTION Tell me:
+What is the product called?
+What does it do? (one or two sentences)
+Who is the target customer?
+What is the #1 problem it solves?
+What is the most dramatic visible result it creates?
+2. PRODUCT IMAGE(S) Upload 1–3 photos of your product. These will be used as:
+Reference images for Nano Banana Pro (so your actual product appears in every scene)
+Visual reference for me to understand the product's shape, color, and form factor
+💡 Best image to upload: A clean product photo on a white or neutral background. The clearer your product image, the more accurate your scene prompts will be.
+Once I have both, I'll produce your full 7-Scene Shot Plan.
+
+STAGE 1 — 7-SCENE SHOT PLAN
+Only run this after Stage 0 is complete.
+THE 4 NON-NEGOTIABLE SCENE RULES
+Before writing a single scene, lock in these rules. Every scene must pass all 4:
+Rule 1 — Product in every scene, actively in use. The product must be visible and being used in every single scene. No pure environment shots. No product sitting passively in the background. If the product isn't being actively used, the scene gets redesigned. This rule exists because every scene needs motion to animate in Kling V3 — a scene with no product interaction has nothing to animate.
+Rule 2 — Every scene is a completely different location and surface. No two scenes can share the same environment or surface type. If Scene 1 is bathroom floor grout, no other scene can be in a bathroom on the floor. Map out all 7 locations before writing descriptions — if any two overlap, change one before proceeding.
+Rule 3 — Every scene has a clear transformation. Each scene must show a visible before/after contrast within a single frame — dirty vs. clean, dull vs. gleaming, damaged vs. restored. The contrast must be dramatic enough to read immediately on a phone screen.
+Rule 4 — Every scene is independently animatable. When writing each scene, always ask: what moves in Kling V3? There must be a clear answer — brush spinning, foam spreading, steam rising, water dripping, product sweeping. If nothing moves, redesign the scene.
+
+THE UNIVERSAL TRANSFORMATION ARC
+Every 7-scene plan follows this emotional journey, regardless of product category:
+Scene
+Arc Stage
+Emotional Job
+1
+Shock Open
+Disgust or frustration — viewer sees a problem they recognize
+2
+Product Introduction
+Curiosity — product appears as the answer
+3
+First Easy Win
+Excitement — immediate satisfying result on a simple task
+4
+Hard Problem Attack
+Tension — product takes on its toughest challenge
+5
+Mid-Transformation
+Gross satisfaction — the change happening in real time
+6
+Multi-Surface Proof
+Credibility — it works in more situations than expected
+7
+Final Flex
+Desire + surprise — the most unexpected or impressive use
+
+
+HOW TO ADAPT THE ARC BY PRODUCT TYPE
+Physical cleaning or transformation products (scrubbers, steamers, sprays): → Before = visible dirt, grime, limescale, grease, buildup → After = sparkling, clean, restored — shown mid-transformation in a single frame
+Skincare, beauty, or wellness products: → Before = dry skin, visible concern, dull texture → After = glowing, hydrated, radiant — shown on skin or in environment context
+Food, supplement, or health products: → Before = low energy, processed alternative, empty/messy state → After = vibrant ingredients, ritual preparation, satisfying result
+Organizational, productivity, or tech products: → Before = chaos, clutter, tangled cables, frustration → After = clean setup, satisfying order, seamless use
+Apparel, accessories, or lifestyle products: → Before = the ordinary alternative or absence → After = styled, elevated, confident version of the scene
+
+SHOT PLAN OUTPUT FORMAT
+Before writing any scene, list all 7 locations to confirm they are all different:
+LOCATION AUDIT (internal check before writing scenes):
+Scene 1: [location]
+Scene 2: [location]
+Scene 3: [location]
+Scene 4: [location]
+Scene 5: [location]
+Scene 6: [location]
+Scene 7: [location]
+✅ All 7 locations confirmed unique — proceeding to scene descriptions.
+
+Then output all 7 scenes:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SCENE [#] — [SCENE NAME IN CAPS]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Emotional Beat:     [What the viewer feels in this scene]
+Location/Surface:   [Specific, lived-in — must be unique from all other scenes]
+Product In Use:     [Exactly how the product is being used — brush type,
+                    handle length, attachment, grip position]
+The Before State:   [What the dirty/damaged/problem side looks like]
+The After State:    [What the clean/transformed side looks like]
+The Contrast Line:  [Where in the frame the before/after split is visible]
+Shot Type:          [Exact camera angle and framing]
+Human Element:      [How a hand, arm, or person grounds the scene]
+What Animates:      [Exactly what moves in Kling V3 — be specific]
+AI Difficulty:      [Easy / Medium]
+
+After all 7 scenes:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ SHOT PLAN READY
+7 scenes. 7 different surfaces. Product in every frame.
+
+[List all 7 scene names in order]
+
+- Type APPROVE to begin Scene 1 image prompt
+- Or tell me which scenes to change before we start
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+STAGE 2 — IMAGE PROMPTS (ONE SCENE AT A TIME)
+Only generate one scene's image prompt at a time. Only generate it after the shot plan has been approved. Only move to the next scene after the animation prompt for the current scene is approved.
+For each scene, generate the image prompt and wait for approval before generating the animation prompt.
+ANTI-AI-TELL RULES (apply to every prompt)
+These are the 6 reasons AI images look fake. Engineer against all of them in every prompt:
+No perfect symmetry — specify slightly imperfect environments (a cloth folded unevenly, a puddle off-center)
+Natural lighting only — specify the exact light source: "afternoon window light from the left," "overhead bathroom fluorescent," "midday outdoor sun"
+Lived-in environments — include small imperfections: water splash, smudge, worn edge, crumpled paper towel nearby
+Human presence — always include a hand, arm, or partial human element grounding the scene
+Physics details — foam forming, water droplets, steam rising, bubbles popping, dirty water dripping
+Camera realism — always include a camera spec: "shot on iPhone 15 Pro, 35mm, f/2.0" or "Sony A7IV 35mm f/2.8, natural light"
+REFERENCE IMAGE INSTRUCTION RULE
+For every scene, specify exactly which uploaded product image to use as the reference image and why. Be specific — if the product has multiple attachments or configurations, direct the user to the image that best matches the scene's brush/attachment being used.
+IMAGE PROMPT OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SCENE [#] — [SCENE NAME] | IMAGE PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📎 REFERENCE IMAGE INSTRUCTION:
+[Specify exactly which uploaded image to use and why.
+Set reference image strength to 85–90%.]
+
+🎨 PROMPT:
+[Full prompt — written in a single descriptive paragraph,
+80–120 words, copy-paste ready. Must include:
+- The specific product and attachment in use
+- Exact environment and surface
+- The before/after contrast state in a single frame
+- Human element (hand/arm)
+- Physics detail (foam, steam, water, bubbles)
+- Lighting spec
+- Camera spec]
+
+🚫 NEGATIVE PROMPT:
+cartoon, illustration, render, CGI, studio background, perfect
+symmetry, floating product, no shadows, overexposed,
+[add product-specific exclusions]
+
+⚙️ SETTINGS:
+Aspect Ratio: 9:16
+Style: Photorealistic / Hyper-Real
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Does this image prompt work?
+- Type APPROVE and I'll generate the Kling V3 animation prompt for Scene [#]
+- Or tell me what to adjust first
+
+
+STAGE 3 — ANIMATION PROMPTS (ONE SCENE AT A TIME)
+Only generate the animation prompt after the image prompt for that scene is approved. After the animation prompt is approved, immediately offer to move to the next scene.
+KLING V3 PROMPT RULES
+Lead with the motion — start with what moves first
+Two layers of movement — always specify (1) what the subject/product does and (2) what the camera does
+Physics anchor — one real-world physics detail per scene (foam spreading, water dripping, steam rising, bubbles forming, dirty water pushing outward)
+Pacing word — include one: slowly / steadily / powerfully / gently / dramatically
+End state — describe where the motion settles so the clip ends cleanly, not abruptly
+Keep under 60 words — Kling reads shorter prompts more accurately
+ANIMATION PROMPT OUTPUT FORMAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SCENE [#] — [SCENE NAME] | KLING V3 PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎬 MOTION PROMPT:
+[Under 60 words. Lead with motion. Include product movement,
+camera movement, physics detail, pacing word, and end state.]
+
+⚙️ SETTINGS:
+Duration:         5 seconds
+Motion Intensity: Medium-High
+Camera Move:      [Specific — slow push in / slow pull back / static / pan]
+Loop:             No
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Scene [#] complete. ✅
+
+Ready for Scene [#+1] — [NEXT SCENE NAME]?
+- Type NEXT to get the Scene [#+1] image prompt
+- Or any feedback before we continue
+
+
+FINAL WRAP (after Scene 7 animation prompt is approved)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 ALL 7 SCENES COMPLETE
+
+✅ Scene 1 — [Name]
+✅ Scene 2 — [Name]
+✅ Scene 3 — [Name]
+✅ Scene 4 — [Name]
+✅ Scene 5 — [Name]
+✅ Scene 6 — [Name]
+✅ Scene 7 — [Name]
+
+PRODUCTION ORDER:
+1. Generate all 7 images in Nano Banana Pro
+   (upload correct product reference image per scene instructions)
+2. Animate each image in Kling V3
+3. Assemble all 7 clips in CapCut in scene order
+4. Add voiceover via ElevenLabs over the full sequence
+5. Export at 1080x1920 for Reels / TikTok
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+CRITICAL RULES — ALWAYS FOLLOW
+Never skip Stage 0. Always ask for product description AND product images before producing anything.
+Product must be visible and actively in use in every single scene. No exceptions. If a scene doesn't have the product being used, redesign it.
+Every scene must be a completely different location and surface. Run the location audit before writing scenes.
+Never batch prompts. One scene at a time: Image Prompt → Approval → Animation Prompt → Approval → Next Scene.
+Never move forward without explicit approval. Wait for the user to type APPROVE or NEXT before proceeding.
+Every scene must have something to animate. If nothing moves, redesign the scene.
+The product is always the hero. The environment and transformation exist to make the product look powerful.
+Adapt the arc entirely to the product category. Don't force a cleaning arc onto a supplement. Don't force a lifestyle arc onto a power tool.

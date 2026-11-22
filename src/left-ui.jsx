@@ -74,7 +74,24 @@ export function LeftPanel() {
   return (
     <div className="atl-left">
       <nav className="atl-rail" aria-label="Outils">
-        {TOOLS.map(({ id, label, short, icon: Icon }) => (
+        {TOOLS.map(({ id, label, short, icon: Icon }) => [
+          id === "score" && (
+            <a key="agents" href={`/agents.html${location.search}`} title="Agents army (fenêtre à part)" aria-label="Agents army">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="9" cy="8" r="3.2" />
+                <path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" />
+                <circle cx="17" cy="9" r="2.4" />
+                <path d="M15.5 14.2c2.4-.3 4.4 1.2 5 4" />
+              </svg>
+              <span className="atl-rail__label" aria-hidden="true">Agents</span>
+            </a>
+          ),
+          id === "score" && (
+            <a key="catalogue" href={`/catalogue.html${location.search}#tout`} title="Catalogue" aria-label="Catalogue">
+              <IconGrid />
+              <span className="atl-rail__label" aria-hidden="true">Catalogue</span>
+            </a>
+          ),
           <button key={id} type="button" title={label} aria-label={label} aria-pressed={tool === id} className={tool === id ? "is-on" : ""} onClick={() => toggle(id)}>
             <Icon />
             <span className="atl-rail__label" aria-hidden="true">{short}</span>
@@ -83,18 +100,14 @@ export function LeftPanel() {
                 {coverage}
               </em>
             )}
-          </button>
-        ))}
+          </button>,
+        ])}
         <button type="button" className="atl-rail__settings" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
           <IconSettings />
           <span className="atl-rail__label" aria-hidden="true">Réglages</span>
         </button>
-        {/* En bas : le catalogue et l'historique de la page. */}
+        {/* En bas : l'historique de la page (le catalogue est sous Agents, 2026-11-22). */}
         <span className="atl-rail__sep" />
-        <a href={`/catalogue.html${location.search}#tout`} title="Catalogue" aria-label="Catalogue">
-          <IconGrid />
-          <span className="atl-rail__label" aria-hidden="true">Catalogue</span>
-        </a>
         <button type="button" title="Historique de la page" aria-label="Historique" onClick={() => window.dispatchEvent(new CustomEvent("atl-open-history"))}>
           <IconHistory />
           <span className="atl-rail__label" aria-hidden="true">Historique</span>

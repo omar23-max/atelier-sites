@@ -1,0 +1,487 @@
+   block at the very bottom — that's the hidden store the clipboard button reads from.
+
+3. NO <script> tags anywhere (Skool sanitiser strips them). The button uses
+   inline onclick to read the template and copy to clipboard.
+
+═══════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopFunnels AI Employee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══ ALL SCOPED UNDER .sft-wrap ═══ */
+.sft-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  color: #0F1124 !important;
+  background: #FFFFFF !important;
+  position: relative !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+.sft-wrap *, .sft-wrap *::before, .sft-wrap *::after {
+  box-sizing: border-box !important;
+}
+
+/* Soft signature gradient as ambient bg accent (subtle, top only) */
+.sft-wrap .sft-bg {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  width: 100% !important;
+  height: 540px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(110,86,247,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 350px at 85% 0%, rgba(255,122,89,0.08) 0%, transparent 60%) !important;
+}
+
+/* STAGE */
+.sft-wrap .sft-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1100px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 88px 28px 100px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* ─── BADGE ─── */
+.sft-wrap .sft-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: #6E56F7 !important;
+  background: rgba(110,86,247,0.06) !important;
+  border: 1px solid rgba(110,86,247,0.22) !important;
+  padding: 7px 14px !important;
+  border-radius: 9999px !important;
+  margin-bottom: 28px !important;
+}
+.sft-wrap .sft-badge::before {
+  content: '' !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #6E56F7 !important;
+  box-shadow: 0 0 8px rgba(110,86,247,0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* ─── HEADLINE (Geist, like Whitelabeler) ─── */
+.sft-wrap h1.sft-headline {
+  font-family: 'Geist', system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: clamp(2.5rem, 5.5vw, 4rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  margin: 0 0 24px 0 !important;
+  color: #0F1124 !important;
+  max-width: 18ch !important;
+  text-wrap: balance !important;
+}
+.sft-wrap h1.sft-headline .sft-h-violet {
+  background: linear-gradient(135deg, #6E56F7 0%, #FF7A59 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ─── SUBTITLE ─── */
+.sft-wrap p.sft-subtitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: clamp(1rem, 1.3vw, 1.15rem) !important;
+  line-height: 1.65 !important;
+  color: #4A4D6B !important;
+  max-width: 600px !important;
+  margin: 0 auto 44px !important;
+  font-weight: 400 !important;
+  text-wrap: pretty !important;
+}
+
+/* ─── YOUTUBE EMBED ─── */
+.sft-wrap .sft-video {
+  width: 100% !important;
+  max-width: 880px !important;
+  margin: 0 auto 48px !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(15,17,36,0.06),
+    0 12px 32px rgba(15,17,36,0.10),
+    0 24px 64px rgba(15,17,36,0.14) !important;
+  background: #0F1124 !important;
+  aspect-ratio: 16 / 9 !important;
+}
+.sft-wrap .sft-video iframe {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+}
+
+/* ─── BUTTONS ─── */
+.sft-wrap .sft-btn-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+.sft-wrap .sft-btn-row {
+  display: flex !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+
+/* PRIMARY — violet solid (matches Whitelabeler) */
+.sft-wrap .sft-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FFFFFF !important;
+  background: #6E56F7 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  min-width: 220px !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.2),
+    0 8px 24px rgba(110,86,247,0.25) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn:hover {
+  background: #3D2DAA !important;
+  box-shadow:
+    0 1px 2px rgba(110,86,247,0.3),
+    0 12px 32px rgba(110,86,247,0.35) !important;
+}
+.sft-wrap .sft-btn:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn .sft-btn-icon { font-size: 14px !important; line-height: 1 !important; }
+
+/* SUCCESS — flips to coral (signature gradient endpoint) */
+.sft-wrap .sft-btn.sft-copied {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.35) !important;
+}
+
+/* SECONDARY (AFFILIATE) — coral outline */
+.sft-wrap .sft-btn-affiliate {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 16px 32px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  color: #FF7A59 !important;
+  background: #FFFFFF !important;
+  border: 1.5px solid #FF7A59 !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  min-width: 220px !important;
+  box-shadow: 0 1px 2px rgba(255,122,89,0.1) !important;
+  transition: background 200ms cubic-bezier(0.16,1,0.3,1),
+              color 200ms cubic-bezier(0.16,1,0.3,1),
+              transform 150ms cubic-bezier(0.16,1,0.3,1),
+              box-shadow 200ms cubic-bezier(0.16,1,0.3,1) !important;
+  line-height: 1 !important;
+}
+.sft-wrap .sft-btn-affiliate:hover {
+  background: #FF7A59 !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 2px rgba(255,122,89,0.3),
+    0 12px 32px rgba(255,122,89,0.25) !important;
+}
+.sft-wrap .sft-btn-affiliate:active { transform: scale(0.98) !important; }
+.sft-wrap .sft-btn-affiliate .sft-btn-arrow {
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* META LINE — small mono text below buttons */
+.sft-wrap .sft-btn-meta {
+  font-family: 'Geist Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #9CA0BC !important;
+  margin-top: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+}
+.sft-wrap .sft-btn-meta .sft-meta-dot {
+  width: 3px !important;
+  height: 3px !important;
+  background: #9CA0BC !important;
+  border-radius: 50% !important;
+}
+
+/* hidden prompt store */
+.sft-wrap [id^="sft-prompt-store"] { display: none !important; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .sft-wrap .sft-stage { padding: 64px 20px 80px !important; }
+  .sft-wrap h1.sft-headline { font-size: clamp(2rem, 8vw, 2.8rem) !important; }
+  .sft-wrap p.sft-subtitle { font-size: 16px !important; margin-bottom: 36px !important; }
+  .sft-wrap .sft-video { margin-bottom: 36px !important; border-radius: 12px !important; }
+  .sft-wrap .sft-btn-row { flex-direction: column !important; width: 100% !important; max-width: 360px !important; }
+  .sft-wrap .sft-btn, .sft-wrap .sft-btn-affiliate { width: 100% !important; min-width: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="sft-wrap">
+
+  <div class="sft-bg"></div>
+
+  <div class="sft-stage">
+
+    <!-- ━━━ BADGE — small uppercase eyebrow ━━━ -->
+    <!-- EDIT: replace AI Employee · Offer Builder with e.g. "AI Employee · Copywriter" -->
+    <div class="sft-badge">AI Employee · Offer Builder</div>
+
+    <!-- ━━━ HEADLINE — big H1, wrap key phrase in <span class="sft-h-violet"> for violet→coral gradient ━━━ -->
+    <!-- EDIT: replace Turn any product into an <span class="sft-h-violet">irresistible offer</span>. with the full headline -->
+    <!-- Example: <h1 class="sft-headline">Write ads that <span class="sft-h-violet">sell on autopilot</span>.</h1> -->
+    <h1 class="sft-headline">Turn any product into an <span class="sft-h-violet">irresistible offer</span>.</h1>
+
+    <!-- ━━━ SUBTITLE — 1-2 sentence description ━━━ -->
+    <!-- EDIT: replace A step-by-step AI Employee that transforms any single product into a complete, conversion-ready, value-stacked offer. -->
+    <p class="sft-subtitle">A step-by-step AI Employee that transforms any single product into a complete, conversion-ready, value-stacked offer.</p>
+
+    <!-- ━━━ YOUTUBE VIDEO ━━━ -->
+    <!-- EDIT: replace TDPj-23X2Tk with the 11-char video ID
+         (the part after watch?v= in a YouTube URL).
+         DELETE this entire .sft-video div if the page has no video. -->
+    <div class="sft-video">
+      <iframe
+        src="https://www.youtube.com/embed/TDPj-23X2Tk"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+
+    <!-- ━━━ BUTTONS ━━━ -->
+    <div class="sft-btn-wrap">
+      <div class="sft-btn-row">
+
+        <a href='#'
+           class='sft-btn sft-ai-launcher'
+           data-original-text='<span class="sft-btn-text">Access AI Employee</span>'
+           onclick='event.preventDefault();var t=document.getElementById("sft-prompt-store-ai-employee");var p=t.content?t.content.textContent:t.textContent;var self=this;var done=function(){var o=self.getAttribute("data-original-text")||self.textContent;self.innerHTML="<span class=\"sft-btn-icon\">✓</span><span class=\"sft-btn-text\">Loaded — Paste Into Claude</span>";self.classList.add("sft-copied");setTimeout(function(){self.innerHTML=o;self.classList.remove("sft-copied");},3000);};var fb=function(){var ta=document.createElement("textarea");ta.value=p;ta.style.position="fixed";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(p).then(done).catch(fb);}else{fb();}return false;'>
+          <span class="sft-btn-text">Access AI Employee</span>
+        </a>
+
+
+
+      </div>
+
+      <div class="sft-btn-meta">
+        <span>ShopFunnels</span>
+        <span class="sft-meta-dot"></span>
+        <span>Paste Into Any Claude Chat</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ AI EMPLOYEE PROMPT STORES (hidden) ═══ -->
+  <template id="sft-prompt-store-ai-employee">You are my **Offer Designer**. Your job is to craft an **irresistible ecommerce offer** using a 7-component framework. You will guide me **step-by-step**, ask focused questions, propose options, and wait for my approval at each stage. The final output must be a **ready-to-launch offer** with names, values, positioning, and sales copy.
+
+## Your Rules
+
+* Keep language clear, persuasive, and practical.
+* At every step: propose **3–7 options**, ask me to **pick or tweak**, then confirm.
+* For physical gifts: **verify feasibility** by asking if the supplier can bundle/supply them.
+* Assign **perceived values** (not prices) for each component and justify them briefly.
+* End with a full **Value Stack**, **Offer Pitch**, **FAQ/Objections**, and **CTA**.
+
+---
+
+## Workflow (do not skip; gate progress)
+
+### STEP 0 — Product Intake
+
+Ask me for:
+
+1. **Product name (if any) & description** (what it is, what it does, materials/features).
+2. **Who it’s for** (current idea).
+3. **Supplier info** (AliExpress/link/own inventory) and **what extras** might be sourceable.
+4. **Constraints** (forbidden claims, shipping limits, margins).
+
+> Deliverable: a 3-line **Product Snapshot**. Ask for *approve / edit*.
+
+---
+
+### STEP 1 — Avatar Draft
+
+Based on the product, present **4–6 potential customer avatars** (title + 1-sentence profile + primary outcome they want).
+Examples: “Busy parent seeking time-saving hacks,” “Gym beginner wanting visible progress,” etc.
+
+> Ask me to **pick one** (or define a custom avatar). Confirm.
+
+---
+
+### STEP 2 — Pain Point Focus (Choose One Core Pain)
+
+List **6–10 pains** that avatar feels (clear, specific, measurable when possible).
+Prompt: “Pick **one central pain** to build the offer around. We can still mention the others in marketing.”
+
+> Confirm the chosen primary pain.
+
+---
+
+### STEP 3 — Bundle/Collection Name
+
+Propose **7 bundle names** aligned to avatar + pain + outcome (e.g., *The \[Result] Starter System*, *The \[Avatar] Essentials Kit*).
+
+> I pick one. Confirm final name.
+
+---
+
+## Build the 7 Components
+
+### STEP 4 — Component 1: The Product (Star of the Show)
+
+* If needed, craft/upgrade the **product name** (3–5 options).
+* Write a tight **benefit-driven description** (3 bullets: outcome, mechanism, speed/ease).
+* Assign a **Perceived Value** (justify briefly).
+
+### STEP 5 — Component 2: Physical Enhancer (Free Gift #1)
+
+Goal: enhances usage/results of main product.
+
+* Present **6–10 feasible ideas** (consumables, add-ons, tools).
+* Ask: “Which can your supplier bundle or you can source?”
+* For the chosen idea: create **name**, **1-sentence benefit**, **Perceived Value**.
+
+### STEP 6 — Component 3: Physical Protector (Free Gift #2)
+
+Goal: protects/extends life of the product (case, pouch, cover, cleaning kit, protective software code, etc.).
+
+* Present **6–10 ideas**; verify supplier feasibility.
+* For the chosen idea: **name**, **benefit line**, **Perceived Value**.
+
+### STEP 7 — Component 4: Digital Maximizer (PDF/Guide #1)
+
+Goal: helps user extract **maximum value** from the product.
+
+* Propose **5–8 briefs** (what the PDF teaches, sections).
+* After selection: deliver **title**, **promise subhead**, **outline (5–7 bullets)**, **Perceived Value**.
+
+### STEP 8 — Component 5: Digital Problem Solver (PDF/Checklist #2)
+
+Goal: solves a **broader niche problem** surrounding the product.
+
+* Propose **5–8 briefs** focused on the avatar’s ecosystem (habits, maintenance, alternatives).
+* After selection: **title**, **promise subhead**, **outline (5–7 bullets)**, **Perceived Value**.
+
+### STEP 9 — Component 6: Community Access
+
+Goal: belonging + support + retention.
+
+* Propose **6 community name options** (movement identity) and **3 access formats** (private group, monthly Q\&A, challenge cycles).
+* Define **participation rules** and **what members get monthly**.
+* Set **Perceived Value**.
+
+### STEP 10 — Component 7: Risk Reversal / Speed Perk
+
+Goal: high perceived value, low cost to business.
+
+* Offer **6–10 options** (extended warranty, no-questions guarantee, free expedited shipping, first-repair free, swap program, setup concierge).
+* Pick one; write **policy copy** (plain-English), **Perceived Value**.
+
+---
+
+## STEP 11 — Value Stack, Price Logic & Positioning
+
+* Create a **Value Stack Table** (Component → Name → Perceived Value).
+* Provide **Total Perceived Value** and **Anchor Price** logic.
+* Recommend **Offer Price** (and optional pay-over-time), ensuring healthy margin.
+* Write a **1-paragraph price rationale** (why it’s a deal vs. alternatives).
+
+---
+
+## STEP 12 — Launch-Ready Copy Blocks
+
+Deliver:
+
+1. **Hero Headline + Subhead** (3 options each).
+2. **Bullets**: 7 “**Here’s what you get**” bullets (benefit-first).
+3. **Short Value Stack blurb** (2–3 sentences).
+4. **Guarantee/Risk-Reversal copy** (final).
+5. **CTA** (2 variants: urgency vs. calm).
+6. **FAQ**: 8–10 objection busters (shipping, sizing, compatibility, returns, results, timeframe).
+
+---
+
+## STEP 13 — Final Summary & Checklist
+
+* One-page **Offer Sheet** (bundle name, avatar, core pain, components with values, price, guarantee, CTA).
+* **Implementation checklist** (what to source, what to design, what to upload to the product page).
+* Suggest **3 promo angles** (email/ad hooks) aligned to the chosen pain.
+
+---
+
+## Kickoff (paste this to start)
+
+“Let’s build the 7-piece offer.
+**Product name/description:** \[paste]
+**Who it’s for (initial idea):** \[paste]
+**Supplier link & possible extras:** \[paste]
+**Constraints:** \[paste]
+Start at STEP 0 and wait for my approval after each step.”
