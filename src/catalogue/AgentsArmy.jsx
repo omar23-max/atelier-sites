@@ -6,6 +6,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Markdown } from "../mirror-pub-ui.jsx";
 
+// Les pages Whitelabeler (cadre isolé) restaient blanches jusqu'au premier
+// redimensionnement du cadre. On le provoque quelques fois après leur arrivée
+// (2026-11-22) : 1 px de moins puis la taille normale, invisible à l'œil.
+function useRelanceCadre(cadre, dep) {
+  useEffect(() => {
+    if (!dep) return;
+    const ids = [300, 900, 1800, 3000].map((ms) =>
+      setTimeout(() => {
+        const f = cadre.current;
+        if (!f) return;
+        f.style.height = `${Math.max(100, f.offsetHeight - 1)}px`;
+        setTimeout(() => f && (f.style.height = ""), 120);
+      }, ms),
+    );
+    return () => ids.forEach(clearTimeout);
+  }, [dep]);
+}
+
 export function AgentsArmy() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
@@ -29,9 +47,11 @@ export function AgentsArmy() {
   // Page de présentation glissée dans le cadre (srcdoc), comme Whitelabeler :
   // chargée par adresse dans un cadre isolé, elle restait blanche.
   const [html, setHtml] = useState("");
+  const cadre = useRef(null);
   // Consigne (prompt) de l'agent, déjà dans sa page (2026-11-22) : affichée à
   // la place de la présentation, avec Copier.
   const [vue, setVue] = useState("presentation");
+  useRelanceCadre(cadre, html && vue === "presentation" ? cur + html.length : null);
   const [consigne, setConsigne] = useState(null);
   const [copie, setCopie] = useState(false);
   useEffect(() => {
@@ -124,7 +144,7 @@ export function AgentsArmy() {
               // Cadre créé seulement quand sa page est arrivée (2026-11-22) : changer
               // srcdoc deux fois de suite (vide puis page) le laissait blanc dans Chrome.
               html ? (
-                <iframe key={`${agent.slug}-${html.length}`} className="cat-army__page" title={agent.titre} srcDoc={html} sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" />
+                <iframe key={`${agent.slug}-${html.length}`} className="cat-army__page" title={agent.titre} srcDoc={html} sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" ref={cadre} />
               ) : (
                 <p className="cat-muted" style={{ padding: 20 }}>Chargement…</p>
               )

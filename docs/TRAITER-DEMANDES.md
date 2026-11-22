@@ -2347,3 +2347,4 @@ Original 80 % → retour Modifiable 80 %.
 - Rail de gauche de l'éditeur : « Agents » entre Médias et Couverture (src/left-ui.jsx).
 - Retiré du menu du Catalogue ; l'ancienne adresse catalogue.html#agents renvoie vers agents.html.
 - Rail de l'éditeur : Catalogue placé juste sous Agents (plus en bas).
+- Pages de présentation blanches dans la fenêtre Agents army : le cadre isolé ne s affichait qu après un redimensionnement ; on le provoque après chargement (useRelanceCadre, AgentsArmy.jsx).
