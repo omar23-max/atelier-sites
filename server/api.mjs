@@ -15,6 +15,34 @@ import { root, pagesDir, sectionsDir, trashDir, requestsDir, projectsDir, import
 const jsonOut = json;
 import { empreinte, statutFondations } from "../src/engine/fondations-etat.js";
 
+// ---- Écritures sûres (audit PG01, 2026-11-23) ----
+// Un verrou par fichier : la lecture de la version, la comparaison et
+// l'écriture se font d'un bloc, deux requêtes ne peuvent plus lire la même
+// ancienne version puis écrire chacune. Écriture atomique : fichier
+// temporaire puis renommage (jamais de fichier à moitié écrit).
+const fileLocks = new Map();
+function lockFile(key, fn) {
+  const next = (fileLocks.get(key) ?? Promise.resolve()).then(fn, fn);
+  const tail = next.catch(() => {});
+  fileLocks.set(key, tail);
+  tail.then(() => fileLocks.get(key) === tail && fileLocks.delete(key));
+  return next;
+}
+async function writeAtomic(file, text) {
+  const { rename } = await import("node:fs/promises");
+  const tmp = `${file}.${process.pid}.${Date.now().toString(36)}.tmp`;
+  await writeFile(tmp, text, "utf8");
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await rename(tmp, file);
+      return;
+    } catch (e) {
+      if (attempt >= 5 || !/EBUSY|EPERM|UNKNOWN/.test(e.code ?? e.message)) throw e;
+      await new Promise((r) => setTimeout(r, 300));
+    }
+  }
+}
+
 export function atelierApi() {
   const db = supabaseClient();
   return {
@@ -234,6 +262,7 @@ export function atelierApi() {
               // au lieu d'écraser l'autre version.
               const tab = String(req.headers["x-atl-tab"] ?? "");
               const expected = req.headers["if-match"];
+              return lockFile(file, async () => {
               if (expected && existsSync(file)) {
                 const current = pageRev(await readFile(file, "utf8"));
                 const last = pageWriters.get(name);
@@ -242,20 +271,13 @@ export function atelierApi() {
               await mkdir(pagesDir, { recursive: true });
               // Sous Windows, le fichier peut être lu au même moment (vignette) :
               // quelques essais avant d'abandonner.
-              for (let attempt = 0; ; attempt++) {
-                try {
-                  await writeFile(file, JSON.stringify(data, null, 2) + "\n", "utf8");
-                  break;
-                } catch (e) {
-                  if (attempt >= 5 || !/EBUSY|EPERM|UNKNOWN/.test(e.code ?? e.message)) throw e;
-                  await new Promise((r) => setTimeout(r, 300));
-                }
-              }
+              await writeAtomic(file, JSON.stringify(data, null, 2) + "\n");
               refreshPageThumb(name);
               const rev = pageRev(JSON.stringify(data, null, 2) + "\n");
               pageWriters.set(name, { tab, rev });
               res.setHeader("ETag", rev);
               return json(res, 200, { ok: true, file: `pages/${name}.json`, rev });
+              });
             }
           }
 
@@ -497,6 +519,7 @@ export function atelierApi() {
               // depuis (autre onglet, script de Claude), refus 409 : le client
               // refait sa fusion au lieu d'écraser. Sans If-Match : comme avant.
               const ifMatch = req.headers["if-match"];
+              return lockFile(file, async () => {
               if (ifMatch && existsSync(file)) {
                 const cur = JSON.stringify(JSON.parse(await readFile(file, "utf8")));
                 const rev = `"${createHash("sha1").update(cur).digest("hex").slice(0, 20)}"`;
@@ -512,9 +535,10 @@ export function atelierApi() {
               }
               if (next.fondations) next.fondations = statutFondations(next);
               await mkdir(projectsDir, { recursive: true });
-              await writeFile(file, JSON.stringify(next, null, 2) + "\n", "utf8");
+              await writeAtomic(file, JSON.stringify(next, null, 2) + "\n");
               const rev = `"${createHash("sha1").update(JSON.stringify(next)).digest("hex").slice(0, 20)}"`;
               return json(res, 200, { ok: true, file: `projets/${parts[1]}.json`, rev, fondations: next.fondations ?? null });
+              });
             }
           }
 

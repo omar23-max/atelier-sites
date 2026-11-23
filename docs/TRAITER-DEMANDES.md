@@ -2378,3 +2378,14 @@ Original 80 % → retour Modifiable 80 %.
 - 455 cadres <div data-wld-img> dans 130 sections wl-* convertis en vrais emplacements d image (slots iwN : template.liquid, presets, arbre) ; 11 pages mises à jour (blocs ajoutés). Le texte gris reste la consigne de l image.
 - Script : scripts/apres-import/cadres-image-wl.py (à relancer après un nouvel import Whitelabeler). Sauvegarde : ~/sauvegardes/avant-wl-images-20261123.tgz. Restent quelques cadres qui contiennent déjà des éléments (non convertis).
 - IA sur un cadre d image vide : la fenêtre « Retravailler avec l IA » s ouvre sur l onglet Images (plus Design) et CRÉE l image d après la consigne du cadre + ta consigne (api/ia/canvas-image), consigne facultative (inspector-ui.jsx, aiTargets → vides).
+
+## 2026-11-23 — Typographie Projets / Fondations
+- Style tableau de bord (modèle vidéo) : Inter 13,5 px, titres 15 px, petits libellés et pastilles en JetBrains Mono majuscules espacées, chiffres en chasse fixe (catalogue.css, portée .cat-layout--plein ; police chargée dans catalogue.html).
+- Étendu à tout le catalogue + couleurs du modèle : fond gris bleuté #f3f4f7, titres #0f172a, chiffres en chasse fixe bleu marine #1e2b5e, boutons principaux / filtres choisis / Ajouter à la page en bleu marine, sélection bordée de bleu marine.
+
+## 2026-11-23 — Refonte guidée, lot 1 (fiabilité)
+- FD01 : videosConcurrents exclu des faits (RESEARCH_KEY, fondations-etat.js) — une vidéo concurrente n inspire que des angles.
+- FD02 : [À VÉRIFIER], [A VERIFIER], TBD, MISSING, TO VERIFY… reconnus comme manques (MARQUEUR).
+- PG01 : verrou par fichier + écriture atomique (lockFile / writeAtomic, server/api.mjs) pour pages et projets ; application d un design et image placée depuis le Canvas envoient If-Match (409 si la page a changé).
+- CV01 : save() rend réussite/échec, flushSave attend l enregistrement en cours et réessaie ; fermer, changer d espace ou de tableau après un échec demande confirmation (canvas-ui.jsx).
+- Tests : fondations-fiabilite 59/59 ; 2 PUT simultanés même version → 200 + 409 (page et projet) ; Canvas avec enregistrement en échec reste ouvert.

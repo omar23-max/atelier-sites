@@ -9,7 +9,9 @@
 //     plus d'écrasement silencieux d'un travail fait ailleurs.
 
 // ---- Marqueurs ----
-export const MARQUEUR = /\[\s*(?:MANQUE|[ÀA]\s*VALIDER|[ÀA]\s*CONFIRMER|TODO)[^\]]*\]/gi;
+// 2026-11-23 (audit FD02) : aussi « [À VÉRIFIER] » écrit par les agents, et
+// les variantes sans accent ou anglaises (TO VERIFY, TBD, MISSING…).
+export const MARQUEUR = /\[\s*(?:MANQUE|[ÀA]\s*VALIDER|[ÀA]\s*CONFIRMER|[ÀA]\s*V[ÉE]RIFIER|TODO|TBD|MISSING|TO\s*VERIFY|TO\s*CONFIRM|NEEDS?\s*VERIFICATION)[^\]]*\]/gi;
 // Texte réellement disponible (ni vide, ni seulement des marqueurs).
 export function realText(v) {
   if (v == null) return false;
@@ -21,7 +23,9 @@ export const hasMarker = (v) => new RegExp(MARQUEUR.source, "i").test(String(v ?
 
 // ---- Recherche brute : ne prouve rien et n'entre pas dans la validation ----
 // Collages des clients et des concurrents, liens à fouiller, sites concurrents.
-export const RESEARCH_KEY = /^(collecte|liensRecherche$|sites$)/;
+// 2026-11-23 (audit FD01) : les analyses de vidéos concurrentes aussi —
+// elles inspirent des angles, elles ne prouvent rien pour notre produit.
+export const RESEARCH_KEY = /^(collecte|liensRecherche$|sites$|videosConcurrents$)/;
 export function withoutResearch(reponses = {}) {
   const out = {};
   for (const [k, v] of Object.entries(reponses ?? {})) if (!RESEARCH_KEY.test(k)) out[k] = v;

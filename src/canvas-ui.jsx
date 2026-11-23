@@ -329,7 +329,7 @@ function CanvasBoard({ onClose, X }) {
     return d.tableaux ?? [];
   }
   async function openBoard(id) {
-    await flushSave();
+    if (!(await confirmLeave())) return;
     const b = await fetch(`/api/canvas/${pageName}/${id}`).then((r) => r.json());
     sig.current = "";
     setSel(null);
@@ -433,23 +433,46 @@ function CanvasBoard({ onClose, X }) {
     const s = api.getAppState();
     return { elements, files: out, appState: { scrollX: s.scrollX, scrollY: s.scrollY, zoom: s.zoom.value, viewBackgroundColor: s.viewBackgroundColor } };
   }
+  // Audit CV01 (2026-11-23) : save() dit si l'enregistrement a réussi ;
+  // flushSave() attend aussi un enregistrement déjà parti et réessaie si le
+  // dernier a échoué. Fermer ou changer d'espace ne se fait plus en silence
+  // après un échec (confirmLeave).
+  const inflight = useRef(null);
+  const lastOk = useRef(true);
   async function save(force = false, aAjouterPris = 0) {
-    if (!api || !board) return;
-    try {
-      setSaved("encours");
-      const scene = await sceneForSave();
-      const res = await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom: board.nom, ...scene, aAjouterPris }) });
-      setSaved(res.ok ? "ok" : "erreur");
-    } catch {
-      setSaved("erreur");
-    }
+    if (!api || !board) return true;
+    const run = (async () => {
+      try {
+        setSaved("encours");
+        const scene = await sceneForSave();
+        const res = await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom: board.nom, ...scene, aAjouterPris }) });
+        setSaved(res.ok ? "ok" : "erreur");
+        return res.ok;
+      } catch {
+        setSaved("erreur");
+        return false;
+      }
+    })();
+    inflight.current = run;
+    const ok = await run;
+    if (inflight.current === run) inflight.current = null;
+    lastOk.current = ok;
+    return ok;
   }
   async function flushSave() {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
       saveTimer.current = null;
-      await save();
+      return save();
     }
+    if (inflight.current) await inflight.current;
+    if (!lastOk.current) return save();
+    return true;
+  }
+  // Avant de quitter le tableau : vrai si on peut partir.
+  async function confirmLeave() {
+    if (await flushSave()) return true;
+    return window.confirm("L'enregistrement du tableau a échoué (connexion ou serveur).\n\nOK : quitter quand même, les dernières modifications seront perdues.\nAnnuler : rester dans le Canvas (il réessaiera au prochain changement).");
   }
   function onChange(elements, appState, files) {
     const isEmpty = !elements.some((e) => !e.isDeleted);
@@ -667,7 +690,7 @@ function CanvasBoard({ onClose, X }) {
           UIOptions={{ canvasActions: { loadScene: false, saveToActiveFile: false, export: { saveFileToDisk: true } }, tools: { image: true } }}
           renderTopRightUI={() => (
             <div className="atl-cv__right">
-              <WorkspaceSwitch current="canvas" onLeave={async () => (await flushSave(), onClose())} />
+              <WorkspaceSwitch current="canvas" onLeave={async () => { if (!(await confirmLeave())) throw new Error("Canvas : sortie annulée"); onClose(); }} />
               <div className="atl-cv__ai">
                 <button type="button" className={imagesOpen ? "is-on" : ""} onClick={() => setImagesOpen(true)} title="Tes images" aria-label="Tes images">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -713,14 +736,14 @@ function CanvasBoard({ onClose, X }) {
                 )}
                 <span className={`atl-cv__saved is-${saved}`}>● {savedLabel}</span>
               </div>
-              <button type="button" className="atl-cv__close" onClick={async () => (await flushSave(), onClose())} title="Fermer le Canvas" aria-label="Fermer le Canvas">
+              <button type="button" className="atl-cv__close" onClick={async () => (await confirmLeave()) && onClose()} title="Fermer le Canvas" aria-label="Fermer le Canvas">
                 ×
               </button>
             </div>
           )}
         >
           <MainMenu>
-            <MainMenu.Item onSelect={async () => (await flushSave(), await refreshBoards(), setBoardsOpen(true))}>Tous les tableaux</MainMenu.Item>
+            <MainMenu.Item onSelect={async () => (await confirmLeave()) && (await refreshBoards(), setBoardsOpen(true))}>Tous les tableaux</MainMenu.Item>
             <MainMenu.Separator />
             <MainMenu.Item onSelect={() => setImagesOpen(true)}>Tes images</MainMenu.Item>
             <MainMenu.Item onSelect={() => videoRef.current?.click()}>Ajouter une vidéo</MainMenu.Item>
@@ -1212,12 +1235,15 @@ async function placeInPage(getPuck, name, sectionId, slotKey, url) {
     dispatch({ type: "replace", destinationIndex: index, destinationZone: ROOT_ZONE, data: applyValues(appState.data.content[index], { [slotKey]: { image: url } }) });
     return;
   }
-  const page = await fetch(`/api/pages/${name}`).then((r) => r.json());
+  const lu = await fetch(`/api/pages/${name}`);
+  const rev = lu.headers.get("ETag");
+  const page = await lu.json();
   const index = page.content.findIndex((c) => c.props.id === sectionId);
   if (index < 0) throw new Error("Section introuvable dans la page.");
   await fetch(`/api/pages/${name}/snapshot`, { method: "POST" });
   page.content[index] = applyValues(page.content[index], { [slotKey]: { image: url } });
-  const res = await fetch(`/api/pages/${name}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(page) });
+  const res = await fetch(`/api/pages/${name}`, { method: "PUT", headers: { "Content-Type": "application/json", ...(rev ? { "If-Match": rev } : {}) }, body: JSON.stringify(page) });
+  if (res.status === 409) throw new Error("La page a été modifiée ailleurs entre-temps : recharge-la puis recommence.");
   if (!res.ok) throw new Error("La page n'a pas pu être enregistrée.");
 }
 

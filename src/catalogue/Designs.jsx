@@ -25,7 +25,10 @@ async function api(method, url, body) {
 
 // Applique un design à une page : copie de sécurité, application, enregistrement.
 export async function applyDesignToPage(pageName, design) {
-  const page = await api("GET", `/api/pages/${pageName}`);
+  const lu = await fetch(`/api/pages/${pageName}`);
+  if (!lu.ok) throw new Error("Page introuvable.");
+  const rev = lu.headers.get("ETag");
+  const page = await lu.json();
   // Valeurs complètes (y compris les valeurs par défaut) pour reconnaître les rôles.
   page.content = (page.content ?? []).map((item) =>
     sectionsById[item.type] ? { ...item, props: normalizeProps(sectionsById[item.type], item.props) } : item,
@@ -33,7 +36,9 @@ export async function applyDesignToPage(pageName, design) {
   const previous = designById[page.root?.props?.design] ?? null;
   const result = applyDesign(page, design, sectionsById, previous);
   const snap = await api("POST", `/api/pages/${pageName}/snapshot`);
-  await api("PUT", `/api/pages/${pageName}`, result.page);
+  const ecrit = await fetch(`/api/pages/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json", ...(rev ? { "If-Match": rev } : {}) }, body: JSON.stringify(result.page) });
+  if (ecrit.status === 409) throw new Error("La page a été modifiée ailleurs (onglet ouvert ?). Recharge-la puis réapplique le design.");
+  if (!ecrit.ok) throw new Error("La page n'a pas pu être enregistrée.");
   // Pour le menu « Design » de l'atelier : les derniers designs appliqués.
   await api("POST", "/api/designs/recents", { id: design.id }).catch(() => {});
   return { ...result, snapshot: snap.file };

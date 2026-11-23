@@ -4346,3 +4346,124 @@ textarea {
   .cat .cat-nav button > span, .cat .cat-nav button { min-width: 0; }
   .cat .cat-nav em { flex: none; }
 }
+
+/* Projets et Fondations : typographie façon tableau de bord (modèle vidéo,
+   2026-11-23) — Inter compact, titres 15 px, petits libellés en chasse fixe
+   majuscules espacées, chiffres en chasse fixe. */
+.cat .cat-main {
+  --typo-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #1f2433;
+  letter-spacing: -0.003em;
+}
+.cat .cat-main h1.cat-project-name { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+.cat .cat-main .cat-lead,
+.cat .cat-main .cat-project-product { font-size: 13.5px; color: #5b6475; }
+.cat .cat-main .cat-link { font-size: 13px; }
+.cat .cat-main h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+.cat .cat-main h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: #111827; }
+.cat .cat-main h4,
+.cat .cat-main h4.cat-fd__sub { font-size: 13.5px; font-weight: 600; }
+.cat .cat-main label { font-size: 13px; }
+.cat .cat-main label > span:first-child:not([class]),
+.cat .cat-main .cat-fd__label {
+  font-family: var(--typo-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+.cat .cat-main input,
+.cat .cat-main textarea,
+.cat .cat-main select { font-family: inherit; font-size: 13.5px; }
+.cat .cat-main .cat-muted,
+.cat .cat-main .cat-fd__hint,
+.cat .cat-main .cat-brief__auto { font-size: 12.5px; color: #6b7280; }
+.cat .cat-main .cat-fd__statut { font-size: 13px; }
+.cat .cat-main .cat-btn,
+.cat .cat-main button { font-family: inherit; }
+.cat .cat-main .cat-btn { font-size: 13px; font-weight: 600; }
+/* Pastilles : chasse fixe, majuscules, comme « PHASE 1 » */
+.cat .cat-main .cat-badge {
+  font-family: var(--typo-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+/* Chiffres et numéros d'étapes en chasse fixe, comme « 02 » */
+.cat .cat-main .cat-fd__stepnum,
+.cat .cat-main .cat-fd__count,
+.cat .cat-main .cat-menu__item > span:first-child {
+  font-family: var(--typo-mono);
+  font-variant-numeric: tabular-nums;
+}
+.cat .cat-main .cat-fd__count,
+.cat .cat-main .cat-fd__etat { font-size: 11.5px; }
+/* Menu des étapes du projet */
+.cat .cat-main .cat-menu__item b,
+.cat .cat-main .cat-menu__item strong { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
+.cat .cat-main .cat-menu__item small,
+.cat .cat-main .cat-menu__item em { font-size: 11.5px; color: #6b7280; font-style: normal; }
+.cat .cat-main .cat-menu__fd {
+  font-family: var(--typo-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+/* Tout le catalogue au style du modèle (2026-11-23) : fond gris bleuté,
+   titres presque noirs, chiffres et accents bleu marine, cartes blanches
+   fines, sélection bordée de bleu marine. */
+.cat {
+  --cat-navy: #1e2b5e;
+  --cat-bg: #f3f4f7;
+  --cat-line: #e3e6ee;
+  --cat-text: #0f172a;
+  background: var(--cat-bg);
+}
+.cat .cat-main h1, .cat .cat-main h2, .cat .cat-main h3, .cat .cat-main h4 { color: #0f172a; }
+.cat .cat-main h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+/* Grands chiffres (compteurs, prix, scores) : chasse fixe bleu marine */
+.cat .cat-main .cat-stats strong {
+  font-family: var(--typo-mono);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--cat-navy);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.cat .cat-main .cat-stats div { border-color: var(--cat-line); border-radius: 12px; background: #fff; }
+.cat .cat-main .cat-stats span { font-size: 12.5px; color: #5b6475; }
+/* Boutons principaux bleu marine (plus de noir) */
+.cat .cat-main .cat-btn:not(.cat-btn--ghost):not(.cat-btn--danger) { background: var(--cat-navy); border-color: var(--cat-navy); color: #fff; }
+.cat .cat-main .cat-btn:not(.cat-btn--ghost):not(.cat-btn--danger):hover { background: #2a3a78; }
+/* Élément choisi : bordure bleu marine, comme la carte « Most popular » */
+.cat .cat-main .cat-menu__item.is-on,
+.cat .cat-main .cat-menu__item[aria-current="step"] { border-color: var(--cat-navy) !important; box-shadow: 0 0 0 1px var(--cat-navy) inset; }
+/* Pastilles pleines bleu marine (« MOST POPULAR ») pour les états forts */
+.cat .cat-main .cat-badge--blue { background: var(--cat-navy); color: #fff; }
+/* Liens */
+.cat .cat-main .cat-link { color: var(--cat-navy); }
+
+/* Compléments du style modèle (2026-11-23) */
+.cat .cat-main .cat-overview__stats b,
+.cat .cat-main .cat-overview__stats strong {
+  font-family: var(--typo-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--cat-navy);
+  font-variant-numeric: tabular-nums;
+}
+.cat .cat-main .cat-tpl__primary,
+.cat .cat-main .cat-tpl__use > button { background: var(--cat-navy) !important; border-color: var(--cat-navy) !important; color: #fff !important; }
+.cat .cat-main .cat-tpl__primary:hover { background: #2a3a78 !important; }
+.cat .cat-main .cat-origins button.is-on { background: var(--cat-navy); border-color: var(--cat-navy); color: #fff; }
+.cat .cat-main .cat-origins button em,
+.cat .cat-main .cat-origins button small { font-family: var(--typo-mono); font-size: 10.5px; }
