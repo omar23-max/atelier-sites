@@ -182,18 +182,22 @@ const sameNode = (sel) => (n) => (sel.key ? n.key === sel.key : sel.group ? n.gr
 // Textes et images retravaillables d'une section (ou d'une partie : `keys`).
 export function aiTargets(item, keys = null) {
   const section = byId[item.type];
-  if (!section) return { texts: [], images: [] };
+  if (!section) return { texts: [], images: [], vides: [] };
   const props = normalizeProps(section, item.props);
   const texts = [];
   const images = [];
+  // Cadres d'image encore vides (2026-11-23) : l'IA crée l'image d'après la
+  // consigne du cadre (« [ SUBJECT … ] ») au lieu de la refaire.
+  const vides = [];
   if (section.meta.arbre) {
     const leaves = leavesOf(treeForItem(item)).filter((l) => !keys || keys.includes(l.key));
     for (const l of leaves) {
       if (isImageType(l.type)) {
         if (l.image) images.push({ key: l.key, src: l.image, size: l.size });
+        else if (l.type === "image") vides.push({ key: l.key, consigne: plain(l.text ?? ""), size: l.size });
       } else if (plain(l.text)) texts.push({ id: l.key, text: l.text, role: l.name ?? l.type }); // rôle : « Titre H1 », « Bouton »… (règles de l'IA)
     }
-    return { texts, images };
+    return { texts, images, vides };
   }
   const textual = (s) => ["text", "textarea", "richtext", "inline_richtext"].includes(s.type);
   if (!keys) {
@@ -2650,10 +2654,12 @@ const REFS_KEY = "atl-ia-references";
 // Trois onglets : Textes, Images, Design (section entière seulement :
 // redessiner, nettoyer, adapter au style de la page).
 function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, onUndo }) {
-  const { texts, images } = useMemo(() => aiTargets(item, target.keys), [item, target.keys]);
+  const { texts, images, vides = [] } = useMemo(() => aiTargets(item, target.keys), [item, target.keys]);
+  const nbImages = images.length + vides.length;
   const [prompt, setPrompt] = useState(target.prompt ?? "");
   // Design en premier et par défaut (2026-11-18, onglet le plus utilisé).
-  const [tab, setTab] = useState(target.tab ?? (onRebuild ? "design" : texts.length ? "textes" : images.length ? "images" : "design"));
+  // Un élément image choisi (même vide) : onglet Images d'office (2026-11-23).
+  const [tab, setTab] = useState(target.tab ?? (target.keys && !texts.length && nbImages ? "images" : onRebuild ? "design" : texts.length ? "textes" : nbImages ? "images" : "design"));
   const doTexts = tab === "textes";
   const doImages = tab === "images";
   const [designRef, setDesignRef] = useState(target.reference ?? null);
@@ -2720,7 +2726,7 @@ function AiDialog({ target, item, onClose, onApply, root, onRebuild, onAdapt, on
 
   async function launch() {
     if (tab === "design") return design("redessiner");
-    if (!prompt.trim()) return setState({ error: "Écris ce que tu veux changer." });
+    if (!prompt.trim() && !(doImages && vides.length && !images.length)) return setState({ error: "Écris ce que tu veux changer." });
     setState({ busy: true, step: "" });
     try {
       if (doTexts && texts.length) {
@@ -2747,6 +2753,19 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
           onApply({ [img.key]: { image: body.url } });
         }
       }
+      if (doImages && vides.length) {
+        for (const [i, v] of vides.entries()) {
+          setState({ busy: true, step: `Image à créer : ${i + 1} / ${vides.length} (20 à 60 s)…` });
+          const [w, h] = (v.size ?? "").split("×").map(Number);
+          const res = await fetch("/api/ia/canvas-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ page: pageName, prompt: [prompt.trim(), v.consigne && `Image attendue dans ce cadre : ${v.consigne}`].filter(Boolean).join("\n"), produit: root.produit ?? "", description: String(root.infos ?? "").slice(0, 1500), references: refs, width: w || undefined, height: h || undefined }),
+          });
+          const body = await iaJson(res);
+          onApply({ [v.key]: { image: body.url } });
+        }
+      }
       setState({ done: true });
       setTimeout(onClose, 700);
     } catch (e) {
@@ -2765,7 +2784,7 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
         </header>
         <div className="atl-aidlg__body">
           <p className="atl-aidlg__target">
-            Sur {what} : {texts.length} texte(s), {images.length} image(s).
+            Sur {what} : {texts.length} texte(s), {nbImages} image(s){vides.length ? ` (dont ${vides.length} à créer d'après la consigne du cadre)` : ""}.
           </p>
           {/* Boutons à côté des onglets (2026-11-18) : visibles sans défiler. */}
           <div className="atl-aidlg__tabrow">
@@ -2773,7 +2792,7 @@ ${consigneLangue(root)}`, contexte: { marque: root.marque ?? "", produit: root.p
             {[
               ["design", "Design", Boolean(onRebuild)],
               ["textes", `Textes (${texts.length})`, texts.length > 0],
-              ["images", `Images (${images.length})`, images.length > 0],
+              ["images", `Images (${nbImages})`, nbImages > 0],
             ].map(([id, label, ok]) => (
               <button key={id} type="button" className={tab === id ? "is-on" : ""} disabled={!ok || state?.busy} onClick={() => (setTab(id), setState(null))}>
                 {label}

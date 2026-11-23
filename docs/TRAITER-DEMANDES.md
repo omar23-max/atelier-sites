@@ -2373,3 +2373,8 @@ Original 80 % → retour Modifiable 80 %.
 - Panneau gris clair encadré (#f7f7fb, coins 14 px), textes 13 px, sélection violet clair (#e9e7ff / #4b3fd6), titres 11 px gris, colonne 200 px (catalogue.css, écrans > 860 px).
 - Menu du catalogue élargi à 250 px, chaque entrée sur une seule ligne.
 - Canvas : menu en haut à droite sur deux lignes (espaces + nom du tableau + fermer, puis Images · WinningHunter · Créer · Vidéo · Sections), plus rien hors écran.
+
+## 2026-11-23 — Cadres d image vides des sections Whitelabeler
+- 455 cadres <div data-wld-img> dans 130 sections wl-* convertis en vrais emplacements d image (slots iwN : template.liquid, presets, arbre) ; 11 pages mises à jour (blocs ajoutés). Le texte gris reste la consigne de l image.
+- Script : scripts/apres-import/cadres-image-wl.py (à relancer après un nouvel import Whitelabeler). Sauvegarde : ~/sauvegardes/avant-wl-images-20261123.tgz. Restent quelques cadres qui contiennent déjà des éléments (non convertis).
+- IA sur un cadre d image vide : la fenêtre « Retravailler avec l IA » s ouvre sur l onglet Images (plus Design) et CRÉE l image d après la consigne du cadre + ta consigne (api/ia/canvas-image), consigne facultative (inspector-ui.jsx, aiTargets → vides).
