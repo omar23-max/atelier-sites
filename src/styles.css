@@ -10290,3 +10290,13 @@ html.atl-rp-open [class*="Sidebar--right"] {
 .atl-left .atl-rail svg { width: 20px !important; height: 20px !important; }
 .atl-left .atl-rail .atl-rail__sep { margin: 6px 0 !important; }
 .atl-left .atl-rail > button, .atl-left .atl-rail > a, .atl-left .atl-rail .atl-projmenu > button { min-height: clamp(44px, 6.4vh, 58px) !important; }
+/* Canvas : en haut à droite sur deux lignes, tout tient dans l écran (2026-11-23) */
+.atl-cv__right { display: grid !important; grid-template-columns: auto auto auto; grid-template-areas: "sw title close" "ai ai ai"; justify-content: end; justify-items: end; align-items: center; column-gap: 10px; row-gap: 6px; max-width: calc(100vw - 24px); }
+.atl-cv__right > .atl-wswitch { grid-area: sw; }
+.atl-cv__right > .atl-cv__title { grid-area: title; }
+.atl-cv__right > .atl-cv__close { grid-area: close; }
+.atl-cv__right > .atl-cv__ai { grid-area: ai; }
+.atl-cv__right { width: max-content; }
+.atl-cv__right > .atl-wswitch { flex-wrap: nowrap !important; white-space: nowrap; }
+.atl-cv__right > .atl-wswitch button { white-space: nowrap; }
+.atl-cv__right > .atl-cv__title { max-width: 220px; min-width: 0; overflow: hidden; }

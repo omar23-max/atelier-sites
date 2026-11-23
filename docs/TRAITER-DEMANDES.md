@@ -2368,3 +2368,8 @@ Original 80 % → retour Modifiable 80 %.
 
 ## 2026-11-22 — Logo d onglet
 - public/favicon.svg : carré jaune (#FFD21F) avec un A noir, sur index.html, catalogue.html et agents.html (?v=2 pour forcer la mise à jour).
+
+## 2026-11-23 — Menu de gauche du catalogue au style Agents army
+- Panneau gris clair encadré (#f7f7fb, coins 14 px), textes 13 px, sélection violet clair (#e9e7ff / #4b3fd6), titres 11 px gris, colonne 200 px (catalogue.css, écrans > 860 px).
+- Menu du catalogue élargi à 250 px, chaque entrée sur une seule ligne.
+- Canvas : menu en haut à droite sur deux lignes (espaces + nom du tableau + fermer, puis Images · WinningHunter · Créer · Vidéo · Sections), plus rien hors écran.

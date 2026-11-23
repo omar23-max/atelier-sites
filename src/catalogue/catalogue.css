@@ -4295,3 +4295,54 @@ textarea {
 /* Projets en plein écran, sans le menu de gauche (2026-11-22) */
 .cat-layout.cat-layout--plein { grid-template-columns: minmax(0, 1fr); }
 .cat-layout--plein > .cat-nav[hidden], .cat-menu-toggle[hidden] { display: none !important; }
+
+/* Menu de gauche du catalogue au style de la liste Agents army (2026-11-23) :
+   panneau gris clair encadré, textes 13 px, sélection violette claire. */
+@media (min-width: 861px) {
+  .cat-layout { grid-template-columns: 200px minmax(0, 1fr); }
+  .cat .cat-nav {
+    gap: 2px;
+    padding: 14px 8px 14px;
+    border: 1px solid #e6e6ee;
+    border-radius: 14px;
+    background: #f7f7fb;
+    box-sizing: border-box;
+  }
+  .cat .cat-nav .cat-nav__title {
+    margin: 14px 10px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #8a8a9c;
+  }
+  .cat .cat-nav .cat-nav__title--first { margin-top: 2px; }
+  .cat .cat-nav button {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 400;
+    color: #3a3a4c;
+  }
+  .cat .cat-nav button:hover { background: #ececf6; }
+  .cat .cat-nav button.is-on,
+  .cat .cat-nav button.is-on.is-empty {
+    background: #e9e7ff;
+    color: #4b3fd6;
+    font-weight: 600;
+  }
+  .cat .cat-nav button.cat-nav__group.is-active { background: #ececf6; font-weight: 600; color: #3a3a4c; }
+  .cat .cat-nav em { font-size: 11.5px; color: #8a8a9c; }
+  .cat .cat-nav button.is-on em { color: #4b3fd6; opacity: 0.8; }
+  .cat .cat-nav button.is-empty { color: #8a8a9c; }
+  .cat .cat-nav .cat-nav__sub { margin: 2px 0 6px 10px; padding-left: 4px; border-left: 1px solid #e3e3ec; }
+  .cat .cat-nav .cat-nav__sub button { padding: 7px 10px; font-size: 13px; }
+  .cat .cat-nav button.cat-nav__group { padding-left: 16px; }
+  .cat .cat-nav .cat-nav__group i { left: 4px; color: #8a8a9c; }
+}
+@media (min-width: 861px) {
+  .cat-layout { grid-template-columns: 250px minmax(0, 1fr); }
+  .cat .cat-nav button { white-space: nowrap; }
+  .cat .cat-nav button > span, .cat .cat-nav button { min-width: 0; }
+  .cat .cat-nav em { flex: none; }
+}
