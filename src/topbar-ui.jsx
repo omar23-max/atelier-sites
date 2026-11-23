@@ -14,6 +14,22 @@ export function TopbarTools({ children }) {
   return slot ? createPortal(<div className="atl-tools">{children}</div>, slot) : null;
 }
 
+// Projet ▾ et Page ▾ en haut du rail de gauche (2026-11-22). Deux rails
+// existent (un caché) : on se place dans celui qui est visible.
+export function RailProject({ children }) {
+  const [slot, setSlot] = useState(null);
+  useEffect(() => {
+    const find = () => {
+      const el = [...document.querySelectorAll(".atl-rail__proj")].find((e) => e.closest(".atl-rail")?.offsetParent) ?? null;
+      setSlot((s) => (s === el ? s : el));
+    };
+    find();
+    const t = setInterval(find, 800);
+    return () => clearInterval(t);
+  }, []);
+  return slot ? createPortal(children, slot) : null;
+}
+
 // Projet et Page au début de la barre de l'aperçu (barre unique, 2026-11-17).
 export function PreviewBarProject({ children }) {
   const slot = usePreviewBarSlot("atl-proj-host");

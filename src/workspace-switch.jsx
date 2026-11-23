@@ -13,7 +13,7 @@ const SPACES = [
   { id: "catalogue", label: "Catalogue", title: "Catalogue (sections, templates, designs, projets)" },
 ];
 
-export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNoPage = null }) {
+export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNoPage = null, hide = [] }) {
   async function go(id) {
     if (id === current) return;
     // Projets (2026-11-22) : un espace du catalogue, plein écran, sans son menu.
@@ -48,7 +48,7 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
   }
   return (
     <nav className="atl-wswitch" aria-label="Changer d'espace">
-      {SPACES.map((s) => (
+      {SPACES.filter((s) => !hide.includes(s.id)).map((s) => (
         <button
           key={s.id}
           type="button"

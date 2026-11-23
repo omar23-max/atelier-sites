@@ -34,7 +34,7 @@ const OTHER = "__autre";
 const groupOf = (p) => p?.projet || (p?.importSource ? TEMPLATES : NO_PROJECT);
 
 // « Projet ▾ » : choisir un projet ouvre sa première page.
-export function ProjectSelect({ current, pages, projects }) {
+export function ProjectSelect({ current, pages, projects, compact = false }) {
   const currentGroup = groupOf(pages.find((p) => p.name === current));
   const inProject = projects.some((p) => p.id === currentGroup);
   // Les 5 derniers projets ouverts (le projet en cours en tête) ; les autres
@@ -57,6 +57,27 @@ export function ProjectSelect({ current, pages, projects }) {
     else location.href = `/catalogue.html#projet-${id}`; // projet encore sans page
   }
 
+  const curName = projects.find((p) => p.id === currentGroup)?.nom;
+  if (compact)
+    return (
+      <label className="atl-railsel" title={curName ? `Projet : ${curName}` : "Choisir un projet"}>
+        <span className="atl-railsel__lbl">Projet ▾</span>
+        <span className="atl-railsel__cur">{curName ?? "—"}</span>
+        <select value={inProject ? currentGroup : ""} onChange={(e) => open(e.target.value)} aria-label="Projet">
+          {!inProject && (
+            <option value="" disabled>
+              — Choisir un projet —
+            </option>
+          )}
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.label}
+            </option>
+          ))}
+          <option value={OTHER}>Autre projet…</option>
+        </select>
+      </label>
+    );
   return (
     <label className="atl-topbar__field">
       <span>Projet</span>
@@ -114,7 +135,7 @@ export function pageMenuGroups(own, project) {
   return groups;
 }
 
-export function PageSelect({ current, pages, projects = [] }) {
+export function PageSelect({ current, pages, projects = [], compact = false }) {
   const currentInfo = pages.find((p) => p.name === current);
   const group = groupOf(currentInfo);
   const project = projects.find((p) => p.id === group);
@@ -146,11 +167,26 @@ export function PageSelect({ current, pages, projects = [] }) {
   const go = (name) => { setOpen(false); if (name !== current) location.search = `?page=${name}`; };
   const shown = groups.find((g) => g.id === active) ?? groups[0];
   const typeLabel = groups.find((g) => g.id === currentType)?.label;
+  // Rail de gauche (2026-11-22) : le panneau s'ouvre à droite du rail.
+  const [pos, setPos] = useState(null);
+  const toggle = (e) => {
+    if (compact) {
+      const r = e.currentTarget.getBoundingClientRect();
+      setPos({ left: r.right + 8, top: Math.max(8, r.top - 6) });
+    }
+    setOpen((o) => !o);
+  };
 
   return (
-    <div className="atl-topbar__field atl-pagemenu" ref={ref} onMouseLeave={onLeave} onMouseEnter={onEnter}>
-      <span>Page</span>
-      <button type="button" className="atl-topbar__pages atl-pagemenu__btn" onClick={() => setOpen((o) => !o)} aria-haspopup="true" aria-expanded={open} title="Pages du projet, par type">
+    <div className={compact ? "atl-pagemenu atl-pagemenu--rail" : "atl-topbar__field atl-pagemenu"} ref={ref} onMouseLeave={onLeave} onMouseEnter={onEnter}>
+      {!compact && <span>Page</span>}
+      {compact ? (
+        <button type="button" className="atl-railsel" onClick={toggle} aria-haspopup="true" aria-expanded={open} title={`Page : ${typeLabel ? `${typeLabel} · ` : ""}${currentItem?.detail ?? current}`}>
+          <span className="atl-railsel__lbl">Page ▾</span>
+          <span className="atl-railsel__cur">{typeLabel ?? currentItem?.detail ?? current}</span>
+        </button>
+      ) : (
+      <button type="button" className="atl-topbar__pages atl-pagemenu__btn" onClick={toggle} aria-haspopup="true" aria-expanded={open} title="Pages du projet, par type">
         <span className="atl-pagemenu__cur">
           {typeLabel ? `${typeLabel} · ` : ""}
           {currentItem?.mere ? "★ " : ""}
@@ -158,8 +194,9 @@ export function PageSelect({ current, pages, projects = [] }) {
         </span>
         <span className="atl-pagemenu__caret" aria-hidden="true">▾</span>
       </button>
+      )}
       {open && (
-        <div className="atl-pagemenu__panel" role="menu">
+        <div className="atl-pagemenu__panel" role="menu" style={compact && pos ? { position: "fixed", left: pos.left, top: pos.top, right: "auto" } : undefined}>
           <ul className="atl-pagemenu__types">
             {groups.map((g) => (
               <li key={g.id}>
@@ -913,5 +950,134 @@ export function OrphanBanner({ pageName, info, projects, getData }) {
       </button>
       {error && <span className="atl-topbar__error">{error}</span>}
     </div>
+  );
+}
+
+
+// ---- Rail de gauche : « Projets » (2026-11-22) ----
+// Un clic ouvre la liste des projets ; au survol d'un projet, ses pages
+// s'affichent à droite (par type, la page mère en tête). Un clic sur une page
+// l'ouvre. Le projet et la page en cours sont rappelés en haut (PageCrumb).
+export function ProjectsMenu({ current, pages, projects }) {
+  const currentGroup = groupOf(pages.find((p) => p.name === current));
+  const inProject = projects.some((p) => p.id === currentGroup);
+  useEffect(() => {
+    if (inProject) fetch(`/api/projects/${currentGroup}/opened`, { method: "POST" }).catch(() => {});
+  }, [currentGroup, inProject]);
+  const sorted = useMemo(() => [...projects].sort((a, b) => String(b.ouvertLe ?? b.creeLe).localeCompare(String(a.ouvertLe ?? a.creeLe))), [projects]);
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(null);
+  const [pos, setPos] = useState(null);
+  const ref = useRef(null);
+  const panelRef = useRef(null);
+  const leaveTimer = useRef(null);
+  useEffect(() => () => clearTimeout(leaveTimer.current), []);
+  const stay = () => clearTimeout(leaveTimer.current);
+  const leave = () => {
+    clearTimeout(leaveTimer.current);
+    leaveTimer.current = setTimeout(() => setOpen(false), 600);
+  };
+  useEffect(() => {
+    if (!open) return;
+    setHover(inProject ? currentGroup : sorted[0]?.id ?? null);
+    const inside = (t) => ref.current?.contains(t) || panelRef.current?.contains(t);
+    const close = (e) => { if (e.type === "keydown" ? e.key === "Escape" : !inside(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", close); };
+  }, [open]);
+  const shownProject = projects.find((p) => p.id === hover);
+  const items = useMemo(() => {
+    if (!hover) return [];
+    const own = pages.filter((p) => groupOf(p) === hover);
+    return pageMenuGroups(own, shownProject).flatMap((g) => g.items.map((i) => ({ ...i, type: g.label })));
+  }, [hover, pages, shownProject]);
+  const toggle = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setPos({ left: r.right + 2, top: Math.max(8, r.top - 4) });
+    // Un seul panneau à la fois : on referme l'outil du rail et l'éditeur.
+    window.dispatchEvent(new CustomEvent("atl-left-tool", { detail: null }));
+    window.dispatchEvent(new CustomEvent("atl-close-editor"));
+    setOpen((o) => !o);
+  };
+  const go = (name) => { setOpen(false); if (name !== current) location.search = `?page=${name}`; };
+
+  return (
+    <div className="atl-projmenu" ref={ref}>
+      <button type="button" className={open ? "is-on" : ""} onClick={toggle} onMouseEnter={stay} onMouseLeave={() => open && leave()} aria-haspopup="true" aria-expanded={open} title="Projets : choisir un projet puis une page">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" />
+        </svg>
+        <span className="atl-rail__label" aria-hidden="true">Projets</span>
+      </button>
+      {open && pos && createPortal(
+        <div ref={panelRef} className="atl-pagemenu__panel atl-projmenu__panel" role="menu" style={{ position: "fixed", left: pos.left, top: pos.top, right: "auto" }} onMouseEnter={stay} onMouseLeave={leave}>
+          <ul className="atl-pagemenu__types">
+            <li>
+              <a className="atl-projmenu__all" href={`/catalogue.html${current ? `?page=${encodeURIComponent(current)}` : ""}#projets`} onMouseEnter={() => setHover(null)}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" /></svg>
+                Ouvrir tous mes projets
+              </a>
+            </li>
+            {sorted.map((p) => (
+              <li key={p.id}>
+                <button type="button" className={p.id === hover ? "is-active" : ""} onMouseEnter={() => setHover(p.id)} onFocus={() => setHover(p.id)} onClick={() => setHover(p.id)}>
+                  <span>{p.nom}</span>
+                  {p.id === currentGroup && <small>en cours</small>}
+                  <span aria-hidden="true">›</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <ul className="atl-pagemenu__pages">
+            {items.length ? (
+              items.map((i) => (
+                <li key={i.name}>
+                  <button type="button" role="menuitem" className={i.name === current ? "is-current" : ""} onClick={() => go(i.name)} title={i.name}>
+                    <b>{i.mere ? `★ ${i.type} mère` : i.angle ? `${i.type} angle` : i.type}</b>
+                    <span>{i.detail}</span>
+                  </button>
+                </li>
+              ))
+            ) : (
+              <li className="atl-projmenu__empty">
+                {hover ? (
+                  <>
+                    Aucune page dans ce projet. <a href={`/catalogue.html#projet-${hover}`}>Ouvrir le projet</a>
+                  </>
+                ) : (
+                  "La page Projets : tous tes projets, leurs Fondations, leurs pages et leurs exports."
+                )}
+              </li>
+            )}
+          </ul>
+        </div>,
+        document.body,
+      )}
+    </div>
+  );
+}
+
+// Projet › Page en cours, en haut de l'éditeur (2026-11-22).
+export function PageCrumb({ current, pages, projects }) {
+  const info = pages.find((p) => p.name === current);
+  const group = groupOf(info);
+  const project = projects.find((p) => p.id === group);
+  const item = useMemo(() => {
+    const own = pages.filter((p) => groupOf(p) === group);
+    for (const g of pageMenuGroups(info ? own : [{ name: current, title: current }, ...own], project)) {
+      const i = g.items.find((x) => x.name === current);
+      if (i) return { ...i, type: g.label };
+    }
+    return null;
+  }, [pages, current, info, group, project]);
+  const projName = project?.nom ?? (group === TEMPLATES ? "Templates" : "Sans projet");
+  const pageName = item ? `${item.mere ? "★ " : ""}${item.type}${item.detail ? ` · ${item.detail}` : ""}` : current;
+  return (
+    <span className="atl-crumb" title={`${projName} › ${pageName}`}>
+      <span className="atl-crumb__proj">{projName}</span>
+      <span aria-hidden="true">›</span>
+      <span className="atl-crumb__page">{pageName}</span>
+    </span>
   );
 }

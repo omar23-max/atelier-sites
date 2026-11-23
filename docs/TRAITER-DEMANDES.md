@@ -2354,3 +2354,17 @@ Original 80 % → retour Modifiable 80 %.
 - Dans Projets et dans un projet ouvert, le menu de gauche du catalogue est masqué (plein écran, cat-layout--plein) ; « Catalogue » le fait revenir.
 - Vidéos YouTube noires dans les présentations d agents : remplacées par leur vignette + bouton ▶ qui ouvre YouTube dans un nouvel onglet (server/agents.mjs, 36 pages).
 - Panneau IA de l éditeur : « Traduire » et « Remplacer un mot » retirés (left-ui.jsx) ; info-bulle de la langue mise à jour (lang-ui.jsx).
+
+## 2026-11-22 — Éditeur : Projet ▾ et Page ▾ dans le rail, espaces en haut
+- Projet ▾ (projets récents + Autre projet…) et Page ▾ (menu par type, ouvert à droite du rail) en haut du rail de gauche, avec ✕ fermer et 🗑 supprimer la page (RailProject dans topbar-ui.jsx, mode compact dans pages-ui.jsx).
+- En haut de l'éditeur : Agents army · Studio · Canvas · Catalogue (WorkspaceSwitch current="page", option hide).
+- Remplacé par une seule entrée « Projets » dans le rail (même style que les autres) : liste des projets, pages du projet survolé à droite (ProjectsMenu). En haut : Projet › Page en cours + ✕ et 🗑 (PageCrumb).
+- Barre du haut : EN/FR retiré, alignée à gauche (plus coupée), espacements réguliers, Projet › Page qui se raccourcit. Menu Projets dans <body> (ne disparaît plus au survol, au-dessus des sections) ; ouvrir Projets referme l outil du rail et l éditeur.
+- Projet / Page en haut : sur deux lignes avec une largeur réservée (180 à 420 px selon l écran), barre resserrée (menu des espaces, HTML/ZIP/Mirror).
+- Écrans, zoom et pourcentage rapprochés (marges et séparateurs réduits) ; la place gagnée va au nom Projet / Page.
+- Menu Projets (rail de gauche) : « Ouvrir tous mes projets » en tête, mène à la page Projets du catalogue.
+- Rail de gauche compact (44 px par bouton, 38 px sur écran bas), défilable en secours ; rail et panneaux d outils s arrêtent au bas de l écran (plus de bouts hors écran).
+- Rail aéré selon la hauteur d écran (boutons 44 à 58 px, espace 2 à 8 px), toujours entier à l écran.
+
+## 2026-11-22 — Logo d onglet
+- public/favicon.svg : carré jaune (#FFD21F) avec un A noir, sur index.html, catalogue.html et agents.html (?v=2 pour forcer la mise à jour).

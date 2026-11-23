@@ -16,14 +16,15 @@ import { LanguageSwitch } from "./lang-ui.jsx";
 // Plus de boutons « + » (projet, page, design) dans la barre : on les crée
 // depuis le projet, dans le catalogue (2026-11-08).
 import { ProposalsBanner } from "./proposals-ui.jsx";
-import { PreviewBarLanguage, PreviewBarProject, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
+import { WorkspaceSwitch } from "./workspace-switch.jsx";
+import { PreviewBarLanguage, PreviewBarProject, RailProject, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, DownloadZipButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
 import { TrialHost } from "./trial-ui.jsx";
 import { CharteKeeper } from "./charte-keeper.jsx";
 import { Inspector, ProjectBrandSync } from "./inspector-ui.jsx";
-import { ClosePageButton, DeletePageButton, OrphanBanner, PageSelect, ProjectSelect, useProjectsAndTemplates } from "./pages-ui.jsx";
+import { ClosePageButton, DeletePageButton, OrphanBanner, PageCrumb, ProjectsMenu, useProjectsAndTemplates } from "./pages-ui.jsx";
 
 // Chaque page est un fichier pages/<nom>.json, ouvert avec ?page=<nom>.
 // « Enregistrer » (automatique, ou Ctrl + S) écrit dans ce fichier : c'est lui que lisent les exports.
@@ -387,19 +388,19 @@ export default function App() {
                 {/* Une seule barre en haut : ces outils s'affichent à côté de Projet / Page / Design. */}
                 {/* EN / FR : dans la barre de l'aperçu, avant les écrans (ceux de Puck). */}
                 {/* Une seule ligne (2026-11-17) : Projet · Page au début de la barre. */}
+                {/* 2026-11-22 : Projet ▾ et Page ▾ en haut du rail de gauche ;
+                    en haut, Agents army · Studio · Canvas · Catalogue. */}
+                <RailProject>
+                  <ProjectsMenu current={pageName} pages={pages} projects={projects} />
+                </RailProject>
                 <PreviewBarProject>
-                  <div className="atl-group">
-                    <ProjectSelect current={pageName} pages={pages} projects={projects} />
-                  </div>
-                  <div className="atl-group">
-                    <PageSelect current={pageName} pages={pages} projects={projects} />
+                  <WorkspaceSwitch current="page" hide={["projets", "page"]} page={pageName} />
+                  <span className="atl-crumbbox">
+                    <PageCrumb current={pageName} pages={pages} projects={projects} />
                     <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
                     <DeletePageButton current={pageName} pages={pages} />
-                  </div>
+                  </span>
                 </PreviewBarProject>
-                <PreviewBarLanguage>
-                  <LanguageSwitch />
-                </PreviewBarLanguage>
                 <TopbarTools>
                   <span className="atl-publish">
                     <DownloadHtmlButton />

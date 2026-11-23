@@ -74,6 +74,8 @@ export function LeftPanel() {
   return (
     <div className="atl-left">
       <nav className="atl-rail" aria-label="Outils">
+        {/* Projet ▾ · Page ▾ (2026-11-22, rendus par App.jsx dans cette place). */}
+        <div className="atl-rail__proj" />
         {TOOLS.map(({ id, label, short, icon: Icon }) => [
           id === "score" && (
             <a key="agents" href={`/agents.html${location.search}`} title="Agents army (fenêtre à part)" aria-label="Agents army">
