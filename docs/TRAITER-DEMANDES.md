@@ -2348,3 +2348,9 @@ Original 80 % → retour Modifiable 80 %.
 - Retiré du menu du Catalogue ; l'ancienne adresse catalogue.html#agents renvoie vers agents.html.
 - Rail de l'éditeur : Catalogue placé juste sous Agents (plus en bas).
 - Pages de présentation blanches dans la fenêtre Agents army : le cadre isolé ne s affichait qu après un redimensionnement ; on le provoque après chargement (useRelanceCadre, AgentsArmy.jsx).
+
+## 2026-11-22 — Projets dans le menu du haut
+- Menu du haut : Projets · Page · Agents army · Studio · Canvas · Catalogue (src/workspace-switch.jsx).
+- Dans Projets et dans un projet ouvert, le menu de gauche du catalogue est masqué (plein écran, cat-layout--plein) ; « Catalogue » le fait revenir.
+- Vidéos YouTube noires dans les présentations d agents : remplacées par leur vignette + bouton ▶ qui ouvre YouTube dans un nouvel onglet (server/agents.mjs, 36 pages).
+- Panneau IA de l éditeur : « Traduire » et « Remplacer un mot » retirés (left-ui.jsx) ; info-bulle de la langue mise à jour (lang-ui.jsx).

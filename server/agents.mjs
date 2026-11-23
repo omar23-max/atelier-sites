@@ -148,7 +148,12 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     // Liens de la présentation : dans un nouvel onglet.
-    const html = await readFile(f, "utf8");
+    let html = await readFile(f, "utf8");
+    // Vidéo YouTube (2026-11-22) : dans le cadre isolé de l'atelier, YouTube
+    // refuse de lire (écran noir, pas d'origine). On met sa vignette avec un
+    // bouton ▶ qui ouvre la vidéo sur YouTube, dans un nouvel onglet.
+    html = html.replace(/<iframe\b[^>]*?\bsrc=["']https?:\/\/(?:www\.)?youtube(?:-nocookie)?\.com\/embed\/([\w-]{6,})[^"']*["'][^>]*>\s*<\/iframe>/gi, (m, id) =>
+      `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer" title="Voir la vidéo sur YouTube" style="display:block;position:relative;width:100%;height:100%;background:#000 url(https://i.ytimg.com/vi/${id}/hqdefault.jpg) center/cover no-repeat;cursor:pointer"><span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:54px;border-radius:14px;background:#f00;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.35)"><span style="width:0;height:0;border-left:22px solid #fff;border-top:13px solid transparent;border-bottom:13px solid transparent;margin-left:5px"></span></span><span style="position:absolute;left:0;right:0;bottom:0;padding:10px 14px;font:600 13px system-ui,sans-serif;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.6))">▶ Voir la vidéo sur YouTube</span></a>`);
     return res.end(/<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (m) => `${m}<base target="_blank">`) : `<base target="_blank">${html}`);
   }
   return json(res, 404, { error: "Route agents inconnue." });

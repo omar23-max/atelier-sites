@@ -5,6 +5,7 @@
 // Depuis le catalogue (page = la page à reprendre) : Studio et Canvas
 // rouvrent la page puis s'ouvrent tout seuls (?ouvrir=studio|canvas).
 const SPACES = [
+  { id: "projets", label: "Projets", title: "Tes projets (Fondations, pages, exports)" },
   { id: "page", label: "Page", title: "Revenir à la page" },
   { id: "agents", label: "Agents army", title: "Agents army (fenêtre à part)" },
   { id: "studio", label: "Studio", title: "Studio d'images" },
@@ -15,6 +16,16 @@ const SPACES = [
 export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNoPage = null }) {
   async function go(id) {
     if (id === current) return;
+    // Projets (2026-11-22) : un espace du catalogue, plein écran, sans son menu.
+    const surCatalogue = location.pathname === "/catalogue.html";
+    if (id === "projets") {
+      if (surCatalogue) return void (location.hash = "projets");
+      await onLeave();
+      const p = new URLSearchParams(location.search).get("page") ?? page;
+      location.href = `/catalogue.html${p ? `?page=${encodeURIComponent(p)}` : ""}#projets`;
+      return;
+    }
+    if (id === "catalogue" && surCatalogue) return void (location.hash = "tout");
     // Agents army : sa propre page, on y va directement depuis partout.
     if (id === "agents") {
       await onLeave();
@@ -23,7 +34,7 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
       location.href = `/agents.html${p ? `?page=${encodeURIComponent(p)}` : ""}`;
       return;
     }
-    if (current === "catalogue" || current === "agents") {
+    if (current === "catalogue" || current === "agents" || current === "projets") {
       if (!page && id === "catalogue") return void (location.href = "/catalogue.html#tout");
       if (!page) return onNoPage?.();
       const q = `?page=${encodeURIComponent(page)}`;
@@ -43,7 +54,7 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
           type="button"
           className={s.id === current ? "is-on" : ""}
           aria-current={s.id === current ? "page" : undefined}
-          title={(current === "catalogue" || current === "agents") && !page && s.id !== current && s.id !== "agents" && s.id !== "catalogue" ? "Choisis d'abord une page à ouvrir" : s.title}
+          title={(current === "catalogue" || current === "agents" || current === "projets") && !page && s.id !== current && s.id !== "agents" && s.id !== "catalogue" ? "Choisis d'abord une page à ouvrir" : s.title}
           onClick={() => go(s.id)}
         >
           {s.label}

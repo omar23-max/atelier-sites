@@ -299,6 +299,9 @@ function SectionCard({ section, onPreview, onStatus, onTrash, onMessage }) {
 
 export default function Catalogue() {
   const [view, setView] = useState(() => location.hash.slice(1) || (location.search.includes("page=") ? "designs" : "tout"));
+  // Projets et un projet ouvert : plein écran, sans le menu de gauche du
+  // catalogue (2026-11-22) ; on y vient par « Projets » dans le menu du haut.
+  const dansProjets = view === "projets" || view.startsWith("projet-");
   const [query, setQuery] = useState("");
   // Menu replié sur écran étroit ; refermé à chaque changement de vue.
   const [navOpen, setNavOpen] = useState(false);
@@ -679,10 +682,10 @@ export default function Catalogue() {
           </button>
         )}
         {/* Même menu que le Studio et le Canvas (2026-11-17). */}
-        <WorkspaceSwitch current="catalogue" page={targetPage} onNoPage={() => setView("pages")} />
+        <WorkspaceSwitch current={dansProjets ? "projets" : "catalogue"} page={targetPage} onNoPage={() => setView("pages")} />
         {/* Écran étroit (tablette, téléphone) : le menu se replie derrière ce
             bouton au lieu de s'étaler au-dessus du contenu (2026-11-10). */}
-        <button type="button" className="cat-menu-toggle" aria-expanded={navOpen} aria-controls="cat-nav" onClick={() => setNavOpen((o) => !o)}>
+        <button type="button" className="cat-menu-toggle" hidden={dansProjets} aria-expanded={navOpen} aria-controls="cat-nav" onClick={() => setNavOpen((o) => !o)}>
           <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
             <path d={navOpen ? "M5 5l10 10M15 5L5 15" : "M3 6h14M3 10h14M3 14h14"} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           </svg>
@@ -690,8 +693,8 @@ export default function Catalogue() {
         </button>
       </header>
 
-      <div className="cat-layout">
-        <nav className={`cat-nav${navOpen ? " is-open" : ""}`} id="cat-nav">
+      <div className={`cat-layout${dansProjets ? " cat-layout--plein" : ""}`}>
+        <nav className={`cat-nav${navOpen ? " is-open" : ""}`} id="cat-nav" hidden={dansProjets}>
           <p className="cat-nav__title cat-nav__title--first">Catalogue</p>
           <button type="button" className={view === "projets" || view.startsWith("projet-") ? "is-on" : ""} onClick={() => setView("projets")}>
             Projets <em>{counts.projets ?? "…"}</em>
