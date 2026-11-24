@@ -2448,3 +2448,9 @@ Original 80 % → retour Modifiable 80 %.
 ## 2026-11-23 — Barre « nouvelle version » (Catalogue, Agents army, Recherche)
 - src/catalogue/version-check.js : compare le programme chargé à celui de la page sur le serveur (toutes les 60 s et au retour sur l onglet) ; si différent, barre « Recharger » (jamais automatique).
 - Cause : un onglet ouvert avant une mise à jour affichait les nouvelles données avec l ancien programme (URLs d images en texte).
+
+## 2026-11-24 — Images non reconnues dans des sections Whitelabeler
+- 18 cadres photo qui contenaient déjà un texte (14 sections) : image de fond cliquable ajoutée (slot iwN, classe atl-wl-fond) ; 116 icônes en symbole texte : remplaçables par une image. Script scripts/apres-import/cadres-pleins-wl.py ; 9 pages mises à jour ; sauvegarde ~/sauvegardes/avant-cadres-pleins-20261124.tgz.
+
+## 2026-11-24 — Étiquette de survol « Texte » sur les cadres d image vides et les icônes
+- inspector-ui.jsx tagLabel : atl-vide / atl-wl-fond → « Image », slot à classe *icon* → « Icône ».

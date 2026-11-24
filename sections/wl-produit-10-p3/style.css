@@ -147,3 +147,10 @@
 .atl-wl-produit-10-p3 [data-atl-car="track"] > * > * { scroll-snap-align: start; }
 .atl-wl-produit-10-p3 [data-atl-h] { display: none !important; }
 .atl-wl-produit-10-p3 [data-atl-href] { cursor: pointer; }
+
+/* Cadres photo avec contenu : image de fond sous le contenu (cadres-pleins-wl.py) */
+.atl-wl-cadre { position: relative; isolation: isolate; }
+.atl-wl-cadre > .atl-wl-fond { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; margin: 0; padding: 0; border: 0; background: transparent; min-height: 0; }
+.atl-wl-cadre:has(> img.atl-wl-fond)::after, .atl-wl-cadre:has(> img.atl-wl-fond)::before { content: none !important; }
+/* Icônes : une image peut remplacer le symbole */
+.atl-icone-img { width: 60%; height: 60%; object-fit: contain; display: block; margin: auto; }

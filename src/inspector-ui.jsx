@@ -830,6 +830,9 @@ export function Inspector({ children }) {
     const tagLabel = (el) => {
       if (el.hasAttribute("data-atl-group") && !el.hasAttribute("data-atl-slot")) return "▢ Bloc";
       if (el.tagName === "IMG" || el.tagName === "PICTURE" || el.querySelector?.(":scope > img:only-child")) return "🖼 Image";
+      // Cadres d image vides (atl-vide, image de fond Whitelabeler) et icônes : image aussi (2026-11-24).
+      if (el.classList.contains("atl-vide") || el.classList.contains("atl-wl-fond")) return "🖼 Image";
+      if (el.hasAttribute("data-atl-slot") && /(^|[\s_-])icon/i.test(el.className) && !el.hasAttribute("data-atl-group")) return "🖼 Icône";
       if (el.tagName === "A" || el.tagName === "BUTTON" || el.getAttribute("role") === "button") return "⚡ Bouton";
       if (/^H[1-6]$/.test(el.tagName)) return `T ${el.tagName === "H1" ? "Titre 1" : el.tagName === "H2" ? "Titre 2" : "Titre"}`;
       return "T Texte";

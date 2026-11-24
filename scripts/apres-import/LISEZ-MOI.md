@@ -40,3 +40,9 @@ Le moteur fait le reste tout seul (`src/engine/render.js`) : FAQ ouvrantes
 (`ACC_SCRIPT`), carrousels actifs dès qu'une piste existe, images choisies qui
 remplacent les `<source>` du site d'origine. Voir aussi `docs/TRAITER-DEMANDES.md`,
 partie « Sections : cadres, FAQ, carrousels, vide en haut, familles ».
+
+## Imports Whitelabeler : cadres photo avec contenu et icônes (2026-11-24)
+Après cadres-image-wl.py, lancer aussi : python3 scripts/apres-import/cadres-pleins-wl.py [section…]
+- cadres data-wld-img qui contiennent déjà un texte → image de fond iwN (sous le contenu) ;
+- icônes en symbole texte (classe *icon*) → acceptent une image (type image dans l arbre).
+Redémarrer l atelier après (l arbre des sections est gardé en mémoire).
