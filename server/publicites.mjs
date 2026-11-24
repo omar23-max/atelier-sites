@@ -84,7 +84,7 @@ async function produire(root, projet, file, pub) {
     const orig = join(dir, "consignes", `${mode.agent}.txt`);
     const consigne = existsSync(propre) ? await readFile(propre, "utf8") : existsSync(orig) ? await readFile(orig, "utf8") : "";
     const instructions = consigne + ADAPTER + "\n\n---\n" + contexteProjet(p, { limite: 12000 }).texte;
-    const content = [{ type: "input_text", text: [`Mode : ${mode.label}.`, pub.source ? "Image jointe = la pub d'origine (#1) à adapter à notre produit." : "Pas d'image d'origine : crée la pub à partir du projet.", pub.refs?.length ? `${pub.refs.length} image(s) de référence du produit / de la marque seront jointes à Nano Banana.` : "", pub.format ? `Format voulu : ${pub.format}.` : "", pub.consigne ? `Demande de l'utilisateur : ${pub.consigne}` : "", pub.depuisTexte ? `\nCONVERSATION : l'utilisateur a discuté avec toi (même méthode d'agent). Voici ta réponse qu'il veut transformer en image. Reprends fidèlement CETTE proposition (la dernière si plusieurs sont décrites, sauf si sa note en désigne une autre) et rends-la dans le format JSON demandé, sans changer l'idée ni ajouter de promesse :\n"""\n${pub.depuisTexte}\n"""` : "", pub.note && pub.planPrecedent ? `\nCORRECTION DEMANDÉE : voici ta proposition précédente :\n${JSON.stringify(pub.planPrecedent)}\nL'utilisateur demande : « ${pub.note} ». Refais la proposition en appliquant cette demande ; garde ce qu'elle ne touche pas. Mêmes règles de promesses.` : ""].filter(Boolean).join("\n") }];
+    const content = [{ type: "input_text", text: [`Mode : ${mode.label}.`, pub.source ? "Image jointe = la pub d'origine (#1) à adapter à notre produit." : "Pas d'image d'origine : crée la pub à partir du projet.", pub.refs?.length ? `${pub.refs.length} image(s) de référence du produit / de la marque seront jointes à Nano Banana.` : "", pub.format ? `Format voulu : ${pub.format}.` : "", pub.consigne ? `Demande de l'utilisateur : ${pub.consigne}` : "", pub.depuisTexte ? `\nCONVERSATION : l'utilisateur a discuté avec toi (même méthode d'agent). Voici ta réponse qu'il veut transformer en image. Reprends fidèlement CETTE proposition (si plusieurs options sont décrites : celle que l'utilisateur désigne dans sa demande, sinon la première) et rends-la dans le format JSON demandé, sans changer l'idée ni ajouter de promesse :\n"""\n${pub.depuisTexte}\n"""` : "", pub.note && pub.planPrecedent ? `\nCORRECTION DEMANDÉE : voici ta proposition précédente :\n${JSON.stringify(pub.planPrecedent)}\nL'utilisateur demande : « ${pub.note} ». Refais la proposition en appliquant cette demande ; garde ce qu'elle ne touche pas. Mêmes règles de promesses.` : ""].filter(Boolean).join("\n") }];
     if (pub.source) {
       const d = await imageData(root, pub.source);
       if (d) content.push({ type: "input_image", image_url: d });
@@ -144,6 +144,63 @@ async function generer(root, projet, file, pub, env) {
   }
 }
 
+// ---- Studio : un agent écrit le prompt de chaque image (lot E, 2026-11-24) ----
+// Mode Miroir : agents de recréation fidèle ; mode Pub : agents de pub. L'agent
+// reçoit le prompt de l'atelier (règles produit, marque, preuves), la photo
+// d'origine et le contexte du projet, et rend le prompt final pour le modèle.
+export const STUDIO_AGENTS = {
+  "whitelabeler-image-mirror-studio-v-1": "Image Mirror Studio V.1",
+  "whitelabeler-style-mirror-image-creator-v-1": "Style Mirror Image Creator V.1",
+  "shopfunnels-ai-image-recreator": "AI Image Recreator",
+  "whitelabeler-product-mockup-generator-v-1": "Product Mockup Generator",
+  "whitelabeler-hyper-realistic-ugc-image-studio-v-1": "Hyper Realistic UGC Image Studio",
+  "shopfunnels-ai-scroll-stopping-image-ad-specialists": "Scroll-Stopping Image Ad Specialists",
+  "shopfunnels-ai-ad-rebuilder-v-3": "AI Ad Rebuilder V3",
+  "whitelabeler-branded-image-creator-v-1": "Branded Image Creator",
+};
+export async function promptParAgent({ root, env, slug, base, source, projet }) {
+  if (!STUDIO_AGENTS[slug] || !env.OPENAI_API_KEY) return null;
+  const dir = join(root, "agents", "whitelabeler");
+  const f = [join(dir, "consignes-propres", `${slug}.txt`), join(dir, "consignes", `${slug}.txt`)].find((x) => existsSync(x));
+  if (!f) return null;
+  let contexte = "";
+  try {
+    if (projet) {
+      const { contexteProjet } = await import("../src/engine/contexte-projet.js");
+      contexte = contexteProjet(JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8")), { limite: 8000 }).texte;
+    }
+  } catch {}
+  const instructions = (await readFile(f, "utf8")).slice(0, 14000) + `
+
+---
+CONSIGNES DE L'ATELIER (prioritaires sur ce qui précède)
+- Une seule réponse, sans question ni salutation. Tu ne génères pas l'image : tu écris le prompt final (en anglais) pour le modèle d'image, qui recevra la photo d'origine (#1) puis les références produit et marque.
+- Pars du PROMPT DE L'ATELIER ci-dessous : garde toutes ses règles (produit identique aux références, marque, aucun nom ou logo d'origine, textes réécrits, aucune promesse hors des preuves du projet) et améliore-le avec ta méthode.
+- Réponds UNIQUEMENT avec un objet JSON : {"prompt":"prompt anglais complet","note":"en français, ce que ta méthode a changé, 1 phrase"}
+${contexte ? `\n---\n${contexte}` : ""}`;
+  const content = [{ type: "input_text", text: `PROMPT DE L'ATELIER :\n${base}` }];
+  if (source) {
+    const d = await imageData(root, source);
+    if (d) content.push({ type: "input_image", image_url: d });
+  }
+  const res = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: MODEL, instructions, input: [{ role: "user", content }] }),
+    signal: AbortSignal.timeout(4 * 60 * 1000),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Agent (${res.status}) : ${String(body.error?.message ?? "erreur").slice(0, 200)}`);
+  const text = (body.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []).filter((x) => x.type === "output_text").map((x) => x.text).join("\n");
+  const i = text.indexOf("{");
+  const j = text.lastIndexOf("}");
+  if (i < 0 || j <= i) return null;
+  const out = JSON.parse(text.slice(i, j + 1));
+  return out.prompt ? { prompt: String(out.prompt), note: String(out.note ?? ""), agent: STUDIO_AGENTS[slug] } : null;
+}
+
+export const SUIVIS = ["idee", "brouillon", "prete", "en-test", "gagnante", "arretee"];
+
 export async function publicitesRoute(req, res, parts, { root, readBody, json }) {
   const projet = parts[1];
   if (!/^[a-z0-9][a-z0-9-]{1,90}$/.test(projet ?? "")) return json(res, 400, { error: "Projet invalide." });
@@ -155,7 +212,10 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
     const d = await lireJson(file, { pubs: [] });
     // Pub restée « en cours » depuis plus de 15 min (serveur redémarré) : signalée.
     const vieux = Date.now() - 15 * 60 * 1000;
-    const pubs = d.pubs.map((p) => (p.statut === "en cours" && Date.parse(p.le) < vieux ? { ...p, statut: "erreur", erreur: "Interrompue (serveur redémarré) : relance-la.", etape: null } : p));
+    const pubs = d.pubs
+      .map((p) => (p.statut === "en cours" && Date.parse(p.le) < vieux ? { ...p, statut: "erreur", erreur: "Interrompue (serveur redémarré) : relance-la.", etape: null } : p))
+      // Lot D (2026-11-24) : suivi de la pub dans le registre, distinct de l'état technique.
+      .map((p) => ({ ...p, type: p.type ?? (p.video ? "video" : "image"), suivi: SUIVIS.includes(p.suivi) ? p.suivi : p.statut === "plan" ? "idee" : "brouillon" }));
     return json(res, 200, { modes: Object.fromEntries(Object.entries(MODES).map(([k, m]) => [k, { label: m.label, source: Boolean(m.source), agent: m.agent }])), pubs });
   }
   if (req.method === "DELETE" && parts[2]) {
@@ -166,10 +226,55 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
     });
     return json(res, 200, { ok: true });
   }
+  // PATCH /api/publicites/<projet>/<id> { suivi, angle, notes, titre } : registre des pubs.
+  if (req.method === "PATCH" && parts[2]) {
+    const b = await readBody(req);
+    const set = {};
+    if (SUIVIS.includes(b.suivi)) set.suivi = b.suivi;
+    if (typeof b.angle === "string") set.angle = b.angle.slice(0, 200);
+    if (typeof b.notes === "string") set.notes = b.notes.slice(0, 2000);
+    if (typeof b.titre === "string") set.titre = b.titre.slice(0, 200);
+    if (set.suivi) set.suiviLe = new Date().toISOString();
+    await majPub(file, parts[2], set);
+    return json(res, 200, { ok: true, ...set });
+  }
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   const b = await readBody(req);
   // POST /api/publicites/<projet>/<id>/generer { plan, modele } : après « Proposer ».
   // POST /api/publicites/<projet>/<id>/relancer : refait ce qui a échoué.
+  // POST /api/publicites/<projet>/ajouter { url, type, poster, titre, angle, origine } :
+  // une image ou une vidéo de la médiathèque entre dans le registre des pubs.
+  if (parts[2] === "ajouter") {
+    const okU = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
+    if (!okU(b.url)) return json(res, 400, { error: "Média invalide." });
+    const d0 = await lireJson(file, { pubs: [] });
+    const deja = d0.pubs.find((x) => x.image === b.url || x.video === b.url);
+    if (deja) return json(res, 200, deja);
+    const video = b.type === "video";
+    const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: "ajoutee", type: video ? "video" : "image", [video ? "video" : "image"]: b.url, poster: okU(b.poster) ? b.poster : null, titre: String(b.titre ?? "").slice(0, 200), angle: String(b.angle ?? "").slice(0, 200), origineMedia: b.origine && typeof b.origine === "object" ? { source: String(b.origine.source ?? "").slice(0, 120), agent: String(b.origine.agent ?? "").slice(0, 120), modele: String(b.origine.modele ?? "").slice(0, 80) } : null, format: String(b.format ?? "").slice(0, 20), statut: "pret", suivi: "brouillon", le: new Date().toISOString(), origine: "mediatheque" };
+    await sousVerrou(file, async () => {
+      const d = await lireJson(file, { pubs: [] });
+      d.pubs = [pub, ...d.pubs].slice(0, 300);
+      await ecrire(file, d);
+    });
+    return json(res, 200, pub);
+  }
+  // POST /api/publicites/<projet>/<id>/variante { note } : même idée, autre version (pubs faites par un agent).
+  if (parts[2] && parts[3] === "variante") {
+    const d0 = await lireJson(file, { pubs: [] });
+    const pub = d0.pubs.find((x) => x.id === parts[2]);
+    if (!pub) return json(res, 404, { error: "Pub introuvable." });
+    if (!MODES[pub.mode]) return json(res, 400, { error: "Variante possible seulement pour une pub faite par un agent." });
+    const note = String(b.note ?? "").trim().slice(0, 600);
+    const v = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: pub.mode, source: pub.source ?? null, refs: pub.refs ?? [], format: pub.format, modele: pub.modele, consigne: `VARIANTE de la pub « ${pub.plan?.accroche ?? ""} » (idée : ${pub.plan?.idee ?? ""}). Garde l'idée et l'angle, change ${note || "l'accroche et la mise en scène"}.`, statut: "en cours", etape: "En file…", le: new Date().toISOString(), origine: pub.origine, parent: pub.id, angle: pub.angle ?? "", suivi: "brouillon" };
+    await sousVerrou(file, async () => {
+      const d = await lireJson(file, { pubs: [] });
+      d.pubs = [v, ...d.pubs].slice(0, 300);
+      await ecrire(file, d);
+    });
+    produire(root, projet, file, v);
+    return json(res, 202, v);
+  }
   // POST /api/publicites/<projet>/<id>/corriger { note } : l'agent refait sa proposition.
   if (parts[2] && parts[3] === "corriger") {
     const d = await lireJson(file, { pubs: [] });

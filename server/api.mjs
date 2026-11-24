@@ -750,8 +750,27 @@ export function atelierApi() {
                     preuves = (contexteProjet(pj).data?.faitsAutorises?.preuves ?? []).map((x) => String(x).replace(/\[[^\]]*\]/g, "").slice(0, 220));
                   }
                 } catch {}
-                const prompt = studioPrompt({ ...b, preuves });
-                return json(res, 200, await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: b.source, references: b.references ?? [], prompt, width: b.width, height: b.height, format: b.mode === "pub" ? b.format : null, model: b.modele, folder }));
+                let prompt = studioPrompt({ ...b, preuves });
+                // Lot E (2026-11-24) : un agent peut écrire le prompt (pas pour « Affiner »).
+                let parAgent = null;
+                if (b.agent && !b.affiner) {
+                  const { promptParAgent } = await import("./publicites.mjs");
+                  parAgent = await promptParAgent({ root, env, slug: b.agent, base: prompt, source: /^\/(medias|imports)\//.test(b.source ?? "") ? b.source : null, projet: folder.projet });
+                  if (parAgent) prompt = `${parAgent.prompt} Never keep the original brand name or logo. No number, rating, review count, certification or medical claim that is not in the user's proofs.`;
+                }
+                const sOut = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: b.source, references: b.references ?? [], prompt, width: b.width, height: b.height, format: b.mode === "pub" ? b.format : null, model: b.modele, folder });
+                try {
+                  const { noterFiche } = await import("./mediatheque.mjs");
+                  let dest = [];
+                  try {
+                    const pr = JSON.parse(await readFile(join(pagesDir, `${b.page}.json`), "utf8")).root?.props ?? {};
+                    const t = String(pr.pageType ?? pr.type ?? "").toLowerCase();
+                    dest = [/prod/.test(t) ? "produit" : /land/.test(t) ? "landing" : /home|accueil/.test(t) ? "homepage" : /advert|listic/.test(t) ? "advertorial" : null].filter(Boolean);
+                  } catch {}
+                  if (b.mode === "pub") dest = [...new Set([...dest, "pub"])];
+                  await noterFiche(root, b.page, sOut.url, { type: "image", provenance: "creee", sous: parAgent ? "agent" : "studio", choix: "brouillon", destination: dest, origine: { source: `Studio · ${b.mode === "pub" ? "Pub" : "Miroir"}`, agent: parAgent?.agent ?? null, consigne: parAgent?.note || b.consigne || b.brief || "", depuis: b.source && !String(b.source).startsWith("data:") ? b.source : null, modele: sOut.modele ?? b.modele } });
+                } catch {}
+                return json(res, 200, { ...sOut, agent: parAgent?.agent ?? null, noteAgent: parAgent?.note ?? null });
               }
               // Canvas (2026-11-11) : créer une image (consigne + images de
               // référence prises sur le tableau), ou retirer le fond d'une image.

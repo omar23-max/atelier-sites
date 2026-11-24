@@ -175,10 +175,16 @@ export async function mediathequeRoute(req, res, parts, { root, readBody, json }
   // 3. Pubs (étape Publicités) : destination pub, style et agent d'après le mode.
   const pubs = L.projet ? (await lire(join(root, "projets", "_publicites", `${L.projet}.json`), { pubs: [] })).pubs ?? [] : [];
   for (const p of pubs) {
-    if (!p.image) continue;
-    const it = items.get(p.image);
+    const pu = p.image || p.video;
+    if (!pu) continue;
+    const it = items.get(pu);
     if (!it) continue;
-    items.set(p.image, { ...it, destination: [...new Set([...(it.destination ?? []), "pub"])], style: it.style || STYLE_MODE[p.mode] || "", sous: "agent", origine: { source: "Publicités", agent: AGENT_MODE[p.mode] ?? p.mode, consigne: p.plan?.accroche ? `${p.plan.idee ?? ""} · « ${p.plan.accroche} »` : p.consigne || "", depuis: p.source || null, modele: "Nano Banana", ...it.origine } });
+    // Média ajouté au registre depuis la médiathèque : seulement la destination « pub ».
+    if (p.mode === "ajoutee") {
+      items.set(pu, { ...it, destination: [...new Set([...(it.destination ?? []), "pub"])] });
+      continue;
+    }
+    items.set(pu, { ...it, destination: [...new Set([...(it.destination ?? []), "pub"])], style: it.style || STYLE_MODE[p.mode] || "", sous: "agent", origine: { source: "Publicités", agent: AGENT_MODE[p.mode] ?? p.mode, consigne: p.plan?.accroche ? `${p.plan.idee ?? ""} · « ${p.plan.accroche} »` : p.consigne || "", depuis: p.source || null, modele: "Nano Banana", ...it.origine } });
   }
 
   // 4. Tableaux du Canvas : la fiche « origine » posée sur chaque image ou vidéo.
@@ -209,7 +215,7 @@ export async function mediathequeRoute(req, res, parts, { root, readBody, json }
   // 6. Où chaque média est utilisé (pages du projet, pubs).
   for (const it of items.values()) {
     const ou = pagesProjet.filter((p) => p.raw.includes(it.url)).map((p) => ({ type: "page", nom: p.nom, titre: p.titre }));
-    for (const p of pubs) if (p.image === it.url) ou.push({ type: "pub", id: p.id, titre: p.plan?.accroche || "Pub" });
+    for (const p of pubs) if (p.image === it.url || p.video === it.url) ou.push({ type: "pub", id: p.id, titre: p.plan?.accroche || p.titre || "Pub" });
     it.utiliseeDans = ou;
   }
 

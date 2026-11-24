@@ -156,6 +156,9 @@ function Progress() {
 // faite par le serveur de l'atelier (/api/ia/studio, gpt-image-2 ou Nano
 // Banana), une à la fois, puis installée à sa place dans la page, une par une.
 // Les versions sont gardées dans le navigateur (localStorage) par page.
+// Lot E (2026-11-24) : agents qui peuvent écrire le prompt de chaque image.
+const STUDIO_AGENTS_MIROIR = [["whitelabeler-image-mirror-studio-v-1", "Image Mirror Studio V.1"], ["whitelabeler-style-mirror-image-creator-v-1", "Style Mirror Image Creator V.1"], ["shopfunnels-ai-image-recreator", "AI Image Recreator"]];
+const STUDIO_AGENTS_PUB = [["shopfunnels-ai-scroll-stopping-image-ad-specialists", "Scroll-Stopping Image Ad Specialists"], ["shopfunnels-ai-ad-rebuilder-v-3", "AI Ad Rebuilder V3"], ["whitelabeler-product-mockup-generator-v-1", "Product Mockup Generator"], ["whitelabeler-hyper-realistic-ugc-image-studio-v-1", "Hyper Realistic UGC Image Studio"], ["whitelabeler-branded-image-creator-v-1", "Branded Image Creator"]];
 const MODELES = {
   auto: { label: "Auto", prix: 0.05, aide: "GPT Image 2 : fiable, clé OpenAI de l'atelier." },
   "nano-banana": { label: "Nano Banana", prix: 0.04, aide: "Google : très fidèle au produit. Demande la facturation activée sur ton projet Google." },
@@ -201,7 +204,7 @@ function StudioDialog({ onClose }) {
   const [chosen, setChosen] = useState(() => new Set(targets.map((t) => t.key)));
   const [refs, setRefs] = useState([]);
   const [notes, setNotes] = useState({});
-  const [form, setForm] = useState({ produit: root.produit ?? "", description: root.infos ?? "", mode: "fidele", format: "4:5", accroche: "", cta: "", textes: "", modele: "auto", autopilot: true, rythme: "tout", n: 8 });
+  const [form, setForm] = useState({ produit: root.produit ?? "", description: root.infos ?? "", mode: "fidele", format: "4:5", accroche: "", cta: "", textes: "", modele: "auto", autopilot: true, rythme: "tout", n: 8, agent: "" });
   const [results, setResults] = useState(loadSaved); // { [cle]: { versions: [{url, modele, note, consigne}], sel, installee } }
   const [status, setStatus] = useState({}); // { [cle]: "attente" | "encours" | "erreur" }
   const [errors, setErrors] = useState({});
@@ -316,6 +319,12 @@ function StudioDialog({ onClose }) {
         const list = [...(brand.logos ?? []).map((u) => [u, "Logo"]), ...(brand.brandBoard ? [[brand.brandBoard, "Brand board"]] : [])].slice(0, 4);
         const auto = await Promise.all(list.map(([u, tag]) => urlToDataUrl(u).then((dataUrl) => ({ groupe: "marque", tag, name: u.split("/").pop(), dataUrl, auto: true })).catch(() => null)));
         setRefs((r) => [...r, ...auto.filter(Boolean)].slice(0, MAX_REFS));
+        // Lot E : photos produit et marque rangées dans la médiathèque (onglet Projet).
+        const mt = await fetch(`/api/mediatheque/${pageName}`).then((x) => (x.ok ? x.json() : { items: [] })).catch(() => ({ items: [] }));
+        const deja = new Set([...urls.map(([u]) => u), ...list.map(([u]) => u)]);
+        const choisis = (mt.items ?? []).filter((x) => x.type === "image" && x.provenance === "projet" && ["produit", "marque"].includes(x.sous) && x.choix !== "ecartee" && !deja.has(x.url)).slice(0, 6);
+        const plus = await Promise.all(choisis.map((x) => urlToDataUrl(x.url).then((dataUrl) => ({ groupe: x.sous === "marque" ? "marque" : "produit", tag: x.sous === "marque" ? "Logo" : "Produit", name: x.url.split("/").pop(), dataUrl, auto: true })).catch(() => null)));
+        setRefs((r) => [...r, ...plus.filter(Boolean).filter((p) => !r.some((y) => y.name === p.name))].slice(0, MAX_REFS));
       })
       .catch(() => {});
   }, []);
@@ -358,6 +367,7 @@ function StudioDialog({ onClose }) {
           width: w,
           height: h,
           modele: modeleReel(form.modele),
+          agent: form.agent || null,
         }),
       });
       const body = await res.json();
@@ -781,6 +791,17 @@ function StudioDialog({ onClose }) {
               ))}
             </div>
             <small>{MODELES[form.modele].aide}</small>
+
+            <span className="atl-mirror__label">Agent qui écrit le prompt</span>
+            <select className="atl-mirror__agent" value={form.agent} onChange={set("agent")}>
+              <option value="">Aucun : prompt de l'atelier (le plus rapide)</option>
+              {(pub ? STUDIO_AGENTS_PUB : STUDIO_AGENTS_MIROIR).map(([slug, nom]) => (
+                <option key={slug} value={slug}>
+                  {nom}
+                </option>
+              ))}
+            </select>
+            <small>{form.agent ? "L'agent applique sa méthode au prompt de chaque image (≈ 0,05 $ et 20 s de plus par image). Les règles produit, marque et preuves restent prioritaires." : "Le prompt de l'atelier suffit pour une recréation simple. Un agent affine la mise en scène."}</small>
 
             {form.autopilot && (
               <>

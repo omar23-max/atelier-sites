@@ -4660,3 +4660,30 @@ textarea {
 .om-vign--vide { display: inline-block; width: 52px; height: 52px; border-radius: 4px; background: #f3f4f7; vertical-align: middle; margin-right: 10px; }
 .om-table td .om-vigns + * { vertical-align: middle; }
 .om-table__nom .om-vigns, .om-table__nom .om-vign--vide { float: left; }
+
+/* Registre des pubs (lot D, 2026-11-24) */
+.cat-reg { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 22px; }
+.cat-reg__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.cat-reg__head h4 { margin: 0; }
+.cat-reg__counts { display: flex; gap: 6px; flex-wrap: wrap; }
+.cat-reg__chip { border: 1px solid #e3e3ea; background: #fff; border-radius: 999px; padding: 5px 10px; font: 500 12.5px Inter, system-ui, sans-serif; cursor: pointer; color: #333; }
+.cat-reg__chip b { margin-left: 4px; }
+.cat-reg__chip.is-on { outline: 2px solid #1e2a4a; }
+.is-idee.cat-reg__chip, .cat-reg__suivi.is-idee { background: #f1f1f6; }
+.is-brouillon.cat-reg__chip, .cat-reg__suivi.is-brouillon { background: #fff4df; color: #8a5300; }
+.is-prete.cat-reg__chip, .cat-reg__suivi.is-prete { background: #e8f0ff; color: #1d4ed8; }
+.is-en-test.cat-reg__chip, .cat-reg__suivi.is-en-test { background: #f3e8ff; color: #6b21a8; }
+.is-gagnante.cat-reg__chip, .cat-reg__suivi.is-gagnante { background: #e6f6ee; color: #11643f; }
+.is-arretee.cat-reg__chip, .cat-reg__suivi.is-arretee { background: #fdeaea; color: #9b1c1c; }
+.cat-reg__filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.cat-reg__filters select, .cat-reg__info select { height: 32px; border: 1px solid #e3e3ea; border-radius: 8px; padding: 0 8px; background: #fff; font: 500 13px Inter, system-ui, sans-serif; }
+.cat-reg__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.cat-reg__card { border: 1px solid #e6e6ee; border-radius: 12px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.cat-reg__card.is-gagnante { border-color: #86d0a8; box-shadow: 0 0 0 2px #e6f6ee; }
+.cat-reg__media { position: relative; background: #f4f4f8; aspect-ratio: 4 / 5; display: grid; place-items: center; text-align: center; padding: 0; }
+.cat-reg__media img, .cat-reg__media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cat-reg__type { position: absolute; top: 8px; left: 8px; background: rgba(18,35,63,.85); color: #fff; font: 600 11px Inter, sans-serif; padding: 3px 7px; border-radius: 6px; }
+.cat-reg__info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.cat-reg__suivi { font-weight: 600 !important; border: 0 !important; align-self: flex-start; }
+.cat-reg__orig { display: flex; align-items: center; gap: 6px; color: #666; }
+.cat-reg__orig img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; }

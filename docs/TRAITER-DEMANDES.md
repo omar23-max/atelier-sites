@@ -2474,3 +2474,29 @@ Original 80 % → retour Modifiable 80 %.
 - Deux temps : « 1 · Proposer » (POST /api/publicites/<projet> avec arret:"plan", origine:"canvas") → l agent rend idée, accroche, textes visibles, promesses remplacées, prompt (modifiables) ; « 2 · Générer » (POST …/<id>/generer { plan, modele, format, refs, source }). Échec → « Relancer » (POST …/<id>/relancer). Propositions et travaux en attente listés dans le panneau ; le serveur continue si on ferme.
 - server/publicites.mjs : produire() s arrête après le plan si arret:"plan" ; generer() à part (modèle au choix : Nano Banana, Pro, GPT Image 2) ; fiche médiathèque avec agent, besoin, destination (mockup → produit + pub, marque → marque + pub).
 - Essai : Mise en scène du produit (Product Mockup Generator) sur essai-mirror : proposition 28 s, image 12 s, posée sur le tableau et rangée en brouillon dans Médias → Créées.
+
+## 2026-11-24 — Créer avec un agent : correction et discussion
+- « Demander une correction » sous la proposition (POST /api/publicites/<projet>/<id>/corriger { note, refs }) : l agent refait sa proposition avec sa réponse précédente + la remarque ; historique dans pub.corrections. « Retoucher cette proposition » après une image : nouvelle image depuis la même proposition (corrigée ou modifiée).
+- « Discuter avec l agent » (onglet du panneau Créer, composant AgentTalk) : même conversation que dans Agents army (/api/agents/<slug>/chat, par projet), images cliquées jointes. « Générer cette image » sur une réponse → proposition (depuisTexte) ; si plusieurs options, l atelier demande laquelle.
+- Correctif : un useEffect qui renvoyait la promesse de scrollIntoView faisait planter le Canvas (Chrome récent).
+- Essais essai-mirror : correction 24 s (terrasse, accroche courte) ; discussion 20 s ; proposition depuis la discussion 28 s.
+
+## 2026-11-24 — Lot E du plan images et vidéos : vers les pages, Studio branché
+- Médiathèque du Canvas : « Mettre dans une page » (fiche et actions groupées) → ExportToPage (page ouverte : Ctrl+Z ; autre page : copie de sécurité puis écriture). La fiche passe en « Sélectionnée » ; « Utilisée dans » se met à jour (calcul sur les pages).
+- Correctif ExportToPage : pour une autre page, ses parties copiées (-pN) sont chargées (/api/sections-data?ids=) avant de lister ses images (avant : « Aucune image dans cette page »).
+- Studio : réglage « Agent qui écrit le prompt » (Miroir : Image Mirror Studio V.1, Style Mirror Image Creator V.1, AI Image Recreator ; Pub : Scroll-Stopping, Ad Rebuilder V3, Mockup, UGC, Branded). promptParAgent() dans server/publicites.mjs ; route /api/ia/studio : b.agent. Chaque image du Studio a sa fiche (destination d après le type de page, + pub en mode Pub).
+- Studio : les boîtes produit et marque reprennent aussi les photos rangées dans Médias → Projet (Photo produit, Marque).
+- Essais : placement dans essai-poignees (remis ensuite) ; Studio + Image Mirror Studio : 30 s, note de l agent rendue.
+
+## 2026-11-24 — Lot D du plan images et vidéos : le registre des pubs
+- Étape Publicités du projet : « Registre des pubs » en tête (RegistrePubs, src/catalogue/Validation.jsx) : images et vidéos, compteurs et filtre par suivi (Idée, Brouillon, Prête, En test, Gagnante, Arrêtée), filtres type et angle (angles du projet), carte = média, suivi modifiable, accroche, besoin + agent, Canvas / variante, pub d origine, promesses remplacées ; Télécharger, Canvas, Variante, Retirer (avec confirmation).
+- server/publicites.mjs : champ suivi (SUIVIS), PATCH /api/publicites/<projet>/<id> { suivi, angle, notes, titre } ; POST …/ajouter { url, type, poster, titre, origine, format } (média de la médiathèque, mode « ajoutee ») ; POST …/<id>/variante { note } (même idée, autre version, parent).
+- Médiathèque : « En faire une pub » dans la fiche (destination pub ajoutée). mediatheque.mjs gère les pubs vidéo et le mode ajoutee.
+- Essai essai-mirror : vidéo Omni ajoutée au registre, suivis modifiés, affichage vérifié.
+
+## 2026-11-24 — Lot C : essai complet d une pub vidéo avec Omni
+- Source : analyse Mirror m-20261120220814-y7ou (pub farandwide 13 s, 6 scènes, voix off, 5 images de référence NexTap).
+- 4 plans Gemini Omni 1.2 Flash, 720p 9:16, chacun parti d une image de la bibliothèque Mirror, avec sa phrase de voix off dans la consigne ; générés en parallèle (~35 s).
+- Coût : 0,22 + 0,22 + 0,36 + 0,22 = 1,02 $ pour 14 s. Un plan bloqué par le filtre de contenu Google (consigne reformulée : passe).
+- Résultat : produit, décor et lumière identiques d un plan à l autre ; voix off dite (même voix, ton variable) ; musique ajoutée par Omni malgré « no music » ; coupures son nettes entre plans ; 9:16 seulement (la source était en 4:5).
+- Fichiers : ~/essais-omni/pub/ ; copie dans medias/projets/essai-mirror/videos-creees/omni-pub-essai-20261124.mp4 ; script ~/essais-omni/essai_pub.mjs.

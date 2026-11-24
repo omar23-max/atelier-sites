@@ -174,6 +174,135 @@ function Marge({ project, onSave }) {
   );
 }
 
+// ---- Registre des pubs (lot D du plan images et vidéos, 2026-11-24) ----
+// Toutes les pubs du projet, images et vidéos, d'où qu'elles viennent (étape
+// Publicités, Canvas, médiathèque) : suivi, angle, accroche, agent, pub
+// d'origine. Actions : ouvrir dans le Canvas, variante, télécharger, retirer.
+const SUIVI = { idee: "Idée", brouillon: "Brouillon", prete: "Prête", "en-test": "En test", gagnante: "Gagnante", arretee: "Arrêtée" };
+const AGENT_PUB = { rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator" };
+function RegistrePubs({ project, page, data, charger }) {
+  const [f, setF] = useState({ type: "", suivi: "", angle: "" });
+  const [local, setLocal] = useState({});
+  const angles = (project.angles ?? []).filter((a) => a.choisi || a.choisie || a.statut === "choisi").map((a) => a.titre).filter(Boolean);
+  const tousAngles = angles.length ? angles : (project.angles ?? []).map((a) => a.titre).filter(Boolean).slice(0, 12);
+  const pubs = data.pubs.map((x) => ({ ...x, ...(local[x.id] ?? {}) }));
+  const list = pubs.filter((x) => (!f.type || x.type === f.type) && (!f.suivi || x.suivi === f.suivi) && (!f.angle || x.angle === f.angle));
+  const compte = (k) => pubs.filter((x) => x.suivi === k).length;
+  async function maj(x, set) {
+    setLocal((l) => ({ ...l, [x.id]: { ...(l[x.id] ?? {}), ...set } }));
+    await fetch(`/api/publicites/${project.id}/${x.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(set) });
+  }
+  async function variante(x) {
+    const note = window.prompt("Variante : que veux-tu changer ? (ex. « l'accroche », « le décor », « une personne plus âgée »)", "l'accroche et la mise en scène");
+    if (note === null) return;
+    await fetch(`/api/publicites/${project.id}/${x.id}/variante`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note }) });
+    charger();
+  }
+  const ouvrirCanvas = () => page && (location.href = `/?page=${encodeURIComponent(page)}&ouvrir=canvas`);
+  return (
+    <div className="cat-reg">
+      <div className="cat-reg__head">
+        <h4>Registre des pubs</h4>
+        <div className="cat-reg__counts">
+          {Object.entries(SUIVI).map(([k, l]) => (
+            <button key={k} type="button" className={`cat-reg__chip is-${k}${f.suivi === k ? " is-on" : ""}`} onClick={() => setF({ ...f, suivi: f.suivi === k ? "" : k })}>
+              {l} <b>{compte(k)}</b>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="cat-reg__filters">
+        <select value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>
+          <option value="">Images et vidéos</option>
+          <option value="image">Images</option>
+          <option value="video">Vidéos</option>
+        </select>
+        <select value={f.angle} onChange={(e) => setF({ ...f, angle: e.target.value })}>
+          <option value="">Tous les angles</option>
+          {tousAngles.map((a) => (
+            <option key={a} value={a}>
+              {a}
+            </option>
+          ))}
+        </select>
+        <span className="cat-muted">{list.length} pub(s)</span>
+      </div>
+      {!pubs.length && <p className="cat-muted">Aucune pub pour l'instant. Crée-en une ci-dessous ou dans le Canvas, ou ajoute une image ou une vidéo depuis Médias (« En faire une pub »).</p>}
+      <div className="cat-reg__grid">
+        {list.map((x) => {
+          const media = x.type === "video" ? x.video : x.image;
+          return (
+            <article key={x.id} className={`cat-reg__card is-${x.suivi}`}>
+              <div className="cat-reg__media">
+                {media ? x.type === "video" ? <video src={media} poster={x.poster ?? undefined} controls preload="metadata" /> : <img src={media} alt="" loading="lazy" /> : <span className="cat-muted">{x.statut === "erreur" ? `⚠ ${x.erreur ?? "Échec"}` : x.statut === "plan" ? "Proposition à générer (dans le Canvas)" : x.etape || "En cours…"}</span>}
+                <span className="cat-reg__type">{x.type === "video" ? "Vidéo" : "Image"}{x.format ? ` · ${x.format}` : ""}</span>
+              </div>
+              <div className="cat-reg__info">
+                <select className={`cat-reg__suivi is-${x.suivi}`} value={x.suivi} onChange={(e) => maj(x, { suivi: e.target.value })} aria-label="Suivi de la pub">
+                  {Object.entries(SUIVI).map(([k, l]) => (
+                    <option key={k} value={k}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+                <b>{x.plan?.accroche ? `« ${x.plan.accroche} »` : x.titre || "Sans accroche"}</b>
+                <small className="cat-muted">
+                  {x.mode === "ajoutee" ? `Depuis Médias${x.origineMedia?.source ? ` · ${x.origineMedia.source}` : ""}` : `${data.modes[x.mode]?.label ?? x.mode} · ${AGENT_PUB[x.mode] ?? ""}`}
+                  {x.origine === "canvas" ? " · Canvas" : ""}
+                  {x.parent ? " · variante" : ""} · {new Date(x.le).toLocaleDateString("fr-CA")}
+                </small>
+                <select value={x.angle ?? ""} onChange={(e) => maj(x, { angle: e.target.value })} aria-label="Angle">
+                  <option value="">Angle : non précisé</option>
+                  {[...new Set([...tousAngles, ...(x.angle ? [x.angle] : [])])].map((a) => (
+                    <option key={a} value={a}>
+                      {a}
+                    </option>
+                  ))}
+                </select>
+                {x.source && (
+                  <small className="cat-reg__orig">
+                    <img src={x.source} alt="" /> d'après une pub existante
+                  </small>
+                )}
+                {x.plan?.remplacements?.length > 0 && (
+                  <details>
+                    <summary>Promesses remplacées ({x.plan.remplacements.length})</summary>
+                    <ul>
+                      {x.plan.remplacements.map((r, i) => (
+                        <li key={i}>
+                          <s>{r.origine}</s> → {r.remplacement}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+                <div className="cat-actions">
+                  {media && (
+                    <a className="cat-btn cat-btn--ghost" href={media} download>
+                      Télécharger
+                    </a>
+                  )}
+                  <button type="button" className="cat-link" onClick={ouvrirCanvas} disabled={!page}>
+                    Canvas
+                  </button>
+                  {AGENT_PUB[x.mode] && x.statut === "pret" && (
+                    <button type="button" className="cat-link" onClick={() => variante(x)}>
+                      Variante
+                    </button>
+                  )}
+                  <button type="button" className="cat-link" onClick={() => window.confirm("Retirer cette pub du registre ? (l'image ou la vidéo reste dans Médias)") && fetch(`/api/publicites/${project.id}/${x.id}`, { method: "DELETE" }).then(charger)}>
+                    Retirer
+                  </button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // Étape « Publicités » (lot 4, 2026-11-23) : pubs images guidées par un agent
 // (contexte du projet + contrôle des promesses) et suivi des vidéos Mirror.
 export function PublicitesTab({ project, pages }) {
@@ -225,7 +354,10 @@ export function PublicitesTab({ project, pages }) {
       <h3>Publicités</h3>
       <p className="cat-muted">Chaque mode utilise le meilleur agent pour ce type de pub, avec ton produit, ton offre, ta marque et tes preuves. Contrôle des promesses : sur l'image, seules tes preuves peuvent apparaître ; celles d'une pub concurrente sont remplacées par ta preuve équivalente, reformulées en bénéfice ou retirées, et chaque remplacement est listé.</p>
 
-      <h4>Pubs images</h4>
+      <RegistrePubs project={project} page={page} data={data} charger={charger} />
+
+      <h4>Créer une pub image ici</h4>
+      <p className="cat-muted">Tu peux aussi créer dans le Canvas (bouton Créer : proposition, correction, discussion avec l'agent) : les pubs arrivent dans ce même registre.</p>
       <div className="cat-pub__modes">
         {Object.entries(data.modes).map(([k, x]) => (
           <button key={k} type="button" className={`cat-pub__mode${mode === k ? " is-on" : ""}`} onClick={() => setMode(k)}>
@@ -275,45 +407,6 @@ export function PublicitesTab({ project, pages }) {
         </button>
       </div>
       {err && <p className="cat-flash is-error">⚠ {err}</p>}
-
-      {data.pubs.length > 0 && (
-        <div className="cat-pub__gal">
-          {data.pubs.map((x) => (
-            <article key={x.id} className="cat-pub__card">
-              <div className="cat-pub__img">{x.image ? <img src={x.image} alt="" /> : <span className="cat-muted">{x.statut === "erreur" ? "⚠ Échec" : x.etape || "En cours…"}</span>}</div>
-              <div className="cat-pub__info">
-                <b>{data.modes[x.mode]?.label ?? x.mode}</b>
-                <small className="cat-muted">{new Date(x.le).toLocaleString("fr-CA")} · {x.format}</small>
-                {x.erreur && <p className="cat-flash is-error">{x.erreur}</p>}
-                {x.plan?.accroche && <p>« {x.plan.accroche} »{x.plan.cta ? ` · ${x.plan.cta}` : ""}</p>}
-                {x.plan?.remplacements?.length > 0 && (
-                  <details>
-                    <summary>Promesses remplacées ({x.plan.remplacements.length})</summary>
-                    <ul>
-                      {x.plan.remplacements.map((r, i) => (
-                        <li key={i}>
-                          <s>{r.origine}</s> → {r.remplacement} <span className="cat-muted">({r.raison})</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-                {x.plan?.textesVisibles?.length > 0 && <small className="cat-muted">Textes sur l'image : {x.plan.textesVisibles.join(" · ")}</small>}
-                <div className="cat-actions">
-                  {x.image && (
-                    <a className="cat-btn cat-btn--ghost" href={x.image} download>
-                      Télécharger
-                    </a>
-                  )}
-                  <button type="button" className="cat-link" onClick={() => fetch(`/api/publicites/${project.id}/${x.id}`, { method: "DELETE" }).then(charger)}>
-                    Retirer
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
 
       <h4>Pubs vidéos</h4>
       <p className="cat-muted">Mirror vidéo, dans le Canvas : analyse d'une pub concurrente (plans, script), adaptation à ton produit avec le contexte du projet, images de référence, puis prompts pour TopView ou Seedance.</p>

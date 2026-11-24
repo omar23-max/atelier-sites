@@ -1110,8 +1110,15 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
   }
   async function depuisDiscussion(texte) {
     if (besoin.source && !source) return setFlash({ error: "Clique d'abord la pub d'origine sur le tableau (elle devient l'image 1)." });
+    // Plusieurs options dans la réponse : laquelle transformer en image ?
+    const options = [...new Set([...texte.matchAll(/\b(?:option|idée|proposition|concept)\s+([A-H1-9])\b/gi)].map((m) => m[1].toUpperCase()))];
+    let choix = "";
+    if (options.length > 1) {
+      choix = window.prompt(`L'agent propose ${options.length} options (${options.join(", ")}). Laquelle transformer en image ?`, options[0]);
+      if (choix === null) return;
+    }
     setEdit(null);
-    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne, arret: "plan", origine: "canvas", modele, depuisTexte: texte }) });
+    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne: [consigne, choix ? `Option retenue : ${choix}` : ""].filter(Boolean).join(" · "), arret: "plan", origine: "canvas", modele, depuisTexte: texte }) });
     if (!ok) return setFlash({ error: body.error || "La proposition n'a pas pu partir." });
     setJob(body);
     setVue("proposer");
@@ -1296,7 +1303,9 @@ function AgentTalk({ slug, titre, projet, refs, onGenerer, setFlash }) {
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enCours]);
-  useEffect(() => bas.current?.scrollIntoView({ block: "end" }), [conv?.messages?.length, enCours]);
+  useEffect(() => {
+    bas.current?.scrollIntoView({ block: "end" });
+  }, [conv?.messages?.length, enCours]);
   const imgs = refs.map(sansQuery).filter((u) => /\.(png|jpe?g|webp)$/i.test(u)).slice(0, 6);
   async function envoyer(extra = {}) {
     const message = extra.nouvelle ? "" : texte.trim();
@@ -1553,6 +1562,8 @@ function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
   const [ticked, setTicked] = useState([]);
   const [fiche, setFiche] = useState(null);
   const [err, setErr] = useState("");
+  const [exporter, setExporter] = useState(null);
+  const [flashMt, setFlashMt] = useState("");
   const fileRef = useRef(null);
   const first = useRef(true);
   function load() {
@@ -1599,6 +1610,14 @@ function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
       const cur = byUrl.get(u)?.destination ?? [];
       patch([u], { destination: on ? cur.filter((x) => x !== d) : [...new Set([...cur, d])] });
     }
+  }
+  // Lot D (2026-11-24) : le média entre dans le registre des pubs (étape Publicités).
+  async function enPub(x) {
+    const r = await fetch(`/api/publicites/${root.projet}/ajouter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: x.url, type: x.type, poster: x.poster ?? null, titre: (x.origine?.consigne ?? "").replace(/^.*«\s*|\s*»\s*$/g, "").slice(0, 120), origine: x.origine ?? null, format: x.origine?.format ?? "" }) });
+    if (!r.ok) return setErr("Ajout au registre impossible.");
+    await patch([x.url], { destination: [...new Set([...(x.destination ?? []), "pub"])] });
+    setFlashMt("Ajoutée au registre des pubs (étape Publicités du projet).");
+    load();
   }
   function ajouter(urls) {
     const sel = urls.map((u) => byUrl.get(u)).filter(Boolean);
@@ -1735,9 +1754,21 @@ function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
                 <dt>Utilisée dans</dt>
                 <dd>{fi.utiliseeDans?.length ? fi.utiliseeDans.map((u) => `${u.type === "pub" ? "Pub" : "Page"} « ${u.titre} »`).join(", ") : "nulle part pour l'instant"}</dd>
               </dl>
-              <button type="button" className="atl-cv__go" onClick={() => ajouter([fi.url])}>
-                Poser sur le tableau
-              </button>
+              <div className="atl-mt__ficheactions">
+                {root.projet && !fi.lectureSeule && !fi.utiliseeDans?.some((u) => u.type === "pub") && (
+                  <button type="button" className="atl-cv__ghost" onClick={() => enPub(fi)}>
+                    En faire une pub
+                  </button>
+                )}
+                {fi.type === "image" && (
+                  <button type="button" className="atl-cv__ghost" onClick={() => setExporter([fi.url])}>
+                    Mettre dans une page
+                  </button>
+                )}
+                <button type="button" className="atl-cv__go" onClick={() => ajouter([fi.url])}>
+                  Poser sur le tableau
+                </button>
+              </div>
             </aside>
           )}
         </div>
@@ -1771,6 +1802,7 @@ function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
               <span>{ticked.length} cochée(s) :</span>
               <button type="button" onClick={() => patch(ticked, { choix: "selectionnee" })}>Sélectionner</button>
               <button type="button" onClick={() => patch(ticked, { choix: "ecartee" })}>Écarter</button>
+              {type === "image" && <button type="button" onClick={() => setExporter([...ticked])}>Mettre dans une page</button>}
               <select value="" onChange={(e) => e.target.value && toggleDest(ticked, e.target.value)}>
                 <option value="">Destination…</option>
                 {Object.entries(MT_DEST).map(([k, l]) => (
@@ -1793,6 +1825,18 @@ function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
             Poser sur le tableau{ticked.length > 1 ? ` (${ticked.length})` : ""}
           </button>
         </div>
+        {exporter && (
+          <ExportToPage
+            urls={exporter}
+            onClose={() => (setExporter(null), load())}
+            onDone={(msg) => {
+              setErr("");
+              patch(exporter, { choix: "selectionnee" });
+              setFlashMt(msg);
+            }}
+          />
+        )}
+        {flashMt && <p className="atl-mt__ok">✓ {flashMt}</p>}
       </div>
     </div>,
     document.body,
@@ -1960,9 +2004,20 @@ function usePageContent(name) {
     setData(null);
     if (!name) return;
     if (name === pageName) return setData(getPuck().appState.data);
+    // Autre page (2026-11-24) : ses parties copiées (-pN…) ne sont pas dans
+    // l'index de l'éditeur ouvert ; on les charge avant de lister ses images.
     fetch(`/api/pages/${name}`)
       .then((r) => r.json())
-      .then(setData)
+      .then(async (d) => {
+        const manque = [...new Set((d?.content ?? []).map((c) => c.type).filter((t) => t && !sectionsIndex[t]))];
+        for (let i = 0; i < manque.length; i += 40) {
+          const lot = await fetch(`/api/sections-data?ids=${manque.slice(i, i + 40).map(encodeURIComponent).join(",")}`)
+            .then((r) => r.json())
+            .catch(() => []);
+          for (const f of lot) if (f?.id && !sectionsIndex[f.id]) sectionsIndex[f.id] = { ...f, errors: [] };
+        }
+        setData(d);
+      })
       .catch(() => setData({ content: [] }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
