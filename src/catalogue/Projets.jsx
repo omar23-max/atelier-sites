@@ -9,6 +9,7 @@ import { changePageOrigin, confirmDelete, createPage, empreinte, getPage, listMe
 import { NewProjectDialog, isUrl, pageMenuGroups, requestImport } from "../pages-ui.jsx";
 import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf, request } from "./ProjectExtras.jsx";
 import { FoundationsTab, PROJECT_MENU, ProjectMenu } from "./Fondations.jsx";
+import { PublicitesTab, ValidationTab } from "./Validation.jsx";
 import { AnglesTab } from "./Angles.jsx";
 import { SourcePicker } from "./SourcePicker.jsx";
 import { ResultsTab } from "./ResultsTab.jsx";
@@ -383,6 +384,8 @@ export function ProjectDetail({ id, onBack, onMessage }) {
           nav={{ prev: navOf(menuIndex - 1), next: navOf(menuIndex + 1) }}
         />
       </div>
+      {currentTab === "validation" && <ValidationTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
+      {currentTab === "publicites" && <PublicitesTab key={project.id} project={project} pages={pages} />}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}
       {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} project={project} onMessage={onMessage} />]} />}

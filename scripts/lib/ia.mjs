@@ -259,7 +259,11 @@ export function studioPrompt(o) {
     pub && o.cta ? `Call-to-action button on the ad: "${o.cta}".` : "",
     o.brief ? `Purpose of this image on the page: ${o.brief}.` : "",
     o.consigne ? `Extra instruction: ${o.consigne}.` : "",
-    "Never add a rating, a number of reviews, a price, a certification or a medical claim that is not already in image #1.",
+    // Audit ST01 (2026-11-23) : les promesses de l'image d'origine appartiennent
+    // à l'autre marque ; seules les preuves du projet peuvent apparaître.
+    o.preuves?.length
+      ? `Claims: image #1 belongs to another brand, so its numbers, ratings, review counts, certifications, clinical or medical claims are NOT true for this product. Replace each of them with the closest of these allowed claims of the user, or rewrite it as a benefit without numbers, or remove it: ${o.preuves.join(" | ")}. Never add any other claim.`
+      : "Claims: image #1 belongs to another brand, so remove its numbers, ratings, review counts, certifications, clinical or medical claims (or rewrite them as benefits without numbers). Never add a rating, review count, price, certification or medical claim.",
     pub
       ? "Output ONLY the finished ad, as one single image. No board, no labels, no split screen."
       : "Output ONLY the recreated photo, as one single image with the same aspect ratio as image #1. No board, no labels, no split screen.",

@@ -857,7 +857,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         ))}
       </section>
 
-      <VideosConcurrents value={rep.videosConcurrents} onChange={(v) => set("videosConcurrents", v)} project={project} onMessage={onMessage} />
+      <VideosConcurrents value={rep.videosConcurrents} onChange={(v) => set("videosConcurrents", v)} project={project} onMessage={onMessage} preuves={preuves} onAdopt={(k, detail) => setPreuve(k, { oui: true, detail })} />
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
@@ -1148,18 +1148,27 @@ export function ProjectProgress({ project, pages, onGo, current }) {
 // 4 Marque et design · 5 Médias / 6 Message central · 7 Angles · 8 Textes ·
 // 9 Contenu des pages · 10 Pages · Exports. Les étapes 1, 2, 3, 6 et 9 sont
 // les parties des Fondations (fd = numéro de sous-étape).
+// Refonte guidée, lot 3 (2026-11-23) : 4 phases, dans l'ordre où l'on décide.
+export const PROJECT_PHASES = [
+  ["valider", "Valider", "avant de dépenser"],
+  ["decider", "Décider", "offre, message, marque"],
+  ["produire", "Produire", "textes, médias, pubs"],
+  ["publier", "Publier", "pages et exports"],
+];
 export const PROJECT_MENU = [
-  { id: "produit", label: "Produits et clients", fd: 0 },
-  { id: "preuves", label: "Preuves et offres", fd: 1 },
-  { id: "recherche", label: "Recherche client", fd: 2 },
-  { id: "marque", label: "Marque et design" },
-  { id: "images", label: "Médias" },
-  { id: "message", label: "Message central", fd: 3 },
-  { id: "angles", label: "Angles" },
-  { id: "textes", label: "Textes" },
-  { id: "contenus", label: "Contenu des pages", fd: 4 },
-  { id: "pages", label: "Pages" },
-  { id: "publication", label: "Exports", final: true },
+  { id: "produit", label: "Produits et clients", fd: 0, phase: "valider" },
+  { id: "validation", label: "Validation produit", phase: "valider" },
+  { id: "recherche", label: "Recherche client", fd: 2, phase: "valider" },
+  { id: "preuves", label: "Preuves et offres", fd: 1, phase: "decider" },
+  { id: "message", label: "Message central", fd: 3, phase: "decider" },
+  { id: "angles", label: "Angles", phase: "decider" },
+  { id: "marque", label: "Marque et design", phase: "decider" },
+  { id: "contenus", label: "Contenu des pages", fd: 4, phase: "produire" },
+  { id: "textes", label: "Textes", phase: "produire" },
+  { id: "images", label: "Médias", phase: "produire" },
+  { id: "publicites", label: "Publicités", phase: "produire" },
+  { id: "pages", label: "Pages", phase: "publier" },
+  { id: "publication", label: "Exports", final: true, phase: "publier" },
 ];
 
 export function ProjectMenu({ project, pages, onGo, current }) {
@@ -1178,6 +1187,8 @@ export function ProjectMenu({ project, pages, onGo, current }) {
   const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
   const st = {
     produit: [foundationsFilled(project) ? "done" : filled(rep.role) || filled(rep.qui) ? "doing" : "todo", foundationsFilled(project) ? `rempli${nbVideos ? ` · ${nbVideos} vidéo(s)` : ""}` : "à remplir"],
+    validation: project.validation?.verdict ? ["done", `${{ GO: "GO", GO_CONDITIONS: "GO avec conditions", NO_GO: "NON" }[project.validation.verdict] ?? project.validation.verdict}${project.validation.score != null ? ` · ${project.validation.score}/10` : ""}`] : ["todo", "verdict, tendance, marge"],
+    publicites: ["none", "images et vidéos"],
     preuves: [nbPreuves ? "done" : "todo", nbPreuves ? `${nbPreuves} preuve(s)` : "aucune preuve"],
     recherche: [nbSources || f.resultats ? "done" : "todo", `${nbSources} source(s)${f.resultats ? " · Claude" : ""}`],
     marque: [marqueOk ? "done" : "todo", marqueOk ? "commencée" : "logo, couleurs, planche"],
@@ -1189,22 +1200,39 @@ export function ProjectMenu({ project, pages, onGo, current }) {
     pages: [pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     publication: [pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],
   };
+  // Prochaine étape : la première, dans l'ordre des phases, qui reste à faire.
+  const prochaine = PROJECT_MENU.find((m) => ["todo", "doing"].includes((st[m.id] ?? ["none"])[0]));
   return (
     <div className="cat-menu">
-      <nav className="cat-menu__grid" aria-label="Étapes du projet">
-        {PROJECT_MENU.map((m, i) => {
-          const [state, detail] = st[m.id] ?? ["none", ""];
-          return (
-            <button key={m.id} type="button" className={`cat-menu__item is-${state}${current === m.id ? " is-current" : ""}${m.final ? " is-final" : ""}`} aria-current={current === m.id ? "step" : undefined} onClick={() => onGo(m.id)}>
-              <i>{m.final ? "⤓" : state === "done" ? "✓" : i + 1}</i>
-              <b>{m.label}</b>
-              <small>{detail}</small>
-            </button>
-          );
-        })}
+      {prochaine && prochaine.id !== current && (
+        <button type="button" className="cat-menu__next" onClick={() => onGo(prochaine.id)}>
+          Prochaine étape : <b>{prochaine.label}</b> →
+        </button>
+      )}
+      <nav className="cat-menu__phases" aria-label="Étapes du projet">
+        {PROJECT_PHASES.map(([ph, nom, sous], pi) => (
+          <div key={ph} className="cat-menu__phase">
+            <p className="cat-menu__phaseTitle">
+              <span>{String(pi + 1).padStart(2, "0")}</span> {nom} <em>{sous}</em>
+            </p>
+            <div className="cat-menu__phaseItems">
+              {PROJECT_MENU.filter((m) => m.phase === ph).map((m) => {
+                const i = PROJECT_MENU.indexOf(m);
+                const [state, detail] = st[m.id] ?? ["none", ""];
+                return (
+                  <button key={m.id} type="button" className={`cat-menu__item is-${state}${current === m.id ? " is-current" : ""}${m.final ? " is-final" : ""}${prochaine?.id === m.id ? " is-next" : ""}`} aria-current={current === m.id ? "step" : undefined} onClick={() => onGo(m.id)}>
+                    <i>{m.final ? "⤓" : state === "done" ? "✓" : i + 1}</i>
+                    <b>{m.label}</b>
+                    <small>{detail}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
       <p className="cat-menu__fd">
-        Fondations : {fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? "chez Claude" : "brouillon"} (étapes 1, 2, 3, 6 et 9)
+        Fondations : {fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? "chez Claude" : "brouillon"} (étapes {PROJECT_MENU.map((m, i) => (m.fd != null ? i + 1 : null)).filter(Boolean).join(", ").replace(/, (\d+)$/, " et $1")})
       </p>
     </div>
   );
@@ -1215,7 +1243,8 @@ export function ProjectMenu({ project, pages, onGo, current }) {
 // déjà dans le projet : imports WinningHunter, Canvas). « Analyser les
 // angles » : Gemini regarde la vidéo et en tire accroche, angle, promesse,
 // preuves, script. Claude lit ces analyses avec le reste des Fondations.
-function VideosConcurrents({ value, onChange, project, onMessage }) {
+function VideosConcurrents({ value, onChange, project, onMessage, preuves = {}, onAdopt }) {
+  const [adopte, setAdopte] = useState(null); // index de la vidéo dont le formulaire est ouvert
   const list = Array.isArray(value) ? value : [];
   const [busy, setBusy] = useState(null);
   const [picker, setPicker] = useState(null);
@@ -1325,10 +1354,39 @@ function VideosConcurrents({ value, onChange, project, onMessage }) {
                   <button type="button" className="cat-btn" disabled={busy != null} onClick={() => analyse(i)}>
                     {busy === i ? "Gemini regarde la vidéo…" : v.analyse ? "Refaire l'analyse" : "Analyser les angles"}
                   </button>
+                  {v.analyse && onAdopt && (
+                    <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setAdopte(adopte === i ? null : i)} title="Une promesse de cette vidéo est aussi vraie pour ton produit : l'ajouter à tes preuves, avec sa source">
+                      ＋ Adopter comme preuve
+                    </button>
+                  )}
                   <button type="button" className="cat-link" onClick={() => onChange(list.filter((_, j) => j !== i))}>
                     Retirer
                   </button>
                 </div>
+                {adopte === i && (
+                  <AdopterPreuve
+                    video={v}
+                    preuves={preuves}
+                    onCancel={() => setAdopte(null)}
+                    onAdopt={(k, texte, source) => {
+                      const avant = String(preuves[k]?.detail ?? "").trim();
+                      const ajout = `${texte} (source : ${source} ; repérée dans la vidéo « ${v.nom || nameOf(v.url)} »)`;
+                      onAdopt(k, avant ? `${avant} ; ${ajout}` : ajout);
+                      onChange(list.map((x, j) => (j === i ? { ...x, adoptions: [...(x.adoptions ?? []), { texte, type: k, source, le: new Date().toISOString() }] } : x)));
+                      setAdopte(null);
+                      onMessage?.({ text: `Ajouté à tes preuves (« ${PREUVES.find((p) => p[0] === k)?.[1] ?? k} »). Utilisable dans les pages, les pubs et par les agents.` });
+                    }}
+                  />
+                )}
+                {v.adoptions?.length > 0 && (
+                  <ul className="cat-fdv__adoptions">
+                    {v.adoptions.map((a, j) => (
+                      <li key={j}>
+                        ✓ Adoptée comme preuve ({PREUVES.find((p) => p[0] === a.type)?.[1] ?? a.type}) : {a.texte} <span className="cat-muted">— source : {a.source}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {v.analyse && (
                   <details className="cat-fdv__analyse" open>
                     <summary>Analyse</summary>
@@ -1341,5 +1399,53 @@ function VideosConcurrents({ value, onChange, project, onMessage }) {
         </div>
       )}
     </section>
+  );
+}
+
+// « Adopter comme preuve » (2026-11-23) : une promesse vue chez un concurrent
+// devient TA preuve seulement si tu dis pourquoi elle est vraie pour ton
+// produit (source obligatoire). Le texte sélectionné dans l'analyse est
+// proposé d'office.
+function AdopterPreuve({ video, preuves, onCancel, onAdopt }) {
+  const [texte, setTexte] = useState(() => {
+    const sel = String(window.getSelection?.() ?? "").trim();
+    return sel && String(video.analyse ?? "").includes(sel.slice(0, 40)) ? sel.slice(0, 400) : "";
+  });
+  const [type, setType] = useState("etude");
+  const [source, setSource] = useState("");
+  const ok = texte.trim() && source.trim();
+  return (
+    <div className="cat-fdv__adopt">
+      <p className="cat-muted">
+        La promesse d'un concurrent n'est vraie que pour son produit. Ajoute-la à tes preuves seulement si elle l'est aussi pour le tien (même ingrédient et même dosage avec une étude publiée, ton propre sondage, tes avis…). Astuce : sélectionne la phrase dans l'analyse avant de cliquer, elle sera reprise ici.
+      </p>
+      <label>
+        <span>La promesse, telle que tu peux l'affirmer</span>
+        <textarea rows={2} value={texte} onChange={(e) => setTexte(e.target.value)} placeholder="ex. L'amla est étudié pour soutenir l'énergie (étude 2019)" />
+      </label>
+      <label>
+        <span>Type de preuve</span>
+        <select value={type} onChange={(e) => setType(e.target.value)}>
+          {PREUVES.map(([k, l]) => (
+            <option key={k} value={k}>
+              {l}
+              {preuves[k]?.oui ? " (déjà cochée : ajoutée à la suite)" : ""}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>Pourquoi c'est vrai pour ton produit (source)</span>
+        <input value={source} onChange={(e) => setSource(e.target.value)} placeholder="ex. Étude Journal of Ethnopharmacology 2019, même extrait d'amla 500 mg" />
+      </label>
+      <div className="cat-actions">
+        <button type="button" className="cat-btn" disabled={!ok} onClick={() => onAdopt(type, texte.trim(), source.trim())}>
+          Ajouter à mes preuves
+        </button>
+        <button type="button" className="cat-link" onClick={onCancel}>
+          Annuler
+        </button>
+      </div>
+    </div>
   );
 }

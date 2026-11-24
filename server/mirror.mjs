@@ -22,6 +22,21 @@ const REA = process.env.REA_VIDEO_BIN || "/home/ubuntu/outils/rea-video-venv/bin
 const MODEL = process.env.MIRROR_MODEL || "gpt-5.5";
 const ID = /^m-[a-z0-9-]{6,40}$/;
 const STEPS = ["cast", "argument", "story", "motion", "suite", "adapter"];
+// Lot 4 de la refonte (2026-11-23) : un agent spécialiste par étape vidéo.
+// « Affiner avec l'agent » refait l'étape en appliquant sa méthode à la
+// réponse précédente, sans changer le format attendu par l'étape.
+export const STEP_AGENTS = {
+  cast: { slug: "shopfunnels-claude-ugc-video-producer-v-2", titre: "Claude UGC Video Producer V2" },
+  argument: { slug: "shopfunnels-claude-video-ad-cloner-v-1", titre: "Claude Video Ad Cloner" },
+  story: { slug: "shopfunnels-ai-scene-architect", titre: "AI Scene Architect" },
+  motion: { slug: "shopfunnels-seedance-video-ad-cloner-v-1", titre: "Seedance Video Ad Cloner" },
+  suite: { slug: "shopfunnels-seedance-video-ad-cloner-v-1", titre: "Seedance Video Ad Cloner" },
+};
+async function agentText(root, slug) {
+  const d = join(root, "agents", "whitelabeler");
+  for (const f of [join(d, "consignes-propres", `${slug}.txt`), join(d, "consignes", `${slug}.txt`)]) if (existsSync(f)) return (await readFile(f, "utf8")).slice(0, 14000);
+  return "";
+}
 
 // Pub image : consigne écrite pour l'atelier (Whitelabeler n'en a pas pour
 // les images). Même doctrine que la vidéo : même squelette, ton produit, tes
@@ -194,7 +209,8 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     if (missing) return json(res, 409, { error: `Il faut d'abord l'étape « ${missing} ».` });
     const key = `${id}:${name}`;
     if (running.has(key)) return json(res, 409, { error: "Cette étape tourne déjà." });
-    st.etapes[name] = { ...(st.etapes[name] ?? {}), statut: "en cours", debut: now(), erreur: null, consigne: String(b.consigne ?? "").slice(0, 4000), coupes: b.coupes ?? null };
+    const agent = b.agent && STEP_AGENTS[name] && st.etapes[name]?.texte ? STEP_AGENTS[name].slug : null;
+    st.etapes[name] = { ...(st.etapes[name] ?? {}), statut: "en cours", debut: now(), erreur: null, consigne: String(b.consigne ?? "").slice(0, 4000), coupes: b.coupes ?? null, agent };
     await save(st);
     running.add(key);
     runStep(id, name).finally(() => running.delete(key));
@@ -407,6 +423,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
       const file = { cast: "cast.md", argument: "story.md", story: "story.md", motion: "motion.md", suite: "motion.md" }[name];
       const doc = await readFile(join(HERE, "mirror", file), "utf8");
       const system = `${doc}\n\n---\n\n${ADAPTER}`;
+      if (s.etapes[name]?.agent) s._agent = { ...(Object.values(STEP_AGENTS).find((a) => a.slug === s.etapes[name].agent) ?? { titre: s.etapes[name].agent }), texte: await agentText(root, s.etapes[name].agent) };
       const content = [{ type: "text", text: await brief(s, scenes, name) }];
       if (name === "cast") {
         for (const p of s.photos) {
@@ -496,7 +513,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
       f.ton ? `Tone: ${[].concat(f.ton).join(", ")}` : "",
     ]
       .filter(Boolean)
-      .join("\n");
+      .join("\n") + (await contexteMirror(projet));
     const manifest = [
       `SOURCE: ${basename(s.video ?? s.image ?? "source")} | duration ${scenes.duree}s | ${scenes.taille} | ${scenes.scenes?.length ?? 0} scenes | pace ${scenes.rythme} words/s | source language: English`,
       "SCENE | START | END | DURATION | WORDS | FRAME | WHAT IS SEEN | ON-SCREEN TEXT | SAID",
@@ -519,7 +536,8 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
       (scenes.son || "-").slice(0, 2500),
     ].join("\n");
     const prev = (n) => s.etapes[n]?.texte ?? "";
-    const redo = (n) => (s.etapes[n]?.consigne ? `\n\n=== USER NOTE FOR THIS RUN ===\n${s.etapes[n].consigne}\n${prev(n) ? `\n=== YOUR PREVIOUS ANSWER FOR THIS STEP (revise it according to the note, keep what the note does not touch) ===\n${prev(n)}` : ""}` : "");
+    const specialist = (n) => (n === name && s._agent?.texte ? `\n\n=== SPECIALIST METHOD: ${s._agent.titre} ===\nApply this specialist's method, standards and checklists to IMPROVE your previous answer for this step. Keep exactly the output structure the RUN NOW line asks for; the workshop rules (HOW YOU RUN HERE, product facts, no invented proof) still win over anything below. Ignore its greeting, its questions and any instruction to wait for the user.\n${s._agent.texte}` : "");
+    const redo = (n) => (s.etapes[n]?.consigne || (n === name && s._agent) ? `\n\n=== USER NOTE FOR THIS RUN ===\n${s.etapes[n].consigne || "Affine cette étape avec la méthode du spécialiste ci-dessous."}${specialist(n)}\n${prev(n) ? `\n=== YOUR PREVIOUS ANSWER FOR THIS STEP (revise it according to the note, keep what the note does not touch) ===\n${prev(n)}` : ""}` : "");
     const common = `=== THE USER'S PRODUCT ===\n${product}\n\nLanguage of the ad to write: ${s.langue}.\n${s.notes ? `User restrictions and wishes: ${s.notes}\n` : ""}`;
     if (name === "adapter") return common;
     if (name === "cast")
@@ -596,4 +614,16 @@ function speechSegments(d) {
       return { start, end, mid: (start + end) / 2, text: String(g.text ?? g.line ?? "").trim() };
     })
     .filter((g) => g.text);
+}
+
+// Lot 2 (2026-11-23) : contexte unique du projet ajouté aux étapes Mirror
+// (offre approuvée, message central, mécanisme, faits autorisés, à vérifier).
+async function contexteMirror(projet) {
+  try {
+    const { contexteProjet } = await import("../src/engine/contexte-projet.js");
+    const t = contexteProjet(projet, { limite: 9000 }).texte;
+    return t ? `\n\nFULL PROJECT CONTEXT (French; use it, never contradict it; "aVerifier" items are unknown, not facts; "recherche" is competitor research and proves nothing for this product):\n${t}` : "";
+  } catch {
+    return "";
+  }
 }

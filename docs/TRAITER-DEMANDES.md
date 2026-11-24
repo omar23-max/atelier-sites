@@ -2389,3 +2389,23 @@ Original 80 % → retour Modifiable 80 %.
 - PG01 : verrou par fichier + écriture atomique (lockFile / writeAtomic, server/api.mjs) pour pages et projets ; application d un design et image placée depuis le Canvas envoient If-Match (409 si la page a changé).
 - CV01 : save() rend réussite/échec, flushSave attend l enregistrement en cours et réessaie ; fermer, changer d espace ou de tableau après un échec demande confirmation (canvas-ui.jsx).
 - Tests : fondations-fiabilite 59/59 ; 2 PUT simultanés même version → 200 + 409 (page et projet) ; Canvas avec enregistrement en échec reste ouvert.
+
+## 2026-11-23 — Refonte guidée, lot 2 (contexte unique)
+- Consignes : 35 versions propres dans agents/whitelabeler/consignes-propres/ (texte du template prompt-store seul, originaux intacts). L IA reçoit la version propre ; bouton Consigne : version propre + « Voir l original » (header X-Consigne).
+- src/engine/contexte-projet.js : contexte unique (identité, campagne, décidé = offre/message/mécanisme/angles choisis, faits autorisés + interdits, marque, client, à vérifier, recherche concurrente signalée « ne prouve rien »), borné sans couper (rubriques retirées en entier).
+- Branché : chats Agents army (server/agents.mjs projectContext) et étapes Mirror (contexteMirror dans brief, server/mirror.mjs). Studio : prévu au lot 4 (Publicités), avec le contrôle des promesses (ST01).
+- Test : Viral Hook Creator sur essai-mirror cite le mécanisme choisi et la seule preuve autorisée.
+- « Adopter comme preuve » (Fondations, vidéos concurrentes analysées) : promesse + type de preuve + source obligatoire → ajoutée au détail de la preuve (cochée), trace dans videosConcurrents[].adoptions (AdopterPreuve, Fondations.jsx).
+
+## 2026-11-23 — Refonte guidée, lot 3 (menu en 4 phases + Validation)
+- Menu du projet : 01 Valider (Produits et clients, Validation produit, Recherche client) · 02 Décider (Preuves et offres, Message central, Angles, Marque et design) · 03 Produire (Contenu des pages, Textes, Médias, Publicités) · 04 Publier (Pages, Exports) ; bouton « Prochaine étape » (première étape à faire dans l ordre) ; numéros des étapes des Fondations recalculés.
+- Validation produit (src/catalogue/Validation.jsx, server/validation.mjs, /api/validation/<projet>) : Product Validator (consigne propre) + contexte unique + recherche web → verdict GO / GO avec conditions / NON, score, demande, tendance, concurrence, marge estimée, risques, conditions, à vérifier, prochaines actions, sources ; tâche suivie (état dans projets/_validation/). Verdict repris dans le menu (project.validation). Calcul de marge avec tes chiffres (project.validationMarge).
+- Publicités : entrée vers Studio (images) et Canvas/Mirror (vidéos) ; modes guidés au lot 4.
+- Test : essai-mirror (NexTap) → GO avec conditions 6,7/10, tendance hausse, 5 concurrents, 15 sources.
+
+## 2026-11-23 — Refonte guidée, lot 4 (Publicités)
+- Étape Publicités : 7 modes de pub image, chacun avec son agent (consigne propre) + contexte unique : Refaire une pub concurrente (AI Ad Rebuilder V3), Reprendre une pub gagnante (Winning Ad Replicator), Photo UGC (Hyper Realistic UGC Image Studio), Mise en scène (Product Mockup Generator), Couleurs de la marque (Branded Image Creator), Scroll-stopping, Avant/après. L agent rend idée, accroche, textes visibles, promesses remplacées et prompt ; Nano Banana génère l image (images-creees du projet). Tâches suivies dans projets/_publicites/ (server/publicites.mjs, PublicitesTab dans Validation.jsx).
+- ST01 : le Studio ne garde plus les promesses de l image d origine ; il reçoit les preuves autorisées du projet (studioPrompt o.preuves, route /api/ia/studio).
+- Vidéos : liste des Mirror vidéo du projet + ouverture du Canvas ; Mirror reçoit déjà le contexte unique (lot 2). Agent par étape de la chaîne vidéo : pas encore fait.
+- Test : Refaire une pub concurrente (pub Motifino → NexTap) : image générée, 4 promesses remplacées (gratuité retirée car prix inconnu, QR code retiré…).
+- Mirror vidéo : bouton « ✨ Affiner avec <agent> » sur chaque étape faite (cast → Claude UGC Video Producer V2, argument → Claude Video Ad Cloner, story → AI Scene Architect, motion et suite → Seedance Video Ad Cloner). L étape est refaite en appliquant la méthode de l agent à la réponse actuelle, même format, version précédente gardée, étapes suivantes marquées à refaire (STEP_AGENTS, server/mirror.mjs ; mirror-pub-ui.jsx). Testé sur l argument (essai-mirror), puis état d origine remis.

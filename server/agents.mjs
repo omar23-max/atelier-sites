@@ -88,7 +88,9 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     };
     if (req.method === "GET") return json(res, 200, await load());
     if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
-    const consFile = join(dir, "consignes", `${slug}.txt`);
+    // Lot 2 (2026-11-23) : consigne nettoyée (sans la page de présentation) si elle existe.
+    const propre = join(dir, "consignes-propres", `${slug}.txt`);
+    const consFile = existsSync(propre) ? propre : join(dir, "consignes", `${slug}.txt`);
     if (!existsSync(consFile)) return json(res, 404, { error: "Pas de consigne pour cet agent." });
     let c = await load();
     if (b.nouvelle) c = { slug, projet: projet || null, messages: [], statut: "pret" };
@@ -131,9 +133,13 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
   // GET /api/agents/<slug>/consigne → la consigne (prompt) de l'agent, texte.
   if (parts[1] && parts[2] === "consigne" && req.method === "GET") {
     if (!/^[a-z0-9][a-z0-9-]{2,90}$/.test(parts[1])) return json(res, 400, { error: "Nom invalide." });
-    const f = join(dir, "consignes", `${parts[1]}.txt`);
+    const orig = join(dir, "consignes", `${parts[1]}.txt`);
+    const propre = join(dir, "consignes-propres", `${parts[1]}.txt`);
+    const veutOriginal = new URL(req.url, "http://x").searchParams.get("original") === "1";
+    const f = !veutOriginal && existsSync(propre) ? propre : orig;
     if (!existsSync(f)) return json(res, 404, { error: "Pas de consigne pour cet agent." });
     res.statusCode = 200;
+    res.setHeader("X-Consigne", f === propre ? "propre" : existsSync(propre) ? "original-nettoyable" : "original");
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache");
     return res.end(await readFile(f, "utf8"));
@@ -181,23 +187,9 @@ async function projectContext(root, projet) {
   } catch {
     return "";
   }
-  const f = p.fondations ?? {};
-  const r = { ...(f.reponses ?? {}) };
-  const videos = (r.videosConcurrents ?? []).map((v) => ({ nom: v.nom, analyse: String(v.analyse ?? "").slice(0, 1800) }));
-  delete r.videosConcurrents;
-  const data = {
-    projet: p.nom,
-    produit: p.produit && typeof p.produit === "object" ? p.produit.nom : p.produit,
-    description: p.description,
-    questionnaire: r,
-    offre: p.offre,
-    messageCentral: f.message,
-    mecanismeChoisi: f.mecanismeChoisi,
-    marque: p.marque ? { ...p.marque, logos: (p.marque.logos ?? []).length ? `${p.marque.logos.length} logo(s)` : undefined } : undefined,
-    videosConcurrents: videos.length ? videos : undefined,
-  };
-  const json = JSON.stringify(data, null, 1);
-  return `\n---\nPROJET DE L'UTILISATEUR (ses Fondations dans l'atelier : sers-t'en au lieu de redemander ce qui y est déjà ; [MANQUE] = inconnu)\n${json.slice(0, 14000)}`;
+  // Lot 2 (2026-11-23) : contexte unique (src/engine/contexte-projet.js).
+  const { contexteProjet } = await import("../src/engine/contexte-projet.js");
+  return `\n---\n${contexteProjet(p, { limite: 18000 }).texte}`;
 }
 
 async function imageInput(root, url) {

@@ -4467,3 +4467,70 @@ textarea {
 .cat .cat-main .cat-origins button.is-on { background: var(--cat-navy); border-color: var(--cat-navy); color: #fff; }
 .cat .cat-main .cat-origins button em,
 .cat .cat-main .cat-origins button small { font-family: var(--typo-mono); font-size: 10.5px; }
+
+/* « Adopter comme preuve » (2026-11-23) */
+.cat-fdv__adopt { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; padding: 12px; border: 1px solid #d9dcf0; border-radius: 10px; background: #f7f8fd; }
+.cat-fdv__adopt label { display: flex; flex-direction: column; gap: 4px; }
+.cat-fdv__adopt textarea, .cat-fdv__adopt input, .cat-fdv__adopt select { width: 100%; box-sizing: border-box; border: 1px solid #d6d8e2; border-radius: 8px; padding: 7px 9px; font: inherit; background: #fff; }
+.cat-fdv__adoptions { margin: 6px 0; padding-left: 18px; font-size: 12.5px; color: #1d6b3a; }
+
+/* Menu du projet en 4 phases (refonte guidée, lot 3, 2026-11-23) */
+.cat-menu__next { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 7px 12px; border: 1px solid var(--cat-navy, #1e2b5e); border-radius: 999px; background: #eef1fb; color: var(--cat-navy, #1e2b5e); font: inherit; font-size: 13px; cursor: pointer; }
+.cat-menu__next:hover { background: #e2e7f8; }
+.cat-menu__phases { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.cat-menu__phase { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--cat-line, #e3e6ee); border-radius: 12px; background: #fff; min-width: 0; }
+.cat-menu__phaseTitle { margin: 0 2px 2px; font-size: 13px; font-weight: 600; color: #0f172a; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.cat-menu__phaseTitle span { font-family: var(--typo-mono, ui-monospace, monospace); font-size: 10.5px; padding: 1px 5px; border-radius: 4px; background: #eef1fb; color: var(--cat-navy, #1e2b5e); }
+.cat-menu__phaseTitle em { font-style: normal; font-size: 11px; color: #6b7280; font-weight: 400; }
+.cat-menu__phaseItems { display: flex; flex-direction: column; gap: 6px; }
+.cat-menu__phaseItems .cat-menu__item { width: 100%; }
+.cat-menu__item.is-next { box-shadow: 0 0 0 2px #c7d0f3 inset; }
+@media (max-width: 1100px) { .cat-menu__phases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Validation produit */
+.cat-val { display: flex; flex-direction: column; gap: 12px; }
+.cat-val__verdict { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 4px 14px; padding: 14px 16px; border-radius: 12px; border: 1px solid #e3e6ee; background: #fff; }
+.cat-val__verdict b { font-family: var(--typo-mono, ui-monospace, monospace); font-size: 20px; letter-spacing: 0.02em; }
+.cat-val__verdict p { margin: 0; grid-column: 1 / -1; color: #374151; }
+.cat-val__verdict.is-go { border-color: #9fd8b3; background: #f1fbf4; } .cat-val__verdict.is-go b { color: #15803d; }
+.cat-val__verdict.is-cond { border-color: #f0d49a; background: #fffaf0; } .cat-val__verdict.is-cond b { color: #b45309; }
+.cat-val__verdict.is-no { border-color: #f3b4b4; background: #fff5f5; } .cat-val__verdict.is-no b { color: #b91c1c; }
+.cat-val__score { font-family: var(--typo-mono, ui-monospace, monospace); font-size: 18px; font-weight: 700; color: var(--cat-navy, #1e2b5e); }
+.cat-val__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.cat-val__bloc { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid #e3e6ee; border-radius: 12px; background: #fff; }
+.cat-val__bloc ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.45; }
+.cat-val__bloc p { margin: 0; font-size: 13px; }
+.cat-val__niveau { font-size: 13px; color: var(--cat-navy, #1e2b5e); }
+.cat-val__sources { font-size: 12px; color: #6b7280; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.cat-val__sources a { color: var(--cat-navy, #1e2b5e); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-val__marge { padding: 12px 14px; border: 1px solid #e3e6ee; border-radius: 12px; background: #fff; }
+.cat-val__marge h4 { margin: 0 0 8px; }
+.cat-val__margeChamps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.cat-val__margeChamps label { display: flex; flex-direction: column; gap: 4px; }
+.cat-val__margeChamps input { border: 1px solid #d6d8e2; border-radius: 8px; padding: 6px 8px; font-family: var(--typo-mono, ui-monospace, monospace); }
+.cat-val__margeRes { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 10px; font-size: 13px; }
+.cat-val__margeRes b { font-family: var(--typo-mono, ui-monospace, monospace); color: var(--cat-navy, #1e2b5e); font-size: 15px; }
+.cat-val__margeRes b.is-neg { color: #b91c1c; }
+.cat-val__margeRes em { font-style: normal; color: #15803d; font-family: var(--typo-mono, ui-monospace, monospace); font-size: 12px; }
+
+/* Publicités guidées (lot 4, 2026-11-23) */
+.cat-pub__modes { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.cat-pub__mode { display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 10px 12px; border: 1px solid #e3e6ee; border-radius: 10px; background: #fff; cursor: pointer; font: inherit; }
+.cat-pub__mode b { font-size: 13px; }
+.cat-pub__mode small { font-size: 11.5px; color: #6b7280; }
+.cat-pub__mode.is-on { border-color: var(--cat-navy, #1e2b5e); box-shadow: 0 0 0 1px var(--cat-navy, #1e2b5e) inset; background: #f5f7fd; }
+.cat-pub__pick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; max-height: 180px; overflow: auto; }
+.cat-pub__pick button { padding: 0; border: 2px solid transparent; border-radius: 8px; background: none; cursor: pointer; }
+.cat-pub__pick button.is-on { border-color: var(--cat-navy, #1e2b5e); }
+.cat-pub__pick img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; display: block; }
+.cat-pub__row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.cat-pub__row label { display: flex; flex-direction: column; gap: 4px; }
+.cat-pub__row select, .cat-pub__row input { height: 34px; border: 1px solid #d6d8e2; border-radius: 8px; padding: 0 9px; font: inherit; background: #fff; }
+.cat-pub__consigne { flex: 1; min-width: 260px; }
+.cat-pub__gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.cat-pub__card { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 10px; border: 1px solid #e3e6ee; border-radius: 12px; background: #fff; }
+.cat-pub__img { display: grid; place-items: center; min-height: 140px; border-radius: 8px; background: #f3f4f7; overflow: hidden; font-size: 12px; text-align: center; padding: 4px; }
+.cat-pub__img img { width: 100%; height: auto; display: block; }
+.cat-pub__info { display: flex; flex-direction: column; gap: 4px; font-size: 13px; min-width: 0; }
+.cat-pub__info p { margin: 0; }
+.cat-pub__info ul { margin: 4px 0; padding-left: 16px; font-size: 12.5px; }
+.cat-pub__mirrors { margin: 0; padding-left: 18px; font-size: 13px; }

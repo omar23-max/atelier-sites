@@ -27,6 +27,9 @@ const STEP_INFO = {
   suite: { titre: "4 bis. Les autres blocs", bouton: "Écrire les autres blocs", aide: "Selon le nombre de coupes du bloc A, le mode change (plan par plan, par temps forts, ou une génération par plan)." },
 };
 
+// Agent spécialiste par étape vidéo (même liste que server/mirror.mjs STEP_AGENTS).
+const STEP_AGENT_LABEL = { cast: "UGC Video Producer", argument: "Video Ad Cloner", story: "Scene Architect", motion: "Seedance Video Ad Cloner", suite: "Seedance Video Ad Cloner" };
+
 export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, onPlace, onClose }) {
   const [id, setId] = useState(null);
   const [st, setSt] = useState(null);
@@ -248,6 +251,13 @@ export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, o
                           <button type="button" className="is-main" disabled={(name === "cast" && !photos.length && !e) || (name === "suite" && !coupes)} onClick={() => run(name, name === "suite" ? { coupes: Number(coupes) } : {})}>
                             {e?.texte ? (notes[name] ? "Refaire avec cette consigne" : "Refaire") : info.bouton}
                           </button>
+                          {/* Lot 4 (2026-11-23) : l'agent spécialiste de l'étape affine la réponse. */}
+                          {e?.texte && STEP_AGENT_LABEL[name] && (
+                            <button type="button" onClick={() => run(name, { agent: true, ...(name === "suite" ? { coupes: Number(coupes) || e.coupes } : {}) })} title={`Refait cette étape en appliquant la méthode de l'agent ${STEP_AGENT_LABEL[name]} à la réponse actuelle (la version précédente est gardée)`}>
+                              ✨ Affiner avec {STEP_AGENT_LABEL[name]}
+                            </button>
+                          )}
+                          {e?.agent && e.statut === "faite" && <p className="atl-mir__muted">Dernière version affinée par {STEP_AGENT_LABEL[name] ?? e.agent}.</p>}
                           {name === "cast" && !photos.length && !e && <p className="atl-mir__muted">Ajoute d'abord au moins une photo de ton produit.</p>}
                         </>
                       )}

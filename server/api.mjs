@@ -741,7 +741,16 @@ export function atelierApi() {
               if (parts[1] === "studio" && NAME.test(b.page ?? "")) {
                 const { studioImage, studioPrompt } = await import("../scripts/lib/ia.mjs");
                 const folder = await mediaPlace(b.page, "images-creees");
-                const prompt = studioPrompt(b);
+                // Preuves autorisées du projet (contexte unique, lot 4 de la refonte).
+                let preuves = [];
+                try {
+                  if (folder.projet) {
+                    const { contexteProjet } = await import("../src/engine/contexte-projet.js");
+                    const pj = JSON.parse(await readFile(join(projectsDir, `${folder.projet}.json`), "utf8"));
+                    preuves = (contexteProjet(pj).data?.faitsAutorises?.preuves ?? []).map((x) => String(x).replace(/\[[^\]]*\]/g, "").slice(0, 220));
+                  }
+                } catch {}
+                const prompt = studioPrompt({ ...b, preuves });
                 return json(res, 200, await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: b.source, references: b.references ?? [], prompt, width: b.width, height: b.height, format: b.mode === "pub" ? b.format : null, model: b.modele, folder }));
               }
               // Canvas (2026-11-11) : créer une image (consigne + images de
@@ -785,6 +794,16 @@ export function atelierApi() {
           // navigateur (rectangle noir avant lecture). Petite page : image
           // d'aperçu si on en a une, sinon première image de la vidéo.
           // ---- Agents army (2026-11-22) : agents Whitelabeler de l utilisateur ----
+          // ---- Publicités guidées (refonte guidée, lot 4, 2026-11-23) ----
+          if (parts[0] === "publicites") {
+            const { publicitesRoute } = await import("./publicites.mjs");
+            return publicitesRoute(req, res, parts, { root, readBody, json });
+          }
+          // ---- Validation produit (refonte guidée, lot 3, 2026-11-23) ----
+          if (parts[0] === "validation") {
+            const { validationRoute } = await import("./validation.mjs");
+            return validationRoute(req, res, parts, { root, readBody, json });
+          }
           if (parts[0] === "agents") {
             const { agentsRoute } = await import("./agents.mjs");
             return agentsRoute(req, res, parts, { root, readBody, json });

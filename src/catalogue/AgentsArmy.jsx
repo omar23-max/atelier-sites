@@ -53,6 +53,17 @@ export function AgentsArmy() {
   const [vue, setVue] = useState("presentation");
   useRelanceCadre(cadre, html && vue === "presentation" ? cur + html.length : null);
   const [consigne, setConsigne] = useState(null);
+  // Lot 2 : la consigne nettoyée par défaut ; l'original reste consultable.
+  const [consOriginal, setConsOriginal] = useState(false);
+  const [consNettoyable, setConsNettoyable] = useState(false);
+  async function chargerConsigne(original) {
+    setConsigne(null);
+    const r = await fetch(`/api/agents/${cur}/consigne${original ? "?original=1" : ""}`);
+    const k = r.headers.get("X-Consigne") ?? "original";
+    setConsNettoyable(k !== "original");
+    setConsOriginal(original);
+    setConsigne(r.ok ? await r.text() : "");
+  }
   const [copie, setCopie] = useState(false);
   useEffect(() => {
     setVue("presentation");
@@ -62,6 +73,7 @@ export function AgentsArmy() {
     if (vue === "consigne") return setVue("presentation");
     setVue("consigne");
     if (consigne == null) {
+      return chargerConsigne(false);
       const r = await fetch(`/api/agents/${cur}/consigne`);
       setConsigne(r.ok ? await r.text() : "");
     }
@@ -128,7 +140,17 @@ export function AgentsArmy() {
             ) : vue === "consigne" ? (
               <div className="cat-army__cons">
                 <div className="cat-army__consbar">
-                  <span className="cat-muted">Consigne de l'agent, à coller dans une IA (ChatGPT, Claude…) ou à brancher dans l'atelier.</span>
+                  <span className="cat-muted">
+                    {consOriginal ? "Original récupéré de Whitelabeler (avec la page de présentation autour)." : consNettoyable ? "Version propre : le texte de l'agent seul, celui envoyé à l'IA." : "Consigne de l'agent, à coller dans une IA (ChatGPT, Claude…) ou à brancher dans l'atelier."}
+                    {consNettoyable && (
+                      <>
+                        {" "}
+                        <button type="button" className="cat-link" onClick={() => chargerConsigne(!consOriginal)}>
+                          {consOriginal ? "Voir la version propre" : "Voir l'original"}
+                        </button>
+                      </>
+                    )}
+                  </span>
                   <button
                     type="button"
                     className="cat-btn"
