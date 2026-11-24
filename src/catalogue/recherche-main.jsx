@@ -1,5 +1,7 @@
+// Barre « nouvelle version » : src/catalogue/version-check.js
 // Espace « Recherche produits » (2026-11-23) : agents Omar_winninghunter
 // (guides officiels WinningHunter) + agents de recherche Whitelabeler.
+import "./version-check.js";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "../tokens.css";

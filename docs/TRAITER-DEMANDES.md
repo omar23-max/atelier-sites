@@ -2425,3 +2425,26 @@ Original 80 % → retour Modifiable 80 %.
 - Page recherche.html (menu du haut : Recherche) : agents Omar_winninghunter (radar tendances, chasseur facebook, chasseur tiktok, boucle magic ai, veille boutiques : à construire) + agents Whitelabeler de recherche (Niche Analyser, Product Validator, Winning Hunter Assistant, AI Product Research Analyst), renommés « Whitelabeler … ».
 - Un dossier par agent Omar : agents/omar-winninghunter/<slug>/ (agent.json, consigne.md = règles du guide WinningHunter, resultats/) ; espace.json liste l espace. GET /api/agents/recherche ; AgentsArmy en mode espace.
 - WinningHunter accessible depuis le serveur par son MCP (https://app.winninghunter.com/mcp, clé API) : tendances, TikTok, produits gagnants, boutiques similaires, Store Tracker, radar quotidien (les outils de lancement de pubs ne seront jamais utilisés par les agents).
+
+## 2026-11-23 — Omar_winninghunter_radar tendances construit
+- server/recherche.mjs : client MCP WinningHunter (lecture seule, liste blanche d outils ; jamais de lancement de pubs) + moteur du radar.
+- Radar : 2 pages Exploding Topics (tri exponent, 6 ou 12 mois, catégorie) → filtres du guide en code (volume ≥ 10 000, croissance ≥ 200 %, courbe pas en baisse) → l IA garde les vrais produits → 6 max vérifiés (détail Exploding Topics + find_winning_products dans le pays) → synthèse IA (feu vert / à surveiller / écarté). ~14 appels WinningHunter par lancement.
+- Routes : GET/POST /api/recherche/<slug>, GET /api/recherche/<slug>/<fichier>. Résultats dans agents/omar-winninghunter/<slug>/resultats/ (un JSON par lancement + _etat.json).
+- AgentsArmy.jsx : OmarAgent avec réglages, Lancer, étape en cours, historique, RadarResultat.
+
+## 2026-11-23 — Les 4 autres agents Omar_winninghunter construits
+- server/recherche.mjs : chasseurFacebook, chasseurTiktok, boucleMagic, veilleBoutiques (format de résultat commun : colonnes + lignes + verdicts IA par id + pistes) ; synthese()/fusionner() communs.
+- Facebook : pubs Shopify pages produit créées il y a 7 à 21 jours, dépense UE totale entre 1 050 et 7 000 $ sur 7 j ; dépense/jour = total ÷ jours ; trafic des 8 premières boutiques (get_store_details).
+- TikTok : 5 recherches (tris adspend, likes, shares, datefound, daysrunning) car le MCP coupe à 4 pubs ; un seul filtre d engagement ; alertes.
+- Boucle Magic AI : départ = domaine (le mieux) ou produit (pubs dont le texte le cite) ; boutiques par image de pub + find_similar_shops, 2 tours ; l IA garde les meilleures ventes de la même niche ; concurrents FB 7 j dans le pays. Les boutiques « similaires » de WinningHunter sont souvent hors sujet.
+- Veille : liste gardée dans boutiques-suivies.json ; revenu, trafic, meilleures pubs ; comparaison au relevé précédent ; découverte de boutiques récentes qui montent (search_shopify_stores).
+- Front : REGLAGES par agent, AgentResultat (tableau bleu nuit + onglets), haut de page resserré.
+
+## 2026-11-23 — Agents Omar : 7 pays, 4 langues, exclusions, images
+- Pays : US, CA, AU, GB, FR, DE, IT, ou « Tous » (les 7 ensemble, défaut). Langues : en, fr, it, es (paramètre languages des recherches WinningHunter + filtre sur la langue des boutiques).
+- Exclus partout (code + consigne de la synthèse) : boutiques chinoises ou indiennes (.cn/.in, pays CN/IN, langues zh/hi…), finance/assurances/placements (regex INTERDIT dans server/recherche.mjs).
+- Images : 1 à 2 vignettes par ligne (images des pubs WinningHunter ; sinon og:image de la page produit, sans crédit — utile pour TikTok, dont les images ne sont que des noms de fichiers). Composant Vignettes dans AgentsArmy.jsx.
+
+## 2026-11-23 — Barre « nouvelle version » (Catalogue, Agents army, Recherche)
+- src/catalogue/version-check.js : compare le programme chargé à celui de la page sur le serveur (toutes les 60 s et au retour sur l onglet) ; si différent, barre « Recharger » (jamais automatique).
+- Cause : un onglet ouvert avant une mise à jour affichait les nouvelles données avec l ancien programme (URLs d images en texte).

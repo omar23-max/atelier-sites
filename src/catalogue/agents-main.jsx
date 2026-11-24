@@ -1,6 +1,7 @@
 // Agents army dans sa propre fenêtre (2026-11-22) : plus dans le catalogue.
 // Même en-tête que le catalogue, avec le menu Page · Agents army · Studio ·
 // Canvas · Catalogue.
+import "./version-check.js";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "../tokens.css";

@@ -804,6 +804,11 @@ export function atelierApi() {
             const { validationRoute } = await import("./validation.mjs");
             return validationRoute(req, res, parts, { root, readBody, json });
           }
+          // ---- Recherche produits : agents Omar_winninghunter (2026-11-23) ----
+          if (parts[0] === "recherche") {
+            const { rechercheRoute } = await import("./recherche.mjs");
+            return rechercheRoute(req, res, parts, { root, readBody, json });
+          }
           if (parts[0] === "agents") {
             const { agentsRoute } = await import("./agents.mjs");
             return agentsRoute(req, res, parts, { root, readBody, json });

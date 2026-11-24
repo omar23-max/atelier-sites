@@ -486,26 +486,425 @@ function Adopter({ projet, texte, agent }) {
 }
 
 // Agent Omar_winninghunter (espace Recherche produits, 2026-11-23) : fiche
-// du guide WinningHunter qu'il suit ; le lancement arrive agent par agent.
+// du guide WinningHunter qu'il suit, réglages, lancement et résultats.
+const RADAR_CATEGORIES = [["default", "Toutes"], ["beauty", "Beauté"], ["skincare", "Soins de la peau"], ["fashion", "Mode"], ["fitness", "Sport"], ["health", "Santé"], ["home", "Maison"], ["pets", "Animaux"], ["baby", "Bébé"], ["technology", "Tech"], ["food", "Alimentation"]];
+const PAYS_OPT = [["ALL", "Tous (les 7 pays)"], ["US", "États-Unis"], ["CA", "Canada"], ["AU", "Australie"], ["GB", "Royaume-Uni"], ["FR", "France"], ["DE", "Allemagne"], ["IT", "Italie"]];
+const REGLAGES = {
+  "omar-winninghunter-radar-tendances": [
+    { cle: "categorie", label: "Catégorie", options: RADAR_CATEGORIES, defaut: "default" },
+    { cle: "periode", label: "Période", options: [["12", "12 mois"], ["6", "6 mois"]], defaut: "12" },
+    { cle: "pays", label: "Concurrents vérifiés en", options: PAYS_OPT, defaut: "ALL" },
+  ],
+  "omar-winninghunter-chasseur-facebook": [
+    { cle: "niche", label: "Niche", options: [["", "Toutes"], ["BY", "Beauté"], ["SK", "Soins"], ["CG", "Mode"], ["HT", "Santé"], ["HE", "Maison"], ["PS", "Animaux"], ["GG", "Gadgets"], ["FT", "Sport"], ["KS", "Enfants"], ["JY", "Bijoux"]], defaut: "" },
+    { cle: "pays", label: "Pubs diffusées en", options: PAYS_OPT, defaut: "ALL" },
+  ],
+  "omar-winninghunter-chasseur-tiktok": [
+    { cle: "pays", label: "Pays", options: PAYS_OPT, defaut: "ALL" },
+    { cle: "niche", label: "Niche", options: [["", "Toutes"], ["beauty", "Beauté"], ["home", "Maison"], ["pet", "Animaux"], ["gadgets", "Gadgets"], ["clothing", "Mode"], ["jewelry", "Bijoux"], ["toys", "Jouets"], ["child", "Enfants"], ["outdoor", "Plein air"]], defaut: "" },
+    { cle: "signal", label: "Filtre d'engagement (un seul)", options: [["likes", "200+ likes"], ["shares", "30+ partages"], ["comments", "50+ commentaires"]], defaut: "likes" },
+  ],
+  "omar-winninghunter-boucle-magic-ai": [
+    { cle: "depart", label: "Point de départ : produit précis ou domaine de boutique", texte: true, defaut: "", large: true },
+    { cle: "pays", label: "Concurrents vérifiés en", options: PAYS_OPT, defaut: "ALL" },
+  ],
+  "omar-winninghunter-veille-boutiques": [
+    { cle: "boutiques", label: "Boutiques suivies (domaines, un par ligne ; vide = la liste gardée)", zone: true, defaut: "", large: true },
+    { cle: "pays", label: "Visiteurs de", options: PAYS_OPT, defaut: "ALL" },
+    { cle: "categorie", label: "Découvrir des boutiques qui montent", options: [["", "Non"], ["Beauty", "Beauté"], ["Health", "Santé"], ["Clothing", "Mode"], ["Accessories", "Accessoires"], ["Pet Supplies", "Animaux"], ["Electronics", "Électronique"], ["Toys & Games", "Jouets"], ["Other", "Autre"]], defaut: "" },
+  ],
+};
+const libelleReglages = (slug, r) =>
+  (REGLAGES[slug] ?? [])
+    .filter((f) => !f.zone)
+    .map((f) => (f.options ? (f.options.find(([v]) => v === r?.[f.cle]) ?? [, r?.[f.cle]])[1] : r?.[f.cle]))
+    .filter(Boolean)
+    .join(" · ");
+const VERDICT_CLASSE = { "feu vert": "is-go", "à surveiller": "is-cond", "écarté": "is-no" };
+
 function OmarAgent({ a }) {
+  const pret = a.statut !== "à construire";
+  const pg = a.page ?? {};
+  const [etat, setEtat] = useState(null);
+  const [vu, setVu] = useState(null);
+  const champs = REGLAGES[a.slug] ?? [];
+  const [regl, setRegl] = useState({});
+  useEffect(() => setRegl(Object.fromEntries(champs.map((f) => [f.cle, f.defaut]))), [a.slug]);
+  const [err, setErr] = useState("");
+  const tournait = useRef(false);
+  const charger = () =>
+    fetch(`/api/recherche/${a.slug}`)
+      .then((r) => r.json())
+      .then((d) => {
+        setEtat(d);
+        if (d.statut === "en cours") tournait.current = true;
+        else {
+          if (tournait.current) setVu(d.dernier);
+          else setVu((v) => v ?? d.dernier);
+          tournait.current = false;
+        }
+      })
+      .catch(() => {});
+  useEffect(() => {
+    setEtat(null);
+    setVu(null);
+    if (pret) charger();
+  }, [a.slug]);
+  useEffect(() => {
+    if (etat?.statut !== "en cours") return;
+    const t = setInterval(charger, 4000);
+    return () => clearInterval(t);
+  }, [etat?.statut]);
+  const lancer = async () => {
+    setErr("");
+    const r = await fetch(`/api/recherche/${a.slug}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(regl) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) return setErr(d.error ?? "Lancement refusé.");
+    tournait.current = true;
+    setEtat((e) => ({ ...e, statut: "en cours", etape: "Démarrage…" }));
+  };
+  const ouvrir = (f) => f && fetch(`/api/recherche/${a.slug}/${f}`).then((r) => r.json()).then(setVu);
+  const tourne = etat?.statut === "en cours";
+  const nom = a.titre.replace(/^Omar_winninghunter_/i, "");
+  const cartes = [["Quand l'utiliser", pg.quand], ["Ce que tu obtiens", pg.obtiens], ["Ce qu'il utilise", pg.utilise]].filter(([, l]) => l?.length);
   return (
     <div className="cat-omar">
       <header className="cat-army__bar">
         <div>
-          <p className="cat-army__crumb">Recherche produits / Omar_winninghunter</p>
+          <p className="cat-army__crumb">Recherche produits / {a.titre}</p>
           <h2>{a.titre}</h2>
         </div>
         <div className="cat-army__btns">
-          <button type="button" className="cat-btn" disabled title="Cet agent est en construction">
-            {a.statut === "à construire" ? "En construction" : "▶ Lancer"}
+          <button type="button" className="cat-btn" disabled={!pret || tourne} onClick={lancer} title={pret ? "Lancer une recherche (quelques crédits WinningHunter)" : "Cet agent est en construction"}>
+            {!pret ? "En construction" : tourne ? "En cours…" : "▶ Lancer l'agent"}
           </button>
         </div>
       </header>
-      <div className="cat-omar__body">
-        <p className="cat-omar__but">{a.but}</p>
-        <p className="cat-muted">{a.guide} · outils WinningHunter : {(a.outilsWinningHunter ?? []).join(", ")}</p>
-        <Markdown text={String(a.consigneMd ?? "").replace(/^# .*\n/, "")} />
+      <div className="om">
+        <section className="om-hero">
+          <span className="om-tag">■ Omar_winninghunter · {nom}</span>
+          <h1>
+            {pg.accroche ?? a.but} {pg.accent && <em>{pg.accent}</em>}
+            <span className="om-point">.</span>
+          </h1>
+          <p className="om-intro">{pg.intro ?? a.but}</p>
+          {!pret && <p className="om-wip">Cet agent est en construction : sa page montre déjà ce qu'il fera.</p>}
+        </section>
+
+        {cartes.length > 0 && (
+          <section className="om-wrap">
+            <h2 className="om-h2">Ce qu'il fait</h2>
+            <div className="om-cartes">
+              {cartes.map(([t, l]) => (
+                <div key={t} className="om-carte">
+                  <p className="om-label">{t}</p>
+                  <ul>
+                    {l.map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {pret && champs.length > 0 && (
+          <section className="om-wrap">
+            <div className="om-regl">
+              {champs.map((f) => (
+                <label key={f.cle} className={f.large ? "om-regl__large" : ""}>
+                  <span className="om-label">{f.label}</span>
+                  {f.options ? (
+                    <select value={regl[f.cle] ?? f.defaut} onChange={(e) => setRegl({ ...regl, [f.cle]: e.target.value })}>
+                      {f.options.map(([v, l]) => (
+                        <option key={v} value={v}>{l}</option>
+                      ))}
+                    </select>
+                  ) : f.zone ? (
+                    <textarea rows={3} value={regl[f.cle] ?? ""} placeholder={(etat?.suivies ?? []).join("\n") || "exemple.com"} onChange={(e) => setRegl({ ...regl, [f.cle]: e.target.value })} />
+                  ) : (
+                    <input value={regl[f.cle] ?? ""} placeholder="le domaine d une boutique marche le mieux (ex. : smooche.com), ou un produit précis" onChange={(e) => setRegl({ ...regl, [f.cle]: e.target.value })} />
+                  )}
+                </label>
+              ))}
+              {etat?.historique?.length > 0 && (
+                <label className="om-regl__hist">
+                  <span className="om-label">Lancements passés</span>
+                  <select value={vu?.le ?? ""} onChange={(e) => ouvrir(etat.historique.find((h) => h.le === e.target.value)?.fichier)}>
+                    {etat.historique.map((h) => (
+                      <option key={h.fichier} value={h.le}>
+                        {new Date(h.le).toLocaleString("fr-CA", { dateStyle: "short", timeStyle: "short" })} · {libelleReglages(a.slug, h.reglages)} · {h.nb} piste(s)
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <button type="button" className="om-go" disabled={tourne} onClick={lancer}>
+                {tourne ? "En cours…" : "▶ Lancer"}
+              </button>
+            </div>
+            {err && <p className="om-msg is-err">{err}</p>}
+            {tourne && <p className="om-msg">⏳ {etat.etape ?? "En cours…"}</p>}
+            {etat?.statut === "erreur" && !tourne && <p className="om-msg is-err">Le dernier lancement a échoué : {etat.erreur}</p>}
+          </section>
+        )}
+
+        {vu && (vu.lignes ? <AgentResultat r={vu} consigne={a.consigneMd} /> : <RadarResultat r={vu} consigne={a.consigneMd} />)}
+
+        {pg.comment?.length > 0 && (
+          <section className="om-wrap">
+            <h2 className="om-h2">Comment il travaille</h2>
+            <div className="om-comment">
+              {pg.comment.map(([t, x]) => (
+                <div key={t}>
+                  <h3>{t}</h3>
+                  <p>{x}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+        {!vu && (
+          <section className="om-wrap om-regles">
+            <h2 className="om-h2">Les règles du guide</h2>
+            <Markdown text={String(a.consigneMd ?? "").replace(/^# .*\n/, "")} />
+          </section>
+        )}
+        <p className="om-pied">Omar_winninghunter • {a.guide} • données WinningHunter, lecture seule</p>
       </div>
     </div>
+  );
+}
+
+const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString("fr-CA"));
+
+function RadarResultat({ r, consigne }) {
+  const [onglet, setOnglet] = useState("tableau");
+  const c = r.chiffres ?? {};
+  const pistes = r.pistes ?? [];
+  const maxV = Math.max(1, ...pistes.map((p) => p.volume ?? 0));
+  const maxC = Math.max(1, ...pistes.map((p) => p.croissance ?? 0));
+  const cat = (RADAR_CATEGORIES.find(([v]) => v === r.reglages?.categorie) ?? [, r.reglages?.categorie])[1];
+  const ONGLETS = [["tableau", "Pistes", "#d4a017"], ["detail", "En détail", "#12233f"], ["autres", "Autres produits", "#12233f"], ["regles", "Règles du guide", "#1f8a4c"]];
+  return (
+    <section className="om-wrap">
+      <div className="om-board">
+        <div className="om-board__head">
+          <h3>Radar : {cat} | {new Date(r.le).toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" })}</h3>
+          <p>
+            {c.lues} tendances lues · {c.passent} passent le guide · {c.produits} vrais produits · {c.verifiees} vérifiées en {r.reglages?.pays} · période {r.reglages?.periode} mois
+          </p>
+        </div>
+        {onglet === "tableau" && (
+          <>
+            <table className="om-table">
+              <thead>
+                <tr>
+                  <th>Piste</th>
+                  <th>Recherches / mois</th>
+                  <th>Croissance</th>
+                  <th>Courbe</th>
+                  <th>Concurrents</th>
+                  <th>Verdict</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pistes.map((p) => (
+                  <tr key={p.sujet}>
+                    <td className="om-table__nom">
+                      <Vignettes urls={p.images} />
+                      {p.sujet}
+                      {p.assoupli && <span className="om-mini">seuil assoupli</span>}
+                    </td>
+                    <td>
+                      <span className="om-barre"><i style={{ width: `${Math.round(((p.volume ?? 0) / maxV) * 100)}%` }} /></span>
+                      <span className="om-num">{fmt(p.volume)}</span>
+                    </td>
+                    <td>
+                      <span className="om-barre is-bleu"><i style={{ width: `${Math.round(((p.croissance ?? 0) / maxC) * 100)}%` }} /></span>
+                      <span className="om-num">+{fmt(p.croissance)} %</span>
+                    </td>
+                    <td><span className="om-chip">{p.courbe ?? "—"}</span></td>
+                    <td className="om-num" title={(p.concurrents?.noms ?? []).join(", ")}>{p.concurrents?.nombre ?? "?"}</td>
+                    <td><span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict === "feu vert" ? "✓ " : p.verdict === "à surveiller" ? "! " : "✕ "}{p.verdict}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="om-board__note">{r.resume}</p>
+            {r.assoupli && <p className="om-board__note">Catégorie étroite : seuils assouplis à {fmt(r.assoupli.volume)} recherches et +{r.assoupli.croissance} % pour les pistes marquées.</p>}
+          </>
+        )}
+        {onglet === "detail" && (
+          <div className="om-board__corps">
+            {pistes.map((p) => (
+              <article key={p.sujet} className="om-piste">
+                <header>
+                  <strong>{p.sujet}</strong>
+                  <span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict}</span>
+                </header>
+                <p>{p.pourquoi}</p>
+                {p.produitConcret && <p><b>Produit :</b> {p.produitConcret}</p>}
+                {p.angle && <p><b>Angle :</b> {p.angle}</p>}
+                {p.sousTendances?.length > 0 && <p><b>Sous-tendances :</b> {p.sousTendances.join(", ")}</p>}
+                {p.concurrents?.noms?.length > 0 && <p><b>Concurrents :</b> {p.concurrents.noms.join(", ")}</p>}
+                {p.risques?.length > 0 && <p><b>Risques :</b> {p.risques.join(" · ")}</p>}
+                {p.prochaineEtape && <p><b>Ensuite :</b> {p.prochaineEtape}</p>}
+              </article>
+            ))}
+          </div>
+        )}
+        {onglet === "autres" && (
+          <div className="om-board__corps">
+            {r.autresProduits?.length ? (
+              <table className="om-table">
+                <thead>
+                  <tr><th>Produit</th><th>Recherches / mois</th><th>Croissance</th><th>Courbe</th></tr>
+                </thead>
+                <tbody>
+                  {r.autresProduits.map((t) => (
+                    <tr key={t.sujet}><td className="om-table__nom">{t.sujet}</td><td className="om-num">{fmt(t.volume)}</td><td className="om-num">+{fmt(t.croissance)} %</td><td><span className="om-chip">{t.courbe}</span></td></tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>Aucun autre produit ne passait les filtres.</p>
+            )}
+            <p className="om-board__note">Non vérifiés côté concurrents, pour garder les crédits.</p>
+          </div>
+        )}
+        {onglet === "regles" && (
+          <div className="om-board__corps om-regles">
+            <Markdown text={String(consigne ?? "").replace(/^# .*\n/, "")} />
+          </div>
+        )}
+        <nav className="om-onglets">
+          {ONGLETS.map(([k, l, col]) => (
+            <button key={k} type="button" className={onglet === k ? "is-on" : ""} onClick={() => setOnglet(k)}>
+              <i style={{ background: col }} />
+              {l}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </section>
+  );
+}
+
+// Résultat commun des agents 2 à 5 : tableau bleu nuit + onglets (2026-11-23)
+function AgentResultat({ r, consigne }) {
+  const [onglet, setOnglet] = useState("tableau");
+  const lignes = r.lignes ?? [];
+  const maxi = Object.fromEntries((r.colonnes ?? []).filter((c) => c.type === "barre").map((c) => [c.cle, Math.max(1, ...lignes.map((l) => Number(l[c.cle]) || 0))]));
+  const cellule = (c, l) => {
+    const v = l[c.cle];
+    if (c.type === "images") return <Vignettes urls={v} />;
+    if (c.type === "verdict") return <span className={`om-statut ${VERDICT_CLASSE[v] ?? ""}`}>{v === "feu vert" ? "✓ " : v === "écarté" ? "✕ " : "! "}{v}</span>;
+    if (c.type === "barre")
+      return (
+        <>
+          <span className="om-barre"><i style={{ width: `${Math.round(((Number(v) || 0) / maxi[c.cle]) * 100)}%` }} /></span>
+          <span className="om-num">{v == null ? "—" : `${fmt(v)}${c.suffixe ?? ""}`}</span>
+        </>
+      );
+    if (c.type === "num") return <span className="om-num">{v == null ? "—" : `${fmt(v)}${c.suffixe ?? ""}`}</span>;
+    if (c.type === "chip") return v && v !== "—" ? <span className="om-chip">{v}</span> : "—";
+    if (c.type === "lien") return v ? <a className="om-lien" href={`https://${v}`} target="_blank" rel="noreferrer">{v}</a> : "—";
+    return v ?? "—";
+  };
+  const ONGLETS = [["tableau", "Résultats", "#d4a017"], ["detail", "Pistes en détail", "#12233f"], ...(r.autres?.length ? [["autres", "Autres", "#12233f"]] : []), ["regles", "Règles du guide", "#1f8a4c"]];
+  return (
+    <section className="om-wrap">
+      <div className="om-board">
+        <div className="om-board__head">
+          <h3>{r.titre} | {new Date(r.le).toLocaleDateString("fr-CA", { day: "numeric", month: "long", year: "numeric" })}</h3>
+          <p>{r.sousTitre}</p>
+        </div>
+        {onglet === "tableau" && (
+          <>
+            {lignes.length ? (
+              <table className="om-table">
+                <thead>
+                  <tr>{r.colonnes.map((c) => <th key={c.cle}>{c.label}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {lignes.map((l) => (
+                    <tr key={l.id}>
+                      {r.colonnes.map((c) => (
+                        <td key={c.cle} className={c.type === "nom" ? "om-table__nom" : ""} title={c.type === "nom" ? l.texte ?? "" : undefined}>
+                          {cellule(c, l)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="om-board__note">Rien à afficher pour ces réglages.</p>
+            )}
+            <p className="om-board__note">{r.resume}</p>
+            {(r.notes ?? []).map((n) => <p key={n} className="om-board__note">{n}</p>)}
+          </>
+        )}
+        {onglet === "detail" && (
+          <div className="om-board__corps">
+            {(r.pistes ?? []).length ? (r.pistes ?? []).map((p) => (
+              <article key={p.id ?? p.sujet} className="om-piste">
+                <header>
+                  <strong>{p.sujet}</strong>
+                  <span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict}</span>
+                </header>
+                <p>{p.pourquoi}</p>
+                {p.produitConcret && <p><b>Produit :</b> {p.produitConcret}</p>}
+                {p.angle && <p><b>Angle :</b> {p.angle}</p>}
+                {p.risques?.length > 0 && <p><b>Risques :</b> {p.risques.join(" · ")}</p>}
+                {p.prochaineEtape && <p><b>Ensuite :</b> {p.prochaineEtape}</p>}
+              </article>
+            )) : <p>Aucune piste retenue.</p>}
+          </div>
+        )}
+        {onglet === "autres" && (
+          <div className="om-board__corps">
+            <table className="om-table">
+              <tbody>
+                {r.autres.map((t) => (
+                  <tr key={t.sujet}><td className="om-table__nom"><a className="om-lien" href={`https://${t.sujet}`} target="_blank" rel="noreferrer">{t.sujet}</a></td><td>{t.detail}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {onglet === "regles" && (
+          <div className="om-board__corps om-regles">
+            <Markdown text={String(consigne ?? "").replace(/^# .*\n/, "")} />
+          </div>
+        )}
+        <nav className="om-onglets">
+          {ONGLETS.map(([k, l, col]) => (
+            <button key={k} type="button" className={onglet === k ? "is-on" : ""} onClick={() => setOnglet(k)}>
+              <i style={{ background: col }} />
+              {l}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </section>
+  );
+}
+
+// Une ou deux images du produit dans la ligne (pubs WinningHunter). Les images
+// cassées (lien expiré) disparaissent au lieu d'afficher une icône vide.
+function Vignettes({ urls }) {
+  const l = (urls ?? []).slice(0, 2);
+  if (!l.length) return <span className="om-vign om-vign--vide" />;
+  return (
+    <span className="om-vigns">
+      {l.map((u) => (
+        <a key={u} href={u} target="_blank" rel="noreferrer">
+          <img className="om-vign" src={u} alt="" loading="lazy" referrerPolicy="no-referrer" onError={(e) => (e.currentTarget.parentElement.style.display = "none")} />
+        </a>
+      ))}
+    </span>
   );
 }
