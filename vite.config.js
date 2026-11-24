@@ -21,7 +21,7 @@ export default defineConfig({
     // encore) ; « npm run build » ne vide donc pas dist/.
     emptyOutDir: false,
     rollupOptions: {
-      input: { atelier: join(root, "index.html"), catalogue: join(root, "catalogue.html"), agents: join(root, "agents.html") },
+      input: { atelier: join(root, "index.html"), catalogue: join(root, "catalogue.html"), agents: join(root, "agents.html"), recherche: join(root, "recherche.html") },
     },
   },
   server: {

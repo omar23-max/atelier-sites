@@ -6,6 +6,7 @@
 // rouvrent la page puis s'ouvrent tout seuls (?ouvrir=studio|canvas).
 const SPACES = [
   { id: "projets", label: "Projets", title: "Tes projets (Fondations, pages, exports)" },
+  { id: "recherche", label: "Recherche", title: "Recherche produits : tendances, chasse aux produits gagnants (WinningHunter et Whitelabeler)" },
   { id: "page", label: "Page", title: "Revenir à la page" },
   { id: "agents", label: "Agents army", title: "Agents army (fenêtre à part)" },
   { id: "studio", label: "Studio", title: "Studio d'images" },
@@ -27,6 +28,12 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
     }
     if (id === "catalogue" && surCatalogue) return void (location.hash = "tout");
     // Agents army : sa propre page, on y va directement depuis partout.
+    if (id === "recherche") {
+      await onLeave();
+      const p = new URLSearchParams(location.search).get("page") ?? page;
+      location.href = `/recherche.html${p ? `?page=${encodeURIComponent(p)}` : ""}`;
+      return;
+    }
     if (id === "agents") {
       await onLeave();
       const q = new URLSearchParams(location.search);
@@ -34,7 +41,7 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
       location.href = `/agents.html${p ? `?page=${encodeURIComponent(p)}` : ""}`;
       return;
     }
-    if (current === "catalogue" || current === "agents" || current === "projets") {
+    if (current === "catalogue" || current === "agents" || current === "projets" || current === "recherche") {
       if (!page && id === "catalogue") return void (location.href = "/catalogue.html#tout");
       if (!page) return onNoPage?.();
       const q = `?page=${encodeURIComponent(page)}`;

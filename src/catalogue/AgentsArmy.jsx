@@ -24,7 +24,7 @@ function useRelanceCadre(cadre, dep) {
   }, [dep]);
 }
 
-export function AgentsArmy() {
+export function AgentsArmy({ espace = null }) {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [q, setQ] = useState("");
@@ -42,7 +42,16 @@ export function AgentsArmy() {
   useEffect(() => {
     fetch("/api/agents")
       .then((r) => r.json())
-      .then((d) => {
+      .then(async (d) => {
+        // Espace « Recherche produits » : agents Omar_winninghunter d'abord, puis
+        // les agents Whitelabeler choisis, nommés « Whitelabeler … ».
+        if (espace) {
+          const e = await fetch("/api/agents/recherche").then((r) => r.json());
+          const garder = new Set(e.whitelabeler ?? []);
+          const wl = d.agents.filter((a) => garder.has(a.slug)).map((a) => ({ ...a, titre: a.titre.replace(/^(ShopFunnels|Shopfunnels)\s+/, "Whitelabeler ") }));
+          const om = (e.omar ?? []).map((a) => ({ slug: a.slug, titre: a.titre, accroche: a.but, omar: a }));
+          d = { ...d, agents: [...om, ...wl], source: "Omar_winninghunter + Whitelabeler" };
+        }
         setData(d);
         setCur((c) => c ?? d.agents?.[0]?.slug ?? null);
       })
@@ -105,10 +114,10 @@ export function AgentsArmy() {
     <div className="cat-army">
       <aside className="cat-army__side">
         <div className="cat-army__head">
-          <h1>Agents army</h1>
+          <h1>{espace?.titre ?? "Agents army"}</h1>
           <p className="cat-muted">{data ? `${data.agents.length} agents · ${data.source ?? "Whitelabeler"}` : "Chargement…"}</p>
           <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Chercher un agent" aria-label="Chercher un agent" />
-          <div className="cat-army__vues" role="group" aria-label="Affichage">
+          <div className="cat-army__vues" role="group" aria-label="Affichage" hidden={Boolean(espace)}>
             <button type="button" className={vueListe === "taches" ? "is-on" : ""} onClick={() => setVueListe("taches")}>
               Par tâche
             </button>
@@ -119,7 +128,7 @@ export function AgentsArmy() {
         </div>
         {err && <p className="cat-flash is-error">⚠ {err}</p>}
         <nav className="cat-army__list" aria-label="Agents">
-          {vueListe === "taches" && !q.trim() && taches ? (
+          {!espace && vueListe === "taches" && !q.trim() && taches ? (
             <ParTache taches={taches} agents={data?.agents ?? []} cur={cur} onPick={setCur} />
           ) : list.map((a) => (
             <button key={a.slug} type="button" className={a.slug === cur ? "is-on" : ""} onClick={() => setCur(a.slug)} title={a.accroche}>
@@ -130,7 +139,9 @@ export function AgentsArmy() {
         </nav>
       </aside>
       <section className="cat-army__main">
-        {agent ? (
+        {agent?.omar ? (
+          <OmarAgent a={agent.omar} />
+        ) : agent ? (
           <>
             <header className="cat-army__bar">
               <div>
@@ -470,6 +481,31 @@ function Adopter({ projet, texte, agent }) {
           </button>
         </>
       )}
+    </div>
+  );
+}
+
+// Agent Omar_winninghunter (espace Recherche produits, 2026-11-23) : fiche
+// du guide WinningHunter qu'il suit ; le lancement arrive agent par agent.
+function OmarAgent({ a }) {
+  return (
+    <div className="cat-omar">
+      <header className="cat-army__bar">
+        <div>
+          <p className="cat-army__crumb">Recherche produits / Omar_winninghunter</p>
+          <h2>{a.titre}</h2>
+        </div>
+        <div className="cat-army__btns">
+          <button type="button" className="cat-btn" disabled title="Cet agent est en construction">
+            {a.statut === "à construire" ? "En construction" : "▶ Lancer"}
+          </button>
+        </div>
+      </header>
+      <div className="cat-omar__body">
+        <p className="cat-omar__but">{a.but}</p>
+        <p className="cat-muted">{a.guide} · outils WinningHunter : {(a.outilsWinningHunter ?? []).join(", ")}</p>
+        <Markdown text={String(a.consigneMd ?? "").replace(/^# .*\n/, "")} />
+      </div>
     </div>
   );
 }

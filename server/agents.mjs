@@ -111,6 +111,20 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     return json(res, 200, c);
   }
 
+  // GET /api/agents/recherche → espace « Recherche produits » (2026-11-23).
+  if (parts[1] === "recherche" && req.method === "GET") {
+    const od = join(root, "agents", "omar-winninghunter");
+    const esp = existsSync(join(od, "espace.json")) ? JSON.parse(await readFile(join(od, "espace.json"), "utf8")) : { omar: [], whitelabeler: [] };
+    const omar = [];
+    for (const s of esp.omar ?? []) {
+      const f = join(od, s, "agent.json");
+      if (!existsSync(f)) continue;
+      const a = JSON.parse(await readFile(f, "utf8"));
+      const c = join(od, s, "consigne.md");
+      omar.push({ ...a, consigneMd: existsSync(c) ? await readFile(c, "utf8") : "" });
+    }
+    return json(res, 200, { titre: esp.titre ?? "Recherche produits", omar, whitelabeler: esp.whitelabeler ?? [] });
+  }
   // GET /api/agents/taches → agents rangés par tâche (lot 5, 2026-11-23).
   if (parts[1] === "taches" && req.method === "GET") {
     const f = join(dir, "taches.json");

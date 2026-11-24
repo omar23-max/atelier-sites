@@ -2419,3 +2419,9 @@ Original 80 % → retour Modifiable 80 %.
 ## 2026-11-23 — Validation produit branchée à WinningHunter
 - server/validation.mjs : mots-clés produit (saisis dans l étape ou trouvés par l IA) → WinningHunter adlibrary, pubs actives triées par dépense et par durée (20 + 20 par mot-clé, ~4 crédits) → résumé observé [WH] donné à l agent (annonceurs, durées, dépenses, exemples de textes). Verdict à 4 niveaux comme la consigne (GO, GO avec conditions, Chercher mieux, NON) + 6 signaux notés avec leur source [WEB]/[WH].
 - Contexte unique : la recherche inclut maintenant les mots des clients collés (Amazon, Reddit, avis : collecte*) et les notes d agents, toujours signalés « ne prouvent rien ».
+- Validation : annonceurs WinningHunter hors sujet écartés par l IA avant les calculs (annonceursPertinents) ; liste des écartés gardée et affichée. Réparation automatique du JSON si la réponse de l agent est mal formée. Essai NexTap : 10 vrais concurrents sur 26 (nfc) et 5 sur 34 (digital) ; GO avec conditions 6,9/10. Le tri peut se tromper (Motifino, vendeur de cartes NFC, écarté).
+
+## 2026-11-23 — Espace « Recherche produits »
+- Page recherche.html (menu du haut : Recherche) : agents Omar_winninghunter (radar tendances, chasseur facebook, chasseur tiktok, boucle magic ai, veille boutiques : à construire) + agents Whitelabeler de recherche (Niche Analyser, Product Validator, Winning Hunter Assistant, AI Product Research Analyst), renommés « Whitelabeler … ».
+- Un dossier par agent Omar : agents/omar-winninghunter/<slug>/ (agent.json, consigne.md = règles du guide WinningHunter, resultats/) ; espace.json liste l espace. GET /api/agents/recherche ; AgentsArmy en mode espace.
+- WinningHunter accessible depuis le serveur par son MCP (https://app.winninghunter.com/mcp, clé API) : tendances, TikTok, produits gagnants, boutiques similaires, Store Tracker, radar quotidien (les outils de lancement de pubs ne seront jamais utilisés par les agents).
