@@ -2454,3 +2454,23 @@ Original 80 % → retour Modifiable 80 %.
 
 ## 2026-11-24 — Étiquette de survol « Texte » sur les cadres d image vides et les icônes
 - inspector-ui.jsx tagLabel : atl-vide / atl-wl-fond → « Image », slot à classe *icon* → « Icône ».
+
+## 2026-11-24 — Bouton Vidéo du Canvas branché sur Gemini Omni
+- Veo a été arrêté dans l API Gemini (22/10/2026) ; remplaçant : gemini-omni-1.2-flash (POST /v1beta/interactions).
+- Clé : GEMINI_VEO_API_KEY dans .env.local (projet Google « Creation de videos avec VEO »), repli sur GEMINI_API_KEY.
+- Serveur : omniVideo() dans scripts/lib/ia.mjs, route POST /api/ia/canvas-video (server/api.mjs). Vidéos rangées dans medias/projets/<projet>/videos-creees/ (omni-*.mp4 + image d aperçu .jpg via ffmpeg).
+- Canvas : panneau « Nouvelle vidéo » (src/canvas-ui.jsx, NewVideo + makeVideo) : consigne, 0 à 3 images cliquées sur le tableau (image → vidéo), durée 4/6/8/10/15 s, 9:16 ou 16:9, 360p/720p/1080p, prix estimé. La vidéo se pose sur le tableau avec ses détails (consigne, modèle, format).
+- Essai : photo NexTap → 4 s 360p en 25 s, ≈ 0,10 $.
+
+## 2026-11-24 — Lot A du plan images et vidéos : la médiathèque
+- server/mediatheque.mjs : GET /api/mediatheque/<page> (tous les médias du projet avec leur fiche) et PATCH { urls, set } (choix, provenance, sous, destination, style). Fiches dans medias/projets/<projet>/_fiches.json, sans déplacer les fichiers.
+- Classement automatique : dossiers (images-creees, videos-creees, televersees), noms (wh-, studio-, omni-), Mirror (vidéo concurrente → Références, images → Créées), photos_produit / logo des pages et marque du projet → Projet, pubs (_publicites) → destination pub + agent, origine des tableaux du Canvas. Ce que l utilisateur change est prioritaire. Créées = brouillon par défaut. « Utilisée dans » calculé (pages du projet, pubs).
+- noterFiche() appelé à la création : Canvas Créer, Canvas Vidéo, Publicités, import WinningHunter.
+- Canvas : bouton « Médias » (ex-« Images »), fenêtre MediaLibrary (src/canvas-ui.jsx) : Images | Vidéos, onglets Projet / Créées / Références, filtres destination / style / choix, fiche à droite (choix, onglet, destination, style, origine, utilisée dans), actions groupées, téléverser dans l onglet ouvert, poser images et vidéos sur le tableau (addVideosAtCenter).
+- Reste du plan : étape « Médias » du projet à brancher sur la même médiathèque ; lots B, E, D, C.
+
+## 2026-11-24 — Lot B du plan images et vidéos : les agents d image dans le Canvas
+- Canvas → Créer : « Ce que tu veux obtenir » (Image libre, Mise en scène, Photo UGC, Refaire une pub concurrente, Reprendre une pub gagnante, Avant / après, Scroll-stopping, Couleurs de la marque, Images d une section). CreatePanel + AgentPicture dans src/canvas-ui.jsx ; besoin retenu dans localStorage (atl-cv-besoin).
+- Deux temps : « 1 · Proposer » (POST /api/publicites/<projet> avec arret:"plan", origine:"canvas") → l agent rend idée, accroche, textes visibles, promesses remplacées, prompt (modifiables) ; « 2 · Générer » (POST …/<id>/generer { plan, modele, format, refs, source }). Échec → « Relancer » (POST …/<id>/relancer). Propositions et travaux en attente listés dans le panneau ; le serveur continue si on ferme.
+- server/publicites.mjs : produire() s arrête après le plan si arret:"plan" ; generer() à part (modèle au choix : Nano Banana, Pro, GPT Image 2) ; fiche médiathèque avec agent, besoin, destination (mockup → produit + pub, marque → marque + pub).
+- Essai : Mise en scène du produit (Product Mockup Generator) sur essai-mirror : proposition 28 s, image 12 s, posée sur le tableau et rangée en brouillon dans Médias → Créées.

@@ -84,7 +84,7 @@ async function produire(root, projet, file, pub) {
     const orig = join(dir, "consignes", `${mode.agent}.txt`);
     const consigne = existsSync(propre) ? await readFile(propre, "utf8") : existsSync(orig) ? await readFile(orig, "utf8") : "";
     const instructions = consigne + ADAPTER + "\n\n---\n" + contexteProjet(p, { limite: 12000 }).texte;
-    const content = [{ type: "input_text", text: [`Mode : ${mode.label}.`, pub.source ? "Image jointe = la pub d'origine (#1) à adapter à notre produit." : "Pas d'image d'origine : crée la pub à partir du projet.", pub.refs?.length ? `${pub.refs.length} image(s) de référence du produit / de la marque seront jointes à Nano Banana.` : "", pub.format ? `Format voulu : ${pub.format}.` : "", pub.consigne ? `Demande de l'utilisateur : ${pub.consigne}` : ""].filter(Boolean).join("\n") }];
+    const content = [{ type: "input_text", text: [`Mode : ${mode.label}.`, pub.source ? "Image jointe = la pub d'origine (#1) à adapter à notre produit." : "Pas d'image d'origine : crée la pub à partir du projet.", pub.refs?.length ? `${pub.refs.length} image(s) de référence du produit / de la marque seront jointes à Nano Banana.` : "", pub.format ? `Format voulu : ${pub.format}.` : "", pub.consigne ? `Demande de l'utilisateur : ${pub.consigne}` : "", pub.depuisTexte ? `\nCONVERSATION : l'utilisateur a discuté avec toi (même méthode d'agent). Voici ta réponse qu'il veut transformer en image. Reprends fidèlement CETTE proposition (la dernière si plusieurs sont décrites, sauf si sa note en désigne une autre) et rends-la dans le format JSON demandé, sans changer l'idée ni ajouter de promesse :\n"""\n${pub.depuisTexte}\n"""` : "", pub.note && pub.planPrecedent ? `\nCORRECTION DEMANDÉE : voici ta proposition précédente :\n${JSON.stringify(pub.planPrecedent)}\nL'utilisateur demande : « ${pub.note} ». Refais la proposition en appliquant cette demande ; garde ce qu'elle ne touche pas. Mêmes règles de promesses.` : ""].filter(Boolean).join("\n") }];
     if (pub.source) {
       const d = await imageData(root, pub.source);
       if (d) content.push({ type: "input_image", image_url: d });
@@ -103,14 +103,42 @@ async function produire(root, projet, file, pub) {
     const j = text.lastIndexOf("}");
     if (i < 0 || j <= i) throw new Error("L'agent n'a pas rendu de plan lisible.");
     const plan = JSON.parse(text.slice(i, j + 1));
-    await majPub(file, pub.id, { plan, etape: "Nano Banana génère l'image… (20 à 60 s)" });
+    // Lot B (2026-11-24) : « Proposer » s'arrête ici ; l'utilisateur relit et
+    // corrige l'accroche, les textes et le prompt, puis lance « Générer ».
+    if (pub.arret === "plan") {
+      await majPub(file, pub.id, { plan, statut: "plan", etape: null, planLe: new Date().toISOString() });
+      return;
+    }
+    await majPub(file, pub.id, { plan });
+    await generer(root, projet, file, { ...pub, plan }, env);
+  } catch (e) {
+    await majPub(file, pub.id, { statut: "erreur", erreur: e.message, etape: null });
+  }
+}
+
+const AGENT_NOMS = { rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator" };
+const MODELES_IMG = { "nano-banana": "Nano Banana", "nano-banana-pro": "Nano Banana Pro", "gpt-image-2": "GPT Image 2" };
+const DEST_MODE = { mockup: ["produit", "pub"], ugc: ["pub"], marque: ["marque", "pub"] };
+async function generer(root, projet, file, pub, env) {
+  const plan = pub.plan ?? {};
+  const modele = MODELES_IMG[pub.modele] ? pub.modele : "nano-banana";
+  try {
+    if (!env) {
+      const { loadEnv } = await import("vite");
+      env = loadEnv("development", root, "");
+    }
+    await majPub(file, pub.id, { statut: "en cours", erreur: null, etape: `${MODELES_IMG[modele]} génère l'image… (20 à 60 s)`, le: new Date().toISOString() });
     const { studioImage } = await import("../scripts/lib/ia.mjs");
     const { mediaPlace } = await import("./commun.mjs");
     const folder = await mediaPlace(`projet-${projet}`, "images-creees");
     await mkdir(folder.dir, { recursive: true });
     const regles = ` Visible text on the image must be exactly: ${JSON.stringify(plan.textesVisibles ?? [])}. No other number, rating, review count, certification, price or medical claim. Never keep the original brand name or logo. Output only the finished ad, one single image.`;
-    const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: pub.source || null, references: (pub.refs ?? []).slice(0, 6), prompt: String(plan.prompt ?? "") + regles, format: pub.format || plan.format || "4:5", model: "nano-banana", folder });
+    const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: pub.source || null, references: (pub.refs ?? []).slice(0, 6), prompt: String(plan.prompt ?? "") + regles, format: pub.format || plan.format || "4:5", model: modele, folder });
     await majPub(file, pub.id, { statut: "pret", image: out.url, etape: null, finiLe: new Date().toISOString() });
+    try {
+      const { noterFiche } = await import("./mediatheque.mjs");
+      await noterFiche(root, `projet-${projet}`, out.url, { type: "image", provenance: "creee", sous: "agent", choix: "brouillon", destination: DEST_MODE[pub.mode] ?? ["pub"], origine: { source: pub.origine === "canvas" ? "Canvas · Créer avec un agent" : "Publicités", agent: AGENT_NOMS[pub.mode] ?? MODES[pub.mode]?.label ?? pub.mode, besoin: MODES[pub.mode]?.label, consigne: plan.accroche ? `${plan.idee ?? ""} · « ${plan.accroche} »` : pub.consigne || "", depuis: pub.source || null, modele: MODELES_IMG[modele], references: pub.refs ?? [] } });
+    } catch {}
   } catch (e) {
     await majPub(file, pub.id, { statut: "erreur", erreur: e.message, etape: null });
   }
@@ -128,7 +156,7 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
     // Pub restée « en cours » depuis plus de 15 min (serveur redémarré) : signalée.
     const vieux = Date.now() - 15 * 60 * 1000;
     const pubs = d.pubs.map((p) => (p.statut === "en cours" && Date.parse(p.le) < vieux ? { ...p, statut: "erreur", erreur: "Interrompue (serveur redémarré) : relance-la.", etape: null } : p));
-    return json(res, 200, { modes: Object.fromEntries(Object.entries(MODES).map(([k, m]) => [k, { label: m.label, source: Boolean(m.source) }])), pubs });
+    return json(res, 200, { modes: Object.fromEntries(Object.entries(MODES).map(([k, m]) => [k, { label: m.label, source: Boolean(m.source), agent: m.agent }])), pubs });
   }
   if (req.method === "DELETE" && parts[2]) {
     await sousVerrou(file, async () => {
@@ -140,10 +168,50 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
   }
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   const b = await readBody(req);
+  // POST /api/publicites/<projet>/<id>/generer { plan, modele } : après « Proposer ».
+  // POST /api/publicites/<projet>/<id>/relancer : refait ce qui a échoué.
+  // POST /api/publicites/<projet>/<id>/corriger { note } : l'agent refait sa proposition.
+  if (parts[2] && parts[3] === "corriger") {
+    const d = await lireJson(file, { pubs: [] });
+    const pub = d.pubs.find((x) => x.id === parts[2]);
+    if (!pub) return json(res, 404, { error: "Pub introuvable." });
+    const note = String(b.note ?? "").trim().slice(0, 800);
+    if (!note) return json(res, 400, { error: "Écris ce que tu veux changer." });
+    if (!pub.plan) return json(res, 400, { error: "Pas encore de proposition à corriger." });
+    const okU = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
+    const next = { ...pub, note, planPrecedent: pub.plan, arret: "plan", statut: "en cours", erreur: null, etape: "L'agent corrige sa proposition…", le: new Date().toISOString(), corrections: [...(pub.corrections ?? []), { note, le: new Date().toISOString() }] };
+    if (Array.isArray(b.refs)) next.refs = b.refs.filter(okU).slice(0, 6);
+    await majPub(file, pub.id, { note, planPrecedent: pub.plan, arret: "plan", statut: "en cours", erreur: null, etape: next.etape, le: next.le, corrections: next.corrections, refs: next.refs });
+    produire(root, projet, file, next);
+    return json(res, 202, next);
+  }
+  if (parts[2] && ["generer", "relancer"].includes(parts[3])) {
+    const d = await lireJson(file, { pubs: [] });
+    const pub = d.pubs.find((x) => x.id === parts[2]);
+    if (!pub) return json(res, 404, { error: "Pub introuvable." });
+    if (pub.statut === "en cours" && Date.parse(pub.le) > Date.now() - 15 * 60 * 1000) return json(res, 409, { error: "Déjà en cours." });
+    let next = { ...pub };
+    if (parts[3] === "generer") {
+      const pl = b.plan ?? {};
+      const cur = pub.plan ?? {};
+      if (!cur.prompt && !pl.prompt) return json(res, 400, { error: "Pas de proposition à générer." });
+      next.plan = { ...cur, accroche: typeof pl.accroche === "string" ? pl.accroche.slice(0, 300) : cur.accroche, textesVisibles: Array.isArray(pl.textesVisibles) ? pl.textesVisibles.map((t) => String(t).slice(0, 300)).slice(0, 12) : cur.textesVisibles, prompt: typeof pl.prompt === "string" && pl.prompt.trim() ? pl.prompt.slice(0, 6000) : cur.prompt };
+      if (MODELES_IMG[b.modele]) next.modele = b.modele;
+      const okU = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
+      if (Array.isArray(b.refs)) next.refs = b.refs.filter(okU).slice(0, 6);
+      if (b.source !== undefined && MODES[pub.mode]?.source && okU(b.source)) next.source = b.source;
+      if (["4:5", "1:1", "9:16"].includes(b.format)) next.format = b.format;
+      next.arret = null;
+    }
+    await majPub(file, pub.id, { plan: next.plan, modele: next.modele, format: next.format, refs: next.refs, source: next.source, arret: next.arret ?? null, statut: "en cours", erreur: null, etape: "En file…", le: new Date().toISOString() });
+    if (next.plan?.prompt && (parts[3] === "generer" || next.arret !== "plan")) generer(root, projet, file, next);
+    else produire(root, projet, file, next);
+    return json(res, 202, { ...next, statut: "en cours" });
+  }
   if (!MODES[b.mode]) return json(res, 400, { error: "Mode inconnu." });
   if (MODES[b.mode].source && !b.source) return json(res, 400, { error: "Ce mode a besoin de la pub d'origine (image)." });
   const okUrl = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
-  const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: b.mode, source: okUrl(b.source) ? b.source : null, refs: (b.refs ?? []).filter(okUrl).slice(0, 6), format: ["4:5", "1:1", "9:16"].includes(b.format) ? b.format : "4:5", consigne: String(b.consigne ?? "").slice(0, 800), statut: "en cours", etape: "En file…", le: new Date().toISOString() };
+  const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: b.mode, source: okUrl(b.source) ? b.source : null, refs: (b.refs ?? []).filter(okUrl).slice(0, 6), format: ["4:5", "1:1", "9:16"].includes(b.format) ? b.format : "4:5", consigne: String(b.consigne ?? "").slice(0, 800), statut: "en cours", etape: "En file…", le: new Date().toISOString(), arret: b.arret === "plan" ? "plan" : null, origine: b.origine === "canvas" ? "canvas" : "publicites", depuisTexte: typeof b.depuisTexte === "string" ? b.depuisTexte.slice(0, 12000) : null, modele: MODELES_IMG[b.modele] ? b.modele : "nano-banana" };
   await sousVerrou(file, async () => {
     const d = await lireJson(file, { pubs: [] });
     d.pubs = [pub, ...d.pubs].slice(0, 200);

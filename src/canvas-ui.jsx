@@ -1,5 +1,5 @@
 import { WhImport } from "./winninghunter-ui.jsx";
-import { MirrorPanel, MirrorImagePanel } from "./mirror-pub-ui.jsx";
+import { MirrorPanel, MirrorImagePanel, Markdown } from "./mirror-pub-ui.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
@@ -489,7 +489,7 @@ function CanvasBoard({ onClose, X }) {
       setSel(one && url ? { id: one.id, fileId: one.fileId, url, left: (one.x + appState.scrollX) * z + one.width * z * 0.5, top: (one.y + appState.scrollY) * z, customData: one.customData ?? {} } : null);
       // « Clique des images du tableau pour les ajouter » (Nouvelle image,
       // ou Section images en mode « Choisir sur le tableau »).
-      if (one && url && (panelRef.current === "image" || pickingRef.current)) {
+      if (one && url && (panelRef.current === "image" || panelRef.current === "video" || pickingRef.current)) {
         setRefs((r) => (r.some((x) => x.fileId === one.fileId) ? r : r.length >= MAX_REFS ? r : [...r, { fileId: one.fileId, url }]));
       }
     }
@@ -541,6 +541,30 @@ function CanvasBoard({ onClose, X }) {
       return body.url;
     } catch (e) {
       api.updateScene({ elements: api.getSceneElements().filter((e2) => !phIds.includes(e2.id) && !(titre && e2.type === "text" && e2.text === titre && ph.some((p) => p.id === e2.id))), captureUpdate: CaptureUpdateAction.NEVER });
+      throw e;
+    }
+  }
+
+  // ---- Créer une vidéo avec Gemini Omni (2026-11-24) ----
+  // Cadre « Ta vidéo arrive ici » posé, puis remplacé par la vidéo.
+  async function makeVideo({ prompt, duree, format, qualite }) {
+    const [cx, cy] = viewCenter();
+    const w = format === "16:9" ? 480 : 270;
+    const h = format === "16:9" ? 270 : 480;
+    const spot = freeSpot(cx - w / 2, cy - h / 2, w, h);
+    const ph = convertToExcalidrawElements([{ type: "rectangle", x: spot.x, y: spot.y, width: w, height: h, strokeStyle: "dashed", strokeColor: "#6d5dfc", backgroundColor: "transparent", roundness: null, label: { text: "Ta vidéo arrive ici…\n(1 à 3 min)", fontSize: 16, strokeColor: "#4f46e5" }, customData: { attente: true } }]);
+    const phIds = ph.map((e) => e.id);
+    api.updateScene({ elements: [...api.getSceneElements(), ...ph], captureUpdate: CaptureUpdateAction.NEVER });
+    const references = refs.map((x) => x.url);
+    try {
+      const res = await fetch("/api/ia/canvas-video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: pageName, prompt, references, duree, format, qualite }) });
+      const body = await res.json();
+      if (!res.ok || body.error) throw new Error(body.error || `Erreur ${res.status}`);
+      const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}`, x: spot.x, y: spot.y, width: w, height: h, link: lecteurLink(body.url, body.poster), customData: { url: body.url, poster: body.poster, label: prompt.slice(0, 60), origine: { source: "Créée sur le Canvas", consigne: prompt, modele: "Gemini Omni 1.2 Flash", references, format: `${body.format} · ${body.duree} s · ${body.qualite}` } } }], null);
+      api.updateScene({ elements: [...api.getSceneElements().filter((e) => !phIds.includes(e.id)), el], captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+      return body;
+    } catch (e) {
+      api.updateScene({ elements: api.getSceneElements().filter((e2) => !phIds.includes(e2.id)), captureUpdate: CaptureUpdateAction.NEVER });
       throw e;
     }
   }
@@ -612,6 +636,23 @@ function CanvasBoard({ onClose, X }) {
     } catch (e) {
       setFlash({ error: e.message });
     }
+  }
+
+  // Médiathèque (2026-11-24) : vidéos posées côte à côte au centre de l'écran.
+  async function addVideosAtCenter(list) {
+    const [cx, cy] = viewCenter();
+    const w = 240;
+    const gap = 24;
+    const sizes = await Promise.all(list.map((v) => (v.poster ? sizeOf(v.poster).catch(() => [9, 16]) : Promise.resolve([9, 16]))));
+    const hs = sizes.map(([nw, nh]) => Math.round((w * nh) / nw));
+    const total = list.length * (w + gap) - gap;
+    const start = freeSpot(cx - total / 2, cy - Math.max(...hs) / 2, total, Math.max(...hs));
+    const els = restoreElements(
+      list.map((v, i) => ({ type: "embeddable", id: `v${Date.now().toString(36)}${i}`, x: start.x + i * (w + gap), y: start.y, width: w, height: hs[i], link: lecteurLink(v.url, v.poster), customData: { url: v.url, poster: v.poster ?? null, origine: { source: "Médias" } } })),
+      null,
+    );
+    api.updateScene({ elements: [...api.getSceneElements(), ...els], captureUpdate: CaptureUpdateAction.IMMEDIATELY });
+    setFlash({ ok: `${list.length} vidéo(s) posée(s) sur le tableau.` });
   }
 
   // Import WinningHunter (2026-11-20) : images et vidéos posées en grille
@@ -692,13 +733,13 @@ function CanvasBoard({ onClose, X }) {
             <div className="atl-cv__right">
               <WorkspaceSwitch current="canvas" onLeave={async () => { if (!(await confirmLeave())) throw new Error("Canvas : sortie annulée"); onClose(); }} />
               <div className="atl-cv__ai">
-                <button type="button" className={imagesOpen ? "is-on" : ""} onClick={() => setImagesOpen(true)} title="Tes images" aria-label="Tes images">
+                <button type="button" className={imagesOpen ? "is-on" : ""} onClick={() => setImagesOpen(true)} title="Médias du projet : images et vidéos" aria-label="Médias du projet">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 5h16v14H4z" fill="currentColor" opacity=".9" />
                     <path d="M4 16l4.5-5 3.5 4 2.5-3L20 17v2H4z" fill="#fff" />
                     <circle cx="15.5" cy="8.5" r="1.6" fill="#fff" />
                   </svg>
-                  <span>Images</span>
+                  <span>Médias</span>
                 </button>
                 <button type="button" className={`atl-cv__whbtn${whOpen ? " is-on" : ""}`} onClick={() => setWhOpen(true)} title="Importer les pubs d'une marque depuis WinningHunter" aria-label="Importer depuis WinningHunter">
                   <b className="atl-cv__whlogo">WH</b>
@@ -710,7 +751,7 @@ function CanvasBoard({ onClose, X }) {
                   </svg>
                   <span>Créer</span>
                 </button>
-                <button type="button" className="is-video" disabled title="Créer une vidéo (bientôt : la clé Google ne donne pas accès à Veo)" aria-label="Créer une vidéo">
+                <button type="button" className={`is-video${panel === "video" ? " is-on" : ""}`} onClick={() => togglePanel("video")} title="Créer une vidéo (Gemini Omni)" aria-label="Créer une vidéo">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="6" width="13" height="12" rx="2" fill="currentColor" />
                     <path d="M17 10l4-2.5v9L17 14z" fill="currentColor" />
@@ -745,7 +786,7 @@ function CanvasBoard({ onClose, X }) {
           <MainMenu>
             <MainMenu.Item onSelect={async () => (await confirmLeave()) && (await refreshBoards(), setBoardsOpen(true))}>Tous les tableaux</MainMenu.Item>
             <MainMenu.Separator />
-            <MainMenu.Item onSelect={() => setImagesOpen(true)}>Tes images</MainMenu.Item>
+            <MainMenu.Item onSelect={() => setImagesOpen(true)}>Médias</MainMenu.Item>
             <MainMenu.Item onSelect={() => videoRef.current?.click()}>Ajouter une vidéo</MainMenu.Item>
             <MainMenu.DefaultItems.SaveAsImage />
             <MainMenu.DefaultItems.Help />
@@ -831,10 +872,11 @@ function CanvasBoard({ onClose, X }) {
         </div>
       )}
 
-      {api && panel === "image" && <NewPicture refs={refs} setRefs={setRefs} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={() => setPanel(null)} />}
+      {api && panel === "video" && <NewVideo refs={refs} setRefs={setRefs} makeVideo={makeVideo} setFlash={setFlash} onClose={() => setPanel(null)} />}
+      {api && panel === "image" && <CreatePanel projet={root.projet ?? null} refs={refs} setRefs={setRefs} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onSections={() => togglePanel("sections")} onClose={() => setPanel(null)} />}
       <input ref={videoRef} type="file" accept="video/mp4,video/webm,video/quicktime" hidden onChange={(e) => (addVideo(e.target.files[0]), (e.target.value = ""))} />
       {api && whOpen && <WhImport page={pageName} title="Importer depuis WinningHunter → ce tableau" onImported={(items) => placeGrid(items)} onClose={() => setWhOpen(false)} />}
-      {api && imagesOpen && <YourImages root={root} onAdd={(urls) => addImagesAtCenter(urls, { origine: { source: "Tes images" } })} onClose={() => setImagesOpen(false)} />}
+      {api && imagesOpen && <MediaLibrary root={root} onAddImages={(urls) => addImagesAtCenter(urls, { origine: { source: "Médias" } })} onAddVideos={addVideosAtCenter} onClose={() => setImagesOpen(false)} />}
       {boardsOpen && (
         <AllBoards
           projet={projet}
@@ -944,8 +986,379 @@ async function uploadFiles(files) {
   return urls;
 }
 
+// ---- « Créer » par besoin (lot B du plan images et vidéos, 2026-11-24) ----
+// On choisit ce qu'on veut obtenir ; l'atelier prend l'agent branché pour ce
+// besoin (moteur de l'étape Publicités : server/publicites.mjs). Deux temps :
+// « Proposer » (l'agent écrit idée, accroche, textes et prompt, modifiables),
+// puis « Générer ». Tout tourne sur le serveur : fermer le panneau ne perd rien.
+const BESOINS = [
+  { id: "libre", label: "Image libre", agent: null, aide: "Ta consigne directe, sans agent." },
+  { id: "mockup", label: "Mise en scène du produit", agent: "Product Mockup Generator", aide: "Ton produit mis en scène dans un décor réaliste." },
+  { id: "ugc", label: "Photo UGC réaliste", agent: "Hyper Realistic UGC Image Studio", aide: "Photo façon client, prise au téléphone (démonstration, jamais présentée comme un vrai avis)." },
+  { id: "rebuild", label: "Refaire une pub concurrente", agent: "AI Ad Rebuilder V3", source: true, aide: "Clique d'abord la pub concurrente, puis tes photos produit." },
+  { id: "replicator", label: "Reprendre une pub gagnante", agent: "AI Winning Ad Replicator", source: true, aide: "Clique d'abord la pub gagnante, puis tes photos produit." },
+  { id: "transformation", label: "Avant / après", agent: "AI Transformation Image Ad Generator", aide: "Visuel de démonstration avant / après." },
+  { id: "scroll", label: "Pub qui arrête le défilement", agent: "Scroll-Stopping Image Ad Specialists", aide: "Image choc pensée pour le fil Facebook / Instagram." },
+  { id: "marque", label: "Image aux couleurs de la marque", agent: "Branded Image Creator", aide: "Ton produit avec ton logo et ta palette." },
+  { id: "sections", label: "Images d'une section de page", agent: null, aide: "Ouvre le panneau Sections." },
+];
+const PRIX_PROPOSER = 0.05;
+const AGENT_SLUG = { rebuild: "shopfunnels-ai-ad-rebuilder-v-3", replicator: "shopfunnels-ai-winning-ad-replicator", ugc: "whitelabeler-hyper-realistic-ugc-image-studio-v-1", mockup: "whitelabeler-product-mockup-generator-v-1", marque: "whitelabeler-branded-image-creator-v-1", scroll: "shopfunnels-ai-scroll-stopping-image-ad-specialists", transformation: "shopfunnels-ai-transformation-image-ad-generator" };
+const sansQuery = (u) => String(u).split("?")[0];
+
+function CreatePanel({ projet, refs, setRefs, makeImage, addImagesAtCenter, setFlash, onSections, onClose }) {
+  const [besoin, setBesoin] = useState(() => localStorage.getItem("atl-cv-besoin") || "libre");
+  const b = BESOINS.find((x) => x.id === besoin) ?? BESOINS[0];
+  function pick(id) {
+    if (id === "sections") return onSections();
+    localStorage.setItem("atl-cv-besoin", id);
+    setBesoin(id);
+  }
+  const bar = (
+    <div className="atl-cb__bar">
+      <label>
+        <span>Ce que tu veux obtenir</span>
+        <select value={b.id} onChange={(e) => pick(e.target.value)}>
+          {BESOINS.map((x) => (
+            <option key={x.id} value={x.id}>
+              {x.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p>
+        {b.aide}
+        {b.agent && <em> · agent : {b.agent}</em>}
+      </p>
+    </div>
+  );
+  if (!b.agent) return <NewPicture refs={refs} setRefs={setRefs} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={onClose} bar={bar} />;
+  return <AgentPicture key={b.id} besoin={b} projet={projet} refs={refs} setRefs={setRefs} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={onClose} bar={bar} />;
+}
+
+function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFlash, onClose, bar }) {
+  const [consigne, setConsigne] = useState("");
+  const [format, setFormat] = useState("4:5");
+  const [modele, setModele] = useState("nano-banana");
+  const [job, setJob] = useState(null);
+  const [edit, setEdit] = useState(null);
+  const [voirPrompt, setVoirPrompt] = useState(false);
+  const [attente, setAttente] = useState([]);
+  const [vue, setVue] = useState("proposer");
+  const [note, setNote] = useState("");
+  const [retouche, setRetouche] = useState(false);
+  const poses = useRef(new Set());
+  const urls = refs.map((x) => x.url).filter((u) => typeof u === "string" && u.startsWith("/medias/"));
+  const source = besoin.source ? urls[0] ?? null : null;
+  const produits = besoin.source ? urls.slice(1) : urls;
+  const api = (path = "", init) => fetch(`/api/publicites/${projet}${path}`, init).then(async (r) => ({ ok: r.ok, body: await r.json().catch(() => ({})) }));
+
+  // Suivi du travail en cours (le serveur continue même si on ferme).
+  useEffect(() => {
+    if (!projet) return;
+    let alive = true;
+    async function tick() {
+      const { body } = await api();
+      if (!alive) return;
+      const pubs = body.pubs ?? [];
+      setAttente(pubs.filter((x) => x.origine === "canvas" && x.mode === besoin.id && ["plan", "en cours", "erreur"].includes(x.statut)).slice(0, 4));
+      if (job) {
+        const cur = pubs.find((x) => x.id === job.id);
+        if (cur) {
+          setJob(cur);
+          if (cur.statut === "plan" && !edit) setEdit({ accroche: cur.plan?.accroche ?? "", textes: (cur.plan?.textesVisibles ?? []).join("\n"), prompt: cur.plan?.prompt ?? "" });
+          if (cur.statut === "pret" && cur.image && !poses.current.has(cur.image)) {
+            poses.current.add(cur.image);
+            await addImagesAtCenter([cur.image], { label: cur.plan?.accroche ?? besoin.label, origine: { source: "Créée avec un agent", agent: besoin.agent, consigne: cur.plan?.accroche ? `${cur.plan.idee ?? ""} · « ${cur.plan.accroche} »` : cur.consigne, modele: MODELES[cur.modele]?.label ?? "Nano Banana", references: cur.refs ?? [], format: cur.format } });
+            setFlash({ ok: "Image posée sur le tableau, et rangée dans Médias → Créées (brouillon)." });
+          }
+        }
+      }
+    }
+    tick();
+    const t = setInterval(tick, 3000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projet, job?.id, Boolean(edit)]);
+
+  async function proposer() {
+    if (besoin.source && !source) return setFlash({ error: "Clique d'abord la pub d'origine sur le tableau (elle devient l'image 1)." });
+    setEdit(null);
+    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne, arret: "plan", origine: "canvas", modele }) });
+    if (!ok) return setFlash({ error: body.error || "La proposition n'a pas pu partir." });
+    setJob(body);
+  }
+  async function generer() {
+    const plan = { accroche: edit.accroche, textesVisibles: edit.textes.split("\n").map((t) => t.trim()).filter(Boolean), prompt: edit.prompt };
+    const { ok, body } = await api(`/${job.id}/generer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan, modele, format, refs: produits, ...(besoin.source && source ? { source } : {}) }) });
+    if (!ok) return setFlash({ error: body.error || "La génération n'a pas pu partir." });
+    setJob({ ...job, ...body });
+    setEdit(null);
+    setRetouche(false);
+  }
+  async function corriger() {
+    if (!note.trim()) return setFlash({ error: "Écris ce que tu veux changer." });
+    const { ok, body } = await api(`/${job.id}/corriger`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note, refs: produits }) });
+    if (!ok) return setFlash({ error: body.error || "La correction n'a pas pu partir." });
+    setNote("");
+    setEdit(null);
+    setRetouche(false);
+    setJob({ ...job, ...body });
+  }
+  async function depuisDiscussion(texte) {
+    if (besoin.source && !source) return setFlash({ error: "Clique d'abord la pub d'origine sur le tableau (elle devient l'image 1)." });
+    setEdit(null);
+    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne, arret: "plan", origine: "canvas", modele, depuisTexte: texte }) });
+    if (!ok) return setFlash({ error: body.error || "La proposition n'a pas pu partir." });
+    setJob(body);
+    setVue("proposer");
+  }
+  async function relancer(x) {
+    const { ok, body } = await api(`/${x.id}/relancer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    if (!ok) return setFlash({ error: body.error || "Relance impossible." });
+    setJob({ ...x, ...body });
+  }
+  function reprendre(x) {
+    setJob(x);
+    setEdit(x.statut === "plan" ? { accroche: x.plan?.accroche ?? "", textes: (x.plan?.textesVisibles ?? []).join("\n"), prompt: x.plan?.prompt ?? "" } : null);
+  }
+
+  const enCours = job?.statut === "en cours";
+  return (
+    <section className="atl-cv__dock atl-cb" aria-label={`Créer : ${besoin.label}`}>
+      <div className="atl-cv__head">
+        <h3>Créer une image</h3>
+        <button type="button" onClick={onClose} aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      {bar}
+      {projet && (
+        <div className="atl-cv__seg atl-cb__vues">
+          <button type="button" className={vue === "proposer" ? "is-on" : ""} onClick={() => setVue("proposer")}>
+            Proposition rapide
+          </button>
+          <button type="button" className={vue === "discuter" ? "is-on" : ""} onClick={() => setVue("discuter")}>
+            Discuter avec l'agent
+          </button>
+        </div>
+      )}
+      {projet && vue === "discuter" && <AgentTalk slug={AGENT_SLUG[besoin.id]} titre={besoin.agent} projet={projet} refs={urls} onGenerer={depuisDiscussion} setFlash={setFlash} />}
+      {!projet ? (
+        <p className="atl-cv__muted">Ce besoin passe par un agent qui lit les Fondations du projet (produit, offre, preuves, marque). Ouvre le Canvas depuis une page rattachée à un projet.</p>
+      ) : vue === "discuter" ? null : (
+        <>
+          <div className="atl-cv__box">
+            <div className="atl-cv__refsrow">
+              <RefChips refs={refs} setRefs={setRefs} />
+              {!refs.length && <span className="atl-cv__muted">{besoin.source ? "Clique la pub d'origine (image 1), puis tes photos produit." : "Clique tes photos produit (et ton logo) sur le tableau."}</span>}
+              {besoin.source && source && <span className="atl-cv__muted">Image 1 = pub d'origine · {produits.length} photo(s) produit</span>}
+              {refs.length > urls.length && <span className="atl-cv__muted">⚠ {refs.length - urls.length} image(s) pas encore enregistrée(s) seront ignorées.</span>}
+            </div>
+            <div className="atl-cv__promptrow">
+              <textarea rows={2} value={consigne} onChange={(e) => setConsigne(e.target.value)} placeholder="Ta demande à l'agent (facultatif) : angle, décor, public, ce que tu veux éviter…" />
+            </div>
+          </div>
+          <div className="atl-cv__opts">
+            <label>
+              <span>Format</span>
+              <div className="atl-cv__seg">
+                {["4:5", "1:1", "9:16"].map((k) => (
+                  <button key={k} type="button" className={format === k ? "is-on" : ""} onClick={() => setFormat(k)}>
+                    {k}
+                  </button>
+                ))}
+              </div>
+            </label>
+            <label>
+              <span>Modèle</span>
+              <div className="atl-cv__seg">
+                {Object.entries(MODELES).map(([k, m]) => (
+                  <button key={k} type="button" className={modele === k ? "is-on" : ""} onClick={() => setModele(k)}>
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </label>
+            <button type="button" className="atl-cv__go" onClick={proposer} disabled={enCours}>
+              {enCours && job?.arret === "plan" ? "L'agent prépare…" : `1 · Proposer · ~${PRIX_PROPOSER.toFixed(2)} $`}
+            </button>
+          </div>
+
+          {job && (
+            <div className={`atl-cb__job is-${job.statut?.replace(" ", "-")}`}>
+              {job.statut === "en cours" && <p>⏳ {job.etape || "En cours…"} Tu peux fermer ce panneau : le résultat arrivera dans Médias → Créées.</p>}
+              {job.statut === "erreur" && (
+                <p>
+                  ⚠ Échec : {job.erreur}{" "}
+                  <button type="button" className="atl-cv__ghost" onClick={() => relancer(job)}>
+                    Relancer
+                  </button>
+                </p>
+              )}
+              {job.statut === "pret" && (
+                <p>
+                  ✓ Image créée et posée sur le tableau.
+                  <button type="button" className="atl-cv__ghost" onClick={() => (setEdit({ accroche: job.plan?.accroche ?? "", textes: (job.plan?.textesVisibles ?? []).join("\n"), prompt: job.plan?.prompt ?? "" }), setRetouche(true))}>
+                    Retoucher cette proposition
+                  </button>
+                </p>
+              )}
+              {(job.statut === "plan" || (retouche && job.statut === "pret")) && edit && (
+                <div className="atl-cb__plan">
+                  {job.plan?.idee && (
+                    <p>
+                      <b>Idée de l'agent :</b> {job.plan.idee}
+                    </p>
+                  )}
+                  <label>
+                    <span>Accroche</span>
+                    <input value={edit.accroche} onChange={(e) => setEdit({ ...edit, accroche: e.target.value })} />
+                  </label>
+                  <label>
+                    <span>Textes visibles sur l'image (un par ligne)</span>
+                    <textarea rows={3} value={edit.textes} onChange={(e) => setEdit({ ...edit, textes: e.target.value })} />
+                  </label>
+                  {job.plan?.remplacements?.length > 0 && (
+                    <details>
+                      <summary>Promesses remplacées ({job.plan.remplacements.length})</summary>
+                      <ul>
+                        {job.plan.remplacements.map((r, i) => (
+                          <li key={i}>
+                            « {r.origine} » → {r.remplacement} <small>({r.raison})</small>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                  <button type="button" className="atl-cv__link" onClick={() => setVoirPrompt(!voirPrompt)}>
+                    {voirPrompt ? "Masquer le prompt" : "Voir et modifier le prompt de l'image"}
+                  </button>
+                  {voirPrompt && <textarea rows={6} value={edit.prompt} onChange={(e) => setEdit({ ...edit, prompt: e.target.value })} />}
+                  <div className="atl-cb__corr">
+                    <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={(e) => e.key === "Enter" && corriger()} placeholder="Demander une correction : « plus émotionnel », « en extérieur », « accroche plus courte »…" />
+                    <button type="button" className="atl-cv__ghost" onClick={corriger} disabled={!note.trim()}>
+                      Corriger · ~{PRIX_PROPOSER.toFixed(2)} $
+                    </button>
+                  </div>
+                  <button type="button" className="atl-cv__go" onClick={generer}>
+                    2 · Générer l'image · ~{(MODELES[modele]?.prix ?? 0.04).toFixed(2)} $
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {attente.filter((x) => x.id !== job?.id).length > 0 && (
+            <div className="atl-cb__attente">
+              <span>En attente pour ce besoin :</span>
+              {attente
+                .filter((x) => x.id !== job?.id)
+                .map((x) => (
+                  <button key={x.id} type="button" className="atl-cv__ghost" onClick={() => (x.statut === "erreur" ? relancer(x) : reprendre(x))}>
+                    {x.statut === "plan" ? `Proposition « ${(x.plan?.accroche ?? "").slice(0, 30)} »` : x.statut === "erreur" ? "Échec · relancer" : "En cours…"}
+                  </button>
+                ))}
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
+// ---- « Discuter avec l'agent » dans le Canvas (2026-11-24) ----
+// Même conversation que dans Agents army (/api/agents/<slug>/chat, rangée par
+// projet) : l'agent suit sa consigne avec les Fondations, pose ses questions,
+// on échange librement. « Générer cette image » transforme une de ses réponses
+// en proposition (puis Générer), sans recopier le prompt.
+function AgentTalk({ slug, titre, projet, refs, onGenerer, setFlash }) {
+  const [conv, setConv] = useState(null);
+  const [texte, setTexte] = useState("");
+  const [joindre, setJoindre] = useState(true);
+  const bas = useRef(null);
+  const qs = `projet=${encodeURIComponent(projet)}`;
+  const charger = () =>
+    fetch(`/api/agents/${slug}/chat?${qs}`)
+      .then((r) => r.json())
+      .then(setConv)
+      .catch(() => {});
+  useEffect(() => {
+    charger();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, projet]);
+  const enCours = conv?.statut === "en cours";
+  useEffect(() => {
+    if (!enCours) return;
+    const t = setInterval(charger, 3000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enCours]);
+  useEffect(() => bas.current?.scrollIntoView({ block: "end" }), [conv?.messages?.length, enCours]);
+  const imgs = refs.map(sansQuery).filter((u) => /\.(png|jpe?g|webp)$/i.test(u)).slice(0, 6);
+  async function envoyer(extra = {}) {
+    const message = extra.nouvelle ? "" : texte.trim();
+    if (!extra.nouvelle && !message && !(joindre && imgs.length)) return;
+    const r = await fetch(`/api/agents/${slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, message, images: !extra.nouvelle && joindre ? imgs : [], web: false, moteur: "chatgpt", ...extra }) });
+    const b = await r.json().catch(() => ({}));
+    if (!r.ok) return setFlash({ error: b.error ?? `Erreur ${r.status}` });
+    setConv(b);
+    if (!extra.nouvelle) setTexte("");
+  }
+  const msgs = conv?.messages ?? [];
+  return (
+    <div className="atl-cb__talk">
+      <div className="atl-cb__fil">
+        {!msgs.length && !enCours && <p className="atl-cv__muted">Écris « Bonjour » ou ta demande : {titre} suit sa méthode avec les Fondations du projet, te pose ses questions, et tu lui réponds ici. C'est la même conversation que dans Agents army.</p>}
+        {msgs.map((m, i) =>
+          m.role === "user" ? (
+            <div key={i} className="atl-cb__moi">
+              <div>{m.text}</div>
+              {m.images?.length > 0 && (
+                <div className="atl-cb__imgs">
+                  {m.images.map((u) => (
+                    <img key={u} src={u} alt="" />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div key={i} className="atl-cb__agent">
+              <Markdown text={m.text} />
+              <button type="button" className="atl-cv__go" onClick={() => onGenerer(m.text)}>
+                Générer cette image
+              </button>
+            </div>
+          ),
+        )}
+        {enCours && <p className="atl-cv__muted">⏳ {titre} écrit…</p>}
+        {conv?.erreur && <p className="atl-cv__muted">⚠ {conv.erreur}</p>}
+        <div ref={bas} />
+      </div>
+      <div className="atl-cb__envoi">
+        <textarea rows={2} value={texte} onChange={(e) => setTexte(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.ctrlKey || e.metaKey) && envoyer()} placeholder={`Écris à ${titre}…`} disabled={enCours} />
+        <div className="atl-cb__envoiopts">
+          {imgs.length > 0 && (
+            <label>
+              <input type="checkbox" checked={joindre} onChange={(e) => setJoindre(e.target.checked)} /> Joindre les {imgs.length} image(s) cliquée(s)
+            </label>
+          )}
+          <button type="button" className="atl-cv__link" disabled={enCours || !msgs.length} onClick={() => window.confirm("Effacer cette conversation et repartir de zéro ?") && envoyer({ nouvelle: true })}>
+            Nouvelle conversation
+          </button>
+          <button type="button" className="atl-cv__go" disabled={enCours || (!texte.trim() && !(joindre && imgs.length))} onClick={() => envoyer()}>
+            Envoyer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---- « Nouvelle image » : panneau en bas, comme « New picture » ----
-function NewPicture({ refs, setRefs, makeImage, addImagesAtCenter, setFlash, onClose }) {
+function NewPicture({ refs, setRefs, makeImage, addImagesAtCenter, setFlash, onClose, bar = null }) {
   const [prompt, setPrompt] = useState("");
   const [modele, setModele] = useState("nano-banana");
   const [qualite, setQualite] = useState("medium");
@@ -972,11 +1385,12 @@ function NewPicture({ refs, setRefs, makeImage, addImagesAtCenter, setFlash, onC
   return (
     <section className="atl-cv__dock" aria-label="Nouvelle image">
       <div className="atl-cv__head">
-        <h3>Nouvelle image</h3>
+        <h3>Créer une image</h3>
         <button type="button" onClick={onClose} aria-label="Fermer">
           ×
         </button>
       </div>
+      {bar}
       <div className="atl-cv__box">
         <div className="atl-cv__refsrow">
           <AddImageMenu onUpload={upload} />
@@ -1032,6 +1446,356 @@ function NewPicture({ refs, setRefs, makeImage, addImagesAtCenter, setFlash, onC
         </button>
       </div>
     </section>
+  );
+}
+
+// ---- Nouvelle vidéo (Gemini Omni, 2026-11-24) : consigne, images du
+// tableau en option (photo produit → vidéo), durée, format, qualité.
+const VIDEO_PRIX = { "360p": 0.025, "720p": 0.075, "1080p": 0.11 };
+function NewVideo({ refs, setRefs, makeVideo, setFlash, onClose }) {
+  const [prompt, setPrompt] = useState("");
+  const [duree, setDuree] = useState(6);
+  const [format, setFormat] = useState("9:16");
+  const [qualite, setQualite] = useState("720p");
+  const [running, setRunning] = useState(0);
+  const prix = VIDEO_PRIX[qualite] * duree;
+  const trop = refs.length > 3;
+  async function go() {
+    if (!prompt.trim()) return setFlash({ error: "Décris la vidéo que tu veux." });
+    if (trop) return setFlash({ error: "3 images au plus pour une vidéo." });
+    setRunning((n) => n + 1);
+    try {
+      const r = await makeVideo({ prompt, duree, format, qualite });
+      setFlash({ ok: `Vidéo posée sur le tableau (${r.duree} s${r.cout ? ` · coût ≈ ${r.cout.toFixed(2)} $` : ""}).` });
+    } catch (e) {
+      setFlash({ error: e.message });
+    } finally {
+      setRunning((n) => n - 1);
+    }
+  }
+  return (
+    <section className="atl-cv__dock" aria-label="Nouvelle vidéo">
+      <div className="atl-cv__head">
+        <h3>Nouvelle vidéo</h3>
+        <button type="button" onClick={onClose} aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <div className="atl-cv__box">
+        <div className="atl-cv__refsrow">
+          <RefChips refs={refs} setRefs={setRefs} />
+          {!refs.length && <span className="atl-cv__muted">Sans image : la vidéo part de ta consigne. Clique 1 à 3 images du tableau (ex. la photo du produit) pour qu'elle parte d'elles.</span>}
+          {trop && <span className="atl-cv__muted">3 images au plus : retires-en {refs.length - 3}.</span>}
+        </div>
+        <div className="atl-cv__promptrow">
+          <textarea rows={3} value={prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.ctrlKey || e.metaKey) && go()} placeholder="Décris la scène : le produit, l'action, le décor, la lumière, le mouvement de caméra, le son…" />
+          <kbd>Ctrl ↵</kbd>
+        </div>
+      </div>
+      <div className="atl-cv__opts">
+        <label>
+          <span>Durée</span>
+          <div className="atl-cv__seg">
+            {[4, 6, 8, 10, 15].map((n) => (
+              <button key={n} type="button" className={duree === n ? "is-on" : ""} onClick={() => setDuree(n)}>
+                {n} s
+              </button>
+            ))}
+          </div>
+        </label>
+        <label>
+          <span>Format</span>
+          <div className="atl-cv__seg">
+            {[["9:16", "Vertical 9:16"], ["16:9", "Horizontal 16:9"]].map(([k, l]) => (
+              <button key={k} type="button" className={format === k ? "is-on" : ""} onClick={() => setFormat(k)}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </label>
+        <label>
+          <span>Qualité</span>
+          <div className="atl-cv__seg">
+            {[["360p", "Brouillon 360p"], ["720p", "720p"], ["1080p", "1080p"]].map(([k, l]) => (
+              <button key={k} type="button" className={qualite === k ? "is-on" : ""} onClick={() => setQualite(k)}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </label>
+        <button type="button" className="atl-cv__go" onClick={go} disabled={!prompt.trim() || trop}>
+          {running ? `Création… (${running})` : `Générer · ~${prix.toFixed(2)} $`}
+        </button>
+      </div>
+      <p className="atl-cv__muted" style={{ margin: "6px 2px 0" }}>Gemini Omni 1.2 Flash · son inclus · 1 à 3 minutes d'attente. Payé sur le projet Google « Creation de videos avec VEO ».</p>
+    </section>
+  );
+}
+
+// ---- Médiathèque (lot A du plan images et vidéos, 2026-11-24) ----
+// Remplace « Tes images ». Images | Vidéos, trois onglets par provenance
+// (Projet, Créées, Références), filtres destination / style / choix, fiche de
+// chaque média (origine, où il est utilisé) modifiable. Données :
+// GET/PATCH /api/mediatheque/<page> (server/mediatheque.mjs).
+const MT_SOUS = { produit: "Photo produit", marque: "Marque", "a-classer": "À classer", ajoutee: "Ajoutée", origine: "Site d'origine", wh: "WinningHunter", site: "Autre site ou marque", concurrent: "Pub concurrente", ia: "IA directe", agent: "Agent", studio: "Studio", mirror: "Mirror" };
+const MT_DEST = { produit: "Page produit", landing: "Landing", homepage: "Homepage", advertorial: "Advertorial", pub: "Pub", marque: "Marque" };
+const MT_STYLE = { mockup: "Mise en scène", ugc: "UGC", "avant-apres": "Avant / après", lifestyle: "Lifestyle", "fond-blanc": "Fond blanc", infographie: "Infographie", autre: "Autre" };
+const MT_CHOIX = { brouillon: "Brouillon", selectionnee: "Sélectionnée", ecartee: "Écartée" };
+const MT_TABS = [["projet", "Projet", "Photos du produit, marque"], ["creee", "Créées", "Par l'IA ou les agents"], ["reference", "Références", "Site d'origine, WinningHunter, autres marques"]];
+
+function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
+  const getPuck = useGetPuck();
+  const [type, setType] = useState("image");
+  const [tab, setTab] = useState("projet");
+  const [items, setItems] = useState(null);
+  const [origine, setOrigine] = useState([]);
+  const [f, setF] = useState({ dest: "", style: "", choix: "" });
+  const [ticked, setTicked] = useState([]);
+  const [fiche, setFiche] = useState(null);
+  const [err, setErr] = useState("");
+  const fileRef = useRef(null);
+  const first = useRef(true);
+  function load() {
+    fetch(`/api/mediatheque/${pageName}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) return setErr(d.error);
+        setItems(d.items ?? []);
+        // Premier chargement : ouvrir le premier onglet qui contient des images.
+        setTab((t) => (first.current ? ((first.current = false), ["projet", "creee", "reference"].find((k) => (d.items ?? []).some((x) => x.type === "image" && x.provenance === k && x.choix !== "ecartee")) ?? t) : t));
+      })
+      .catch((e) => setErr(e.message));
+  }
+  useEffect(() => {
+    load();
+    const fromPage = [...new Set(originalPhotoTargets(getPuck().appState.data.content ?? []).map((t) => t.source))];
+    fetch(`/api/medias-origin/${root.importSource || pageName}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((l) => setOrigine([...new Set([...fromPage, ...l])]))
+      .catch(() => setOrigine(fromPage));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const all = useMemo(() => {
+    const known = new Set((items ?? []).map((x) => x.url));
+    const orig = origine.filter((u) => !known.has(u)).map((url) => ({ url, type: "image", provenance: "reference", sous: "origine", choix: "selectionnee", destination: [], style: "", origine: { source: "Site d'origine" }, utiliseeDans: [], lectureSeule: true }));
+    return [...(items ?? []), ...orig];
+  }, [items, origine]);
+  const ofType = all.filter((x) => x.type === type);
+  const count = (t) => ofType.filter((x) => x.provenance === t && x.choix !== "ecartee").length;
+  const list = ofType.filter((x) => x.provenance === tab && (f.choix ? x.choix === f.choix : x.choix !== "ecartee") && (!f.dest || (x.destination ?? []).includes(f.dest)) && (!f.style || x.style === f.style));
+  const byUrl = new Map(all.map((x) => [x.url, x]));
+  const toggle = (u) => setTicked((t) => (t.includes(u) ? t.filter((x) => x !== u) : [...t, u]));
+  async function patch(urls, set) {
+    const editable = urls.filter((u) => !byUrl.get(u)?.lectureSeule);
+    if (!editable.length) return;
+    setItems((l) => (l ?? []).map((x) => (editable.includes(x.url) ? { ...x, ...set } : x)));
+    setFiche((fi) => (fi && editable.includes(fi.url) ? { ...fi, ...set } : fi));
+    const r = await fetch(`/api/mediatheque/${pageName}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: editable, set }) });
+    if (!r.ok) setErr("Le classement n'a pas été enregistré.");
+  }
+  function toggleDest(urls, d) {
+    const on = urls.every((u) => (byUrl.get(u)?.destination ?? []).includes(d));
+    for (const u of urls) {
+      const cur = byUrl.get(u)?.destination ?? [];
+      patch([u], { destination: on ? cur.filter((x) => x !== d) : [...new Set([...cur, d])] });
+    }
+  }
+  function ajouter(urls) {
+    const sel = urls.map((u) => byUrl.get(u)).filter(Boolean);
+    const imgs = sel.filter((x) => x.type === "image").map((x) => x.url);
+    const vids = sel.filter((x) => x.type === "video");
+    if (imgs.length) onAddImages(imgs);
+    if (vids.length) onAddVideos(vids);
+    onClose();
+  }
+  const fi = fiche ? byUrl.get(fiche.url) ?? fiche : null;
+  const Seg = ({ value, options, onPick, all: tous }) => (
+    <select value={value} onChange={(e) => onPick(e.target.value)}>
+      <option value="">{tous}</option>
+      {Object.entries(options).map(([k, l]) => (
+        <option key={k} value={k}>
+          {l}
+        </option>
+      ))}
+    </select>
+  );
+  return createPortal(
+    <div className="atl-cv__modal is-top" onPointerDown={onClose}>
+      <div className="atl-cv__images atl-mt" onPointerDown={(e) => e.stopPropagation()}>
+        <div className="atl-cv__head">
+          <h3>Médias du projet</h3>
+          <div className="atl-cv__seg atl-mt__type">
+            <button type="button" className={type === "image" ? "is-on" : ""} onClick={() => (setType("image"), setTicked([]))}>
+              Images
+            </button>
+            <button type="button" className={type === "video" ? "is-on" : ""} onClick={() => (setType("video"), setTicked([]))}>
+              Vidéos
+            </button>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Fermer">
+            ×
+          </button>
+        </div>
+        <div className="atl-mt__tabs" role="tablist">
+          {MT_TABS.map(([k, l, aide]) => (
+            <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? "is-on" : ""} onClick={() => (setTab(k), setTicked([]))} title={aide}>
+              <b>{l}</b> <span>{count(k)}</span>
+              <small>{aide}</small>
+            </button>
+          ))}
+        </div>
+        <div className="atl-mt__filters">
+          <Seg value={f.dest} options={MT_DEST} all="Toutes destinations" onPick={(v) => setF({ ...f, dest: v })} />
+          <Seg value={f.style} options={MT_STYLE} all="Tous les styles" onPick={(v) => setF({ ...f, style: v })} />
+          <select value={f.choix} onChange={(e) => setF({ ...f, choix: e.target.value })}>
+            <option value="">Sans les écartées</option>
+            {Object.entries(MT_CHOIX).map(([k, l]) => (
+              <option key={k} value={k}>
+                {l}s seulement
+              </option>
+            ))}
+          </select>
+          {err && <span className="atl-mt__err">⚠ {err}</span>}
+        </div>
+        <div className="atl-mt__body">
+          <div className="atl-cv__grid is-modal atl-mt__grid">
+            {items === null && !err && <p className="atl-cv__muted">Chargement…</p>}
+            {items !== null && !list.length && <p className="atl-cv__muted">Rien ici pour l'instant{f.dest || f.style || f.choix ? " avec ces filtres" : ""}.</p>}
+            {list.map((x) => (
+              <div key={x.url} className={`atl-mt__item${ticked.includes(x.url) ? " is-on" : ""}${fi?.url === x.url ? " is-focus" : ""}`}>
+                <button type="button" className="atl-mt__thumb" onClick={() => (toggle(x.url), setFiche(x))} onDoubleClick={() => ajouter([x.url])} title="Clic : cocher et voir la fiche · double-clic : poser sur le tableau">
+                  {x.type === "video" ? x.poster ? <img src={x.poster} alt="" loading="lazy" /> : <video src={`${x.url}#t=0.5`} preload="metadata" muted /> : <img src={x.url} alt="" loading="lazy" />}
+                  {x.type === "video" && <i className="atl-mt__play">▶</i>}
+                  {ticked.includes(x.url) && <em>{ticked.indexOf(x.url) + 1}</em>}
+                </button>
+                <div className="atl-mt__tags">
+                  <span className={`atl-mt__choix is-${x.choix}`}>{MT_CHOIX[x.choix] ?? ""}</span>
+                  <span>{MT_SOUS[x.sous] ?? x.sous}</span>
+                  {x.utiliseeDans?.length > 0 && <span className="atl-mt__used" title={x.utiliseeDans.map((u) => u.titre).join(", ")}>Utilisée</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+          {fi && (
+            <aside className="atl-mt__fiche" aria-label="Fiche du média">
+              <div className="atl-mt__fichehead">
+                <b>Fiche</b>
+                <button type="button" onClick={() => setFiche(null)} aria-label="Fermer la fiche">
+                  ×
+                </button>
+              </div>
+              {fi.type === "video" ? <video src={fi.url} poster={fi.poster ?? undefined} controls preload="metadata" /> : <img src={fi.url} alt="" />}
+              {fi.lectureSeule ? (
+                <p className="atl-cv__muted">Image du site d'origine : elle se range toute seule dans Références.</p>
+              ) : (
+                <>
+                  <label>Choix</label>
+                  <div className="atl-cv__seg">
+                    {Object.entries(MT_CHOIX).map(([k, l]) => (
+                      <button key={k} type="button" className={fi.choix === k ? "is-on" : ""} onClick={() => patch([fi.url], { choix: k })}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                  <label>Onglet</label>
+                  <div className="atl-cv__seg">
+                    {MT_TABS.map(([k, l]) => (
+                      <button key={k} type="button" className={fi.provenance === k ? "is-on" : ""} onClick={() => patch([fi.url], { provenance: k, sous: k === "projet" ? "produit" : k === "reference" ? "site" : fi.sous })}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                  {fi.provenance !== "creee" && (
+                    <select value={fi.sous} onChange={(e) => patch([fi.url], { sous: e.target.value })}>
+                      {(fi.provenance === "projet" ? ["produit", "marque", "a-classer"] : ["site", "wh", "concurrent", "origine"]).map((k) => (
+                        <option key={k} value={k}>
+                          {MT_SOUS[k]}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                  <label>Destination</label>
+                  <div className="atl-mt__chips">
+                    {Object.entries(MT_DEST).map(([k, l]) => (
+                      <button key={k} type="button" className={(fi.destination ?? []).includes(k) ? "is-on" : ""} onClick={() => toggleDest([fi.url], k)}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                  <label>Style</label>
+                  <Seg value={fi.style ?? ""} options={MT_STYLE} all="Non précisé" onPick={(v) => patch([fi.url], { style: v })} />
+                </>
+              )}
+              <dl className="atl-mt__orig">
+                <dt>Provenance</dt>
+                <dd>{MT_SOUS[fi.sous] ?? fi.sous}{fi.origine?.source ? ` · ${fi.origine.source}` : ""}</dd>
+                {fi.origine?.agent && (<><dt>Agent</dt><dd>{fi.origine.agent}</dd></>)}
+                {fi.origine?.modele && (<><dt>Modèle</dt><dd>{fi.origine.modele}{fi.origine.format ? ` · ${fi.origine.format}` : ""}{fi.origine.cout ? ` · ≈ ${Number(fi.origine.cout).toFixed(2)} $` : ""}</dd></>)}
+                {fi.origine?.consigne && (<><dt>Consigne</dt><dd className="atl-mt__consigne">{fi.origine.consigne}</dd></>)}
+                <dt>Utilisée dans</dt>
+                <dd>{fi.utiliseeDans?.length ? fi.utiliseeDans.map((u) => `${u.type === "pub" ? "Pub" : "Page"} « ${u.titre} »`).join(", ") : "nulle part pour l'instant"}</dd>
+              </dl>
+              <button type="button" className="atl-cv__go" onClick={() => ajouter([fi.url])}>
+                Poser sur le tableau
+              </button>
+            </aside>
+          )}
+        </div>
+        <div className="atl-cv__modalfoot">
+          <button type="button" className="atl-cv__ghost" onClick={() => fileRef.current?.click()}>
+            ＋ Téléverser
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept={type === "video" ? "video/mp4,video/webm,video/quicktime" : "image/*"}
+            multiple
+            hidden
+            onChange={async (e) => {
+              const files = [...e.target.files];
+              e.target.value = "";
+              try {
+                const urls = [];
+                for (const file of files) urls.push(await uploadDataUrl(await readAsDataUrl(file), file.name));
+                const set = tab === "reference" ? { provenance: "reference", sous: "site", choix: "selectionnee" } : tab === "creee" ? { provenance: "creee", sous: "ia", choix: "brouillon" } : { provenance: "projet", sous: "produit", choix: "selectionnee" };
+                await fetch(`/api/mediatheque/${pageName}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls, set }) });
+                load();
+                setTicked((t) => [...t, ...urls]);
+              } catch (er) {
+                setErr(er.message);
+              }
+            }}
+          />
+          {ticked.length > 0 && (
+            <div className="atl-mt__bulk">
+              <span>{ticked.length} cochée(s) :</span>
+              <button type="button" onClick={() => patch(ticked, { choix: "selectionnee" })}>Sélectionner</button>
+              <button type="button" onClick={() => patch(ticked, { choix: "ecartee" })}>Écarter</button>
+              <select value="" onChange={(e) => e.target.value && toggleDest(ticked, e.target.value)}>
+                <option value="">Destination…</option>
+                {Object.entries(MT_DEST).map(([k, l]) => (
+                  <option key={k} value={k}>{l}</option>
+                ))}
+              </select>
+              <select value="" onChange={(e) => e.target.value && patch(ticked, { style: e.target.value })}>
+                <option value="">Style…</option>
+                {Object.entries(MT_STYLE).map(([k, l]) => (
+                  <option key={k} value={k}>{l}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <span />
+          <button type="button" className="atl-cv__ghost" onClick={onClose}>
+            Fermer
+          </button>
+          <button type="button" className="atl-cv__go" disabled={!ticked.length} onClick={() => ajouter(ticked)}>
+            Poser sur le tableau{ticked.length > 1 ? ` (${ticked.length})` : ""}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 

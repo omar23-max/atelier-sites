@@ -10323,3 +10323,84 @@ html.atl-rp-open [class*="Sidebar--right"] {
 .atl-cv__ai button span { font: 600 12.5px/1 Inter, system-ui, sans-serif !important; }
 .atl-cv__ai .atl-cv__whlogo { font: 800 12.5px/16px Inter, system-ui, sans-serif !important; }
 .atl-cv__ai button { flex: 1 1 auto !important; white-space: nowrap; }
+
+/* Médiathèque du Canvas (lot A, 2026-11-24) */
+.atl-mt .atl-cv__head { display: flex; align-items: center; gap: 16px; }
+.atl-mt .atl-cv__head h3 { margin-right: auto; }
+.atl-mt__type { order: 0; }
+.atl-mt__tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.atl-mt__tabs button { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 2px 8px; text-align: left; padding: 10px 14px; border: 1px solid #e1e1ec; border-radius: 10px; background: #fff; cursor: pointer; color: #1e1e2e; }
+.atl-mt__tabs button b { font: 600 15px/1.2 Inter, system-ui, sans-serif; }
+.atl-mt__tabs button span { font: 600 12px/1 Inter, system-ui, sans-serif; color: #4f46e5; background: #eef0ff; border-radius: 999px; padding: 3px 8px; justify-self: start; }
+.atl-mt__tabs button small { grid-column: 1 / -1; color: #6b6b7b; font-size: 12px; }
+.atl-mt__tabs button.is-on { border-color: #4f46e5; background: #f6f5ff; box-shadow: inset 0 0 0 1px #4f46e5; }
+.atl-mt__filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.atl-mt__filters select, .atl-mt__bulk select, .atl-mt__fiche select { height: 32px; border: 1px solid #e1e1ec; border-radius: 8px; padding: 0 8px; background: #fff; font: 500 13px Inter, system-ui, sans-serif; color: #1e1e2e; }
+.atl-mt__err { color: #b42318; font-size: 13px; }
+.atl-mt__body { flex: 1; min-height: 0; display: flex; gap: 16px; }
+.atl-mt__grid { flex: 1; min-height: 0; overflow: auto; align-content: start; }
+.atl-mt__item { display: flex; flex-direction: column; gap: 4px; }
+.atl-mt__thumb { position: relative; padding: 0; border: 2px solid transparent; border-radius: 10px; overflow: hidden; background: #f4f4f8; cursor: pointer; aspect-ratio: 1; }
+.atl-mt__thumb img, .atl-mt__thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.atl-mt__item.is-on .atl-mt__thumb { border-color: #4f46e5; }
+.atl-mt__item.is-focus .atl-mt__thumb { box-shadow: 0 0 0 3px #c9c6ff; }
+.atl-mt__thumb em { position: absolute; top: 6px; right: 6px; min-width: 22px; height: 22px; border-radius: 999px; background: #4f46e5; color: #fff; font: 700 12px/22px Inter, sans-serif; font-style: normal; text-align: center; }
+.atl-mt__play { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-style: normal; font-size: 26px; text-shadow: 0 1px 6px rgba(0,0,0,.5); pointer-events: none; }
+.atl-mt__tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.atl-mt__tags span { font: 500 11px/1 Inter, system-ui, sans-serif; padding: 4px 6px; border-radius: 6px; background: #f1f1f6; color: #444; }
+.atl-mt__choix.is-selectionnee { background: #e6f6ee !important; color: #11643f !important; }
+.atl-mt__choix.is-brouillon { background: #fff4df !important; color: #8a5300 !important; }
+.atl-mt__choix.is-ecartee { background: #fdeaea !important; color: #9b1c1c !important; }
+.atl-mt__used { background: #eef0ff !important; color: #3730a3 !important; }
+.atl-mt__fiche { width: 340px; flex: none; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid #e1e1ec; border-radius: 12px; background: #fafafe; }
+.atl-mt__fichehead { display: flex; justify-content: space-between; align-items: center; }
+.atl-mt__fichehead b { font: 600 16px Inter, system-ui, sans-serif; }
+.atl-mt__fichehead button { border: 0; background: none; font-size: 20px; cursor: pointer; color: #555; }
+.atl-mt__fiche img, .atl-mt__fiche video { width: 100%; max-height: 220px; object-fit: contain; border-radius: 8px; background: #fff; }
+.atl-mt__fiche label { font: 600 12px Inter, system-ui, sans-serif; color: #555; margin-top: 4px; }
+.atl-mt__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.atl-mt__chips button { border: 1px solid #e1e1ec; border-radius: 999px; padding: 5px 10px; background: #fff; font: 500 12px Inter, system-ui, sans-serif; cursor: pointer; }
+.atl-mt__chips button.is-on { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+.atl-mt__orig { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 6px 0; font-size: 12.5px; }
+.atl-mt__orig dt { color: #6b6b7b; }
+.atl-mt__orig dd { margin: 0; color: #1e1e2e; }
+.atl-mt__consigne { max-height: 120px; overflow: auto; white-space: pre-wrap; }
+.atl-mt__bulk { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.atl-mt__bulk span { font: 600 13px Inter, system-ui, sans-serif; color: #444; }
+.atl-mt__bulk > button { height: 32px; border: 1px solid #e1e1ec; border-radius: 8px; padding: 0 10px; background: #fff; font: 500 13px Inter, system-ui, sans-serif; cursor: pointer; }
+.atl-mt__grid.atl-cv__grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important; gap: 14px; }
+
+/* Créer par besoin (lot B, 2026-11-24) */
+.atl-cb__bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 2px 0 8px; }
+.atl-cb__bar label { display: flex; align-items: center; gap: 8px; font: 600 12.5px Inter, system-ui, sans-serif; color: #444; }
+.atl-cb__bar select { height: 34px; border: 1px solid #c9c6ff; border-radius: 8px; padding: 0 10px; background: #f6f5ff; font: 600 13.5px Inter, system-ui, sans-serif; color: #2b2a6b; }
+.atl-cb__bar p { margin: 0; flex: 1; font-size: 12.5px; color: #555; }
+.atl-cb__bar em { font-style: normal; color: #4f46e5; font-weight: 600; }
+.atl-cb__job { margin-top: 8px; padding: 10px 12px; border-radius: 10px; background: #f6f5ff; border: 1px solid #e1defc; font-size: 13px; }
+.atl-cb__job.is-erreur { background: #fdf0f0; border-color: #f3c9c9; }
+.atl-cb__job.is-pret { background: #eefaf3; border-color: #c6ead6; }
+.atl-cb__job p { margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.atl-cb__plan { display: flex; flex-direction: column; gap: 8px; }
+.atl-cb__plan label { display: flex; flex-direction: column; gap: 4px; font: 600 12px Inter, system-ui, sans-serif; color: #444; }
+.atl-cb__plan input, .atl-cb__plan textarea { width: 100%; border: 1px solid #e1e1ec; border-radius: 8px; padding: 6px 8px; font: 400 13px/1.4 Inter, system-ui, sans-serif; background: #fff; box-sizing: border-box; }
+.atl-cb__plan details { font-size: 12.5px; }
+.atl-cb__plan ul { margin: 4px 0 0 18px; padding: 0; }
+.atl-cb__plan .atl-cv__go { align-self: flex-end; }
+.atl-cb__attente { margin-top: 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: #555; }
+.atl-cv__dock.atl-cb { max-height: calc(100vh - 150px); overflow: auto; }
+
+/* Correction et discussion avec l'agent (2026-11-24) */
+.atl-cb__vues { align-self: flex-start; }
+.atl-cb__corr { display: flex; gap: 8px; }
+.atl-cb__corr input { flex: 1; border: 1px solid #e1e1ec; border-radius: 8px; padding: 6px 8px; font: 400 13px Inter, system-ui, sans-serif; }
+.atl-cb__talk { display: flex; flex-direction: column; gap: 8px; }
+.atl-cb__fil { max-height: 42vh; overflow: auto; display: flex; flex-direction: column; gap: 10px; padding: 4px 2px; }
+.atl-cb__moi { align-self: flex-end; max-width: 80%; background: #4f46e5; color: #fff; border-radius: 12px 12px 2px 12px; padding: 8px 12px; font-size: 13.5px; white-space: pre-wrap; }
+.atl-cb__imgs { display: flex; gap: 4px; margin-top: 6px; }
+.atl-cb__imgs img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
+.atl-cb__agent { align-self: flex-start; max-width: 92%; background: #f4f4f8; border-radius: 12px 12px 12px 2px; padding: 10px 14px; font-size: 13.5px; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; }
+.atl-cb__agent .atl-cv__go { align-self: flex-end; }
+.atl-cb__envoi { display: flex; flex-direction: column; gap: 6px; }
+.atl-cb__envoi textarea { width: 100%; box-sizing: border-box; border: 1px solid #e1e1ec; border-radius: 8px; padding: 8px; font: 400 13.5px/1.4 Inter, system-ui, sans-serif; resize: vertical; }
+.atl-cb__envoiopts { display: flex; align-items: center; gap: 12px; justify-content: flex-end; font-size: 12.5px; color: #555; }
+.atl-cb__envoiopts label { margin-right: auto; display: flex; align-items: center; gap: 6px; }

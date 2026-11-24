@@ -475,3 +475,56 @@ export async function auditPage({ key, page }) {
   const body = await res.json();
   return JSON.parse(body.choices?.[0]?.message?.content ?? "{}");
 }
+
+
+// ---- Vidéo avec Gemini Omni (2026-11-24) ----
+// Veo a été arrêté dans l'API Gemini le 22/10/2026 ; Omni 1.2 Flash le remplace.
+// POST /v1beta/interactions : texte seul (texte → vidéo) ou texte + images
+// (image → vidéo). Réponse : steps[].content[type=video] en base64 ou en uri.
+export async function omniVideo({ key, root, prompt, references = [], duree = 6, format = "9:16", qualite = "720p", folder }) {
+  if (!key) throw new Error("Clé Google pour la vidéo absente : ajoute GEMINI_VEO_API_KEY dans .env.local.");
+  const { mkdir, writeFile } = await import("node:fs/promises");
+  const { join } = await import("node:path");
+  const { execFile } = await import("node:child_process");
+  const d = Math.min(15, Math.max(3, Math.round(Number(duree) || 6)));
+  const response_format = { type: "video", duration: `${d}s`, aspect_ratio: format === "16:9" ? "16:9" : "9:16", resolution: ["360p", "720p", "1080p"].includes(qualite) ? qualite : "720p", delivery: "uri" };
+  let input = prompt;
+  const refs = references.filter(Boolean).slice(0, 3);
+  if (refs.length) {
+    input = [];
+    for (const r of refs) {
+      const b = await blobOf(root, r);
+      input.push({ type: "image", data: Buffer.from(await b.arrayBuffer()).toString("base64"), mime_type: b.type || "image/png" });
+    }
+    input.push({ type: "text", text: prompt });
+  }
+  const base = "https://generativelanguage.googleapis.com/v1beta";
+  const res = await fetch(`${base}/interactions`, { method: "POST", headers: { "x-goog-api-key": key, "Content-Type": "application/json" }, body: JSON.stringify({ model: "gemini-omni-1.2-flash", input, response_format }) });
+  const out = await res.json().catch(() => ({}));
+  if (!res.ok || out.error) throw new Error(`Gemini Omni : ${out.error?.message ?? res.status}`);
+  let vid = null;
+  for (const st of out.steps ?? []) for (const c of st.content ?? []) if (c?.type === "video") vid = c;
+  if (!vid) throw new Error("Gemini Omni n'a pas rendu de vidéo (consigne refusée ?). Reformule la consigne.");
+  let buf;
+  if (vid.data) buf = Buffer.from(vid.data, "base64");
+  else if (vid.uri) {
+    const id = (vid.uri.match(/files\/([^:/?]+)/) ?? [])[1];
+    for (let i = 0; id && i < 60; i++) {
+      const f = await (await fetch(`${base}/files/${id}`, { headers: { "x-goog-api-key": key } })).json().catch(() => ({}));
+      if (f.state === "ACTIVE") break;
+      if (f.state === "FAILED") throw new Error("Gemini Omni : la vidéo a échoué côté Google.");
+      await new Promise((r) => setTimeout(r, 5000));
+    }
+    const dl = await fetch(id ? `${base}/files/${id}:download?alt=media` : vid.uri, { headers: { "x-goog-api-key": key } });
+    if (!dl.ok) throw new Error(`Gemini Omni : téléchargement impossible (${dl.status}).`);
+    buf = Buffer.from(await dl.arrayBuffer());
+  } else throw new Error("Gemini Omni : vidéo vide.");
+  await mkdir(folder.dir, { recursive: true });
+  const nom = `omni-${new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14)}-${Math.random().toString(36).slice(2, 6)}`;
+  await writeFile(join(folder.dir, `${nom}.mp4`), buf);
+  let poster = null;
+  await new Promise((ok) => execFile("ffmpeg", ["-loglevel", "error", "-y", "-ss", "0.5", "-i", join(folder.dir, `${nom}.mp4`), "-frames:v", "1", join(folder.dir, `${nom}.jpg`)], (e) => ((poster = e ? null : `${folder.url}/${nom}.jpg`), ok())));
+  const u = out.usage ?? {};
+  const cout = ((u.total_output_tokens ?? 0) * 12 + (u.total_thought_tokens ?? 0) * 9 + (u.total_input_tokens ?? 0) * 1.5) / 1e6;
+  return { url: `${folder.url}/${nom}.mp4`, poster, duree: d, format: response_format.aspect_ratio, qualite: response_format.resolution, cout: Math.round(cout * 1000) / 1000 };
+}

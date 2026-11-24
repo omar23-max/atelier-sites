@@ -761,7 +761,18 @@ export function atelierApi() {
                 const references = (b.references ?? []).slice(0, 8);
                 const prompt = canvasPrompt({ prompt: b.prompt, produit: b.produit, description: b.description, nbRefs: references.length, type: b.type });
                 const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: null, references, prompt, width: b.width, height: b.height, format: null, model: b.modele, folder, quality: b.qualite });
+                const { noterFiche } = await import("./mediatheque.mjs");
+                await noterFiche(root, b.page, out.url, { type: "image", provenance: "creee", sous: "ia", choix: "brouillon", origine: { source: "Canvas · Créer", consigne: String(b.prompt ?? "").slice(0, 2000), modele: out.modele ?? b.modele, references } });
                 return json(res, 200, { ...out, consigne: prompt });
+              }
+              // Canvas (2026-11-24) : créer une vidéo avec Gemini Omni (bouton Vidéo).
+              if (parts[1] === "canvas-video" && NAME.test(b.page ?? "")) {
+                const { omniVideo } = await import("../scripts/lib/ia.mjs");
+                const folder = await mediaPlace(b.page, "videos-creees");
+                const vid = await omniVideo({ key: env.GEMINI_VEO_API_KEY || env.GEMINI_API_KEY, root, prompt: String(b.prompt ?? "").slice(0, 4000), references: b.references ?? [], duree: b.duree, format: b.format, qualite: b.qualite, folder });
+                const { noterFiche } = await import("./mediatheque.mjs");
+                await noterFiche(root, b.page, vid.url, { type: "video", provenance: "creee", sous: "ia", choix: "brouillon", origine: { source: "Canvas · Vidéo", consigne: String(b.prompt ?? "").slice(0, 2000), modele: "Gemini Omni 1.2 Flash", references: b.references ?? [], cout: vid.cout, format: `${vid.format} · ${vid.duree} s · ${vid.qualite}` } });
+                return json(res, 200, vid);
               }
               if (parts[1] === "section-prompts") {
                 const { sectionImagePrompts } = await import("../scripts/lib/ia.mjs");
@@ -795,6 +806,11 @@ export function atelierApi() {
           // d'aperçu si on en a une, sinon première image de la vidéo.
           // ---- Agents army (2026-11-22) : agents Whitelabeler de l utilisateur ----
           // ---- Publicités guidées (refonte guidée, lot 4, 2026-11-23) ----
+          // ---- Médiathèque (lot A, 2026-11-24) : fiches des images et vidéos ----
+          if (parts[0] === "mediatheque") {
+            const { mediathequeRoute } = await import("./mediatheque.mjs");
+            return mediathequeRoute(req, res, parts, { root, readBody, json });
+          }
           if (parts[0] === "publicites") {
             const { publicitesRoute } = await import("./publicites.mjs");
             return publicitesRoute(req, res, parts, { root, readBody, json });
@@ -1003,6 +1019,10 @@ export function atelierApi() {
                 const ext = m[2] === "jpeg" ? "jpg" : m[2] === "quicktime" ? "mov" : m[2];
                 const file = `wh-${hint}-${stamp()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
                 await writeFile(join(dir, file), buf);
+                try {
+                  const { noterFiche } = await import("./mediatheque.mjs");
+                  await noterFiche(root, page, `${base}/${file}`, { provenance: "reference", sous: "wh", choix: "selectionnee", origine: { source: "WinningHunter" } });
+                } catch {}
                 return `${base}/${file}`;
               };
               const out = [];
