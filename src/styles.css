@@ -10315,3 +10315,11 @@ html.atl-rp-open [class*="Sidebar--right"] {
 .App-menu_top:has(.atl-cv__right) > .layer-ui__wrapper__top-right { justify-self: stretch !important; }
 .atl-cv__right { width: 100% !important; max-width: none !important; grid-template-columns: 1fr auto auto 1fr auto !important; grid-template-areas: ". title close . sw" "ai ai ai ai ai" !important; }
 .atl-cv__right > .atl-cv__ai { justify-self: end; }
+/* Canvas : menu des outils (Images, WH, Créer, Vidéo, Sections) à la hauteur et à la largeur du menu du haut (2026-11-24) */
+.atl-cv__right { grid-template-areas: ". title close . sw" ". . . . ai" !important; }
+.atl-cv__right > .atl-cv__ai { justify-self: stretch !important; padding: 3px !important; gap: 4px !important; border-radius: 10px !important; }
+.atl-cv__ai button { flex: 1 1 0; height: 27px !important; min-width: 0 !important; padding: 0 8px !important; flex-direction: row !important; gap: 6px !important; border-radius: 8px !important; }
+.atl-cv__ai button svg { width: 16px !important; height: 16px !important; }
+.atl-cv__ai button span { font: 600 12.5px/1 Inter, system-ui, sans-serif !important; }
+.atl-cv__ai .atl-cv__whlogo { font: 800 12.5px/16px Inter, system-ui, sans-serif !important; }
+.atl-cv__ai button { flex: 1 1 auto !important; white-space: nowrap; }
