@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 const VERDICT = {
   GO: ["GO", "Le produit tient la route : on peut lancer.", "is-go"],
   GO_CONDITIONS: ["GO avec conditions", "Possible, à condition de régler les points ci-dessous.", "is-cond"],
-  NO_GO: ["NON", "Trop de signaux contre : mieux vaut changer de produit ou d'angle.", "is-no"],
+  ALTERNATIVES: ["Chercher mieux", "Signal faible : possible, mais un autre produit ou un autre angle ferait sans doute mieux.", "is-cond"],
+  NO_GO: ["NON", "Trop de signaux contre : mieux vaut changer de produit ou attendre.", "is-no"],
 };
 const liste = (a) => (Array.isArray(a) ? a.filter(Boolean) : a ? [a] : []);
 
@@ -47,6 +48,10 @@ export function ValidationTab({ project, onSave, onMessage }) {
       <p className="cat-muted">
         Avant de dépenser en pubs : l'agent <b>Product Validator</b> examine ton produit avec la recherche web (demande réelle, tendance, concurrents, prix du marché, coût d'achat) et rend un verdict. Il s'appuie sur tes Fondations ; ce qu'il a observé est sourcé, ce qu'il estime est dit comme une estimation.
       </p>
+      <label className="cat-val__mots">
+        <span className="cat-fd__label">Mots-clés WinningHunter (en anglais, type de produit, séparés par des virgules)</span>
+        <input defaultValue={(project.validationMotsCles ?? []).join(", ")} placeholder="vide = trouvés automatiquement, ex. nfc business card, digital business card" onBlur={(e) => onSave({ validationMotsCles: e.target.value.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 3) })} />
+      </label>
       <div className="cat-actions">
         <button type="button" className="cat-btn" disabled={enCours} onClick={lancer}>
           {enCours ? "Analyse en cours… (1 à 3 min)" : R ? "Refaire la validation" : "Lancer la validation"}
@@ -61,6 +66,30 @@ export function ValidationTab({ project, onSave, onMessage }) {
             {R.score != null && <span className="cat-val__score">{R.score}/10</span>}
             <p>{R.resume || v?.[1]}</p>
           </div>
+          {R.signaux?.length > 0 && (
+            <div className="cat-val__signaux">
+              {R.signaux.map((x, i) => (
+                <div key={i}>
+                  <span className="cat-fd__label">{x.nom}</span>
+                  <b>{x.note}/10</b> <em>{x.source}</em>
+                  <p>{x.constat}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          {etat.winninghunter?.resume?.length > 0 && (
+            <div className="cat-val__bloc">
+              <span className="cat-fd__label">WinningHunter (pubs Meta actives, observées)</span>
+              <ul>
+                {etat.winninghunter.resume.map((w) => (
+                  <li key={w.mot}>
+                    « {w.mot} » : {w.pubs} pubs actives de vrais concurrents{w.releves ? ` (sur ${w.releves})` : ""}, {w.annonceurs} annonceurs{w.exclus?.length ? ` (${w.exclus.length} hors sujet écartés)` : ""}, durée médiane {w.median ?? "?"} j, {w.longues} depuis 30 j ou plus
+                    {w.marques?.length > 0 && <> · en tête : {w.marques.slice(0, 4).map((m) => `${m.marque} (${m.joursMax} j)`).join(", ")}</>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="cat-val__grid">
             <Bloc titre="Demande" niveau={R.demande?.niveau} items={R.demande?.constats} />
             <Bloc titre="Tendance" niveau={R.tendance?.direction} sous={R.tendance?.saison} items={R.tendance?.constats} />

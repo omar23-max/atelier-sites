@@ -2409,3 +2409,13 @@ Original 80 % → retour Modifiable 80 %.
 - Vidéos : liste des Mirror vidéo du projet + ouverture du Canvas ; Mirror reçoit déjà le contexte unique (lot 2). Agent par étape de la chaîne vidéo : pas encore fait.
 - Test : Refaire une pub concurrente (pub Motifino → NexTap) : image générée, 4 promesses remplacées (gratuité retirée car prix inconnu, QR code retiré…).
 - Mirror vidéo : bouton « ✨ Affiner avec <agent> » sur chaque étape faite (cast → Claude UGC Video Producer V2, argument → Claude Video Ad Cloner, story → AI Scene Architect, motion et suite → Seedance Video Ad Cloner). L étape est refaite en appliquant la méthode de l agent à la réponse actuelle, même format, version précédente gardée, étapes suivantes marquées à refaire (STEP_AGENTS, server/mirror.mjs ; mirror-pub-ui.jsx). Testé sur l argument (essai-mirror), puis état d origine remis.
+
+## 2026-11-23 — Refonte guidée, lot 5 (Agents army = laboratoire)
+- agents/whitelabeler/taches.json : 9 tâches (valider, offre, accroches/textes, plan de test, marque, pubs images, pubs vidéos, fournisseurs, produits numériques) ; 27 agents recommandés ★ (avec « branché : étape » quand l atelier les utilise déjà), autres, réserve (anciennes versions). GET /api/agents/taches ; vue « Par tâche / Tous » dans Agents army.
+- « Adopter dans le projet » sous chaque réponse d agent : note de recherche (fondations.reponses.notesAgents, affichée dans Recherche client, exclue des faits) ou angle proposé (non choisi, étape Angles). POST /api/agents/adopter.
+- Pas fait : comparaison automatique de deux agents sur un même brief (coûteuse) ; possible plus tard via ChatGPT.
+- Anciennes versions retirées d Agents army (5 : Facebook Ad Strategist V1, Branding Design Specialist V1 et V2, Maxfusion Ai Ad Creator V1, AI Ad Rebuilder V1) : rangées dans agents/whitelabeler/_archives/ (pages, consignes, index), plus de rubrique Réserve. 57 agents.
+
+## 2026-11-23 — Validation produit branchée à WinningHunter
+- server/validation.mjs : mots-clés produit (saisis dans l étape ou trouvés par l IA) → WinningHunter adlibrary, pubs actives triées par dépense et par durée (20 + 20 par mot-clé, ~4 crédits) → résumé observé [WH] donné à l agent (annonceurs, durées, dépenses, exemples de textes). Verdict à 4 niveaux comme la consigne (GO, GO avec conditions, Chercher mieux, NON) + 6 signaux notés avec leur source [WEB]/[WH].
+- Contexte unique : la recherche inclut maintenant les mots des clients collés (Amazon, Reddit, avis : collecte*) et les notes d agents, toujours signalés « ne prouvent rien ».

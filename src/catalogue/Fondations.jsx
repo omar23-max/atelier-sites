@@ -929,6 +929,23 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
         ))}
       </section>
+      {rep.notesAgents?.length > 0 && (
+        <section className="cat-panel">
+          <h3>Notes adoptées depuis Agents army</h3>
+          <p className="cat-muted">Des résultats d'agents que tu as gardés. Ce sont des pistes de recherche : elles inspirent, elles ne prouvent rien tant que tu ne les as pas ajoutées à tes preuves avec leur source.</p>
+          {rep.notesAgents.map((n, i) => (
+            <details key={i} className="cat-fdv__analyse">
+              <summary>
+                {n.agent || "Agent"} · {new Date(n.le).toLocaleDateString("fr-CA")} — {String(n.texte).replace(/[#*_>`]/g, "").slice(0, 90)}…
+              </summary>
+              <div style={{ whiteSpace: "pre-wrap" }}>{n.texte}</div>
+              <button type="button" className="cat-link" onClick={() => set("notesAgents", rep.notesAgents.filter((_, j) => j !== i))}>
+                Retirer cette note
+              </button>
+            </details>
+          ))}
+        </section>
+      )}
 
       {res && (
         <section className="cat-panel cat-fd__res">
@@ -1187,7 +1204,7 @@ export function ProjectMenu({ project, pages, onGo, current }) {
   const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
   const st = {
     produit: [foundationsFilled(project) ? "done" : filled(rep.role) || filled(rep.qui) ? "doing" : "todo", foundationsFilled(project) ? `rempli${nbVideos ? ` · ${nbVideos} vidéo(s)` : ""}` : "à remplir"],
-    validation: project.validation?.verdict ? ["done", `${{ GO: "GO", GO_CONDITIONS: "GO avec conditions", NO_GO: "NON" }[project.validation.verdict] ?? project.validation.verdict}${project.validation.score != null ? ` · ${project.validation.score}/10` : ""}`] : ["todo", "verdict, tendance, marge"],
+    validation: project.validation?.verdict ? ["done", `${{ GO: "GO", GO_CONDITIONS: "GO avec conditions", ALTERNATIVES: "Chercher mieux", NO_GO: "NON" }[project.validation.verdict] ?? project.validation.verdict}${project.validation.score != null ? ` · ${project.validation.score}/10` : ""}`] : ["todo", "verdict, tendance, marge"],
     publicites: ["none", "images et vidéos"],
     preuves: [nbPreuves ? "done" : "todo", nbPreuves ? `${nbPreuves} preuve(s)` : "aucune preuve"],
     recherche: [nbSources || f.resultats ? "done" : "todo", `${nbSources} source(s)${f.resultats ? " · Claude" : ""}`],

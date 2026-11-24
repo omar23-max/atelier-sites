@@ -28,6 +28,16 @@ export function AgentsArmy() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [q, setQ] = useState("");
+  // Lot 5 (2026-11-23) : les agents rangés par tâche (recommandés, autres, réserve).
+  const [vueListe, setVueListe] = useState(() => localStorage.getItem("atl-agents-vue") ?? "taches");
+  const [taches, setTaches] = useState(null);
+  useEffect(() => localStorage.setItem("atl-agents-vue", vueListe), [vueListe]);
+  useEffect(() => {
+    fetch("/api/agents/taches")
+      .then((r) => r.json())
+      .then((d) => setTaches(d.taches ?? []))
+      .catch(() => setTaches([]));
+  }, []);
   const [cur, setCur] = useState(() => new URLSearchParams(location.search).get("agent") || null);
   useEffect(() => {
     fetch("/api/agents")
@@ -98,10 +108,20 @@ export function AgentsArmy() {
           <h1>Agents army</h1>
           <p className="cat-muted">{data ? `${data.agents.length} agents · ${data.source ?? "Whitelabeler"}` : "Chargement…"}</p>
           <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Chercher un agent" aria-label="Chercher un agent" />
+          <div className="cat-army__vues" role="group" aria-label="Affichage">
+            <button type="button" className={vueListe === "taches" ? "is-on" : ""} onClick={() => setVueListe("taches")}>
+              Par tâche
+            </button>
+            <button type="button" className={vueListe === "tous" ? "is-on" : ""} onClick={() => setVueListe("tous")}>
+              Tous
+            </button>
+          </div>
         </div>
         {err && <p className="cat-flash is-error">⚠ {err}</p>}
         <nav className="cat-army__list" aria-label="Agents">
-          {list.map((a) => (
+          {vueListe === "taches" && !q.trim() && taches ? (
+            <ParTache taches={taches} agents={data?.agents ?? []} cur={cur} onPick={setCur} />
+          ) : list.map((a) => (
             <button key={a.slug} type="button" className={a.slug === cur ? "is-on" : ""} onClick={() => setCur(a.slug)} title={a.accroche}>
               {a.titre}
             </button>
@@ -333,6 +353,7 @@ function AgentChat({ agent }) {
                 {m.recherche ? " · a cherché sur le web" : ""}
               </small>
               <Markdown text={m.text} />
+              {projet && <Adopter projet={projet} texte={m.text} agent={agent.titre} />}
               {m.sources?.length > 0 && (
                 <div className="cat-chat__sources">
                   Sources :{" "}
@@ -384,6 +405,71 @@ function AgentChat({ agent }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ParTache({ taches, agents, cur, onPick }) {
+  const bySlug = Object.fromEntries(agents.map((a) => [a.slug, a]));
+  const ligne = (e, star) => {
+    const a = bySlug[e.slug];
+    if (!a) return null;
+    return (
+      <button key={e.slug} type="button" className={e.slug === cur ? "is-on" : ""} onClick={() => onPick(e.slug)} title={a.accroche}>
+        {star && <span className="cat-army__star">★</span>}
+        {a.titre.replace(/^(Whitelabeler|ShopFunnels|Shopfunnels)\s+/, "")}
+        {e.branche && <small className="cat-army__branche">branché : {e.branche}</small>}
+      </button>
+    );
+  };
+  return taches.map((t) => (
+    <div key={t.id} className="cat-army__tache">
+      <p className="cat-army__tacheTitre">
+        {t.titre}
+        {t.etape !== "—" && <small> · {t.etape}</small>}
+      </p>
+      {t.recommandes.map((e) => ligne(e, true))}
+      {t.autres.length > 0 && (
+        <details>
+          <summary>Autres ({t.autres.length})</summary>
+          {t.autres.map((e) => ligne(e, false))}
+        </details>
+      )}
+      {t.reserve.length > 0 && (
+        <details>
+          <summary>Réserve, anciennes versions ({t.reserve.length})</summary>
+          {t.reserve.map((e) => ligne(e, false))}
+        </details>
+      )}
+    </div>
+  ));
+}
+
+// « Adopter dans le projet » (lot 5) : un résultat d'agent entre dans le
+// projet comme proposition (note de recherche ou angle proposé), jamais comme fait.
+function Adopter({ projet, texte, agent }) {
+  const [etat, setEtat] = useState(null);
+  async function go(cible) {
+    setEtat("…");
+    const r = await fetch("/api/agents/adopter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, cible, texte, agent }) });
+    const b = await r.json().catch(() => ({}));
+    setEtat(r.ok ? (cible === "angle" ? "✓ Ajouté aux angles proposés (étape Angles, non choisi)" : "✓ Ajouté aux notes de recherche (étape Recherche client)") : `⚠ ${b.error ?? "Échec"}`);
+  }
+  return (
+    <div className="cat-chat__adopter">
+      {etat ? (
+        <span className="cat-muted">{etat}</span>
+      ) : (
+        <>
+          <span className="cat-muted">Adopter dans le projet :</span>
+          <button type="button" className="cat-link" onClick={() => go("recherche")} title="Gardé comme piste de recherche : inspire, ne prouve rien">
+            note de recherche
+          </button>
+          <button type="button" className="cat-link" onClick={() => go("angle")} title="Ajouté aux angles du projet, à choisir ou non">
+            angle proposé
+          </button>
+        </>
+      )}
     </div>
   );
 }

@@ -111,6 +111,38 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     return json(res, 200, c);
   }
 
+  // GET /api/agents/taches → agents rangés par tâche (lot 5, 2026-11-23).
+  if (parts[1] === "taches" && req.method === "GET") {
+    const f = join(dir, "taches.json");
+    return json(res, 200, existsSync(f) ? JSON.parse(await readFile(f, "utf8")) : { taches: [] });
+  }
+  // POST /api/agents/adopter { projet, cible: "recherche" | "angle", texte, agent }
+  // Le résultat d'un agent entre dans le projet comme PROPOSITION : note de
+  // recherche (ne prouve rien) ou angle proposé (non choisi). Jamais comme fait.
+  if (parts[1] === "adopter" && req.method === "POST") {
+    const b = await readBody(req);
+    const projet = String(b.projet ?? "");
+    const texte = String(b.texte ?? "").trim().slice(0, 20000);
+    if (!/^[a-z0-9][a-z0-9-]{1,90}$/.test(projet) || !texte || !["recherche", "angle"].includes(b.cible)) return json(res, 400, { error: "Demande incomplète." });
+    const pf = join(root, "projets", `${projet}.json`);
+    if (!existsSync(pf)) return json(res, 404, { error: "Projet introuvable." });
+    const p = JSON.parse(await readFile(pf, "utf8"));
+    const le = new Date().toISOString();
+    const agent = String(b.agent ?? "").slice(0, 120);
+    if (b.cible === "recherche") {
+      p.fondations = p.fondations ?? {};
+      p.fondations.reponses = p.fondations.reponses ?? {};
+      p.fondations.reponses.notesAgents = [...(p.fondations.reponses.notesAgents ?? []), { texte, agent, le }];
+    } else {
+      const lignes = texte.replace(/[#*_>`]/g, "").split("\n").map((l) => l.trim()).filter(Boolean);
+      p.angles = [...(p.angles ?? []), { id: `angle-agent-${Date.now().toString(36)}`, titre: (lignes[0] ?? "Angle proposé").slice(0, 90), promesse: (lignes[1] ?? "").slice(0, 300), notes: texte, choisi: false, source: "agent", agent, le }];
+    }
+    const { rename } = await import("node:fs/promises");
+    const tmp = `${pf}.${Date.now().toString(36)}.tmp`;
+    await writeFile(tmp, JSON.stringify(p, null, 2) + "\n", "utf8");
+    await rename(tmp, pf);
+    return json(res, 200, { ok: true, cible: b.cible });
+  }
   // GET /api/agents/moteurs → moteurs disponibles (clé présente ou non).
   if (parts[1] === "moteurs" && req.method === "GET") {
     const { loadEnv } = await import("vite");

@@ -48,6 +48,10 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
   }
   const anglesChoisis = (p.angles ?? []).filter((a) => a.choisi).map((a) => ({ titre: a.titre, avatar: a.avatar, douleur: a.douleur, promesse: a.promesse, page: a.pageType, mere: a.mere || undefined }));
   const recherche = (rep.videosConcurrents ?? []).map((v) => ({ nom: v.nom, analyse: court(v.analyse, 900) }));
+  // Mots des clients collés par l'utilisateur (Amazon, Reddit, avis…) : précieux
+  // pour la demande et les objections, mais ce sont des observations, pas des preuves.
+  const collectes = Object.fromEntries(Object.entries(rep).filter(([k, v]) => /^collecte/.test(k) && realText(v)).map(([k, v]) => [k, court(v, 2500)]));
+  const notes = (rep.notesAgents ?? []).map((n) => court(n.texte, 700));
 
   // Rubriques par ordre d'importance (les dernières partent d'abord si c'est trop long).
   const rubriques = [
@@ -58,7 +62,7 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
     ["marque", p.marque ? { nom: p.marque.nom, couleurs: p.marque.couleurs, polices: p.marque.polices, ton: p.marque.ton ?? rep.ton, logos: (p.marque.logos ?? []).length || undefined } : rep.ton ? { ton: rep.ton } : undefined],
     ["client", Object.keys(client).length ? client : undefined],
     ["aVerifier", aVerifier.length ? aVerifier.slice(0, 40) : undefined],
-    ["recherche", recherche.length ? { avertissement: "Analyses de concurrents : inspiration d'angles seulement, ne prouvent RIEN pour notre produit.", videos: recherche } : undefined],
+    ["recherche", recherche.length || Object.keys(collectes).length || notes.length ? { avertissement: "Recherche : vidéos concurrentes, mots des clients collés (Amazon, Reddit, avis), notes d'agents. Observations et inspiration ; ne prouvent RIEN pour notre produit.", videos: recherche.length ? recherche : undefined, motsDesClients: Object.keys(collectes).length ? collectes : undefined, notesAgents: notes.length ? notes : undefined } : undefined],
   ].filter(([, v]) => v !== undefined);
 
   const data = Object.fromEntries(rubriques);
