@@ -10301,3 +10301,17 @@ html.atl-rp-open [class*="Sidebar--right"] {
 .atl-cv__right > .atl-wswitch button { white-space: nowrap; }
 .atl-cv__right > .atl-cv__title { max-width: 220px; min-width: 0; overflow: hidden; }
 .atl-vpbar .atl-crumbbox { width: clamp(170px, calc(100vw - 1220px), 420px); }
+/* Canvas : menu du haut collé au bord droit (2026-11-23) */
+/* (2026-11-23) pas de position fixe : elle passait par-dessus la barre de dessin. On garde la grille d Excalidraw (pas de chevauchement) et on rapproche juste du bord. */
+.layer-ui__wrapper__top-right:has(> .atl-cv__right) { margin-right: -8px; }
+.atl-cv__right { max-width: calc(100vw - 20px); }
+/* Canvas : barre de dessin tirée à gauche (à côté du menu ☰), menu de l atelier à droite (2026-11-23) */
+.App-menu_top:has(.atl-cv__right) { grid-template-columns: auto auto 1fr !important; column-gap: 12px; }
+.App-menu_top:has(.atl-cv__right) > .shapes-section { justify-self: start; }
+.App-menu_top:has(.atl-cv__right) > .layer-ui__wrapper__top-right { justify-self: end; }
+/* Canvas : nom du tableau + croix entre la barre de dessin et le menu de l atelier (2026-11-23) */
+.atl-cv__right { grid-template-areas: "title close sw" "ai ai ai" !important; }
+/* … centrés dans l espace libre entre les deux barres */
+.App-menu_top:has(.atl-cv__right) > .layer-ui__wrapper__top-right { justify-self: stretch !important; }
+.atl-cv__right { width: 100% !important; max-width: none !important; grid-template-columns: 1fr auto auto 1fr auto !important; grid-template-areas: ". title close . sw" "ai ai ai ai ai" !important; }
+.atl-cv__right > .atl-cv__ai { justify-self: end; }
