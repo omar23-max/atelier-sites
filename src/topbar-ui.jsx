@@ -36,6 +36,13 @@ export function PreviewBarProject({ children }) {
   return slot ? createPortal(children, slot) : null;
 }
 
+// Menu des espaces (Recherche · Agents army · Studio · Canvas · Catalogue)
+// au bout de la barre de l'aperçu (2026-11-24).
+export function PreviewBarMenu({ children }) {
+  const slot = usePreviewBarSlot("atl-menu-host");
+  return slot ? createPortal(children, slot) : null;
+}
+
 // Une place dans la barre de l'aperçu (Original / Modifiable, écrans, zoom).
 // La barre est en flex : `order` (CSS) range les éléments ajoutés.
 function usePreviewBarSlot(className) {

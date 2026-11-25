@@ -317,6 +317,24 @@ export default function Catalogue() {
       .catch(() => setPagesProjet([]));
   }, [projetOuvert]);
   const pageDuProjet = pagesProjet?.length ? (pagesProjet.find((x) => x.name === targetPage) ?? pagesProjet[0]).name : null;
+  // Le projet ouvert devient le projet courant de tous les espaces (2026-11-24) :
+  // page mémorisée et ?page= de l'adresse = une page de CE projet (Recherche,
+  // Agents army, Studio, Canvas et « Reprendre ma page » la suivent). Projet
+  // sans page : plus de page d'un autre projet en mémoire.
+  useEffect(() => {
+    if (!projetOuvert || pagesProjet === null) return;
+    try {
+      if (pageDuProjet) localStorage.setItem("atl-last-page", pageDuProjet);
+      else localStorage.removeItem("atl-last-page");
+    } catch {}
+    const q = new URLSearchParams(location.search);
+    if (pageDuProjet) q.set("page", pageDuProjet);
+    else q.delete("page");
+    const s = q.toString();
+    history.replaceState(null, "", `${location.pathname}${s ? `?${s}` : ""}${location.hash}`);
+    fetch(`/api/projects/${projetOuvert}/opened`, { method: "POST" }).catch(() => {});
+  }, [projetOuvert, pagesProjet, pageDuProjet]);
+  const pageCourante = projetOuvert ? pageDuProjet : targetPage;
   async function ouvrirPageDeTravail(espace = "canvas") {
     if (pagesProjet === null) return;
     try {
@@ -325,7 +343,7 @@ export default function Catalogue() {
       const toutes = await listPages();
       const name = uniquePageName(`${projetOuvert}-atelier`, toutes);
       await createPage({ name, projet: projetOuvert, produit: pj.produit || pj.nom || "", pageType: "autre", profil: "Atelier (tableaux et créations)" }, toutes);
-      location.href = espace === "page" ? `/?page=${encodeURIComponent(name)}` : `/?page=${encodeURIComponent(name)}&ouvrir=${espace}`;
+      location.href = espace === "page" ? `/?page=${encodeURIComponent(name)}` : espace === "canvas" ? `/canvas.html?page=${encodeURIComponent(name)}` : `/?page=${encodeURIComponent(name)}&ouvrir=${espace}`;
     } catch (e) {
       alert(`Impossible de préparer la page de travail du projet : ${e.message}`);
     }
@@ -577,11 +595,15 @@ export default function Catalogue() {
   const previewed = previewIndex >= 0 ? visibleSections[previewIndex] : null;
   // Menu de gauche : un seul sous-menu ouvert, celui de la vue affichée.
   const inSections = view === "tout" || Boolean(currentFamily);
-  const [openGroup, setOpenGroup] = useState(() => (inSections ? "sections" : view.startsWith("templates") ? "templates" : null));
+  // 2026-11-24 : à l ouverture du catalogue, sous-menus fermés (demande de
+  // l utilisateur) ; ils s ouvrent seulement quand une famille ou un groupe
+  // de templates précis est affiché.
+  const sousVueTemplates = view !== "templates" && view.startsWith("templates");
+  const [openGroup, setOpenGroup] = useState(() => (currentFamily ? "sections" : sousVueTemplates ? "templates" : null));
   useEffect(() => {
-    if (inSections) setOpenGroup("sections");
-    else if (view.startsWith("templates")) setOpenGroup("templates");
-  }, [view, inSections]);
+    if (currentFamily) setOpenGroup("sections");
+    else if (sousVueTemplates) setOpenGroup("templates");
+  }, [view, Boolean(currentFamily), sousVueTemplates]);
   // Clic sur le titre : ouvre le sous-menu (et sa vue « tout »), ou le referme.
   const toggleGroup = (group, allView) => {
     if (openGroup === group) return setOpenGroup(null);
@@ -700,9 +722,9 @@ export default function Catalogue() {
         </div>
         {/* Au premier accès (aucune page mémorisée), « Ouvrir l'atelier » menait
             à / qui renvoie ici : on propose de choisir une page (audit, 2026-11-17). */}
-        {targetPage ? (
-          <a className="cat-btn cat-btn--ghost cat-top__back" href={`/?page=${encodeURIComponent(targetPage)}`} title={targetPage}>
-            ← Reprendre ma page
+        {pageCourante ? (
+          <a className="cat-btn cat-btn--ghost cat-top__back" href={`/?page=${encodeURIComponent(pageCourante)}`} title={pageCourante}>
+            {projetOuvert ? "← Ouvrir la page du projet" : "← Reprendre ma page"}
           </a>
         ) : (
           <button type="button" className="cat-btn cat-btn--ghost cat-top__back" onClick={() => setView("pages")}>

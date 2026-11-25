@@ -2,7 +2,7 @@ import { WhImport } from "./winninghunter-ui.jsx";
 import { MirrorPanel, MirrorImagePanel, Markdown } from "./mirror-pub-ui.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useGetPuck } from "@puckeditor/core";
+import { useGetPuck, canvasSeul } from "./page-acces.js";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { WorkspaceSwitch, useOpenFromUrl } from "./workspace-switch.jsx";
@@ -201,6 +201,17 @@ async function uploadDataUrl(dataUrl, name) {
 
 export function CanvasButton() {
   const [open, setOpen] = useState(() => window.__atlEspace === "canvas");
+  // 2026-11-24 : Canvas ouvert par-dessus la page → l'adresse porte &canvas=1,
+  // pour qu'un rafraîchissement rouvre le Canvas (index.html renvoie alors
+  // tout de suite vers canvas.html) au lieu de retomber sur la page.
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    if (open) q.set("canvas", "1");
+    else q.delete("canvas");
+    const s = q.toString();
+    const url = `${location.pathname}${s ? `?${s}` : ""}${location.hash}`;
+    if (url !== `${location.pathname}${location.search}${location.hash}`) history.replaceState(history.state, "", url);
+  }, [open]);
   useEffect(() => {
     const on = () => setOpen(true);
     useOpenFromUrl("canvas");
@@ -224,6 +235,12 @@ const loadExcalidraw = () =>
     excalidrawJob = null;
     throw e;
   }));
+// Canvas seul (canvas.html) : fermer ramène à la page dans l'éditeur, sauf
+// si l'on part vers un autre espace (le menu du haut s'en charge).
+export function CanvasSeul({ page }) {
+  return <Canvas onClose={() => !window.__atlQuitteVers && (location.href = `/?page=${encodeURIComponent(page)}`)} />;
+}
+
 function Canvas({ onClose }) {
   const [X, setX] = useState(null);
   const [error, setError] = useState(null);
@@ -2085,7 +2102,7 @@ function usePageContent(name) {
   useEffect(() => {
     setData(null);
     if (!name) return;
-    if (name === pageName) return setData(getPuck().appState.data);
+    if (name === pageName && !canvasSeul) return setData(getPuck().appState.data);
     // Autre page (2026-11-24) : ses parties copiées (-pN…) ne sont pas dans
     // l'index de l'éditeur ouvert ; on les charge avant de lister ses images.
     fetch(`/api/pages/${name}`)
@@ -2129,7 +2146,7 @@ function usePages() {
 // Placer une image dans une section d'une page. Page ouverte : par Puck
 // (Ctrl+Z annule). Autre page : copie de sécurité, puis enregistrement.
 async function placeInPage(getPuck, name, sectionId, slotKey, url) {
-  if (name === pageName) {
+  if (name === pageName && !canvasSeul) {
     const { appState, dispatch } = getPuck();
     const index = appState.data.content.findIndex((c) => c.props.id === sectionId);
     if (index < 0) throw new Error("Section introuvable dans la page.");
@@ -2661,7 +2678,7 @@ export function ExportToPage({ urls, onClose, onDone }) {
         {step === 2 && (
           <>
             <p className="atl-cv__q">Sur quelle page vont-elles ?</p>
-            {pageName && (
+            {pageName && !canvasSeul && (
               <button type="button" className="atl-cv__dragbtn" onClick={dragIntoPage} disabled={!ticked.length}>
                 ✋ Glisser dans la page ouverte
                 <small>Les images restent à gauche, la page à droite : dépose chaque image sur celle à remplacer.</small>

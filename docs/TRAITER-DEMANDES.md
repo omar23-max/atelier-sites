@@ -2527,3 +2527,45 @@ Original 80 % → retour Modifiable 80 %.
 - Création d un projet sans page : OK (Fondations, menu en 4 phases).
 - DÉFAUT CORRIGÉ : depuis la fiche d un projet, Studio et Canvas (menu du haut) ouvraient la dernière page ouverte, souvent d un AUTRE projet (créations rangées dans ses médias). Catalogue.jsx : page d un projet ouvert = une de ses pages ; projet sans page → page de travail créée (<projet>-atelier, type autre, « Atelier (tableaux et créations) ») puis ouverture de l espace demandé. workspace-switch : onNoPage(id).
 - Vérifié : Canvas ouvert sur la page du projet, Médias rattaché au bon projet (0 média), panneau Créer avec agents. Projet et page jetables mis à la corbeille.
+
+## 2026-11-24 — Canvas ouvert directement depuis les menus
+- Avant : depuis Projets, Recherche, Agents army ou le catalogue, Canvas passait par l éditeur (/?page=X&ouvrir=canvas), qui chargeait et dessinait toute la page avant d ouvrir le Canvas (8 à 11 s sur une page de 19 sections).
+- Maintenant : canvas.html (src/canvas-main.jsx, entrée Vite « canvas ») : Canvas seul, page lue sur le serveur sans la dessiner (src/page-acces.js : useGetPuck réel dans l éditeur, données de la page en lecture dans canvas.html ; poses dans une page par le serveur avec copie de sécurité ; « Glisser dans la page ouverte » masqué). sections.js charge les sections de la page aussi pour canvas.html. workspace-switch : Canvas → /canvas.html?page= ; depuis le Canvas seul, les autres espaces s ouvrent normalement (Page → éditeur, ✕ → éditeur).
+- Mesures : page de 19 sections 2,0 s (avant 10,9 s) ; depuis Recherche 1,4 s. Studio depuis un autre menu : la page reste cachée par « Ouverture du Studio… » (index.html) et s ouvre dès que l éditeur est prêt (plus d attente du dessin de la page).
+
+## 2026-11-24 — Catalogue : sous-menus fermés à l ouverture
+- Catalogue.jsx : Templates et Sections ne s ouvrent plus tout seuls sur « Toutes les sections » / « Tous les templates » ; ils s ouvrent seulement quand une famille ou un groupe de templates précis est affiché, ou au clic.
+
+## 2026-11-24 — Barre du haut et rail de l éditeur réorganisés
+- Barre du haut : page (titre, fermer, supprimer) + Enregistré au début ; écrans, zoom, annuler ensuite ; menu Recherche · Agents army · Studio · Canvas · Catalogue au bout (PreviewBarMenu, hôte atl-menu-host). HTML et ZIP retirés de la barre ; bouton « ⬆ Mirror » (Mirror Studio hébergé) retiré.
+- Rail de gauche : « Médias » retiré ; « Télécharger » (TelechargerRail, left-ui.jsx) avant Réglages, petit menu HTML / ZIP.
+
+## 2026-11-24 — Barre de l éditeur : Projets et Page dans le menu, bloc page élargi
+- Menu du haut de l éditeur : Projets · Recherche · Page (actif) · Agents army · Studio · Canvas · Catalogue (plus de hide).
+- Bloc projet / page : largeur selon le texte, 440 px au plus, plus écrasé (« Essa… / Hom… ») ; vérifié à 1900 et 1450 px (rien de coupé, menu dans l écran).
+
+## 2026-11-24 — Menu des espaces unifié
+- Un seul style pour .atl-wswitch (fin de src/styles.css, renforcé) : hauteur 40 px, fond blanc, bordure #e6e6ee, rayon 10 px, Inter 600 13,5 px, boutons 30 px, marge intérieure 12 px, actif bleu nuit #1e2a4a. Mesuré identique dans l éditeur, le catalogue, Projets, Agents army, Recherche, le Canvas et le Studio.
+- Barre d outils du Canvas (Médias, WinningHunter, Créer, Vidéo, Sections) alignée : même hauteur (40 px), même largeur, même police.
+
+## 2026-11-24 — Projet courant suivi partout
+- DÉFAUT CORRIGÉ : ouvrir un projet dans le catalogue ne changeait pas la « page courante » (?page= et atl-last-page restaient sur l ancien projet) : Recherche, Agents army, puis Studio / Canvas / « Reprendre ma page » retombaient dans l ancien projet. Catalogue.jsx : le projet ouvert devient le projet courant (page mémorisée + ?page= = une de ses pages ; projet sans page : plus de page d un autre projet), bouton « ← Ouvrir la page du projet », projet marqué ouvert (ordre des récents).
+- DÉFAUT CORRIGÉ : Agents army gardait son propre choix de projet ; il prend maintenant d office le projet de la page d où l on vient (Fondations lues par l agent).
+- Vérifié : catalogue → projet test menu → Agents army (projet choisi : projet-test-menu) → Canvas (page et médiathèque de projet-test-menu) ; éditeur : changer de projet par le rail (Projets ▾) recharge sur une page du projet, bloc du haut, lien Agents army, Canvas et Médias suivent.
+
+## 2026-11-24 — Renommer un projet
+- Le renommage change projet.nom ; l identifiant (adresse, dossiers medias/projets/<id>, registre, Mirror, conversations) ne change pas, donc rien ne se casse. Les écrans lisent le nom en direct.
+- Ajout : projet SANS produit précisé → ses pages (produit et titre « Nom — Type ») suivent le nouveau nom (renameProductInPages), comme lors d un changement de produit. Non testé en réel (pas de projet jetable sans produit).
+
+## 2026-11-24 — Canvas : plus de chevauchement en haut
+- Sous 1600 px de large, « Tableau 1 · Enregistré · ✕ » chevauchait les outils de dessin (menu des espaces plus large depuis l unification). Il passe sur la 2e ligne, à gauche de Médias · WinningHunter · Créer · Vidéo · Sections ; le petit texte d aide d Excalidraw (« Pour déplacer la zone de dessin… ») est masqué à ces largeurs. Au-delà de 1600 px : disposition d avant.
+- Vérifié à 1366, 1440, 1700 px : aucun chevauchement, rien hors écran.
+
+## 2026-11-24 — Rafraîchir le Canvas ou le Studio
+- Canvas ouvert sur une page : l adresse porte &canvas=1 ; au rafraîchissement, index.html renvoie tout de suite vers canvas.html?page=… (le Canvas se rouvre, sans voir la page). canvas.html se rafraîchit déjà sur lui-même.
+- Studio ouvert : l adresse porte &studio=1 ; au rafraîchissement, le cache « Ouverture du Studio… » masque la page et le Studio se rouvre (~4 s). Fermer le Studio ou le Canvas retire la marque.
+- Canvas, écran < 1600 px : « Tableau 1 · ● · ✕ » reste entre les deux barres (version réduite : titre 13 px, pastille d enregistrement seule, croix 26 px), au lieu de descendre sur la 2e ligne. Vérifié à 1366 px : « Tableau 1 » entier, aucun chevauchement.
+
+## 2026-11-24 — Canvas : titre agrandi ; une seule barre Recharger
+- Canvas < 1600 px : « Tableau 1 » plus grand (15 px gras, croix 32 px) et calé à gauche, juste après les outils de dessin (1366 et 1500 px vérifiés, aucun chevauchement).
+- Deux barres « nouvelle version » s affichaient ensemble (src/live.js en haut, version-check.js en bas). version-check.js utilise maintenant la même barre (#atl-version, en haut, Recharger + ×) et ne fait rien si elle est déjà là. Logique vérifiée dans le code ; pas déclenchée en réel (il faudrait une nouvelle version publiée avec un onglet ancien ouvert).

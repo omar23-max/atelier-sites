@@ -1,3 +1,4 @@
+import { DownloadHtmlButton, DownloadZipButton } from "./tools-ui.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
@@ -35,10 +36,43 @@ const TOOLS = [
   { id: "ajouter", label: "Ajouter une section", short: "Ajouter", icon: IconPlusSquare },
   { id: "palette", label: "Palette", short: "Palette", icon: IconPalette },
   { id: "ia", label: "IA — toute la page", short: "IA", icon: IconSparkles },
-  // Médias (2026-11-12, renommé le 2026-11-17) : Studio d'images, Canvas, vidéos.
-  { id: "images", label: "Médias", short: "Médias", icon: IconImage },
+  // Médias retiré du rail le 2026-11-24 (demande de l'utilisateur) : Studio et
+  // Canvas sont dans le menu du haut, les médias dans Canvas → Médias.
   { id: "score", label: "Couverture de la structure conseillée", short: "Couverture", icon: IconGauge },
 ];
+
+// « Télécharger » (2026-11-24) : HTML et ZIP de la page, dans un petit menu
+// (avant : deux boutons dans la barre du haut).
+function TelechargerRail() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const off = (e) => !ref.current?.contains(e.target) && setOpen(false);
+    document.addEventListener("pointerdown", off);
+    return () => document.removeEventListener("pointerdown", off);
+  }, [open]);
+  return (
+    <div className="atl-rail__dl" ref={ref}>
+      <button type="button" title="Télécharger la page (HTML ou ZIP)" aria-label="Télécharger" aria-expanded={open} className={open ? "is-on" : ""} onClick={() => setOpen((o) => !o)}>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 4v11" />
+          <path d="M7 10.5l5 5 5-5" />
+          <path d="M5 19.5h14" />
+        </svg>
+        <span className="atl-rail__label" aria-hidden="true">Télécharger</span>
+      </button>
+      {open && (
+        <div className="atl-rail__pop" role="menu">
+          <b>Télécharger la page</b>
+          <DownloadHtmlButton />
+          <DownloadZipButton />
+          <small>HTML : un seul fichier. ZIP : la page et ses images.</small>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Un clic sur un outil déroule son panneau ; un second clic le referme et il
 // ne reste que le rail (la colonne se réduit à sa largeur).
@@ -104,6 +138,7 @@ export function LeftPanel() {
             )}
           </button>,
         ])}
+        <TelechargerRail />
         <button type="button" className="atl-rail__settings" title="Réglages de la page" aria-label="Réglages de la page" onClick={() => (setTool(null), window.dispatchEvent(new CustomEvent("atl-open-page-settings")))}>
           <IconSettings />
           <span className="atl-rail__label" aria-hidden="true">Réglages</span>

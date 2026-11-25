@@ -10423,3 +10423,108 @@ html.atl-rp-open [class*="Sidebar--right"] {
 .atl-mir__omnimedia { aspect-ratio: 9 / 16; background: #f4f4f8; border-radius: 8px; overflow: hidden; display: grid; place-items: center; color: #777; }
 .atl-mir__omnimedia video { width: 100%; height: 100%; object-fit: cover; }
 .atl-mir__omniplans textarea { width: 100%; box-sizing: border-box; font-size: 12px; }
+
+/* Barre du haut et rail (2026-11-24) : page + Enregistré au début, menu au bout, Télécharger dans le rail */
+.atl-menu-host { order: 30 !important; margin-left: auto !important; display: inline-flex; align-items: center; }
+.atl-crumbbox .atl-save-inline { order: 0 !important; margin-left: 6px !important; display: inline-flex; }
+.atl-rail__dl { position: relative; width: 100%; display: flex; justify-content: center; }
+.atl-rail__dl > button { width: 100%; }
+.atl-rail__pop { position: absolute; left: calc(100% + 8px); top: 0; z-index: 60; width: 230px; display: flex; flex-direction: column; gap: 8px; padding: 12px; background: #fff; border: 1px solid #e3e3ea; border-radius: 12px; box-shadow: 0 10px 30px rgba(20, 20, 50, .15); text-align: left; }
+.atl-rail__pop b { font: 600 13px Inter, system-ui, sans-serif; color: #1e1e2e; }
+.atl-rail__pop button { width: 100%; justify-content: flex-start; }
+.atl-rail__pop small { color: #6b6b7b; font-size: 11.5px; line-height: 1.4; }
+/* 2026-11-24 : bloc projet / page assez large pour lire le projet et la page */
+.atl-vpbar .atl-proj-host { flex: 0 0 auto !important; }
+.atl-vpbar .atl-crumbbox { width: auto !important; max-width: 440px !important; flex: 0 0 auto !important; }
+.atl-vpbar .atl-crumb { flex: 0 1 auto !important; max-width: 300px; }
+.atl-vpbar .atl-crumb > span { max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ==== Menu des espaces UNIFIÉ (2026-11-24) ====
+   Projets · Recherche · Page · Agents army · Studio · Canvas · Catalogue :
+   même police, taille, fond, hauteur et espacements partout (éditeur,
+   catalogue, Projets, Agents army, Recherche, Canvas, Studio). Placé en
+   dernier et renforcé : remplace les réglages propres à chaque barre. */
+html body .atl-wswitch.atl-wswitch {
+  display: inline-flex !important;
+  flex: none !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 2px !important;
+  height: 40px !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #e6e6ee !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(30, 30, 80, 0.08) !important;
+  font: 600 13.5px/1 "Inter", system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+html body .atl-wswitch.atl-wswitch button {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 30px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #2f3350 !important;
+  font: inherit !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+html body .atl-wswitch.atl-wswitch button:hover { background: #f1f2f8 !important; }
+html body .atl-wswitch.atl-wswitch button.is-on { background: #1e2a4a !important; color: #fff !important; cursor: default; }
+html body .atl-wswitch.atl-wswitch button:focus-visible { outline: 2px solid #4f46e5 !important; outline-offset: 1px !important; }
+/* Barre d outils du Canvas (Médias, WinningHunter, Créer, Vidéo, Sections) : même hauteur et même style que le menu unifié */
+html body .atl-cv__right > .atl-cv__ai { height: 40px !important; padding: 4px !important; box-sizing: border-box !important; border: 1px solid #e6e6ee !important; border-radius: 10px !important; box-shadow: 0 1px 3px rgba(30, 30, 80, 0.08) !important; }
+html body .atl-cv__ai button { height: 30px !important; border-radius: 7px !important; }
+html body .atl-cv__ai button span, html body .atl-cv__ai .atl-cv__whlogo { font: 600 13.5px/1 "Inter", system-ui, sans-serif !important; }
+/* Canvas, écran moins large (2026-11-24) : « Tableau 1 · Enregistré · ✕ »
+   chevauchait les outils de dessin. Sous 1600 px, il passe sur la 2e ligne,
+   à gauche des outils Médias · WinningHunter · Créer · Vidéo · Sections. */
+@media (max-width: 1600px) {
+  html body .atl-cv__right { grid-template-columns: minmax(0, 1fr) auto auto auto !important; grid-template-areas: ". . . sw" ". title close ai" !important; column-gap: 8px !important; }
+  html body .atl-cv__right > .atl-cv__title { justify-self: end; margin-top: 0 !important; max-width: 190px; }
+  html body .atl-cv__right > .atl-cv__close { justify-self: start; }
+  html body .App-menu_top:has(.atl-cv__right) { grid-template-columns: auto auto minmax(0, 1fr) !important; }
+}
+@media (max-width: 1600px) {
+  /* Petit texte d aide d Excalidraw sous les outils : il touchait « Tableau 1 » (2e ligne). */
+  html body .atl-cv .HintViewer { display: none !important; }
+}
+/* 2026-11-24 (demande de l utilisateur) : « Tableau 1 · Enregistré · ✕ » reste ENTRE les
+   deux barres sur la 1re ligne, en version réduite sur écran moins large :
+   titre plus petit (coupé par « … » si besoin), « Enregistré » réduit à sa
+   pastille, croix plus petite. Annule la descente sur la 2e ligne. */
+@media (max-width: 1600px) {
+  html body .atl-cv__right { grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto minmax(0, 1fr) auto !important; grid-template-areas: ". title close . sw" "ai ai ai ai ai" !important; column-gap: 6px !important; }
+  html body .atl-cv__right > .atl-cv__title { justify-self: stretch; min-width: 0 !important; max-width: 170px !important; margin-top: 0 !important; height: 40px; box-sizing: border-box; padding: 0 8px !important; display: flex !important; align-items: center; gap: 6px; overflow: hidden; }
+  html body .atl-cv__right > .atl-cv__title > button { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px !important; }
+  html body .atl-cv__right > .atl-cv__title .atl-cv__saved { display: inline-block; flex: none; width: 10px; overflow: hidden; white-space: nowrap; font-size: 11px; }
+  html body .atl-cv__right > .atl-cv__close { justify-self: start; width: 30px !important; height: 30px !important; min-width: 30px !important; }
+}
+
+@media (max-width: 1600px) {
+  /* Plus de place pour « Tableau 1 » entre les barres (2026-11-24) : colonnes vides et marges réduites. */
+  html body .App-menu_top:has(.atl-cv__right) { column-gap: 6px !important; }
+  html body .atl-cv__right { grid-template-columns: minmax(0, 1fr) minmax(0, max-content) auto auto !important; grid-template-areas: ". title close sw" "ai ai ai ai" !important; column-gap: 4px !important; }
+  html body .atl-cv__right > .atl-cv__title { padding: 0 6px !important; gap: 4px !important; max-width: 200px !important; }
+  html body .atl-cv__right > .atl-cv__title .atl-cv__saved { width: 8px !important; }
+  html body .atl-cv__right > .atl-cv__close { width: 26px !important; height: 26px !important; min-width: 26px !important; }
+}
+@media (max-width: 1600px) {
+  /* 2026-11-24 : « Tableau 1 » un peu plus grand et calé à gauche, juste après les outils de dessin. */
+  html body .atl-cv__right { grid-template-columns: minmax(0, max-content) auto minmax(0, 1fr) auto !important; grid-template-areas: "title close . sw" "ai ai ai ai" !important; }
+  html body .atl-cv__right > .atl-cv__title { justify-self: start !important; max-width: 260px !important; padding: 0 12px !important; gap: 6px !important; }
+  html body .atl-cv__right > .atl-cv__title > button { font-size: 15px !important; font-weight: 700 !important; }
+  html body .atl-cv__right > .atl-cv__title .atl-cv__saved { width: 10px !important; font-size: 13px !important; }
+  html body .atl-cv__right > .atl-cv__close { width: 32px !important; height: 32px !important; min-width: 32px !important; }
+}

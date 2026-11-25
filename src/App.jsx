@@ -17,7 +17,7 @@ import { LanguageSwitch } from "./lang-ui.jsx";
 // depuis le projet, dans le catalogue (2026-11-08).
 import { ProposalsBanner } from "./proposals-ui.jsx";
 import { WorkspaceSwitch } from "./workspace-switch.jsx";
-import { PreviewBarLanguage, PreviewBarProject, RailProject, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar } from "./topbar-ui.jsx";
+import { PreviewBarLanguage, PreviewBarProject, RailProject, PreviewBarSave, TopbarTools, UndoRedo, FloatingViewportBar, PreviewBarMenu } from "./topbar-ui.jsx";
 import { DownloadHtmlButton, DownloadZipButton, HistoryButton, RebrandButton } from "./tools-ui.jsx";
 import { MirrorButton } from "./mirror-ui.jsx";
 import { OriginalSwitch } from "./original-ui.jsx";
@@ -393,26 +393,23 @@ export default function App() {
                 <RailProject>
                   <ProjectsMenu current={pageName} pages={pages} projects={projects} />
                 </RailProject>
+                {/* 2026-11-24 (demande de l'utilisateur) : la page et son état
+                    d'enregistrement au début de la barre, le menu des espaces au
+                    bout ; HTML et ZIP dans « Télécharger » du rail de gauche ;
+                    bouton Mirror (Mirror Studio hébergé) retiré de la barre. */}
                 <PreviewBarProject>
-                  <WorkspaceSwitch current="page" hide={["projets", "page"]} page={pageName} />
                   <span className="atl-crumbbox">
                     <PageCrumb current={pageName} pages={pages} projects={projects} />
                     <ClosePageButton current={pageName} pages={pages} onSave={() => savePage()} />
                     <DeletePageButton current={pageName} pages={pages} />
+                    <span className="atl-save-host atl-save-inline">
+                      <SaveButton onSave={savePage} />
+                    </span>
                   </span>
                 </PreviewBarProject>
-                <TopbarTools>
-                  <span className="atl-publish">
-                    <DownloadHtmlButton />
-                    <DownloadZipButton />
-                    <MirrorButton />
-                  </span>
-                </TopbarTools>
-                {/* Remplace « Publish » de Puck : il n'enregistrait que la page.
-                    Toujours visible, au bout de la barre de l'aperçu. */}
-                <PreviewBarSave>
-                  <SaveButton onSave={savePage} />
-                </PreviewBarSave>
+                <PreviewBarMenu>
+                  <WorkspaceSwitch current="page" page={pageName} />
+                </PreviewBarMenu>
               </>
             ),
           }}

@@ -337,7 +337,23 @@ export function ProjectDetail({ id, onBack, onMessage }) {
         ← Tous les projets
       </button>
       <div className="cat-title-row">
-        <ProjectName name={project.nom} onRename={(nom) => saveProjectPatch({ nom }, true).then(() => onMessage({ text: `Projet renommé « ${nom} ».` }))} />
+        <ProjectName
+          name={project.nom}
+          onRename={async (nom) => {
+            const ancien = project.nom;
+            await saveProjectPatch({ nom }, true);
+            // Projet sans produit précisé (2026-11-24) : ses pages portaient le nom
+            // du projet comme produit (titres, Studio, agents) ; elles suivent.
+            let n = 0;
+            if (!project.produit) {
+              try {
+                n = await renameProductInPages(pages.map((p) => p.info.name), ancien, nom);
+                load();
+              } catch {}
+            }
+            onMessage({ text: `Projet renommé « ${nom} »${n ? ` — ${n} page(s) mise(s) à jour` : ""}.` });
+          }}
+        />
         <button
           type="button"
           className="cat-btn cat-btn--danger"

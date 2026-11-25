@@ -14,7 +14,8 @@ const SPACES = [
   { id: "catalogue", label: "Catalogue", title: "Catalogue (sections, templates, designs, projets)" },
 ];
 
-export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNoPage = null, hide = [] }) {
+export function WorkspaceSwitch({ current, onLeave = () => {}, page: pageInitiale = null, onNoPage = null, hide = [] }) {
+  let page = pageInitiale;
   async function go(id) {
     if (id === current) return;
     // Projets (2026-11-22) : un espace du catalogue, plein écran, sans son menu.
@@ -41,11 +42,24 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
       location.href = `/agents.html${p ? `?page=${encodeURIComponent(p)}` : ""}`;
       return;
     }
-    if (current === "catalogue" || current === "agents" || current === "projets" || current === "recherche") {
+    // Canvas seul (canvas.html) : on quitte la page du Canvas pour l'espace demandé.
+    const canvasSeul = location.pathname === "/canvas.html";
+    if (canvasSeul) {
+      window.__atlQuitteVers = id;
+      try {
+        await onLeave();
+      } catch (e) {
+        window.__atlQuitteVers = null;
+        throw e;
+      }
+      page = new URLSearchParams(location.search).get("page") ?? page;
+    }
+    if (canvasSeul || current === "catalogue" || current === "agents" || current === "projets" || current === "recherche") {
       if (!page && id === "catalogue") return void (location.href = "/catalogue.html#tout");
       if (!page) return onNoPage?.(id);
       const q = `?page=${encodeURIComponent(page)}`;
-      location.href = id === "catalogue" ? `/catalogue.html${q}#tout` : id === "page" ? `/${q}` : `/${q}&ouvrir=${id}`;
+      // Canvas : ouvert directement (canvas.html), sans passer par la page.
+      location.href = id === "catalogue" ? `/catalogue.html${q}#tout` : id === "page" ? `/${q}` : id === "canvas" ? `/canvas.html${q}` : `/${q}&ouvrir=${id}`;
       return;
     }
     await onLeave();
@@ -76,20 +90,22 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
 export function useOpenFromUrl(id) {
   if (typeof window === "undefined") return;
   const params = new URLSearchParams(location.search);
-  if (params.get("ouvrir") !== id || window.__atlOuvert) return;
+  // ?ouvrir=<espace> (depuis un autre menu) ou &studio=1 (rafraîchissement avec le Studio ouvert).
+  const parRafraichi = id === "studio" && params.get("studio") === "1";
+  if ((params.get("ouvrir") !== id && !parRafraichi) || window.__atlOuvert) return;
   window.__atlOuvert = true;
   params.delete("ouvrir");
   history.replaceState(null, "", `${location.pathname}${params.toString() ? `?${params}` : ""}${location.hash}`);
-  const t0 = Date.now();
+  // 2026-11-24 : on n'attend plus que la page soit dessinée (plusieurs
+  // secondes) : Studio et Canvas lisent les données de la page, déjà là quand
+  // ce bouton est monté. Le cache posé par index.html (« Ouverture du… »)
+  // masque la page pendant ce court instant, puis s'efface.
   const tick = () => {
-    const ready = [...document.querySelectorAll("iframe")].some((f) => f.contentDocument?.querySelector("[data-atl-id]"));
     // Par le même signal que le menu : capté par le bouton monté à ce moment-là.
     // window.__atlEspace : l'espace reste ouvert si l'éditeur remonte ses boutons.
-    if (ready || Date.now() - t0 > 10000) {
-      window.__atlEspace = id;
-      window.dispatchEvent(new CustomEvent(`atl-open-${id}`));
-    }
-    else setTimeout(tick, 250);
+    window.__atlEspace = id;
+    window.dispatchEvent(new CustomEvent(`atl-open-${id}`));
+    setTimeout(() => document.documentElement.classList.remove("atl-ouvre"), 500);
   };
-  setTimeout(tick, 250);
+  setTimeout(tick, 60);
 }

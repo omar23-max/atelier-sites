@@ -11,6 +11,27 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Arrivée depuis un autre menu vers le Canvas ou le Studio (2026-11-24) :
+      // un cache plein écran évite de voir la page avant l'espace demandé.
+      (function () {
+        var q = new URLSearchParams(location.search);
+        // Rafraîchissement avec le Canvas ouvert sur la page : on rouvre le Canvas seul.
+        if (q.get("canvas") === "1" && q.get("page")) {
+          location.replace("/canvas.html?page=" + encodeURIComponent(q.get("page")));
+          return;
+        }
+        var o = q.get("ouvrir") || (q.get("studio") === "1" ? "studio" : null);
+        if (o !== "canvas" && o !== "studio") return;
+        var h = document.documentElement;
+        h.classList.add("atl-ouvre");
+        h.setAttribute("data-ouvre", o === "canvas" ? "Ouverture du Canvas…" : "Ouverture du Studio d'images…");
+        setTimeout(function () { h.classList.remove("atl-ouvre"); }, 20000);
+      })();
+    </script>
+    <style>
+      html.atl-ouvre::after { content: attr(data-ouvre); position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center; background: #f4f4f8; color: #1e2a4a; font: 600 18px Inter, system-ui, sans-serif; }
+    </style>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

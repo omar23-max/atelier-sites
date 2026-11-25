@@ -44,6 +44,22 @@ const plain = (html) => String(html ?? "").replace(/<[^>]+>/g, " ").replace(/\s+
 // (medias/<page>/), les pubs rangées dans medias/<page>/pubs/.
 export function StudioButton({ hidden = false }) {
   const [open, setOpen] = useState(() => window.__atlEspace === "studio");
+  // 2026-11-24 : Studio ouvert → l'adresse porte &studio=1 ; un rafraîchissement
+  // rouvre le Studio (cache « Ouverture du Studio… » posé par index.html).
+  const premier = useRef(true);
+  useEffect(() => {
+    // Au démarrage, ne pas effacer &studio=1 : useOpenFromUrl doit d abord le lire.
+    if (premier.current) {
+      premier.current = false;
+      if (!open) return;
+    }
+    const q = new URLSearchParams(location.search);
+    if (open) q.set("studio", "1");
+    else q.delete("studio");
+    const s = q.toString();
+    const url = `${location.pathname}${s ? `?${s}` : ""}${location.hash}`;
+    if (url !== `${location.pathname}${location.search}${location.hash}`) history.replaceState(history.state, "", url);
+  }, [open]);
   // Ouvert aussi depuis un champ image (« Refaire avec le Studio d'images »).
   useEffect(() => {
     const onOpen = () => setOpen(true);

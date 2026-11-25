@@ -239,6 +239,22 @@ function AgentChat({ agent }) {
       .then(setMoteurs)
       .catch(() => {});
   }, []);
+  // Arrivée depuis une page (?page= ou page mémorisée) : son projet est choisi
+  // d'office (2026-11-24), pour que l'agent lise les bonnes Fondations.
+  useEffect(() => {
+    let page = null;
+    try {
+      page = new URLSearchParams(location.search).get("page") ?? localStorage.getItem("atl-last-page");
+    } catch {}
+    if (!page) return;
+    fetch(`/api/pages/${encodeURIComponent(page)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const p = d?.root?.props?.projet;
+        if (p) setProjet(p);
+      })
+      .catch(() => {});
+  }, []);
   useEffect(() => localStorage.setItem("atl-agents-projet", projet), [projet]);
   useEffect(() => localStorage.setItem("atl-agents-moteur", moteur), [moteur]);
   async function charger() {

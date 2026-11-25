@@ -7,7 +7,7 @@ import { validateSection } from "./shopify.js";
 // réponse JSON compressée (/api/sections-data, plugin « atelier-sections » de
 // vite.config.js). Dans l'atelier (?page=…) : les sections du catalogue plus
 // les parties copiées de cette page seulement ; dans le catalogue : toutes.
-const page = location.pathname === "/" ? new URLSearchParams(location.search).get("page") : null;
+const page = location.pathname === "/" || location.pathname === "/canvas.html" ? new URLSearchParams(location.search).get("page") : null;
 const all = await fetch(`/api/sections-data${page ? `?page=${encodeURIComponent(page)}` : "?leger=1"}`).then((r) => r.json());
 
 export const sections = all

@@ -198,7 +198,7 @@ function RegistrePubs({ project, page, data, charger }) {
     await fetch(`/api/publicites/${project.id}/${x.id}/variante`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note }) });
     charger();
   }
-  const ouvrirCanvas = () => page && (location.href = `/?page=${encodeURIComponent(page)}&ouvrir=canvas`);
+  const ouvrirCanvas = () => page && (location.href = `/canvas.html?page=${encodeURIComponent(page)}`);
   return (
     <div className="cat-reg">
       <div className="cat-reg__head">
@@ -349,7 +349,7 @@ export function PublicitesTab({ project, pages }) {
     charger();
   }
   const toggleRef = (u) => setRefs((l) => (l.includes(u) ? l.filter((x) => x !== u) : [...l, u].slice(0, 6)));
-  const ouvrir = (espace) => page && (location.href = `/?page=${encodeURIComponent(page)}&ouvrir=${espace}`);
+  const ouvrir = (espace) => page && (location.href = espace === "canvas" ? `/canvas.html?page=${encodeURIComponent(page)}` : `/?page=${encodeURIComponent(page)}&ouvrir=${espace}`);
   return (
     <section className="cat-card cat-val">
       <h3>Publicités</h3>
