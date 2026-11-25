@@ -2569,3 +2569,7 @@ Original 80 % → retour Modifiable 80 %.
 ## 2026-11-24 — Canvas : titre agrandi ; une seule barre Recharger
 - Canvas < 1600 px : « Tableau 1 » plus grand (15 px gras, croix 32 px) et calé à gauche, juste après les outils de dessin (1366 et 1500 px vérifiés, aucun chevauchement).
 - Deux barres « nouvelle version » s affichaient ensemble (src/live.js en haut, version-check.js en bas). version-check.js utilise maintenant la même barre (#atl-version, en haut, Recharger + ×) et ne fait rien si elle est déjà là. Logique vérifiée dans le code ; pas déclenchée en réel (il faudrait une nouvelle version publiée avec un onglet ancien ouvert).
+
+## 2026-11-24 — Canvas : le nouveau nom d un tableau est gardé
+- DÉFAUT CORRIGÉ : renommer un tableau changeait l affichage, mais l enregistrement (save, appelé depuis une fonction créée avant le renommage) renvoyait l ancien nom ; « Tous les tableaux » et un rechargement montraient l ancien. canvas-ui.jsx : nomCourant (useRef) toujours à jour, utilisé par save().
+- Vérifié : renommage enregistré sur le serveur, gardé après rechargement et dans la liste. Les noms déjà perdus (projet test menu : Tableau 1, Tableau 2) sont à refaire.

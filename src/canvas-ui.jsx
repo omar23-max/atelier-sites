@@ -456,13 +456,20 @@ function CanvasBoard({ onClose, X }) {
   // après un échec (confirmLeave).
   const inflight = useRef(null);
   const lastOk = useRef(true);
+  // Nom du tableau toujours à jour pour l'enregistrement (2026-11-24) : save()
+  // est souvent appelée depuis une fonction créée avant le renommage, qui voyait
+  // l'ancien nom ; « Tous les tableaux » montrait alors l'ancien.
+  const nomCourant = useRef(null);
+  useEffect(() => {
+    nomCourant.current = board?.nom ?? null;
+  }, [board?.id, board?.nom]);
   async function save(force = false, aAjouterPris = 0) {
     if (!api || !board) return true;
     const run = (async () => {
       try {
         setSaved("encours");
         const scene = await sceneForSave();
-        const res = await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom: board.nom, ...scene, aAjouterPris }) });
+        const res = await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom: nomCourant.current ?? board.nom, ...scene, aAjouterPris }) });
         setSaved(res.ok ? "ok" : "erreur");
         return res.ok;
       } catch {
@@ -618,6 +625,7 @@ function CanvasBoard({ onClose, X }) {
     setRenaming(false);
     nom = nom.trim();
     if (!nom || nom === board.nom) return;
+    nomCourant.current = nom;
     setBoard((b) => ({ ...b, nom }));
     setBoards((l) => l.map((x) => (x.id === board.id ? { ...x, nom } : x)));
     setTimeout(() => save(true), 50);
