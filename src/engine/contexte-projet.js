@@ -10,6 +10,7 @@
 //   - la recherche (vidéos concurrentes, collages, sites) est rangée à part,
 //     signalée comme ne prouvant rien pour notre produit.
 import { MARQUEUR, realText, withoutResearch } from "./fondations-etat.js";
+import { packsCalcules } from "./offre-fiche.js";
 
 const court = (v, n = 1200) => {
   const s = typeof v === "string" ? v : v == null ? "" : JSON.stringify(v);
@@ -33,6 +34,34 @@ function preuvesDe(preuves = {}) {
   return { ok, manque };
 }
 
+// Audit F01 (2026-11-25) : le contexte porte aussi l'offre COMMERCIALE
+// structurée (prix, devise, packs, garantie…), les faits approuvés avec leur
+// source, le mécanisme choisi en entier (avec son statut d'hypothèse) et le
+// brief de campagne. Priorité en cas de contradiction : offre commerciale et
+// faits approuvés > texte de l'offre ; le conflit est signalé, jamais tranché.
+function offreCommerciale(fiche) {
+  if (!fiche || typeof fiche !== "object") return undefined;
+  let packs = [];
+  try {
+    packs = packsCalcules(fiche);
+  } catch {
+    packs = fiche.packs ?? [];
+  }
+  const o = {
+    devise: fiche.devise || undefined,
+    unite: fiche.unite || undefined,
+    packs: (packs ?? []).slice(0, 8).map((k) => ({ nom: k.nom, quantite: k.quantite, offertes: k.offertes || undefined, prix: k.prix, prixBarre: k.prixBarre || undefined, prixUnite: k.prixUnite ?? k.parUnite ?? undefined, remise: k.remise ?? undefined, abonnement: k.abonnement || undefined, cadence: k.cadence || undefined, populaire: k.populaire || undefined })),
+    garantie: fiche.garantie?.duree ? fiche.garantie : undefined,
+    retours: fiche.retours?.duree ? fiche.retours : undefined,
+    livraison: fiche.livraison?.texte || fiche.livraison?.seuilGratuit ? fiche.livraison : undefined,
+    bonusLivres: (fiche.bonus ?? []).filter((b) => b?.livre).map((b) => ({ nom: b.nom, valeur: b.valeur })),
+    rarete: fiche.rarete?.active ? fiche.rarete.condition : undefined,
+  };
+  if (!o.bonusLivres.length) delete o.bonusLivres;
+  return Object.values(o).some((v) => v !== undefined && !(Array.isArray(v) && !v.length)) ? o : undefined;
+}
+const montants = (t) => [...String(t ?? "").matchAll(/(\d+(?:[.,]\d{1,2})?)\s*(?:\$|€|usd|cad|eur)/gi)].map((m) => Number(m[1].replace(",", ".")));
+
 export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
   if (!p) return { data: null, texte: "" };
   const f = p.fondations ?? {};
@@ -52,13 +81,31 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
   // pour la demande et les objections, mais ce sont des observations, pas des preuves.
   const collectes = Object.fromEntries(Object.entries(rep).filter(([k, v]) => /^collecte/.test(k) && realText(v)).map(([k, v]) => [k, court(v, 2500)]));
   const notes = (rep.notesAgents ?? []).map((n) => court(n.texte, 700));
+  const commerciale = offreCommerciale(p.offreFiche);
+  const faitsApprouves = (f.faits ?? []).filter((x) => x && x.etat === "valide").slice(0, 30).map((x) => ({ nature: x.nature, valeur: x.valeur, unite: x.unite || undefined, source: court(x.source, 200) }));
+  const choix = f.mecanismeChoisi;
+  const idMeca = typeof choix === "object" ? choix?.id : choix;
+  const meca = (f.mecanismes ?? []).find((m) => m?.id === idMeca);
+  const mecanisme = meca
+    ? { nom: meca.nom, probleme: court(meca.ump, 600), solution: court(meca.ums, 600), croyance: meca.croyance ? court(meca.croyance, 400) : undefined, statut: meca.statut === "etayee" ? "étayé par des preuves" : "hypothèse (ne pas présenter comme prouvé)", limites: meca.limites ? court(meca.limites, 400) : undefined, interdits: meca.interdits ? court(meca.interdits, 400) : undefined, raisonDuChoix: typeof choix === "object" && choix.raison ? court(choix.raison, 300) : undefined }
+    : idMeca || undefined;
+  const brief = f.brief && typeof f.brief === "object" ? Object.fromEntries(Object.entries(f.brief).filter(([, v]) => realText(typeof v === "string" ? v : JSON.stringify(v))).map(([k, v]) => [k, court(v, 500)])) : undefined;
+  // Prix du texte d'offre absents de l'offre commerciale : conflit signalé.
+  if (commerciale?.packs?.length && p.offre) {
+    const prix = new Set(commerciale.packs.flatMap((k) => [k.prix, k.prixBarre]).filter((x) => x != null).map(Number));
+    const etrangers = [...new Set(montants(typeof p.offre === "string" ? p.offre : JSON.stringify(p.offre)).filter((n) => !prix.has(n)))];
+    if (etrangers.length) aVerifier.push(`conflit de prix : le texte de l'offre cite ${etrangers.join(", ")} absent(s) de l'offre commerciale (la fiche fait foi)`);
+  }
 
   // Rubriques par ordre d'importance (les dernières partent d'abord si c'est trop long).
   const rubriques = [
-    ["identite", { projet: p.nom, produit: prod, description: court(p.description, 900), statutFondations: f.statut }],
+    // Audit F12 (2026-11-25) : décisions verrouillées (jamais retirées faute de place).
+    ["identite", { projet: p.nom, produit: prod, marque: p.marque?.nom || undefined, description: court(p.description, 900), statutFondations: f.statut, verrouille: p.marque?.nom ? "Le nom de marque et le produit sont déjà décidés : ne les renomme pas et ne propose pas d'autre nom, sauf si on te le demande." : undefined }],
     ["campagne", campagne || undefined],
-    ["decide", { offre: p.offre ? court(p.offre, 3000) : undefined, messageCentral: f.message ? court(f.message, 1800) : undefined, mecanismeChoisi: f.mecanismeChoisi || undefined, anglesChoisis: anglesChoisis.length ? anglesChoisis : undefined }],
-    ["faitsAutorises", { preuves: pr.ok, interdits: interdits ? court(interdits, 800) : undefined, regle: "N'utilise que ces preuves. Aucun chiffre, avis, étude, certification ou résultat inventé." }],
+    ["offreCommerciale", commerciale ? { ...commerciale, regle: "Prix, devise, packs, garantie, retours et bonus de référence : à reprendre tels quels. En cas de contradiction avec le texte de l'offre, CETTE fiche fait foi ; signale le conflit." } : undefined],
+    ["decide", { offre: p.offre ? court(p.offre, 3000) : undefined, messageCentral: f.message ? court(f.message, 1800) : undefined, mecanismeChoisi: mecanisme, anglesChoisis: anglesChoisis.length ? anglesChoisis.slice(0, 6) : undefined }],
+    ["faitsAutorises", { preuves: pr.ok, faitsApprouves: faitsApprouves.length ? faitsApprouves : undefined, interdits: interdits ? court(interdits, 800) : undefined, regle: "N'utilise que ces preuves et ces faits approuvés (avec leur valeur exacte). Aucun chiffre, avis, étude, certification ou résultat inventé." }],
+    ["brief", brief && Object.keys(brief).length ? { ...brief, note: "Brief de campagne enregistré : cadre par défaut, qu'une campagne précise peut spécialiser." } : undefined],
     ["marque", p.marque ? { nom: p.marque.nom, couleurs: p.marque.couleurs, polices: p.marque.polices, ton: p.marque.ton ?? rep.ton, logos: (p.marque.logos ?? []).length || undefined } : rep.ton ? { ton: rep.ton } : undefined],
     ["client", Object.keys(client).length ? client : undefined],
     ["aVerifier", aVerifier.length ? aVerifier.slice(0, 40) : undefined],
@@ -68,7 +115,7 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
   const data = Object.fromEntries(rubriques);
   let json = JSON.stringify(data, null, 1);
   const retirees = [];
-  for (const nom of ["recherche", "client", "aVerifier", "marque"]) {
+  for (const nom of ["recherche", "client", "aVerifier", "marque", "brief"]) {
     if (json.length <= limite) break;
     if (data[nom] === undefined) continue;
     delete data[nom];

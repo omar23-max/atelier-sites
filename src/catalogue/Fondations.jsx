@@ -3,8 +3,9 @@ import { anglesProgress } from "./Angles.jsx";
 import { TYPES_CONTENU, FICHES, blueprintOf, contenuProgress } from "../engine/page-blueprints.js";
 import { pageTypeById } from "../engine/page-types.js";
 import { figuresIn, unitOf } from "../engine/fidelite.js";
-import { empreinte, merge3, realText, same, statutFondations, withIds } from "../engine/fondations-etat.js";
+import { empreinte, merge3, partiesEmpreinte, partiesModifiees, PARTIES_A_RELIRE, realText, same, statutFondations, withIds } from "../engine/fondations-etat.js";
 import { OffreFiche } from "./OffreFiche.jsx";
+import { controlesFiche } from "../engine/offre-fiche.js";
 import { BriefCampagne, Mecanismes } from "./DecisionsMessage.jsx";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
@@ -611,7 +612,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     if (["validée", "modifiée"].includes(sf.statut) && !sf.valideEmpreinte) fd.valideEmpreinte = empreinte({ ...server, fondations: sf });
     const next = { ...server, offre: offreM, offreFiche: ficheM ?? undefined, fondations: fd };
     if (!ficheM) delete next.offreFiche;
-    if (extra.statut === "validée") fd = { ...fd, valideEmpreinte: empreinte(next) };
+    if (extra.statut === "validée") fd = { ...fd, valideEmpreinte: empreinte(next), valideParties: partiesEmpreinte(next) };
     else if (!("statut" in extra)) fd = statutFondations({ ...next, fondations: fd });
     return { patch: { fondations: fd, offre: offreM, ...(ficheM ? { offreFiche: ficheM } : {}) }, rev, conflicts: [] };
   }
@@ -768,13 +769,16 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
     <div className="cat-fd">
       <p className="cat-muted">
         Les faits que toi seul connais. Claude s'appuie sur ce qui est coché ici ; les chiffres sans preuve sont signalés, vérifie avant publication. Remplis
-        ce que tu sais, puis « Compléter avec Claude » : il fera la recherche client et l'offre, et tu valideras.
+        ce que tu sais, puis « Envoyer une demande à Claude » : la demande est mise en file (dis à Claude « traite les demandes ») ; il fera la recherche client et l'offre, et tu valideras.
       </p>
       <div className={`cat-fd__statut is-${statut === "modifiée" ? "modifiee" : statut}`}>
         {statut === "validée"
           ? `Fondations validées le ${new Date(f.valideLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}${f.version ? ` (version ${f.version})` : ""}.`
           : statut === "modifiée"
-            ? `Modifiées depuis la validation du ${new Date(f.valideLe).toLocaleDateString("fr-CA", { dateStyle: "long" })} : relis les changements, puis valide à nouveau.`
+            ? `Modifiées depuis la validation du ${new Date(f.valideLe).toLocaleDateString("fr-CA", { dateStyle: "long" })}${(() => {
+                const ch = partiesModifiees({ ...project, fondations: f }) ?? [];
+                return ch.length ? ` : ${ch.map((k) => `${PARTIES_A_RELIRE[k][0]} a changé → à relire : ${PARTIES_A_RELIRE[k][1]}`).join(" ; ")}. Rien n'a été réécrit` : " : relis les changements";
+              })()}, puis valide à nouveau.`
             : statut === "demandée"
             ? res
               ? "Claude a complété les fondations : relis ses résultats plus bas, corrige si besoin, puis valide."
@@ -1003,7 +1007,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         <h3>8. Message central</h3>
         <p className="cat-muted">
           Le discours unique du projet : toutes les pages (listicle, advertorial, landing, page produit, homepage) le reprennent, avec les
-          mots de leur angle autour. Claude le prépare avec « Compléter avec Claude » ; tu le corriges ici. Aucune preuve qui ne soit cochée
+          mots de leur angle autour. Claude le prépare avec « Envoyer une demande à Claude » ; tu le corriges ici. Aucune preuve qui ne soit cochée
           en 4.
         </p>
         <MessageEditor value={msg} onChange={setMsg} />
@@ -1046,7 +1050,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             ))}
           </div>
           <button type="button" className="cat-btn" disabled={busy} onClick={askContenus}>
-            {busy ? "Envoi…" : `Remplir avec Claude (${askTypes.length})`}
+            {busy ? "Envoi…" : `Envoyer une demande à Claude (${askTypes.length})`}
           </button>
           <p className="cat-fd__hint">
             Claude écrit seulement les champs vides, à partir du questionnaire, du message central, de l'offre et des angles. Ce que tu as
@@ -1075,7 +1079,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
               )}
               {manques > 0 && (
                 <p className="cat-fd__hint">
-                  {manques} champ(s) marqués [MANQUE] : ajoute d'abord le fait ou la preuve qui manque (étape « Preuves et offre »), puis « Remplir avec Claude » les
+                  {manques} champ(s) marqués [MANQUE] : ajoute d'abord le fait ou la preuve qui manque (étape « Preuves et offre »), puis « Envoyer une demande à Claude » les
                   complète — ces champs ne sont jamais comptés comme prêts.
                 </p>
               )}
@@ -1115,7 +1119,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           Enregistrer
         </button>
         <button type="button" className="cat-btn cat-btn--ghost" disabled={busy} onClick={askClaude}>
-          {busy ? "Envoi…" : "Compléter avec Claude"}
+          {busy ? "Envoi…" : "Envoyer une demande à Claude"}
         </button>
         <button type="button" className="cat-btn" disabled={!res && statut !== "validée" && statut !== "modifiée"} onClick={validate} title={res ? "" : "Après les résultats de Claude"}>
           {statut === "modifiée" ? "Valider à nouveau" : "Valider les fondations"}
@@ -1206,7 +1210,13 @@ export function ProjectMenu({ project, pages, onGo, current }) {
     produit: [foundationsFilled(project) ? "done" : filled(rep.role) || filled(rep.qui) ? "doing" : "todo", foundationsFilled(project) ? `rempli${nbVideos ? ` · ${nbVideos} vidéo(s)` : ""}` : "à remplir"],
     validation: project.validation?.verdict ? ["done", `${{ GO: "GO", GO_CONDITIONS: "GO avec conditions", ALTERNATIVES: "Chercher mieux", NO_GO: "NON" }[project.validation.verdict] ?? project.validation.verdict}${project.validation.score != null ? ` · ${project.validation.score}/10` : ""}`] : ["todo", "verdict, tendance, marge"],
     publicites: ["none", "images et vidéos"],
-    preuves: [nbPreuves ? "done" : "todo", nbPreuves ? `${nbPreuves} preuve(s)` : "aucune preuve"],
+    // Audit F20 (2026-11-25) : vert = preuves cochées ET offre commerciale sans erreur (pas la seule présence de preuves).
+    preuves: (() => {
+      const fiche = project.offreFiche;
+      const erreurs = fiche ? controlesFiche(fiche).filter((c) => c.niveau === "erreur").length : null;
+      const etat = nbPreuves && fiche && !erreurs ? "done" : nbPreuves || fiche ? "doing" : "todo";
+      return [etat, `${nbPreuves} preuve(s) · ${!fiche ? "offre à remplir" : erreurs ? `${erreurs} erreur(s) dans l'offre` : "offre complète"}`];
+    })(),
     recherche: [nbSources || f.resultats ? "done" : "todo", `${nbSources} source(s)${f.resultats ? " · Claude" : ""}`],
     marque: [marqueOk ? "done" : "todo", marqueOk ? "commencée" : "logo, couleurs, planche"],
     images: ["none", "photos et vidéos"],

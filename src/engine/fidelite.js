@@ -233,6 +233,19 @@ const LABELS = [
 ];
 export const labelsIn = (text) => new Set(LABELS.filter(([, re]) => re.test(String(text ?? ""))).map(([id]) => id));
 
+// Audit F14 (2026-11-25) : force d'une affirmation scientifique. 1 = testé,
+// étudié ; 2 = prouvé, démontré, appuyé par la science. Une preuve « testé »
+// n'autorise pas « prouvé » ; une négation (« sans effet prouvé ») ne compte pas.
+const FORT_SCIENCE = W("proven|prouvée?s?|prouvé|démontrée?s?|demonstrated|backed by science|science[- ]backed|research[- ]backed|efficacité établie|effet établi");
+function forceScience(text) {
+  const t = String(text ?? "");
+  const re = new RegExp(FORT_SCIENCE.source, "giu");
+  // « sans effet prouvé », « without proven results », « aucun effet démontré » : pas une preuve forte.
+  const sans = /(?:\bsans|\bwithout|\bno|\baucun\p{L}*|\bpas)\b[^.!?\n]{0,25}$/iu;
+  for (const m of t.matchAll(re)) if (!negated(t, m.index) && !sans.test(t.slice(Math.max(0, m.index - 40), m.index))) return 2;
+  return 1;
+}
+
 // Toutes les occurrences (pas une par sorte), pour juger chaque phrase.
 function claimsAll(text) {
   const t = String(text ?? "");
@@ -281,6 +294,7 @@ export function knownClaims(project, root = {}) {
       if (!l.size) continue;
       l.forEach((x) => ok.labels.add(x));
     }
+    if (c.id === "clinique") ok.forceClinique = Math.max(ok.forceClinique ?? 0, forceScience(String(p.detail).replace(MARQUEUR, " ")));
     ok.add(c.id);
   }
   if (realText(project?.offre?.garantie)) ok.add("garantie");
@@ -290,6 +304,7 @@ export function knownClaims(project, root = {}) {
       if (negated(text, c.index)) continue;
       ok.add(c.id);
       if (c.id === "certification") labelsIn(c.valeur).forEach((x) => ok.labels.add(x));
+      if (c.id === "clinique") ok.forceClinique = Math.max(ok.forceClinique ?? 0, forceScience(c.valeur));
     }
   }
   // Pour l'origine, le pays compte : « fabriqué au Canada » n'autorise pas
@@ -301,6 +316,7 @@ export function knownClaims(project, root = {}) {
 // Une affirmation est-elle couverte par le projet ?
 export function claimKnown(c, known) {
   if (!known?.has(c.id)) return false;
+  if (c.id === "clinique" && known.forceClinique != null && forceScience(c.valeur) > known.forceClinique) return false;
   if (c.id === "origine" && known.blob) return known.blob.includes(String(c.valeur).trim().split(/\s+/).pop().toLowerCase());
   if (c.id === "certification" && known.labels) {
     const wanted = labelsIn(c.valeur);

@@ -34,16 +34,24 @@ const num = (v) => {
   return Number.isFinite(n) && String(v ?? "").trim() !== "" ? n : null;
 };
 const round2 = (n) => Math.round(n * 100) / 100;
+// Audit F14 (2026-11-25) : contraintes partagées. Une quantité doit être un
+// entier positif ou nul ; un prix, une durée ou un seuil, positif ou nul. Une
+// valeur impossible ne sert à AUCUN calcul (elle est signalée en erreur).
+const pos = (v, entier = false) => {
+  const n = num(v);
+  return n == null || n < 0 || (entier && !Number.isInteger(n)) ? null : n;
+};
+const impossible = (v, entier = false) => num(v) != null && pos(v, entier) == null;
 
 // Packs avec les calculs : unités totales, prix par unité, remise par rapport
 // au pack de base (le plus petit nombre d'unités, à défaut le premier).
 export function packsCalcules(fiche) {
   const packs = (fiche?.packs ?? []).map((p) => {
-    const q = num(p.quantite) ?? 0;
-    const o = num(p.offertes) ?? 0;
-    const prix = num(p.prix);
+    const q = pos(p.quantite, true) ?? 0;
+    const o = pos(p.offertes, true) ?? 0;
+    const prix = pos(p.prix);
     const total = q + o;
-    return { ...p, q, o, total, prixN: prix, prixBarreN: num(p.prixBarre), prixUnite: prix != null && total > 0 ? round2(prix / total) : null };
+    return { ...p, q, o, total, prixN: prix, prixBarreN: pos(p.prixBarre), prixUnite: prix != null && total > 0 ? round2(prix / total) : null };
   });
   const base = [...packs].filter((p) => p.prixUnite != null && !p.abonnement).sort((a, b) => a.total - b.total)[0] ?? packs.find((p) => p.prixUnite != null);
   for (const p of packs) {
@@ -61,15 +69,20 @@ export function controlesFiche(fiche) {
   if (packs.length && !fiche.devise) out.push({ niveau: "erreur", texte: "Choisis la devise : sans elle, un prix peut être lu en $ ou en €." });
   for (const [i, p] of packs.entries()) {
     const nom = p.nom || `Pack ${i + 1}`;
-    if (!p.q) out.push({ niveau: "erreur", texte: `${nom} : quantité manquante.` });
-    if (p.prixN == null) out.push({ niveau: "erreur", texte: `${nom} : prix manquant.` });
+    if (impossible(p.quantite, true)) out.push({ niveau: "erreur", texte: `${nom} : quantité impossible (${p.quantite}) : un nombre entier, 1 ou plus.` });
+    else if (!p.q) out.push({ niveau: "erreur", texte: `${nom} : quantité manquante.` });
+    if (impossible(p.offertes, true)) out.push({ niveau: "erreur", texte: `${nom} : unités offertes impossibles (${p.offertes}).` });
+    if (impossible(p.prix)) out.push({ niveau: "erreur", texte: `${nom} : prix impossible (${p.prix}) : un prix ne peut pas être négatif.` });
+    else if (p.prixN == null) out.push({ niveau: "erreur", texte: `${nom} : prix manquant.` });
+    if (impossible(p.prixBarre)) out.push({ niveau: "erreur", texte: `${nom} : prix barré impossible (${p.prixBarre}).` });
     if (p.prixBarreN != null && p.prixN != null && p.prixBarreN <= p.prixN) out.push({ niveau: "erreur", texte: `${nom} : le prix barré (${p.prixBarreN}) doit être plus élevé que le prix (${p.prixN}).` });
     if (p.o > 0 && p.remise != null && p.remise <= 0) out.push({ niveau: "erreur", texte: `${nom} : « ${p.q} + ${p.o} offert(s) » mais le prix par unité n'est pas plus bas que le pack de base.` });
     if (p.abonnement && !String(p.cadence ?? "").trim()) out.push({ niveau: "attention", texte: `${nom} : abonnement sans cadence (ex. tous les 30 jours).` });
   }
   if (packs.filter((p) => p.populaire).length > 1) out.push({ niveau: "attention", texte: "Un seul pack peut être « le plus populaire »." });
-  const g = num(fiche.garantie?.duree);
-  const r = num(fiche.retours?.duree);
+  for (const [lib, v] of [["Garantie", fiche.garantie?.duree], ["Retours", fiche.retours?.duree], ["Seuil de livraison gratuite", fiche.livraison?.seuilGratuit]]) if (impossible(v)) out.push({ niveau: "erreur", texte: `${lib} : valeur impossible (${v}).` });
+  const g = pos(fiche.garantie?.duree);
+  const r = pos(fiche.retours?.duree);
   const jours = (d, u) => (d == null ? null : u === "mois" ? d * 30 : d);
   if (g != null && r != null && jours(r, fiche.retours?.unite) < jours(g, fiche.garantie?.unite))
     out.push({ niveau: "erreur", texte: `La garantie (${g} ${fiche.garantie?.unite ?? "jours"}) dépasse la fenêtre de retour (${r} ${fiche.retours?.unite ?? "jours"}) : l'une contredit l'autre.` });
@@ -95,11 +108,11 @@ export function faitsDeFiche(fiche) {
     if (p.q) out.push({ nature: "nombre", valeur: String(p.q), unite: "" });
     if (p.o) out.push({ nature: "nombre", valeur: String(p.o), unite: "" });
   }
-  const g = num(fiche.garantie?.duree);
+  const g = pos(fiche.garantie?.duree);
   if (g != null) out.push({ nature: "duree", valeur: String(g), unite: fiche.garantie?.unite ?? "jours" });
-  const r = num(fiche.retours?.duree);
+  const r = pos(fiche.retours?.duree);
   if (r != null) out.push({ nature: "duree", valeur: String(r), unite: fiche.retours?.unite ?? "jours" });
-  const s = num(fiche.livraison?.seuilGratuit);
+  const s = pos(fiche.livraison?.seuilGratuit);
   if (s != null) out.push({ nature: "argent", valeur: String(s), unite: dev });
   return out;
 }
@@ -111,7 +124,7 @@ export function resumeFiche(fiche) {
   const lignes = packsCalcules(fiche)
     .filter((p) => p.q && p.prixN != null)
     .map((p) => `${p.nom || `${p.q} ${fiche.unite ?? "unité(s)"}`}${p.o ? ` + ${p.o} offert(s)` : ""} : ${p.prixN} ${dev}${p.prixBarreN ? ` (au lieu de ${p.prixBarreN} ${dev})` : ""}${p.prixUnite != null ? `, soit ${p.prixUnite} ${dev} l'unité` : ""}${p.remise > 0 ? `, -${p.remise} %` : ""}${p.abonnement ? `, abonnement ${p.cadence ?? ""}` : ""}${p.populaire ? " — le plus populaire" : ""}`);
-  const g = num(fiche.garantie?.duree);
+  const g = pos(fiche.garantie?.duree);
   if (g != null) lignes.push(`Garantie : ${g} ${fiche.garantie?.unite ?? "jours"}${fiche.garantie?.conditions ? ` (${fiche.garantie.conditions})` : ""}`);
   if (fiche.livraison?.texte) lignes.push(`Livraison : ${fiche.livraison.texte}`);
   const bonus = (fiche.bonus ?? []).filter((b) => b.nom && b.livre).map((b) => b.nom);

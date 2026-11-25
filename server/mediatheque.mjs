@@ -86,6 +86,22 @@ async function fichiers(dir, url) {
   return out;
 }
 
+// Audit F17 (2026-11-25) : chaque page et chaque tableau ne sont relus et
+// analysés que s'ils ont changé (date de modification) ; sinon on reprend ce
+// qui a été extrait la dernière fois. Une ouverture ne relit plus les ~250 pages.
+const cachePages = new Map(); // fichier → { mtimeMs, raw, projet, titre, photos, logo }
+const cacheTableaux = new Map(); // fichier → { mtimeMs, liens: [{ url, origine }] }
+async function parDate(cache, file, extraire) {
+  const { stat } = await import("node:fs/promises");
+  const st = await stat(file).catch(() => null);
+  if (!st) return cache.delete(file), null;
+  const c = cache.get(file);
+  if (c && c.mtimeMs === st.mtimeMs && c.size === st.size) return c;
+  const v = { mtimeMs: st.mtimeMs, size: st.size, ...(await extraire()) };
+  cache.set(file, v);
+  return v;
+}
+
 export async function mediathequeRoute(req, res, parts, { root, readBody, json }) {
   const page = parts[1];
   if (!/^[a-z0-9][a-z0-9_-]{0,90}$/i.test(page ?? "")) return json(res, 400, { error: "Page invalide." });
@@ -167,19 +183,20 @@ export async function mediathequeRoute(req, res, parts, { root, readBody, json }
     if (!f.endsWith(".json")) continue;
     const nom = f.slice(0, -5);
     if (!L.projet && nom !== page) continue;
-    const raw = await readFile(join(pagesDir, f), "utf8").catch(() => "");
-    if (L.projet && !raw.includes(`"projet": "${L.projet}"`) && !raw.includes(`"projet":"${L.projet}"`)) continue;
-    let pg;
-    try {
-      pg = JSON.parse(raw);
-    } catch {
-      continue;
-    }
-    if (L.projet && pg.root?.props?.projet !== L.projet) continue;
-    pagesProjet.push({ nom, raw, titre: pg.root?.props?.title || nom });
-    const r = pg.root?.props ?? {};
-    for (const u of Array.isArray(r.photos_produit) ? r.photos_produit : []) if (typeof u === "string" && u.startsWith("/")) put(u, { type: "image", provenance: "projet", sous: "produit", choix: "selectionnee", destination: [], style: "", origine: {} });
-    if (typeof r.logo === "string" && r.logo.startsWith("/")) put(r.logo, { type: "image", provenance: "projet", sous: "marque", choix: "selectionnee", destination: ["marque"], style: "", origine: {} });
+    const c = await parDate(cachePages, join(pagesDir, f), async () => {
+      const raw = await readFile(join(pagesDir, f), "utf8").catch(() => "");
+      try {
+        const r = JSON.parse(raw).root?.props ?? {};
+        return { raw, projet: r.projet ?? null, titre: r.title || nom, photos: Array.isArray(r.photos_produit) ? r.photos_produit : [], logo: r.logo ?? null };
+      } catch {
+        return { raw: "", projet: null, invalide: true };
+      }
+    });
+    if (!c || c.invalide) continue;
+    if (L.projet && c.projet !== L.projet) continue;
+    pagesProjet.push({ nom, raw: c.raw, titre: c.titre });
+    for (const u of c.photos) if (typeof u === "string" && u.startsWith("/")) put(u, { type: "image", provenance: "projet", sous: "produit", choix: "selectionnee", destination: [], style: "", origine: {} });
+    if (typeof c.logo === "string" && c.logo.startsWith("/")) put(c.logo, { type: "image", provenance: "projet", sous: "marque", choix: "selectionnee", destination: ["marque"], style: "", origine: {} });
   }
   if (L.projet) {
     const pj = await lire(join(root, "projets", `${L.projet}.json`), {});
@@ -206,13 +223,19 @@ export async function mediathequeRoute(req, res, parts, { root, readBody, json }
   const cdir = join(L.base, "canvas");
   for (const f of existsSync(cdir) ? await readdir(cdir) : []) {
     if (!f.endsWith(".json")) continue;
-    const b = await lire(join(cdir, f), null);
-    const files = b?.files ?? {};
-    for (const e of b?.elements ?? []) {
-      if (e.isDeleted) continue;
-      const url = e.customData?.url ?? (e.fileId && files[e.fileId]?.dataURL?.startsWith?.("/") ? files[e.fileId].dataURL : null);
-      const o = e.customData?.origine;
-      if (!url || !o || !items.has(url)) continue;
+    const c = await parDate(cacheTableaux, join(cdir, f), async () => {
+      const b = await lire(join(cdir, f), null);
+      const files = b?.files ?? {};
+      const liens = [];
+      for (const e of b?.elements ?? []) {
+        if (e.isDeleted) continue;
+        const url = e.customData?.url ?? (e.fileId && files[e.fileId]?.dataURL?.startsWith?.("/") ? files[e.fileId].dataURL : null);
+        if (url && e.customData?.origine) liens.push({ url, origine: e.customData.origine });
+      }
+      return { liens };
+    });
+    for (const { url, origine: o } of c?.liens ?? []) {
+      if (!items.has(url)) continue;
       const it = items.get(url);
       const sous = o.source === "WinningHunter" ? "wh" : it.sous;
       items.set(url, { ...it, sous, provenance: o.source === "WinningHunter" ? "reference" : it.provenance, origine: { source: o.source, consigne: o.consigne, modele: o.modele, references: o.references, ...it.origine } });

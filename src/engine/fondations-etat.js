@@ -60,7 +60,7 @@ function hash(s) {
 export const empreinteV1 = (fd) => JSON.stringify([fd?.reponses ?? {}, fd?.message ?? null, fd?.contenus ?? {}, fd?.faits ?? []]);
 // v2 : ce qui fait la décision de campagne. Les contenus des pages et la
 // recherche brute ont leur propre vie et ne remettent pas la validation en cause.
-export function empreinte(project) {
+export function empreinteV2(project) {
   const fd = project?.fondations ?? {};
   const faits = (fd.faits ?? []).map(({ id: _id, ...f }) => f);
   const parts = [withoutResearch(fd.reponses), fd.message ?? null, faits, pick(project?.offre, OFFER_KEYS)];
@@ -73,6 +73,41 @@ export function empreinte(project) {
   return `v2:${hash(stable(parts))}`;
 }
 
+// v3 (audit F13, 2026-11-25) : empreinte par PARTIE, avec le CONTENU du
+// mécanisme choisi (plus seulement son identifiant). Une validation sait dire
+// quelle partie a changé et ce qu'il faut relire, sans tout invalider.
+export function partiesEmpreinte(project) {
+  const fd = project?.fondations ?? {};
+  const faits = (fd.faits ?? []).map(({ id: _id, ...f }) => f);
+  const { preuves = null, ...autres } = withoutResearch(fd.reponses) ?? {};
+  const choix = fd.mecanismeChoisi?.id ?? (typeof fd.mecanismeChoisi === "string" ? fd.mecanismeChoisi : null);
+  const m = choix ? (fd.mecanismes ?? []).find((x) => x?.id === choix) : null;
+  return {
+    questionnaire: hash(stable(autres)),
+    preuves: hash(stable([preuves, faits])),
+    message: hash(stable(fd.message ?? null)),
+    offre: hash(stable(pick(project?.offre, OFFER_KEYS))),
+    commercial: hash(stable(project?.offreFiche ?? null)),
+    mecanisme: hash(stable(m ? { id: m.id, nom: m.nom, ump: m.ump, ums: m.ums, croyance: m.croyance, statut: m.statut, limites: m.limites, interdits: m.interdits } : choix)),
+  };
+}
+export const empreinte = (project) => `v3:${hash(stable(partiesEmpreinte(project)))}`;
+// Ce qu'il faut relire quand une partie change.
+export const PARTIES_A_RELIRE = {
+  questionnaire: ["Questionnaire", "le message, les angles et les textes qui s'en servent"],
+  preuves: ["Preuves et faits", "les affirmations des pages, des images et des voix off"],
+  message: ["Message central", "les titres et accroches des pages et des pubs"],
+  offre: ["Texte de l'offre", "les sections offre des pages"],
+  commercial: ["Offre commerciale (prix, packs, garantie)", "la marge (Validation produit) et les sections prix des pages"],
+  mecanisme: ["Mécanisme choisi", "les textes des pages et les pubs qui l'expliquent"],
+};
+export function partiesModifiees(project) {
+  const avant = project?.fondations?.valideParties;
+  if (!avant) return null;
+  const now = partiesEmpreinte(project);
+  return Object.keys(now).filter((k) => avant[k] !== now[k]);
+}
+
 // Statut après une modification : une validation dont le contenu a changé
 // devient « modifiée » (et redevient « validée » si on revient en arrière).
 // Les anciennes empreintes (v1) sont migrées sans perte : si le contenu n'a
@@ -81,11 +116,15 @@ export function statutFondations(project) {
   const fd = project?.fondations;
   if (!fd || !["validée", "modifiée"].includes(fd.statut) || !fd.valideEmpreinte) return fd;
   let ref = fd.valideEmpreinte;
-  if (!String(ref).startsWith("v2:")) {
-    if (ref !== empreinteV1(fd)) return { ...fd, statut: "modifiée" };
+  let parties = fd.valideParties;
+  if (!String(ref).startsWith("v3:")) {
+    // Migration sans perte : v1 → v2 → v3 si rien n'a changé depuis.
+    const intact = String(ref).startsWith("v2:") ? ref === empreinteV2(project) : ref === empreinteV1(fd);
+    if (!intact) return { ...fd, statut: "modifiée" };
     ref = empreinte(project);
+    parties = partiesEmpreinte(project);
   }
-  return { ...fd, valideEmpreinte: ref, statut: empreinte(project) === ref ? "validée" : "modifiée" };
+  return { ...fd, valideEmpreinte: ref, ...(parties ? { valideParties: parties } : {}), statut: empreinte(project) === ref ? "validée" : "modifiée" };
 }
 
 // ---- Fusion à trois versions ----

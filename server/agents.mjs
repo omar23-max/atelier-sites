@@ -86,18 +86,35 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
       c.modifie = new Date().toISOString();
       await writeFile(convFile, JSON.stringify(c, null, 1) + "\n", "utf8");
     };
-    if (req.method === "GET") return json(res, 200, await load());
+    // Audit F09 (2026-11-25) : « en cours » sans travail réellement actif dans
+    // ce serveur (redémarrage) = réponse interrompue, et non plus bloqué pour toujours.
+    if (req.method === "GET") {
+      const c = await load();
+      if (c.statut === "en cours" && !chatsEnCours.has(convFile)) Object.assign(c, { statut: "erreur", erreur: "Réponse interrompue (serveur redémarré) : renvoie ton message." });
+      return json(res, 200, c);
+    }
     if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
     // Lot 2 (2026-11-23) : consigne nettoyée (sans la page de présentation) si elle existe.
     const propre = join(dir, "consignes-propres", `${slug}.txt`);
     const consFile = existsSync(propre) ? propre : join(dir, "consignes", `${slug}.txt`);
     if (!existsSync(consFile)) return json(res, 404, { error: "Pas de consigne pour cet agent." });
-    let c = await load();
+    // Audit F03 (2026-11-25) : contrôle et réservation d'un seul bloc (sans
+    // attente entre les deux) ; « Nouvelle conversation » refusée pendant une réponse.
+    if (chatsEnCours.has(convFile)) return json(res, 409, { error: "L'agent répond déjà, attends sa réponse." });
+    chatsEnCours.set(convFile, "réservé");
+    let c;
+    try {
+      c = await load();
+    } catch (e) {
+      chatsEnCours.delete(convFile);
+      throw e;
+    }
     if (b.nouvelle) c = { slug, projet: projet || null, messages: [], statut: "pret" };
-    if (c.statut === "en cours") return json(res, 409, { error: "L'agent répond déjà, attends sa réponse." });
     const text = String(b.message ?? "").trim();
     const images = (Array.isArray(b.images) ? b.images : []).filter((x) => typeof x === "string" && /^\/medias\/[\w./-]+\.(png|jpe?g|webp)$/i.test(x) && !x.includes("..")).slice(0, 6);
     if (!text && !images.length) {
+      chatsEnCours.delete(convFile);
+      if (c.statut === "en cours") Object.assign(c, { statut: "pret" });
       await save(c);
       return json(res, 200, c);
     }
@@ -105,9 +122,22 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     c.statut = "en cours";
     c.erreur = null;
     c.web = b.web !== false;
+    // WinningHunter dans le chat ChatGPT (2026-11-25) : coché par défaut si la clé existe.
+    c.wh = b.wh !== false;
     c.moteur = b.moteur === "claude" ? "claude" : "chatgpt";
-    await save(c);
-    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur).catch(() => {});
+    // Identifiant de cette exécution : une réponse tardive d'une autre exécution est ignorée.
+    const runId = `r-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    c.runId = runId;
+    chatsEnCours.set(convFile, runId);
+    try {
+      await save(c);
+    } catch (e) {
+      chatsEnCours.delete(convFile);
+      throw e;
+    }
+    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur, runId, c.wh)
+      .catch(() => {})
+      .finally(() => chatsEnCours.get(convFile) === runId && chatsEnCours.delete(convFile));
     return json(res, 200, c);
   }
 
@@ -140,28 +170,31 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     if (!/^[a-z0-9][a-z0-9-]{1,90}$/.test(projet) || !texte || !["recherche", "angle"].includes(b.cible)) return json(res, 400, { error: "Demande incomplète." });
     const pf = join(root, "projets", `${projet}.json`);
     if (!existsSync(pf)) return json(res, 404, { error: "Projet introuvable." });
-    const p = JSON.parse(await readFile(pf, "utf8"));
     const le = new Date().toISOString();
     const agent = String(b.agent ?? "").slice(0, 120);
-    if (b.cible === "recherche") {
-      p.fondations = p.fondations ?? {};
-      p.fondations.reponses = p.fondations.reponses ?? {};
-      p.fondations.reponses.notesAgents = [...(p.fondations.reponses.notesAgents ?? []), { texte, agent, le }];
-    } else {
-      const lignes = texte.replace(/[#*_>`]/g, "").split("\n").map((l) => l.trim()).filter(Boolean);
-      p.angles = [...(p.angles ?? []), { id: `angle-agent-${Date.now().toString(36)}`, titre: (lignes[0] ?? "Angle proposé").slice(0, 90), promesse: (lignes[1] ?? "").slice(0, 300), notes: texte, choisi: false, source: "agent", agent, le }];
-    }
-    const { rename } = await import("node:fs/promises");
-    const tmp = `${pf}.${Date.now().toString(36)}.tmp`;
-    await writeFile(tmp, JSON.stringify(p, null, 2) + "\n", "utf8");
-    await rename(tmp, pf);
+    // Sous le verrou commun des projets (audit F02, 2026-11-25) : deux adoptions
+    // ou une adoption pendant une modification ne s'écrasent plus.
+    const { muterProjet } = await import("./commun.mjs");
+    await muterProjet(projet, (p) => {
+      if (b.cible === "recherche") {
+        p.fondations = p.fondations ?? {};
+        p.fondations.reponses = p.fondations.reponses ?? {};
+        p.fondations.reponses.notesAgents = [...(p.fondations.reponses.notesAgents ?? []), { texte, agent, le }];
+      } else {
+        const lignes = texte.replace(/[#*_>`]/g, "").split("\n").map((l) => l.trim()).filter(Boolean);
+        // Audit F12 : titre et promesse relus par l'utilisateur avant l'ajout (sinon les 2 premières lignes).
+        const titre = String(b.titre ?? "").trim() || lignes[0] || "Angle proposé";
+        const promesse = String(b.promesse ?? "").trim() || lignes[1] || "";
+        p.angles = [...(p.angles ?? []), { id: `angle-agent-${Date.now().toString(36)}`, titre: titre.slice(0, 90), promesse: promesse.slice(0, 300), notes: texte, choisi: false, source: "agent", agent, le }];
+      }
+    });
     return json(res, 200, { ok: true, cible: b.cible });
   }
   // GET /api/agents/moteurs → moteurs disponibles (clé présente ou non).
   if (parts[1] === "moteurs" && req.method === "GET") {
     const { loadEnv } = await import("vite");
     const env = loadEnv("development", root, "");
-    return json(res, 200, { chatgpt: Boolean(env.OPENAI_API_KEY), claude: Boolean(env.ANTHROPIC_API_KEY) });
+    return json(res, 200, { chatgpt: Boolean(env.OPENAI_API_KEY), claude: Boolean(env.ANTHROPIC_API_KEY), winninghunter: Boolean(env.WINNINGHUNTER_API_KEY) });
   }
   // POST /api/agents/cle-claude { cle } → clé Anthropic de l'utilisateur,
   // rangée dans .env.local (comme la clé WinningHunter).
@@ -255,7 +288,12 @@ async function imageInput(root, url) {
   }
 }
 
-async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt") {
+// Chats en cours dans CE serveur : fichier de conversation → identifiant d'exécution (audit F03 / F09).
+const chatsEnCours = new Map();
+
+async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt", runId = null, wh = false) {
+  // La conversation a-t-elle changé d'exécution (nouvelle conversation, autre envoi) ?
+  const perimee = (c2) => runId && c2?.runId && c2.runId !== runId;
   const { loadEnv } = await import("vite");
   const env = loadEnv("development", root, "");
   const read = async () => JSON.parse(await readFile(convFile, "utf8"));
@@ -265,6 +303,7 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
     if (moteur === "claude") {
       const r = await runClaude(root, env, instructions, c.messages, web);
       const c2 = await read();
+      if (perimee(c2)) return;
       c2.messages.push({ role: "assistant", text: r.text, sources: r.sources, recherche: r.searched, moteur: "claude", le: new Date().toISOString() });
       c2.statut = "pret";
       await save(c2);
@@ -283,10 +322,20 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
         input.push({ role: "user", content });
       }
     }
+    // WinningHunter (2026-11-25) : serveur MCP distant appelé directement par
+    // OpenAI, avec la MÊME liste d'outils en lecture seule que les agents de
+    // Recherche (aucun outil de lancement de pubs ni de campagne).
+    const tools = web ? [{ type: "web_search" }] : [];
+    let consigneWh = "";
+    if (wh && env.WINNINGHUNTER_API_KEY) {
+      const { OUTILS_PERMIS, MCP } = await import("./recherche.mjs");
+      tools.push({ type: "mcp", server_label: "winninghunter", server_description: "WinningHunter : pubs Facebook/TikTok, boutiques Shopify (revenus, trafic), produits gagnants, tendances (Exploding Topics). Lecture seule.", server_url: MCP, headers: { Authorization: `Bearer ${env.WINNINGHUNTER_API_KEY}`, "X-API-Key": env.WINNINGHUNTER_API_KEY }, allowed_tools: [...OUTILS_PERMIS], require_approval: "never" });
+      consigneWh = `\n- WINNINGHUNTER EST CONNECTÉ (outils MCP « winninghunter », lecture seule) : c'est ton « data path » principal. Utilise-le pour les boutiques (revenus et trafic estimés), les pubs actives Facebook et TikTok, les produits gagnants et les tendances ; tague ces chiffres [WH] (et [Web] ou [Est] pour le reste). Chaque appel coûte des crédits : pas d'appels en double, 10 au plus par réponse sauf si l'utilisateur demande plus.`;
+    }
     const res = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, instructions, input, ...(web ? { tools: [{ type: "web_search" }] } : {}) }),
+      body: JSON.stringify({ model: MODEL, instructions: instructions + consigneWh, input, ...(tools.length ? { tools } : {}) }),
       signal: AbortSignal.timeout(10 * 60 * 1000),
     });
     const body = await res.json().catch(() => ({}));
@@ -295,14 +344,16 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
     const text = out.filter((x) => x.type === "output_text").map((x) => x.text).join("\n\n").trim();
     const sources = [...new Map(out.flatMap((x) => x.annotations ?? []).filter((a) => a.type === "url_citation" && a.url).map((a) => [a.url, { url: a.url, titre: a.title ?? "" }])).values()].slice(0, 12);
     const searched = (body.output ?? []).some((o) => o.type === "web_search_call");
+    const appelsWh = (body.output ?? []).filter((o) => o.type === "mcp_call").map((o) => ({ outil: o.name, erreur: o.error ? String(o.error).slice(0, 200) : undefined }));
     if (!text) throw new Error("Réponse vide de l'IA.");
     const c2 = await read();
-    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", le: new Date().toISOString() });
+    if (perimee(c2)) return;
+    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", ...(appelsWh.length ? { winninghunter: appelsWh } : {}), le: new Date().toISOString() });
     c2.statut = "pret";
     await save(c2);
   } catch (e) {
     const c2 = await read().catch(() => null);
-    if (c2) {
+    if (c2 && !perimee(c2)) {
       c2.statut = "erreur";
       c2.erreur = e.message;
       await save(c2);

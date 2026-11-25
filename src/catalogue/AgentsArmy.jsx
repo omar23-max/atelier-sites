@@ -151,7 +151,7 @@ export function AgentsArmy({ espace = null }) {
               <div className="cat-army__btns">
                 {agent.consigne && (
                   <button type="button" className={vue === "chat" ? "cat-btn cat-btn--ghost" : "cat-btn"} onClick={() => setVue(vue === "chat" ? "presentation" : "chat")} title="Conversation avec l'agent, dans l'atelier">
-                    {vue === "chat" ? "← Présentation" : "▶ Lancer l'agent"}
+                    {vue === "chat" ? "← Présentation" : "💬 Ouvrir une conversation"}
                   </button>
                 )}
                 {agent.consigne ? (
@@ -220,6 +220,9 @@ function AgentChat({ agent }) {
   const [moteur, setMoteur] = useState(() => localStorage.getItem("atl-agents-moteur") ?? "chatgpt");
   const [moteurs, setMoteurs] = useState({ chatgpt: true, claude: false });
   const [web, setWeb] = useState(true);
+  // WinningHunter dans le chat ChatGPT (2026-11-25), lecture seule, coûte des crédits WH.
+  const [wh, setWh] = useState(() => localStorage.getItem("atl-agents-wh") !== "0");
+  useEffect(() => localStorage.setItem("atl-agents-wh", wh ? "1" : "0"), [wh]);
   const [conv, setConv] = useState(null);
   const [texte, setTexte] = useState("");
   const [err, setErr] = useState(null);
@@ -257,9 +260,14 @@ function AgentChat({ agent }) {
   }, []);
   useEffect(() => localStorage.setItem("atl-agents-projet", projet), [projet]);
   useEffect(() => localStorage.setItem("atl-agents-moteur", moteur), [moteur]);
+  // Audit F21 : une réponse arrivée après un changement d'agent ou de projet est ignorée.
+  const selection = useRef("");
+  selection.current = `${agent.slug}|${projet}`;
   async function charger() {
+    const pour = `${agent.slug}|${projet}`;
     try {
       const c = await fetch(`/api/agents/${agent.slug}/chat?${qs()}`).then((r) => r.json());
+      if (selection.current !== pour) return;
       setConv(c);
       return c;
     } catch (e) {
@@ -284,7 +292,7 @@ function AgentChat({ agent }) {
   async function envoyer(extra = {}) {
     setErr(null);
     try {
-      const r = await fetch(`/api/agents/${agent.slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, message: texte, images: photos, web, moteur, ...extra }) });
+      const r = await fetch(`/api/agents/${agent.slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, message: texte, images: photos, web, wh, moteur, ...extra }) });
       const b = await r.json();
       if (!r.ok) throw new Error(b.error ?? `Erreur ${r.status}`);
       setConv(b);
@@ -340,6 +348,11 @@ function AgentChat({ agent }) {
         <label className="cat-chat__check">
           <input type="checkbox" checked={web} onChange={(e) => setWeb(e.target.checked)} /> Recherche web
         </label>
+        {moteurs.winninghunter && (
+          <label className="cat-chat__check" title={moteur === "claude" ? "WinningHunter n'est branché qu'avec ChatGPT pour l'instant" : "L'agent peut lire WinningHunter (boutiques, pubs actives, TikTok, tendances). Lecture seule ; chaque appel coûte des crédits WinningHunter."}>
+            <input type="checkbox" checked={wh && moteur !== "claude"} disabled={moteur === "claude"} onChange={(e) => setWh(e.target.checked)} /> WinningHunter
+          </label>
+        )}
         <button type="button" className="cat-link" disabled={enCours || !msgs.length} onClick={() => window.confirm("Effacer cette conversation et repartir de zéro ?") && envoyer({ nouvelle: true, message: "", images: [] })}>
           Nouvelle conversation
         </button>
@@ -378,6 +391,7 @@ function AgentChat({ agent }) {
               <small className="cat-muted">
                 {m.moteur === "claude" ? "Claude" : "ChatGPT"}
                 {m.recherche ? " · a cherché sur le web" : ""}
+                {m.winninghunter?.length ? ` · WinningHunter (${m.winninghunter.length} appel${m.winninghunter.length > 1 ? "s" : ""}${m.winninghunter.some((x) => x.erreur) ? `, ${m.winninghunter.filter((x) => x.erreur).length} en erreur` : ""})` : ""}
               </small>
               <Markdown text={m.text} />
               {projet && <Adopter projet={projet} texte={m.text} agent={agent.titre} />}
@@ -418,6 +432,7 @@ function AgentChat({ agent }) {
       <div className="cat-chat__saisie">
         <textarea
           rows={3}
+          aria-label="Message à l'agent"
           value={texte}
           onChange={(e) => setTexte(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.ctrlKey || e.metaKey) && peutEnvoyer && envoyer()}
@@ -476,12 +491,30 @@ function ParTache({ taches, agents, cur, onPick }) {
 // projet comme proposition (note de recherche ou angle proposé), jamais comme fait.
 function Adopter({ projet, texte, agent }) {
   const [etat, setEtat] = useState(null);
-  async function go(cible) {
+  // Audit F12 (2026-11-25) : un angle est relu (titre, promesse) avant d'entrer dans le projet.
+  const [angle, setAngle] = useState(null);
+  function proposerAngle() {
+    const l = String(texte ?? "").replace(/[#*_>`]/g, "").split("\n").map((x) => x.trim()).filter(Boolean);
+    setAngle({ titre: (l[0] ?? "").slice(0, 90), promesse: (l[1] ?? "").slice(0, 300) });
+  }
+  async function go(cible, extra = {}) {
     setEtat("…");
-    const r = await fetch("/api/agents/adopter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, cible, texte, agent }) });
+    const r = await fetch("/api/agents/adopter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, cible, texte, agent, ...extra }) });
     const b = await r.json().catch(() => ({}));
     setEtat(r.ok ? (cible === "angle" ? "✓ Ajouté aux angles proposés (étape Angles, non choisi)" : "✓ Ajouté aux notes de recherche (étape Recherche client)") : `⚠ ${b.error ?? "Échec"}`);
   }
+  if (angle && !etat)
+    return (
+      <div className="cat-chat__adopter cat-chat__adopter--angle">
+        <span className="cat-muted">Angle à ajouter (relis et corrige avant) :</span>
+        <input value={angle.titre} maxLength={90} placeholder="Titre de l'angle" onChange={(e) => setAngle({ ...angle, titre: e.target.value })} />
+        <textarea rows={2} value={angle.promesse} maxLength={300} placeholder="Promesse" onChange={(e) => setAngle({ ...angle, promesse: e.target.value })} />
+        <span>
+          <button type="button" className="cat-btn" disabled={!angle.titre.trim()} onClick={() => go("angle", angle)}>Ajouter aux angles proposés</button>{" "}
+          <button type="button" className="cat-link" onClick={() => setAngle(null)}>Annuler</button>
+        </span>
+      </div>
+    );
   return (
     <div className="cat-chat__adopter">
       {etat ? (
@@ -492,7 +525,7 @@ function Adopter({ projet, texte, agent }) {
           <button type="button" className="cat-link" onClick={() => go("recherche")} title="Gardé comme piste de recherche : inspire, ne prouve rien">
             note de recherche
           </button>
-          <button type="button" className="cat-link" onClick={() => go("angle")} title="Ajouté aux angles du projet, à choisir ou non">
+          <button type="button" className="cat-link" onClick={proposerAngle} title="Ajouté aux angles du projet, à choisir ou non (tu relis le titre et la promesse avant)">
             angle proposé
           </button>
         </>
@@ -548,10 +581,17 @@ function OmarAgent({ a }) {
   useEffect(() => setRegl(Object.fromEntries(champs.map((f) => [f.cle, f.defaut]))), [a.slug]);
   const [err, setErr] = useState("");
   const tournait = useRef(false);
-  const charger = () =>
-    fetch(`/api/recherche/${a.slug}`)
+  // Audit F21 (2026-11-25) : une réponse qui ne correspond plus à l'agent ou au
+  // résultat demandé (réponse lente) ne remplace pas l'écran.
+  const actif = useRef(a.slug);
+  actif.current = a.slug;
+  const demande = useRef(0);
+  const charger = () => {
+    const pour = a.slug;
+    return fetch(`/api/recherche/${a.slug}`)
       .then((r) => r.json())
       .then((d) => {
+        if (actif.current !== pour) return;
         setEtat(d);
         if (d.statut === "en cours") tournait.current = true;
         else {
@@ -561,6 +601,7 @@ function OmarAgent({ a }) {
         }
       })
       .catch(() => {});
+  };
   useEffect(() => {
     setEtat(null);
     setVu(null);
@@ -579,7 +620,27 @@ function OmarAgent({ a }) {
     tournait.current = true;
     setEtat((e) => ({ ...e, statut: "en cours", etape: "Démarrage…" }));
   };
-  const ouvrir = (f) => f && fetch(`/api/recherche/${a.slug}/${f}`).then((r) => r.json()).then(setVu);
+  const ouvrir = (f) => {
+    if (!f) return;
+    const n = ++demande.current;
+    const pour = a.slug;
+    fetch(`/api/recherche/${a.slug}/${f}`)
+      .then((r) => r.json())
+      .then((d) => n === demande.current && actif.current === pour && setVu(d))
+      .catch(() => {});
+  };
+  const fichierVu = vu ? etat?.historique?.find((h) => h.le === vu.le)?.fichier : null;
+  const reprendre = () =>
+    setRegl((cur) =>
+      Object.fromEntries(
+        champs.map((f) => {
+          if (f.zone) return [f.cle, cur[f.cle] ?? f.defaut];
+          const v = vu?.reglages?.[f.cle];
+          if (v == null) return [f.cle, f.defaut];
+          return [f.cle, f.options && !f.options.some(([o]) => o === String(v)) ? f.defaut : String(v)];
+        }),
+      ),
+    );
   const tourne = etat?.statut === "en cours";
   const nom = a.titre.replace(/^Omar_winninghunter_/i, "");
   const cartes = [["Quand l'utiliser", pg.quand], ["Ce que tu obtiens", pg.obtiens], ["Ce qu'il utilise", pg.utilise]].filter(([, l]) => l?.length);
@@ -591,8 +652,8 @@ function OmarAgent({ a }) {
           <h2>{a.titre}</h2>
         </div>
         <div className="cat-army__btns">
-          <button type="button" className="cat-btn" disabled={!pret || tourne} onClick={lancer} title={pret ? "Lancer une recherche (quelques crédits WinningHunter)" : "Cet agent est en construction"}>
-            {!pret ? "En construction" : tourne ? "En cours…" : "▶ Lancer l'agent"}
+          <button type="button" className="cat-btn" disabled={!pret || tourne} onClick={lancer} title={pret ? "Démarre tout de suite une recherche payante : crédits WinningHunter + IA, résultat en quelques minutes" : "Cet agent est en construction"}>
+            {!pret ? "En construction" : tourne ? "Recherche en cours…" : "▶ Lancer une recherche (crédits)"}
           </button>
         </div>
       </header>
@@ -627,6 +688,7 @@ function OmarAgent({ a }) {
 
         {pret && champs.length > 0 && (
           <section className="om-wrap">
+            <p className="om-label om-regl__titre">Prochain lancement : réglages</p>
             <div className="om-regl">
               {champs.map((f) => (
                 <label key={f.cle} className={f.large ? "om-regl__large" : ""}>
@@ -656,17 +718,29 @@ function OmarAgent({ a }) {
                   </select>
                 </label>
               )}
-              <button type="button" className="om-go" disabled={tourne} onClick={lancer}>
-                {tourne ? "En cours…" : "▶ Lancer"}
+              <button type="button" className="om-go" disabled={tourne} onClick={lancer} title="Démarre tout de suite une recherche payante (crédits WinningHunter + IA)">
+                {tourne ? "Recherche en cours…" : "▶ Lancer une recherche"}
               </button>
             </div>
-            {err && <p className="om-msg is-err">{err}</p>}
-            {tourne && <p className="om-msg">⏳ {etat.etape ?? "En cours…"}</p>}
+            {err && <p className="om-msg is-err" role="alert">{err}</p>}
+            {tourne && <p className="om-msg" role="status">⏳ {etat.etape ?? "En cours…"}</p>}
             {etat?.statut === "erreur" && !tourne && <p className="om-msg is-err">Le dernier lancement a échoué : {etat.erreur}</p>}
           </section>
         )}
 
-        {vu && (vu.lignes ? <AgentResultat r={vu} consigne={a.consigneMd} /> : <RadarResultat r={vu} consigne={a.consigneMd} />)}
+        {vu && (
+          <section className="om-wrap om-vu">
+            <p>
+              <b>Résultat affiché :</b> lancement du {new Date(vu.le).toLocaleString("fr-CA", { dateStyle: "long", timeStyle: "short" })} · réglages de ce lancement : {libelleReglages(a.slug, vu.reglages) || "par défaut"}
+              {champs.some((f) => !f.zone) && (
+                <button type="button" className="cat-link" onClick={reprendre} title="Remet ces réglages dans le formulaire du prochain lancement">
+                  Reprendre ces réglages
+                </button>
+              )}
+            </p>
+          </section>
+        )}
+        {vu && (vu.lignes ? <AgentResultat r={vu} consigne={a.consigneMd} slug={a.slug} fichier={fichierVu} /> : <RadarResultat r={vu} consigne={a.consigneMd} slug={a.slug} fichier={fichierVu} />)}
 
         {pg.comment?.length > 0 && (
           <section className="om-wrap">
@@ -695,7 +769,10 @@ function OmarAgent({ a }) {
 
 const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString("fr-CA"));
 
-function RadarResultat({ r, consigne }) {
+// Audit F10 (2026-11-25) : libellés honnêtes. « exponentielle » = calcul maison sur 3 périodes.
+const COURBE_LIBELLE = { exponentielle: "accélère (3 périodes)", "en hausse": "en hausse", "en baisse": "en baisse", plate: "plate", inconnue: "inconnue" };
+
+function RadarResultat({ r, consigne, slug, fichier }) {
   const [onglet, setOnglet] = useState("tableau");
   const c = r.chiffres ?? {};
   const pistes = r.pistes ?? [];
@@ -720,8 +797,8 @@ function RadarResultat({ r, consigne }) {
                   <th>Piste</th>
                   <th>Recherches / mois</th>
                   <th>Croissance</th>
-                  <th>Courbe</th>
-                  <th>Concurrents</th>
+                  <th title="Calcul maison : moyennes de trois périodes comparées">Courbe</th>
+                  <th title="Marques distinctes vues dans UNE recherche de pubs WinningHunter (mot-clé, pays, tri par dépense) : un échantillon, pas un recensement">Annonceurs vus</th>
                   <th>Verdict</th>
                 </tr>
               </thead>
@@ -741,7 +818,7 @@ function RadarResultat({ r, consigne }) {
                       <span className="om-barre is-bleu"><i style={{ width: `${Math.round(((p.croissance ?? 0) / maxC) * 100)}%` }} /></span>
                       <span className="om-num">+{fmt(p.croissance)} %</span>
                     </td>
-                    <td><span className="om-chip">{p.courbe ?? "—"}</span></td>
+                    <td><span className="om-chip">{COURBE_LIBELLE[p.courbe] ?? p.courbe ?? "—"}</span></td>
                     <td className="om-num" title={(p.concurrents?.noms ?? []).join(", ")}>{p.concurrents?.nombre ?? "?"}</td>
                     <td><span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict === "feu vert" ? "✓ " : p.verdict === "à surveiller" ? "! " : "✕ "}{p.verdict}</span></td>
                   </tr>
@@ -750,6 +827,10 @@ function RadarResultat({ r, consigne }) {
             </table>
             <p className="om-board__note">{r.resume}</p>
             {r.assoupli && <p className="om-board__note">Catégorie étroite : seuils assouplis à {fmt(r.assoupli.volume)} recherches et +{r.assoupli.croissance} % pour les pistes marquées.</p>}
+            <p className="om-board__note om-portee">
+              <b>D'où viennent les chiffres :</b> recherches et croissance = mesures Exploding Topics (WinningHunter) · courbe = calcul maison sur trois périodes · annonceurs vus = marques distinctes dans un échantillon d'une recherche de pubs ({r.reglages?.pays}), pas tout le marché : 0 ne veut pas dire aucun concurrent · verdict = interprétation de l'IA : un feu vert reste une hypothèse à tester.
+            </p>
+            {r.rejetees?.length > 0 && <p className="om-board__note">Contrôle : {r.rejetees.length} piste(s) de l'IA refusée(s), absentes des tendances observées ({r.rejetees.join(", ")}).</p>}
           </>
         )}
         {onglet === "detail" && (
@@ -760,13 +841,18 @@ function RadarResultat({ r, consigne }) {
                   <strong>{p.sujet}</strong>
                   <span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict}</span>
                 </header>
+                <p className="om-mesures">
+                  <b>Mesures :</b> {p.volume != null ? `${fmt(p.volume)} recherches/mois` : "recherches : non relevées"} · {p.croissance != null ? `+${fmt(p.croissance)} % sur ${r.reglages?.periode ?? "?"} mois` : "croissance : non relevée"} · courbe {COURBE_LIBELLE[p.courbe] ?? p.courbe ?? "inconnue"} · {p.concurrents?.nombre != null ? `${p.concurrents.nombre} annonceur(s) vu(s) dans l'échantillon` : "annonceurs : non relevés"}
+                  {p.libelleIA && <span className="om-mini">nommée « {p.libelleIA} » par l'IA</span>}
+                </p>
                 <p>{p.pourquoi}</p>
                 {p.produitConcret && <p><b>Produit :</b> {p.produitConcret}</p>}
                 {p.angle && <p><b>Angle :</b> {p.angle}</p>}
                 {p.sousTendances?.length > 0 && <p><b>Sous-tendances :</b> {p.sousTendances.join(", ")}</p>}
-                {p.concurrents?.noms?.length > 0 && <p><b>Concurrents :</b> {p.concurrents.noms.join(", ")}</p>}
+                {p.concurrents?.noms?.length > 0 && <p><b>Annonceurs vus :</b> {p.concurrents.noms.join(", ")}</p>}
                 {p.risques?.length > 0 && <p><b>Risques :</b> {p.risques.join(" · ")}</p>}
                 {p.prochaineEtape && <p><b>Ensuite :</b> {p.prochaineEtape}</p>}
+                <EnvoyerPiste slug={slug} fichier={fichier} id={p.id ?? p.sujet} />
               </article>
             ))}
           </div>
@@ -780,7 +866,7 @@ function RadarResultat({ r, consigne }) {
                 </thead>
                 <tbody>
                   {r.autresProduits.map((t) => (
-                    <tr key={t.sujet}><td className="om-table__nom">{t.sujet}</td><td className="om-num">{fmt(t.volume)}</td><td className="om-num">+{fmt(t.croissance)} %</td><td><span className="om-chip">{t.courbe}</span></td></tr>
+                    <tr key={t.sujet}><td className="om-table__nom">{t.sujet}</td><td className="om-num">{fmt(t.volume)}</td><td className="om-num">+{fmt(t.croissance)} %</td><td><span className="om-chip">{COURBE_LIBELLE[t.courbe] ?? t.courbe}</span></td></tr>
                   ))}
                 </tbody>
               </table>
@@ -809,7 +895,7 @@ function RadarResultat({ r, consigne }) {
 }
 
 // Résultat commun des agents 2 à 5 : tableau bleu nuit + onglets (2026-11-23)
-function AgentResultat({ r, consigne }) {
+function AgentResultat({ r, consigne, slug, fichier }) {
   const [onglet, setOnglet] = useState("tableau");
   const lignes = r.lignes ?? [];
   const maxi = Object.fromEntries((r.colonnes ?? []).filter((c) => c.type === "barre").map((c) => [c.cle, Math.max(1, ...lignes.map((l) => Number(l[c.cle]) || 0))]));
@@ -861,23 +947,37 @@ function AgentResultat({ r, consigne }) {
             )}
             <p className="om-board__note">{r.resume}</p>
             {(r.notes ?? []).map((n) => <p key={n} className="om-board__note">{n}</p>)}
+            <p className="om-board__note om-portee">
+              <b>D'où viennent les chiffres :</b> relevés WinningHunter dans l'échantillon de cette recherche (réglages et période ci-dessus), pas tout le marché · verdicts = interprétation de l'IA : un feu vert reste une hypothèse à tester.
+            </p>
+            {r.rejetees?.length > 0 && <p className="om-board__note">Contrôle : {r.rejetees.length} piste(s) de l'IA refusée(s), absentes des lignes observées ({r.rejetees.join(", ")}).</p>}
           </>
         )}
         {onglet === "detail" && (
           <div className="om-board__corps">
-            {(r.pistes ?? []).length ? (r.pistes ?? []).map((p) => (
+            {(r.pistes ?? []).length ? (r.pistes ?? []).map((p) => {
+              const l = lignes.find((x) => String(x.id) === String(p.id));
+              const mesures = l ? (r.colonnes ?? []).filter((c) => ["num", "barre", "chip"].includes(c.type) && l[c.cle] != null && l[c.cle] !== "" && l[c.cle] !== "—") : [];
+              return (
               <article key={p.id ?? p.sujet} className="om-piste">
                 <header>
                   <strong>{p.sujet}</strong>
                   <span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict}</span>
                 </header>
+                {mesures.length > 0 && (
+                  <p className="om-mesures">
+                    <b>Mesures (ligne {p.id}) :</b> {mesures.map((c) => `${c.label} ${typeof l[c.cle] === "number" ? fmt(l[c.cle]) : l[c.cle]}${c.suffixe ?? ""}`).join(" · ")}
+                  </p>
+                )}
                 <p>{p.pourquoi}</p>
                 {p.produitConcret && <p><b>Produit :</b> {p.produitConcret}</p>}
                 {p.angle && <p><b>Angle :</b> {p.angle}</p>}
                 {p.risques?.length > 0 && <p><b>Risques :</b> {p.risques.join(" · ")}</p>}
                 {p.prochaineEtape && <p><b>Ensuite :</b> {p.prochaineEtape}</p>}
+                <EnvoyerPiste slug={slug} fichier={fichier} id={p.id ?? p.sujet} />
               </article>
-            )) : <p>Aucune piste retenue.</p>}
+              );
+            }) : <p>Aucune piste retenue.</p>}
           </div>
         )}
         {onglet === "autres" && (
@@ -906,6 +1006,65 @@ function AgentResultat({ r, consigne }) {
         </nav>
       </div>
     </section>
+  );
+}
+
+// Audit F11 (2026-11-25) : « Envoyer dans un projet » : la piste entre dans
+// un projet existant ou nouveau comme note de recherche, avec son origine
+// (agent, date, réglages, mesures, limites). Jamais comme preuve.
+function EnvoyerPiste({ slug, fichier, id }) {
+  const [ouvert, setOuvert] = useState(false);
+  const [projets, setProjets] = useState(null);
+  const [choix, setChoix] = useState(() => localStorage.getItem("atl-agents-projet") ?? "");
+  const [nom, setNom] = useState("");
+  const [etat, setEtat] = useState(null);
+  useEffect(() => {
+    if (!ouvert || projets) return;
+    fetch("/api/projects")
+      .then((r) => r.json())
+      .then((l) => setProjets(Array.isArray(l) ? l : l.projects ?? []))
+      .catch(() => setProjets([]));
+  }, [ouvert]);
+  if (!slug || !fichier) return null;
+  async function envoyer() {
+    const nouveau = choix === "__nouveau";
+    if (nouveau ? !nom.trim() : !choix) return setEtat({ err: nouveau ? "Donne un nom au nouveau projet." : "Choisis un projet." });
+    setEtat({ msg: "…" });
+    const r = await fetch(`/api/recherche/${slug}/adopter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fichier, id, ...(nouveau ? { nouveau: nom } : { projet: choix }) }) }).catch(() => null);
+    const b = (await r?.json().catch(() => ({}))) ?? {};
+    if (!r?.ok) return setEtat({ err: b.error ?? "Échec de l'envoi." });
+    localStorage.setItem("atl-agents-projet", b.projet);
+    setEtat({ ok: b.projet });
+  }
+  if (etat?.ok)
+    return (
+      <p className="om-envoi">
+        ✓ Ajoutée aux notes de recherche du projet <b>{etat.ok}</b> (Projets → ce projet → étape Recherche client), avec son origine. Hypothèse, pas une preuve.
+      </p>
+    );
+  if (!ouvert)
+    return (
+      <p className="om-envoi">
+        <button type="button" className="cat-link" onClick={() => setOuvert(true)} title="La piste entre dans un projet comme note de recherche, avec ses chiffres et leur origine">
+          → Envoyer cette piste dans un projet
+        </button>
+      </p>
+    );
+  return (
+    <div className="om-envoi om-envoi--form">
+      <select value={choix} onChange={(e) => setChoix(e.target.value)}>
+        <option value="">Choisis un projet…</option>
+        {(projets ?? []).map((p) => (
+          <option key={p.id} value={p.id}>{p.nom ?? p.id}</option>
+        ))}
+        <option value="__nouveau">+ Nouveau projet</option>
+      </select>
+      {choix === "__nouveau" && <input value={nom} placeholder="Nom du nouveau projet" onChange={(e) => setNom(e.target.value)} />}
+      <button type="button" className="cat-btn" onClick={envoyer}>Envoyer</button>
+      <button type="button" className="cat-link" onClick={() => setOuvert(false)}>Annuler</button>
+      {etat?.err && <span className="om-msg is-err">{etat.err}</span>}
+      {etat?.msg && <span className="cat-muted">{etat.msg}</span>}
+    </div>
   );
 }
 

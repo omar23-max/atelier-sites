@@ -171,7 +171,8 @@ function Progress() {
 // Lancer, modèle, réglages du pilote, « Que se passe-t-il »). Chaque image est
 // faite par le serveur de l'atelier (/api/ia/studio, gpt-image-2 ou Nano
 // Banana), une à la fois, puis installée à sa place dans la page, une par une.
-// Les versions sont gardées dans le navigateur (localStorage) par page.
+// Les versions sont gardées par page dans le navigateur ET sur le serveur
+// (/api/studio-lot, audit F15) : un autre navigateur retrouve le lot.
 // Lot E (2026-11-24) : agents qui peuvent écrire le prompt de chaque image.
 const STUDIO_AGENTS_MIROIR = [["whitelabeler-image-mirror-studio-v-1", "Image Mirror Studio V.1"], ["whitelabeler-style-mirror-image-creator-v-1", "Style Mirror Image Creator V.1"], ["shopfunnels-ai-image-recreator", "AI Image Recreator"]];
 const STUDIO_AGENTS_PUB = [["shopfunnels-ai-scroll-stopping-image-ad-specialists", "Scroll-Stopping Image Ad Specialists"], ["shopfunnels-ai-ad-rebuilder-v-3", "AI Ad Rebuilder V3"], ["whitelabeler-product-mockup-generator-v-1", "Product Mockup Generator"], ["whitelabeler-hyper-realistic-ugc-image-studio-v-1", "Hyper Realistic UGC Image Studio"], ["whitelabeler-branded-image-creator-v-1", "Branded Image Creator"]];
@@ -236,11 +237,42 @@ function StudioDialog({ onClose }) {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
   const pub = form.mode === "pub";
 
+  // Audit F15 (2026-11-25) : au chargement, on fusionne le lot du serveur
+  // (versions réunies par fichier) ; ensuite chaque changement y est envoyé.
+  const lotCharge = useRef(false);
+  useEffect(() => {
+    fetch(`/api/studio-lot/${pageName}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => {
+        if (d?.results)
+          setResults((cur) => {
+            const out = { ...d.results };
+            for (const [k, v] of Object.entries(cur ?? {})) {
+              const s = out[k];
+              if (!s) {
+                out[k] = v;
+                continue;
+              }
+              const urls = new Set((s.versions ?? []).map((x) => x.url));
+              out[k] = { ...v, ...s, versions: [...(s.versions ?? []), ...(v.versions ?? []).filter((x) => !urls.has(x.url))] };
+            }
+            return out;
+          });
+        if (Array.isArray(d?.retirees) && d.retirees.length) setRetirees((cur) => new Set([...cur, ...d.retirees]));
+      })
+      .catch(() => {})
+      .finally(() => (lotCharge.current = true));
+  }, []);
   useEffect(() => {
     try {
       localStorage.setItem(LS, JSON.stringify(results));
     } catch {}
-  }, [results]);
+    if (!lotCharge.current) return;
+    const t = setTimeout(() => {
+      fetch(`/api/studio-lot/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ results, retirees: [...retirees] }) }).catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
+  }, [results, retirees]);
   useEffect(() => {
     try {
       if (retirees.size) localStorage.setItem(LS_RETIREES, JSON.stringify([...retirees]));
@@ -414,19 +446,25 @@ function StudioDialog({ onClose }) {
     // images prévues → on s'arrête après la première pour la regarder.
     const essai = done === 0 && Math.min(limit, todo.length) > 1;
     setStatus((s) => ({ ...s, ...Object.fromEntries(todo.map((t) => [t.key, "attente"])) }));
+    // Audit F15 : « faites » = réussies seulement ; la limite porte sur les tentatives.
     let faites = 0;
+    let tentees = 0;
+    let echecs = 0;
     for (const t of todo) {
-      if (stopRef.current || faites >= limit) break;
+      if (stopRef.current || tentees >= limit) break;
       if (faites > 0 && ((form.autopilot && form.rythme === "demander") || (essai && faites === 1))) {
         setRun({ state: "demande", faites, next: t.sectionLabel, essai: essai && faites === 1 });
         const go = await new Promise((resolve) => (continueRef.current = resolve));
         if (!go) break;
       }
-      setRun({ state: "marche", faites, total: Math.min(limit, todo.length) });
-      await generate(t);
-      faites++;
+      setRun({ state: "marche", faites, echecs, total: Math.min(limit, todo.length) });
+      const ok = await generate(t);
+      tentees++;
+      if (ok) faites++;
+      else echecs++;
       await sleep(50);
     }
+    if (echecs) setFlash({ error: `${faites} image(s) réussie(s), ${echecs} en échec : relance les images en erreur.` });
     setStatus((s) => Object.fromEntries(Object.entries(s).filter(([, v]) => v !== "attente")));
     setRun(null);
   }
@@ -776,7 +814,7 @@ function StudioDialog({ onClose }) {
               run.state === "demande" ? (
                 <div className="atl-mirror__ask">
                   <span>
-                    {run.essai ? "Image d'essai faite : regarde-la avant de lancer les autres. " : `${run.faites} faite(s). `}
+                    {run.essai ? "Image d'essai faite : regarde-la avant de lancer les autres. " : `${run.faites} réussie(s)${run.echecs ? `, ${run.echecs} en échec` : ""}. `}
                     Suivante : <b>{run.next}</b>
                   </span>
                   <button type="button" className="atl-mirror__go" onClick={() => continueRef.current?.(true)}>
@@ -788,7 +826,7 @@ function StudioDialog({ onClose }) {
                 </div>
               ) : (
                 <button type="button" className="atl-mirror__stop" onClick={stop}>
-                  ■ Arrêter après l'image en cours ({run.faites} / {run.total})
+                  ■ Arrêter après l'image en cours ({run.faites} réussie(s){run.echecs ? `, ${run.echecs} échec(s)` : ""} / {run.total})
                 </button>
               )
             ) : (

@@ -11,7 +11,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { root, pagesDir, sectionsDir, trashDir, requestsDir, projectsDir, importsDir, mediasDir, NAME, TRASH_NAME, stamp, readBody, thumbTimers, refreshPageThumb, json, supabaseClient, mediaPlace, pageRev, pageWriters } from "./commun.mjs";
+import { root, pagesDir, sectionsDir, trashDir, requestsDir, projectsDir, importsDir, mediasDir, NAME, TRASH_NAME, stamp, readBody, thumbTimers, refreshPageThumb, json, supabaseClient, mediaPlace, pageRev, pageWriters, lockFile, writeAtomic, muterProjet, noterOuverture, datesOuverture } from "./commun.mjs";
 const jsonOut = json;
 import { empreinte, statutFondations } from "../src/engine/fondations-etat.js";
 
@@ -20,28 +20,7 @@ import { empreinte, statutFondations } from "../src/engine/fondations-etat.js";
 // l'écriture se font d'un bloc, deux requêtes ne peuvent plus lire la même
 // ancienne version puis écrire chacune. Écriture atomique : fichier
 // temporaire puis renommage (jamais de fichier à moitié écrit).
-const fileLocks = new Map();
-function lockFile(key, fn) {
-  const next = (fileLocks.get(key) ?? Promise.resolve()).then(fn, fn);
-  const tail = next.catch(() => {});
-  fileLocks.set(key, tail);
-  tail.then(() => fileLocks.get(key) === tail && fileLocks.delete(key));
-  return next;
-}
-async function writeAtomic(file, text) {
-  const { rename } = await import("node:fs/promises");
-  const tmp = `${file}.${process.pid}.${Date.now().toString(36)}.tmp`;
-  await writeFile(tmp, text, "utf8");
-  for (let attempt = 0; ; attempt++) {
-    try {
-      await rename(tmp, file);
-      return;
-    } catch (e) {
-      if (attempt >= 5 || !/EBUSY|EPERM|UNKNOWN/.test(e.code ?? e.message)) throw e;
-      await new Promise((r) => setTimeout(r, 300));
-    }
-  }
-}
+// lockFile et writeAtomic : partagés par tout le serveur (server/commun.mjs, audit F02).
 
 export function atelierApi() {
   const db = supabaseClient();
@@ -482,8 +461,12 @@ export function atelierApi() {
             if (!parts[1] && req.method === "GET") {
               const files = existsSync(projectsDir) ? await readdir(projectsDir) : [];
               const out = [];
-              for (const f of files.filter((x) => x.endsWith(".json")).sort())
-                out.push(JSON.parse(await readFile(join(projectsDir, f), "utf8")));
+              const ouverts = await datesOuverture();
+              for (const f of files.filter((x) => x.endsWith(".json") && !x.startsWith("_")).sort()) {
+                const pj = JSON.parse(await readFile(join(projectsDir, f), "utf8"));
+                if (ouverts[pj.id]) pj.ouvertLe = ouverts[pj.id];
+                out.push(pj);
+              }
               return json(res, 200, out);
             }
             if (!NAME.test(parts[1] ?? "")) return json(res, 400, { error: "Identifiant de projet invalide." });
@@ -493,18 +476,16 @@ export function atelierApi() {
               if (!existsSync(file)) return json(res, 404, { error: "Projet introuvable." });
               const { page, canal, ...rest } = await readBody(req);
               if (!NAME.test(page ?? "") || canal !== "html") return json(res, 400, { error: "Publication invalide." });
-              const p = JSON.parse(await readFile(file, "utf8"));
-              p.publication ??= {};
-              p.publication[page] = { ...(p.publication[page] ?? {}), [canal]: { le: new Date().toISOString(), ...rest } };
-              await writeFile(file, JSON.stringify(p, null, 2) + "\n", "utf8");
+              await muterProjet(parts[1], (p) => {
+                p.publication ??= {};
+                p.publication[page] = { ...(p.publication[page] ?? {}), [canal]: { le: new Date().toISOString(), ...rest } };
+              });
               return json(res, 200, { ok: true });
             }
             // Projet ouvert dans l'atelier : date utilisée pour « les 5 derniers ouverts ».
             if (parts[2] === "opened" && req.method === "POST") {
               if (!existsSync(file)) return json(res, 404, { error: "Projet introuvable." });
-              const p = JSON.parse(await readFile(file, "utf8"));
-              p.ouvertLe = new Date().toISOString();
-              await writeFile(file, JSON.stringify(p, null, 2) + "\n", "utf8");
+              await noterOuverture(parts[1]);
               return json(res, 200, { ok: true });
             }
             if (req.method === "GET") {
@@ -695,6 +676,22 @@ export function atelierApi() {
           }
 
           // ---- Retravailler avec l'IA (OpenAI, clé de .env.local) ----
+          // GET/PUT /api/studio-lot/<page> (audit F15, 2026-11-25) : le lot du
+          // Studio (versions par emplacement, choix, installées, retirées) est
+          // gardé sur le serveur : un autre navigateur le retrouve.
+          if (parts[0] === "studio-lot" && /^[a-z0-9][a-z0-9-]{0,90}$/.test(parts[1] ?? "")) {
+            const f = join(root, "projets", "_studio", `${parts[1]}.json`);
+            if (req.method === "GET") return json(res, 200, existsSync(f) ? JSON.parse(await readFile(f, "utf8")) : {});
+            if (req.method === "PUT") {
+              const b = await readBody(req);
+              if (!b || typeof b.results !== "object") return json(res, 400, { error: "Lot invalide." });
+              await mkdir(dirname(f), { recursive: true });
+              return lockFile(f, async () => {
+                await writeAtomic(f, JSON.stringify({ results: b.results, retirees: Array.isArray(b.retirees) ? b.retirees.slice(0, 500) : [], modifie: new Date().toISOString() }) + "\n");
+                return json(res, 200, { ok: true });
+              });
+            }
+          }
           if (parts[0] === "ia" && req.method === "POST") {
             // Demandes longues (2026-11-18) : Cloudflare coupe à 100 s sans
             // réponse (page HTML « 524 », lue comme du JSON invalide). Après
@@ -804,7 +801,7 @@ export function atelierApi() {
                 const { contexteProjet } = await import("../src/engine/contexte-projet.js");
                 const ad = join(root, "agents", "whitelabeler");
                 const cf = [join(ad, "consignes-propres", "whitelabeler-brand-sprint-v-1.txt"), join(ad, "consignes", "whitelabeler-brand-sprint-v-1.txt")].find((x) => existsSync(x));
-                const consigne = cf ? (await readFile(cf, "utf8")).slice(0, 14000) : "";
+                const consigne = cf ? (await readFile(cf, "utf8")).slice(0, 60000) : "";
                 const actuelle = b.marque && typeof b.marque === "object" ? JSON.stringify(b.marque).slice(0, 3000) : "{}";
                 const instructions = `${consigne}
 
@@ -1227,9 +1224,10 @@ ${contexteProjet(pj, { limite: 12000 }).texte}`;
                 return null;
               }
             };
+            // Écriture atomique (audit F04, 2026-11-25).
             const writeBoard = async (b) => {
               await mkdir(dir, { recursive: true });
-              await writeFile(join(dir, `${b.id}.json`), JSON.stringify(b) + "\n", "utf8");
+              await writeAtomic(join(dir, `${b.id}.json`), JSON.stringify(b) + "\n");
             };
             const newId = () => `b-${stamp().toLowerCase()}-${Math.random().toString(36).slice(2, 6)}`;
             // Ancien format : canvas.json → tableau « Tableau 1 » (items gardés,
@@ -1275,14 +1273,20 @@ ${contexteProjet(pj, { limite: 12000 }).texte}`;
             if (req.method === "GET" && !parts[3]) return json(res, 200, await readJson(file));
             if (req.method === "PUT" && !parts[3]) {
               const b = await readBody(req);
+              // Audit F04 (2026-11-25) : une écriture à la fois par tableau, et une
+              // révision (rev) : un envoi fait sur une version dépassée (autre
+              // onglet) est refusé (409) au lieu d'écraser la scène plus récente.
+              return lockFile(file, async () => {
               const cur = (await readJson(file)) ?? {};
+              if (Number.isInteger(b.rev) && Number.isInteger(cur.rev) && b.rev !== cur.rev) return json(res, 409, { error: "Ce tableau a été modifié ailleurs (autre onglet) entre-temps.", rev: cur.rev });
               const elements = (Array.isArray(b.elements) ? b.elements : []).slice(0, 5000);
               // Seules les images de l'atelier sont gardées (pas de data URL géante).
               const files = Object.fromEntries(Object.entries(b.files ?? {}).filter(([, f]) => f && /^\/(medias|imports)\//.test(f.dataURL ?? "")).map(([k, f]) => [k, { id: f.id ?? k, mimeType: f.mimeType ?? "image/png", dataURL: f.dataURL, created: f.created ?? Date.now() }]));
-              const board = { ...cur, id, nom: String(b.nom ?? cur.nom ?? "Tableau").slice(0, 80), modifie: new Date().toISOString(), elements, files, appState: b.appState ?? cur.appState ?? null };
+              const board = { ...cur, id, rev: (Number.isInteger(cur.rev) ? cur.rev : 0) + 1, nom: String(b.nom ?? cur.nom ?? "Tableau").slice(0, 80), modifie: new Date().toISOString(), elements, files, appState: b.appState ?? cur.appState ?? null };
               if (b.aAjouterPris) board.aAjouter = (cur.aAjouter ?? []).slice(b.aAjouterPris);
               await writeBoard(board);
-              return json(res, 200, { ok: true });
+              return json(res, 200, { ok: true, rev: board.rev });
+              });
             }
             // « Supprimer ce tableau » : déplacé dans canvas/_corbeille/ (récupérable).
             if (req.method === "DELETE" && !parts[3]) {
@@ -1292,9 +1296,12 @@ ${contexteProjet(pj, { limite: 12000 }).texte}`;
             }
             if (req.method === "POST" && parts[3] === "ajouter") {
               const b = await readBody(req);
-              const cur = (await readJson(file)) ?? {};
               const imgs = (b.images ?? []).filter((x) => /^\/(medias|imports)\//.test(x?.url ?? "")).slice(0, 200);
-              await writeBoard({ ...cur, modifie: new Date().toISOString(), aAjouter: [...(cur.aAjouter ?? []), ...imgs] });
+              // Sous le verrou du tableau (audit F04) : ne croise plus un enregistrement en cours.
+              await lockFile(file, async () => {
+                const cur = (await readJson(file)) ?? {};
+                await writeBoard({ ...cur, modifie: new Date().toISOString(), aAjouter: [...(cur.aAjouter ?? []), ...imgs] });
+              });
               return json(res, 200, { ok: true, id, ajoutees: imgs.length });
             }
             return json(res, 405, { error: "Méthode non permise." });

@@ -56,7 +56,12 @@ export function ValidationTab({ project, onSave, onMessage }) {
         <button type="button" className="cat-btn" disabled={enCours} onClick={lancer}>
           {enCours ? "Analyse en cours… (1 à 3 min)" : R ? "Refaire la validation" : "Lancer la validation"}
         </button>
-        {etat?.le && !enCours && <span className="cat-muted">Dernière analyse : {new Date(etat.le).toLocaleString("fr-CA")}</span>}
+        {etat?.le && !enCours && <span className="cat-muted">Dernière analyse : {new Date(etat.le).toLocaleString("fr-CA")}{etat.porteSur ? (etat.aRelire?.length ? "" : " · porte sur la version actuelle du produit et de l'offre") : ""}</span>}
+        {etat?.aRelire?.length > 0 && !enCours && (
+          <span className="cat-vl__relire">
+            ⚠ Depuis cette analyse, {etat.aRelire.map((k) => ({ produit: "le produit", commercial: "les prix ou les packs", marche: "le marché visé" })[k] ?? k).join(", ")} {etat.aRelire.length > 1 ? "ont" : "a"} changé : ce verdict porte sur l'ancienne version.{etat.aRelire.includes("commercial") ? " Relis la marge et les offres." : ""} Relance l'analyse si le changement compte.
+          </span>
+        )}
       </div>
       {(err || etat?.statut === "erreur") && <p className="cat-flash is-error">⚠ {err ?? etat.erreur}</p>}
       {R && (
@@ -189,8 +194,14 @@ function RegistrePubs({ project, page, data, charger }) {
   const list = pubs.filter((x) => (!f.type || x.type === f.type) && (!f.suivi || x.suivi === f.suivi) && (!f.angle || x.angle === f.angle));
   const compte = (k) => pubs.filter((x) => x.suivi === k).length;
   async function maj(x, set) {
+    const avant = local[x.id];
     setLocal((l) => ({ ...l, [x.id]: { ...(l[x.id] ?? {}), ...set } }));
-    await fetch(`/api/publicites/${project.id}/${x.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(set) });
+    // Audit F18 (2026-11-25) : refus du serveur → on revient à l'état d'avant et on le dit.
+    const r = await fetch(`/api/publicites/${project.id}/${x.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(set) }).catch(() => null);
+    if (!r?.ok) {
+      setLocal((l) => ({ ...l, [x.id]: avant }));
+      alert("Le changement n'a pas été enregistré (le serveur l'a refusé ou ne répond pas). Réessaie.");
+    }
   }
   async function variante(x) {
     const note = window.prompt("Variante : que veux-tu changer ? (ex. « l'accroche », « le décor », « une personne plus âgée »)", "l'accroche et la mise en scène");
@@ -236,6 +247,23 @@ function RegistrePubs({ project, page, data, charger }) {
               <div className="cat-reg__media">
                 {media ? x.type === "video" ? <video src={media} poster={x.poster ?? undefined} controls preload="metadata" /> : <img src={media} alt="" loading="lazy" /> : <span className="cat-muted">{x.statut === "erreur" ? `⚠ ${x.erreur ?? "Échec"}` : x.statut === "plan" ? "Proposition à générer (dans le Canvas)" : x.etape || "En cours…"}</span>}
                 <span className="cat-reg__type">{x.type === "video" ? "Vidéo" : "Image"}{x.format ? ` · ${x.format}` : ""}</span>
+                {x.versions?.length > 1 && (() => {
+                  const cur = x.versionCourante ?? x.versions.at(-1).n;
+                  const i = x.versions.findIndex((v) => v.n === cur);
+                  const aller = async (v) => {
+                    if (!v) return;
+                    const r = await fetch(`/api/publicites/${project.id}/${x.id}/version`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ n: v.n }) }).catch(() => null);
+                    if (!r?.ok) return alert("Impossible de revenir à cette version (pub en cours ?).");
+                    charger();
+                  };
+                  return (
+                    <span className="cat-reg__versions" title="Chaque génération est gardée avec son plan, ses références et son modèle">
+                      <button type="button" disabled={i <= 0} onClick={() => aller(x.versions[i - 1])} aria-label="Version précédente">◀</button>
+                      version {cur} / {x.versions.at(-1).n}
+                      <button type="button" disabled={i < 0 || i >= x.versions.length - 1} onClick={() => aller(x.versions[i + 1])} aria-label="Version suivante">▶</button>
+                    </span>
+                  );
+                })()}
                 {media && x.statut === "plan" && <span className="cat-reg__redo">Proposition corrigée : à regénérer (Canvas → Créer). Image précédente affichée.</span>}
               </div>
               <div className="cat-reg__info">
@@ -403,8 +431,8 @@ export function PublicitesTab({ project, pages }) {
           <span className="cat-fd__label">Précision (facultatif)</span>
           <input value={consigne} onChange={(e) => setConsigne(e.target.value)} placeholder="ex. angle « fatigué même après 8 h de sommeil », ambiance matinale" />
         </label>
-        <button type="button" className="cat-btn" disabled={!m || (m.source && !source)} onClick={creer}>
-          Créer la pub
+        <button type="button" className="cat-btn" disabled={!m || (m.source && !source)} onClick={creer} title="Payant : l'agent prépare la pub puis l'image est générée tout de suite (≈ 0,05 $). Pour relire la proposition avant de générer, passe par le Canvas (Créer avec un agent).">
+          Préparer et générer (payant)
         </button>
       </div>
       {err && <p className="cat-flash is-error">⚠ {err}</p>}

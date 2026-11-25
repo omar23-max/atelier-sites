@@ -54,8 +54,12 @@ export function MediathequeProjet({ project, origine = [] }) {
     const ok = urls.filter((u) => !byUrl.get(u)?.lectureSeule);
     if (!ok.length) return;
     setItems((l) => (l ?? []).map((x) => (ok.includes(x.url) ? { ...x, ...set } : x)));
-    const r = await fetch(`/api/mediatheque/${page}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: ok, set }) });
-    if (!r.ok) setMsg({ error: "Le classement n'a pas été enregistré." });
+    const r = await fetch(`/api/mediatheque/${page}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: ok, set }) }).catch(() => null);
+    // Audit F18 : refus → on recharge l'état réel au lieu de garder l'affichage modifié.
+    if (!r?.ok) {
+      setMsg({ error: "Le classement n'a pas été enregistré : affichage remis à l'état réel." });
+      load();
+    }
   }
   function toggleDest(urls, d) {
     const on = urls.every((u) => (byUrl.get(u)?.destination ?? []).includes(d));

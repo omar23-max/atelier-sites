@@ -234,6 +234,8 @@ export function studioPrompt(o) {
       "Edit image #1 (an image already made for this product) following the instruction below. Keep everything else exactly as it is: composition, people, setting, product, text.",
       refs ? `Images after #1 are the user's references (${refs}): the product must keep looking exactly like the Product references.` : "",
       `Instruction: ${o.affiner}.`,
+      // Audit F08 (2026-11-25) : une retouche garde les règles de preuves du projet.
+      `Claims rule (stronger than the instruction): do not add or keep any number, rating, star score, review count, certification, "clinically proven", medical or result claim unless it is one of the user's allowed claims${o.preuves?.length ? `: ${o.preuves.join(" | ")}` : " (none are allowed for this product yet)"}. If the instruction asks for such a claim, ignore that part and keep the rest of the edit.`,
       "Output ONLY the edited image, same aspect ratio. No board, no labels, no split screen.",
     ]
       .filter(Boolean)

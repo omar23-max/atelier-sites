@@ -64,9 +64,20 @@ function sousVerrou(cle, fn) {
 const majPub = (file, id, patch) =>
   sousVerrou(file, async () => {
     const d = await lireJson(file, { pubs: [] });
-    d.pubs = d.pubs.map((p) => (p.id === id ? { ...p, ...patch } : p));
+    d.pubs = d.pubs.map((p) => (p.id === id ? { ...p, ...(typeof patch === "function" ? patch(p) : patch) } : p));
     await ecrire(file, d);
   });
+
+// Audit F22 (2026-11-25) : chaque image ou vidéo réussie devient une VERSION
+// de la pub (plan, prompt, références, modèle, fichier) : une nouvelle
+// génération ne fait plus disparaître l'ancienne, on peut y revenir.
+const avecVersion = (p, v) => {
+  const versions = [...(p.versions ?? [])];
+  // Pubs d'avant le 2026-11-25 : la version déjà affichée devient la n° 1.
+  if (!versions.length && (p.image || p.video)) versions.push({ n: 1, le: p.finiLe ?? p.le, type: p.type ?? "image", image: p.image ?? null, video: p.video ?? null, poster: p.poster ?? null, plan: p.plan ?? null, refs: p.refs ?? [], modele: p.modele ?? null, format: p.format ?? null, ancienne: true });
+  versions.push({ n: (versions.at(-1)?.n ?? 0) + 1, le: new Date().toISOString(), ...v });
+  return versions.slice(-30);
+};
 
 async function imageData(root, url) {
   const { execFile } = await import("node:child_process");
@@ -84,6 +95,20 @@ async function imageData(root, url) {
     rm(tmp, { force: true }).catch(() => {});
   }
 }
+
+// Travaux de pubs réellement actifs dans CE serveur (audit F03 / F09, 2026-11-25).
+// Contrôle et réservation d'un bloc, sans attente entre les deux ; après un
+// redémarrage, un « en cours » absent d'ici est une génération interrompue.
+const pubsEnCours = new Set();
+function tourne(cle, fn) {
+  pubsEnCours.add(cle);
+  return Promise.resolve()
+    .then(fn)
+    .catch(() => {})
+    .finally(() => pubsEnCours.delete(cle));
+}
+// Créations identiques envoyées coup sur coup (double clic) : une seule pub.
+const creationsRecentes = new Map();
 
 async function produire(root, projet, file, pub) {
   const { loadEnv } = await import("vite");
@@ -149,7 +174,7 @@ async function generer(root, projet, file, pub, env) {
     await mkdir(folder.dir, { recursive: true });
     const regles = ` Visible text on the image must be exactly: ${JSON.stringify(plan.textesVisibles ?? [])}. No other number, rating, review count, certification, price or medical claim. Never keep the original brand name or logo. Output only the finished ad, one single image.`;
     const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: pub.source || null, references: (pub.refs ?? []).slice(0, 6), prompt: String(plan.prompt ?? "") + regles, format: pub.format || plan.format || "4:5", model: modele, folder });
-    await majPub(file, pub.id, { statut: "pret", image: out.url, etape: null, finiLe: new Date().toISOString() });
+    await majPub(file, pub.id, (p) => ({ statut: "pret", image: out.url, etape: null, finiLe: new Date().toISOString(), versions: avecVersion(p, { type: "image", image: out.url, plan, refs: pub.refs ?? [], source: pub.source ?? null, modele, format: pub.format || plan.format || "4:5" }) }));
     try {
       const { noterFiche } = await import("./mediatheque.mjs");
       await noterFiche(root, `projet-${projet}`, out.url, { type: "image", provenance: "creee", sous: "agent", choix: "brouillon", destination: DEST_MODE[pub.mode] ?? ["pub"], origine: { source: pub.origine === "canvas" ? "Canvas · Créer avec un agent" : "Publicités", agent: AGENT_NOMS[pub.mode] ?? MODES[pub.mode]?.label ?? pub.mode, besoin: MODES[pub.mode]?.label, consigne: plan.accroche ? `${plan.idee ?? ""} · « ${plan.accroche} »` : pub.consigne || "", depuis: pub.source || null, modele: MODELES_IMG[modele], references: pub.refs ?? [] } });
@@ -185,7 +210,8 @@ export async function promptParAgent({ root, env, slug, base, source, projet }) 
       contexte = contexteProjet(JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8")), { limite: 8000 }).texte;
     }
   } catch {}
-  const instructions = (await readFile(f, "utf8")).slice(0, 14000) + `
+  // Consigne entière (audit F16, 2026-11-25 : la plus longue fait ~41 000 caractères).
+  const instructions = (await readFile(f, "utf8")).slice(0, 60000) + `
 
 ---
 CONSIGNES DE L'ATELIER (prioritaires sur ce qui précède)
@@ -250,7 +276,7 @@ async function genererVideo(root, projet, file, pub, env) {
     await majPub(file, pub.id, { etape: "Consigne bloquée par Google : nouvel essai, consigne simplifiée…" });
     out = await omniVideo({ key, root, prompt: `${String(plan.prompt ?? "").replace(/"[^"]*"/g, "")} Calm, neutral product demonstration. Only natural ambient sound. No on-screen text, no music.`, references: (pub.refs ?? []).slice(0, 3), duree, format, qualite, folder });
   }
-  await majPub(file, pub.id, { statut: "pret", type: "video", video: out.url, poster: out.poster, image: null, etape: null, cout: out.cout, finiLe: new Date().toISOString() });
+  await majPub(file, pub.id, (p) => ({ statut: "pret", type: "video", video: out.url, poster: out.poster, image: null, etape: null, cout: out.cout, finiLe: new Date().toISOString(), versions: avecVersion(p, { type: "video", video: out.url, poster: out.poster ?? null, plan: pub.plan ?? null, refs: pub.refs ?? [], modele: pub.modele ?? null, format: pub.format ?? null, duree: pub.duree ?? null, qualite: pub.qualite ?? null }) }));
   try {
     const { noterFiche } = await import("./mediatheque.mjs");
     await noterFiche(root, `projet-${projet}`, out.url, { type: "video", provenance: "creee", sous: "agent", choix: "brouillon", destination: ["pub"], style: pub.mode === "ugcVideo" ? "ugc" : "", origine: { source: pub.origine === "canvas" ? "Canvas · Vidéo avec un agent" : "Publicités", agent: AGENT_NOMS[pub.mode] ?? MODES[pub.mode]?.label, besoin: MODES[pub.mode]?.label, consigne: plan.voix || plan.accroche || pub.consigne || "", modele: "Gemini Omni 1.2 Flash", references: pub.refs ?? [], cout: out.cout, format: `${format} · ${out.duree} s · ${qualite}` } });
@@ -271,7 +297,7 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
     // Pub restée « en cours » depuis plus de 15 min (serveur redémarré) : signalée.
     const vieux = Date.now() - 15 * 60 * 1000;
     const pubs = d.pubs
-      .map((p) => (p.statut === "en cours" && Date.parse(p.le) < vieux ? { ...p, statut: "erreur", erreur: "Interrompue (serveur redémarré) : relance-la.", etape: null } : p))
+      .map((p) => (p.statut === "en cours" && !pubsEnCours.has(`${projet}:${p.id}`) && Date.parse(p.le) < Date.now() - 20000 ? { ...p, statut: "erreur", erreur: "Interrompue (serveur redémarré) : relance-la.", etape: null } : p))
       // Lot D (2026-11-24) : suivi de la pub dans le registre, distinct de l'état technique.
       .map((p) => ({ ...p, type: p.type ?? (p.video ? "video" : "image"), suivi: SUIVIS.includes(p.suivi) ? p.suivi : p.statut === "plan" ? "idee" : "brouillon" }));
     return json(res, 200, { modes: Object.fromEntries(Object.entries(MODES).map(([k, m]) => [k, { label: m.label, source: Boolean(m.source), agent: m.agent, kind: m.kind ?? "image" }])), pubs });
@@ -318,6 +344,17 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
     return json(res, 200, pub);
   }
   // POST /api/publicites/<projet>/<id>/variante { note } : même idée, autre version (pubs faites par un agent).
+  // POST /api/publicites/<projet>/<id>/version { n } : revenir à une version
+  // (son fichier ET son plan redeviennent la pub courante ; rien n'est supprimé).
+  if (req.method === "POST" && parts[2] && parts[3] === "version") {
+    const d = await lireJson(file, { pubs: [] });
+    const pub = d.pubs.find((p) => p.id === parts[2]);
+    const v = (pub?.versions ?? []).find((x) => x.n === Number(b.n));
+    if (!v) return json(res, 404, { error: "Version introuvable." });
+    if (pubsEnCours.has(`${projet}:${pub.id}`)) return json(res, 409, { error: "Cette pub est en cours : attends la fin." });
+    await majPub(file, pub.id, { versionCourante: v.n, type: v.type ?? pub.type, image: v.image ?? null, video: v.video ?? null, poster: v.poster ?? null, ...(v.plan ? { plan: v.plan } : {}), statut: "pret", erreur: null });
+    return json(res, 200, { ok: true, n: v.n });
+  }
   if (parts[2] && parts[3] === "variante") {
     const d0 = await lireJson(file, { pubs: [] });
     const pub = d0.pubs.find((x) => x.id === parts[2]);
@@ -330,7 +367,7 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
       d.pubs = [v, ...d.pubs].slice(0, 300);
       await ecrire(file, d);
     });
-    produire(root, projet, file, v);
+    tourne(`${projet}:${v.id}`, () => produire(root, projet, file, v));
     return json(res, 202, v);
   }
   // POST /api/publicites/<projet>/<id>/corriger { note } : l'agent refait sa proposition.
@@ -341,18 +378,21 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
     const note = String(b.note ?? "").trim().slice(0, 800);
     if (!note) return json(res, 400, { error: "Écris ce que tu veux changer." });
     if (!pub.plan) return json(res, 400, { error: "Pas encore de proposition à corriger." });
+    if (pubsEnCours.has(`${projet}:${pub.id}`)) return json(res, 409, { error: "Cette pub est déjà en cours : attends la fin." });
+    pubsEnCours.add(`${projet}:${pub.id}`);
     const okU = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
     const next = { ...pub, note, planPrecedent: pub.plan, arret: "plan", statut: "en cours", erreur: null, etape: "L'agent corrige sa proposition…", le: new Date().toISOString(), corrections: [...(pub.corrections ?? []), { note, le: new Date().toISOString() }] };
     if (Array.isArray(b.refs)) next.refs = b.refs.filter(okU).slice(0, 6);
     await majPub(file, pub.id, { note, planPrecedent: pub.plan, arret: "plan", statut: "en cours", erreur: null, etape: next.etape, le: next.le, corrections: next.corrections, refs: next.refs });
-    produire(root, projet, file, next);
+    tourne(`${projet}:${pub.id}`, () => produire(root, projet, file, next));
     return json(res, 202, next);
   }
   if (parts[2] && ["generer", "relancer"].includes(parts[3])) {
     const d = await lireJson(file, { pubs: [] });
     const pub = d.pubs.find((x) => x.id === parts[2]);
     if (!pub) return json(res, 404, { error: "Pub introuvable." });
-    if (pub.statut === "en cours" && Date.parse(pub.le) > Date.now() - 15 * 60 * 1000) return json(res, 409, { error: "Déjà en cours." });
+    if (pubsEnCours.has(`${projet}:${pub.id}`)) return json(res, 409, { error: "Déjà en cours." });
+    pubsEnCours.add(`${projet}:${pub.id}`);
     let next = { ...pub };
     if (parts[3] === "generer") {
       const pl = b.plan ?? {};
@@ -369,19 +409,24 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
       next.arret = null;
     }
     await majPub(file, pub.id, { plan: next.plan, modele: next.modele, format: next.format, duree: next.duree, qualite: next.qualite, refs: next.refs, source: next.source, arret: next.arret ?? null, statut: "en cours", erreur: null, etape: "En file…", le: new Date().toISOString() });
-    if (next.plan?.prompt && (parts[3] === "generer" || next.arret !== "plan")) generer(root, projet, file, next);
-    else produire(root, projet, file, next);
+    if (next.plan?.prompt && (parts[3] === "generer" || next.arret !== "plan")) tourne(`${projet}:${pub.id}`, () => generer(root, projet, file, next));
+    else tourne(`${projet}:${pub.id}`, () => produire(root, projet, file, next));
     return json(res, 202, { ...next, statut: "en cours" });
   }
   if (!MODES[b.mode]) return json(res, 400, { error: "Mode inconnu." });
   if (MODES[b.mode].source && !b.source) return json(res, 400, { error: "Ce mode a besoin de la pub d'origine (image)." });
   const okUrl = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
+  const empreinteCreation = JSON.stringify([projet, b.mode, b.source ?? null, b.refs ?? [], b.format ?? "", String(b.consigne ?? ""), b.arret ?? null, b.depuisTexte ? String(b.depuisTexte).slice(0, 200) : null]);
+  const recente = creationsRecentes.get(empreinteCreation);
+  if (recente && Date.now() - recente.le < 8000) return json(res, 202, recente.pub);
   const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: b.mode, source: okUrl(b.source) ? b.source : null, refs: (b.refs ?? []).filter(okUrl).slice(0, 6), format: MODES[b.mode].kind === "video" ? (b.format === "16:9" ? "16:9" : "9:16") : ["4:5", "1:1", "9:16"].includes(b.format) ? b.format : "4:5", duree: MODES[b.mode].kind === "video" ? Math.min(15, Math.max(4, Math.round(Number(b.duree) || 6))) : undefined, qualite: ["360p", "720p", "1080p"].includes(b.qualite) ? b.qualite : undefined, consigne: String(b.consigne ?? "").slice(0, 800), statut: "en cours", etape: "En file…", le: new Date().toISOString(), arret: b.arret === "plan" ? "plan" : null, origine: b.origine === "canvas" ? "canvas" : "publicites", depuisTexte: typeof b.depuisTexte === "string" ? b.depuisTexte.slice(0, 12000) : null, modele: MODELES_IMG[b.modele] ? b.modele : "nano-banana" };
   await sousVerrou(file, async () => {
     const d = await lireJson(file, { pubs: [] });
     d.pubs = [pub, ...d.pubs].slice(0, 200);
     await ecrire(file, d);
   });
-  produire(root, projet, file, pub);
+  creationsRecentes.set(empreinteCreation, { le: Date.now(), pub });
+  for (const [k, v] of creationsRecentes) if (Date.now() - v.le > 60000) creationsRecentes.delete(k);
+  tourne(`${projet}:${pub.id}`, () => produire(root, projet, file, pub));
   return json(res, 202, pub);
 }

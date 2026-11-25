@@ -152,6 +152,19 @@ async function ecrire(file, data) {
   await rename(tmp, file);
 }
 
+// Audit F13 (2026-11-25) : empreintes de ce que l'analyse a lu. Si le produit
+// ou les conditions commerciales changent, le verdict est signalé « à relire »
+// (marge, offres), sans tout relancer pour une retouche sans effet.
+async function versionsValidation(p) {
+  const { createHash } = await import("node:crypto");
+  const h = (v) => createHash("sha1").update(JSON.stringify(v ?? null)).digest("hex").slice(0, 12);
+  return {
+    produit: h([p.produit, p.description, p.fondations?.reponses?.role, p.validationMotsCles ?? null]),
+    commercial: h([p.offreFiche ?? null, p.offre?.prix ?? null, p.offre?.packs ?? null]),
+    marche: h(p.fondations?.reponses?.pays ?? null),
+  };
+}
+
 async function lancer(root, projet, etatFile) {
   const { loadEnv } = await import("vite");
   const env = loadEnv("development", root, "");
@@ -195,7 +208,7 @@ ${text.slice(0, 60000)}` }] }] }),
       const t2 = (rb.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []).filter((x) => x.type === "output_text").map((x) => x.text).join("");
       resultat = extraireJson(t2);
     }
-    await ecrire(etatFile, { statut: "pret", resultat, sources, le: new Date().toISOString(), winninghunter: { motsCles, resume: wh.resume } });
+    await ecrire(etatFile, { statut: "pret", resultat, sources, le: new Date().toISOString(), winninghunter: { motsCles, resume: wh.resume }, porteSur: await versionsValidation(p) });
   } catch (e) {
     const avant = existsSync(etatFile) ? JSON.parse(await readFile(etatFile, "utf8").catch(() => "{}")) : {};
     await ecrire(etatFile, { ...avant, statut: "erreur", erreur: e.message, le: avant.le });
@@ -214,6 +227,10 @@ export async function validationRoute(req, res, parts, { root, json }) {
   const lire = async () => (existsSync(etatFile) ? JSON.parse(await readFile(etatFile, "utf8")) : { statut: "vide" });
   if (req.method === "GET") {
     const e = await lire();
+    if (e.porteSur) {
+      const now = await versionsValidation(JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8")));
+      e.aRelire = Object.keys(now).filter((k) => e.porteSur[k] !== now[k]);
+    }
     return json(res, 200, enCours.has(projet) ? { ...e, statut: "en cours" } : e.statut === "en cours" ? { ...e, statut: "erreur", erreur: "Analyse interrompue (serveur redémarré) : relance-la." } : e);
   }
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });

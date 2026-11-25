@@ -113,3 +113,63 @@ export async function mediaPlace(page, kind) {
 // (en-tête X-Atl-Tab, posé par src/main.jsx), pour les conflits d'écriture.
 export const pageRev = (text) => createHash("sha1").update(text).digest("hex").slice(0, 16);
 export const pageWriters = new Map();
+
+
+// ---- Écritures protégées partagées (audit F02, 2026-11-25) ----
+// Un seul verrou par fichier pour TOUT le serveur (api, agents, publicités…) :
+// lecture, modification et écriture d'un bloc ; écriture atomique (fichier
+// temporaire puis renommage). muterProjet(id, fn) : fn reçoit le projet lu
+// sous verrou et le modifie (ou retourne false pour ne rien écrire).
+const verrous = new Map();
+export function lockFile(key, fn) {
+  const next = (verrous.get(key) ?? Promise.resolve()).then(fn, fn);
+  const tail = next.catch(() => {});
+  verrous.set(key, tail);
+  tail.then(() => verrous.get(key) === tail && verrous.delete(key));
+  return next;
+}
+export async function writeAtomic(file, text) {
+  const tmp = `${file}.${process.pid}.${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}.tmp`;
+  await writeFile(tmp, text, "utf8");
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await rename(tmp, file);
+      return;
+    } catch (e) {
+      if (attempt >= 5 || !/EBUSY|EPERM|UNKNOWN/.test(e.code ?? e.message)) throw e;
+      await new Promise((r) => setTimeout(r, 300));
+    }
+  }
+}
+export async function muterProjet(id, fn) {
+  if (!NAME.test(id ?? "")) throw new Error("Identifiant de projet invalide.");
+  const file = join(projectsDir, `${id}.json`);
+  return lockFile(file, async () => {
+    if (!existsSync(file)) throw new Error("Projet introuvable.");
+    const p = JSON.parse(await readFile(file, "utf8"));
+    const r = await fn(p);
+    if (r === false) return p;
+    await writeAtomic(file, JSON.stringify(p, null, 2) + "\n");
+    return p;
+  });
+}
+// Dates d'ouverture des projets, à part du projet (audit F02) : marquer un
+// projet « ouvert » ne réécrit plus le projet (ni sa révision).
+const ouvertsFile = join(projectsDir, "_ouverts.json");
+export async function noterOuverture(id) {
+  return lockFile(ouvertsFile, async () => {
+    let d = {};
+    try {
+      d = JSON.parse(await readFile(ouvertsFile, "utf8"));
+    } catch {}
+    d[id] = new Date().toISOString();
+    await writeAtomic(ouvertsFile, JSON.stringify(d, null, 1) + "\n");
+  });
+}
+export async function datesOuverture() {
+  try {
+    return JSON.parse(await readFile(ouvertsFile, "utf8"));
+  } catch {
+    return {};
+  }
+}

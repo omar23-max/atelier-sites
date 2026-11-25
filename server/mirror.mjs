@@ -36,7 +36,7 @@ export const STEP_AGENTS = {
 };
 async function agentText(root, slug) {
   const d = join(root, "agents", "whitelabeler");
-  for (const f of [join(d, "consignes-propres", `${slug}.txt`), join(d, "consignes", `${slug}.txt`)]) if (existsSync(f)) return (await readFile(f, "utf8")).slice(0, 14000);
+  for (const f of [join(d, "consignes-propres", `${slug}.txt`), join(d, "consignes", `${slug}.txt`)]) if (existsSync(f)) return (await readFile(f, "utf8")).slice(0, 60000);
   return "";
 }
 

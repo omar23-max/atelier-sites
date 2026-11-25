@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useGetPuck } from "@puckeditor/core";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
-import { aiTargets, applyValues } from "./inspector-ui.jsx";
+import { aiTargets, applyValues } from "./engine/arbre-section.js";
 
 // Planche des images (comme le « Canvas » de Whitelabeler) : toutes les images
 // de la page côte à côte, dans l'ordre de la page. Pour chacune : la refaire

@@ -6,7 +6,7 @@ import { useGetPuck, canvasSeul } from "./page-acces.js";
 import { sections, sectionsIndex } from "./engine/sections.js";
 import { ROOT_ZONE } from "./library-ui.jsx";
 import { WorkspaceSwitch, useOpenFromUrl } from "./workspace-switch.jsx";
-import { aiTargets, applyValues } from "./inspector-ui.jsx";
+import { aiTargets, applyValues } from "./engine/arbre-section.js";
 import { familiesOf } from "./engine/page-score.js";
 import { FAMILIES } from "./engine/families.js";
 import { fondationsPourAudit } from "./engine/fidelite.js";
@@ -348,6 +348,7 @@ function CanvasBoard({ onClose, X }) {
   async function openBoard(id) {
     if (!(await confirmLeave())) return;
     const b = await fetch(`/api/canvas/${pageName}/${id}`).then((r) => r.json());
+    revTableau.current = Number.isInteger(b.rev) ? b.rev : null;
     sig.current = "";
     setSel(null);
     // Pas de remise à zéro de l'API : si c'est le même tableau (ouverture en
@@ -456,6 +457,9 @@ function CanvasBoard({ onClose, X }) {
   // après un échec (confirmLeave).
   const inflight = useRef(null);
   const lastOk = useRef(true);
+  const chaine = useRef(Promise.resolve());
+  const enAttente = useRef(false);
+  const revTableau = useRef(null);
   // Nom du tableau toujours à jour pour l'enregistrement (2026-11-24) : save()
   // est souvent appelée depuis une fonction créée avant le renommage, qui voyait
   // l'ancien nom ; « Tous les tableaux » montrait alors l'ancien.
@@ -463,20 +467,36 @@ function CanvasBoard({ onClose, X }) {
   useEffect(() => {
     nomCourant.current = board?.nom ?? null;
   }, [board?.id, board?.nom]);
+  // Audit F04 (2026-11-25) : les enregistrements passent l'un après l'autre
+  // (file), chacun prend la scène la plus récente au moment où il part ; un
+  // envoi déjà en attente suffit (pas d'empilement). La révision du tableau
+  // (rev) part avec : si un autre onglet a enregistré entre-temps, le serveur
+  // refuse (409) au lieu de laisser écraser la scène la plus récente.
   async function save(force = false, aAjouterPris = 0) {
     if (!api || !board) return true;
-    const run = (async () => {
+    if (enAttente.current && !aAjouterPris) return inflight.current ?? true;
+    enAttente.current = true;
+    const run = chaine.current.then(async () => {
+      enAttente.current = false;
       try {
         setSaved("encours");
         const scene = await sceneForSave();
-        const res = await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom: nomCourant.current ?? board.nom, ...scene, aAjouterPris }) });
+        const res = await fetch(`/api/canvas/${pageName}/${board.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nom: nomCourant.current ?? board.nom, ...scene, aAjouterPris, ...(Number.isInteger(revTableau.current) ? { rev: revTableau.current } : {}) }) });
+        const corps = await res.json().catch(() => ({}));
+        if (res.status === 409) {
+          setSaved("conflit");
+          setFlash({ error: "Ce tableau a été enregistré dans un autre onglet entre-temps : ta version reste à l'écran mais n'est pas enregistrée. Recharge le tableau pour reprendre la plus récente." });
+          return false;
+        }
+        if (res.ok && Number.isInteger(corps.rev)) revTableau.current = corps.rev;
         setSaved(res.ok ? "ok" : "erreur");
         return res.ok;
       } catch {
         setSaved("erreur");
         return false;
       }
-    })();
+    });
+    chaine.current = run.catch(() => false);
     inflight.current = run;
     const ok = await run;
     if (inflight.current === run) inflight.current = null;
@@ -723,7 +743,7 @@ function CanvasBoard({ onClose, X }) {
     setFlash({ ok: `${items.length} média(s) WinningHunter posé(s) sur le tableau.` });
   }
 
-  const savedLabel = saved === "ok" ? "Enregistré" : saved === "encours" ? "Enregistrement…" : "Non enregistré";
+  const savedLabel = saved === "ok" ? "Enregistré" : saved === "encours" ? "Enregistrement…" : saved === "conflit" ? "Modifié ailleurs" : "Non enregistré";
   const togglePanel = (p) => {
     setPicking(false);
     setPanel((cur) => (cur === p ? null : p));
@@ -1708,8 +1728,12 @@ function MediaLibrary({ root, onAddImages, onAddVideos, onClose }) {
     if (!editable.length) return;
     setItems((l) => (l ?? []).map((x) => (editable.includes(x.url) ? { ...x, ...set } : x)));
     setFiche((fi) => (fi && editable.includes(fi.url) ? { ...fi, ...set } : fi));
-    const r = await fetch(`/api/mediatheque/${pageName}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: editable, set }) });
-    if (!r.ok) setErr("Le classement n'a pas été enregistré.");
+    const r = await fetch(`/api/mediatheque/${pageName}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ urls: editable, set }) }).catch(() => null);
+    // Audit F18 : refus → on recharge l'état réel au lieu de garder l'affichage modifié.
+    if (!r?.ok) {
+      setErr("Le classement n'a pas été enregistré : affichage remis à l'état réel.");
+      load();
+    }
   }
   function toggleDest(urls, d) {
     const on = urls.every((u) => (byUrl.get(u)?.destination ?? []).includes(d));

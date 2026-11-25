@@ -2573,3 +2573,95 @@ Original 80 % → retour Modifiable 80 %.
 ## 2026-11-24 — Canvas : le nouveau nom d un tableau est gardé
 - DÉFAUT CORRIGÉ : renommer un tableau changeait l affichage, mais l enregistrement (save, appelé depuis une fonction créée avant le renommage) renvoyait l ancien nom ; « Tous les tableaux » et un rechargement montraient l ancien. canvas-ui.jsx : nomCourant (useRef) toujours à jour, utilisé par save().
 - Vérifié : renommage enregistré sur le serveur, gardé après rechargement et dans la liste. Les noms déjà perdus (projet test menu : Tableau 1, Tableau 2) sont à refaire.
+
+## 2026-11-25 — Audit du 24 nov. : lot A + corrections rapides
+- F02 : lockFile / writeAtomic / muterProjet partagés (server/commun.mjs) ; « projet ouvert » noté à part (projets/_ouverts.json, fusionné dans la liste) : ne réécrit plus le projet ni sa révision ; publication et « Adopter dans le projet » (agents.mjs) sous le verrou commun. Test : 3 adoptions simultanées + ouverture → 3/3 notes, projet inchangé par l ouverture. Reste hors verrou : scripts de Claude (fondations-contenus, fondations-decisions), lancés à la main.
+- F04 : tableaux Canvas : écriture atomique, verrou par tableau, révision rev (409 si version dépassée) ; « ajouter » (Studio) sous le verrou ; côté client, enregistrements en file (un seul à la fois, le suivant prend la scène la plus récente), rev envoyée, conflit affiché (« Modifié ailleurs »). Testé : ancien client OK, bonne version OK, version dépassée 409 ; enregistrement automatique OK.
+- F01 : contexteProjet : offreCommerciale (offreFiche : devise, packs calculés, garantie, retours, livraison, bonus livrés, rareté) prioritaire, faitsApprouves (valeur + source), mécanisme choisi en entier avec statut d hypothèse, brief de campagne, angles bornés à 6, conflit de prix texte / fiche signalé dans aVerifier. Tests 59/59.
+- F08 : Studio Affiner : règle de preuves ajoutée (plus forte que la consigne). F18 : registre des pubs et médiathèques : refus du serveur → retour à l état réel + message. F07 : chasseur TikTok : 0 appel réussi = erreur explicite (plus « aucune pub ») ; résultat partiel signalé.
+- F05 : restauration d essai depuis pCloud (projet essai-mirror) dans un dossier vierge : 179 fichiers en 38 s, JSON lisibles, 176 identiques au serveur, 3 modifiés depuis la copie (attendu). Limite : copie 1 fois par nuit (3 h) → jusqu à 24 h de travail non couvert (ex. _fiches.json et vidéo Mirror d hier pas encore copiés).
+
+## 2026-11-25 — Audit du 24 nov. : lot B (doubles lancements, travaux interrompus, consignes entières)
+
+- **F03, plus de double lancement.** Le chat des agents, les pubs et les agents de Recherche réservent leur travail dès l'arrivée de la demande, avant toute attente. Une 2e demande pendant ce temps reçoit « déjà en cours » (409). Chaque envoi au chat porte un identifiant (runId). Une réponse tardive d'un ancien envoi, par exemple après « Nouvelle conversation », est ignorée. Dans Publicités, deux créations identiques en moins de 8 s donnent une seule pub.
+- **F09, travaux interrompus.** Le serveur garde en mémoire ce qui tourne vraiment : chatsEnCours dans agents.mjs, pubsEnCours dans publicites.mjs. Un statut « en cours » absent de cette liste après un redémarrage s'affiche « interrompu, relance ». Ce n'est plus bloqué pendant 15 min.
+- **F16, consignes entières.** Les consignes des agents ne sont plus coupées à 14 000 caractères. La limite passe à 60 000 ; la plus longue fait environ 41 500 caractères. Fichiers : api.mjs (Studio), mirror.mjs, publicites.mjs.
+- **Testé.** 3 envois simultanés au chat donnent 1 réponse et 2 refus. Après un redémarrage en pleine réponse, le chat affiche « interrompu ». Les 59 tests de fondations-fiabilite passent. La réservation des pubs n'a pas été essayée en vrai, pour ne pas payer de génération.
+- Sauvegarde : ~/sauvegardes/lotb-HHMM/.
+
+## 2026-11-25 — Audit du 24 nov. : lot C (Recherche produits)
+
+- **F06, chiffres rattachés par identifiant.** Le radar donne un identifiant fixe à chaque tendance (R1, R2…) avant l'appel à l'IA. Les chiffres sont rattachés par cet identifiant, ou par le nom exact en secours.
+  - Si l'IA reformule un nom, la piste garde le mot-clé observé et ses chiffres. La reformulation s'affiche à part : « nommée … par l'IA ».
+  - Pour les 5 agents, une piste dont l'identifiant n'est pas une ligne observée (ex. F999) est refusée et signalée sous le tableau (« Contrôle : … »). Un verdict hors liste devient « à surveiller ».
+  - Le détail de chaque piste rappelle ses mesures, lues dans le même objet que le tableau.
+- **F10, portée des indicateurs.**
+  - La colonne « Concurrents » s'appelle « Annonceurs vus », avec une infobulle : c'est un échantillon d'une seule recherche.
+  - La courbe « exponentielle » s'affiche « accélère (3 périodes) ». C'est un calcul maison ; la valeur interne ne change pas.
+  - Sous chaque tableau, une ligne « D'où viennent les chiffres » distingue la mesure du fournisseur, le calcul maison, l'échantillon et l'interprétation de l'IA.
+  - La consigne de l'IA rappelle que 0 annonceur ne veut pas dire aucun concurrent, et qu'un feu vert reste une hypothèse.
+- **F11, « → Envoyer cette piste dans un projet ».** Le lien est sous chaque piste, dans l'onglet détail. On choisit un projet existant, ou on en crée un nouveau.
+  - Route : POST /api/recherche/<agent>/adopter.
+  - La piste entre dans les notes de recherche (notesAgents) avec un objet `origine` : agent, fichier, date, réglages, mesures, source, limites. Elle n'entre jamais dans les preuves.
+- **F21, résultat affiché et prochain lancement.**
+  - Une bande « Résultat affiché : lancement du … · réglages de ce lancement » a un bouton « Reprendre ces réglages ».
+  - Le formulaire s'intitule « Prochain lancement : réglages ».
+  - Une réponse lente qui ne correspond plus à l'agent ou au résultat demandé est ignorée. C'est vrai aussi pour le chat des agents.
+  - **Non fait** : synchroniser le résultat affiché dans l'adresse (URL).
+- **Testé.** Le test F999 est refusé, le doublon et le verdict hors liste sont corrigés. Envoyer une piste dans essai-mirror donne la note avec son origine ; la note de test a été retirée. À l'écran, un résultat « Maison » avec un formulaire « Toutes » passe à « Maison » après « Reprendre ». Aucun crédit WinningHunter dépensé. Sauvegarde : ~/sauvegardes/lotc-HHMM/.
+
+## 2026-11-25 — Audit du 24 nov. : lot D (preuves, dépendances, versions, Studio, agents de contenu)
+
+- **F14, contrôles des faits et des offres.**
+  - Fiche d'offre : une quantité négative ou décimale, ou un prix, une garantie, des retours ou un seuil négatif, sont signalés « impossible ». Ces valeurs ne servent à aucun calcul.
+  - fidelite.js mesure la force d'une affirmation scientifique : « testé » n'autorise pas « prouvé ». Une étude décrite autorise « clinically tested », mais pas « clinically proven », sauf si le détail dit « démontré » ou « prouvé » sans négation. « Sans effet prouvé » ne compte pas.
+- **F13, les validations suivent leurs sources.**
+  - L'empreinte v3 des Fondations est calculée par partie (questionnaire, preuves, message, offre, offre commerciale, mécanisme). Elle tient compte du contenu du mécanisme choisi, plus seulement de son identifiant.
+  - À la validation, valideParties est enregistré. Quand une partie change, le statut dit laquelle et ce qu'il faut relire. Rien n'est réécrit.
+  - Les validations v1 et v2 restées intactes sont migrées en v3 sans perte.
+  - La Validation produit enregistre porteSur (empreintes du produit, des conditions commerciales et du marché). Si l'un change, elle affiche « ce verdict porte sur l'ancienne version » ; pour les prix, elle demande de relire la marge et les offres.
+- **F22, versions des pubs.**
+  - Chaque image ou vidéo réussie devient une version, avec son plan, ses références, son modèle et son format (30 au plus). La version déjà affichée sur une ancienne pub devient la n° 1.
+  - Route POST /api/publicites/<projet>/<id>/version {n}. Dans le registre, ◀ version n / N ▶ remet le fichier et le plan d'une version. Rien n'est supprimé.
+- **F15, le lot du Studio est sur le serveur.**
+  - Il est gardé dans projets/_studio/<page>.json (route GET/PUT /api/studio-lot/<page>). On y trouve les versions par emplacement, la sélection, les images installées et les images retirées.
+  - Il est fusionné au chargement (versions réunies par fichier) : un autre navigateur retrouve le lot.
+  - Le pilote compte maintenant les images réussies et celles en échec ; la limite porte sur les tentatives.
+- **F12, agents de contenu.**
+  - Le contexte du projet porte « marque » et une consigne « verrouille » : ne pas renommer la marque ni le produit. Cette consigne n'est jamais retirée faute de place.
+  - « Adopter → angle proposé » ouvre un petit formulaire (titre, promesse) à relire avant l'ajout, au lieu de prendre les 2 premières lignes.
+  - Non fait : envoyer une accroche choisie directement dans une section ou une pub.
+- **Tests.** 68/68 : nouveaux tests A12-A14 (testé / prouvé), M02-M04 (contenu du mécanisme, parties à relire), V06 (migration v2 → v3), O14-O15 (valeurs impossibles) ; A08 et V04 mis à jour. Sur le serveur : studio-lot (aller-retour), version d'une pub (n=1 remet l'image et le plan), sélecteur ◀▶ vérifié à l'écran sur essai-mirror (fichier remis ensuite). Le signal « à relire » de la Validation n'apparaîtra qu'après une nouvelle analyse (les anciennes n'ont pas d'empreinte). Sauvegarde : ~/sauvegardes/lotd-HHMM/.
+
+## 2026-11-25 — Audit du 24 nov. : lot E (performance, libellés, petits écrans) — AUDIT TERMINÉ
+
+- **F23, Canvas plus léger.** L'arbre des sections (treeForItem, aiTargets, applyValues et leurs aides) est sorti d'inspector-ui.jsx vers src/engine/arbre-section.js. Ce module ne dépend d'aucune interface.
+  - inspector-ui.jsx l'importe et réexporte aiTargets et applyValues. Canvas et board-ui l'importent directement.
+  - canvas.html ne précharge plus l'inspecteur (≈ 707 ko). Les fichiers chargés au départ font environ 1,39 Mo bruts.
+- **F17, médiathèque.** Les pages et les tableaux du Canvas ne sont relus que si leur date ou leur taille a changé (cachePages, cacheTableaux, fonction parDate).
+  - Mesure sur essai-mirror : 0,19 s avant ; après, 0,34 s à la première ouverture à froid (lecture unique des ~250 pages), puis 0,03 s, y compris après la modification d'une page.
+  - Non fait : un index persistant et la pagination côté client.
+- **F20, verbes précis.**
+  - Whitelabeler : « 💬 Ouvrir une conversation ». Omar : « ▶ Lancer une recherche (crédits) », avec une infobulle « payant ».
+  - Fondations : « Envoyer une demande à Claude », et le texte d'aide dit que la demande est mise en file.
+  - Publicités : « Préparer et générer (payant) », avec une infobulle qui renvoie au Canvas pour relire la proposition avant de générer.
+  - La coche « Preuves et offres » n'est verte que si des preuves sont cochées ET si l'offre commerciale n'a pas d'erreur. Sinon elle est « en cours », avec « offre à remplir » ou « N erreur(s) dans l'offre ».
+- **F19, accessibilité et petits écrans.**
+  - Le champ du chat porte aria-label « Message à l'agent ». Les états de la Recherche sont annoncés (role status et alert).
+  - Sous 720 px, les barres d'Agents army et de la Recherche passent à la ligne, les tableaux défilent dans leur cadre et les réglages tiennent sur une colonne.
+  - Non fait : le Canvas sur téléphone (barre d'outils Excalidraw), faible priorité puisque l'atelier sert sur ordinateur.
+- **Vérifié.** Build OK, tests 68/68. Le Canvas s'ouvre ; l'éditeur, son panneau Structure et son inspecteur fonctionnent sur essai-poignees, sans erreur dans la console. Les nouveaux libellés s'affichent. Sauvegarde : ~/sauvegardes/lote-HHMM/.
+- **Remarque.** dist/assets fait 148 Mo (1 108 fichiers), car emptyOutDir: false garde les anciens fichiers pour les onglets restés ouverts. Un nettoyage des fichiers de plus de quelques jours serait possible.
+
+- **Nettoyage du 2026-11-25** : 616 anciens fichiers compilés (non touchés depuis plus de 24 h, aucun utilisé par les pages actuelles) supprimés de dist/assets : 148 Mo → 37 Mo. Éditeur, Canvas, Studio, Catalogue, Recherche et Agents vérifiés sans fichier manquant. À refaire de temps en temps : `find dist/assets -type f -mmin +1440 -delete` juste après un build.
+
+## 2026-11-25 — WinningHunter branché au chat ChatGPT des agents (Agents army)
+
+- Avec ChatGPT, une case **WinningHunter** s'affiche à côté de « Recherche web ». Elle est cochée par défaut (préférence gardée dans localStorage `atl-agents-wh`) et grisée avec Claude.
+- **Fonctionnement.** server/agents.mjs, runAgent, ajoute à l'appel OpenAI Responses un outil `{ type: "mcp", server_label: "winninghunter", server_url: MCP, allowed_tools: OUTILS_PERMIS, require_approval: "never" }`. C'est OpenAI qui appelle directement le serveur MCP de WinningHunter avec la clé WINNINGHUNTER_API_KEY.
+  - La liste des outils est celle de server/recherche.mjs (maintenant exportée) : lecture seule, **aucun outil de lancement de pubs ni de campagne**.
+  - La consigne de l'agent reçoit en plus : « WinningHunter est connecté, chiffres tagués [WH], 10 appels au plus par réponse ».
+- Chaque réponse garde `winninghunter: [{ outil, erreur }]`. Le chat affiche « · WinningHunter (n appels) ».
+- La route GET /api/agents/moteurs renvoie aussi `winninghunter`.
+- **Testé** sur Niche Analyzer (essai-mirror) : 1 appel get_store_details sur mysweetsmile.com. Résultat : 613 712 visites par mois et 1,9 à 3,2 M£ sur 30 jours [WH], contre 140 000 à 720 000 £ par mois estimés à partir du web seul.
+- **Non fait.** WinningHunter avec Claude (connecteur MCP d'Anthropic), si on le veut un jour.

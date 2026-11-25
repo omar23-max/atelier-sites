@@ -14,7 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const imp = (f) => import(pathToFileURL(join(root, f)).href);
 const { knownNumbers, hasUnknownFigure, knownClaims, hasUnknownClaim } = await imp("src/engine/fidelite.js");
 const { blueprintOf, contenuProgress } = await imp("src/engine/page-blueprints.js");
-const { merge3, empreinte, empreinteV1, statutFondations, realText, withIds } = await imp("src/engine/fondations-etat.js");
+const { merge3, empreinte, empreinteV1, empreinteV2, partiesEmpreinte, partiesModifiees, statutFondations, realText, withIds } = await imp("src/engine/fondations-etat.js");
 const { packsCalcules, controlesFiche, packsDepuisTexte } = await imp("src/engine/offre-fiche.js");
 
 const cases = [];
@@ -55,7 +55,11 @@ claim("A05", "Une négation n'autorise pas l'allégation", { fondations: { repon
 claim("A06", "Allégation concurrente ≠ preuve produit", { fondations: { reponses: { collecteAutres: "Le concurrent écrit clinically proven" } } }, "Clinically proven", true);
 // non-régression
 claim("A07", "Vegan documenté autorise « vegan »", { fondations: { reponses: { preuves: { certification: { oui: true, detail: "Certifié Vegan (Vegan Society)" } } } } }, "100% vegan formula", false);
-claim("A08", "Étude décrite autorise « clinically proven »", { fondations: { reponses: { preuves: { etude: { oui: true, detail: "Étude 2024, 60 personnes, Univ. Laval" } } } } }, "Clinically proven", false);
+// Audit F14 (2026-11-25) : une étude décrite autorise « testé », pas « prouvé ».
+claim("A08", "Étude décrite sans résultat prouvé : « clinically proven » reste signalé", { fondations: { reponses: { preuves: { etude: { oui: true, detail: "Étude 2024, 60 personnes, Univ. Laval" } } } } }, "Clinically proven", true);
+claim("A12", "Étude décrite : « clinically tested » autorisé", { fondations: { reponses: { preuves: { etude: { oui: true, detail: "Étude 2024, 60 personnes, Univ. Laval" } } } } }, "Clinically tested", false);
+claim("A13", "Étude au résultat démontré : « clinically proven » autorisé", { fondations: { reponses: { preuves: { etude: { oui: true, detail: "Étude 2024, 60 personnes : effet démontré sur le sommeil" } } } } }, "Clinically proven", false);
+claim("A14", "« Testé sans effet prouvé » n'autorise pas « prouvé »", { fondations: { reponses: { preuves: { etude: { oui: true, detail: "Testé sur 20 personnes, sans effet prouvé" } } } } }, "Scientifically proven", true);
 claim("A09", "« Vegan and FDA-approved » : FDA reste signalé", { fondations: { reponses: { preuves: { certification: { oui: true, detail: "Vegan" } } } } }, "Vegan and FDA-approved", true);
 claim("A10", "Sans gluten écrit dans la fiche produit autorise « gluten-free »", { produit: { description: "Formule sans gluten" } }, "Gluten-free", false);
 claim("A11", "« Certifié » seul : au moins un label documenté", { fondations: { reponses: { preuves: { certification: { oui: true, detail: "USDA Organic" } } } } }, "Certified quality", false);
@@ -101,7 +105,7 @@ check("C02", "Sans modification locale, un fait ajouté ailleurs est gardé", 1,
   const v1 = { offre: { prix: "30" }, fondations: { reponses: { role: "x" }, message: null, contenus: {}, faits: [], statut: "validée" } };
   v1.fondations.valideEmpreinte = empreinteV1(v1.fondations);
   const mig = statutFondations(v1);
-  check("V04", "Ancienne validation (v1) intacte : gardée et migrée en v2", ["validée", true], [mig.statut, mig.valideEmpreinte.startsWith("v2:")]);
+  check("V04", "Ancienne validation (v1) intacte : gardée et migrée en v3", ["validée", true], [mig.statut, mig.valideEmpreinte.startsWith("v3:")]);
   check("V05", "Ancienne validation (v1) modifiée depuis : « modifiée »", "modifiée", statutFondations({ ...v1, fondations: { ...v1.fondations, reponses: { role: "y" } } }).statut);
 }
 
@@ -141,6 +145,23 @@ check("C02", "Sans modification locale, un fait ajouté ailleurs est gardé", 1,
   const sansFiche = { offre: { prix: "30" }, fondations: { reponses: {}, faits: [], message: null } };
   check("O12", "Projet sans fiche : empreinte inchangée par le lot 3", empreinte(sansFiche), empreinte({ ...sansFiche }));
   check("M01", "Choisir un autre mécanisme → Fondations « modifiée »", "modifiée", statutFondations({ ...v, fondations: { ...v.fondations, mecanismeChoisi: { id: "m2" } } }).statut);
+  // Audit F13 (2026-11-25) : le CONTENU du mécanisme compte, et on sait quelle partie relire.
+  const vm = { offreFiche: fiche, fondations: { reponses: {}, faits: [], message: null, statut: "validée", mecanismes: [{ id: "m1", nom: "A", ump: "cause", ums: "solution" }], mecanismeChoisi: { id: "m1" } } };
+  vm.fondations.valideEmpreinte = empreinte(vm);
+  vm.fondations.valideParties = partiesEmpreinte(vm);
+  const vm2 = { ...vm, fondations: { ...vm.fondations, mecanismes: [{ id: "m1", nom: "A", ump: "autre cause", ums: "solution" }] } };
+  check("M02", "Changer l'explication du mécanisme (même id) → « modifiée »", "modifiée", statutFondations(vm2).statut);
+  check("M03", "Parties à relire : seulement le mécanisme", ["mecanisme"], partiesModifiees(vm2));
+  check("M04", "Changer un prix : seulement l'offre commerciale à relire", ["commercial"], partiesModifiees({ ...vm, offreFiche: { ...fiche, packs: [{ ...fiche.packs[0], prix: "49" }, fiche.packs[1]] } }));
+  const v2 = { offre: { prix: "30" }, fondations: { reponses: { role: "x" }, faits: [], message: null, statut: "validée" } };
+  v2.fondations.valideEmpreinte = empreinteV2(v2);
+  const m2 = statutFondations(v2);
+  check("V06", "Validation v2 intacte : gardée et migrée en v3 avec ses parties", ["validée", true, true], [m2.statut, m2.valideEmpreinte.startsWith("v3:"), Boolean(m2.valideParties)]);
+  // Audit F14 : valeurs impossibles de la fiche.
+  const neg = { devise: "USD", packs: [{ nom: "A", quantite: "-2", prix: "-10" }, { nom: "B", quantite: "1.5", prix: "20" }], garantie: { duree: "-30" } };
+  const ctl = controlesFiche(neg).map((c) => c.texte);
+  check("O14", "Quantité, prix et garantie négatifs, quantité décimale : 4 erreurs « impossible »", 4, ctl.filter((t) => /impossible/.test(t)).length);
+  check("O15", "Valeurs impossibles : aucun prix par unité calculé", [null, null], packsCalcules(neg).map((k) => k.prixUnite));
 }
 
 // ---- Essais réels de l'API (projet jetable) ----

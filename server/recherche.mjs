@@ -10,8 +10,8 @@ import { mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const MODEL = "gpt-5.5";
-const MCP = "https://app.winninghunter.com/mcp";
-const OUTILS_PERMIS = new Set(["search_exploding_topics", "get_exploding_topic_detail", "find_winning_products", "search_facebook_ads", "get_store_details", "search_tiktok_ads", "get_tiktok_ad", "get_tiktok_trending_products", "find_similar_shops", "find_similar_stores_by_image", "search_shopify_stores", "get_store_top_ads", "daily_radar", "check_credits"]);
+export const MCP = "https://app.winninghunter.com/mcp";
+export const OUTILS_PERMIS = new Set(["search_exploding_topics", "get_exploding_topic_detail", "find_winning_products", "search_facebook_ads", "get_store_details", "search_tiktok_ads", "get_tiktok_ad", "get_tiktok_trending_products", "find_similar_shops", "find_similar_stores_by_image", "search_shopify_stores", "get_store_top_ads", "daily_radar", "check_credits"]);
 const enCours = new Map();
 
 // Marchés et filtres voulus par l'utilisateur (2026-11-23) :
@@ -181,12 +181,16 @@ async function radar(env, opts, etape) {
       const ads = (w.data ?? w.result ?? w.ads ?? []).filter((a) => !interdit(a.pageName, a.copy, a.caption) && !origineExclue(a.shopify_shopifydomain || domaine(a.urlStore)));
       t.images = imagesDe(...ads.slice(0, 4));
       const marques = [...new Set(ads.map((a) => a.pageName ?? a.page_name ?? a.pagename ?? a.brand).filter(Boolean))];
-      t.concurrents = { nombre: marques.length, noms: marques.slice(0, 10), pubs: ads.length };
+      // Audit F10 : un ÉCHANTILLON (une recherche), pas un recensement du marché.
+      t.concurrents = { nombre: marques.length, noms: marques.slice(0, 10), pubs: ads.length, echantillon: { requete: t.sujet.toLowerCase(), pays: NOM_PAYS[pays], tri: "dépense publicitaire", le: new Date().toISOString().slice(0, 10) } };
     } catch (e) {
       t.concurrents = { nombre: null, erreur: e.message };
     }
   }
 
+  // Audit F06 (2026-11-25) : chaque tendance reçoit un identifiant fixe AVANT
+  // l'appel IA ; l'IA le renvoie et le serveur rattache les chiffres par lui.
+  choisis.forEach((t, i) => (t.id = `R${i + 1}`));
   etape("Synthèse des pistes…");
   let synthese = { resume: "Aucune tendance ne passe les filtres du guide cette fois.", pistes: [], ecartes: [] };
   if (choisis.length) {
@@ -195,21 +199,35 @@ async function radar(env, opts, etape) {
 - plusieurs sous-tendances liées = le marché se forme ;
 - concurrents sérieux (pubs gagnantes actives) (${NOM_PAYS[pays]}) : 0 à 5 = feu vert, 6 à 10 = à surveiller, plus = marché déjà pris.
 Les chiffres ci-dessous viennent de WinningHunter (OBSERVÉS). N'invente aucun chiffre ; si une donnée manque, dis-le.
+Portée des indicateurs : « concurrents » = annonceurs distincts vus dans UN échantillon de pubs (une recherche par mot-clé) ; 0 ne veut pas dire aucun concurrent dans le pays. « Courbe exponentielle » = accélération observée sur trois périodes (calcul maison), pas une loi mathématique. Un feu vert est une hypothèse à tester, jamais une certitude.
 
-${choisis.map((t, i) => `${i + 1}. ${t.sujet}${t.assoupli ? " [SEUIL ASSOUPLI : sous les seuils du guide, à juger plus sévèrement]" : ""} — volume ${t.volume}/mois, croissance ${t.croissance} % sur ${periode} mois (${t.croissance3mois} % sur 3 mois), courbe ${t.courbe.forme} (moyennes par tiers ${t.courbe.tiers.join(" → ")}), concurrents gagnants (${NOM_PAYS[pays]}) : ${t.concurrents?.nombre ?? "inconnu"}${t.concurrents?.noms?.length ? ` (${t.concurrents.noms.join(", ")})` : ""}
+${choisis.map((t) => `[${t.id}] ${t.sujet}${t.assoupli ? " [SEUIL ASSOUPLI : sous les seuils du guide, à juger plus sévèrement]" : ""} — volume ${t.volume}/mois, croissance ${t.croissance} % sur ${periode} mois (${t.croissance3mois} % sur 3 mois), courbe ${t.courbe.forme} (moyennes par tiers ${t.courbe.tiers.join(" → ")}), concurrents gagnants (${NOM_PAYS[pays]}) : ${t.concurrents?.nombre ?? "inconnu"}${t.concurrents?.noms?.length ? ` (${t.concurrents.noms.join(", ")})` : ""}
    Description : ${t.description.slice(0, 200)}
    Détail Exploding Topics (extrait brut) : ${t.detail}`).join("\n\n")}
 
 Réponds en français, UNIQUEMENT en JSON :
 {"resume":"2 phrases sur ce que le radar a trouvé",
- "pistes":[{"sujet":"mot-clé exact","verdict":"feu vert|à surveiller|écarté","pourquoi":"2 phrases avec les chiffres","sousTendances":["…"],"produitConcret":"le produit précis à vendre","angle":"l'angle de vente qui se dessine","risques":["…"],"prochaineEtape":"ex. : lancer la Validation produit, chercher le produit sur AliExpress…"}]}
+ "pistes":[{"id":"R1 (l'identifiant entre crochets, obligatoire)","sujet":"mot-clé exact","verdict":"feu vert|à surveiller|écarté","pourquoi":"2 phrases avec les chiffres","sousTendances":["…"],"produitConcret":"le produit précis à vendre","angle":"l'angle de vente qui se dessine","risques":["…"],"prochaineEtape":"ex. : lancer la Validation produit, chercher le produit sur AliExpress…"}]}
 Range les pistes de la plus prometteuse à la moins prometteuse.`);
   }
+  // Rattachement par identifiant (le nom exact en secours). Une piste inconnue
+  // est refusée ; un verdict hors liste devient « à surveiller » ; les chiffres
+  // sont remis par le serveur : tableau et détail lisent le même objet.
+  const parId = new Map(choisis.map((t) => [t.id, t]));
   const parSujet = new Map(choisis.map((t) => [t.sujet.toLowerCase(), t]));
-  for (const p of synthese.pistes ?? []) {
-    const t = parSujet.get(String(p.sujet ?? "").toLowerCase());
-    if (t) Object.assign(p, { images: t.images ?? [], assoupli: Boolean(t.assoupli), volume: t.volume, croissance: t.croissance, croissance3mois: t.croissance3mois, courbe: t.courbe.forme, concurrents: t.concurrents, path: t.path });
-  }
+  const rejetees = [];
+  const prises = new Set();
+  synthese.pistes = (synthese.pistes ?? []).flatMap((p) => {
+    const t = parId.get(String(p.id ?? "").trim().replace(/[[\]]/g, "").toUpperCase()) ?? parSujet.get(String(p.sujet ?? "").trim().toLowerCase());
+    if (!t || prises.has(t.id)) {
+      if (!t) rejetees.push(court(p.id ?? p.sujet ?? "?", 60));
+      return [];
+    }
+    prises.add(t.id);
+    const libelleIA = p.sujet && String(p.sujet).trim().toLowerCase() !== t.sujet.toLowerCase() ? court(p.sujet, 90) : undefined;
+    return [{ ...p, id: t.id, sujet: t.sujet, libelleIA, verdict: VERDICTS.has(p.verdict) ? p.verdict : "à surveiller", images: t.images ?? [], assoupli: Boolean(t.assoupli), volume: t.volume, croissance: t.croissance, croissance3mois: t.croissance3mois, courbe: t.courbe.forme, concurrents: t.concurrents, path: t.path }];
+  });
+  if (rejetees.length) synthese.rejetees = rejetees;
   return {
     reglages: { periode, categorie, pays, volumeMin: VOL, croissanceMin: CROISS },
     assoupli,
@@ -259,11 +277,29 @@ Réponds en français, UNIQUEMENT en JSON :
  "pistes":[{"id":"<id>","sujet":"nom court du produit","verdict":"feu vert|à surveiller|écarté","pourquoi":"2 phrases avec les chiffres","produitConcret":"le produit précis à vendre","angle":"l'angle de vente qui se dessine","risques":["…"],"prochaineEtape":"…"}]}
 "pistes" : seulement les 3 à 5 meilleures, de la plus prometteuse à la moins prometteuse.`);
 }
+// Audit F06 (2026-11-25) : verdicts limités à la liste ; une piste dont
+// l'identifiant n'est pas une ligne observée est refusée (et signalée).
+const VERDICTS = new Set(["feu vert", "à surveiller", "écarté"]);
 function fusionner(lignes, s) {
-  for (const l of lignes) l.verdict = s.verdicts?.[l.id] ?? "à surveiller";
+  for (const l of lignes) {
+    const v = s.verdicts?.[l.id];
+    l.verdict = VERDICTS.has(v) ? v : "à surveiller";
+  }
   const rang = { "feu vert": 0, "à surveiller": 1, "écarté": 2 };
   lignes.sort((a, b) => rang[a.verdict] - rang[b.verdict]);
-  return { resume: s.resume, pistes: s.pistes ?? [] };
+  const parId = new Map(lignes.map((l) => [String(l.id), l]));
+  const rejetees = [];
+  const prises = new Set();
+  const pistes = (s.pistes ?? []).flatMap((p) => {
+    const l = parId.get(String(p.id ?? "").trim());
+    if (!l || prises.has(l.id)) {
+      if (!l) rejetees.push(court(p.id ?? p.sujet ?? "?", 60));
+      return [];
+    }
+    prises.add(l.id);
+    return [{ ...p, id: l.id, verdict: VERDICTS.has(p.verdict) ? p.verdict : l.verdict }];
+  });
+  return { resume: s.resume, pistes, ...(rejetees.length ? { rejetees } : {}) };
 }
 
 // ---- Omar_winninghunter_chasseur facebook (guide « Facebook Ad Library ») ----
@@ -354,6 +390,9 @@ async function chasseurTiktok(env, opts, etape) {
   const base = { countries: paysListe(pays), languages: LANGUES, product_ads_only: true, last_seen_from: jour(21), last_seen_to: jour(0), limit: 20, ...filtre };
   if (niche) base.niches = niche;
   const ads = new Map();
+  // Audit F07 (2026-11-25) : chaque appel est compté. Zéro appel réussi = la
+  // recherche a ÉCHOUÉ (jamais « aucune pub ») ; certains en échec = résultat partiel.
+  const appels = { ok: 0, erreurs: [] };
   for (const tri of ["adspend", "likes", "shares", "datefound", "daysrunning"]) {
     etape(`Pubs TikTok (${NOM_PAYS[pays]}, tri : ${tri})…`);
     try {
@@ -363,8 +402,13 @@ async function chasseurTiktok(env, opts, etape) {
         if (interdit(a.pageName, a.description, a.shopify_productname, a.shopify_shopifydomain) || origineExclue(a.shopify_shopifydomain || domaine(a.urlStore), a.shopify_country, a.language)) continue;
         if (k && !ads.has(k)) ads.set(k, a);
       }
-    } catch {}
+      appels.ok++;
+    } catch (e) {
+      appels.erreurs.push(`${tri} : ${String(e?.message ?? e).slice(0, 120)}`);
+    }
   }
+  if (!appels.ok) throw new Error(`Recherche TikTok échouée : les ${appels.erreurs.length} appels à WinningHunter ont échoué (${appels.erreurs[0] ?? "erreur inconnue"}). Rien n'a été conclu sur le marché : relance plus tard.`);
+  const partiel = appels.erreurs.length ? ` · résultat PARTIEL : ${appels.ok}/${appels.ok + appels.erreurs.length} recherches réussies` : "";
   const lignes = [...ads.values()].slice(0, 20).map((a, i) => ({
     id: `T${i + 1}`,
     images: imagesDe(a),
@@ -390,7 +434,7 @@ async function chasseurTiktok(env, opts, etape) {
   return {
     reglages: { pays, niche: niche || "toutes", signal },
     titre: `Chasse TikTok : ${NOM_PAYS[pays]}`,
-    sousTitre: `${ads.size} produits distincts · vus entre le ${jour(21)} et aujourd'hui · filtre ${signal === "likes" ? "200+ likes" : signal === "shares" ? "30+ partages" : "50+ commentaires"}`,
+    sousTitre: `${ads.size} produits distincts · vus entre le ${jour(21)} et aujourd'hui · filtre ${signal === "likes" ? "200+ likes" : signal === "shares" ? "30+ partages" : "50+ commentaires"}${partiel}`,
     colonnes: [
       { cle: "images", label: "", type: "images" },
       { cle: "nom", label: "Produit", type: "nom" },
@@ -603,6 +647,64 @@ export async function rechercheRoute(req, res, parts, { root, readBody, json }) 
   const etatFile = join(dir, "_etat.json");
   const lireEtat = async () => (existsSync(etatFile) ? JSON.parse(await readFile(etatFile, "utf8")) : { statut: "vide" });
 
+  // POST /api/recherche/<slug>/adopter { fichier, id, projet | nouveau }
+  // Audit F11 (2026-11-25) : une piste entre dans un projet (existant ou créé)
+  // comme NOTE DE RECHERCHE avec son origine (agent, date, réglages, mesures,
+  // sources, limites, interprétation). Jamais dans les preuves.
+  if (req.method === "POST" && parts[2] === "adopter") {
+    const b = (await readBody(req).catch(() => ({}))) || {};
+    if (!/^[0-9TZ-]+\.json$/.test(String(b.fichier ?? "")) || !existsSync(join(dir, b.fichier))) return json(res, 404, { error: "Résultat introuvable." });
+    const r = JSON.parse(await readFile(join(dir, b.fichier), "utf8"));
+    const p = (r.pistes ?? []).find((x) => String(x.id ?? x.sujet) === String(b.id ?? ""));
+    if (!p) return json(res, 404, { error: "Piste introuvable dans ce résultat." });
+    const { muterProjet, writeAtomic } = await import("./commun.mjs");
+    let projet = String(b.projet ?? "");
+    if (b.nouveau) {
+      const nom = String(b.nouveau).trim().slice(0, 80);
+      projet = nom.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+      if (!nom || !/^[a-z0-9][a-z0-9-]{1,90}$/.test(projet)) return json(res, 400, { error: "Donne un nom au nouveau projet." });
+      if (existsSync(join(root, "projets", `${projet}.json`))) return json(res, 409, { error: `Le projet « ${nom} » existe déjà : choisis-le dans la liste.` });
+      await writeAtomic(join(root, "projets", `${projet}.json`), JSON.stringify({ id: projet, nom, produit: court(p.produitConcret || p.sujet, 120), description: "", creeLe: new Date().toISOString() }, null, 2) + "\n");
+    }
+    if (!/^[a-z0-9][a-z0-9-]{1,90}$/.test(projet) || !existsSync(join(root, "projets", `${projet}.json`))) return json(res, 404, { error: "Projet introuvable." });
+    const ligne = (r.lignes ?? []).find((l) => String(l.id) === String(p.id));
+    const mesures = ligne
+      ? Object.fromEntries((r.colonnes ?? []).filter((c) => !["images", "verdict", "nom"].includes(c.type)).map((c) => [c.label || c.cle, ligne[c.cle] == null || ligne[c.cle] === "" ? null : `${ligne[c.cle]}${c.suffixe ?? ""}`]).filter(([, v]) => v != null))
+      : Object.fromEntries(
+          [
+            ["Recherches / mois (Exploding Topics)", p.volume],
+            [`Croissance sur ${r.reglages?.periode ?? "?"} mois (Exploding Topics)`, p.croissance != null ? `+${p.croissance} %` : null],
+            ["Croissance sur 3 mois (Exploding Topics)", p.croissance3mois != null ? `+${p.croissance3mois} %` : null],
+            ["Courbe (calcul maison sur 3 périodes)", p.courbe === "exponentielle" ? "accélère" : p.courbe],
+            ["Annonceurs distincts dans l'échantillon", p.concurrents?.nombre],
+          ].filter(([, v]) => v != null && v !== ""),
+        );
+    const limites = [
+      "Chiffres relevés par WinningHunter à la date du résultat ; ils peuvent avoir changé.",
+      ligne ? "Lignes lues dans un échantillon de recherche limité, pas un recensement du marché." : `Concurrents : annonceurs vus dans une seule recherche (« ${p.concurrents?.echantillon?.requete ?? p.sujet} », ${p.concurrents?.echantillon?.pays ?? NOM_PAYS[r.reglages?.pays] ?? r.reglages?.pays ?? "?"}) ; 0 ne veut pas dire aucun concurrent.`,
+      "Verdict, angle et produit : interprétation de l'IA, à valider (étape Validation produit).",
+    ];
+    const origine = { agent: slug, fichier: b.fichier, resultatDu: r.le, reglages: r.reglages ?? {}, id: p.id ?? null, sujet: p.sujet, mesures, source: "WinningHunter (lecture seule)", limites };
+    const texte = [
+      `Piste de recherche : ${p.sujet} (${p.verdict ?? "sans verdict"})`,
+      `Origine : agent ${slug}, résultat du ${String(r.le ?? "").slice(0, 10)}${p.id ? `, piste ${p.id}` : ""}.`,
+      Object.keys(mesures).length ? `Mesures : ${Object.entries(mesures).map(([k, v]) => `${k} ${v}`).join(" · ")}.` : "Mesures : aucune relevée.",
+      p.produitConcret ? `Produit (interprétation IA) : ${p.produitConcret}` : "",
+      p.angle ? `Angle (interprétation IA) : ${p.angle}` : "",
+      p.pourquoi ? `Pourquoi (IA) : ${p.pourquoi}` : "",
+      p.risques?.length ? `Risques : ${p.risques.join(" · ")}` : "",
+      `Limites : ${limites.join(" ")}`,
+      "Hypothèse à tester, ne prouve rien.",
+    ].filter(Boolean).join("\n");
+    const le = new Date().toISOString();
+    await muterProjet(projet, (pj) => {
+      pj.fondations = pj.fondations ?? {};
+      pj.fondations.reponses = pj.fondations.reponses ?? {};
+      pj.fondations.reponses.notesAgents = [...(pj.fondations.reponses.notesAgents ?? []), { texte, agent: slug, le, origine }];
+    });
+    return json(res, 200, { ok: true, projet });
+  }
+
   if (req.method === "GET" && parts[2]) {
     if (!/^[0-9TZ-]+\.json$/.test(parts[2]) || !existsSync(join(dir, parts[2]))) return json(res, 404, { error: "Résultat introuvable." });
     return json(res, 200, JSON.parse(await readFile(join(dir, parts[2]), "utf8")));
@@ -625,12 +727,13 @@ export async function rechercheRoute(req, res, parts, { root, readBody, json }) 
   }
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   if (enCours.has(slug)) return json(res, 409, { error: "Cet agent tourne déjà." });
+  // Audit F03 (2026-11-25) : réservé tout de suite (avant toute attente), libéré si le lancement est refusé.
+  enCours.set(slug, "Démarrage…");
   const { loadEnv } = await import("vite");
   const env = loadEnv("development", root, "");
-  if (!env.WINNINGHUNTER_API_KEY) return json(res, 400, { error: "WinningHunter n'est pas connecté (WINNINGHUNTER_API_KEY)." });
-  if (!env.OPENAI_API_KEY) return json(res, 400, { error: "Clé OpenAI absente (OPENAI_API_KEY)." });
+  if (!env.WINNINGHUNTER_API_KEY) return enCours.delete(slug), json(res, 400, { error: "WinningHunter n'est pas connecté (WINNINGHUNTER_API_KEY)." });
+  if (!env.OPENAI_API_KEY) return enCours.delete(slug), json(res, 400, { error: "Clé OpenAI absente (OPENAI_API_KEY)." });
   const opts = (await readBody(req).catch(() => ({}))) || {};
-  enCours.set(slug, "Démarrage…");
   await ecrire(etatFile, { statut: "en cours", lanceLe: new Date().toISOString(), etape: "Démarrage…" });
   const etape = (t) => enCours.set(slug, t);
   (async () => {
