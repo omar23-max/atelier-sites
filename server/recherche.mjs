@@ -13,6 +13,8 @@ const MODEL = "gpt-5.5";
 export const MCP = "https://app.winninghunter.com/mcp";
 export const OUTILS_PERMIS = new Set(["search_exploding_topics", "get_exploding_topic_detail", "find_winning_products", "search_facebook_ads", "get_store_details", "search_tiktok_ads", "get_tiktok_ad", "get_tiktok_trending_products", "find_similar_shops", "find_similar_stores_by_image", "search_shopify_stores", "get_store_top_ads", "daily_radar", "check_credits"]);
 const enCours = new Map();
+// Grille des résultats (2026-11-25) : agents en train de chercher.
+export const agentsEnCours = () => [...enCours.entries()];
 
 // Marchés et filtres voulus par l'utilisateur (2026-11-23) :
 // 7 pays (ou tous ensemble), langues anglais/français/italien/espagnol,
@@ -93,7 +95,7 @@ async function sessionMcp(key) {
 }
 
 // ---- IA (tri et explication seulement) ----
-async function ia(env, texte) {
+export async function ia(env, texte) {
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },

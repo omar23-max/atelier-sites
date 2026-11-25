@@ -5,6 +5,7 @@
 // Ensuite : choisir lesquels brancher dans chaque partie de l'atelier.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Markdown } from "../mirror-pub-ui.jsx";
+import { RechercheGrille, RangerReponse } from "./RechercheGrille.jsx";
 
 // Les pages Whitelabeler (cadre isolé) restaient blanches jusqu'au premier
 // redimensionnement du cadre. On le provoque quelques fois après leur arrivée
@@ -53,7 +54,8 @@ export function AgentsArmy({ espace = null }) {
           d = { ...d, agents: [...om, ...wl], source: "Omar_winninghunter + Whitelabeler" };
         }
         setData(d);
-        setCur((c) => c ?? d.agents?.[0]?.slug ?? null);
+        // Espace Recherche : la grille des résultats d'abord (2026-11-25).
+        setCur((c) => c ?? (espace ? "__grille" : d.agents?.[0]?.slug ?? null));
       })
       .catch((e) => setErr(e.message));
   }, []);
@@ -70,6 +72,20 @@ export function AgentsArmy({ espace = null }) {
   // Consigne (prompt) de l'agent, déjà dans sa page (2026-11-22) : affichée à
   // la place de la présentation, avec Copier.
   const [vue, setVue] = useState("presentation");
+  // « Discuter de ce produit » depuis la grille : agent + fiche du produit.
+  const [candidatChat, setCandidatChat] = useState(null);
+  const vueVoulue = useRef(null);
+  function discuter(slug, c, message) {
+    // Produit déjà lancé : la conversation se fait sur son projet (2026-11-25).
+    setCandidatChat(c ? { id: c.id, nom: c.nom, message: message ?? "", projet: c.lance ?? null } : null);
+    vueVoulue.current = "chat";
+    if (slug === cur) setVue("chat");
+    setCur(slug);
+  }
+  function choisir(slug) {
+    setCandidatChat(null);
+    setCur(slug);
+  }
   useRelanceCadre(cadre, html && vue === "presentation" ? cur + html.length : null);
   const [consigne, setConsigne] = useState(null);
   // Lot 2 : la consigne nettoyée par défaut ; l'original reste consultable.
@@ -85,7 +101,8 @@ export function AgentsArmy({ espace = null }) {
   }
   const [copie, setCopie] = useState(false);
   useEffect(() => {
-    setVue("presentation");
+    setVue(vueVoulue.current ?? "presentation");
+    vueVoulue.current = null;
     setConsigne(null);
   }, [cur]);
   async function voirConsigne() {
@@ -98,7 +115,7 @@ export function AgentsArmy({ espace = null }) {
     }
   }
   useEffect(() => {
-    if (!cur) return;
+    if (!cur || cur === "__grille") return;
     let off = false;
     setHtml("");
     fetch(`/api/agents/${cur}`)
@@ -130,16 +147,24 @@ export function AgentsArmy({ espace = null }) {
         <nav className="cat-army__list" aria-label="Agents">
           {!espace && vueListe === "taches" && !q.trim() && taches ? (
             <ParTache taches={taches} agents={data?.agents ?? []} cur={cur} onPick={setCur} />
-          ) : list.map((a) => (
-            <button key={a.slug} type="button" className={a.slug === cur ? "is-on" : ""} onClick={() => setCur(a.slug)} title={a.accroche}>
+          ) : [
+            espace && !q.trim() && (
+              <button key="__grille" type="button" className={cur === "__grille" ? "is-on cat-army__grille" : "cat-army__grille"} onClick={() => choisir("__grille")}>
+                ▦ Résultats en grille
+              </button>
+            ),
+            ...list.map((a) => (
+            <button key={a.slug} type="button" className={a.slug === cur ? "is-on" : ""} onClick={() => choisir(a.slug)} title={a.accroche}>
               {a.titre}
             </button>
-          ))}
+          ))]}
           {data && !list.length && <p className="cat-muted">Aucun agent ne correspond.</p>}
         </nav>
       </aside>
       <section className="cat-army__main">
-        {agent?.omar ? (
+        {cur === "__grille" && data ? (
+          <RechercheGrille agentsOmar={data.agents.filter((a) => a.omar)} agentsChat={data.agents.filter((a) => !a.omar && a.consigne)} onOuvrir={choisir} onDiscuter={discuter} />
+        ) : agent?.omar ? (
           <OmarAgent a={agent.omar} />
         ) : agent ? (
           <>
@@ -167,7 +192,7 @@ export function AgentsArmy({ espace = null }) {
               </div>
             </header>
             {vue === "chat" ? (
-              <AgentChat key={agent.slug} agent={agent} />
+              <AgentChat key={`${agent.slug}|${candidatChat?.id ?? ""}`} agent={agent} recherche={Boolean(espace)} candidat={candidatChat} onGrille={() => choisir("__grille")} />
             ) : vue === "consigne" ? (
               <div className="cat-army__cons">
                 <div className="cat-army__consbar">
@@ -214,9 +239,11 @@ export function AgentsArmy({ espace = null }) {
 // ---- Lancer l'agent (2026-11-22) : conversation dans l'atelier ----
 // L'IA choisie (ChatGPT ou Claude) suit la consigne de l'agent, avec les
 // Fondations du projet choisi, les photos jointes et la recherche web.
-function AgentChat({ agent }) {
+function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
   const [projets, setProjets] = useState([]);
-  const [projet, setProjet] = useState(() => localStorage.getItem("atl-agents-projet") ?? "");
+  const [projetChoisi, setProjet] = useState(() => localStorage.getItem("atl-agents-projet") ?? "");
+  // Conversation sur un produit de la grille : pas de projet, la fiche du produit à la place.
+  const projet = candidat ? candidat.projet ?? "" : projetChoisi;
   const [moteur, setMoteur] = useState(() => localStorage.getItem("atl-agents-moteur") ?? "chatgpt");
   const [moteurs, setMoteurs] = useState({ chatgpt: true, claude: false });
   const [web, setWeb] = useState(true);
@@ -224,13 +251,13 @@ function AgentChat({ agent }) {
   const [wh, setWh] = useState(() => localStorage.getItem("atl-agents-wh") !== "0");
   useEffect(() => localStorage.setItem("atl-agents-wh", wh ? "1" : "0"), [wh]);
   const [conv, setConv] = useState(null);
-  const [texte, setTexte] = useState("");
+  const [texte, setTexte] = useState(candidat?.message ?? "");
   const [err, setErr] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [picker, setPicker] = useState(null);
   const [cle, setCle] = useState("");
   const bas = useRef(null);
-  const qs = () => `projet=${encodeURIComponent(projet)}`;
+  const qs = () => (candidat && !candidat.projet ? `candidat=${encodeURIComponent(candidat.id)}` : `projet=${encodeURIComponent(projet)}`);
 
   useEffect(() => {
     fetch("/api/projects")
@@ -254,11 +281,11 @@ function AgentChat({ agent }) {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         const p = d?.root?.props?.projet;
-        if (p) setProjet(p);
+        if (p && !candidat) setProjet(p);
       })
       .catch(() => {});
   }, []);
-  useEffect(() => localStorage.setItem("atl-agents-projet", projet), [projet]);
+  useEffect(() => localStorage.setItem("atl-agents-projet", projetChoisi), [projetChoisi]);
   useEffect(() => localStorage.setItem("atl-agents-moteur", moteur), [moteur]);
   // Audit F21 : une réponse arrivée après un changement d'agent ou de projet est ignorée.
   const selection = useRef("");
@@ -292,7 +319,7 @@ function AgentChat({ agent }) {
   async function envoyer(extra = {}) {
     setErr(null);
     try {
-      const r = await fetch(`/api/agents/${agent.slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, message: texte, images: photos, web, wh, moteur, ...extra }) });
+      const r = await fetch(`/api/agents/${agent.slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, candidat: candidat?.projet ? undefined : candidat?.id, message: texte, images: photos, web, wh, moteur, ...extra }) });
       const b = await r.json();
       if (!r.ok) throw new Error(b.error ?? `Erreur ${r.status}`);
       setConv(b);
@@ -325,7 +352,26 @@ function AgentChat({ agent }) {
 
   return (
     <div className="cat-chat">
+      {candidat && (
+        <div className="cat-chat__produit">
+          <span>
+            {candidat.projet ? (
+              <>
+                Conversation sur le produit <b>{candidat.nom}</b>, lancé dans le projet <b>{candidat.projet}</b> : l'agent lit tout le projet, et ce que tu ajoutes va dans ses notes de recherche.
+              </>
+            ) : (
+              <>
+                Conversation sur le produit <b>{candidat.nom}</b> : l'agent a reçu sa fiche (chiffres, sources, ce qui est déjà retenu).
+              </>
+            )}
+          </span>
+          <button type="button" className="cat-link" onClick={onGrille}>
+            ← Retour à la grille
+          </button>
+        </div>
+      )}
       <div className="cat-chat__opts">
+{!candidat && (
         <label>
           Projet
           <select value={projet} onChange={(e) => setProjet(e.target.value)}>
@@ -337,6 +383,7 @@ function AgentChat({ agent }) {
             ))}
           </select>
         </label>
+        )}
         <span className="cat-chat__moteur" role="group" aria-label="IA">
           <button type="button" className={moteur === "chatgpt" ? "is-on" : ""} onClick={() => setMoteur("chatgpt")} title="ChatGPT (gpt-5.5)">
             ChatGPT
@@ -395,6 +442,7 @@ function AgentChat({ agent }) {
               </small>
               <Markdown text={m.text} />
               {projet && <Adopter projet={projet} texte={m.text} agent={agent.titre} />}
+              {recherche && <RangerReponse texte={m.text} agent={agent.titre} candidat={candidat} />}
               {m.sources?.length > 0 && (
                 <div className="cat-chat__sources">
                   Sources :{" "}

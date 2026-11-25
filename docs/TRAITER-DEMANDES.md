@@ -2665,3 +2665,11 @@ Original 80 % → retour Modifiable 80 %.
 - La route GET /api/agents/moteurs renvoie aussi `winninghunter`.
 - **Testé** sur Niche Analyzer (essai-mirror) : 1 appel get_store_details sur mysweetsmile.com. Résultat : 613 712 visites par mois et 1,9 à 3,2 M£ sur 30 jours [WH], contre 140 000 à 720 000 £ par mois estimés à partir du web seul.
 - **Non fait.** WinningHunter avec Claude (connecteur MCP d'Anthropic), si on le veut un jour.
+
+## Grille des résultats de la Recherche (2026-11-25)
+- Page Recherche : « ▦ Résultats en grille » (par défaut). Cartes des agents en haut, grille des pistes (3 derniers résultats de chaque agent Omar, dédoublonnées par nom), détail sous la grille.
+- Case « Proposer mon produit » (nom obligatoire ; lien, prix, coût, notes). « Lancer ce produit » crée ou choisit un projet et y ajoute une note de recherche avec l'origine (notesAgents, agent « recherche-grille »).
+- « Discuter de ce produit » / « Analyser avec Niche Analyzer » : chat de l'agent avec la fiche du produit (conversations/_candidats/<id>/). Sous chaque réponse : « Ajouter à la grille » (produits) et « Ajouter à cette piste » (infos rangées par rubrique, source [WH]/[Web]/[Est]), aperçu à cocher (1 appel ChatGPT).
+- Code : server/candidats.mjs (GET/POST /api/candidats), src/catalogue/RechercheGrille.jsx ; état dans agents/omar-winninghunter/_candidats.json.
+- Produit lancé : « Discuter de ce produit » ouvre le chat sur son projet (l agent lit tout le projet) ; « Ajouter à cette piste » écrit aussi dans les notes de recherche du projet (2026-11-25).
+- Test payant du 2026-11-25 (Niche Analyzer, bandes blanchissantes) : 2 min, 9 appels WH, 6 sources web. Corrigé ensuite : repères de l utilisateur tagués [Moi] dans la fiche ; extraction : arguments de pub → Angles (pas Mots des clients), produit étudié et ses packs exclus de « Ajouter à la grille ».

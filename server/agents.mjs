@@ -72,7 +72,11 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     const b = req.method === "POST" ? await readBody(req) : {};
     const projet = String((req.method === "POST" ? b.projet : u.searchParams.get("projet")) ?? "");
     if (projet && !/^[a-z0-9][a-z0-9-]*$/.test(projet)) return json(res, 400, { error: "Projet invalide." });
-    const convDir = join(root, "agents", "conversations", projet || "_aucun");
+    // « Discuter de ce produit » (grille de la Recherche, 2026-11-25) : une
+    // conversation par produit, avec sa fiche dans les consignes.
+    const candidat = projet ? "" : String((req.method === "POST" ? b.candidat : u.searchParams.get("candidat")) ?? "");
+    if (candidat && !/^[pm]-[a-z0-9-]{1,90}$/.test(candidat)) return json(res, 400, { error: "Produit invalide." });
+    const convDir = candidat ? join(root, "agents", "conversations", "_candidats", candidat) : join(root, "agents", "conversations", projet || "_aucun");
     const convFile = join(convDir, `${slug}.json`);
     const load = async () => {
       try {
@@ -135,7 +139,7 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
       chatsEnCours.delete(convFile);
       throw e;
     }
-    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur, runId, c.wh)
+    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur, runId, c.wh, candidat)
       .catch(() => {})
       .finally(() => chatsEnCours.get(convFile) === runId && chatsEnCours.delete(convFile));
     return json(res, 200, c);
@@ -291,7 +295,7 @@ async function imageInput(root, url) {
 // Chats en cours dans CE serveur : fichier de conversation → identifiant d'exécution (audit F03 / F09).
 const chatsEnCours = new Map();
 
-async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt", runId = null, wh = false) {
+async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt", runId = null, wh = false, candidat = "") {
   // La conversation a-t-elle changé d'exécution (nouvelle conversation, autre envoi) ?
   const perimee = (c2) => runId && c2?.runId && c2.runId !== runId;
   const { loadEnv } = await import("vite");
@@ -299,7 +303,8 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
   const read = async () => JSON.parse(await readFile(convFile, "utf8"));
   try {
     const c = await read();
-    const instructions = (await readFile(consFile, "utf8")) + ADAPTER + (await projectContext(root, projet));
+    const fiche = candidat ? await (await import("./candidats.mjs")).ficheCandidat(root, candidat) : "";
+    const instructions = (await readFile(consFile, "utf8")) + ADAPTER + (await projectContext(root, projet)) + fiche;
     if (moteur === "claude") {
       const r = await runClaude(root, env, instructions, c.messages, web);
       const c2 = await read();
