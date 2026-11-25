@@ -788,10 +788,77 @@ export function atelierApi() {
               if (parts[1] === "canvas-video" && NAME.test(b.page ?? "")) {
                 const { omniVideo } = await import("../scripts/lib/ia.mjs");
                 const folder = await mediaPlace(b.page, "videos-creees");
-                const vid = await omniVideo({ key: env.GEMINI_VEO_API_KEY || env.GEMINI_API_KEY, root, prompt: String(b.prompt ?? "").slice(0, 4000), references: b.references ?? [], duree: b.duree, format: b.format, qualite: b.qualite, folder });
+                const vid = await omniVideo({ key: env.GEMINI_VEO_API_KEY || env.GEMINI_API_KEY, root, prompt: String(b.prompt ?? "").slice(0, 4000), references: b.references ?? [], duree: b.duree, format: b.format, qualite: b.qualite, folder, video: /^\/medias\/[\w./-]+\.(mp4|mov|webm)$/i.test(b.prolonger ?? "") && !String(b.prolonger).includes("..") ? b.prolonger : null });
                 const { noterFiche } = await import("./mediatheque.mjs");
                 await noterFiche(root, b.page, vid.url, { type: "video", provenance: "creee", sous: "ia", choix: "brouillon", origine: { source: "Canvas · Vidéo", consigne: String(b.prompt ?? "").slice(0, 2000), modele: "Gemini Omni 1.2 Flash", references: b.references ?? [], cout: vid.cout, format: `${vid.format} · ${vid.duree} s · ${vid.qualite}` } });
                 return json(res, 200, vid);
+              }
+              // ---- Étape Marque et design (2026-11-24) ----
+              // marque-proposer { projet } : l'agent Brand Sprint propose nom, slogan,
+              // ton, couleurs par rôle et polices (une proposition, jamais enregistrée seule).
+              // marque-image { projet, type: "logos" | "planche", marque, consigne } :
+              // 4 propositions de logo ou une planche de marque (Nano Banana).
+              if (parts[1] === "marque-proposer" && /^[a-z0-9][a-z0-9-]{1,90}$/.test(b.projet ?? "")) {
+                if (!env.OPENAI_API_KEY) throw new Error("Clé OpenAI absente (OPENAI_API_KEY).");
+                const pj = JSON.parse(await readFile(join(projectsDir, `${b.projet}.json`), "utf8"));
+                const { contexteProjet } = await import("../src/engine/contexte-projet.js");
+                const ad = join(root, "agents", "whitelabeler");
+                const cf = [join(ad, "consignes-propres", "whitelabeler-brand-sprint-v-1.txt"), join(ad, "consignes", "whitelabeler-brand-sprint-v-1.txt")].find((x) => existsSync(x));
+                const consigne = cf ? (await readFile(cf, "utf8")).slice(0, 14000) : "";
+                const actuelle = b.marque && typeof b.marque === "object" ? JSON.stringify(b.marque).slice(0, 3000) : "{}";
+                const instructions = `${consigne}
+
+---
+CONSIGNES DE L'ATELIER (prioritaires sur ce qui précède)
+- Une seule réponse, sans question ni salutation : le produit, le client, l'offre et les preuves sont dans le contexte du projet ci-dessous. Applique ta méthode pour proposer l'identité de la marque.
+- Garde ce que l'utilisateur a déjà rempli (marque actuelle) sauf s'il demande autre chose ; propose le reste.
+- Couleurs en hexadécimal, lisibles : texte sur fond et texte blanc sur bouton avec un contraste d'au moins 4,5:1.
+- Polices disponibles sur Google Fonts.
+- Aucun chiffre, avis ou promesse absent des preuves du projet dans le slogan.
+- Réponds UNIQUEMENT avec un objet JSON :
+{"noms":["3 noms de marque possibles si aucun nom n'est donné, sinon le nom actuel seul"],"nom":"le nom conseillé","slogan":"court, langue du marché du projet","ton":"ton et personnalité en 2-3 lignes, avec 3 mots à utiliser et 3 à éviter","couleurs":{"fond":"#","texte":"#","accent":"#","bouton":"#","sombre":"#","surface":"#"},"polices":{"titres":"Google Font","texte":"Google Font"},"pourquoi":"en français, 3 phrases : pourquoi cette identité colle au client et se distingue des concurrents"}
+
+---
+MARQUE ACTUELLE : ${actuelle}
+${b.consigne ? `DEMANDE DE L'UTILISATEUR : ${String(b.consigne).slice(0, 800)}\n` : ""}
+---
+${contexteProjet(pj, { limite: 12000 }).texte}`;
+                const r = await fetch("https://api.openai.com/v1/responses", { method: "POST", headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ model: "gpt-5.5", instructions, input: "Propose l'identité de la marque." }), signal: AbortSignal.timeout(5 * 60 * 1000) });
+                const body = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(`OpenAI (${r.status}) : ${String(body.error?.message ?? "erreur").slice(0, 200)}`);
+                const text = (body.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []).filter((x) => x.type === "output_text").map((x) => x.text).join("\n");
+                const i = text.indexOf("{");
+                const j = text.lastIndexOf("}");
+                if (i < 0 || j <= i) throw new Error("L'agent n'a pas rendu de proposition lisible.");
+                return json(res, 200, { proposition: JSON.parse(text.slice(i, j + 1)), agent: "Brand Sprint V.1" });
+              }
+              if (parts[1] === "marque-image" && /^[a-z0-9][a-z0-9-]{1,90}$/.test(b.projet ?? "")) {
+                const { studioImage } = await import("../scripts/lib/ia.mjs");
+                const pj = JSON.parse(await readFile(join(projectsDir, `${b.projet}.json`), "utf8"));
+                const m = b.marque && typeof b.marque === "object" ? b.marque : pj.marque ?? {};
+                const nom = String(m.nom || pj.produit || pj.nom || "Brand").slice(0, 60);
+                const coul = m.couleurs ? Object.entries(m.couleurs).filter(([, v]) => /^#[0-9a-f]{3,8}$/i.test(String(v))).map(([k, v]) => `${k} ${v}`).join(", ") : "";
+                const pol = m.polices ? [m.polices.titres, m.polices.texte].filter(Boolean).join(" / ") : "";
+                const metier = String(pj.description || pj.produit || "").slice(0, 300);
+                const folder = await mediaPlace(`projet-${b.projet}`, "images-creees");
+                const { noterFiche } = await import("./mediatheque.mjs");
+                const ok = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
+                if (b.type === "logos") {
+                  const pistes = ["a clean wordmark only, refined custom lettering", "a simple geometric symbol plus the wordmark, horizontal lockup", "a monogram / lettermark from the initials, minimal", "an abstract mark that suggests the product's benefit, plus the wordmark"];
+                  const outs = await Promise.allSettled(
+                    pistes.map((piste) =>
+                      studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: null, references: [], prompt: `Professional brand logo design for "${nom}" (${metier}). Style: ${piste}. ${coul ? `Brand colours: ${coul}.` : ""} ${pol ? `Typography mood close to ${pol}.` : ""} ${m.ton ? `Personality: ${String(m.ton).slice(0, 200)}.` : ""} ${b.consigne ? `User request: ${String(b.consigne).slice(0, 300)}.` : ""} Flat vector look, centered on a plain white background, generous margin, no mockup, no shadow, no extra text, the name spelled exactly "${nom}".`, width: 1024, height: 1024, format: null, model: "nano-banana", folder }),
+                    ),
+                  );
+                  const urls = outs.filter((o) => o.status === "fulfilled").map((o) => o.value.url);
+                  for (const u of urls) await noterFiche(root, `projet-${b.projet}`, u, { type: "image", provenance: "creee", sous: "ia", choix: "brouillon", destination: ["marque"], origine: { source: "Marque · logos proposés par l'IA", modele: "Nano Banana", consigne: b.consigne || "" } });
+                  if (!urls.length) throw new Error(outs[0]?.reason?.message ?? "Aucun logo n'a pu être créé.");
+                  return json(res, 200, { urls, cout: urls.length * 0.04 });
+                }
+                const refs = [...(Array.isArray(b.logos) ? b.logos : m.logos ?? [])].filter(ok).slice(0, 2);
+                const out = await studioImage({ openaiKey: env.OPENAI_API_KEY, geminiKey: env.GEMINI_API_KEY, root, source: null, references: refs, prompt: `A professional brand board (brand identity sheet) for "${nom}" (${metier}). ${refs.length ? "Use the attached logo exactly as it is (images = the logo)." : `Show the name "${nom}" as a wordmark.`} Layout on a clean background: the logo large, the colour palette as labelled swatches with hex codes (${coul || "choose a fitting palette"}), the typography (${pol || "a fitting title font and text font"}) with sample headings, a short tagline "${String(m.slogan || "").slice(0, 80)}", and 3 small mood images that fit the brand. ${m.ton ? `Mood: ${String(m.ton).slice(0, 200)}.` : ""} All text spelled correctly, no other brand names.`, width: 1536, height: 864, format: null, model: "nano-banana", folder });
+                await noterFiche(root, `projet-${b.projet}`, out.url, { type: "image", provenance: "creee", sous: "ia", choix: "brouillon", destination: ["marque"], origine: { source: "Marque · planche proposée par l'IA", modele: "Nano Banana", references: refs } });
+                return json(res, 200, { urls: [out.url], cout: 0.04 });
               }
               if (parts[1] === "section-prompts") {
                 const { sectionImagePrompts } = await import("../scripts/lib/ia.mjs");

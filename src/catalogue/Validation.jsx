@@ -236,6 +236,7 @@ function RegistrePubs({ project, page, data, charger }) {
               <div className="cat-reg__media">
                 {media ? x.type === "video" ? <video src={media} poster={x.poster ?? undefined} controls preload="metadata" /> : <img src={media} alt="" loading="lazy" /> : <span className="cat-muted">{x.statut === "erreur" ? `⚠ ${x.erreur ?? "Échec"}` : x.statut === "plan" ? "Proposition à générer (dans le Canvas)" : x.etape || "En cours…"}</span>}
                 <span className="cat-reg__type">{x.type === "video" ? "Vidéo" : "Image"}{x.format ? ` · ${x.format}` : ""}</span>
+                {media && x.statut === "plan" && <span className="cat-reg__redo">Proposition corrigée : à regénérer (Canvas → Créer). Image précédente affichée.</span>}
               </div>
               <div className="cat-reg__info">
                 <select className={`cat-reg__suivi is-${x.suivi}`} value={x.suivi} onChange={(e) => maj(x, { suivi: e.target.value })} aria-label="Suivi de la pub">
@@ -359,7 +360,7 @@ export function PublicitesTab({ project, pages }) {
       <h4>Créer une pub image ici</h4>
       <p className="cat-muted">Tu peux aussi créer dans le Canvas (bouton Créer : proposition, correction, discussion avec l'agent) : les pubs arrivent dans ce même registre.</p>
       <div className="cat-pub__modes">
-        {Object.entries(data.modes).map(([k, x]) => (
+        {Object.entries(data.modes).filter(([, x]) => x.kind !== "video").map(([k, x]) => (
           <button key={k} type="button" className={`cat-pub__mode${mode === k ? " is-on" : ""}`} onClick={() => setMode(k)}>
             <b>{x.label}</b>
             <small>{x.source ? "à partir d'une pub existante" : "à partir du projet"}</small>

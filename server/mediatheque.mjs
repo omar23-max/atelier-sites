@@ -63,6 +63,21 @@ export async function noterFiche(root, page, url, data) {
   } catch {}
 }
 
+// Change une fiche en imposant les valeurs (ex. ancienne version d'une pub → écartée).
+export async function forcerFiche(root, page, url, set) {
+  try {
+    const { base, fiches } = await lieux(root, page);
+    await mkdir(base, { recursive: true });
+    await sousVerrou(fiches, async () => {
+      const all = await lire(fiches, {});
+      all[url] = { ...(all[url] ?? {}), ...set, modifie: new Date().toISOString() };
+      const tmp = `${fiches}.${Date.now().toString(36)}.tmp`;
+      await writeFile(tmp, JSON.stringify(all, null, 1));
+      await rename(tmp, fiches);
+    });
+  } catch {}
+}
+
 async function fichiers(dir, url) {
   if (!existsSync(dir)) return [];
   const out = [];

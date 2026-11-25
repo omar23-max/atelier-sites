@@ -547,7 +547,7 @@ function CanvasBoard({ onClose, X }) {
 
   // ---- Créer une vidéo avec Gemini Omni (2026-11-24) ----
   // Cadre « Ta vidéo arrive ici » posé, puis remplacé par la vidéo.
-  async function makeVideo({ prompt, duree, format, qualite }) {
+  async function makeVideo({ prompt, duree, format, qualite, prolonger = null }) {
     const [cx, cy] = viewCenter();
     const w = format === "16:9" ? 480 : 270;
     const h = format === "16:9" ? 270 : 480;
@@ -557,7 +557,7 @@ function CanvasBoard({ onClose, X }) {
     api.updateScene({ elements: [...api.getSceneElements(), ...ph], captureUpdate: CaptureUpdateAction.NEVER });
     const references = refs.map((x) => x.url);
     try {
-      const res = await fetch("/api/ia/canvas-video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: pageName, prompt, references, duree, format, qualite }) });
+      const res = await fetch("/api/ia/canvas-video", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: pageName, prompt, references, duree, format, qualite, prolonger }) });
       const body = await res.json();
       if (!res.ok || body.error) throw new Error(body.error || `Erreur ${res.status}`);
       const [el] = restoreElements([{ type: "embeddable", id: `v${Date.now().toString(36)}`, x: spot.x, y: spot.y, width: w, height: h, link: lecteurLink(body.url, body.poster), customData: { url: body.url, poster: body.poster, label: prompt.slice(0, 60), origine: { source: "Créée sur le Canvas", consigne: prompt, modele: "Gemini Omni 1.2 Flash", references, format: `${body.format} · ${body.duree} s · ${body.qualite}` } } }], null);
@@ -859,6 +859,7 @@ function CanvasBoard({ onClose, X }) {
           picking={picking}
           onPick={() => setPicking((x) => (x ? false : (setRefs([]), true)))}
           onPlace={(urls) => addImagesAtCenter(urls, { origine: { source: "Mirror : storyboard" } })}
+          onPlaceVideo={(v) => addVideosAtCenter([v])}
           onClose={() => (setMirror(null), setPicking(false))}
         />
       )}
@@ -872,7 +873,7 @@ function CanvasBoard({ onClose, X }) {
         </div>
       )}
 
-      {api && panel === "video" && <NewVideo refs={refs} setRefs={setRefs} makeVideo={makeVideo} setFlash={setFlash} onClose={() => setPanel(null)} />}
+      {api && panel === "video" && <VideoPanel projet={root.projet ?? null} selVid={selVid} refs={refs} setRefs={setRefs} makeVideo={makeVideo} addVideosAtCenter={addVideosAtCenter} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={() => setPanel(null)} />}
       {api && panel === "image" && <CreatePanel projet={root.projet ?? null} refs={refs} setRefs={setRefs} makeImage={makeImage} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onSections={() => togglePanel("sections")} onClose={() => setPanel(null)} />}
       <input ref={videoRef} type="file" accept="video/mp4,video/webm,video/quicktime" hidden onChange={(e) => (addVideo(e.target.files[0]), (e.target.value = ""))} />
       {api && whOpen && <WhImport page={pageName} title="Importer depuis WinningHunter → ce tableau" onImported={(items) => placeGrid(items)} onClose={() => setWhOpen(false)} />}
@@ -1003,7 +1004,7 @@ const BESOINS = [
   { id: "sections", label: "Images d'une section de page", agent: null, aide: "Ouvre le panneau Sections." },
 ];
 const PRIX_PROPOSER = 0.05;
-const AGENT_SLUG = { rebuild: "shopfunnels-ai-ad-rebuilder-v-3", replicator: "shopfunnels-ai-winning-ad-replicator", ugc: "whitelabeler-hyper-realistic-ugc-image-studio-v-1", mockup: "whitelabeler-product-mockup-generator-v-1", marque: "whitelabeler-branded-image-creator-v-1", scroll: "shopfunnels-ai-scroll-stopping-image-ad-specialists", transformation: "shopfunnels-ai-transformation-image-ad-generator" };
+const AGENT_SLUG = { ugcVideo: "shopfunnels-claude-ugc-video-producer-v-2", pubVideo: "shopfunnels-ai-video-ad-generator", rebuild: "shopfunnels-ai-ad-rebuilder-v-3", replicator: "shopfunnels-ai-winning-ad-replicator", ugc: "whitelabeler-hyper-realistic-ugc-image-studio-v-1", mockup: "whitelabeler-product-mockup-generator-v-1", marque: "whitelabeler-branded-image-creator-v-1", scroll: "shopfunnels-ai-scroll-stopping-image-ad-specialists", transformation: "shopfunnels-ai-transformation-image-ad-generator" };
 const sansQuery = (u) => String(u).split("?")[0];
 
 function CreatePanel({ projet, refs, setRefs, makeImage, addImagesAtCenter, setFlash, onSections, onClose }) {
@@ -1036,9 +1037,12 @@ function CreatePanel({ projet, refs, setRefs, makeImage, addImagesAtCenter, setF
   return <AgentPicture key={b.id} besoin={b} projet={projet} refs={refs} setRefs={setRefs} addImagesAtCenter={addImagesAtCenter} setFlash={setFlash} onClose={onClose} bar={bar} />;
 }
 
-function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFlash, onClose, bar }) {
+function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, addVideosAtCenter = null, setFlash, onClose, bar, titre = "Créer une image" }) {
+  const estVideo = Boolean(besoin.video);
   const [consigne, setConsigne] = useState("");
-  const [format, setFormat] = useState("4:5");
+  const [format, setFormat] = useState(estVideo ? "9:16" : "4:5");
+  const [duree, setDuree] = useState(8);
+  const [qualite, setQualite] = useState("720p");
   const [modele, setModele] = useState("nano-banana");
   const [job, setJob] = useState(null);
   const [edit, setEdit] = useState(null);
@@ -1066,7 +1070,12 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
         const cur = pubs.find((x) => x.id === job.id);
         if (cur) {
           setJob(cur);
-          if (cur.statut === "plan" && !edit) setEdit({ accroche: cur.plan?.accroche ?? "", textes: (cur.plan?.textesVisibles ?? []).join("\n"), prompt: cur.plan?.prompt ?? "" });
+          if (cur.statut === "plan" && !edit) setEdit({ accroche: cur.plan?.accroche ?? "", textes: (cur.plan?.textesVisibles ?? []).join("\n"), prompt: cur.plan?.prompt ?? "", voix: cur.plan?.voix ?? "" });
+          if (cur.statut === "pret" && cur.video && addVideosAtCenter && !poses.current.has(cur.video)) {
+            poses.current.add(cur.video);
+            await addVideosAtCenter([{ url: cur.video, poster: cur.poster ?? null }]);
+            setFlash({ ok: "Vidéo posée sur le tableau, et rangée dans Médias → Vidéos → Créées (brouillon)." });
+          }
           if (cur.statut === "pret" && cur.image && !poses.current.has(cur.image)) {
             poses.current.add(cur.image);
             await addImagesAtCenter([cur.image], { label: cur.plan?.accroche ?? besoin.label, origine: { source: "Créée avec un agent", agent: besoin.agent, consigne: cur.plan?.accroche ? `${cur.plan.idee ?? ""} · « ${cur.plan.accroche} »` : cur.consigne, modele: MODELES[cur.modele]?.label ?? "Nano Banana", references: cur.refs ?? [], format: cur.format } });
@@ -1087,13 +1096,13 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
   async function proposer() {
     if (besoin.source && !source) return setFlash({ error: "Clique d'abord la pub d'origine sur le tableau (elle devient l'image 1)." });
     setEdit(null);
-    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne, arret: "plan", origine: "canvas", modele }) });
+    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne, arret: "plan", origine: "canvas", modele, duree, qualite }) });
     if (!ok) return setFlash({ error: body.error || "La proposition n'a pas pu partir." });
     setJob(body);
   }
   async function generer() {
-    const plan = { accroche: edit.accroche, textesVisibles: edit.textes.split("\n").map((t) => t.trim()).filter(Boolean), prompt: edit.prompt };
-    const { ok, body } = await api(`/${job.id}/generer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan, modele, format, refs: produits, ...(besoin.source && source ? { source } : {}) }) });
+    const plan = estVideo ? { accroche: edit.accroche, voix: edit.voix, prompt: edit.prompt } : { accroche: edit.accroche, textesVisibles: edit.textes.split("\n").map((t) => t.trim()).filter(Boolean), prompt: edit.prompt };
+    const { ok, body } = await api(`/${job.id}/generer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan, modele, format, duree, qualite, refs: produits, ...(besoin.source && source ? { source } : {}) }) });
     if (!ok) return setFlash({ error: body.error || "La génération n'a pas pu partir." });
     setJob({ ...job, ...body });
     setEdit(null);
@@ -1118,7 +1127,7 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
       if (choix === null) return;
     }
     setEdit(null);
-    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne: [consigne, choix ? `Option retenue : ${choix}` : ""].filter(Boolean).join(" · "), arret: "plan", origine: "canvas", modele, depuisTexte: texte }) });
+    const { ok, body } = await api("", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: besoin.id, source, refs: produits, format, consigne: [consigne, choix ? `Option retenue : ${choix}` : ""].filter(Boolean).join(" · "), arret: "plan", origine: "canvas", modele, duree, qualite, depuisTexte: texte }) });
     if (!ok) return setFlash({ error: body.error || "La proposition n'a pas pu partir." });
     setJob(body);
     setVue("proposer");
@@ -1130,14 +1139,14 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
   }
   function reprendre(x) {
     setJob(x);
-    setEdit(x.statut === "plan" ? { accroche: x.plan?.accroche ?? "", textes: (x.plan?.textesVisibles ?? []).join("\n"), prompt: x.plan?.prompt ?? "" } : null);
+    setEdit(x.statut === "plan" ? { accroche: x.plan?.accroche ?? "", textes: (x.plan?.textesVisibles ?? []).join("\n"), prompt: x.plan?.prompt ?? "", voix: x.plan?.voix ?? "" } : null);
   }
 
   const enCours = job?.statut === "en cours";
   return (
     <section className="atl-cv__dock atl-cb" aria-label={`Créer : ${besoin.label}`}>
       <div className="atl-cv__head">
-        <h3>Créer une image</h3>
+        <h3>{titre}</h3>
         <button type="button" onClick={onClose} aria-label="Fermer">
           ×
         </button>
@@ -1173,13 +1182,38 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
             <label>
               <span>Format</span>
               <div className="atl-cv__seg">
-                {["4:5", "1:1", "9:16"].map((k) => (
+                {(estVideo ? ["9:16", "16:9"] : ["4:5", "1:1", "9:16"]).map((k) => (
                   <button key={k} type="button" className={format === k ? "is-on" : ""} onClick={() => setFormat(k)}>
                     {k}
                   </button>
                 ))}
               </div>
             </label>
+            {estVideo && (
+              <>
+                <label>
+                  <span>Durée</span>
+                  <div className="atl-cv__seg">
+                    {[4, 6, 8, 10, 15].map((n) => (
+                      <button key={n} type="button" className={duree === n ? "is-on" : ""} onClick={() => setDuree(n)}>
+                        {n} s
+                      </button>
+                    ))}
+                  </div>
+                </label>
+                <label>
+                  <span>Qualité</span>
+                  <div className="atl-cv__seg">
+                    {[["360p", "Brouillon"], ["720p", "720p"], ["1080p", "1080p"]].map(([k, l]) => (
+                      <button key={k} type="button" className={qualite === k ? "is-on" : ""} onClick={() => setQualite(k)}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </label>
+              </>
+            )}
+            {!estVideo && (
             <label>
               <span>Modèle</span>
               <div className="atl-cv__seg">
@@ -1190,6 +1224,7 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
                 ))}
               </div>
             </label>
+            )}
             <button type="button" className="atl-cv__go" onClick={proposer} disabled={enCours}>
               {enCours && job?.arret === "plan" ? "L'agent prépare…" : `1 · Proposer · ~${PRIX_PROPOSER.toFixed(2)} $`}
             </button>
@@ -1208,8 +1243,8 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
               )}
               {job.statut === "pret" && (
                 <p>
-                  ✓ Image créée et posée sur le tableau.
-                  <button type="button" className="atl-cv__ghost" onClick={() => (setEdit({ accroche: job.plan?.accroche ?? "", textes: (job.plan?.textesVisibles ?? []).join("\n"), prompt: job.plan?.prompt ?? "" }), setRetouche(true))}>
+                  ✓ {estVideo ? "Vidéo créée et posée sur le tableau." : "Image créée et posée sur le tableau."}
+                  <button type="button" className="atl-cv__ghost" onClick={() => (setEdit({ accroche: job.plan?.accroche ?? "", textes: (job.plan?.textesVisibles ?? []).join("\n"), prompt: job.plan?.prompt ?? "", voix: job.plan?.voix ?? "" }), setRetouche(true))}>
                     Retoucher cette proposition
                   </button>
                 </p>
@@ -1225,10 +1260,17 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
                     <span>Accroche</span>
                     <input value={edit.accroche} onChange={(e) => setEdit({ ...edit, accroche: e.target.value })} />
                   </label>
-                  <label>
-                    <span>Textes visibles sur l'image (un par ligne)</span>
-                    <textarea rows={3} value={edit.textes} onChange={(e) => setEdit({ ...edit, textes: e.target.value })} />
-                  </label>
+                  {estVideo ? (
+                    <label>
+                      <span>Voix off (vide = sans voix)</span>
+                      <textarea rows={3} value={edit.voix} onChange={(e) => setEdit({ ...edit, voix: e.target.value })} />
+                    </label>
+                  ) : (
+                    <label>
+                      <span>Textes visibles sur l'image (un par ligne)</span>
+                      <textarea rows={3} value={edit.textes} onChange={(e) => setEdit({ ...edit, textes: e.target.value })} />
+                    </label>
+                  )}
                   {job.plan?.remplacements?.length > 0 && (
                     <details>
                       <summary>Promesses remplacées ({job.plan.remplacements.length})</summary>
@@ -1242,7 +1284,7 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
                     </details>
                   )}
                   <button type="button" className="atl-cv__link" onClick={() => setVoirPrompt(!voirPrompt)}>
-                    {voirPrompt ? "Masquer le prompt" : "Voir et modifier le prompt de l'image"}
+                    {voirPrompt ? "Masquer le prompt" : estVideo ? "Voir et modifier la consigne de la vidéo" : "Voir et modifier le prompt de l'image"}
                   </button>
                   {voirPrompt && <textarea rows={6} value={edit.prompt} onChange={(e) => setEdit({ ...edit, prompt: e.target.value })} />}
                   <div className="atl-cb__corr">
@@ -1252,7 +1294,7 @@ function AgentPicture({ besoin, projet, refs, setRefs, addImagesAtCenter, setFla
                     </button>
                   </div>
                   <button type="button" className="atl-cv__go" onClick={generer}>
-                    2 · Générer l'image · ~{(MODELES[modele]?.prix ?? 0.04).toFixed(2)} $
+                    2 · {estVideo ? `Filmer la vidéo · ~${(duree * (VIDEO_PRIX[qualite] ?? 0.075)).toFixed(2)} $` : `Générer l'image · ~${(MODELES[modele]?.prix ?? 0.04).toFixed(2)} $`}
                   </button>
                 </div>
               )}
@@ -1461,20 +1503,58 @@ function NewPicture({ refs, setRefs, makeImage, addImagesAtCenter, setFlash, onC
 // ---- Nouvelle vidéo (Gemini Omni, 2026-11-24) : consigne, images du
 // tableau en option (photo produit → vidéo), durée, format, qualité.
 const VIDEO_PRIX = { "360p": 0.025, "720p": 0.075, "1080p": 0.11 };
-function NewVideo({ refs, setRefs, makeVideo, setFlash, onClose }) {
+// ---- Vidéo par besoin (2026-11-24) : libre, animer une image, UGC et pub
+// vidéo avec un agent (moteur des pubs, Proposer → Générer), prolonger.
+const BESOINS_VIDEO = [
+  { id: "libre", label: "Vidéo libre", aide: "Ta consigne directe, sans agent. Images du tableau facultatives." },
+  { id: "animer", label: "Animer une image", aide: "Clique UNE image du tableau : Omni la met en mouvement selon ta consigne." },
+  { id: "ugcVideo", label: "Vidéo UGC", agent: "Claude UGC Video Producer V2", video: true, aide: "Façon client filmé au téléphone (démonstration, jamais présentée comme un vrai avis). Clique tes photos produit." },
+  { id: "pubVideo", label: "Pub vidéo depuis le projet", agent: "AI Video Ad Generator", video: true, aide: "L'agent part de ton offre et de tes preuves. Clique tes photos produit." },
+  { id: "prolonger", label: "Prolonger une vidéo", aide: "Sélectionne une vidéo sur le tableau (15 s au plus) : Omni continue la scène de 3 à 10 s." },
+];
+function VideoPanel({ projet, selVid, refs, setRefs, makeVideo, addVideosAtCenter, addImagesAtCenter, setFlash, onClose }) {
+  const [besoin, setBesoin] = useState(() => localStorage.getItem("atl-cv-besoin-video") || "libre");
+  const b = BESOINS_VIDEO.find((x) => x.id === besoin) ?? BESOINS_VIDEO[0];
+  const bar = (
+    <div className="atl-cb__bar">
+      <label>
+        <span>Ce que tu veux obtenir</span>
+        <select value={b.id} onChange={(e) => (localStorage.setItem("atl-cv-besoin-video", e.target.value), setBesoin(e.target.value))}>
+          {BESOINS_VIDEO.map((x) => (
+            <option key={x.id} value={x.id}>
+              {x.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p>
+        {b.aide}
+        {b.agent && <em> · agent : {b.agent}</em>}
+      </p>
+    </div>
+  );
+  if (b.video) return <AgentPicture key={b.id} besoin={b} projet={projet} refs={refs} setRefs={setRefs} addImagesAtCenter={addImagesAtCenter} addVideosAtCenter={addVideosAtCenter} setFlash={setFlash} onClose={onClose} bar={bar} titre="Créer une vidéo" />;
+  return <NewVideo key={b.id} mode={b.id} selVid={selVid} refs={refs} setRefs={setRefs} makeVideo={makeVideo} setFlash={setFlash} onClose={onClose} bar={bar} />;
+}
+
+function NewVideo({ refs, setRefs, makeVideo, setFlash, onClose, bar = null, mode = "libre", selVid = null }) {
   const [prompt, setPrompt] = useState("");
   const [duree, setDuree] = useState(6);
   const [format, setFormat] = useState("9:16");
   const [qualite, setQualite] = useState("720p");
   const [running, setRunning] = useState(0);
-  const prix = VIDEO_PRIX[qualite] * duree;
-  const trop = refs.length > 3;
+  const prolonger = mode === "prolonger";
+  const dureeReelle = prolonger ? Math.min(10, duree) : duree;
+  const prix = VIDEO_PRIX[qualite] * dureeReelle;
+  const trop = refs.length > (mode === "animer" ? 1 : prolonger ? 2 : 3);
   async function go() {
     if (!prompt.trim()) return setFlash({ error: "Décris la vidéo que tu veux." });
-    if (trop) return setFlash({ error: "3 images au plus pour une vidéo." });
+    if (trop) return setFlash({ error: mode === "animer" ? "Une seule image à animer." : "Trop d'images cliquées." });
+    if (mode === "animer" && !refs.length) return setFlash({ error: "Clique l'image à animer sur le tableau." });
+    if (prolonger && !selVid?.url) return setFlash({ error: "Sélectionne d'abord la vidéo à prolonger sur le tableau." });
     setRunning((n) => n + 1);
     try {
-      const r = await makeVideo({ prompt, duree, format, qualite });
+      const r = await makeVideo({ prompt: prolonger ? `Continue this exact scene seamlessly from its last frame, same people, product, place, light and camera style: ${prompt}` : prompt, duree: dureeReelle, format, qualite, prolonger: prolonger ? selVid.url : null });
       setFlash({ ok: `Vidéo posée sur le tableau (${r.duree} s${r.cout ? ` · coût ≈ ${r.cout.toFixed(2)} $` : ""}).` });
     } catch (e) {
       setFlash({ error: e.message });
@@ -1485,11 +1565,13 @@ function NewVideo({ refs, setRefs, makeVideo, setFlash, onClose }) {
   return (
     <section className="atl-cv__dock" aria-label="Nouvelle vidéo">
       <div className="atl-cv__head">
-        <h3>Nouvelle vidéo</h3>
+        <h3>Créer une vidéo</h3>
         <button type="button" onClick={onClose} aria-label="Fermer">
           ×
         </button>
       </div>
+      {bar}
+      {prolonger && <p className="atl-cv__muted">{selVid?.url ? `Vidéo à prolonger : ${selVid.url.split("/").pop()}` : "Aucune vidéo sélectionnée : clique une vidéo sur le tableau (bord du cadre)."}</p>}
       <div className="atl-cv__box">
         <div className="atl-cv__refsrow">
           <RefChips refs={refs} setRefs={setRefs} />

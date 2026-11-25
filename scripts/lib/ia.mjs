@@ -481,7 +481,7 @@ export async function auditPage({ key, page }) {
 // Veo a été arrêté dans l'API Gemini le 22/10/2026 ; Omni 1.2 Flash le remplace.
 // POST /v1beta/interactions : texte seul (texte → vidéo) ou texte + images
 // (image → vidéo). Réponse : steps[].content[type=video] en base64 ou en uri.
-export async function omniVideo({ key, root, prompt, references = [], duree = 6, format = "9:16", qualite = "720p", folder }) {
+export async function omniVideo({ key, root, prompt, references = [], duree = 6, format = "9:16", qualite = "720p", folder, video = null }) {
   if (!key) throw new Error("Clé Google pour la vidéo absente : ajoute GEMINI_VEO_API_KEY dans .env.local.");
   const { mkdir, writeFile } = await import("node:fs/promises");
   const { join } = await import("node:path");
@@ -490,7 +490,23 @@ export async function omniVideo({ key, root, prompt, references = [], duree = 6,
   const response_format = { type: "video", duration: `${d}s`, aspect_ratio: format === "16:9" ? "16:9" : "9:16", resolution: ["360p", "720p", "1080p"].includes(qualite) ? qualite : "720p", delivery: "uri" };
   let input = prompt;
   const refs = references.filter(Boolean).slice(0, 3);
-  if (refs.length) {
+  // Prolonger (2026-11-24) : la vidéo d'origine (15 s au plus) part en premier ; Omni continue la scène (3 à 10 s).
+  if (video) {
+    // Fichier lu tel quel (blobOf convertit les images, pas les vidéos).
+    const { readFile: lireF } = await import("node:fs/promises");
+    const chemin = join(root, decodeURIComponent(String(video).split("?")[0]).replace(/^\/+/, ""));
+    if (!chemin.startsWith(join(root, "medias"))) throw new Error("Vidéo à prolonger invalide.");
+    const vbuf = await lireF(chemin);
+    if (vbuf.length > 40 * 1024 * 1024) throw new Error("Vidéo trop lourde pour être prolongée (40 Mo au plus).");
+    const ext = (chemin.match(/\.(mp4|mov|webm)$/i)?.[1] ?? "mp4").toLowerCase();
+    input = [{ type: "video", mime_type: ext === "mov" ? "video/quicktime" : `video/${ext}`, data: vbuf.toString("base64") }];
+    for (const r of refs.slice(0, 2)) {
+      const b = await blobOf(root, r);
+      input.push({ type: "image", data: Buffer.from(await b.arrayBuffer()).toString("base64"), mime_type: b.type || "image/png" });
+    }
+    input.push({ type: "text", text: prompt });
+    response_format.duration = `${Math.min(10, d)}s`;
+  } else if (refs.length) {
     input = [];
     for (const r of refs) {
       const b = await blobOf(root, r);

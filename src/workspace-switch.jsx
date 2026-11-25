@@ -43,7 +43,7 @@ export function WorkspaceSwitch({ current, onLeave = () => {}, page = null, onNo
     }
     if (current === "catalogue" || current === "agents" || current === "projets" || current === "recherche") {
       if (!page && id === "catalogue") return void (location.href = "/catalogue.html#tout");
-      if (!page) return onNoPage?.();
+      if (!page) return onNoPage?.(id);
       const q = `?page=${encodeURIComponent(page)}`;
       location.href = id === "catalogue" ? `/catalogue.html${q}#tout` : id === "page" ? `/${q}` : `/${q}&ouvrir=${id}`;
       return;

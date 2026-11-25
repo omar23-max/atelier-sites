@@ -2500,3 +2500,30 @@ Original 80 % → retour Modifiable 80 %.
 - Coût : 0,22 + 0,22 + 0,36 + 0,22 = 1,02 $ pour 14 s. Un plan bloqué par le filtre de contenu Google (consigne reformulée : passe).
 - Résultat : produit, décor et lumière identiques d un plan à l autre ; voix off dite (même voix, ton variable) ; musique ajoutée par Omni malgré « no music » ; coupures son nettes entre plans ; 9:16 seulement (la source était en 4:5).
 - Fichiers : ~/essais-omni/pub/ ; copie dans medias/projets/essai-mirror/videos-creees/omni-pub-essai-20261124.mp4 ; script ~/essais-omni/essai_pub.mjs.
+
+## 2026-11-24 — Lot C du plan images et vidéos : Mirror → vidéo Omni
+- Mirror, étape « 5. Générer la vidéo avec Omni » (OmniStep, src/mirror-pub-ui.jsx) : qualité (360p / 720p / 1080p), son (voix off continue ou son de chaque plan), coût estimé, plans affichés (vidéo, voix, consigne modifiable, « Refaire ce plan et réassembler »), « Réassembler seulement · gratuit », pub finie (lire, poser sur le tableau, télécharger).
+- server/mirror.mjs : POST /api/mirror/<id>/omni { qualite, son } → runOmni : GPT découpe le scénario (étape 3) en 3 à 6 plans JSON (image de la bibliothèque, durée, voix, prompt) ; Omni en parallèle (image de référence = départ) ; plan bloqué par le filtre Google → consigne reformulée par GPT puis relancée une fois ; assemblage ffmpeg (720×1280, 24 i/s ; son des plans avec fondus, ou voix off continue Gemini TTS gemini-3.8-flash-tts puis 2.5, resserrée jusqu à ×1,35, dernière image prolongée ; durée fixée par -t). …/omni/plan/<n> { prompt } ; …/omni/assembler { son }.
+- Rangement : Médias (videos-creees/omni-pub-<id>-*.mp4, fiche sous mirror, destination pub) et registre des pubs (ajouterPub, mode mirror, mirrorId : une version par Mirror ; l ancienne passe en écartée via forcerFiche).
+- Leçons : la voix de synthèse lit à voix haute toute consigne de ton (« Say … : », « Read … ») → envoyer le texte seul ; systemInstruction refusée par le modèle 3.8. apad sans durée + -shortest → erreur ffmpeg « No space left on device » (faux message) → apad=whole_dur + -t.
+- Essai essai-mirror (pub farandwide) : 4 plans 360p en 54 s, 0,33 $, pub 13,5 s, voix off continue juste (vérifiée par Gemini).
+
+## 2026-11-24 — Agents vidéo partout
+- Mirror étape 5 : « Agent qui écrit les plans » (OMNI_AGENTS : Seedance Video Ad Cloner, Claude Seedance UGC Video Ad Producer) ; sa consigne est ajoutée au découpage (format JSON et règles prioritaires). Essai : 60 s, 0,33 $ en 360p.
+- Canvas → Vidéo par besoin (VideoPanel) : Vidéo libre, Animer une image (1 image), Vidéo UGC (Claude UGC Video Producer V2) et Pub vidéo depuis le projet (AI Video Ad Generator) avec Proposer / Corriger / Discuter / Filmer (AgentPicture en mode vidéo : format 9:16 ou 16:9, durée, qualité, voix off modifiable), Prolonger une vidéo (vidéo sélectionnée sur le tableau).
+- server/publicites.mjs : modes ugcVideo et pubVideo (kind video, VIDEO_ADAPTER), genererVideo (Omni, reprise simplifiée si bloqué, fiche médiathèque, entrée du registre type vidéo). L étape Publicités ne montre que les modes image dans son formulaire.
+- omniVideo({ video }) : prolonger = vidéo lue telle quelle (≤ 40 Mo) en premier dans input, durée 3-10 s ; Omni rend la vidéo complète (origine + suite). Route /api/ia/canvas-video { prolonger }.
+- Essais : Vidéo UGC 6 s 360p 0,15 $ ; prolongement 4 s → vidéo de 8 s en 48 s, 0,12 $.
+
+## 2026-11-24 — Médias du projet, registre, étape Marque et design
+- Étape Médias du projet : MediathequeProjet (src/catalogue/Mediatheque.jsx), même médiathèque que le Canvas (Images | Vidéos, Projet / Créées / Références, filtres, fiche, En faire une pub, téléverser dans l onglet) ; photos d origine des pages dans Références ; anciennes vues repliées dessous.
+- Registre : bandeau « Proposition corrigée : à regénérer » sur une carte en statut plan qui garde l ancienne image.
+- Studio : vérifié, une photo rangée dans Médias → Projet (Photo produit) apparaît dans la carte 2 (Ton produit).
+- Étape Marque et design refaite (BrandTab, src/catalogue/ProjectExtras.jsx) : proposition par l agent Brand Sprint (POST /api/ia/marque-proposer : noms, slogan, ton, couleurs par rôle, polices, pourquoi ; adopter tout ou champ par champ), identité, couleurs par rôle (fond, texte, accent, bouton, sombre, surface) avec contrôle de contraste WCAG, polices Google avec aperçu chargé, logos (téléversés ou 4 propositions Nano Banana via POST /api/ia/marque-image type logos), planche (téléversée ou générée, logo retenu en référence), aperçu de la marque, Appliquer aux pages (design.md).
+- Correctif : la marque était enregistrée en palette / titres / texte alors que les agents (contexteProjet) lisent nom, couleurs, polices, ton ; l écran enregistre maintenant les deux (migration des anciennes valeurs à l ouverture).
+- Essais essai-mirror : proposition 13 s, 4 logos 8 s (0,16 $), planche 11 s (0,04 $).
+
+## 2026-11-24 — Répétition « nouveau produit » (projet jetable)
+- Création d un projet sans page : OK (Fondations, menu en 4 phases).
+- DÉFAUT CORRIGÉ : depuis la fiche d un projet, Studio et Canvas (menu du haut) ouvraient la dernière page ouverte, souvent d un AUTRE projet (créations rangées dans ses médias). Catalogue.jsx : page d un projet ouvert = une de ses pages ; projet sans page → page de travail créée (<projet>-atelier, type autre, « Atelier (tableaux et créations) ») puis ouverture de l espace demandé. workspace-switch : onNoPage(id).
+- Vérifié : Canvas ouvert sur la page du projet, Médias rattaché au bon projet (0 média), panneau Créer avec agents. Projet et page jetables mis à la corbeille.

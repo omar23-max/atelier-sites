@@ -8,6 +8,7 @@ import { pageTexts } from "../engine/texts.js";
 import { changePageOrigin, confirmDelete, createPage, empreinte, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
 import { NewProjectDialog, isUrl, pageMenuGroups, requestImport } from "../pages-ui.jsx";
 import { BrandTab, CreativesTab, OfferTab, PublicationTab, projectDesignOf, request } from "./ProjectExtras.jsx";
+import { MediathequeProjet } from "./Mediatheque.jsx";
 import { FoundationsTab, PROJECT_MENU, ProjectMenu } from "./Fondations.jsx";
 import { PublicitesTab, ValidationTab } from "./Validation.jsx";
 import { AnglesTab } from "./Angles.jsx";
@@ -388,7 +389,13 @@ export function ProjectDetail({ id, onBack, onMessage }) {
       {currentTab === "publicites" && <PublicitesTab key={project.id} project={project} pages={pages} />}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}
-      {currentTab === "images" && <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} project={project} onMessage={onMessage} />]} />}
+      {currentTab === "images" && <MediathequeProjet key={project.id} project={project} origine={[...new Set(pages.flatMap(({ data }) => originalPhotoTargets(data?.content ?? []).map((t) => t.source)))]} />}
+      {currentTab === "images" && (
+        <details className="cat-mt__old">
+          <summary>Anciennes vues par page (photos d'origine, images modifiées)</summary>
+          <TwoViews labels={["D'origine", "Modifiées"]} views={[<OriginalImagesTab key="o" pages={pages} />, <EditedImagesTab key="m" pages={pages} project={project} onMessage={onMessage} />]} />
+        </details>
+      )}
       {currentTab === "textes" && <TwoViews labels={["D'origine", "Corrigés"]} views={[<OriginalTextsTab key="o" pages={pages} />, <EditedTextsTab key="c" pages={pages} />]} />}
       {currentTab === "marque" && <ProjectSummary project={project} pages={pages} />}
       {currentTab === "marque" && <BrandTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}

@@ -30,7 +30,7 @@ const STEP_INFO = {
 // Agent spécialiste par étape vidéo (même liste que server/mirror.mjs STEP_AGENTS).
 const STEP_AGENT_LABEL = { cast: "UGC Video Producer", argument: "Video Ad Cloner", story: "Scene Architect", motion: "Seedance Video Ad Cloner", suite: "Seedance Video Ad Cloner" };
 
-export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, onPlace, onClose }) {
+export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, onPlace, onPlaceVideo, onClose }) {
   const [id, setId] = useState(null);
   const [st, setSt] = useState(null);
   const [err, setErr] = useState(null);
@@ -264,12 +264,132 @@ export function MirrorPanel({ video, poster, photosDuTableau, onPick, picking, o
                     </section>
                   );
                 })}
+                {st.etapes?.story?.texte && <OmniStep st={st} id={id} refresh={refresh} setErr={setErr} onPlaceVideo={onPlaceVideo} />}
               </>
             )}
           </>
         )}
       </div>
     </aside>
+  );
+}
+
+// ---- 5. Générer la vidéo avec Gemini Omni (lot C, 2026-11-24) ----
+// Le scénario validé est découpé en plans ; chaque plan part de son image de
+// référence (étape 2) ; un plan bloqué par le filtre de Google est reformulé
+// tout seul. La pub assemblée arrive dans Médias et dans le registre des pubs.
+const OMNI_PRIX = { "360p": 0.025, "720p": 0.075, "1080p": 0.11 };
+function OmniStep({ st, id, refresh, setErr, onPlaceVideo }) {
+  const o = st.etapes?.omni;
+  const [qualite, setQualite] = useState(o?.qualite ?? "720p");
+  const [son, setSon] = useState(o?.son ?? "voix");
+  const [agent, setAgent] = useState(o?.agent ?? "");
+  const [edit, setEdit] = useState({});
+  const duree = Math.min(30, Math.max(8, Math.round(st.scenes?.duree || 15)));
+  const enCours = o?.statut === "en cours";
+  async function lancer() {
+    setErr(null);
+    try {
+      await api(`/${id}/omni`, { qualite, son, agent });
+      refresh();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+  async function refaire(n) {
+    setErr(null);
+    try {
+      await api(`/${id}/omni/plan/${n}`, { prompt: edit[n] ?? "" });
+      setEdit((x) => ({ ...x, [n]: undefined }));
+      refresh();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+  return (
+    <section className="atl-mir__step atl-mir__omni">
+      <h3>5. Générer la vidéo avec Omni</h3>
+      <p className="atl-mir__muted">Le scénario validé est découpé en 3 à 6 plans. Chaque plan part de son image de référence (étape 2), Gemini Omni le filme, puis l'atelier assemble la pub. Elle arrive dans Médias (Vidéos → Créées) et dans le registre des pubs. Format vertical 9:16 (Omni ne fait pas le 4:5).</p>
+      {!enCours && (
+        <div className="atl-mir__omniopts">
+          <label>
+            Qualité
+            <select value={qualite} onChange={(e) => setQualite(e.target.value)}>
+              <option value="360p">Brouillon 360p</option>
+              <option value="720p">720p</option>
+              <option value="1080p">1080p</option>
+            </select>
+          </label>
+          <label>
+            Son
+            <select value={son} onChange={(e) => setSon(e.target.value)}>
+              <option value="voix">Une voix off continue (même voix du début à la fin)</option>
+              <option value="omni">Le son de chaque plan (voix et bruits d'Omni)</option>
+            </select>
+          </label>
+          <label>
+            Agent qui écrit les plans
+            <select value={agent} onChange={(e) => setAgent(e.target.value)}>
+              <option value="">Aucun : règles de l'atelier</option>
+              <option value="shopfunnels-seedance-video-ad-cloner-v-1">Seedance Video Ad Cloner</option>
+              <option value="shopfunnels-claude-seedance-ugc-video-ad-producer-v-1">Claude Seedance UGC Video Ad Producer</option>
+            </select>
+          </label>
+          <button type="button" className="is-main" onClick={lancer}>
+            {o?.plans?.length ? "Tout refaire" : "Générer la vidéo"} · ~{(duree * OMNI_PRIX[qualite] + 0.05).toFixed(2)} $
+          </button>
+          {o?.plans?.length > 0 && o.plans.every((p) => p.statut === "faite") && (
+            <button type="button" onClick={() => api(`/${id}/omni/assembler`, { son }).then(refresh).catch((e) => setErr(e.message))} title="Garde les plans déjà faits et refait seulement le montage (par exemple avec l'autre choix de son)">
+              Réassembler seulement · gratuit
+            </button>
+          )}
+        </div>
+      )}
+      {enCours && <Wait label={o.etape || "Omni travaille…"} since={o.debut} />}
+      {o?.statut === "erreur" && <p className="atl-mir__err">{o.erreur}</p>}
+      {o?.final && !enCours && (
+        <div className="atl-mir__omnifinal">
+          <video src={o.final.url} poster={o.final.poster} controls preload="metadata" />
+          <div>
+            <b>Pub prête · {o.final.duree} s · ≈ {Number(o.final.cout ?? 0).toFixed(2)} $</b>
+            <p className="atl-mir__muted">Rangée dans Médias → Vidéos → Créées et dans le registre des pubs (étape Publicités), en Brouillon.</p>
+            {onPlaceVideo && (
+              <button type="button" onClick={() => onPlaceVideo({ url: o.final.url, poster: o.final.poster })}>
+                Poser sur le tableau
+              </button>
+            )}
+            <a href={o.final.url} download>
+              Télécharger
+            </a>
+          </div>
+        </div>
+      )}
+      {o?.plans?.length > 0 && (
+        <div className="atl-mir__omniplans">
+          {o.plans.map((p) => (
+            <article key={p.n} className={`is-${p.statut}`}>
+              <div className="atl-mir__omnimedia">{p.url ? <video src={p.url} controls preload="metadata" /> : <span>{p.statut === "erreur" ? "⚠ Échec" : p.statut === "en attente" && enCours ? "En cours…" : "—"}</span>}</div>
+              <b>
+                {p.n + 1}. {p.titre} · {p.duree} s{p.reformule ? " · reformulé" : ""}
+              </b>
+              {o.agent && p.n === 0 && <small>Plans écrits avec la méthode de l'agent</small>}
+              {p.voix && <small>« {p.voix} »</small>}
+              {p.erreur && <small className="atl-mir__err">{p.erreur}</small>}
+              {!enCours && (
+                <details>
+                  <summary>Consigne du plan · refaire</summary>
+                  <textarea rows={5} value={edit[p.n] ?? p.prompt} onChange={(e) => setEdit((x) => ({ ...x, [p.n]: e.target.value }))} />
+                  <button type="button" onClick={() => refaire(p.n)}>
+                    Refaire ce plan et réassembler · ~{(p.duree * OMNI_PRIX[o.qualite ?? "720p"]).toFixed(2)} $
+                  </button>
+                </details>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+      {o?.son === "voix" && o?.voixOff && <p className="atl-mir__muted">Voix off : « {o.voixOff} »</p>}
+    </section>
   );
 }
 

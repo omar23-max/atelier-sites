@@ -25,6 +25,8 @@ const STEPS = ["cast", "argument", "story", "motion", "suite", "adapter"];
 // Lot 4 de la refonte (2026-11-23) : un agent spécialiste par étape vidéo.
 // « Affiner avec l'agent » refait l'étape en appliquant sa méthode à la
 // réponse précédente, sans changer le format attendu par l'étape.
+// Lot C bis (2026-11-24) : agents qui peuvent écrire les prompts Omni de l'étape 5.
+export const OMNI_AGENTS = { "shopfunnels-seedance-video-ad-cloner-v-1": "Seedance Video Ad Cloner", "shopfunnels-claude-seedance-ugc-video-ad-producer-v-1": "Claude Seedance UGC Video Ad Producer" };
 export const STEP_AGENTS = {
   cast: { slug: "shopfunnels-claude-ugc-video-producer-v-2", titre: "Claude UGC Video Producer V2" },
   argument: { slug: "shopfunnels-claude-video-ad-cloner-v-1", titre: "Claude Video Ad Cloner" },
@@ -215,6 +217,198 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     running.add(key);
     runStep(id, name).finally(() => running.delete(key));
     return json(res, 200, { ok: true });
+  }
+
+  // ---- Lot C (2026-11-24) : générer la pub avec Gemini Omni, plan par plan ----
+  // POST /api/mirror/<id>/omni { qualite, son: "omni" | "voix" } : découpe le
+  //   scénario validé en 3 à 6 plans, génère chaque plan à partir de son image
+  //   de référence (bibliothèque de l'étape 2), reformule un plan bloqué par le
+  //   filtre de Google, puis assemble (son des plans adouci, ou une voix off
+  //   continue générée par la voix de synthèse de Google). Résultat rangé dans
+  //   Médias (Vidéos → Créées) et dans le registre des pubs.
+  // POST /api/mirror/<id>/omni/plan/<n> { prompt } : refait un plan puis réassemble.
+  if (parts[2] === "omni" && req.method === "POST") {
+    const b = await readBody(req);
+    if (!st.etapes?.story?.texte) return json(res, 409, { error: "Il faut d'abord l'étape 3 (scénario)." });
+    const key = `${id}:omni`;
+    if (running.has(key)) return json(res, 409, { error: "La vidéo est déjà en cours de fabrication." });
+    const o = st.etapes.omni ?? {};
+    // POST …/omni/assembler { son } : réassemble les plans déjà faits (rien n'est regénéré).
+    if (parts[3] === "assembler") {
+      if (!o.plans?.length || o.plans.some((p) => p.statut !== "faite")) return json(res, 409, { error: "Tous les plans ne sont pas faits." });
+      st.etapes.omni = { ...o, son: b.son === "omni" ? "omni" : b.son === "voix" ? "voix" : o.son, statut: "en cours", debut: now(), erreur: null, etape: "Assemblage…" };
+      await save(st);
+      running.add(key);
+      runOmni(id, []).finally(() => running.delete(key));
+      return json(res, 200, { ok: true });
+    }
+    if (parts[3] === "plan") {
+      const n = Number(parts[4]);
+      if (!o.plans?.[n]) return json(res, 404, { error: "Plan introuvable." });
+      if (typeof b.prompt === "string" && b.prompt.trim()) o.plans[n].prompt = b.prompt.slice(0, 4000);
+      o.plans[n] = { ...o.plans[n], statut: "en attente", erreur: null };
+      st.etapes.omni = { ...o, statut: "en cours", debut: now(), erreur: null, etape: `Plan ${n + 1} refait…` };
+      await save(st);
+      running.add(key);
+      runOmni(id, [n]).finally(() => running.delete(key));
+      return json(res, 200, { ok: true });
+    }
+    st.etapes.omni = { statut: "en cours", debut: now(), erreur: null, etape: "Découpage du scénario en plans…", qualite: ["360p", "720p", "1080p"].includes(b.qualite) ? b.qualite : "720p", son: b.son === "voix" ? "voix" : "omni", agent: OMNI_AGENTS[b.agent] ? b.agent : null, plans: [], final: null, cout: 0 };
+    await save(st);
+    running.add(key);
+    runOmni(id, null).finally(() => running.delete(key));
+    return json(res, 200, { ok: true });
+  }
+
+  async function runOmni(jid, seulement) {
+    const majOmni = async (patch) => {
+      const s = await load(jid);
+      s.etapes.omni = { ...(s.etapes.omni ?? {}), ...patch, debut: s.etapes.omni?.debut };
+      await save(s);
+      return s;
+    };
+    try {
+      let s = await load(jid);
+      let o = s.etapes.omni;
+      const imgDir = join(jobDir(jid), "images");
+      const lib = Object.entries(s.images ?? {})
+        .filter(([nom, v]) => v?.statut === "faite" && existsSync(join(imgDir, `${nom}.png`)))
+        .map(([nom]) => nom);
+      const urlImg = (nom) => (lib.includes(nom) ? `${baseUrl}/${jid}/images/${nom}.png` : s.photos?.[0] ?? null);
+      if (!seulement) {
+        const scenes = await readJson(join(jobDir(jid), "scenes.json"), {});
+        const cible = Math.min(30, Math.max(8, Math.round(scenes.duree || 15)));
+        const sys = `You turn an approved short video-ad plan into clips for Gemini Omni (image-to-video, 3 to 8 seconds per clip, native audio). Answer ONLY JSON: {"voixOff":"the full continuous voice-over, in the language of the plan's voice-over","plans":[{"titre":"short French label","image":"one of the library names","duree":integer 3-8,"voix":"the voice-over words spoken during this clip","prompt":"complete English prompt for this clip"}]}.
+Rules: 3 to 6 clips; durations add up to about ${cible} seconds; follow the plan's scene order and merge very short scenes. Each prompt is self-contained: product description (exact look, it must match the reference image), set, light, hands or people, the action and ONE camera move, "vertical 9:16 UGC phone footage". Always add: "No on-screen text, no captions, no subtitles, no logos except the product's own wordmark, no music." ${s.etapes.omni?.son === "voix" ? 'Add: "No speech, no voice, only natural ambient sound." (the voice-over is added later)' : 'End the prompt with: The voice-over says, <tone>: "<voix>". Use the same voice description in every clip.'}
+Avoid wording that trips safety filters: no children, no medical or body claims, no competitor brands, no violence or panic words; describe actions plainly. Never invent proofs, numbers or ratings.`;
+        // Agent spécialiste (facultatif) : sa méthode pour écrire les plans, le format JSON et les règles restent prioritaires.
+        const ag = s.etapes.omni?.agent ? await agentText(root, s.etapes.omni.agent) : "";
+        const sysAgent = ag ? `${sys}\n\n=== SPECIALIST METHOD: ${OMNI_AGENTS[s.etapes.omni.agent]} ===\nApply this specialist's method, standards and checklists to write the clip prompts (shot language, pacing, continuity, UGC realism). Its tool is Seedance; here the model is Gemini Omni (one image-to-video clip per prompt, 3-8 s). Ignore its greetings, questions, upload steps and any instruction to wait for the user; the JSON format and the rules above win.\n${ag}` : sys;
+        const txt = await chat(env.OPENAI_API_KEY, sysAgent, `LIBRARY IMAGES (reference start frames): ${lib.join(", ") || "(none: the product photo is used)"}\n\n=== APPROVED PLAN (step 3) ===\n${String(s.etapes.story.texte).slice(0, 9000)}\n\n=== VIDEO PROMPTS (step 4, for context) ===\n${String(s.etapes.motion?.texte ?? "").slice(0, 6000)}`, true);
+        const j = JSON.parse(txt);
+        const plans = (j.plans ?? []).slice(0, 6).map((p, i) => ({ n: i, titre: String(p.titre ?? `Plan ${i + 1}`).slice(0, 80), image: lib.includes(p.image) ? p.image : lib[i % Math.max(1, lib.length)] ?? null, duree: Math.min(8, Math.max(3, Math.round(Number(p.duree) || 4))), voix: String(p.voix ?? "").slice(0, 400), prompt: String(p.prompt ?? "").slice(0, 4000), statut: "en attente" }));
+        if (!plans.length) throw new Error("Le découpage en plans a échoué : refais l'étape 3 ou relance.");
+        s = await majOmni({ plans, voixOff: String(j.voixOff ?? "").slice(0, 1500), etape: `Génération de ${plans.length} plans avec Omni (30 s à 1 min chacun, en parallèle)…` });
+        o = s.etapes.omni;
+      }
+      const { omniVideo } = await import("../scripts/lib/ia.mjs");
+      const vdir = join(jobDir(jid), "omni");
+      await mkdir(vdir, { recursive: true });
+      const folder = { dir: vdir, url: `${baseUrl}/${jid}/omni` };
+      const key = env.GEMINI_VEO_API_KEY || env.GEMINI_API_KEY;
+      const aFaire = seulement ?? o.plans.map((p) => p.n);
+      await Promise.all(
+        aFaire.map(async (n) => {
+          const p = o.plans[n];
+          const ref = p.image ? urlImg(p.image) : s.photos?.[0] ?? null;
+          const essai = async (prompt) => omniVideo({ key, root, prompt, references: ref ? [ref] : [], duree: p.duree, format: "9:16", qualite: o.qualite, folder });
+          try {
+            let out;
+            try {
+              out = await essai(p.prompt);
+            } catch (e) {
+              if (!/prohibited|blocked|safety|policy/i.test(e.message)) throw e;
+              // Plan bloqué par le filtre de Google : consigne reformulée, une fois.
+              const re = await chat(env.OPENAI_API_KEY, "Rewrite this Gemini Omni video prompt so it passes the content filter: keep the same shot, product and camera move, describe actions plainly and neutrally, remove anything that could read as unsafe, personal data or distress. Keep any voice-over line short and neutral. Answer with the prompt only.", p.prompt);
+              p.prompt = re.slice(0, 4000);
+              p.reformule = true;
+              out = await essai(p.prompt);
+            }
+            Object.assign(p, { statut: "faite", url: out.url, fichier: out.url.split("/").pop(), cout: out.cout, erreur: null });
+          } catch (e) {
+            Object.assign(p, { statut: "erreur", erreur: e.message });
+          }
+          await majOmni({ plans: o.plans });
+        }),
+      );
+      const ok = o.plans.filter((p) => p.statut === "faite");
+      if (ok.length !== o.plans.length) {
+        await majOmni({ plans: o.plans, statut: "erreur", fin: now(), etape: null, erreur: `${o.plans.length - ok.length} plan(s) en échec : refais-les un par un (bouton sous chaque plan).` });
+        return;
+      }
+      await majOmni({ plans: o.plans, etape: o.son === "voix" ? "Voix off continue, puis assemblage…" : "Assemblage des plans…" });
+      const fin = await assembler(jid, o, vdir);
+      const cout = Math.round((o.plans.reduce((t, p) => t + (p.cout || 0), 0) + (fin.coutVoix || 0)) * 100) / 100;
+      // Rangement : Médias (Vidéos → Créées) et registre des pubs.
+      const dest = await mediaPlace(page, "videos-creees");
+      await mkdir(dest.dir, { recursive: true });
+      const nom = `omni-pub-${jid}-${Date.now().toString(36)}`;
+      await copyFile(fin.mp4, join(dest.dir, `${nom}.mp4`));
+      await copyFile(fin.jpg, join(dest.dir, `${nom}.jpg`));
+      const url = `${dest.url}/${nom}.mp4`;
+      const poster = `${dest.url}/${nom}.jpg`;
+      const ancienne = s.etapes.omni?.final?.url;
+      try {
+        const { noterFiche, forcerFiche } = await import("./mediatheque.mjs");
+        // Version précédente de cette pub : écartée dans Médias (récupérable), remplacée dans le registre.
+        if (ancienne && ancienne !== url) await forcerFiche(root, page, ancienne, { choix: "ecartee" });
+        await noterFiche(root, page, url, { type: "video", provenance: "creee", sous: "mirror", choix: "brouillon", destination: ["pub"], origine: { source: "Mirror · Gemini Omni", modele: "Gemini Omni 1.2 Flash", depuis: s.video ?? null, consigne: o.voixOff || o.plans.map((p) => p.voix).filter(Boolean).join(" "), cout, format: `9:16 · ${fin.duree} s · ${o.qualite}` } });
+        if (dest.projet) {
+          const { ajouterPub } = await import("./publicites.mjs");
+          await ajouterPub(root, dest.projet, { mode: "mirror", mirrorId: jid, type: "video", video: url, poster, titre: (o.voixOff || "").slice(0, 120), source: null, format: "9:16", origine: "mirror", origineMedia: { source: "Mirror · Gemini Omni", modele: "Gemini Omni 1.2 Flash" } });
+        }
+      } catch {}
+      await majOmni({ plans: o.plans, statut: "faite", fin: now(), etape: null, final: { url, poster, duree: fin.duree, cout } , cout });
+    } catch (e) {
+      await majOmni({ statut: "erreur", fin: now(), etape: null, erreur: e.message });
+    }
+  }
+
+  // Assemblage : plans à la suite (720 × 1280, 24 i/s). Son « omni » : celui de
+  // chaque plan, avec des fondus courts aux coupes. Son « voix » : une voix off
+  // continue (voix de synthèse Google), resserrée au besoin (jusqu'à × 1,35) ;
+  // la dernière image est prolongée si la voix reste plus longue.
+  async function assembler(jid, o, vdir) {
+    const run = (args) => new Promise((ok, ko) => execFile("ffmpeg", ["-loglevel", "error", "-y", ...args], { maxBuffer: 1 << 24 }, (e, so, se) => (e ? ko(new Error(String(se || e.message).slice(0, 300))) : ok())));
+    const probe = (f) => new Promise((ok) => execFile("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f], (e, so) => ok(Number(String(so).trim()) || 0)));
+    const files = o.plans.map((p) => join(vdir, p.fichier));
+    const out = join(vdir, `pub-${Date.now().toString(36)}.mp4`);
+    const ins = files.flatMap((f) => ["-i", f]);
+    const durs = await Promise.all(files.map(probe));
+    let fc = "";
+    files.forEach((_, i) => {
+      fc += `[${i}:v]scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,fps=24,setsar=1[v${i}];`;
+      const d = Math.max(0.3, durs[i] - 0.12);
+      if (o.son !== "voix" || !o.voixOff) fc += `[${i}:a]aresample=48000,aformat=channel_layouts=stereo,afade=t=in:d=0.06,afade=t=out:st=${d.toFixed(2)}:d=0.12[a${i}];`;
+    });
+    let coutVoix = 0;
+    if (o.son === "voix" && o.voixOff) {
+      const total = durs.reduce((a, b) => a + b, 0);
+      const wav = join(vdir, "voix.wav");
+      const key = env.GEMINI_VEO_API_KEY || env.GEMINI_API_KEY;
+      let audio = null;
+      for (const m of ["gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts"]) {
+        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+          method: "POST",
+          headers: { "x-goog-api-key": key, "Content-Type": "application/json" },
+          // Texte seul : une consigne de ton (« Say … : ») est lue à voix haute par ces modèles (essai du 2026-11-24).
+          body: JSON.stringify({ contents: [{ parts: [{ text: o.voixOff }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } } }),
+        }).catch(() => null);
+        const d = r ? await r.json().catch(() => ({})) : {};
+        const part = d.candidates?.[0]?.content?.parts?.find((x) => x.inlineData);
+        if (part) {
+          audio = { buf: Buffer.from(part.inlineData.data, "base64"), mime: part.inlineData.mimeType };
+          coutVoix = ((d.usageMetadata?.candidatesTokenCount ?? 0) * 10) / 1e6;
+          break;
+        }
+      }
+      if (!audio) throw new Error("La voix de synthèse n'a pas répondu : relance, ou choisis le son des plans.");
+      const brut = join(vdir, "voix-brute.bin");
+      await writeFile(brut, audio.buf);
+      await run(audio.buf.subarray(0, 4).toString() === "RIFF" ? ["-i", brut, wav] : ["-f", "s16le", "-ar", String(Number((audio.mime.match(/rate=(\d+)/) ?? [])[1]) || 24000), "-ac", "1", "-i", brut, wav]);
+      const dv = await probe(wav);
+      const tempo = Math.min(1.35, Math.max(1, dv / total));
+      const reste = Math.max(0, dv / tempo - total + 0.4);
+      const T = (total + reste).toFixed(2);
+      fc += `${files.map((_, i) => `[v${i}]`).join("")}concat=n=${files.length}:v=1:a=0[vc];[vc]tpad=stop_mode=clone:stop_duration=${reste.toFixed(2)}[v];[${files.length}:a]atempo=${tempo.toFixed(3)},aresample=48000,aformat=channel_layouts=stereo,apad=whole_dur=${T}[a]`;
+      await run([...ins, "-i", wav, "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-t", T, "-c:v", "libx264", "-crf", "20", "-preset", "medium", "-c:a", "aac", "-b:a", "160k", out]);
+    } else {
+      fc += `${files.map((_, i) => `[v${i}][a${i}]`).join("")}concat=n=${files.length}:v=1:a=1[v][a]`;
+      await run([...ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "20", "-preset", "medium", "-c:a", "aac", "-b:a", "160k", out]);
+    }
+    const jpg = out.replace(/\.mp4$/, ".jpg");
+    await run(["-ss", "1", "-i", out, "-frames:v", "1", jpg]);
+    return { mp4: out, jpg, duree: Math.round((await probe(out)) * 10) / 10, coutVoix };
   }
 
   // POST /api/mirror/<id>/image { nom, prompt, refs: [fichiers], ratio, modele }

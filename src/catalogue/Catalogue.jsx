@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { WorkspaceSwitch } from "../workspace-switch.jsx";
+import { createPage, uniquePageName } from "../projects.js";
 import { catalogueSections as allSections, sections as everySection, useFull } from "../engine/sections.js";
 import { FAMILIES, familyOf } from "../engine/families.js";
 import { defaultPropsFor, renderSectionHtml } from "../engine/render.js";
@@ -302,6 +303,33 @@ export default function Catalogue() {
   // Projets et un projet ouvert : plein écran, sans le menu de gauche du
   // catalogue (2026-11-22) ; on y vient par « Projets » dans le menu du haut.
   const dansProjets = view === "projets" || view.startsWith("projet-");
+  // Fiche d'un projet ouverte (2026-11-24) : Studio et Canvas s'ouvrent sur une
+  // page DE CE PROJET (avant : la dernière page ouverte, souvent d'un autre
+  // projet, et les créations partaient dans ses médias). Projet sans page :
+  // une page de travail vide est créée pour lui.
+  const projetOuvert = view.startsWith("projet-") ? view.slice(7) : null;
+  const [pagesProjet, setPagesProjet] = useState(null);
+  useEffect(() => {
+    setPagesProjet(null);
+    if (!projetOuvert) return;
+    listPages()
+      .then((l) => setPagesProjet((Array.isArray(l) ? l : []).filter((x) => x.projet === projetOuvert)))
+      .catch(() => setPagesProjet([]));
+  }, [projetOuvert]);
+  const pageDuProjet = pagesProjet?.length ? (pagesProjet.find((x) => x.name === targetPage) ?? pagesProjet[0]).name : null;
+  async function ouvrirPageDeTravail(espace = "canvas") {
+    if (pagesProjet === null) return;
+    try {
+      const projets = await listProjects();
+      const pj = (Array.isArray(projets) ? projets : []).find((x) => x.id === projetOuvert) ?? {};
+      const toutes = await listPages();
+      const name = uniquePageName(`${projetOuvert}-atelier`, toutes);
+      await createPage({ name, projet: projetOuvert, produit: pj.produit || pj.nom || "", pageType: "autre", profil: "Atelier (tableaux et créations)" }, toutes);
+      location.href = espace === "page" ? `/?page=${encodeURIComponent(name)}` : `/?page=${encodeURIComponent(name)}&ouvrir=${espace}`;
+    } catch (e) {
+      alert(`Impossible de préparer la page de travail du projet : ${e.message}`);
+    }
+  }
   const [query, setQuery] = useState("");
   // Menu replié sur écran étroit ; refermé à chaque changement de vue.
   const [navOpen, setNavOpen] = useState(false);
@@ -682,7 +710,7 @@ export default function Catalogue() {
           </button>
         )}
         {/* Même menu que le Studio et le Canvas (2026-11-17). */}
-        <WorkspaceSwitch current={dansProjets ? "projets" : "catalogue"} page={targetPage} onNoPage={() => setView("pages")} />
+        <WorkspaceSwitch current={dansProjets ? "projets" : "catalogue"} page={projetOuvert ? pageDuProjet : targetPage} onNoPage={projetOuvert ? ouvrirPageDeTravail : () => setView("pages")} />
         {/* Écran étroit (tablette, téléphone) : le menu se replie derrière ce
             bouton au lieu de s'étaler au-dessus du contenu (2026-11-10). */}
         <button type="button" className="cat-menu-toggle" hidden={dansProjets} aria-expanded={navOpen} aria-controls="cat-nav" onClick={() => setNavOpen((o) => !o)}>
