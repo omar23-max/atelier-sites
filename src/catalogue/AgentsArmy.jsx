@@ -5,7 +5,7 @@
 // Ensuite : choisir lesquels brancher dans chaque partie de l'atelier.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Markdown } from "../mirror-pub-ui.jsx";
-import { RechercheGrille, RangerReponse } from "./RechercheGrille.jsx";
+import { RechercheGrille, RangerReponse, CollerAvis } from "./RechercheGrille.jsx";
 
 // Les pages Whitelabeler (cadre isolé) restaient blanches jusqu'au premier
 // redimensionnement du cadre. On le provoque quelques fois après leur arrivée
@@ -282,12 +282,16 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
   const [web, setWeb] = useState(true);
   // WinningHunter dans le chat ChatGPT (2026-11-25), lecture seule, coûte des crédits WH.
   const [wh, setWh] = useState(() => localStorage.getItem("atl-agents-wh") !== "0");
+  // Marché visé (2026-11-25) : l'agent fait ses recherches sur ces pays.
+  const [marche, setMarche] = useState(() => localStorage.getItem("atl-agents-marche") ?? "CA+US");
+  useEffect(() => localStorage.setItem("atl-agents-marche", marche), [marche]);
   useEffect(() => localStorage.setItem("atl-agents-wh", wh ? "1" : "0"), [wh]);
   const [conv, setConv] = useState(null);
   const [texte, setTexte] = useState(candidat?.message ?? "");
   const [err, setErr] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [picker, setPicker] = useState(null);
+  const [collerOuvert, setCollerOuvert] = useState(false);
   const [cle, setCle] = useState("");
   const bas = useRef(null);
   const qs = () => (candidat && !candidat.projet ? `candidat=${encodeURIComponent(candidat.id)}` : `projet=${encodeURIComponent(projet)}`);
@@ -352,7 +356,7 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
   async function envoyer(extra = {}) {
     setErr(null);
     try {
-      const r = await fetch(`/api/agents/${agent.slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, candidat: candidat?.projet ? undefined : candidat?.id, message: texte, images: photos, web, wh, moteur, ...extra }) });
+      const r = await fetch(`/api/agents/${agent.slug}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, candidat: candidat?.projet ? undefined : candidat?.id, suivi: candidat?.id, marche, message: texte, images: photos, web, wh, moteur, ...extra }) });
       const b = await r.json();
       if (!r.ok) throw new Error(b.error ?? `Erreur ${r.status}`);
       setConv(b);
@@ -425,6 +429,16 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
             Claude
           </button>
         </span>
+        <label title="Pays sur lesquels l'agent fait ses recherches (WinningHunter et web)">
+          Marché
+          <select value={marche} onChange={(e) => setMarche(e.target.value)}>
+            {[["CA+US", "Canada + États-Unis"], ["US", "États-Unis"], ["CA", "Canada"], ["GB", "Royaume-Uni"], ["AU", "Australie"], ["FR", "France"], ["IT", "Italie"], ["DE", "Allemagne"], ["EU", "Europe"], ["ALL", "Tous pays"]].map(([k, l]) => (
+              <option key={k} value={k}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="cat-chat__check">
           <input type="checkbox" checked={web} onChange={(e) => setWeb(e.target.checked)} /> Recherche web
         </label>
@@ -433,10 +447,40 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
             <input type="checkbox" checked={wh && moteur !== "claude"} disabled={moteur === "claude"} onChange={(e) => setWh(e.target.checked)} /> WinningHunter
           </label>
         )}
-        <button type="button" className="cat-link" disabled={enCours || !msgs.length} onClick={() => window.confirm("Effacer cette conversation et repartir de zéro ?") && envoyer({ nouvelle: true, message: "", images: [] })}>
+        {/* Plus visibles en haut (2026-11-25, demande de l'utilisateur). */}
+        <button type="button" className={`cat-btn cat-btn--ghost${collerOuvert ? " is-on" : ""}`} onClick={() => setCollerOuvert((o) => !o)} title="Colle des avis ou des commentaires copiés sur Amazon ou Reddit : les agents n'ont pas accès à ces sites">
+          📋 Avis Amazon / Reddit
+        </button>
+        <button type="button" className="cat-btn cat-btn--ghost" onClick={ouvrirPhotos} title="Joindre des images du projet">
+          🖼 {photos.length ? `${photos.length} image(s)` : "Images"}
+        </button>
+        <button type="button" className="cat-link cat-chat__nouvelle" disabled={enCours || !msgs.length} onClick={() => window.confirm("Effacer cette conversation et repartir de zéro ?") && envoyer({ nouvelle: true, message: "", images: [] })}>
           Nouvelle conversation
         </button>
       </div>
+      {collerOuvert && (
+        <div className="cat-chat__coller">
+          <CollerAvis
+            onFermer={() => setCollerOuvert(false)}
+            onColler={async (x) => {
+              // Produit (cellule) → sa fiche ; projet → ses cases Amazon / Reddit ; sinon → dans le message.
+              if (candidat && !candidat.projet) {
+                const r = await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "coller", id: candidat.id, ...x }) }).catch(() => null);
+                const b = await r?.json().catch(() => ({}));
+                return r?.ok ? { message: "✓ Ajouté à la fiche du produit : l'agent le lira dès ton prochain message." } : { erreur: b?.error ?? "Échec" };
+              }
+              if (projet) {
+                const r = await fetch(`/api/brouillons/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "coller", ...x }) }).catch(() => null);
+                const b = await r?.json().catch(() => ({}));
+                if (r?.ok && candidat?.id) fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "coller", id: candidat.id, ...x }) }).catch(() => {});
+                return r?.ok ? { message: `✓ Ajouté aux Fondations du projet (case « Avis ${x.source} ») : l'agent le lira dès ton prochain message.` } : { erreur: b?.error ?? "Échec" };
+              }
+              setTexte((t) => `${t ? `${t}\n\n` : ""}Voici des contenus copiés de ${x.source}${x.lien ? ` (${x.lien})` : ""} :\n${x.texte}`);
+              return { message: "✓ Mis dans ton message (pas de projet ni de produit choisi pour le garder)." };
+            }}
+          />
+        </div>
+      )}
       {sansCle && (
         <div className="cat-chat__cle">
           <span>Pour utiliser Claude, colle ta clé Anthropic (console.anthropic.com, rubrique API Keys). Elle reste sur le serveur de l'atelier.</span>
@@ -474,6 +518,12 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
                 {m.winninghunter?.length ? ` · WinningHunter (${m.winninghunter.length} appel${m.winninghunter.length > 1 ? "s" : ""}${m.winninghunter.some((x) => x.erreur) ? `, ${m.winninghunter.filter((x) => x.erreur).length} en erreur` : ""})` : ""}
               </small>
               <Markdown text={m.text} />
+              {m.suivi && !m.suivi.erreur && (m.suivi.verdict || m.suivi.idees?.length > 0) && (
+                <p className="cat-chat__suivi">
+                  ✓ Fiche du produit mise à jour{m.suivi.verdict ? ` : avis « ${m.suivi.verdict} »${m.suivi.score != null ? ` (${m.suivi.score}/10)` : ""}` : ""}
+                  {m.suivi.idees?.length > 0 ? ` · ${m.suivi.idees.length} variante(s) ajoutée(s) à sa fiche : ${m.suivi.idees.join(", ")}` : ""}
+                </p>
+              )}
               {projet && <Adopter projet={projet} texte={m.text} agent={agent.titre} />}
               {recherche && <RangerReponse texte={m.text} agent={agent.titre} candidat={candidat} />}
               {m.sources?.length > 0 && (
@@ -520,9 +570,6 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
           placeholder={msgs.length ? "Ta réponse… (Ctrl + Entrée pour envoyer)" : "Bonjour, je veux… (Ctrl + Entrée pour envoyer)"}
         />
         <div className="cat-chat__actions">
-          <button type="button" className="cat-btn cat-btn--ghost" onClick={ouvrirPhotos} title="Joindre des images du projet">
-            🖼 {photos.length ? `${photos.length} image(s)` : "Images"}
-          </button>
           <button type="button" className="cat-btn" disabled={!peutEnvoyer} onClick={() => envoyer()}>
             Envoyer
           </button>

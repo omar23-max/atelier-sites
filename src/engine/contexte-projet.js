@@ -79,7 +79,8 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
   const recherche = (rep.videosConcurrents ?? []).map((v) => ({ nom: v.nom, analyse: court(v.analyse, 900) }));
   // Mots des clients collés par l'utilisateur (Amazon, Reddit, avis…) : précieux
   // pour la demande et les objections, mais ce sont des observations, pas des preuves.
-  const collectes = Object.fromEntries(Object.entries(rep).filter(([k, v]) => /^collecte/.test(k) && realText(v)).map(([k, v]) => [k, court(v, 2500)]));
+  // 2026-11-25 : 6 000 caractères pour Amazon et Reddit (les avis collés s'ajoutent à la fin).
+  const collectes = Object.fromEntries(Object.entries(rep).filter(([k, v]) => /^collecte/.test(k) && realText(v)).map(([k, v]) => [k, court(v, /^collecte(Amazon|Reddit)$/.test(k) ? 6000 : 2500)]));
   const notes = (rep.notesAgents ?? []).map((n) => court(n.texte, 700));
   const commerciale = offreCommerciale(p.offreFiche);
   const faitsApprouves = (f.faits ?? []).filter((x) => x && x.etat === "valide").slice(0, 30).map((x) => ({ nature: x.nature, valeur: x.valeur, unite: x.unite || undefined, source: court(x.source, 200) }));

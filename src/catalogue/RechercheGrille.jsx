@@ -9,12 +9,29 @@ const ORDRE = { "feu vert": 0, "à analyser": 1, "à surveiller": 2, "écarté":
 const FILTRES = [
   ["tous", "Tous"],
   ["moi", "Mes produits"],
+  ["variantes", "Variantes à analyser"],
   ["feu vert", "Feu vert"],
   ["à surveiller", "À surveiller"],
   ["écartés", "Écartés"],
 ];
+// À quoi sert chaque agent (2026-11-25), en petits caractères sous sa carte.
+const UTILITE = {
+  "omar-winninghunter-radar-tendances": "Les produits qui montent, avant qu'ils deviennent populaires",
+  "omar-winninghunter-chasseur-facebook": "Les pubs Facebook récentes qui dépensent déjà",
+  "omar-winninghunter-chasseur-tiktok": "Les pubs TikTok qui marchent",
+  "omar-winninghunter-boucle-magic-ai": "Des produits et boutiques proches d'un modèle",
+  "omar-winninghunter-veille-boutiques": "Suivre des boutiques concurrentes : trafic, pubs, nouveautés",
+  "whitelabeler-niche-analyser-v-1": "Le marché et les concurrents (revenus, pubs, prix)",
+  "whitelabeler-product-validator-v-1": "On y va ou pas ?",
+  "shopfunnels-ai-product-research-analyst": "Fournisseur, marge, préparation du lancement, note sur 10",
+  "shopfunnels-winning-hunter-assistant-v-1": "Chercher de nouveaux produits",
+};
+// Winning Hunter Assistant (qui cherche des produits) après les trois agents d'analyse.
+const ORDRE_CHAT = ["whitelabeler-niche-analyser-v-1", "whitelabeler-product-validator-v-1", "shopfunnels-ai-product-research-analyst", "shopfunnels-winning-hunter-assistant-v-1"];
+const rang = (slug) => (ORDRE_CHAT.indexOf(slug) + 1 || 99);
 const date = (s) => (s ? new Date(s).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "");
-const ecarte = (c) => c.statut === "écarté" || c.verdict === "écarté";
+// Rangé dans « Écartés » : par toi, ou par l agent qui l a trouvée. Un avis « écarté » d un agent en conversation laisse la cellule visible (badge rouge).
+const ecarte = (c) => c.statut === "écarté" || (!c.dernierAvis && c.verdict === "écarté");
 
 export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }) {
   const [data, setData] = useState(null);
@@ -44,13 +61,23 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
     return () => clearInterval(t);
   }, [enCours.length]);
 
+  // Variantes suggérées par les agents (rangées dans la fiche de leur produit) :
+  // visibles seulement dans le filtre « Variantes à analyser ».
+  const variantes = useMemo(
+    () =>
+      (data?.candidats ?? [])
+        .flatMap((c) => (c.variantes ?? []).map((v, i) => ({ id: `v:${c.id}:${i}`, nom: v.nom, notes: v.notes, agent: v.agent, le: v.le, verdict: "à analyser", variante: true, index: i, parent: { id: c.id, nom: c.nom }, sources: [], mesures: [], ajouts: [] })))
+        .sort((a, b) => String(b.le ?? "").localeCompare(String(a.le ?? ""))),
+    [data],
+  );
   const liste = useMemo(() => {
+    if (filtre === "variantes") return variantes;
     const l = (data?.candidats ?? []).filter((c) => (filtre === "écartés" ? ecarte(c) : !ecarte(c) && (filtre === "tous" || (filtre === "moi" ? c.id.startsWith("m-") : c.verdict === filtre))));
     const cle = { verdict: (c) => ORDRE[c.verdict] ?? 9, recent: (c) => -new Date(c.le ?? 0), nom: (c) => c.nom.toLowerCase() }[tri];
     return l.sort((a, b) => (a.id.startsWith("m-") === b.id.startsWith("m-") ? 0 : a.id.startsWith("m-") ? -1 : 1) || (cle(a) < cle(b) ? -1 : cle(a) > cle(b) ? 1 : 0));
-  }, [data, filtre, tri]);
-  const cur = sel === "new" ? null : (data?.candidats ?? []).find((c) => c.id === sel);
-  const nb = (f) => (data?.candidats ?? []).filter((c) => (f === "écartés" ? ecarte(c) : !ecarte(c) && (f === "tous" || (f === "moi" ? c.id.startsWith("m-") : c.verdict === f)))).length;
+  }, [data, filtre, tri, variantes]);
+  const cur = sel === "new" ? null : String(sel ?? "").startsWith("v:") ? variantes.find((v) => v.id === sel) : (data?.candidats ?? []).find((c) => c.id === sel);
+  const nb = (f) => f === "variantes" ? variantes.length : (data?.candidats ?? []).filter((c) => (f === "écartés" ? ecarte(c) : !ecarte(c) && (f === "tous" || (f === "moi" ? c.id.startsWith("m-") : c.verdict === f)))).length;
 
   return (
     <div className="rg">
@@ -63,12 +90,14 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
           <button key={a.slug} type="button" className="rg__agent" onClick={() => onOuvrir(a.slug)} title={a.accroche}>
             <b>{a.titre.replace(/^Omar_winninghunter_/, "")}</b>
             <small>{enCours.some((e) => e.agent === a.slug) ? "⏳ en cours…" : "Réglages et lancement"}</small>
+            {UTILITE[a.slug] && <small className="rg__utilite">{UTILITE[a.slug]}</small>}
           </button>
         ))}
-        {agentsChat.map((a) => (
+        {[...agentsChat].sort((x, y) => rang(x.slug) - rang(y.slug)).map((a) => (
           <button key={a.slug} type="button" className="rg__agent rg__agent--chat" onClick={() => onDiscuter(a.slug, null)} title={a.accroche}>
             <b>💬 {a.titre.replace(/^(Whitelabeler|ShopFunnels|Shopfunnels)\s+/, "")}</b>
             <small>Conversation</small>
+            {UTILITE[a.slug] && <small className="rg__utilite">{UTILITE[a.slug]}</small>}
           </button>
         ))}
       </div>
@@ -105,17 +134,20 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
         ))}
         {liste.map((c) => (
           <button key={c.id} type="button" className={`rg__cell${c.id === sel ? " is-on" : ""}`} onClick={() => setSel(c.id)}>
-            <span className="rg__img">{c.image ? <img src={c.image} alt="" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} /> : c.id.startsWith("m-") ? "★" : "📦"}</span>
+            <span className="rg__img">{c.image ? <img src={c.image} alt="" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} /> : c.variante ? "💡" : c.id.startsWith("m-") ? "★" : "📦"}</span>
             <b>{c.nom}</b>
             <span className="rg__ligne">
               <Verdict v={c.verdict} />
               {c.lance && <small className="rg__lance">projet</small>}
               {c.desaccord && <small className="rg__desaccord" title="Les agents n'ont pas rendu le même verdict">désaccord</small>}
             </span>
-            <small>{c.id.startsWith("m-") ? (c.agent ? `retenu du chat · ${c.agentTitre || c.agent}` : "proposé par toi") : c.mesures.slice(0, 2).map(([k, v]) => `${k} ${v}`).join(" · ") || "pas de mesure relevée"}</small>
+            {c.dernierAvis && <small className="rg__avis">dernier avis : {c.dernierAvis.agent} · {date(c.dernierAvis.le)}</small>}
+            <small>{c.variante ? `idée de ${c.agent} · à partir de « ${c.parent.nom} »` : c.id.startsWith("m-") ? (c.parent ? `idée de ${c.agentTitre || c.agent} · à partir de « ${c.parent.nom} »` : c.agent ? `retenu du chat · ${c.agentTitre || c.agent}` : "proposé par toi") : c.mesures.slice(0, 2).map(([k, v]) => `${k} ${v}`).join(" · ") || "pas de mesure relevée"}</small>
             <small className="cat-muted">
               {c.sources.length ? c.sources.map((s) => s.titre).filter((x, i, t) => t.indexOf(x) === i).join(" + ") : ""} {date(c.le)}
               {c.ajouts?.length ? ` · ${c.ajouts.length} info(s) retenue(s)` : ""}
+              {c.variantes?.length ? ` · ${c.variantes.length} variante(s)` : ""}
+              {c.collages?.length ? ` · ${c.collages.length} collage(s)` : ""}
             </small>
           </button>
         ))}
@@ -130,12 +162,63 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
             id ? setSel(id) : setSel(null);
           }}
         />
+      ) : cur?.variante ? (
+        <VarianteDetail
+          key={cur.id}
+          v={cur}
+          recharger={charger}
+          onParent={() => (setFiltre("tous"), setSel(cur.parent.id))}
+          onFait={async (nid) => {
+            await charger();
+            if (nid) (setFiltre("moi"), setSel(nid));
+            else setSel(null);
+          }}
+        />
       ) : cur ? (
         <Detail key={cur.id} c={cur} agentsChat={agentsChat} onDiscuter={onDiscuter} onOuvrir={onOuvrir} recharger={charger} onRetire={() => (setSel(null), charger())} />
       ) : (
         <p className="cat-muted rg__aide">Clique sur une cellule pour voir son détail.</p>
       )}
     </div>
+  );
+}
+
+// Détail d'une variante (filtre « Variantes à analyser »).
+function VarianteDetail({ v, onParent, onFait }) {
+  const [msg, setMsg] = useState(null);
+  async function faire(quoi) {
+    setMsg(null);
+    const r = await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "variante", faire: quoi, id: v.parent.id, index: v.index, nom: v.nom, parentNom: v.parent.nom }) }).catch(() => null);
+    const b = await r?.json().catch(() => ({}));
+    if (!r?.ok) return setMsg(`⚠ ${b?.error ?? "Échec"}`);
+    onFait(b.id ?? null);
+  }
+  return (
+    <section className="rg__detail">
+      <div className="rg__dhead">
+        <span className="rg__img rg__img--grand">💡</span>
+        <div>
+          <h3>{v.nom}</h3>
+          <p className="cat-muted">
+            idée de {v.agent} · à partir de « {v.parent.nom} » · {v.le ? new Date(v.le).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : ""}
+          </p>
+        </div>
+        <Verdict v="à analyser" />
+      </div>
+      {v.notes && <p className="rg__texte">{v.notes}</p>}
+      <div className="rg__actions">
+        <button type="button" className="cat-btn" onClick={() => faire("produit")} title="La variante devient un produit de la grille (Mes produits) : tu peux la discuter avec un agent, la lancer…">
+          En faire un produit de la grille
+        </button>
+        <button type="button" className="cat-link" onClick={onParent}>
+          Voir le produit d'origine
+        </button>
+        <button type="button" className="cat-link" onClick={() => window.confirm(`Retirer la variante « ${v.nom} » ?`) && faire("retirer")}>
+          Retirer
+        </button>
+      </div>
+      {msg && <p className="cat-flash is-error">{msg}</p>}
+    </section>
   );
 }
 
@@ -193,9 +276,17 @@ function FormProduit({ c = null, onFini }) {
 function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
   const moi = c.id.startsWith("m-");
   const [edit, setEdit] = useState(false);
-  const [agentChat, setAgentChat] = useState(() => localStorage.getItem("atl-grille-agentchat") || agentsChat[0]?.slug || "");
+  // « Discuter de ce produit » : les 3 agents d'analyse seulement (Winning
+  // Hunter Assistant cherche de nouveaux produits : carte du haut).
+  // Product Validator en premier (2026-11-25, demande de l utilisateur).
+  const ORDRE_ANALYSE = ["whitelabeler-product-validator-v-1", "whitelabeler-niche-analyser-v-1", "shopfunnels-ai-product-research-analyst"];
+  const analyse = [...agentsChat].filter((a) => !/winning-hunter-assistant/.test(a.slug)).sort((x, y) => (ORDRE_ANALYSE.indexOf(x.slug) + 1 || 99) - (ORDRE_ANALYSE.indexOf(y.slug) + 1 || 99));
+  const [agentChat, setAgentChat] = useState(() => {
+    const m = localStorage.getItem("atl-grille-agentchat2");
+    return analyse.some((a) => a.slug === m) ? m : analyse[0]?.slug || "";
+  });
   useEffect(() => {
-    if (agentChat) localStorage.setItem("atl-grille-agentchat", agentChat);
+    if (agentChat) localStorage.setItem("atl-grille-agentchat2", agentChat);
   }, [agentChat]);
   const [msg, setMsg] = useState(null);
   async function action(corps) {
@@ -226,6 +317,27 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
           ⚠ Les agents ne sont pas d'accord : {c.desaccord.map((d) => `${d.titre} (${date(d.le)}) : ${d.verdict}`).join(" · ")}. Le verdict affiché est le plus récent.
         </p>
       )}
+      {(c.analyses?.length > 0 || c.verdictTrouve) && (
+        <div className="rg__avislist">
+          <b>Avis des agents</b> <span className="cat-muted">(le plus récent donne le verdict affiché)</span>
+          <ul>
+            {[...(c.analyses ?? [])].reverse().map((a, i) => (
+              <li key={i}>
+                <b>{a.agent}</b> · {date(a.le)} : {a.verdict ? <Verdict v={a.verdict} /> : "pas d'avis tranché"}
+                {a.score != null ? ` ${a.score}/10` : ""}
+                {a.marche ? <span className="cat-muted"> · marché {a.marche}</span> : null}
+                {a.resume ? <span> — {a.resume}</span> : null}
+              </li>
+            ))}
+            {c.verdictTrouve && (
+              <li>
+                <b>{c.sources?.[0]?.titre ?? "Agent de recherche"}</b> (piste trouvée) · {date(c.sources?.[0]?.le)} : <Verdict v={c.verdictTrouve} />
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+      {c.parent && <p className="cat-muted">Idée suggérée par {c.agentTitre || c.agent} en analysant « {c.parent.nom} ».</p>}
       {c.ancien && <p className="cat-muted">Piste gardée parce que tu l'as travaillée : elle n'est plus dans les 3 derniers résultats de l'agent (chiffres de sa dernière apparition).</p>}
       {c.mesures.length > 0 && (
         <div className="rg__chiffres">
@@ -254,6 +366,59 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
         )}
         {!moi && <p className="cat-muted">Chiffres relevés par WinningHunter à la date du résultat, sur un échantillon ; verdict et textes = interprétation de l'IA, à vérifier.</p>}
       </div>
+      <div className="rg__collages">
+        <b>Avis et contenus collés (Amazon, Reddit)</b>{" "}
+        <span className="cat-muted">Les agents n'ont pas accès à ces sites : ce que tu colles ici est lu par tous les agents qui étudient ce produit{c.lance ? ", et copié dans les Fondations de son projet" : ""}.</span>
+        {(c.collages ?? []).map((x, i) => (
+          <details key={i} className="rg__collage">
+            <summary>
+              <b>{x.source}</b> · {date(x.le)} · {x.texte.length.toLocaleString("fr-FR")} car. — {x.texte.slice(0, 80)}…
+              <button type="button" className="rg__suppr" aria-label="Retirer ce collage" title="Retirer ce collage de la fiche (déjà copié dans un projet, il y reste)" onClick={async (e) => (e.preventDefault(), (await action({ action: "retirerCollage", index: i, debut: x.texte.slice(0, 40) })) && recharger())}>
+                ✕
+              </button>
+            </summary>
+            {x.lien && (
+              <a href={x.lien} target="_blank" rel="noopener noreferrer">
+                {x.lien} ↗
+              </a>
+            )}
+            <div className="rg__collagetxt">{x.texte}</div>
+          </details>
+        ))}
+        <CollerAvis
+          compact
+          onColler={async (x) => {
+            const b = await action({ action: "coller", ...x });
+            if (!b) return { erreur: "Échec de l'enregistrement." };
+            recharger();
+            return { message: b.projet ? `✓ Ajouté à la fiche et aux Fondations du projet ${b.projet}.` : "✓ Ajouté à la fiche : les agents le liront." };
+          }}
+        />
+      </div>
+      {c.variantes?.length > 0 && (
+        <div className="rg__variantes">
+          <b>Variantes suggérées</b> <span className="cat-muted">(gardées ici pour ne pas charger la grille)</span>
+          {c.variantes.map((v, i) => (
+            <div key={`${v.nom}-${i}`} className="rg__variante">
+              <span className="rg__ligne">
+                <b>{v.nom}</b> <Verdict v="à analyser" />
+              </span>
+              <small className="cat-muted">
+                idée de {v.agent} · à partir de « {c.nom} » · {date(v.le)}
+              </small>
+              {v.notes && <small>{v.notes}</small>}
+              <span className="rg__varbtns">
+                <button type="button" className="cat-link" title="La variante devient un produit de la grille (filtre Mes produits), pour la creuser à son tour" onClick={async () => (await action({ action: "variante", faire: "produit", index: i, nom: v.nom, parentNom: c.nom })) && recharger()}>
+                  En faire un produit de la grille
+                </button>
+                <button type="button" className="rg__suppr" aria-label="Retirer cette variante" title="Retirer cette variante" onClick={async () => (await action({ action: "variante", faire: "retirer", index: i, nom: v.nom })) && recharger()}>
+                  ✕
+                </button>
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       {Object.keys(parRubrique).length > 0 && (
         <div className="rg__ajouts">
           <b>Retenu des conversations</b>
@@ -288,7 +453,7 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
         )}
         <span className="rg__discuter">
           <select value={agentChat} onChange={(e) => setAgentChat(e.target.value)} aria-label="Agent pour discuter">
-            {agentsChat.map((a) => (
+            {analyse.map((a) => (
               <option key={a.slug} value={a.slug}>
                 {a.titre.replace(/^(Whitelabeler|ShopFunnels|Shopfunnels)\s+/, "")}
               </option>
@@ -378,6 +543,67 @@ function Lancer({ c, onFait }) {
 // Sous une réponse d'agent dans le chat de la Recherche : « Ajouter à la
 // grille » (produits proposés) et « Ajouter à cette piste » (infos sur le
 // produit étudié). Un petit appel ChatGPT range la réponse ; tu coches.
+// Coller des avis ou contenus Amazon / Reddit (2026-11-25) : les agents n'ont
+// pas accès à ces sites ; ce que tu colles est lu par tous les agents.
+export function CollerAvis({ onColler, compact = false, onFermer = null }) {
+  const [ouvert, setOuvert] = useState(!compact);
+  const [source, setSource] = useState("Amazon");
+  const [lien, setLien] = useState("");
+  const [texte, setTexte] = useState("");
+  const [etat, setEtat] = useState(null);
+  const [busy, setBusy] = useState(false);
+  if (!ouvert)
+    return (
+      <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setOuvert(true)} title="Colle des avis ou des commentaires copiés sur Amazon ou Reddit : les agents n'ont pas accès à ces sites">
+        📋 Avis Amazon / Reddit
+      </button>
+    );
+  async function ok() {
+    if (!texte.trim()) return setEtat("⚠ Colle d'abord le texte.");
+    setBusy(true);
+    const r = await onColler({ source, lien: lien.trim(), texte });
+    setBusy(false);
+    if (r?.erreur) return setEtat(`⚠ ${r.erreur}`);
+    setTexte("");
+    setLien("");
+    setEtat(r?.message ?? "✓ Ajouté.");
+    if (compact) setTimeout(() => (setOuvert(false), setEtat(null)), 2500);
+    if (onFermer) setTimeout(onFermer, 2500);
+  }
+  return (
+    <div className="rg-coller">
+      <div className="rg-coller__bar">
+        <span className="rg-coller__src" role="group" aria-label="Source">
+          {["Amazon", "Reddit"].map((s) => (
+            <button key={s} type="button" className={source === s ? "is-on" : ""} onClick={() => setSource(s)}>
+              {s}
+            </button>
+          ))}
+        </span>
+        <input value={lien} onChange={(e) => setLien(e.target.value)} placeholder={source === "Amazon" ? "Lien de la fiche Amazon (facultatif)" : "Lien du fil Reddit (facultatif)"} aria-label="Lien (facultatif)" />
+      </div>
+      <textarea
+        rows={5}
+        value={texte}
+        onChange={(e) => (setTexte(e.target.value), setEtat(null))}
+        placeholder={source === "Amazon" ? "Colle ici les avis copiés (surtout 1 à 3 étoiles) : note, titre, texte…" : "Colle ici le fil ou les commentaires copiés…"}
+        aria-label="Texte collé"
+      />
+      <span className="rg-coller__btns">
+        <button type="button" className="cat-btn" disabled={busy} onClick={ok}>
+          {busy ? "…" : "Ajouter"}
+        </button>
+        {(compact || onFermer) && (
+          <button type="button" className="cat-link" onClick={() => (onFermer ? onFermer() : (setOuvert(false), setEtat(null)))}>
+            Fermer
+          </button>
+        )}
+        {etat && <span className={etat.startsWith("⚠") ? "rg__err" : "rg__ok"}>{etat}</span>}
+      </span>
+    </div>
+  );
+}
+
 export function RangerReponse({ texte, agent, candidat }) {
   const [mode, setMode] = useState(null);
   const [items, setItems] = useState(null);

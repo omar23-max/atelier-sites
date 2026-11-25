@@ -152,9 +152,99 @@ export async function listerCandidats(root) {
   const mes = etat.mes.map((m) => ({ ...m, moi: !m.agent, verdict: "à analyser", sources: m.agent ? [{ agent: m.agent, titre: m.agentTitre ?? m.agent, le: m.le }] : [], mesures: [m.prix && ["Prix visé", m.prix], m.cout && ["Coût d'achat", m.cout]].filter(Boolean) }));
   const tous = [...mes, ...agents].map((c) => {
     const e = etat.etats[c.id] ?? {};
-    return { ...c, statut: e.statut ?? null, ajouts: [...(c.ajouts ?? []), ...(e.ajouts ?? [])], lance: c.lance ?? e.lance ?? null };
+    const out = { ...c, statut: e.statut ?? null, ajouts: [...(c.ajouts ?? []), ...(e.ajouts ?? [])], lance: c.lance ?? e.lance ?? null, variantes: [...(c.variantes ?? []), ...(e.variantes ?? [])], collages: [...(c.collages ?? []), ...(e.collages ?? [])] };
+    // Avis des agents en conversation (2026-11-25) : le plus récent donne le verdict affiché.
+    const analyses = [...(c.analyses ?? []), ...(e.analyses ?? [])];
+    if (analyses.length) {
+      out.analyses = analyses;
+      const der = [...analyses].reverse().find((a) => a.verdict);
+      if (der) {
+        out.verdictTrouve = c.verdict;
+        out.verdict = der.verdict;
+        out.dernierAvis = { agent: der.agent, le: der.le };
+      }
+      const tous = [...(c.id.startsWith("p-") ? c.sources.filter((s) => s.verdict).map((s) => ({ titre: s.titre, le: s.le, verdict: s.verdict })) : []), ...analyses.filter((a) => a.verdict).map((a) => ({ titre: a.agent, le: a.le, verdict: a.verdict }))];
+      out.desaccord = new Set(tous.map((x) => x.verdict)).size > 1 ? tous : undefined;
+    }
+    return out;
   });
   return tous;
+}
+
+// Après chaque réponse d'un agent sur un produit (2026-11-25) : un petit appel
+// IA relève son avis (verdict, note, résumé) et les autres produits ou
+// déclinaisons qu'il suggère. L'avis s'ajoute à la cellule (le plus récent
+// devient le verdict affiché) ; les idées deviennent des cellules « Mes produits ».
+const TITRES_CHAT = { "whitelabeler-niche-analyser-v-1": "Niche Analyser", "whitelabeler-product-validator-v-1": "Product Validator", "shopfunnels-ai-product-research-analyst": "AI Product Research Analyst", "shopfunnels-winning-hunter-assistant-v-1": "Winning Hunter Assistant" };
+export async function suivreAnalyse(root, id, texte, slug, marche) {
+  const c = (await listerCandidats(root)).find((x) => x.id === id);
+  if (!c || !String(texte ?? "").trim()) return undefined;
+  const { loadEnv } = await import("vite");
+  const env = loadEnv("development", root, "");
+  if (!env.OPENAI_API_KEY) return undefined;
+  const { ia } = await import("./recherche.mjs");
+  const r = await ia(
+    env,
+    `Voici la réponse d'un agent d'analyse sur le produit « ${c.nom} ». Réponds en JSON :
+{"verdict": "feu vert" | "à surveiller" | "écarté" | null, "score": nombre sur 10 ou null, "resume": "une phrase : l'avis de l'agent et sa raison principale", "produits": [{"nom": "nom court", "notes": "une phrase : pourquoi l'agent le suggère"}]}
+- verdict : "feu vert" = l'agent conseille d'y aller (GO, même avec conditions) ; "à surveiller" = attendre, tester prudemment, avis mitigé ; "écarté" = ne pas y aller (NO GO) ; null si la réponse ne donne pas d'avis (simple question, demande de précision).
+- produits : les AUTRES produits, déclinaisons ou variantes que l'agent suggère comme produits à part (pack, version pour un autre public, alternative), pas « ${c.nom} » lui-même ni ses simples options de couleur/taille. Au plus 6. [] s'il n'y en a pas.
+N'invente rien.
+
+---
+${String(texte).slice(0, 20000)}`,
+  );
+  const verdict = ["feu vert", "à surveiller", "écarté"].includes(r.verdict) ? r.verdict : null;
+  const agent = TITRES_CHAT[slug] ?? slug;
+  const le = new Date().toISOString();
+  const analyse = verdict || r.resume ? { agent, slug, le, verdict, score: typeof r.score === "number" ? Math.round(r.score * 10) / 10 : null, resume: court(r.resume, 300), marche: marche ?? null } : null;
+  // Variantes (2026-11-25) : rangées DANS la fiche du produit (pas de nouvelle
+  // cellule, la grille ne se surcharge pas), sans doublon.
+  const existants = new Set([norm(c.nom), ...(c.variantes ?? []).map((v) => norm(v.nom))]);
+  const idees = (Array.isArray(r.produits) ? r.produits : []).map((x) => ({ nom: court(x.nom, 90), notes: court(x.notes, 600) })).filter((x) => x.nom && !existants.has(norm(x.nom))).slice(0, 6);
+  const copieP = id.startsWith("p-") ? (({ statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, ...reste }) => ({ ...reste, verdict: verdictTrouve ?? reste.verdict }))(c) : null;
+  await muter(root, (e) => {
+    if (analyse) {
+      const m = e.mes.find((x) => x.id === id);
+      if (m) m.analyses = [...(m.analyses ?? []), analyse];
+      else e.etats[id] = { ...(e.etats[id] ?? {}), ...(copieP ? { copie: copieP } : {}), analyses: [...(e.etats[id]?.analyses ?? []), analyse] };
+    }
+    if (idees.length) {
+      const v = idees.map((x) => ({ ...x, agent, le, marche: marche ?? null }));
+      const m = e.mes.find((x) => x.id === id);
+      if (m) m.variantes = [...(m.variantes ?? []), ...v];
+      else e.etats[id] = { ...(e.etats[id] ?? {}), ...(copieP ? { copie: copieP } : {}), variantes: [...(e.etats[id]?.variantes ?? []), ...v] };
+    }
+  });
+  return { verdict, score: analyse?.score ?? null, idees: idees.map((x) => x.nom) };
+}
+
+// Collages (Amazon, Reddit) en texte, les plus récents d'abord, coupé à `max` caractères.
+const SOURCES_COLLAGE = ["Amazon", "Reddit"];
+export function texteCollages(l, max = 12000) {
+  let out = "";
+  for (const x of [...(l ?? [])].reverse()) {
+    const bloc = `— ${x.source}${x.lien ? ` (${x.lien})` : ""}, collé le ${String(x.le ?? "").slice(0, 10)} :\n${x.texte}\n`;
+    if (out.length + bloc.length > max) {
+      out += `${bloc.slice(0, Math.max(0, max - out.length))}…\n`;
+      break;
+    }
+    out += bloc;
+  }
+  return out;
+}
+// Copie aussi un collage dans le projet (cases « Avis Amazon » / « Reddit » des Fondations).
+export async function collerDansProjet(projet, x) {
+  const { muterProjet } = await import("./commun.mjs");
+  const champ = x.source === "Reddit" ? "collecteReddit" : "collecteAmazon";
+  await muterProjet(projet, (pj) => {
+    pj.fondations = pj.fondations ?? {};
+    pj.fondations.reponses = pj.fondations.reponses ?? {};
+    const cur = String(pj.fondations.reponses[champ] ?? "").replace(/\s+$/, "");
+    const bloc = `${x.lien ? `${x.lien}\n` : ""}${x.texte}`;
+    if (!cur.includes(x.texte.slice(0, 200))) pj.fondations.reponses[champ] = cur ? `${cur}\n\n${bloc}` : bloc;
+  });
+  return champ;
 }
 
 // Texte de la fiche, pour le chat d'un agent (« Discuter de ce produit »).
@@ -174,6 +264,9 @@ export async function ficheCandidat(root, id) {
     c.risques?.length ? `Risques notés : ${c.risques.join(" · ")}` : "",
     // Avis ChatGPT : les infos retenues gardent leur source et leur date ; ce sont des observations d'agents, pas des faits confirmés.
     c.ajouts?.length ? `Informations gardées dans la fiche (observations d'agents triées par l'utilisateur, PAS des faits confirmés : garde leur source et leurs réserves) :\n${c.ajouts.map((a) => `- [${a.rubrique}] ${a.texte} [${a.source}]${a.agent ? ` · ${a.agent}` : ""} · ${String(a.le ?? "").slice(0, 10)}`).join("\n")}` : "",
+    // Avis et contenus collés par l'utilisateur (Amazon, Reddit) : les agents n'y ont pas accès eux-mêmes.
+    c.collages?.length ? `AVIS ET CONTENUS COLLÉS PAR L'UTILISATEUR (copiés de ${[...new Set(c.collages.map((x) => x.source))].join(" et ")} : vrais mots de clients, à utiliser pour les douleurs, désirs et objections ; tague-les [${[...new Set(c.collages.map((x) => x.source))].join("] / [")}] ; ce sont des observations, pas des preuves pour le produit) :\n${texteCollages(c.collages, 12000)}` : "",
+    c.variantes?.length ? `Variantes déjà suggérées (inutile de les reproposer) : ${c.variantes.map((v) => v.nom).join(", ")}` : "",
     "Concentre ton analyse sur CE produit. Les chiffres ci-dessus sont des relevés partiels : ne les présente pas comme exacts.",
   ];
   return `\n---\n${l.filter(Boolean).join("\n")}`;
@@ -244,11 +337,11 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     const { ia } = await import("./recherche.mjs");
     const consigne =
       b.mode === "produits"
-        ? `Dans la réponse d'agent ci-dessous, relève les PRODUITS précis qu'elle propose de vendre (pas les catégories vagues, pas les marques concurrentes citées en exemple, pas les packs, formats ou variantes du produit déjà étudié). Réponds en JSON : {"items":[{"nom":"nom court du produit (français)","notes":"une phrase : pourquoi l'agent le propose, chiffres compris s'il y en a"}]}. Au plus 15. Si aucun produit précis : {"items":[]}.`
+        ? `Dans la réponse d'agent ci-dessous, relève les PRODUITS précis qu'elle propose de vendre (pas les catégories vagues, pas les marques concurrentes citées en exemple ; les déclinaisons proposées comme produits à part — pack, version pour un autre public — comptent). Réponds en JSON : {"items":[{"nom":"nom court du produit (français)","notes":"une phrase : pourquoi l'agent le propose, chiffres compris s'il y en a"}]}. Au plus 15. Si aucun produit précis : {"items":[]}.`
         : `Dans la réponse d'agent ci-dessous, relève les informations utiles sur le produit étudié, rangées par rubrique parmi : ${RUBRIQUES.join(", ")}. Une information = une phrase courte et autonome, chiffres et noms compris. source = "WH" si le chiffre vient de WinningHunter (tag [WH]), "Web" s'il vient d'une source web, "Est" pour une estimation ou un avis de l'agent. « Mots des clients » = ce que disent les CLIENTS (avis, commentaires, plaintes) ; les arguments des pubs ou des pages concurrentes vont dans « Angles et accroches ». Un prix ou un coût donné par l'utilisateur n'est pas une information à relever. Garde les réserves et le périmètre de chaque information : boutique entière ou produit, estimation ou mesure, période, pays, devise, promotion, date (ex. « revenu ESTIMÉ de toute la boutique Hismile », pas « Hismile fait »). Une pub n'est jamais un témoignage client, une recommandation n'est jamais une propriété du produit. Mets dans « Conditions et inconnues » les conditions du verdict et ce qui reste inconnu sur le produit. Écris « inconnu » plutôt que de compléter. N'invente rien, ne reformule pas en plus fort. Réponds en JSON : {"items":[{"rubrique":"…","texte":"…","source":"WH|Web|Est"}]}. Au plus 30.`;
     try {
       const etudie = /^[pm]-[a-z0-9-]{1,90}$/.test(id) ? (await listerCandidats(root)).find((x) => x.id === id)?.nom : null;
-      const r = await ia(env, `${consigne}${etudie ? `\nProduit étudié dans cette conversation (à ne PAS proposer comme nouveau produit, ni ses packs) : ${etudie}.` : ""}\n\n---\n${texte}`);
+      const r = await ia(env, `${consigne}${etudie ? `\nProduit étudié dans cette conversation (ne le propose pas lui-même ; ses déclinaisons à part, oui) : ${etudie}.` : ""}\n\n---\n${texte}`);
       return json(res, 200, { items: Array.isArray(r.items) ? r.items.slice(0, 30) : [] });
     } catch (e) {
       return json(res, 502, { error: e.message });
@@ -262,8 +355,8 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     if (!id.startsWith("p-")) return null;
     const c = (await listerCandidats(root)).find((x) => x.id === id);
     if (!c) return null;
-    const { statut, ajouts, lance, ancien, ...reste } = c;
-    return reste;
+    const { statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, ...reste } = c;
+    return { ...reste, verdict: verdictTrouve ?? reste.verdict };
   };
   const garder = (e, cp) => {
     if (cp) e.etats[id] = { ...(e.etats[id] ?? {}), copie: cp };
@@ -292,6 +385,47 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
       e.etats[id] = { ...(e.etats[id] ?? {}), statut: b.statut === "écarté" ? "écarté" : null };
     });
     return json(res, 200, { ok: true });
+  }
+  if (b.action === "coller") {
+    const x = { source: SOURCES_COLLAGE.includes(b.source) ? b.source : "Amazon", lien: court(b.lien, 400), texte: String(b.texte ?? "").replace(/\r/g, "").trim().slice(0, 15000), le: new Date().toISOString() };
+    if (!x.texte) return json(res, 400, { error: "Colle d'abord le texte des avis." });
+    const cp = await copie();
+    const lance = await muter(root, (e) => {
+      const m = e.mes.find((y) => y.id === id);
+      if (m) m.collages = [...(m.collages ?? []), x];
+      else e.etats[id] = { ...(e.etats[id] ?? {}), ...(cp ? { copie: cp } : {}), collages: [...(e.etats[id]?.collages ?? []), x] };
+      return m ? m.lance : e.etats[id].lance;
+    });
+    // Produit déjà lancé : copié aussi dans les Fondations de son projet.
+    const champ = lance && /^[a-z0-9][a-z0-9-]{1,90}$/.test(lance) && existsSync(join(root, "projets", `${lance}.json`)) ? await collerDansProjet(lance, x) : null;
+    return json(res, 200, { ok: true, projet: champ ? lance : null });
+  }
+  if (b.action === "retirerCollage") {
+    const n = Number(b.index);
+    const ok = await muter(root, (e) => {
+      const m = e.mes.find((y) => y.id === id);
+      const l = m ? m.collages ?? [] : e.etats[id]?.collages ?? [];
+      if (!Number.isInteger(n) || n < 0 || n >= l.length || (b.debut && !l[n].texte.startsWith(b.debut))) return false;
+      l.splice(n, 1);
+      return true;
+    });
+    return ok ? json(res, 200, { ok: true }) : json(res, 409, { error: "Ce collage a changé entre-temps : recharge la page." });
+  }
+  if (b.action === "variante") {
+    const n = Number(b.index);
+    let cree = null;
+    const ok = await muter(root, (e) => {
+      const m = e.mes.find((x) => x.id === id);
+      const l = m ? m.variantes ?? [] : e.etats[id]?.variantes ?? [];
+      if (!Number.isInteger(n) || n < 0 || n >= l.length || (b.nom && l[n].nom !== b.nom)) return false;
+      const [v] = l.splice(n, 1);
+      if (b.faire === "produit") {
+        cree = `m-${Date.now().toString(36)}`;
+        e.mes.unshift({ id: cree, nom: v.nom, notes: v.notes, agent: v.agent, agentTitre: v.agent, parent: { id, nom: b.parentNom || id }, le: new Date().toISOString(), ajouts: [] });
+      }
+      return true;
+    });
+    return ok ? json(res, 200, { ok: true, id: cree }) : json(res, 409, { error: "Cette variante a changé entre-temps : recharge la page." });
   }
   if (b.action === "retirerAjout") {
     const n = Number(b.index);
@@ -360,6 +494,7 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     // « Adopter dans les Fondations » : les infos déjà rangées deviennent des propositions (sans IA).
     const { ajouterBrouillons, depuisAjouts } = await import("./brouillons.mjs");
     const nb = c.ajouts?.length ? await ajouterBrouillons(projet, depuisAjouts(c.ajouts), { type: "cellule", candidat: c.id }) : 0;
+    for (const x of c.collages ?? []) await collerDansProjet(projet, x);
     const cp = await copie();
     await muter(root, (e) => {
       garder(e, cp);

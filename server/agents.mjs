@@ -129,6 +129,9 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
     // WinningHunter dans le chat ChatGPT (2026-11-25) : coché par défaut si la clé existe.
     c.wh = b.wh !== false;
     c.moteur = b.moteur === "claude" ? "claude" : "chatgpt";
+    c.marche = MARCHES[b.marche] ? b.marche : c.marche ?? "CA+US";
+    // Produit suivi (cellule de la grille), y compris quand la conversation se fait sur son projet.
+    c.suivi = /^[pm]-[a-z0-9-]{1,90}$/.test(String(b.suivi ?? "")) ? b.suivi : candidat || c.suivi || "";
     // Identifiant de cette exécution : une réponse tardive d'une autre exécution est ignorée.
     const runId = `r-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
     c.runId = runId;
@@ -139,7 +142,7 @@ export async function agentsRoute(req, res, parts, { root, readBody, json }) {
       chatsEnCours.delete(convFile);
       throw e;
     }
-    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur, runId, c.wh, candidat)
+    runAgent(root, slug, consFile, convFile, save, projet, c.web, c.moteur, runId, c.wh, candidat, { marche: c.marche, suivi: c.suivi })
       .catch(() => {})
       .finally(() => chatsEnCours.get(convFile) === runId && chatsEnCours.delete(convFile));
     return json(res, 200, c);
@@ -295,7 +298,9 @@ async function imageInput(root, url) {
 // Chats en cours dans CE serveur : fichier de conversation → identifiant d'exécution (audit F03 / F09).
 const chatsEnCours = new Map();
 
-async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt", runId = null, wh = false, candidat = "") {
+// Marché visé, choisi dans le chat (2026-11-25).
+const MARCHES = { "CA+US": ["Canada et États-Unis", "CA, US"], US: ["États-Unis", "US"], CA: ["Canada", "CA"], GB: ["Royaume-Uni", "GB"], AU: ["Australie", "AU"], FR: ["France", "FR"], IT: ["Italie", "IT"], DE: ["Allemagne", "DE"], EU: ["Europe (France, Allemagne, Italie, Espagne)", "FR, DE, IT, ES"], ALL: ["tous les pays", ""] };
+async function runAgent(root, slug, consFile, convFile, save, projet, web, moteur = "chatgpt", runId = null, wh = false, candidat = "", opts = {}) {
   // La conversation a-t-elle changé d'exécution (nouvelle conversation, autre envoi) ?
   const perimee = (c2) => runId && c2?.runId && c2.runId !== runId;
   const { loadEnv } = await import("vite");
@@ -304,12 +309,24 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
   try {
     const c = await read();
     const fiche = candidat ? await (await import("./candidats.mjs")).ficheCandidat(root, candidat) : "";
-    const instructions = (await readFile(consFile, "utf8")) + ADAPTER + (await projectContext(root, projet)) + fiche;
+    const m = MARCHES[opts.marche];
+    const consigneMarche = m && opts.marche !== "ALL" ? `\n---\nMARCHÉ VISÉ PAR L'UTILISATEUR : ${m[0]}. Fais tes recherches sur ce marché (WinningHunter : pays ${m[1]} ; web : sites et prix de ces pays, dans leur devise). Si tu t'appuies sur des données d'un autre pays (boutique modèle étrangère, par exemple), dis-le clairement et ne les présente pas comme des chiffres de ce marché.` : "";
+    const instructions = (await readFile(consFile, "utf8")) + ADAPTER + (await projectContext(root, projet)) + fiche + consigneMarche;
+    // Après la réponse : la cellule du produit est mise à jour (avis, idées de produits).
+    const suivre = async (texte) => {
+      if (!opts.suivi) return undefined;
+      try {
+        return await (await import("./candidats.mjs")).suivreAnalyse(root, opts.suivi, texte, slug, opts.marche);
+      } catch (e) {
+        return { erreur: String(e.message).slice(0, 200) };
+      }
+    };
     if (moteur === "claude") {
       const r = await runClaude(root, env, instructions, c.messages, web);
+      const suivi = await suivre(r.text);
       const c2 = await read();
       if (perimee(c2)) return;
-      c2.messages.push({ role: "assistant", text: r.text, sources: r.sources, recherche: r.searched, moteur: "claude", le: new Date().toISOString() });
+      c2.messages.push({ role: "assistant", text: r.text, sources: r.sources, recherche: r.searched, moteur: "claude", ...(suivi ? { suivi } : {}), le: new Date().toISOString() });
       c2.statut = "pret";
       await save(c2);
       return;
@@ -363,7 +380,8 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
     if (!text) throw new Error("Réponse vide de l'IA.");
     const c2 = await read();
     if (perimee(c2)) return;
-    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", ...(appelsWh.length ? { winninghunter: appelsWh } : {}), ...(body.usage ? { tokens: { entree: body.usage.input_tokens, sortie: body.usage.output_tokens } } : {}), le: new Date().toISOString() });
+    const suivi = await suivre(text);
+    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", ...(suivi ? { suivi } : {}), ...(appelsWh.length ? { winninghunter: appelsWh } : {}), ...(body.usage ? { tokens: { entree: body.usage.input_tokens, sortie: body.usage.output_tokens } } : {}), le: new Date().toISOString() });
     c2.statut = "pret";
     await save(c2);
   } catch (e) {

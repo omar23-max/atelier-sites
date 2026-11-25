@@ -60,6 +60,14 @@ export async function brouillonsRoute(req, res, parts, { root, readBody, json })
   if (!existsSync(join(root, "projets", `${projet}.json`))) return json(res, 404, { error: "Projet introuvable." });
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   const b = (await readBody(req).catch(() => ({}))) || {};
+  // Avis Amazon / Reddit collés depuis le chat d'un agent (2026-11-25).
+  if (b.action === "coller") {
+    const texte = String(b.texte ?? "").replace(/\r/g, "").trim().slice(0, 15000);
+    if (!texte) return json(res, 400, { error: "Colle d'abord le texte des avis." });
+    const { collerDansProjet } = await import("./candidats.mjs");
+    const champ = await collerDansProjet(projet, { source: b.source === "Reddit" ? "Reddit" : "Amazon", lien: court(b.lien, 400), texte });
+    return json(res, 200, { ok: true, champ });
+  }
   if (b.action !== "proposer") return json(res, 400, { error: "Action inconnue." });
   const texte = String(b.texte ?? "").slice(0, 20000);
   if (!texte.trim()) return json(res, 400, { error: "Réponse vide." });
