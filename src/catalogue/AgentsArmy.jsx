@@ -5,7 +5,7 @@
 // Ensuite : choisir lesquels brancher dans chaque partie de l'atelier.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Markdown } from "../mirror-pub-ui.jsx";
-import { RechercheGrille, RangerReponse, CollerAvis } from "./RechercheGrille.jsx";
+import { RechercheGrille, RangerReponse, CollerAvis, televerser } from "./RechercheGrille.jsx";
 
 // Les pages Whitelabeler (cadre isolé) restaient blanches jusqu'au premier
 // redimensionnement du cadre. On le provoque quelques fois après leur arrivée
@@ -369,6 +369,12 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
     }
   }
   async function ouvrirPhotos() {
+    // Conversation sur un produit de la grille : ses images (Amazon, vignette).
+    if (candidat && !candidat.projet) {
+      const d = await fetch("/api/candidats").then((r) => r.json()).catch(() => ({}));
+      const c = (d.candidats ?? []).find((x) => x.id === candidat.id);
+      return setPicker([...new Set([...(c?.imagesAmazon ?? []).map((x) => x.url), ...(c?.image?.startsWith?.("/") ? [c.image] : [])])].filter((u) => /\.(png|jpe?g|webp)$/i.test(u)));
+    }
     if (!projet) return setErr("Choisis d'abord un projet pour joindre ses images.");
     const l = await fetch(`/api/medias/projet-${projet}?detail=1`)
       .then((r) => r.json())
@@ -462,6 +468,16 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
         <div className="cat-chat__coller">
           <CollerAvis
             onFermer={() => setCollerOuvert(false)}
+            onImages={async (fichiers) => {
+              // Produit → sa fiche ; projet → ses médias ; dans tous les cas, jointes au prochain message.
+              const dossier = candidat && !candidat.projet ? `recherche-${candidat.id}`.slice(0, 80) : projet ? `projet-${projet}` : null;
+              if (!dossier) return { erreur: "Choisis un projet ou ouvre la conversation depuis un produit pour garder les images." };
+              const urls = [];
+              for (const f of fichiers) urls.push(await televerser(dossier, f));
+              if (candidat?.id) await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "images", id: candidat.id, urls }) }).catch(() => null);
+              setPhotos((p) => [...new Set([...p, ...urls.filter((u) => /\.(png|jpe?g|webp)$/i.test(u))])].slice(0, 6));
+              return { message: `✓ ${urls.length} image(s) gardée(s) et jointe(s) à ton prochain message.` };
+            }}
             onColler={async (x) => {
               // Produit (cellule) → sa fiche ; projet → ses cases Amazon / Reddit ; sinon → dans le message.
               if (candidat && !candidat.projet) {
@@ -475,7 +491,7 @@ function AgentChat({ agent, recherche = false, candidat = null, onGrille }) {
                 if (r?.ok && candidat?.id) fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "coller", id: candidat.id, ...x }) }).catch(() => {});
                 return r?.ok ? { message: `✓ Ajouté aux Fondations du projet (case « Avis ${x.source} ») : l'agent le lira dès ton prochain message.` } : { erreur: b?.error ?? "Échec" };
               }
-              setTexte((t) => `${t ? `${t}\n\n` : ""}Voici des contenus copiés de ${x.source}${x.lien ? ` (${x.lien})` : ""} :\n${x.texte}`);
+              setTexte((t) => `${t ? `${t}\n\n` : ""}Voici ${x.type === "descriptif" ? "le descriptif produit" : "des contenus"} copié(s) de ${x.source} :\n${x.texte}`);
               return { message: "✓ Mis dans ton message (pas de projet ni de produit choisi pour le garder)." };
             }}
           />

@@ -4,6 +4,7 @@
 // par l'utilisateur. En dessous : le détail de la cellule choisie et ses
 // actions (lancer le produit, discuter avec un agent, écarter…).
 import { useEffect, useMemo, useState } from "react";
+import { Markdown } from "../mirror-pub-ui.jsx";
 
 const ORDRE = { "feu vert": 0, "à analyser": 1, "à surveiller": 2, "écarté": 3 };
 const FILTRES = [
@@ -148,6 +149,7 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
               {c.ajouts?.length ? ` · ${c.ajouts.length} info(s) retenue(s)` : ""}
               {c.variantes?.length ? ` · ${c.variantes.length} variante(s)` : ""}
               {c.collages?.length ? ` · ${c.collages.length} collage(s)` : ""}
+              {c.nbRapports ? ` · ${c.nbRapports} rapport(s)` : ""}
             </small>
           </button>
         ))}
@@ -179,6 +181,49 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
       ) : (
         <p className="cat-muted rg__aide">Clique sur une cellule pour voir son détail.</p>
       )}
+    </div>
+  );
+}
+
+// Rapports complets des agents (les « rushes ») attachés à la fiche (2026-11-25).
+export function RapportsAgents({ id, nb, lance = null, liste = null }) {
+  const [l, setL] = useState(liste);
+  const [ouverts, setOuverts] = useState({});
+  useEffect(() => {
+    if (liste) return setL(liste);
+    if (!nb) return setL([]);
+    fetch(`/api/candidats/rapports/${id}`)
+      .then((r) => r.json())
+      .then((d) => setL(d.rapports ?? []))
+      .catch(() => setL([]));
+  }, [id, nb, liste]);
+  async function ouvrir(r) {
+    const k = `${r.candidat ?? id}/${r.fichier}`;
+    if (ouverts[k] !== undefined) return;
+    const t = await fetch(`/api/candidats/rapport/${r.candidat ?? id}/${r.fichier}`).then((x) => (x.ok ? x.text() : "Rapport introuvable.")).catch(() => "Rapport introuvable.");
+    setOuverts((o) => ({ ...o, [k]: t }));
+  }
+  if (!l?.length) return null;
+  const date = (s) => (s ? new Date(s).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "");
+  return (
+    <div className="rg__rapports">
+      <b>Fichiers des agents : rapports complets</b>{" "}
+      <span className="cat-muted">Chaque réponse d'un agent sur ce produit, gardée telle quelle{lance ? ` ; ils suivent le produit dans les Fondations du projet ${lance}` : " ; ils suivront le produit dans les Fondations quand tu le lanceras"}.</span>
+      {l.map((r) => {
+        const k = `${r.candidat ?? id}/${r.fichier}`;
+        return (
+          <details key={k} className="rg__rapport" onToggle={(e) => e.currentTarget.open && ouvrir(r)}>
+            <summary>
+              📄 <b>{r.agent}</b> · {date(r.le)}
+              {r.taille ? <span className="cat-muted"> · {Math.round(r.taille / 1000)} k car.</span> : null}{" "}
+              <a className="cat-link" href={`/api/candidats/rapport/${r.candidat ?? id}/${r.fichier}?telecharger`} onClick={(e) => e.stopPropagation()} title="Télécharger le fichier (.md)">
+                télécharger
+              </a>
+            </summary>
+            <div className="rg__rapporttxt">{ouverts[k] === undefined ? "Chargement…" : <Markdown text={ouverts[k]} />}</div>
+          </details>
+        );
+      })}
     </div>
   );
 }
@@ -366,27 +411,45 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
         )}
         {!moi && <p className="cat-muted">Chiffres relevés par WinningHunter à la date du résultat, sur un échantillon ; verdict et textes = interprétation de l'IA, à vérifier.</p>}
       </div>
+      <RapportsAgents id={c.id} nb={c.nbRapports} lance={c.lance} />
       <div className="rg__collages">
-        <b>Avis et contenus collés (Amazon, Reddit)</b>{" "}
+        <b>Contenus collés (Amazon, Reddit)</b>{" "}
         <span className="cat-muted">Les agents n'ont pas accès à ces sites : ce que tu colles ici est lu par tous les agents qui étudient ce produit{c.lance ? ", et copié dans les Fondations de son projet" : ""}.</span>
         {(c.collages ?? []).map((x, i) => (
           <details key={i} className="rg__collage">
             <summary>
-              <b>{x.source}</b> · {date(x.le)} · {x.texte.length.toLocaleString("fr-FR")} car. — {x.texte.slice(0, 80)}…
+              <b>{x.type === "descriptif" ? `Descriptif ${x.source}` : x.source === "Amazon" ? "Avis Amazon" : x.source}</b> · {date(x.le)} · {x.texte.length.toLocaleString("fr-FR")} car. — {x.texte.slice(0, 80)}…
               <button type="button" className="rg__suppr" aria-label="Retirer ce collage" title="Retirer ce collage de la fiche (déjà copié dans un projet, il y reste)" onClick={async (e) => (e.preventDefault(), (await action({ action: "retirerCollage", index: i, debut: x.texte.slice(0, 40) })) && recharger())}>
                 ✕
               </button>
             </summary>
-            {x.lien && (
-              <a href={x.lien} target="_blank" rel="noopener noreferrer">
-                {x.lien} ↗
-              </a>
-            )}
             <div className="rg__collagetxt">{x.texte}</div>
           </details>
         ))}
+        {c.imagesAmazon?.length > 0 && (
+          <div className="rg__imgsamazon">
+            {c.imagesAmazon.map((x) => (
+              <span key={x.url}>
+                <a href={x.url} target="_blank" rel="noopener noreferrer">
+                  <img src={x.url} alt="Image Amazon" />
+                </a>
+                <button type="button" className="rg__suppr" aria-label="Retirer cette image" onClick={async () => (await action({ action: "retirerImage", url: x.url })) && recharger()}>
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
         <CollerAvis
           compact
+          onImages={async (fichiers) => {
+            const urls = [];
+            for (const f of fichiers) urls.push(await televerser(`recherche-${c.id}`.slice(0, 80), f));
+            const b = await action({ action: "images", urls });
+            if (!b) return { erreur: "Échec de l'enregistrement." };
+            recharger();
+            return { message: `✓ ${urls.length} image(s) ajoutée(s) à la fiche${c.lance ? " et aux médias du projet" : ""} : tu peux les joindre à un message dans le chat (bouton Images).` };
+          }}
           onColler={async (x) => {
             const b = await action({ action: "coller", ...x });
             if (!b) return { erreur: "Échec de l'enregistrement." };
@@ -543,55 +606,107 @@ function Lancer({ c, onFait }) {
 // Sous une réponse d'agent dans le chat de la Recherche : « Ajouter à la
 // grille » (produits proposés) et « Ajouter à cette piste » (infos sur le
 // produit étudié). Un petit appel ChatGPT range la réponse ; tu coches.
-// Coller des avis ou contenus Amazon / Reddit (2026-11-25) : les agents n'ont
-// pas accès à ces sites ; ce que tu colles est lu par tous les agents.
-export function CollerAvis({ onColler, compact = false, onFermer = null }) {
+// Coller des contenus Amazon / Reddit (2026-11-25) : les agents n'ont pas
+// accès à ces sites. Avis, descriptif produit (texte) et images Amazon ; pas
+// de lien (inutile : personne ne peut ouvrir ces pages).
+const ONGLETS_COLLAGE = [
+  ["avis-Amazon", "Avis Amazon", "Colle ici les avis copiés (surtout 1 à 3 étoiles) : note, titre, texte…"],
+  ["descriptif-Amazon", "Descriptif Amazon", "Colle ici le descriptif du produit copié sur Amazon : titre, points clés, description, caractéristiques…"],
+  ["images-Amazon", "Images Amazon", ""],
+  ["avis-Reddit", "Reddit", "Colle ici le fil ou les commentaires copiés…"],
+];
+// Téléverse une image (fichier ou image collée) dans /medias/<dossier>/.
+export async function televerser(dossier, file) {
+  const dataUrl = await new Promise((ok, ko) => {
+    const r = new FileReader();
+    r.onload = () => ok(r.result);
+    r.onerror = ko;
+    r.readAsDataURL(file);
+  });
+  const res = await fetch(`/api/medias/${dossier}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: file.name || "amazon", dataUrl }) });
+  const b = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(b.error ?? "Image refusée.");
+  return b.url;
+}
+export function CollerAvis({ onColler, onImages = null, compact = false, onFermer = null }) {
   const [ouvert, setOuvert] = useState(!compact);
-  const [source, setSource] = useState("Amazon");
-  const [lien, setLien] = useState("");
+  const [onglet, setOnglet] = useState("avis-Amazon");
   const [texte, setTexte] = useState("");
+  const [fichiers, setFichiers] = useState([]);
   const [etat, setEtat] = useState(null);
   const [busy, setBusy] = useState(false);
+  const onglets = ONGLETS_COLLAGE.filter(([k]) => k !== "images-Amazon" || onImages);
   if (!ouvert)
     return (
-      <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setOuvert(true)} title="Colle des avis ou des commentaires copiés sur Amazon ou Reddit : les agents n'ont pas accès à ces sites">
+      <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setOuvert(true)} title="Colle des avis, un descriptif ou des images copiés sur Amazon, ou des commentaires Reddit : les agents n'ont pas accès à ces sites">
         📋 Avis Amazon / Reddit
       </button>
     );
-  async function ok() {
-    if (!texte.trim()) return setEtat("⚠ Colle d'abord le texte.");
-    setBusy(true);
-    const r = await onColler({ source, lien: lien.trim(), texte });
-    setBusy(false);
-    if (r?.erreur) return setEtat(`⚠ ${r.erreur}`);
-    setTexte("");
-    setLien("");
+  const [type, source] = onglet.split("-");
+  const fini = (r) => {
     setEtat(r?.message ?? "✓ Ajouté.");
     if (compact) setTimeout(() => (setOuvert(false), setEtat(null)), 2500);
     if (onFermer) setTimeout(onFermer, 2500);
+  };
+  async function ok() {
+    if (type === "images") {
+      if (!fichiers.length) return setEtat("⚠ Choisis ou colle d'abord une image.");
+      setBusy(true);
+      const r = await onImages(fichiers).catch((e) => ({ erreur: e.message }));
+      setBusy(false);
+      if (r?.erreur) return setEtat(`⚠ ${r.erreur}`);
+      setFichiers([]);
+      return fini(r);
+    }
+    if (!texte.trim()) return setEtat("⚠ Colle d'abord le texte.");
+    setBusy(true);
+    const r = await onColler({ source, type, texte });
+    setBusy(false);
+    if (r?.erreur) return setEtat(`⚠ ${r.erreur}`);
+    setTexte("");
+    fini(r);
   }
+  const ajouterFichiers = (l) => {
+    const imgs = [...(l ?? [])].filter((f) => /^image\/(png|jpe?g|webp|gif)$/.test(f.type));
+    if (imgs.length) (setFichiers((f) => [...f, ...imgs].slice(0, 20)), setEtat(null));
+  };
   return (
-    <div className="rg-coller">
+    <div className="rg-coller" onPaste={(e) => type === "images" && ajouterFichiers(e.clipboardData?.files)}>
       <div className="rg-coller__bar">
-        <span className="rg-coller__src" role="group" aria-label="Source">
-          {["Amazon", "Reddit"].map((s) => (
-            <button key={s} type="button" className={source === s ? "is-on" : ""} onClick={() => setSource(s)}>
-              {s}
+        <span className="rg-coller__src" role="group" aria-label="Type de contenu">
+          {onglets.map(([k, l]) => (
+            <button key={k} type="button" className={onglet === k ? "is-on" : ""} onClick={() => (setOnglet(k), setEtat(null))}>
+              {l}
             </button>
           ))}
         </span>
-        <input value={lien} onChange={(e) => setLien(e.target.value)} placeholder={source === "Amazon" ? "Lien de la fiche Amazon (facultatif)" : "Lien du fil Reddit (facultatif)"} aria-label="Lien (facultatif)" />
       </div>
-      <textarea
-        rows={5}
-        value={texte}
-        onChange={(e) => (setTexte(e.target.value), setEtat(null))}
-        placeholder={source === "Amazon" ? "Colle ici les avis copiés (surtout 1 à 3 étoiles) : note, titre, texte…" : "Colle ici le fil ou les commentaires copiés…"}
-        aria-label="Texte collé"
-      />
+      {type === "images" ? (
+        <div className="rg-coller__images" tabIndex={0} onDragOver={(e) => e.preventDefault()} onDrop={(e) => (e.preventDefault(), ajouterFichiers(e.dataTransfer?.files))}>
+          <span className="cat-muted">Glisse des images ici, colle-les (Ctrl + V après « Copier l'image » sur Amazon), ou </span>
+          <label className="cat-link">
+            choisis des fichiers
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden onChange={(e) => (ajouterFichiers(e.target.files), (e.target.value = ""))} />
+          </label>
+          {fichiers.length > 0 && (
+            <span className="rg-coller__vignettes">
+              {fichiers.map((f, i) => (
+                <span key={i}>
+                  <img src={URL.createObjectURL(f)} alt="" />
+                  <button type="button" className="rg__suppr" aria-label="Enlever" onClick={() => setFichiers((l) => l.filter((_, j) => j !== i))}>
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </span>
+          )}
+        </div>
+      ) : (
+        <textarea rows={5} value={texte} onChange={(e) => (setTexte(e.target.value), setEtat(null))} placeholder={onglets.find(([k]) => k === onglet)?.[2]} aria-label="Texte collé" />
+      )}
       <span className="rg-coller__btns">
         <button type="button" className="cat-btn" disabled={busy} onClick={ok}>
-          {busy ? "…" : "Ajouter"}
+          {busy ? "…" : type === "images" ? `Ajouter ${fichiers.length || ""} image(s)` : "Ajouter"}
         </button>
         {(compact || onFermer) && (
           <button type="button" className="cat-link" onClick={() => (onFermer ? onFermer() : (setOuvert(false), setEtat(null)))}>

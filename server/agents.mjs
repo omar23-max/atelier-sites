@@ -313,17 +313,17 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
     const consigneMarche = m && opts.marche !== "ALL" ? `\n---\nMARCHÉ VISÉ PAR L'UTILISATEUR : ${m[0]}. Fais tes recherches sur ce marché (WinningHunter : pays ${m[1]} ; web : sites et prix de ces pays, dans leur devise). Si tu t'appuies sur des données d'un autre pays (boutique modèle étrangère, par exemple), dis-le clairement et ne les présente pas comme des chiffres de ce marché.` : "";
     const instructions = (await readFile(consFile, "utf8")) + ADAPTER + (await projectContext(root, projet)) + fiche + consigneMarche;
     // Après la réponse : la cellule du produit est mise à jour (avis, idées de produits).
-    const suivre = async (texte) => {
+    const suivre = async (texte, sources = []) => {
       if (!opts.suivi) return undefined;
       try {
-        return await (await import("./candidats.mjs")).suivreAnalyse(root, opts.suivi, texte, slug, opts.marche);
+        return await (await import("./candidats.mjs")).suivreAnalyse(root, opts.suivi, texte, slug, opts.marche, { sources, moteur });
       } catch (e) {
         return { erreur: String(e.message).slice(0, 200) };
       }
     };
     if (moteur === "claude") {
       const r = await runClaude(root, env, instructions, c.messages, web);
-      const suivi = await suivre(r.text);
+      const suivi = await suivre(r.text, r.sources);
       const c2 = await read();
       if (perimee(c2)) return;
       c2.messages.push({ role: "assistant", text: r.text, sources: r.sources, recherche: r.searched, moteur: "claude", ...(suivi ? { suivi } : {}), le: new Date().toISOString() });
@@ -380,7 +380,7 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
     if (!text) throw new Error("Réponse vide de l'IA.");
     const c2 = await read();
     if (perimee(c2)) return;
-    const suivi = await suivre(text);
+    const suivi = await suivre(text, sources);
     c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", ...(suivi ? { suivi } : {}), ...(appelsWh.length ? { winninghunter: appelsWh } : {}), ...(body.usage ? { tokens: { entree: body.usage.input_tokens, sortie: body.usage.output_tokens } } : {}), le: new Date().toISOString() });
     c2.statut = "pret";
     await save(c2);

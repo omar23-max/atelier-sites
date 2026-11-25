@@ -1043,6 +1043,28 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
         ))}
       </section>
+      {rep.rapportsAgents?.length > 0 && (
+        <section className="cat-panel">
+          <h3>Rapports complets des agents</h3>
+          <p className="cat-muted">Les rapports des agents de la Recherche sur ce produit, gardés tels quels (fichiers agents/rapports/). Observations et estimations : elles inspirent la recherche client et l'offre, elles ne prouvent rien. Claude les lit quand tu lui envoies une demande.</p>
+          {rep.rapportsAgents.map((r) => (
+            <details key={r.id ?? r.fichier} className="cat-fdv__analyse" onToggle={(e) => {
+              const d = e.currentTarget;
+              if (!d.open || d.dataset.charge) return;
+              d.dataset.charge = "1";
+              fetch(`/api/candidats/rapport/${r.candidat}/${r.fichier}`).then((x) => (x.ok ? x.text() : "Rapport introuvable.")).then((t) => (d.querySelector("div").textContent = t)).catch(() => {});
+            }}>
+              <summary>
+                📄 {r.agent} · {r.le ? new Date(r.le).toLocaleDateString("fr-CA") : ""}{" "}
+                <a className="cat-link" href={`/api/candidats/rapport/${r.candidat}/${r.fichier}?telecharger`} onClick={(e) => e.stopPropagation()}>
+                  télécharger
+                </a>
+              </summary>
+              <div style={{ whiteSpace: "pre-wrap", maxHeight: 420, overflow: "auto" }}>Chargement…</div>
+            </details>
+          ))}
+        </section>
+      )}
       {rep.notesAgents?.length > 0 && (
         <section className="cat-panel">
           <h3>Notes adoptées depuis Agents army</h3>

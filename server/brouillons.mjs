@@ -65,7 +65,7 @@ export async function brouillonsRoute(req, res, parts, { root, readBody, json })
     const texte = String(b.texte ?? "").replace(/\r/g, "").trim().slice(0, 15000);
     if (!texte) return json(res, 400, { error: "Colle d'abord le texte des avis." });
     const { collerDansProjet } = await import("./candidats.mjs");
-    const champ = await collerDansProjet(projet, { source: b.source === "Reddit" ? "Reddit" : "Amazon", lien: court(b.lien, 400), texte });
+    const champ = await collerDansProjet(projet, { source: b.source === "Reddit" ? "Reddit" : "Amazon", type: b.type === "descriptif" ? "descriptif" : "avis", texte });
     return json(res, 200, { ok: true, champ });
   }
   if (b.action !== "proposer") return json(res, 400, { error: "Action inconnue." });

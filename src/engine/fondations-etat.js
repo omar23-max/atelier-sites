@@ -26,7 +26,7 @@ export const hasMarker = (v) => new RegExp(MARQUEUR.source, "i").test(String(v ?
 // 2026-11-23 (audit FD01) : les analyses de vidéos concurrentes aussi —
 // elles inspirent des angles, elles ne prouvent rien pour notre produit.
 // 2026-11-25 : brouillonsAgents (propositions des agents pas encore acceptées) aussi.
-export const RESEARCH_KEY = /^(collecte|liensRecherche$|sites$|videosConcurrents$|notesAgents$|brouillonsAgents$)/;
+export const RESEARCH_KEY = /^(collecte|liensRecherche$|sites$|videosConcurrents$|notesAgents$|brouillonsAgents$|rapportsAgents$)/;
 export function withoutResearch(reponses = {}) {
   const out = {};
   for (const [k, v] of Object.entries(reponses ?? {})) if (!RESEARCH_KEY.test(k)) out[k] = v;

@@ -150,9 +150,15 @@ export async function listerCandidats(root) {
   for (const [id, e] of Object.entries(etat.etats)) if (id.startsWith("p-") && !par.has(id) && e.copie) par.set(id, { ...e.copie, id, ancien: true });
   const agents = [...par.values()];
   const mes = etat.mes.map((m) => ({ ...m, moi: !m.agent, verdict: "à analyser", sources: m.agent ? [{ agent: m.agent, titre: m.agentTitre ?? m.agent, le: m.le }] : [], mesures: [m.prix && ["Prix visé", m.prix], m.cout && ["Coût d'achat", m.cout]].filter(Boolean) }));
+  const nbRapports = {};
+  const dr = join(root, "agents", "rapports");
+  if (existsSync(dr)) for (const d of await readdir(dr)) nbRapports[d] = (await readdir(join(dr, d)).catch(() => [])).filter((x) => FICHIER_RAPPORT.test(x)).length;
   const tous = [...mes, ...agents].map((c) => {
     const e = etat.etats[c.id] ?? {};
-    const out = { ...c, statut: e.statut ?? null, ajouts: [...(c.ajouts ?? []), ...(e.ajouts ?? [])], lance: c.lance ?? e.lance ?? null, variantes: [...(c.variantes ?? []), ...(e.variantes ?? [])], collages: [...(c.collages ?? []), ...(e.collages ?? [])] };
+    const out = { ...c, statut: e.statut ?? null, ajouts: [...(c.ajouts ?? []), ...(e.ajouts ?? [])], lance: c.lance ?? e.lance ?? null, variantes: [...(c.variantes ?? []), ...(e.variantes ?? [])], collages: [...(c.collages ?? []), ...(e.collages ?? [])], imagesAmazon: [...(c.imagesAmazon ?? []), ...(e.imagesAmazon ?? [])] };
+    // Pas d'image (tes produits) : la première image Amazon sert de vignette.
+    if (!out.image && out.imagesAmazon.length) out.image = out.imagesAmazon[0].url;
+    out.nbRapports = nbRapports[c.id] ?? 0;
     // Avis des agents en conversation (2026-11-25) : le plus récent donne le verdict affiché.
     const analyses = [...(c.analyses ?? []), ...(e.analyses ?? [])];
     if (analyses.length) {
@@ -176,9 +182,11 @@ export async function listerCandidats(root) {
 // déclinaisons qu'il suggère. L'avis s'ajoute à la cellule (le plus récent
 // devient le verdict affiché) ; les idées deviennent des cellules « Mes produits ».
 const TITRES_CHAT = { "whitelabeler-niche-analyser-v-1": "Niche Analyser", "whitelabeler-product-validator-v-1": "Product Validator", "shopfunnels-ai-product-research-analyst": "AI Product Research Analyst", "shopfunnels-winning-hunter-assistant-v-1": "Winning Hunter Assistant" };
-export async function suivreAnalyse(root, id, texte, slug, marche) {
+export async function suivreAnalyse(root, id, texte, slug, marche, extra = {}) {
   const c = (await listerCandidats(root)).find((x) => x.id === id);
   if (!c || !String(texte ?? "").trim()) return undefined;
+  // Le rapport complet (les « rushes ») est gardé d'abord, même si le rangement échoue.
+  await enregistrerRapport(root, c, { texte, slug, marche, sources: extra.sources, moteur: extra.moteur }).catch(() => {});
   const { loadEnv } = await import("vite");
   const env = loadEnv("development", root, "");
   if (!env.OPENAI_API_KEY) return undefined;
@@ -202,7 +210,7 @@ ${String(texte).slice(0, 20000)}`,
   // cellule, la grille ne se surcharge pas), sans doublon.
   const existants = new Set([norm(c.nom), ...(c.variantes ?? []).map((v) => norm(v.nom))]);
   const idees = (Array.isArray(r.produits) ? r.produits : []).map((x) => ({ nom: court(x.nom, 90), notes: court(x.notes, 600) })).filter((x) => x.nom && !existants.has(norm(x.nom))).slice(0, 6);
-  const copieP = id.startsWith("p-") ? (({ statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, ...reste }) => ({ ...reste, verdict: verdictTrouve ?? reste.verdict }))(c) : null;
+  const copieP = id.startsWith("p-") ? (({ statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, imagesAmazon, ...reste }) => ({ ...reste, verdict: verdictTrouve ?? reste.verdict }))(c) : null;
   await muter(root, (e) => {
     if (analyse) {
       const m = e.mes.find((x) => x.id === id);
@@ -224,7 +232,7 @@ const SOURCES_COLLAGE = ["Amazon", "Reddit"];
 export function texteCollages(l, max = 12000) {
   let out = "";
   for (const x of [...(l ?? [])].reverse()) {
-    const bloc = `— ${x.source}${x.lien ? ` (${x.lien})` : ""}, collé le ${String(x.le ?? "").slice(0, 10)} :\n${x.texte}\n`;
+    const bloc = `— ${x.type === "descriptif" ? `Descriptif produit copié de ${x.source} (texte du vendeur : caractéristiques et promesses, pas des preuves)` : `${x.source} (avis / commentaires de clients)`}, collé le ${String(x.le ?? "").slice(0, 10)} :\n${x.texte}\n`;
     if (out.length + bloc.length > max) {
       out += `${bloc.slice(0, Math.max(0, max - out.length))}…\n`;
       break;
@@ -233,18 +241,83 @@ export function texteCollages(l, max = 12000) {
   }
   return out;
 }
+// Images Amazon d'un produit lancé : copiées dans les médias du projet (Médiathèque, chat).
+async function copierImagesProjet(root, projet, urls) {
+  const { copyFile, mkdir: mk } = await import("node:fs/promises");
+  const dir = join(root, "medias", "projets", projet, "televersees");
+  await mk(dir, { recursive: true });
+  for (const u of urls) {
+    const src = join(root, u.replace(/^\//, ""));
+    const nom = `amazon-${u.split("/").pop()}`;
+    if (existsSync(src) && !existsSync(join(dir, nom))) await copyFile(src, join(dir, nom)).catch(() => {});
+  }
+}
 // Copie aussi un collage dans le projet (cases « Avis Amazon » / « Reddit » des Fondations).
 export async function collerDansProjet(projet, x) {
   const { muterProjet } = await import("./commun.mjs");
-  const champ = x.source === "Reddit" ? "collecteReddit" : "collecteAmazon";
+  const champ = x.type === "descriptif" ? "collecteAutres" : x.source === "Reddit" ? "collecteReddit" : "collecteAmazon";
   await muterProjet(projet, (pj) => {
     pj.fondations = pj.fondations ?? {};
     pj.fondations.reponses = pj.fondations.reponses ?? {};
     const cur = String(pj.fondations.reponses[champ] ?? "").replace(/\s+$/, "");
-    const bloc = `${x.lien ? `${x.lien}\n` : ""}${x.texte}`;
+    const bloc = x.type === "descriptif" ? `Descriptif produit (${x.source}) :\n${x.texte}` : x.texte;
     if (!cur.includes(x.texte.slice(0, 200))) pj.fondations.reponses[champ] = cur ? `${cur}\n\n${bloc}` : bloc;
   });
   return champ;
+}
+
+// ---- Rapports complets des agents (2026-11-25) ----
+// Chaque réponse d'un agent sur un produit est gardée en fichier
+// agents/rapports/<produit>/<date>-<agent>.md : elle survit à « Nouvelle
+// conversation » et suit le produit dans son projet (Fondations).
+const dossierRapports = (root, id) => join(root, "agents", "rapports", id);
+const FICHIER_RAPPORT = /^[0-9T-]+-[a-z0-9-]+\.md$/;
+export async function enregistrerRapport(root, c, { texte, slug, marche, sources = [], moteur = "chatgpt", le = new Date().toISOString() }) {
+  if (String(texte ?? "").trim().length < 1500) return null; // simple question ou réponse courte : pas un rapport
+  const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
+  const dir = dossierRapports(root, c.id);
+  await mk(dir, { recursive: true });
+  const fichier = `${le.slice(0, 19).replace(/:/g, "-")}-${slug}.md`;
+  if (existsSync(join(dir, fichier))) return fichier;
+  const agent = TITRES_CHAT[slug] ?? slug;
+  const corps = [
+    `# ${agent} — ${c.nom}`,
+    "",
+    `Rapport complet de l'agent, ${le.slice(0, 10)}${marche ? ` · marché ${marche}` : ""} · ${moteur === "claude" ? "Claude" : "ChatGPT"}`,
+    "Observations et estimations d'un agent : à vérifier, pas des preuves pour le produit.",
+    "",
+    "---",
+    "",
+    String(texte).trim(),
+    ...(sources?.length ? ["", "## Sources", ...sources.map((s) => `- ${s.titre || s.url} : ${s.url}`)] : []),
+    "",
+  ].join("\n");
+  await wf(join(dir, fichier), corps, "utf8");
+  // Produit déjà lancé : le rapport rejoint aussi les Fondations de son projet.
+  if (c.lance && existsSync(join(root, "projets", `${c.lance}.json`))) await lierRapportsProjet(c.lance, c.id, [{ fichier, agent, le }]);
+  return fichier;
+}
+export async function listerRapports(root, id) {
+  const dir = dossierRapports(root, id);
+  if (!existsSync(dir)) return [];
+  const { stat } = await import("node:fs/promises");
+  const out = [];
+  for (const f of (await readdir(dir)).filter((x) => FICHIER_RAPPORT.test(x)).sort().reverse()) {
+    const m = /^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(.+)\.md$/.exec(f);
+    const st = await stat(join(dir, f)).catch(() => null);
+    out.push({ fichier: f, agent: m ? TITRES_CHAT[m[5]] ?? m[5] : f, le: m ? `${m[1]}T${m[2]}:${m[3]}:${m[4]}Z` : null, taille: st?.size ?? 0 });
+  }
+  return out;
+}
+async function lierRapportsProjet(projet, candidat, liste) {
+  const { muterProjet } = await import("./commun.mjs");
+  await muterProjet(projet, (pj) => {
+    pj.fondations = pj.fondations ?? {};
+    pj.fondations.reponses = pj.fondations.reponses ?? {};
+    const l = pj.fondations.reponses.rapportsAgents ?? [];
+    for (const r of liste) if (!l.some((x) => x.candidat === candidat && x.fichier === r.fichier)) l.push({ id: `r-${candidat}-${r.fichier}`.slice(0, 150), candidat, fichier: r.fichier, agent: r.agent, le: r.le });
+    pj.fondations.reponses.rapportsAgents = l;
+  });
 }
 
 // Texte de la fiche, pour le chat d'un agent (« Discuter de ce produit »).
@@ -266,6 +339,7 @@ export async function ficheCandidat(root, id) {
     c.ajouts?.length ? `Informations gardées dans la fiche (observations d'agents triées par l'utilisateur, PAS des faits confirmés : garde leur source et leurs réserves) :\n${c.ajouts.map((a) => `- [${a.rubrique}] ${a.texte} [${a.source}]${a.agent ? ` · ${a.agent}` : ""} · ${String(a.le ?? "").slice(0, 10)}`).join("\n")}` : "",
     // Avis et contenus collés par l'utilisateur (Amazon, Reddit) : les agents n'y ont pas accès eux-mêmes.
     c.collages?.length ? `AVIS ET CONTENUS COLLÉS PAR L'UTILISATEUR (copiés de ${[...new Set(c.collages.map((x) => x.source))].join(" et ")} : vrais mots de clients, à utiliser pour les douleurs, désirs et objections ; tague-les [${[...new Set(c.collages.map((x) => x.source))].join("] / [")}] ; ce sont des observations, pas des preuves pour le produit) :\n${texteCollages(c.collages, 12000)}` : "",
+    c.imagesAmazon?.length ? `${c.imagesAmazon.length} image(s) copiée(s) d'Amazon par l'utilisateur ; il peut les joindre à un message pour que tu les voies.` : "",
     c.variantes?.length ? `Variantes déjà suggérées (inutile de les reproposer) : ${c.variantes.map((v) => v.nom).join(", ")}` : "",
     "Concentre ton analyse sur CE produit. Les chiffres ci-dessus sont des relevés partiels : ne les présente pas comme exacts.",
   ];
@@ -300,6 +374,14 @@ export async function candidatsRoute(req, res, parts, ctx) {
 }
 
 async function routeInterne(req, res, parts, { root, readBody, json }) {
+  // GET /api/candidats/rapports/<id> → liste ; /api/candidats/rapport/<id>/<fichier> → texte.
+  if (req.method === "GET" && parts[1] === "rapports" && /^[pm]-[a-z0-9-]{1,90}$/.test(parts[2] ?? "")) return json(res, 200, { rapports: await listerRapports(root, parts[2]) });
+  if (req.method === "GET" && parts[1] === "rapport" && /^[pm]-[a-z0-9-]{1,90}$/.test(parts[2] ?? "") && FICHIER_RAPPORT.test(parts[3] ?? "")) {
+    const f = join(dossierRapports(root, parts[2]), parts[3]);
+    if (!existsSync(f)) return json(res, 404, { error: "Rapport introuvable." });
+    res.writeHead(200, { "Content-Type": "text/markdown; charset=utf-8", ...(new URL(req.url, "http://x").searchParams.has("telecharger") ? { "Content-Disposition": `attachment; filename="${parts[3]}"` } : {}) });
+    return res.end(await readFile(f, "utf8"));
+  }
   if (req.method === "GET") {
     const { agentsEnCours } = await import("./recherche.mjs");
     const titres = await titresAgents(root);
@@ -355,7 +437,7 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     if (!id.startsWith("p-")) return null;
     const c = (await listerCandidats(root)).find((x) => x.id === id);
     if (!c) return null;
-    const { statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, ...reste } = c;
+    const { statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, imagesAmazon, ...reste } = c;
     return { ...reste, verdict: verdictTrouve ?? reste.verdict };
   };
   const garder = (e, cp) => {
@@ -387,7 +469,7 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     return json(res, 200, { ok: true });
   }
   if (b.action === "coller") {
-    const x = { source: SOURCES_COLLAGE.includes(b.source) ? b.source : "Amazon", lien: court(b.lien, 400), texte: String(b.texte ?? "").replace(/\r/g, "").trim().slice(0, 15000), le: new Date().toISOString() };
+    const x = { source: SOURCES_COLLAGE.includes(b.source) ? b.source : "Amazon", type: b.type === "descriptif" ? "descriptif" : "avis", texte: String(b.texte ?? "").replace(/\r/g, "").trim().slice(0, 15000), le: new Date().toISOString() };
     if (!x.texte) return json(res, 400, { error: "Colle d'abord le texte des avis." });
     const cp = await copie();
     const lance = await muter(root, (e) => {
@@ -399,6 +481,33 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     // Produit déjà lancé : copié aussi dans les Fondations de son projet.
     const champ = lance && /^[a-z0-9][a-z0-9-]{1,90}$/.test(lance) && existsSync(join(root, "projets", `${lance}.json`)) ? await collerDansProjet(lance, x) : null;
     return json(res, 200, { ok: true, projet: champ ? lance : null });
+  }
+  // Images copiées d'Amazon (2026-11-25), déjà téléversées dans /medias/recherche-… .
+  if (b.action === "images") {
+    const urls = (Array.isArray(b.urls) ? b.urls : []).filter((u) => typeof u === "string" && /^\/medias\/[\w./-]+\.(png|jpe?g|webp|gif)$/i.test(u) && !u.includes("..")).slice(0, 20);
+    if (!urls.length) return json(res, 400, { error: "Aucune image." });
+    const le = new Date().toISOString();
+    const cp = await copie();
+    const lance = await muter(root, (e) => {
+      const add = urls.map((url) => ({ url, le }));
+      const m = e.mes.find((y) => y.id === id);
+      if (m) m.imagesAmazon = [...(m.imagesAmazon ?? []), ...add];
+      else e.etats[id] = { ...(e.etats[id] ?? {}), ...(cp ? { copie: cp } : {}), imagesAmazon: [...(e.etats[id]?.imagesAmazon ?? []), ...add] };
+      return m ? m.lance : e.etats[id].lance;
+    });
+    if (lance) await copierImagesProjet(root, lance, urls);
+    return json(res, 200, { ok: true, n: urls.length });
+  }
+  if (b.action === "retirerImage") {
+    const ok = await muter(root, (e) => {
+      const m = e.mes.find((y) => y.id === id);
+      const l = m ? m.imagesAmazon ?? [] : e.etats[id]?.imagesAmazon ?? [];
+      const i = l.findIndex((x) => x.url === b.url);
+      if (i < 0) return false;
+      l.splice(i, 1);
+      return true;
+    });
+    return ok ? json(res, 200, { ok: true }) : json(res, 404, { error: "Image introuvable." });
   }
   if (b.action === "retirerCollage") {
     const n = Number(b.index);
@@ -495,6 +604,9 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
     const { ajouterBrouillons, depuisAjouts } = await import("./brouillons.mjs");
     const nb = c.ajouts?.length ? await ajouterBrouillons(projet, depuisAjouts(c.ajouts), { type: "cellule", candidat: c.id }) : 0;
     for (const x of c.collages ?? []) await collerDansProjet(projet, x);
+    if (c.imagesAmazon?.length) await copierImagesProjet(root, projet, c.imagesAmazon.map((x) => x.url));
+    const rapports = await listerRapports(root, c.id);
+    if (rapports.length) await lierRapportsProjet(projet, c.id, rapports);
     const cp = await copie();
     await muter(root, (e) => {
       garder(e, cp);
