@@ -348,7 +348,8 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
         signal: AbortSignal.timeout(10 * 60 * 1000),
       });
       body = await res.json().catch(() => ({}));
-      if (res.status !== 429 || essai === 2) break;
+      // « No credits remaining » (insufficient_quota) : inutile de réessayer.
+      if (res.status !== 429 || essai === 2 || /credits|quota/i.test(String(body.error?.message ?? ""))) break;
       const m = /try again in ([\d.]+)(ms|s)/i.exec(String(body.error?.message ?? ""));
       const attente = m ? Number(m[1]) * (m[2] === "ms" ? 1 : 1000) : 20000;
       await new Promise((r) => setTimeout(r, Math.min(60000, attente + 3000 + essai * 10000)));
