@@ -445,6 +445,115 @@ function FaitsEditor({ value = [], onChange, sources }) {
 }
 const filled = (v) => (Array.isArray(v) ? v.length > 0 : v && typeof v === "object" ? Object.keys(v).length > 0 : String(v ?? "").trim() !== "");
 
+// « Adopter dans les Fondations » (2026-11-25) : les propositions des agents,
+// champ par champ. Accepter AJOUTE le texte à la fin du champ (rien n'est
+// remplacé) et veut dire « je veux m'en servir », pas « c'est prouvé ».
+const CHAMPS_BROUILLON = {
+  role: "Ce que fait le produit",
+  usage: "Comment on l'utilise",
+  qui: "Qui sont les clients",
+  douleur: "Le problème principal",
+  echec: "Pourquoi le reste a échoué",
+  curiosite: "Curiosité",
+  aggravation: "Ce qui a aggravé le problème",
+  sites: "Concurrents (liens)",
+  collecteAutres: "Recherche : pubs, boutiques, marché, prix",
+};
+function PropositionsAgents({ rep, set }) {
+  const l = rep.brouillonsAgents ?? [];
+  const [edits, setEdits] = useState({});
+  const [voirHisto, setVoirHisto] = useState(false);
+  if (!l.length) return null;
+  const maj = (id, patch) => set("brouillonsAgents", l.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+  const champDe = (b) => edits[b.id]?.champ ?? b.champ;
+  const texteDe = (b) => edits[b.id]?.texte ?? b.texte;
+  const edite = (b, patch) => setEdits((e) => ({ ...e, [b.id]: { champ: champDe(b), texte: texteDe(b), ...patch } }));
+  function accepter(b) {
+    const champ = champDe(b);
+    const texte = texteDe(b).trim();
+    if (!texte) return;
+    const cur = String(rep[champ] ?? "");
+    set(champ, cur.trim() ? `${cur.replace(/\s+$/, "")}\n${texte}` : texte);
+    maj(b.id, { statut: "accepté", champ, ajoute: texte, decideLe: new Date().toISOString() });
+  }
+  function annuler(b) {
+    const cur = String(rep[b.champ] ?? "");
+    const i = b.ajoute ? cur.lastIndexOf(b.ajoute) : -1;
+    if (i >= 0) set(b.champ, (cur.slice(0, i).replace(/\n$/, "") + cur.slice(i + b.ajoute.length)).replace(/^\n/, ""));
+    maj(b.id, { statut: "proposé", ajoute: undefined, decideLe: undefined });
+  }
+  const ordre = Object.keys(CHAMPS_BROUILLON);
+  const attente = l.filter((b) => b.statut === "proposé").sort((a, b) => ordre.indexOf(a.champ) - ordre.indexOf(b.champ));
+  const nbDe = (champ) => attente.filter((b) => b.champ === champ).length;
+  function rejeterGroupe(champ) {
+    if (!window.confirm(`Rejeter les ${nbDe(champ)} proposition(s) « ${CHAMPS_BROUILLON[champ] ?? champ} » ? (tu pourras les remettre depuis l'historique)`)) return;
+    const le = new Date().toISOString();
+    set("brouillonsAgents", l.map((b) => (b.statut === "proposé" && b.champ === champ ? { ...b, statut: "rejeté", decideLe: le } : b)));
+  }
+  const faits = l.filter((b) => b.statut !== "proposé");
+  const date = (s) => (s ? new Date(s).toLocaleDateString("fr-CA") : "");
+  return (
+    <section className="cat-panel cat-fd__props">
+      <h3>Propositions des agents {attente.length > 0 && <span className="cat-fd__propsnb">{attente.length} à trier</span>}</h3>
+      <p className="cat-muted">
+        Trouvées par les agents de recherche (chat ou grille de la Recherche). « Ajouter au champ » met le texte à la fin du champ choisi, sans rien remplacer, et veut dire « je veux m'en servir » : ce n'est pas une preuve. Une accroche de concurrent ne décrit pas ton produit. Pense à enregistrer.
+      </p>
+      {attente.map((b, i) => (
+        <div key={b.id}>
+        {(i === 0 || attente[i - 1].champ !== b.champ) && (
+          <div className="cat-fd__propgrp">
+            <b>{CHAMPS_BROUILLON[b.champ] ?? b.champ}</b> <span className="cat-muted">({nbDe(b.champ)})</span>
+            <button type="button" className="cat-link" onClick={() => rejeterGroupe(b.champ)}>
+              Rejeter les {nbDe(b.champ)}
+            </button>
+          </div>
+        )}
+        <div className="cat-fd__prop">
+          <div className="cat-fd__propbar">
+            <select value={champDe(b)} onChange={(e) => edite(b, { champ: e.target.value })} aria-label="Champ des Fondations">
+              {Object.entries(CHAMPS_BROUILLON).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </select>
+            <small className="cat-muted">
+              [{b.source}]{b.agent ? ` · ${String(b.agent).replace(/^(Whitelabeler|ShopFunnels|Shopfunnels)\s+/, "")}` : ""} · {date(b.le)}
+            </small>
+          </div>
+          <textarea rows={2} value={texteDe(b)} onChange={(e) => edite(b, { texte: e.target.value })} aria-label="Texte proposé" />
+          <span className="cat-fd__propbtns">
+            <button type="button" className="cat-btn" disabled={!texteDe(b).trim()} onClick={() => accepter(b)}>
+              Ajouter au champ
+            </button>
+            <button type="button" className="cat-link" onClick={() => maj(b.id, { statut: "rejeté", decideLe: new Date().toISOString() })}>
+              Rejeter
+            </button>
+          </span>
+        </div>
+        </div>
+      ))}
+      {!attente.length && <p className="cat-muted">Tout est trié.</p>}
+      {faits.length > 0 && (
+        <details open={voirHisto} onToggle={(e) => setVoirHisto(e.currentTarget.open)}>
+          <summary>Historique ({faits.filter((b) => b.statut === "accepté").length} ajoutée(s), {faits.filter((b) => b.statut === "rejeté").length} rejetée(s))</summary>
+          <ul className="cat-fd__histo">
+            {faits.map((b) => (
+              <li key={b.id}>
+                <b>{b.statut === "accepté" ? `✓ ${CHAMPS_BROUILLON[b.champ] ?? b.champ}` : "✗ rejetée"}</b> · {b.ajoute ?? b.texte}{" "}
+                <span className="cat-muted">[{b.source}] · {date(b.decideLe)}</span>{" "}
+                <button type="button" className="cat-link" onClick={() => (b.statut === "accepté" ? annuler(b) : maj(b.id, { statut: "proposé", decideLe: undefined }))} title={b.statut === "accepté" ? "Retire ce texte du champ (s'il y est encore tel quel) et remet la proposition à trier" : "Remet la proposition à trier"}>
+                  {b.statut === "accepté" ? "Annuler" : "Remettre"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
+  );
+}
+
 export function FoundationsTab({ project, onSave, onMessage, request, offer, pages, step: stepProp = null, onStep = null, nav = null }) {
   const f = project.fondations ?? {};
   const [rep, setRep] = useState(f.reponses ?? {});
@@ -786,6 +895,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             : "Brouillon : remplis le questionnaire."}
       </div>
 
+      <PropositionsAgents rep={rep} set={set} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
           <b>Brouillon repris</b> : tu avais quitté les Fondations sans enregistrer{restaure.at ? ` (le ${new Date(restaure.at).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" })})` : ""}.

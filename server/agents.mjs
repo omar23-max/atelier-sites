@@ -337,13 +337,22 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
       tools.push({ type: "mcp", server_label: "winninghunter", server_description: "WinningHunter : pubs Facebook/TikTok, boutiques Shopify (revenus, trafic), produits gagnants, tendances (Exploding Topics). Lecture seule.", server_url: MCP, headers: { Authorization: `Bearer ${env.WINNINGHUNTER_API_KEY}`, "X-API-Key": env.WINNINGHUNTER_API_KEY }, allowed_tools: [...OUTILS_PERMIS], require_approval: "never" });
       consigneWh = `\n- WINNINGHUNTER EST CONNECTÉ (outils MCP « winninghunter », lecture seule) : c'est ton « data path » principal. Utilise-le pour les boutiques (revenus et trafic estimés), les pubs actives Facebook et TikTok, les produits gagnants et les tendances ; tague ces chiffres [WH] (et [Web] ou [Est] pour le reste). Chaque appel coûte des crédits : pas d'appels en double, 10 au plus par réponse sauf si l'utilisateur demande plus.`;
     }
-    const res = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: MODEL, instructions: instructions + consigneWh, input, ...(tools.length ? { tools } : {}) }),
-      signal: AbortSignal.timeout(10 * 60 * 1000),
-    });
-    const body = await res.json().catch(() => ({}));
+    // Limite de débit OpenAI (429, 2026-11-25) : on attend le délai indiqué
+    // puis on réessaie (2 fois au plus) au lieu d'abandonner la réponse.
+    let res, body;
+    for (let essai = 0; essai < 3; essai++) {
+      res = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model: MODEL, instructions: instructions + consigneWh, input, ...(tools.length ? { tools } : {}) }),
+        signal: AbortSignal.timeout(10 * 60 * 1000),
+      });
+      body = await res.json().catch(() => ({}));
+      if (res.status !== 429 || essai === 2) break;
+      const m = /try again in ([\d.]+)(ms|s)/i.exec(String(body.error?.message ?? ""));
+      const attente = m ? Number(m[1]) * (m[2] === "ms" ? 1 : 1000) : 20000;
+      await new Promise((r) => setTimeout(r, Math.min(60000, attente + 3000 + essai * 10000)));
+    }
     if (!res.ok) throw new Error(`OpenAI (${res.status}) : ${String(body.error?.message ?? "erreur inconnue").slice(0, 300)}`);
     const out = (body.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []);
     const text = out.filter((x) => x.type === "output_text").map((x) => x.text).join("\n\n").trim();
@@ -353,7 +362,7 @@ async function runAgent(root, slug, consFile, convFile, save, projet, web, moteu
     if (!text) throw new Error("Réponse vide de l'IA.");
     const c2 = await read();
     if (perimee(c2)) return;
-    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", ...(appelsWh.length ? { winninghunter: appelsWh } : {}), le: new Date().toISOString() });
+    c2.messages.push({ role: "assistant", text, sources, recherche: searched, moteur: "chatgpt", ...(appelsWh.length ? { winninghunter: appelsWh } : {}), ...(body.usage ? { tokens: { entree: body.usage.input_tokens, sortie: body.usage.output_tokens } } : {}), le: new Date().toISOString() });
     c2.statut = "pret";
     await save(c2);
   } catch (e) {

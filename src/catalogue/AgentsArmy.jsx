@@ -74,17 +74,50 @@ export function AgentsArmy({ espace = null }) {
   const [vue, setVue] = useState("presentation");
   // « Discuter de ce produit » depuis la grille : agent + fiche du produit.
   const [candidatChat, setCandidatChat] = useState(null);
+  // « Voir le résultat complet de l'agent » : résultat et piste à montrer.
+  const [cibleOmar, setCibleOmar] = useState(null);
   const vueVoulue = useRef(null);
+  // Bouton « retour » du navigateur (2026-11-25) : chaque passage grille →
+  // agent → conversation est une étape de l'historique (?agent=…).
+  function memoriser(slug, cand, chat, cible = null) {
+    const q = new URLSearchParams(location.search);
+    if (slug && slug !== "__grille") q.set("agent", slug);
+    else q.delete("agent");
+    const etat = { atlAgents: true, cur: slug, cand: cand ? { id: cand.id, nom: cand.nom, projet: cand.projet ?? null } : null, chat: Boolean(chat), cible };
+    if (history.state?.atlAgents && history.state.cur === slug && history.state.cand?.id === etat.cand?.id && history.state.chat === etat.chat && history.state.cible?.fichier === cible?.fichier) return;
+    history.pushState(etat, "", `${location.pathname}${q.toString() ? `?${q}` : ""}${location.hash}`);
+  }
+  useEffect(() => {
+    // État de départ : la page telle qu'ouverte (grille ou agent de l'adresse).
+    if (!history.state?.atlAgents) history.replaceState({ atlAgents: true, cur: cur ?? (espace ? "__grille" : null), cand: null, chat: false }, "");
+    const retour = (e) => {
+      const st = e.state;
+      if (!st?.atlAgents) return;
+      setCandidatChat(st.cand ? { ...st.cand, message: "" } : null);
+      setCibleOmar(st.cible ?? null);
+      vueVoulue.current = st.chat ? "chat" : null;
+      setCur((c) => {
+        if (c === st.cur) setVue(st.chat ? "chat" : "presentation");
+        return st.cur;
+      });
+    };
+    window.addEventListener("popstate", retour);
+    return () => window.removeEventListener("popstate", retour);
+  }, []);
   function discuter(slug, c, message) {
     // Produit déjà lancé : la conversation se fait sur son projet (2026-11-25).
-    setCandidatChat(c ? { id: c.id, nom: c.nom, message: message ?? "", projet: c.lance ?? null } : null);
+    const cand = c ? { id: c.id, nom: c.nom, message: message ?? "", projet: c.lance ?? null } : null;
+    setCandidatChat(cand);
     vueVoulue.current = "chat";
     if (slug === cur) setVue("chat");
     setCur(slug);
+    memoriser(slug, cand, true);
   }
-  function choisir(slug) {
+  function choisir(slug, cible = null) {
     setCandidatChat(null);
+    setCibleOmar(cible);
     setCur(slug);
+    memoriser(slug, null, false, cible);
   }
   useRelanceCadre(cadre, html && vue === "presentation" ? cur + html.length : null);
   const [consigne, setConsigne] = useState(null);
@@ -165,7 +198,7 @@ export function AgentsArmy({ espace = null }) {
         {cur === "__grille" && data ? (
           <RechercheGrille agentsOmar={data.agents.filter((a) => a.omar)} agentsChat={data.agents.filter((a) => !a.omar && a.consigne)} onOuvrir={choisir} onDiscuter={discuter} />
         ) : agent?.omar ? (
-          <OmarAgent a={agent.omar} />
+          <OmarAgent key={`${agent.slug}|${cibleOmar?.fichier ?? ""}|${cibleOmar?.pid ?? cibleOmar?.nom ?? ""}`} a={agent.omar} cible={cibleOmar} />
         ) : agent ? (
           <>
             <header className="cat-army__bar">
@@ -545,6 +578,13 @@ function Adopter({ projet, texte, agent }) {
     const l = String(texte ?? "").replace(/[#*_>`]/g, "").split("\n").map((x) => x.trim()).filter(Boolean);
     setAngle({ titre: (l[0] ?? "").slice(0, 90), promesse: (l[1] ?? "").slice(0, 300) });
   }
+  // « Adopter dans les Fondations » (2026-11-25) : propositions champ par champ, à accepter dans l'onglet Fondations.
+  async function fondations() {
+    setEtat("Rangement dans les Fondations…");
+    const r = await fetch(`/api/brouillons/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "proposer", texte, agent }) }).catch(() => null);
+    const b = await r?.json().catch(() => ({}));
+    setEtat(r?.ok ? (b.n ? `✓ ${b.n} proposition(s) ajoutée(s) : Fondations du projet, encadré « Propositions des agents », à accepter ou rejeter une par une.` : "Rien de nouveau à proposer pour les Fondations dans cette réponse.") : `⚠ ${b?.error ?? "Échec"}`);
+  }
   async function go(cible, extra = {}) {
     setEtat("…");
     const r = await fetch("/api/agents/adopter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ projet, cible, texte, agent, ...extra }) });
@@ -575,6 +615,9 @@ function Adopter({ projet, texte, agent }) {
           </button>
           <button type="button" className="cat-link" onClick={proposerAngle} title="Ajouté aux angles du projet, à choisir ou non (tu relis le titre et la promesse avant)">
             angle proposé
+          </button>
+          <button type="button" className="cat-link" onClick={fondations} title="Un appel ChatGPT (≈ 1 centime) range la réponse champ par champ des Fondations, en propositions : tu acceptes, modifies ou rejettes chacune dans l'onglet Fondations">
+            Fondations (propositions)
           </button>
         </>
       )}
@@ -619,7 +662,8 @@ const libelleReglages = (slug, r) =>
     .join(" · ");
 const VERDICT_CLASSE = { "feu vert": "is-go", "à surveiller": "is-cond", "écarté": "is-no" };
 
-function OmarAgent({ a }) {
+function OmarAgent({ a, cible = null }) {
+  const zoneResultat = useRef(null);
   const pret = a.statut !== "à construire";
   const pg = a.page ?? {};
   const [etat, setEtat] = useState(null);
@@ -654,7 +698,12 @@ function OmarAgent({ a }) {
     setEtat(null);
     setVu(null);
     if (pret) charger();
+    if (pret && cible?.fichier) ouvrir(cible.fichier);
   }, [a.slug]);
+  // Arrivée depuis la grille : la page descend jusqu'au résultat.
+  useEffect(() => {
+    if (cible && vu && zoneResultat.current) setTimeout(() => zoneResultat.current?.scrollIntoView({ block: "start", behavior: "smooth" }), 150);
+  }, [Boolean(vu)]);
   useEffect(() => {
     if (etat?.statut !== "en cours") return;
     const t = setInterval(charger, 4000);
@@ -788,7 +837,8 @@ function OmarAgent({ a }) {
             </p>
           </section>
         )}
-        {vu && (vu.lignes ? <AgentResultat r={vu} consigne={a.consigneMd} slug={a.slug} fichier={fichierVu} /> : <RadarResultat r={vu} consigne={a.consigneMd} slug={a.slug} fichier={fichierVu} />)}
+        <div ref={zoneResultat} />
+        {vu && (vu.lignes ? <AgentResultat r={vu} consigne={a.consigneMd} slug={a.slug} fichier={fichierVu} vise={cible} /> : <RadarResultat r={vu} consigne={a.consigneMd} slug={a.slug} fichier={fichierVu} vise={cible} />)}
 
         {pg.comment?.length > 0 && (
           <section className="om-wrap">
@@ -820,8 +870,18 @@ const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString("fr-CA"));
 // Audit F10 (2026-11-25) : libellés honnêtes. « exponentielle » = calcul maison sur 3 périodes.
 const COURBE_LIBELLE = { exponentielle: "accélère (3 périodes)", "en hausse": "en hausse", "en baisse": "en baisse", plate: "plate", inconnue: "inconnue" };
 
-function RadarResultat({ r, consigne, slug, fichier }) {
-  const [onglet, setOnglet] = useState("tableau");
+// La piste visée depuis la grille (même identifiant ou même nom).
+const estVisee = (vise, p) => Boolean(vise) && ((vise.pid != null && String(vise.pid) === String(p.id)) || String(vise.nom ?? "").toLowerCase() === String(p.sujet ?? "").slice(0, 90).trim().toLowerCase());
+function useDescendreVers(vise, onglet) {
+  useEffect(() => {
+    if (!vise || onglet !== "detail") return;
+    const t = setTimeout(() => document.querySelector(".om-piste.is-vise")?.scrollIntoView({ block: "center", behavior: "smooth" }), 600);
+    return () => clearTimeout(t);
+  }, [onglet]);
+}
+function RadarResultat({ r, consigne, slug, fichier, vise = null }) {
+  const [onglet, setOnglet] = useState(vise ? "detail" : "tableau");
+  useDescendreVers(vise, onglet);
   const c = r.chiffres ?? {};
   const pistes = r.pistes ?? [];
   const maxV = Math.max(1, ...pistes.map((p) => p.volume ?? 0));
@@ -884,7 +944,7 @@ function RadarResultat({ r, consigne, slug, fichier }) {
         {onglet === "detail" && (
           <div className="om-board__corps">
             {pistes.map((p) => (
-              <article key={p.sujet} className="om-piste">
+              <article key={p.sujet} className={`om-piste${estVisee(vise, p) ? " is-vise" : ""}`}>
                 <header>
                   <strong>{p.sujet}</strong>
                   <span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict}</span>
@@ -943,8 +1003,9 @@ function RadarResultat({ r, consigne, slug, fichier }) {
 }
 
 // Résultat commun des agents 2 à 5 : tableau bleu nuit + onglets (2026-11-23)
-function AgentResultat({ r, consigne, slug, fichier }) {
-  const [onglet, setOnglet] = useState("tableau");
+function AgentResultat({ r, consigne, slug, fichier, vise = null }) {
+  const [onglet, setOnglet] = useState(vise ? "detail" : "tableau");
+  useDescendreVers(vise, onglet);
   const lignes = r.lignes ?? [];
   const maxi = Object.fromEntries((r.colonnes ?? []).filter((c) => c.type === "barre").map((c) => [c.cle, Math.max(1, ...lignes.map((l) => Number(l[c.cle]) || 0))]));
   const cellule = (c, l) => {
@@ -1007,7 +1068,7 @@ function AgentResultat({ r, consigne, slug, fichier }) {
               const l = lignes.find((x) => String(x.id) === String(p.id));
               const mesures = l ? (r.colonnes ?? []).filter((c) => ["num", "barre", "chip"].includes(c.type) && l[c.cle] != null && l[c.cle] !== "" && l[c.cle] !== "—") : [];
               return (
-              <article key={p.id ?? p.sujet} className="om-piste">
+              <article key={p.id ?? p.sujet} className={`om-piste${estVisee(vise, p) ? " is-vise" : ""}`}>
                 <header>
                   <strong>{p.sujet}</strong>
                   <span className={`om-statut ${VERDICT_CLASSE[p.verdict] ?? ""}`}>{p.verdict}</span>

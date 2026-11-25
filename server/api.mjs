@@ -908,6 +908,11 @@ ${contexteProjet(pj, { limite: 12000 }).texte}`;
             const { rechercheRoute } = await import("./recherche.mjs");
             return rechercheRoute(req, res, parts, { root, readBody, json });
           }
+          // ---- « Adopter dans les Fondations » : propositions des agents (2026-11-25) ----
+          if (parts[0] === "brouillons") {
+            const { brouillonsRoute } = await import("./brouillons.mjs");
+            return brouillonsRoute(req, res, parts, { root, readBody, json });
+          }
           // ---- Grille des résultats de la Recherche produits (2026-11-25) ----
           if (parts[0] === "candidats") {
             const { candidatsRoute } = await import("./candidats.mjs");

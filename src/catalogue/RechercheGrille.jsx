@@ -110,6 +110,7 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
             <span className="rg__ligne">
               <Verdict v={c.verdict} />
               {c.lance && <small className="rg__lance">projet</small>}
+              {c.desaccord && <small className="rg__desaccord" title="Les agents n'ont pas rendu le même verdict">désaccord</small>}
             </span>
             <small>{c.id.startsWith("m-") ? (c.agent ? `retenu du chat · ${c.agentTitre || c.agent}` : "proposé par toi") : c.mesures.slice(0, 2).map(([k, v]) => `${k} ${v}`).join(" · ") || "pas de mesure relevée"}</small>
             <small className="cat-muted">
@@ -206,7 +207,7 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
   }
   if (edit) return <FormProduit c={c} onFini={async () => (setEdit(false), recharger())} />;
   const niche = agentsChat.find((a) => /niche/.test(a.slug))?.slug ?? agentsChat[0]?.slug;
-  const parRubrique = (c.ajouts ?? []).reduce((m, a) => ((m[a.rubrique] = [...(m[a.rubrique] ?? []), a]), m), {});
+  const parRubrique = (c.ajouts ?? []).reduce((m, a, i) => ((m[a.rubrique] = [...(m[a.rubrique] ?? []), { ...a, i }]), m), {});
   return (
     <section className="rg__detail">
       <div className="rg__dhead">
@@ -220,6 +221,12 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
         </div>
         <Verdict v={c.verdict} />
       </div>
+      {c.desaccord && (
+        <p className="rg__alerte">
+          ⚠ Les agents ne sont pas d'accord : {c.desaccord.map((d) => `${d.titre} (${date(d.le)}) : ${d.verdict}`).join(" · ")}. Le verdict affiché est le plus récent.
+        </p>
+      )}
+      {c.ancien && <p className="cat-muted">Piste gardée parce que tu l'as travaillée : elle n'est plus dans les 3 derniers résultats de l'agent (chiffres de sa dernière apparition).</p>}
       {c.mesures.length > 0 && (
         <div className="rg__chiffres">
           {c.mesures.slice(0, 6).map(([k, v]) => (
@@ -254,9 +261,12 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
             <div key={r}>
               <small>{r}</small>
               <ul>
-                {l.map((a, i) => (
-                  <li key={i}>
-                    {a.texte} <span className="cat-muted">[{a.source}]{a.agent ? ` · ${a.agent.replace(/^(Whitelabeler|ShopFunnels|Shopfunnels)\s+/, "")}` : ""} · {date(a.le)}</span>
+                {l.map((a) => (
+                  <li key={a.i}>
+                    {a.texte} <span className="cat-muted">[{a.source}]{a.agent ? ` · ${a.agent.replace(/^(Whitelabeler|ShopFunnels|Shopfunnels)\s+/, "")}` : ""} · {date(a.le)}</span>{" "}
+                    <button type="button" className="rg__suppr" aria-label="Retirer cette information" title="Retirer cette information de la cellule (déjà copiée dans un projet, elle y reste)" onClick={async () => (await action({ action: "retirerAjout", index: a.i, texte: a.texte })) && recharger()}>
+                      ✕
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -289,7 +299,7 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
           </button>
         </span>
         {!moi && c.sources[0] && (
-          <button type="button" className="cat-link" onClick={() => onOuvrir(c.sources[0].agent)}>
+          <button type="button" className="cat-link" onClick={() => onOuvrir(c.sources[0].agent, { fichier: c.sources[0].fichier, pid: c.sources[0].pid, nom: c.nom })}>
             Voir le résultat complet de l'agent
           </button>
         )}
@@ -373,35 +383,42 @@ export function RangerReponse({ texte, agent, candidat }) {
   const [items, setItems] = useState(null);
   const [coches, setCoches] = useState([]);
   const [etat, setEtat] = useState(null);
+  const [busy, setBusy] = useState(false);
   async function extraire(m) {
+    if (busy) return;
+    setBusy(true);
     setMode(m);
     setItems(null);
     setEtat("Rangement de la réponse…");
     const r = await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "extraire", mode: m, texte, id: candidat?.id }) }).catch(() => null);
     const b = await r?.json().catch(() => ({}));
+    setBusy(false);
     if (!r?.ok) return setEtat(`⚠ ${b?.error ?? "Échec"}`);
     setItems(b.items);
-    setCoches(b.items.map((_, i) => i));
+    setCoches([]);
     setEtat(b.items.length ? null : m === "produits" ? "Aucun produit précis dans cette réponse." : "Rien d'utilisable sur ce produit dans cette réponse.");
   }
   async function valider() {
+    if (busy) return;
+    setBusy(true);
     const choisis = items.filter((_, i) => coches.includes(i));
     const corps = mode === "produits" ? { action: "ajouterProduits", items: choisis, agent } : { action: "ajouts", id: candidat.id, items: choisis, agent };
     const r = await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corps) }).catch(() => null);
     const b = await r?.json().catch(() => ({}));
+    setBusy(false);
     if (!r?.ok) return setEtat(`⚠ ${b?.error ?? "Échec"}`);
     setItems(null);
-    setEtat(mode === "produits" ? `✓ ${b.n} produit(s) ajouté(s) à la grille (Mes produits).` : b.projet ? `✓ ${b.n} info(s) ajoutée(s) à la cellule de « ${candidat.nom} » et aux notes de recherche du projet ${b.projet}.` : `✓ ${b.n} info(s) ajoutée(s) à la cellule de « ${candidat.nom} ».`);
+    setEtat(mode === "produits" ? `✓ ${b.n} produit(s) ajouté(s) à la grille (Mes produits).` : b.projet ? `✓ ${b.n} info(s) ajoutée(s) à la cellule de « ${candidat.nom} » et au projet ${b.projet} (notes de recherche + ${b.brouillons ?? 0} proposition(s) à accepter dans Fondations).` : `✓ ${b.n} info(s) ajoutée(s) à la cellule de « ${candidat.nom} ».`);
   }
   return (
     <div className="rg-ranger">
       {!items && (
         <span className="rg-ranger__btns">
-          <button type="button" className="cat-link" onClick={() => extraire("produits")} title="Les produits proposés dans cette réponse deviennent des cellules (≈ 1 centime ChatGPT)">
+          <button type="button" className="cat-link" disabled={busy} onClick={() => extraire("produits")} title="Les produits proposés dans cette réponse deviennent des cellules (≈ 1 centime ChatGPT)">
             ▦ Ajouter à la grille
           </button>
           {candidat && (
-            <button type="button" className="cat-link" onClick={() => extraire("piste")} title={candidat.projet ? "Concurrents, prix, mots des clients, risques… rangés dans la cellule et ajoutés aux notes de recherche du projet (≈ 1 centime ChatGPT)" : "Concurrents, prix, mots des clients, risques… rangés dans la cellule de ce produit (≈ 1 centime ChatGPT)"}>
+            <button type="button" className="cat-link" disabled={busy} onClick={() => extraire("piste")} title={candidat.projet ? "Concurrents, prix, mots des clients, risques… rangés dans la cellule et ajoutés aux notes de recherche du projet (≈ 1 centime ChatGPT)" : "Concurrents, prix, mots des clients, risques… rangés dans la cellule de ce produit (≈ 1 centime ChatGPT)"}>
               ＋ Ajouter à cette piste
             </button>
           )}
@@ -425,7 +442,7 @@ export function RangerReponse({ texte, agent, candidat }) {
             </label>
           ))}
           <span>
-            <button type="button" className="cat-btn" disabled={!coches.length} onClick={valider}>
+            <button type="button" className="cat-btn" disabled={!coches.length || busy} onClick={valider}>
               Ajouter ({coches.length})
             </button>{" "}
             <button type="button" className="cat-link" onClick={() => (setItems(null), setEtat(null))}>
