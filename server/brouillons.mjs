@@ -18,6 +18,23 @@ export const CHAMPS_BROUILLON = {
   aggravation: "Ce qui a aggravé le problème",
   sites: "Concurrents (un lien par ligne)",
   collecteAutres: "Recherche : pubs, boutiques concurrentes, marché, prix",
+  // Lot 2 (2026-11-25) : résultats de la recherche client, offre, message central.
+  "resultats.avatars": "Résultats : avatars",
+  "resultats.douleurs": "Résultats : douleurs",
+  "resultats.mots": "Résultats : mots des clients",
+  "resultats.objections": "Résultats : objections",
+  "resultats.promesse": "Résultats : promesse",
+  "offre.promesse": "Offre : promesse",
+  "offre.cible": "Offre : client visé",
+  "offre.prix": "Offre : prix",
+  "offre.packs": "Offre : packs",
+  "offre.garantie": "Offre : garantie",
+  "offre.bonus": "Offre : bonus",
+  "offre.urgence": "Offre : urgence",
+  "offre.objections": "Offre : objections",
+  "message.promesse": "Message central : promesse",
+  "message.mecanisme": "Message central : mécanisme",
+  "message.objection": "Message central : une objection",
 };
 // Rubriques des cellules de la grille → champ par défaut (modifiable ensuite).
 const PAR_RUBRIQUE = { "Mots des clients": "collecteAutres", Concurrents: "collecteAutres", Marché: "collecteAutres", "Prix du marché": "collecteAutres", "Angles et accroches": "collecteAutres", Risques: "collecteAutres", "Conditions et inconnues": "collecteAutres", Autre: "collecteAutres" };
@@ -60,6 +77,29 @@ export async function brouillonsRoute(req, res, parts, { root, readBody, json })
   if (!existsSync(join(root, "projets", `${projet}.json`))) return json(res, 404, { error: "Projet introuvable." });
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   const b = (await readBody(req).catch(() => ({}))) || {};
+  // Accepter / annuler une proposition visant les RÉSULTATS de la recherche
+  // client (pas dans le brouillon de l'onglet : écrit ici, côté serveur).
+  if (b.action === "resultat") {
+    const k = String(b.champ ?? "").replace(/^resultats\./, "");
+    if (!["avatars", "douleurs", "mots", "objections", "promesse"].includes(k)) return json(res, 400, { error: "Champ inconnu." });
+    const texte = court(b.texte, 1200);
+    if (!texte) return json(res, 400, { error: "Texte vide." });
+    const { muterProjet } = await import("./commun.mjs");
+    await muterProjet(projet, (pj) => {
+      pj.fondations = pj.fondations ?? {};
+      const r = (pj.fondations.resultats = pj.fondations.resultats ?? {});
+      if (k === "promesse") {
+        const cur = String(r.promesse ?? "");
+        if (b.annuler) r.promesse = cur.replace(texte, "").replace(/\n{2,}/g, "\n").trim();
+        else if (!cur.includes(texte)) r.promesse = cur.trim() ? `${cur.trim()}\n${texte}` : texte;
+      } else {
+        const l = Array.isArray(r[k]) ? r[k] : [];
+        if (b.annuler) r[k] = l.filter((x) => x !== texte);
+        else if (!l.includes(texte)) r[k] = [...l, texte];
+      }
+    });
+    return json(res, 200, { ok: true });
+  }
   // Avis Amazon / Reddit collés depuis le chat d'un agent (2026-11-25).
   if (b.action === "coller") {
     const texte = String(b.texte ?? "").replace(/\r/g, "").trim().slice(0, 15000);

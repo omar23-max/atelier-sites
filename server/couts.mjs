@@ -24,7 +24,7 @@ export function debutCout(req, parts) {
     const v = u.searchParams.get(k);
     if (v && (k === "candidat" ? CAND : ID).test(v)) st[k] = v;
   }
-  if (["validation", "publicites", "brouillons", "fondations-video"].includes(parts[0]) && ID.test(parts[1] ?? "")) st.projet = st.projet ?? parts[1];
+  if (["validation", "publicites", "brouillons", "fondations-video", "preparer"].includes(parts[0]) && ID.test(parts[1] ?? "")) st.projet = st.projet ?? parts[1];
   if (parts[0] === "recherche" && ID.test(parts[1] ?? "")) st.recherche = parts[1];
   return st;
 }

@@ -460,8 +460,88 @@ const CHAMPS_BROUILLON = {
   aggravation: "Ce qui a aggravé le problème",
   sites: "Concurrents (liens)",
   collecteAutres: "Recherche : pubs, boutiques, marché, prix",
+  "resultats.avatars": "Résultats : avatars",
+  "resultats.douleurs": "Résultats : douleurs",
+  "resultats.mots": "Résultats : mots des clients",
+  "resultats.objections": "Résultats : objections",
+  "resultats.promesse": "Résultats : promesse",
+  "offre.promesse": "Offre : promesse",
+  "offre.cible": "Offre : client visé",
+  "offre.prix": "Offre : prix",
+  "offre.packs": "Offre : packs",
+  "offre.garantie": "Offre : garantie",
+  "offre.bonus": "Offre : bonus",
+  "offre.urgence": "Offre : urgence",
+  "offre.objections": "Offre : objections",
+  "message.promesse": "Message central : promesse",
+  "message.mecanisme": "Message central : mécanisme",
+  "message.objection": "Message central : une objection",
 };
-function PropositionsAgents({ rep, set }) {
+// « Préparer » une étape avec son agent (lot 2, 2026-11-25).
+function BoutonPreparer({ projet, etape, onFini }) {
+  const [d, setD] = useState(null);
+  const [web, setWeb] = useState(false);
+  const [err, setErr] = useState(null);
+  const charger = () =>
+    fetch(`/api/preparer/${projet}`)
+      .then((r) => r.json())
+      .then(setD)
+      .catch(() => {});
+  useEffect(() => {
+    charger();
+  }, [projet]);
+  const tourne = d?.enCours;
+  const moi = tourne?.etape === etape;
+  const vu = useRef(null);
+  useEffect(() => {
+    if (!tourne) return;
+    const t = setInterval(charger, 4000);
+    return () => clearInterval(t);
+  }, [Boolean(tourne)]);
+  const dernier = (d?.derniers ?? []).find((x) => x.etape === etape);
+  useEffect(() => {
+    // Fin d'une préparation lancée ici : les Fondations se rechargent (propositions, pistes, angles).
+    if (vu.current && !tourne && dernier && dernier.le !== vu.current) onFini?.();
+    vu.current = tourne ? vu.current ?? "en-cours" : dernier?.le ?? null;
+  }, [tourne, dernier?.le]);
+  if (!d) return null;
+  const E = d.etapes?.[etape];
+  async function go() {
+    setErr(null);
+    const r = await fetch(`/api/preparer/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ etape, web }) }).catch(() => null);
+    const b = await r?.json().catch(() => ({}));
+    if (!r?.ok) return setErr(b?.error ?? "Échec");
+    vu.current = "en-cours";
+    charger();
+  }
+  return (
+    <div className="cat-prep">
+      <button type="button" className="cat-btn" disabled={Boolean(tourne)} onClick={go} title={`L'agent ${E?.agent} déroule sa méthode avec tout le projet, puis range ses propositions (à trier en haut des Fondations). Environ 0,10 à 0,40 $ ; plus avec la recherche web.`}>
+        {moi ? "⏳ Préparation en cours…" : `✨ Préparer : ${E?.titre}`}
+      </button>
+      <span className="cat-muted">avec {E?.agent}</span>
+      <label className="cat-prep__web" title="L'agent peut chercher sur le web (plus complet, plus cher)">
+        <input type="checkbox" checked={web} disabled={Boolean(tourne)} onChange={(e) => setWeb(e.target.checked)} /> recherche web
+      </label>
+      {tourne && !moi && <span className="cat-muted">Une autre préparation tourne ({d.etapes?.[tourne.etape]?.titre}).</span>}
+      {moi && <span className="cat-muted">1 à 3 minutes ; tu peux continuer à écrire.</span>}
+      {!tourne && dernier && (
+        <span className={dernier.erreur ? "rg__err" : "cat-muted"}>
+          {dernier.erreur
+            ? `⚠ ${dernier.erreur}`
+            : `Dernière fois le ${new Date(dernier.le).toLocaleDateString("fr-CA")} : ${dernier.n} proposition(s)${dernier.dollars != null ? ` · ≈ ${dernier.dollars} $` : ""}${dernier.sansJson ? " · réponse sans propositions rangées (voir le rapport)" : ""} · `}
+          {!dernier.erreur && (
+            <a className="cat-link" href={`/api/preparer/${projet}/rapport/${dernier.fichier}`} target="_blank" rel="noopener noreferrer">
+              rapport complet
+            </a>
+          )}
+        </span>
+      )}
+      {err && <span className="rg__err">⚠ {err}</span>}
+    </div>
+  );
+}
+function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null, setMsg = null, projet = null, rafraichir = null }) {
   const l = rep.brouillonsAgents ?? [];
   const [edits, setEdits] = useState({});
   const [voirHisto, setVoirHisto] = useState(false);
@@ -470,18 +550,47 @@ function PropositionsAgents({ rep, set }) {
   const champDe = (b) => edits[b.id]?.champ ?? b.champ;
   const texteDe = (b) => edits[b.id]?.texte ?? b.texte;
   const edite = (b, patch) => setEdits((e) => ({ ...e, [b.id]: { champ: champDe(b), texte: texteDe(b), ...patch } }));
-  function accepter(b) {
+  const ajouterTexte = (cur, texte) => (String(cur ?? "").trim() ? `${String(cur).replace(/\s+$/, "")}\n${texte}` : texte);
+  const retirerTexte = (cur, texte) => {
+    cur = String(cur ?? "");
+    const i = texte ? cur.lastIndexOf(texte) : -1;
+    return i < 0 ? cur : (cur.slice(0, i).replace(/\n$/, "") + cur.slice(i + texte.length)).replace(/^\n/, "");
+  };
+  const [err, setErr] = useState(null);
+  // Lot 2 : une proposition peut viser le questionnaire, l'offre, le message central ou les résultats.
+  async function ecrire(champ, texte, annule = false) {
+    const [zone, k] = champ.includes(".") ? champ.split(".") : ["reponses", champ];
+    if (zone === "reponses") return set(k, annule ? retirerTexte(rep[k], texte) : ajouterTexte(rep[k], texte)), true;
+    if (zone === "offre" && setOffre) return setOffre({ ...offre, [k]: annule ? retirerTexte(offre?.[k], texte) : ajouterTexte(offre?.[k], texte) }), true;
+    if (zone === "message" && setMsg) {
+      const m = normalizeMessage(msg);
+      if (k === "objection") {
+        const [o, r] = texte.split(/\s*(?:→|->)\s*/);
+        if (annule) return setMsg({ ...m, objections: m.objections.map((x) => (x.objection === o ? { objection: "", reponse: "" } : x)) }), true;
+        const i = m.objections.findIndex((x) => !x.objection.trim());
+        if (i < 0) return setErr("Les 3 objections du message central sont déjà remplies : vide une case d'abord."), false;
+        return setMsg({ ...m, objections: m.objections.map((x, j) => (j === i ? { objection: o ?? texte, reponse: r ?? "" } : x)) }), true;
+      }
+      return setMsg({ ...m, [k]: annule ? retirerTexte(m[k], texte) : ajouterTexte(m[k], texte) }), true;
+    }
+    if (zone === "resultats" && projet) {
+      const r = await fetch(`/api/brouillons/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "resultat", champ, texte, annuler: annule }) }).catch(() => null);
+      if (!r?.ok) return setErr("Les résultats n'ont pas pu être mis à jour."), false;
+      rafraichir?.();
+      return true;
+    }
+    return false;
+  }
+  async function accepter(b) {
+    setErr(null);
     const champ = champDe(b);
     const texte = texteDe(b).trim();
-    if (!texte) return;
-    const cur = String(rep[champ] ?? "");
-    set(champ, cur.trim() ? `${cur.replace(/\s+$/, "")}\n${texte}` : texte);
+    if (!texte || !(await ecrire(champ, texte))) return;
     maj(b.id, { statut: "accepté", champ, ajoute: texte, decideLe: new Date().toISOString() });
   }
-  function annuler(b) {
-    const cur = String(rep[b.champ] ?? "");
-    const i = b.ajoute ? cur.lastIndexOf(b.ajoute) : -1;
-    if (i >= 0) set(b.champ, (cur.slice(0, i).replace(/\n$/, "") + cur.slice(i + b.ajoute.length)).replace(/^\n/, ""));
+  async function annuler(b) {
+    setErr(null);
+    if (b.ajoute && !(await ecrire(b.champ, b.ajoute, true))) return;
     maj(b.id, { statut: "proposé", ajoute: undefined, decideLe: undefined });
   }
   const ordre = Object.keys(CHAMPS_BROUILLON);
@@ -536,6 +645,7 @@ function PropositionsAgents({ rep, set }) {
         </div>
       ))}
       {!attente.length && <p className="cat-muted">Tout est trié.</p>}
+      {err && <p className="cat-flash is-error">⚠ {err}</p>}
       {faits.length > 0 && (
         <details open={voirHisto} onToggle={(e) => setVoirHisto(e.currentTarget.open)}>
           <summary>Historique ({faits.filter((b) => b.statut === "accepté").length} ajoutée(s), {faits.filter((b) => b.statut === "rejeté").length} rejetée(s))</summary>
@@ -898,7 +1008,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <CoutsPanneau cle={`projet-${project.id}`} titre="Dépense IA de ce projet" />
-      <PropositionsAgents rep={rep} set={set} />
+      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} projet={project.id} rafraichir={() => saveAll(true).catch(() => {})} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
           <b>Brouillon repris</b> : tu avais quitté les Fondations sans enregistrer{restaure.at ? ` (le ${new Date(restaure.at).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" })})` : ""}.
@@ -938,6 +1048,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       {step === 0 && !STEPS[0].ok && <p className="cat-fd__min">Minimum pour demander à Claude : ce que fait le produit, le problème principal et qui achète.</p>}
 
       <div className="cat-fd__step" hidden={step !== 0}>
+      <BoutonPreparer projet={project.id} etape="produit" onFini={() => saveAll(true).catch(() => {})} />
       <section className="cat-panel">
         <h3>1. Le produit</h3>
         {TEXTES.produit.map(([k, l, p, r]) => (
@@ -978,6 +1089,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
+      <BoutonPreparer projet={project.id} etape="offre" onFini={() => saveAll(true).catch(() => {})} />
       {/* Lot 1 (2026-11-25) : registre calculé sur le brouillon en cours. */}
       <RegistreFaits project={{ ...project, offre, offreFiche: fiche, fondations: { ...f, reponses: rep, faits, message: msg } }} />
       <section className="cat-panel">
@@ -1037,6 +1149,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 2}>
+      <BoutonPreparer projet={project.id} etape="recherche" onFini={() => saveAll(true).catch(() => {})} />
       <section className="cat-panel">
         <h3>7. Ce que tu as trouvé toi-même</h3>
         <p className="cat-muted">
@@ -1057,11 +1170,11 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
               const d = e.currentTarget;
               if (!d.open || d.dataset.charge) return;
               d.dataset.charge = "1";
-              fetch(`/api/candidats/rapport/${r.candidat}/${r.fichier}`).then((x) => (x.ok ? x.text() : "Rapport introuvable.")).then((t) => (d.querySelector("div").textContent = t)).catch(() => {});
+              fetch(r.projet ? `/api/preparer/${r.projet}/rapport/${r.fichier}` : `/api/candidats/rapport/${r.candidat}/${r.fichier}`).then((x) => (x.ok ? x.text() : "Rapport introuvable.")).then((t) => (d.querySelector("div").textContent = t)).catch(() => {});
             }}>
               <summary>
                 📄 {r.agent} · {r.le ? new Date(r.le).toLocaleDateString("fr-CA") : ""}{" "}
-                <a className="cat-link" href={`/api/candidats/rapport/${r.candidat}/${r.fichier}?telecharger`} onClick={(e) => e.stopPropagation()}>
+                <a className="cat-link" href={r.projet ? `/api/preparer/${r.projet}/rapport/${r.fichier}?telecharger` : `/api/candidats/rapport/${r.candidat}/${r.fichier}?telecharger`} onClick={(e) => e.stopPropagation()}>
                   télécharger
                 </a>
               </summary>
@@ -1124,6 +1237,9 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <div className="cat-fd__step" hidden={step !== 3}>
+      <BoutonPreparer projet={project.id} etape="mecanisme" onFini={() => saveAll(true).catch(() => {})} />
+      <BoutonPreparer projet={project.id} etape="message" onFini={() => saveAll(true).catch(() => {})} />
+      <BoutonPreparer projet={project.id} etape="angles" onFini={() => saveAll(true).catch(() => {})} />
       <section className="cat-panel">
         <h3>Pistes de mécanisme (méthode Jeffrey)</h3>
         <p className="cat-muted">

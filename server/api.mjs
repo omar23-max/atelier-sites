@@ -918,6 +918,11 @@ ${contexteProjet(pj, { limite: 12000 }).texte}`;
             const { rechercheRoute } = await import("./recherche.mjs");
             return rechercheRoute(req, res, parts, { root, readBody, json });
           }
+          // ---- « Préparer » une étape des Fondations avec son agent (lot 2, 2026-11-25) ----
+          if (parts[0] === "preparer") {
+            const { preparerRoute } = await import("./preparer.mjs");
+            return preparerRoute(req, res, parts, { root, readBody, json });
+          }
           // ---- « Adopter dans les Fondations » : propositions des agents (2026-11-25) ----
           if (parts[0] === "brouillons") {
             const { brouillonsRoute } = await import("./brouillons.mjs");
