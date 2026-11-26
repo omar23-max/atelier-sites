@@ -27,8 +27,11 @@ export const TRASH_NAME = /^[a-z0-9][a-z0-9-]{0,80}__\d{8}-\d{6}$/;
 export const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
 
 export async function readBody(req) {
-  let raw = "";
-  for await (const chunk of req) raw += chunk;
+  // 2026-11-25 : morceaux réunis AVANT le décodage UTF-8 (sinon un « é » coupé
+  // entre deux morceaux devenait « �� » dans les gros enregistrements).
+  const morceaux = [];
+  for await (const chunk of req) morceaux.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  const raw = Buffer.concat(morceaux).toString("utf8");
   const b = raw ? JSON.parse(raw) : {};
   // Compteur de coûts : le projet, la page ou le produit de la demande.
   try {

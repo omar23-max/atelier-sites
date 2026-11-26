@@ -43,8 +43,9 @@ const ETAPES = {
     titre: "Offre",
     agent: "shopfunnels-ai-offer-builder",
     agentNom: "AI Offer Builder",
-    schema: `{"propositions":[{"champ":"offre.promesse|offre.cible|offre.prix|offre.packs|offre.garantie|offre.bonus|offre.urgence|offre.objections","texte":"…","source":"…"}]}`,
-    consigneSortie: "Déroule tes 7 composantes et propose une offre irrésistible complète : promesse, cible, prix et packs (cohérents avec le coût et les prix du marché si connus), garantie tenable, bonus réellement livrables, urgence honnête, réponses aux objections. Pour chaque champ, 1 à 3 options.",
+    schema: `{"propositions":[{"champ":"offre.promesse|offre.cible|offre.prix|offre.packs|offre.garantie|offre.bonus|offre.urgence|offre.angles|offre.objections","texte":"…","source":"…"}],
+ "fiche":{"devise":"CAD|USD|EUR|GBP","unite":"…","packs":[{"nom":"…","quantite":1,"offertes":0,"prix":0,"prixBarre":null,"populaire":false}],"garantie":{"duree":30,"unite":"jours|mois","conditions":"…"},"retours":{"duree":30,"unite":"jours|mois","conditions":"…"},"livraison":{"texte":"…","seuilGratuit":null},"bonus":[{"nom":"…","valeur":"…"}],"leviers":{"resultat":{"obstacle":"…","reponse":"…","preuve":"…"},"confiance":{"obstacle":"…","reponse":"…","preuve":"…"},"delai":{"obstacle":"…","reponse":"…","preuve":"…"},"effort":{"obstacle":"…","reponse":"…","preuve":"…"}}}}`,
+    consigneSortie: "Déroule tes 7 composantes et propose une offre irrésistible complète : promesse, cible, prix et packs (cohérents avec le coût et les prix du marché si connus), garantie tenable, bonus réellement livrables, urgence honnête, angles de vente (un par ligne), réponses aux objections. Pour chaque champ texte, 1 à 3 options. Remplis aussi la fiche d'offre chiffrée « fiche » avec TA meilleure offre (devise du marché visé, packs avec quantités et prix en nombres, garantie et retours tenables et cohérents : la garantie ne dépasse pas la fenêtre de retour, livraison, bonus, et les 4 leviers de valeur Hormozi). Dans « preuve » des leviers, cite seulement une preuve du projet ; sinon écris [MANQUE].",
   },
   mecanisme: {
     titre: "Mécanisme",
@@ -160,6 +161,20 @@ async function lancer(root, projet, etape, web) {
     const origine = { type: "preparer", etape, agent: E.agentNom, rapport: fichier, le };
     let n = 0;
     const sourceDe = (s = "") => (/WH/.test(s) ? "WH" : /Web/i.test(s) ? "Web" : /Amazon/i.test(s) ? "Amazon" : /Reddit/i.test(s) ? "Reddit" : "Est");
+    if (data.fiche && typeof data.fiche === "object" && etape === "offre") {
+      const { resumeFiche, LEVIERS } = await import("../src/engine/offre-fiche.js");
+      const f = data.fiche;
+      f.bonus = (Array.isArray(f.bonus) ? f.bonus : []).filter((x) => x?.nom).map((x, i) => ({ id: `bo${Date.now().toString(36)}${i}`, nom: String(x.nom), valeur: x.valeur ?? "", livre: false }));
+      f.packs = (Array.isArray(f.packs) ? f.packs : []).filter((x) => x && (x.nom || x.quantite)).map((x, i) => ({ id: `pk${Date.now().toString(36)}${i}`, nom: x.nom ?? "", quantite: x.quantite ?? "", offertes: x.offertes ?? "", prix: x.prix ?? "", prixBarre: x.prixBarre ?? "", populaire: Boolean(x.populaire) }));
+      const resume = [
+        "Fiche d'offre proposée (ajoutée seulement dans les cases encore vides de ta fiche) :",
+        resumeFiche(f) || "(pas de packs chiffrés)",
+        f.retours?.duree ? `Retours : ${f.retours.duree} ${f.retours.unite ?? "jours"}${f.retours.conditions ? ` (${f.retours.conditions})` : ""}` : "",
+        f.bonus.length ? `Bonus proposés (à confirmer : livrables ?) : ${f.bonus.map((b) => b.nom).join(", ")}` : "",
+        ...LEVIERS.map(([k, l]) => (f.leviers?.[k]?.reponse ? `${l} : ${f.leviers[k].reponse}` : "")),
+      ].filter(Boolean).join("\n");
+      n += await ajouterBrouillons(projet, [{ champ: "offreFiche", texte: resume, valeur: f, agent: E.agentNom, source: "Est" }], origine);
+    }
     if (Array.isArray(data.propositions)) n += await ajouterBrouillons(projet, data.propositions.filter((x) => x && typeof x === "object" && x.texte).map((x) => ({ ...x, agent: E.agentNom, source: sourceDe(String(x.source ?? "")) })), origine);
     await muterProjet(projet, (pj) => {
       pj.fondations = pj.fondations ?? {};

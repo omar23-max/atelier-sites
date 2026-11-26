@@ -51,9 +51,14 @@ export function RegistreFaits({ project }) {
   const controles = project.offreFiche ? controlesFiche(project.offreFiche).filter((c) => c.niveau === "erreur" || c.niveau === "attention") : [];
   const contradictions = [];
   for (const c of controles) contradictions.push(`Offre${c.niveau === "erreur" ? "" : " (à surveiller)"} : ${c.texte}`);
-  if (ext.validation?.aRelire?.length) contradictions.push(`Validation produit à refaire : ${ext.validation.aRelire.join(", ")} a changé depuis le verdict.`);
+  const NOMS_RELIRE = { produit: "le produit", commercial: "les prix ou les packs", marche: "le marché visé" };
+  if (ext.validation?.aRelire?.length) contradictions.push({ texte: `Validation produit : ${ext.validation.aRelire.map((k) => NOMS_RELIRE[k] ?? k).join(", ")} ${ext.validation.aRelire.length > 1 ? "ont" : "a"} changé depuis le verdict.`, valider: true });
   if (ext.produit?.desaccord) contradictions.push(`Les agents ne sont pas d'accord sur le produit : ${ext.produit.desaccord.map((d) => `${d.titre} : ${d.verdict}`).join(" · ")}.`);
   const nbAtrier = (rep.brouillonsAgents ?? []).filter((b) => b.statut === "proposé").length;
+  async function garderVerdict() {
+    const r = await fetch(`/api/validation/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmer: true }) }).catch(() => null);
+    if (r?.ok) setExt((e) => ({ ...e, validation: { ...e.validation, aRelire: [] } }));
+  }
   for (const x of valides) if (!realText(x.source)) manques.unshift(`Fait validé sans source : ${nature(x.nature)} ${x.valeur} ${x.unite ?? ""} (note d'où il vient)`);
 
   return (
@@ -134,7 +139,15 @@ export function RegistreFaits({ project }) {
           <ul>
             {contradictions.map((x, i) => (
               <li key={`c${i}`} className="cat-reg__contra">
-                {x}
+                {typeof x === "string" ? x : x.texte}
+                {x.valider && (
+                  <>
+                    {" "}
+                    <button type="button" className="cat-link" onClick={garderVerdict} title="Le changement ne remet pas le verdict en cause : l'alerte disparaît, sans nouvelle analyse ni coût">
+                      Le verdict reste valable
+                    </button>
+                  </>
+                )}
               </li>
             ))}
             {manques.slice(0, 25).map((x, i) => (

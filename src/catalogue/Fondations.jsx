@@ -476,7 +476,31 @@ const CHAMPS_BROUILLON = {
   "message.promesse": "Message central : promesse",
   "message.mecanisme": "Message central : mécanisme",
   "message.objection": "Message central : une objection",
+  "offre.angles": "Offre : angles de vente",
+  offreFiche: "Fiche d'offre chiffrée",
 };
+// Fiche d'offre proposée par l'agent : seules les cases VIDES sont remplies.
+const vide = (v) => v == null || String(v).trim() === "";
+function remplirVides(cur, prop) {
+  const c = cur ?? {};
+  const out = { ...c };
+  for (const k of ["devise", "unite"]) if (vide(c[k]) && !vide(prop[k])) out[k] = prop[k];
+  if (!(c.packs ?? []).length && (prop.packs ?? []).length) out.packs = prop.packs;
+  for (const k of ["garantie", "retours", "livraison"]) {
+    const sous = { ...(c[k] ?? {}) };
+    for (const [kk, v] of Object.entries(prop[k] ?? {})) if (vide(sous[kk]) && !vide(v)) sous[kk] = v;
+    if (Object.keys(sous).length) out[k] = sous;
+  }
+  if (!(c.bonus ?? []).length && (prop.bonus ?? []).length) out.bonus = prop.bonus;
+  const lev = { ...(c.leviers ?? {}) };
+  for (const [k, v] of Object.entries(prop.leviers ?? {})) {
+    const l = { ...(lev[k] ?? {}) };
+    for (const [kk, vv] of Object.entries(v ?? {})) if (vide(l[kk]) && !vide(vv)) l[kk] = vv;
+    lev[k] = l;
+  }
+  out.leviers = lev;
+  return out;
+}
 // « Préparer » une étape avec son agent (lot 2, 2026-11-25).
 function BoutonPreparer({ projet, etape, onFini }) {
   const [d, setD] = useState(null);
@@ -544,7 +568,7 @@ function BoutonPreparer({ projet, etape, onFini }) {
     </div>
   );
 }
-function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null, setMsg = null, projet = null, rafraichir = null }) {
+function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null, setMsg = null, fiche = null, setFiche = null, projet = null, rafraichir = null }) {
   const l = rep.brouillonsAgents ?? [];
   const [edits, setEdits] = useState({});
   const [voirHisto, setVoirHisto] = useState(false);
@@ -586,6 +610,12 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
   }
   async function accepter(b) {
     setErr(null);
+    if (b.champ === "offreFiche" && b.valeur && setFiche) {
+      // Remplit seulement les cases vides ; garde la fiche d'avant pour « Annuler ».
+      maj(b.id, { statut: "accepté", champ: "offreFiche", ficheAvant: fiche ?? null, decideLe: new Date().toISOString() });
+      setFiche(remplirVides(fiche, b.valeur));
+      return;
+    }
     const champ = champDe(b);
     const texte = texteDe(b).trim();
     if (!texte || !(await ecrire(champ, texte))) return;
@@ -595,6 +625,11 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
   }
   async function annuler(b) {
     setErr(null);
+    if (b.champ === "offreFiche" && setFiche) {
+      setFiche(b.ficheAvant ?? null);
+      maj(b.id, { statut: "proposé", ficheAvant: undefined, decideLe: undefined });
+      return;
+    }
     if (b.ajoute && !(await ecrire(b.champ, b.ajoute, true))) return;
     maj(b.id, { statut: "proposé", ajoute: undefined, decideLe: undefined });
     if (String(b.champ).startsWith("resultats.")) rafraichir?.();
@@ -1039,7 +1074,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <CoutsPanneau cle={`projet-${project.id}`} titre="Dépense IA de ce projet" />
-      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} projet={project.id} rafraichir={recharger} />
+      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} fiche={fiche} setFiche={setFiche} projet={project.id} rafraichir={recharger} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
           <b>Brouillon repris</b> : tu avais quitté les Fondations sans enregistrer{restaure.at ? ` (le ${new Date(restaure.at).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" })})` : ""}.
@@ -1409,7 +1444,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             les étapes de base sont prêtes (produit et clients, preuves et offre,
             recherche client, message central), ou pour revalider après une
             modification : pas de validation par erreur en cours de route. */}
-        {(STEPS.slice(0, 4).every((x) => x.ok) || statut === "modifiée") && (
+        {((STEPS.slice(0, 4).every((x) => x.ok) && choix?.id && (project.angles ?? []).some((x) => x.choisi)) || statut === "modifiée") && (
           <button type="button" className="cat-btn" disabled={busy} onClick={validate}>
             {statut === "modifiée" ? "Valider à nouveau" : statut === "validée" ? "Valider de nouveau" : "Valider les fondations"}
           </button>

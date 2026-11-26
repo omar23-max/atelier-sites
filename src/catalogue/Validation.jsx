@@ -33,6 +33,14 @@ export function ValidationTab({ project, onSave, onMessage }) {
     }, 4000);
     return () => clearInterval(t);
   }, [enCours, project.id]);
+  // Garder le verdict malgré un changement (2026-11-25).
+  async function confirmer() {
+    setErr(null);
+    const r = await fetch(`/api/validation/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmer: true }) });
+    const b = await r.json().catch(() => ({}));
+    if (!r.ok) return setErr(b.error ?? `Erreur ${r.status}`);
+    charger();
+  }
   // Reprendre la validation déjà faite dans la Recherche (2026-11-25).
   async function reprendre() {
     setErr(null);
@@ -98,7 +106,10 @@ export function ValidationTab({ project, onSave, onMessage }) {
         {etat?.le && !enCours && <span className="cat-muted">Dernière analyse : {new Date(etat.le).toLocaleString("fr-CA")}{etat.porteSur ? (etat.aRelire?.length ? "" : " · porte sur la version actuelle du produit et de l'offre") : ""}</span>}
         {etat?.aRelire?.length > 0 && !enCours && (
           <span className="cat-vl__relire">
-            ⚠ Depuis cette analyse, {etat.aRelire.map((k) => ({ produit: "le produit", commercial: "les prix ou les packs", marche: "le marché visé" })[k] ?? k).join(", ")} {etat.aRelire.length > 1 ? "ont" : "a"} changé : ce verdict porte sur l'ancienne version.{etat.aRelire.includes("commercial") ? " Relis la marge et les offres." : ""} Relance l'analyse si le changement compte.
+            ⚠ Depuis cette analyse, {etat.aRelire.map((k) => ({ produit: "le produit", commercial: "les prix ou les packs", marche: "le marché visé" })[k] ?? k).join(", ")} {etat.aRelire.length > 1 ? "ont" : "a"} changé : ce verdict porte sur l'ancienne version.{etat.aRelire.includes("commercial") ? " Relis la marge et les offres." : ""} Relance l'analyse si le changement compte.{" "}
+            <button type="button" className="cat-link" onClick={confirmer} title="Le changement ne remet pas le verdict en cause : l'alerte disparaît, sans nouvelle analyse ni coût">
+              Le verdict reste valable
+            </button>
           </span>
         )}
       </div>

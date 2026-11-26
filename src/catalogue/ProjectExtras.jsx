@@ -581,14 +581,19 @@ export function OfferTab({ project, onSave, onMessage, form: ctrlForm, setForm: 
           </label>
         ))}
       </section>
-      <div className="cat-actions">
-        <button type="button" className="cat-btn cat-btn--ghost" onClick={askOffer}>
-          Travailler l'offre avec Claude (méthode Hormozi)
-        </button>
-        <button type="button" className="cat-btn" onClick={() => saveOffer(false).catch(() => {})}>
-          {onSaveAll ? "Enregistrer (Fondations et offre)" : "Enregistrer l'offre"}
-        </button>
-      </div>
+      {/* Dans les Fondations (2026-11-25) : un seul « Enregistrer », celui de la
+          barre du bas ; l'offre se prépare avec « ✨ Préparer / Relancer : Offre »
+          en haut de l'étape (l'ancienne demande à Claude prêtait à confusion). */}
+      {!onSaveAll && (
+        <div className="cat-actions">
+          <button type="button" className="cat-btn cat-btn--ghost" onClick={askOffer}>
+            Travailler l'offre avec Claude (méthode Hormozi)
+          </button>
+          <button type="button" className="cat-btn" onClick={() => saveOffer(false).catch(() => {})}>
+            Enregistrer l'offre
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -260,6 +260,15 @@ export async function validationRoute(req, res, parts, { root, readBody, json })
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   if (enCours.has(projet)) return json(res, 409, { error: "La validation est déjà en cours." });
   const b = (readBody ? await readBody(req).catch(() => ({})) : {}) || {};
+  // POST { confirmer: true } : l'utilisateur garde le verdict malgré un
+  // changement (offre, produit) ; l'alerte disparaît, sans nouvelle analyse.
+  if (b.confirmer) {
+    const e = await lire();
+    if (!e.resultat) return json(res, 404, { error: "Aucun verdict à confirmer." });
+    const p = JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8"));
+    await ecrire(etatFile, { ...e, porteSur: await versionsValidation(p), confirmeLe: new Date().toISOString() });
+    return json(res, 200, { ok: true });
+  }
   // POST { reprendre: true } : le rapport du Product Validator de la Recherche
   // est remis en forme (un petit appel IA, sans nouvelle recherche web ni WinningHunter).
   if (b.reprendre) {
