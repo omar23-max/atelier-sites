@@ -250,7 +250,8 @@ export function atelierApi() {
               // page a changé depuis, et pas par ce même onglet, conflit 409
               // au lieu d'écraser l'autre version.
               const tab = String(req.headers["x-atl-tab"] ?? "");
-              const expected = req.headers["if-match"];
+              // Empreinte « faible » (W/…, ajoutée par un proxy qui compresse) : même version.
+              const expected = String(req.headers["if-match"] ?? "").replace(/^W\//, "") || undefined;
               return lockFile(file, async () => {
               if (expected && existsSync(file)) {
                 const current = pageRev(await readFile(file, "utf8"));
@@ -509,7 +510,7 @@ export function atelierApi() {
               // (ETag) de la version lue avant d'écrire. Si le projet a changé
               // depuis (autre onglet, script de Claude), refus 409 : le client
               // refait sa fusion au lieu d'écraser. Sans If-Match : comme avant.
-              const ifMatch = req.headers["if-match"];
+              const ifMatch = String(req.headers["if-match"] ?? "").replace(/^W\//, "") || undefined;
               return lockFile(file, async () => {
               if (ifMatch && existsSync(file)) {
                 const cur = JSON.stringify(JSON.parse(await readFile(file, "utf8")));

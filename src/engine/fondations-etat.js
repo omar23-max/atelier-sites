@@ -168,6 +168,10 @@ function mergeInto(base, local, server, path, conflicts) {
     }
     return out;
   }
+  // Même décision prise des deux côtés sur une proposition d'agent, à des
+  // moments différents : la date seule diffère, ce n'est pas un conflit
+  // (2026-11-25) ; on garde la plus récente.
+  if (/brouillonsAgents\[[^\]]+\]\.decideLe$/.test(path)) return String(local ?? "") > String(server ?? "") ? local : server;
   conflicts.push(path || "(tout)");
   return local;
 }

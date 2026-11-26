@@ -62,7 +62,7 @@ const TEXTES = {
   produit: [
     ["role", "Ce que fait le produit, en une phrase", "ex. Une crème qui raffermit la peau du visage et du cou en 4 semaines", 2],
     ["usage", "Comment on l'utilise", "ex. Matin et soir, sur peau propre", 1],
-    ["lien", "Lien du produit (Shopify, site, fournisseur)", "https://…", 1],
+    ["lien", "Lien de ton produit ou du fournisseur", "https://… (ta page produit, ou la fiche de ton fournisseur ; pas un concurrent)", 1],
   ],
   clients: [["qui", "Qui sont-ils, en quelques mots", "ex. Femmes actives 50+, qui voient leur visage s'affaisser", 2]],
   probleme: [
@@ -508,6 +508,9 @@ function BoutonPreparer({ projet, etape, onFini }) {
   const E = d.etapes?.[etape];
   async function go() {
     setErr(null);
+    // Déjà préparé (2026-11-25) : relancer coûte encore ; confirmation d'abord.
+    const fait = (d?.derniers ?? []).find((x) => x.etape === etape && !x.erreur);
+    if (fait && !window.confirm(`« ${E?.titre} » a déjà été préparé le ${new Date(fait.le).toLocaleString("fr-CA", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}${fait.dollars != null ? ` (≈ ${fait.dollars} $)` : ""}.\n\nRelancer coûte de nouveau${fait.dollars != null ? ` environ ${fait.dollars} $` : ""}${web ? ", plus la recherche web" : ""}. C'est utile si tu as ajouté des informations (avis collés, réponses, recherche web) ; sinon l'agent reproposera surtout la même chose.\n\nRelancer ?`)) return;
     const r = await fetch(`/api/preparer/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ etape, web }) }).catch(() => null);
     const b = await r?.json().catch(() => ({}));
     if (!r?.ok) return setErr(b?.error ?? "Échec");
@@ -517,7 +520,7 @@ function BoutonPreparer({ projet, etape, onFini }) {
   return (
     <div className="cat-prep">
       <button type="button" className="cat-btn" disabled={Boolean(tourne)} onClick={go} title={`L'agent ${E?.agent} déroule sa méthode avec tout le projet, puis range ses propositions (à trier en haut des Fondations). Environ 0,10 à 0,40 $ ; plus avec la recherche web.`}>
-        {moi ? "⏳ Préparation en cours…" : `✨ Préparer : ${E?.titre}`}
+        {moi ? "⏳ Préparation en cours…" : (d?.derniers ?? []).some((x) => x.etape === etape && !x.erreur) ? `✨ Relancer : ${E?.titre}` : `✨ Préparer : ${E?.titre}`}
       </button>
       <span className="cat-muted">avec {E?.agent}</span>
       <label className="cat-prep__web" title="L'agent peut chercher sur le web (plus complet, plus cher)">
@@ -755,7 +758,12 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // Rechargement après une écriture côté serveur (Préparer, résultats) : avec
   // le brouillon LE PLUS RÉCENT (pas celui du moment où le bouton a été affiché).
   const saveRef = useRef(null);
-  const recharger = () => setTimeout(() => saveRef.current?.(true).catch(() => {}), 400);
+  // Clics rapides (2026-11-25) : un seul rechargement, 1,2 s après le dernier.
+  const minuterie = useRef(null);
+  const recharger = () => {
+    clearTimeout(minuterie.current);
+    minuterie.current = setTimeout(() => saveRef.current?.(true).catch(() => {}), 1200);
+  };
   const preuves = rep.preuves ?? {};
   const setPreuve = (k, patch) => set("preuves", { ...preuves, [k]: { ...preuves[k], ...patch } });
   const statut = f.statut ?? "brouillon";
@@ -848,7 +856,22 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // Enregistre tout (questionnaire, faits, message, cartes, offre) ; refait
   // la fusion si le projet a bougé entre la lecture et l'écriture (409).
   saveRef.current = (silent, extra, opts) => saveAll(silent, extra, opts);
-  async function saveAll(silent, extra = {}, opts = {}) {
+  // File d'enregistrement (2026-11-25) : deux enregistrements simultanés se
+  // gênaient (409 en boucle, « le projet change sans arrêt ailleurs »). Chacun
+  // attend le précédent, puis part avec le brouillon le plus récent.
+  const fileSave = useRef(Promise.resolve());
+  const saveInner = useRef(null);
+  saveInner.current = saveAllMaintenant;
+  function saveAll(silent, extra = {}, opts = {}) {
+    const run = async () => {
+      await new Promise((r) => setTimeout(r, 60)); // laisse l'écran prendre le dernier état
+      return saveInner.current(silent, extra, opts);
+    };
+    const p = fileSave.current.then(run, run);
+    fileSave.current = p.catch(() => {});
+    return p;
+  }
+  async function saveAllMaintenant(silent, extra = {}, opts = {}) {
     for (let essai = 0; essai < 3; essai++) {
       const out = await patchFresh(extra, opts);
       if (out.conflicts.length) {
@@ -1382,9 +1405,15 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         <button type="button" className="cat-btn cat-btn--ghost" disabled={busy} onClick={askClaude}>
           {busy ? "Envoi…" : "Envoyer une demande à Claude"}
         </button>
-        <button type="button" className="cat-btn" disabled={!res && statut !== "validée" && statut !== "modifiée"} onClick={validate} title={res ? "" : "Après les résultats de Claude"}>
-          {statut === "modifiée" ? "Valider à nouveau" : "Valider les fondations"}
-        </button>
+        {/* 2026-11-25 (demande de l'utilisateur) : le bouton n'apparaît que quand
+            les étapes de base sont prêtes (produit et clients, preuves et offre,
+            recherche client, message central), ou pour revalider après une
+            modification : pas de validation par erreur en cours de route. */}
+        {(STEPS.slice(0, 4).every((x) => x.ok) || statut === "modifiée") && (
+          <button type="button" className="cat-btn" disabled={busy} onClick={validate}>
+            {statut === "modifiée" ? "Valider à nouveau" : statut === "validée" ? "Valider de nouveau" : "Valider les fondations"}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -1533,6 +1562,13 @@ export function ProjectMenu({ project, pages, onGo, current }) {
 // preuves, script. Claude lit ces analyses avec le reste des Fondations.
 function VideosConcurrents({ value, onChange, project, onMessage, preuves = {}, onAdopt }) {
   const [adopte, setAdopte] = useState(null); // index de la vidéo dont le formulaire est ouvert
+  // Phrases choisies dans les boutons : un formulaire chacune.
+  const [departs, setDeparts] = useState([]);
+  const fermer = (dep) => {
+    const reste = departs.filter((x) => x !== dep && x?.texte !== dep?.texte);
+    setDeparts(reste);
+    if (!reste.length) setAdopte(null);
+  };
   const list = Array.isArray(value) ? value : [];
   const [busy, setBusy] = useState(null);
   const [picker, setPicker] = useState(null);
@@ -1643,34 +1679,55 @@ function VideosConcurrents({ value, onChange, project, onMessage, preuves = {}, 
                     {busy === i ? "Gemini regarde la vidéo…" : v.analyse ? "Refaire l'analyse" : "Analyser les angles"}
                   </button>
                   {v.analyse && onAdopt && (
-                    <button type="button" className="cat-btn cat-btn--ghost" onClick={() => setAdopte(adopte === i ? null : i)} title="Une promesse de cette vidéo est aussi vraie pour ton produit : l'ajouter à tes preuves, avec sa source">
-                      ＋ Adopter comme preuve
+                    <button type="button" className="cat-btn cat-btn--ghost" onClick={() => (setDeparts([]), setAdopte(adopte === i ? null : i))} title="Une promesse de cette vidéo est aussi vraie pour ton produit : l'ajouter à tes preuves, avec sa source">
+                      ＋ Affirmer pour mon produit
                     </button>
                   )}
                   <button type="button" className="cat-link" onClick={() => onChange(list.filter((_, j) => j !== i))}>
                     Retirer
                   </button>
                 </div>
-                {adopte === i && (
-                  <AdopterPreuve
-                    video={v}
-                    preuves={preuves}
-                    onCancel={() => setAdopte(null)}
-                    onAdopt={(k, texte, source) => {
-                      const avant = String(preuves[k]?.detail ?? "").trim();
-                      const ajout = `${texte} (source : ${source} ; repérée dans la vidéo « ${v.nom || nameOf(v.url)} »)`;
-                      onAdopt(k, avant ? `${avant} ; ${ajout}` : ajout);
-                      onChange(list.map((x, j) => (j === i ? { ...x, adoptions: [...(x.adoptions ?? []), { texte, type: k, source, le: new Date().toISOString() }] } : x)));
-                      setAdopte(null);
-                      onMessage?.({ text: `Ajouté à tes preuves (« ${PREUVES.find((p) => p[0] === k)?.[1] ?? k} »). Utilisable dans les pages, les pubs et par les agents.` });
-                    }}
-                  />
+                {v.analyse && onAdopt && promessesDe(v.analyse).length > 0 && (
+                  <div className="cat-fdv__promesses">
+                    <span className="cat-muted">Promesses et preuves repérées dans la vidéo (un clic pour l'affirmer pour ton produit, si c'est vrai pour lui) :</span>
+                    {promessesDe(v.analyse).map((x, j) => (
+                      <button key={j} type="button" className={`cat-fdv__promesse${adopte === i && departs.some((d) => d.texte === x.texte) ? " is-on" : ""}`} title={x.rubrique === "promesse" ? "Promesse de la vidéo" : "Preuve montrée dans la vidéo"} onClick={() => {
+                          // Un clic ajoute la phrase (ou la retire si elle est déjà ouverte).
+                          const deja = adopte === i && departs.some((d) => d.texte === x.texte);
+                          const l = adopte === i ? departs : [];
+                          const suite = deja ? l.filter((d) => d.texte !== x.texte) : [...l, x];
+                          setDeparts(suite);
+                          setAdopte(suite.length ? i : null);
+                        }}>
+                        {x.rubrique === "promesse" ? "💬" : "🔎"} {x.texte}
+                      </button>
+                    ))}
+                  </div>
                 )}
+                {/* Plusieurs phrases à la suite (2026-11-25) : un formulaire par phrase, empilés ; chacun s'enregistre seul. */}
+                {adopte === i &&
+                  (departs.length ? departs : [null]).map((dep) => (
+                    <AdopterPreuve
+                      key={dep?.texte ?? "libre"}
+                      depart={dep}
+                      video={v}
+                      preuves={preuves}
+                      onCancel={() => fermer(dep)}
+                      onAdopt={(k, texte, source) => {
+                        const avant = String(preuves[k]?.detail ?? "").trim();
+                        const ajout = `${texte} (source : ${source} ; repérée dans la vidéo « ${v.nom || nameOf(v.url)} »)`;
+                        onAdopt(k, avant ? `${avant} ; ${ajout}` : ajout);
+                        onChange(list.map((x, jj) => (jj === i ? { ...x, adoptions: [...(x.adoptions ?? []), { texte, type: k, source, le: new Date().toISOString() }] } : x)));
+                        fermer(dep);
+                        onMessage?.({ text: `Affirmé pour ton produit (preuve « ${PREUVES.find((p) => p[0] === k)?.[1] ?? k} »). Utilisable dans les pages, les pubs et par les agents.` });
+                      }}
+                    />
+                  ))}
                 {v.adoptions?.length > 0 && (
                   <ul className="cat-fdv__adoptions">
                     {v.adoptions.map((a, j) => (
                       <li key={j}>
-                        ✓ Adoptée comme preuve ({PREUVES.find((p) => p[0] === a.type)?.[1] ?? a.type}) : {a.texte} <span className="cat-muted">— source : {a.source}</span>
+                        ✓ Affirmée pour ton produit (preuve : {PREUVES.find((p) => p[0] === a.type)?.[1] ?? a.type}) : {a.texte} <span className="cat-muted">— source : {a.source}</span>
                       </li>
                     ))}
                   </ul>
@@ -1694,12 +1751,40 @@ function VideosConcurrents({ value, onChange, project, onMessage, preuves = {}, 
 // devient TA preuve seulement si tu dis pourquoi elle est vraie pour ton
 // produit (source obligatoire). Le texte sélectionné dans l'analyse est
 // proposé d'office.
-function AdopterPreuve({ video, preuves, onCancel, onAdopt }) {
+// Promesses et preuves repérées dans l'analyse d'une vidéo (rubriques
+// « Promesse » et « Preuves montrées »), en boutons (2026-11-25).
+function promessesDe(analyse) {
+  const out = [];
+  for (const ligne of String(analyse ?? "").split("\n")) {
+    const m = /^\s*[*#-]*\s*(Promesse|Preuves montrées)[^:]*:\s*(.+)$/i.exec(ligne);
+    if (!m || /\[pas visible\]/i.test(m[2])) continue;
+    for (const morceau of m[2].split(/\s*;\s*|(?<=[.!?])\s+(?=[A-ZÀ-Ý«])/)) {
+      const t = morceau.replace(/^[«"“\s]+|[»"”\s]+$/g, "").trim();
+      if (t.length >= 8 && !out.some((x) => x.texte === t)) out.push({ texte: t.slice(0, 400), rubrique: /^promesse/i.test(m[1]) ? "promesse" : "preuve" });
+    }
+  }
+  return out.slice(0, 12);
+}
+// Type de preuve deviné d'après les mots (modifiable dans le formulaire).
+function typeDevine(t) {
+  if (/avant\s*\/?\s*apr[eè]s/i.test(t)) return "avantApres";
+  if (/t[ée]moign|vid[ée]o/i.test(t)) return "video";
+  if (/avis|[ée]toiles|note/i.test(t)) return "avis";
+  if (/garanti|rembours/i.test(t)) return "garantie";
+  if (/[ée]tude|clinique|scientifi|test[ée]/i.test(t)) return "etude";
+  if (/m[ée]decin|expert|dermato|pharmac/i.test(t)) return "expert";
+  if (/presse|m[ée]dia|vu (?:à|dans|sur)/i.test(t)) return "presse";
+  if (/vendu|clients|ventes|\d[\d\s]*\s*(?:000|k)\b/i.test(t)) return "ventes";
+  if (/certifi|label|bio\b|vegan/i.test(t)) return "certification";
+  return "avis";
+}
+function AdopterPreuve({ video, preuves, onCancel, onAdopt, depart = null }) {
   const [texte, setTexte] = useState(() => {
+    if (depart?.texte) return depart.texte;
     const sel = String(window.getSelection?.() ?? "").trim();
     return sel && String(video.analyse ?? "").includes(sel.slice(0, 40)) ? sel.slice(0, 400) : "";
   });
-  const [type, setType] = useState("etude");
+  const [type, setType] = useState(() => (depart?.texte ? typeDevine(depart.texte) : "etude"));
   const [source, setSource] = useState("");
   const ok = texte.trim() && source.trim();
   return (
@@ -1728,7 +1813,7 @@ function AdopterPreuve({ video, preuves, onCancel, onAdopt }) {
       </label>
       <div className="cat-actions">
         <button type="button" className="cat-btn" disabled={!ok} onClick={() => onAdopt(type, texte.trim(), source.trim())}>
-          Ajouter à mes preuves
+          Affirmer, avec ma preuve
         </button>
         <button type="button" className="cat-link" onClick={onCancel}>
           Annuler
