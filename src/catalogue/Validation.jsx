@@ -33,6 +33,14 @@ export function ValidationTab({ project, onSave, onMessage }) {
     }, 4000);
     return () => clearInterval(t);
   }, [enCours, project.id]);
+  // Reprendre la validation déjà faite dans la Recherche (2026-11-25).
+  async function reprendre() {
+    setErr(null);
+    const r = await fetch(`/api/validation/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reprendre: true }) });
+    const b = await r.json().catch(() => ({}));
+    if (!r.ok && r.status !== 409) return setErr(b.error ?? `Erreur ${r.status}`);
+    charger();
+  }
   async function lancer() {
     setErr(null);
     const r = await fetch(`/api/validation/${project.id}`, { method: "POST" });
@@ -48,6 +56,37 @@ export function ValidationTab({ project, onSave, onMessage }) {
       <p className="cat-muted">
         Avant de dépenser en pubs : l'agent <b>Product Validator</b> examine ton produit avec la recherche web (demande réelle, tendance, concurrents, prix du marché, coût d'achat) et rend un verdict. Il s'appuie sur tes Fondations ; ce qu'il a observé est sourcé, ce qu'il estime est dit comme une estimation.
       </p>
+      {etat?.recherche && !enCours && (
+        <div className="cat-val__reprise">
+          <b>Déjà validé dans la Recherche</b> : « {etat.recherche.nom} »
+          <ul>
+            {[...etat.recherche.analyses].reverse().map((a, i) => (
+              <li key={i}>
+                {a.agent} · {new Date(a.le).toLocaleDateString("fr-CA")} : <b>{a.verdict ?? "pas d'avis tranché"}</b>
+                {a.score != null ? ` ${a.score}/10` : ""}
+                {a.marche ? ` · marché ${a.marche}` : ""}
+                {a.resume ? <span className="cat-muted"> — {a.resume}</span> : null}
+              </li>
+            ))}
+            {etat.recherche.verdictTrouve && <li className="cat-muted">Piste trouvée par l'agent de recherche : {etat.recherche.verdictTrouve}</li>}
+          </ul>
+          <div className="cat-actions">
+            {etat.repris?.de === "recherche" ? (
+              <span className="cat-muted">✓ Verdict ci-dessous repris de la Recherche{etat.repris.agent ? ` (${etat.repris.agent})` : ""}.</span>
+            ) : (
+              <button type="button" className="cat-btn" onClick={reprendre} title="Remet en forme le rapport complet du Product Validator déjà payé dans la Recherche : un petit appel IA (≈ 0,05 $), sans nouvelle recherche web ni crédits WinningHunter">
+                Reprendre ce verdict
+              </button>
+            )}
+            {etat.recherche.rapport && (
+              <a className="cat-link" href={`/api/candidats/rapport/${etat.recherche.candidat}/${etat.recherche.rapport.fichier}`} target="_blank" rel="noopener noreferrer">
+                rapport complet du {etat.recherche.rapport.agent}
+              </a>
+            )}
+          </div>
+          <p className="cat-muted">Relance une validation complète (plus bas) seulement si le marché, le produit ou l'offre ont changé depuis.</p>
+        </div>
+      )}
       <label className="cat-val__mots">
         <span className="cat-fd__label">Mots-clés WinningHunter (en anglais, type de produit, séparés par des virgules)</span>
         <input defaultValue={(project.validationMotsCles ?? []).join(", ")} placeholder="vide = trouvés automatiquement, ex. nfc business card, digital business card" onBlur={(e) => onSave({ validationMotsCles: e.target.value.split(",").map((x) => x.trim()).filter(Boolean).slice(0, 3) })} />

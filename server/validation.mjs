@@ -217,7 +217,30 @@ ${text.slice(0, 60000)}` }] }] }),
   }
 }
 
-export async function validationRoute(req, res, parts, { root, json }) {
+// Reprise de la Recherche (2026-11-25) : le produit lancé depuis la grille a
+// souvent déjà été validé (Product Validator en chat, rapport complet gardé).
+// On reprend ce travail au lieu de repayer une analyse complète.
+async function depuisRecherche(root, projet) {
+  const { listerCandidats, listerRapports } = await import("./candidats.mjs");
+  const c = (await listerCandidats(root)).find((x) => x.lance === projet);
+  if (!c) return null;
+  const rapports = await listerRapports(root, c.id);
+  const pv = rapports.find((r) => /product validator/i.test(r.agent));
+  if (!pv && !(c.analyses ?? []).length) return null;
+  return { candidat: c.id, nom: c.nom, verdictTrouve: c.verdictTrouve ?? c.verdict, analyses: c.analyses ?? [], rapport: pv ?? null, rapports };
+}
+// Verdict lu dans le rapport (GO / GO WITH CONDITIONS / ALTERNATIVES / NO GO), sinon d'après la note.
+function verdictDe(texte, score) {
+  const m = /VERDICT[^A-Z]{0,40}(GO WITH CONDITIONS|GO AVEC CONDITIONS|NO[ -]GO|ALTERNATIVES?|GO)\b/i.exec(String(texte ?? ""));
+  if (m) {
+    const v = m[1].toUpperCase().replace(/\s+/g, " ");
+    return /CONDITION/.test(v) ? "GO_CONDITIONS" : /NO/.test(v) ? "NO_GO" : /ALTERN/.test(v) ? "ALTERNATIVES" : "GO";
+  }
+  if (typeof score === "number") return score >= 8 ? "GO" : score >= 6.5 ? "GO_CONDITIONS" : score >= 4 ? "ALTERNATIVES" : "NO_GO";
+  return null;
+}
+
+export async function validationRoute(req, res, parts, { root, readBody, json }) {
   const projet = parts[1];
   if (!/^[a-z0-9][a-z0-9-]{1,90}$/.test(projet ?? "")) return json(res, 400, { error: "Projet invalide." });
   if (!existsSync(join(root, "projets", `${projet}.json`))) return json(res, 404, { error: "Projet introuvable." });
@@ -231,10 +254,61 @@ export async function validationRoute(req, res, parts, { root, json }) {
       const now = await versionsValidation(JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8")));
       e.aRelire = Object.keys(now).filter((k) => e.porteSur[k] !== now[k]);
     }
+    e.recherche = await depuisRecherche(root, projet).catch(() => null);
     return json(res, 200, enCours.has(projet) ? { ...e, statut: "en cours" } : e.statut === "en cours" ? { ...e, statut: "erreur", erreur: "Analyse interrompue (serveur redémarré) : relance-la." } : e);
   }
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });
   if (enCours.has(projet)) return json(res, 409, { error: "La validation est déjà en cours." });
+  const b = (readBody ? await readBody(req).catch(() => ({})) : {}) || {};
+  // POST { reprendre: true } : le rapport du Product Validator de la Recherche
+  // est remis en forme (un petit appel IA, sans nouvelle recherche web ni WinningHunter).
+  if (b.reprendre) {
+    const r = await depuisRecherche(root, projet);
+    if (!r) return json(res, 404, { error: "Aucune validation trouvée dans la Recherche pour ce produit." });
+    enCours.add(projet);
+    const avant = await lire();
+    await ecrire(etatFile, { ...avant, statut: "en cours", lanceLe: new Date().toISOString() });
+    (async () => {
+      try {
+        const p = JSON.parse(await readFile(join(root, "projets", `${projet}.json`), "utf8"));
+        const der = [...r.analyses].reverse().find((a) => /validator/i.test(a.agent ?? "")) ?? [...r.analyses].reverse().find((a) => a.verdict);
+        let resultat = null;
+        const le = r.rapport?.le ?? der?.le ?? new Date().toISOString();
+        if (r.rapport) {
+          const texte = await readFile(join(root, "agents", "rapports", r.candidat, r.rapport.fichier), "utf8");
+          const { loadEnv } = await import("vite");
+          const env = loadEnv("development", root, "");
+          if (!env.OPENAI_API_KEY) throw new Error("Clé OpenAI absente (OPENAI_API_KEY).");
+          const forme = ADAPTER.slice(ADAPTER.indexOf('{"verdict"'));
+          const res2 = await fetch("https://api.openai.com/v1/responses", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ model: MODEL, text: { format: { type: "json_object" } }, input: [{ role: "user", content: [{ type: "input_text", text: `Voici le rapport complet d'une validation produit DÉJÀ faite (agent Product Validator). Remets-le en forme, en français, dans l'objet JSON ci-dessous, sans rien ajouter ni inventer : reprends son verdict, sa note, ses constats et ses sources tels quels ; « inconnue » ou [] quand le rapport ne dit rien.\n\nForme attendue :\n${forme}\n\n---\nRAPPORT\n${texte.slice(0, 50000)}` }] }] }),
+            signal: AbortSignal.timeout(5 * 60 * 1000),
+          });
+          const body = await res2.json().catch(() => ({}));
+          if (!res2.ok) throw new Error(`OpenAI (${res2.status}) : ${String(body.error?.message ?? "erreur").slice(0, 200)}`);
+          const t = (body.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []).filter((x) => x.type === "output_text").map((x) => x.text).join("");
+          resultat = extraireJson(t);
+          resultat.verdict = verdictDe(texte, resultat.score) ?? resultat.verdict;
+        } else {
+          // Pas de rapport : l'avis résumé suffit (sans IA).
+          resultat = { verdict: verdictDe("", der?.score) ?? ({ "feu vert": "GO_CONDITIONS", "à surveiller": "ALTERNATIVES", "écarté": "NO_GO" })[der?.verdict] ?? "ALTERNATIVES", score: der?.score ?? null, resume: der?.resume ?? "" };
+        }
+        // L'étape apparaît « faite » dans le menu du projet, même page fermée.
+        const { muterProjet } = await import("./commun.mjs");
+        await muterProjet(projet, (pj) => {
+          pj.validation = { verdict: resultat.verdict, score: resultat.score ?? null, le };
+        });
+        await ecrire(etatFile, { statut: "pret", resultat, sources: [], le, repris: { de: "recherche", candidat: r.candidat, rapport: r.rapport?.fichier ?? null, agent: r.rapport?.agent ?? der?.agent ?? null, marche: der?.marche ?? null, reprisLe: new Date().toISOString() }, porteSur: await versionsValidation(p) });
+      } catch (e) {
+        await ecrire(etatFile, { ...avant, statut: "erreur", erreur: `Reprise impossible : ${e.message}`, le: avant.le });
+      } finally {
+        enCours.delete(projet);
+      }
+    })();
+    return json(res, 202, { statut: "en cours" });
+  }
   enCours.add(projet);
   const avant = await lire();
   await ecrire(etatFile, { ...avant, statut: "en cours", lanceLe: new Date().toISOString() });

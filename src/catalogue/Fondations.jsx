@@ -1381,8 +1381,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             <button type="button" className="cat-btn cat-btn--ghost" disabled={!nav.prev} onClick={() => nav.prev?.go()}>
               ← {nav.prev?.label ?? "Précédent"}
             </button>
-            <button type="button" className="cat-btn cat-btn--ghost" disabled={!nav.next} onClick={() => nav.next?.go()}>
-              {nav.next?.label ?? "Suivant"} →
+            <button type="button" className="cat-btn" disabled={!nav.next} onClick={() => nav.next?.go()}>
+              Suivant : {nav.next?.label ?? "étape suivante"} →
             </button>
           </>
         ) : (

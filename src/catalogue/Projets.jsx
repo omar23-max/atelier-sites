@@ -329,7 +329,10 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   const currentTab =
     OLD_TABS[tab] ?? tab ?? (project.fondations?.statut !== "validée" ? "produit" : (project.angles ?? []).some((a) => a.choisi) ? "pages" : "angles");
   const menuIndex = PROJECT_MENU.findIndex((m) => m.id === currentTab);
-  const navOf = (i) => (PROJECT_MENU[i] ? { label: PROJECT_MENU[i].label, go: () => setTab(PROJECT_MENU[i].id) } : null);
+  // Étape précédente / suivante (2026-11-25) : on remonte en haut de la nouvelle étape.
+  const navOf = (i) => (PROJECT_MENU[i] ? { label: PROJECT_MENU[i].label, go: () => (setTab(PROJECT_MENU[i].id), window.scrollTo({ top: 0, behavior: "smooth" })) } : null);
+  const navPrec = navOf(menuIndex - 1);
+  const navSuiv = navOf(menuIndex + 1);
 
   return (
     <>
@@ -418,6 +421,23 @@ export function ProjectDetail({ id, onBack, onMessage }) {
       {currentTab === "creatives" && <CreativesTab key={project.id} project={project} onSave={saveProjectPatch} onMessage={onMessage} />}
             {currentTab === "publication" && <PublicationTab project={project} pages={pages} onSave={saveProjectPatch} />}
       {currentTab === "resultats" && <ResultsTab project={project} pages={pages} onMessage={onMessage} />}
+      {/* Bas de chaque étape hors Fondations (qui ont leur propre barre) : flèche vers l'étape suivante, avec son nom (2026-11-25). */}
+      {FD_STEP[currentTab] == null && menuIndex >= 0 && (
+        <nav className="cat-etape-nav" aria-label="Étapes du projet">
+          {navPrec ? (
+            <button type="button" className="cat-btn cat-btn--ghost" onClick={navPrec.go}>
+              ← {navPrec.label}
+            </button>
+          ) : (
+            <span />
+          )}
+          {navSuiv && (
+            <button type="button" className="cat-btn" onClick={navSuiv.go}>
+              Suivant : {navSuiv.label} →
+            </button>
+          )}
+        </nav>
+      )}
     </>
   );
 }
