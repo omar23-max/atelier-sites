@@ -27,9 +27,10 @@ const UTILITE = {
   "whitelabeler-product-validator-v-1": "On y va ou pas ?",
   "shopfunnels-ai-product-research-analyst": "Fournisseur, marge, préparation du lancement, note sur 10",
   "shopfunnels-winning-hunter-assistant-v-1": "Chercher de nouveaux produits",
+  "whitelabeler-ai-supplier-scout-v-2": "Fournisseurs AliExpress / Alibaba, coût livré et marge",
 };
 // Winning Hunter Assistant (qui cherche des produits) après les trois agents d'analyse.
-const ORDRE_CHAT = ["whitelabeler-niche-analyser-v-1", "whitelabeler-product-validator-v-1", "shopfunnels-ai-product-research-analyst", "shopfunnels-winning-hunter-assistant-v-1"];
+const ORDRE_CHAT = ["whitelabeler-niche-analyser-v-1", "whitelabeler-product-validator-v-1", "shopfunnels-ai-product-research-analyst", "whitelabeler-ai-supplier-scout-v-2", "shopfunnels-winning-hunter-assistant-v-1"];
 const rang = (slug) => (ORDRE_CHAT.indexOf(slug) + 1 || 99);
 const date = (s) => (s ? new Date(s).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "");
 // Rangé dans « Écartés » : par toi, ou par l agent qui l a trouvée. Un avis « écarté » d un agent en conversation laisse la cellule visible (badge rouge).
@@ -325,7 +326,7 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
   // « Discuter de ce produit » : les 3 agents d'analyse seulement (Winning
   // Hunter Assistant cherche de nouveaux produits : carte du haut).
   // Product Validator en premier (2026-11-25, demande de l utilisateur).
-  const ORDRE_ANALYSE = ["whitelabeler-product-validator-v-1", "whitelabeler-niche-analyser-v-1", "shopfunnels-ai-product-research-analyst"];
+  const ORDRE_ANALYSE = ["whitelabeler-product-validator-v-1", "whitelabeler-niche-analyser-v-1", "shopfunnels-ai-product-research-analyst", "whitelabeler-ai-supplier-scout-v-2"];
   const analyse = [...agentsChat].filter((a) => !/winning-hunter-assistant/.test(a.slug)).sort((x, y) => (ORDRE_ANALYSE.indexOf(x.slug) + 1 || 99) - (ORDRE_ANALYSE.indexOf(y.slug) + 1 || 99));
   const [agentChat, setAgentChat] = useState(() => {
     const m = localStorage.getItem("atl-grille-agentchat2");

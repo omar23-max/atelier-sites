@@ -181,7 +181,7 @@ export async function listerCandidats(root) {
 // IA relève son avis (verdict, note, résumé) et les autres produits ou
 // déclinaisons qu'il suggère. L'avis s'ajoute à la cellule (le plus récent
 // devient le verdict affiché) ; les idées deviennent des cellules « Mes produits ».
-const TITRES_CHAT = { "whitelabeler-niche-analyser-v-1": "Niche Analyser", "whitelabeler-product-validator-v-1": "Product Validator", "shopfunnels-ai-product-research-analyst": "AI Product Research Analyst", "shopfunnels-winning-hunter-assistant-v-1": "Winning Hunter Assistant" };
+const TITRES_CHAT = { "whitelabeler-niche-analyser-v-1": "Niche Analyser", "whitelabeler-product-validator-v-1": "Product Validator", "shopfunnels-ai-product-research-analyst": "AI Product Research Analyst", "shopfunnels-winning-hunter-assistant-v-1": "Winning Hunter Assistant", "whitelabeler-ai-supplier-scout-v-2": "Supplier Scout" };
 export async function suivreAnalyse(root, id, texte, slug, marche, extra = {}) {
   const c = (await listerCandidats(root)).find((x) => x.id === id);
   if (!c || !String(texte ?? "").trim()) return undefined;
@@ -209,7 +209,8 @@ ${String(texte).slice(0, 20000)}`,
   // Variantes (2026-11-25) : rangées DANS la fiche du produit (pas de nouvelle
   // cellule, la grille ne se surcharge pas), sans doublon.
   const existants = new Set([norm(c.nom), ...(c.variantes ?? []).map((v) => norm(v.nom))]);
-  const idees = (Array.isArray(r.produits) ? r.produits : []).map((x) => ({ nom: court(x.nom, 90), notes: court(x.notes, 600) })).filter((x) => x.nom && !existants.has(norm(x.nom))).slice(0, 6);
+  // Supplier Scout : ses annonces fournisseurs ne sont pas des variantes du produit.
+  const idees = (Array.isArray(r.produits) && !/supplier-scout/.test(slug) ? r.produits : []).map((x) => ({ nom: court(x.nom, 90), notes: court(x.notes, 600) })).filter((x) => x.nom && !existants.has(norm(x.nom))).slice(0, 6);
   const copieP = id.startsWith("p-") ? (({ statut, ajouts, lance, ancien, analyses, verdictTrouve, dernierAvis, desaccord, variantes, collages, imagesAmazon, ...reste }) => ({ ...reste, verdict: verdictTrouve ?? reste.verdict }))(c) : null;
   await muter(root, (e) => {
     if (analyse) {
