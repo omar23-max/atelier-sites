@@ -14,6 +14,9 @@ import { fileURLToPath } from "node:url";
 import { root, pagesDir, sectionsDir, trashDir, requestsDir, projectsDir, importsDir, mediasDir, NAME, TRASH_NAME, stamp, readBody, thumbTimers, refreshPageThumb, json, supabaseClient, mediaPlace, pageRev, pageWriters, lockFile, writeAtomic, muterProjet, noterOuverture, datesOuverture } from "./commun.mjs";
 const jsonOut = json;
 import { empreinte, statutFondations } from "../src/engine/fondations-etat.js";
+// Compteur de coûts (lot 1, 2026-11-25) : chaque appel payant est noté et imputé.
+import { ctxCout, debutCout, installerCompteur } from "./couts.mjs";
+installerCompteur(root);
 
 // ---- Écritures sûres (audit PG01, 2026-11-23) ----
 // Un verrou par fichier : la lecture de la version, la comparaison et
@@ -82,7 +85,14 @@ export function atelierApi() {
       server.middlewares.use("/api", async (req, res, next) => {
         const [path] = (req.url ?? "/").split("?");
         const parts = path.split("/").filter(Boolean).map(decodeURIComponent);
+        // Contexte de coût de cette requête (projet, page, produit), suivi jusque dans ses tâches de fond.
+        ctxCout.enterWith(debutCout(req, parts));
         try {
+          // ---- Dépense IA par projet / produit (lot 1, 2026-11-25) ----
+          if (parts[0] === "couts") {
+            const { coutsRoute } = await import("./couts.mjs");
+            return coutsRoute(req, res, parts, { root, readBody, json });
+          }
           // ---- Page d'origine d'un import (vue « Original ») ----
           // Le HTML capturé, tel quel : textes, design et images d'origine.
           // Scripts retirés et bloqués ; <base> pointe vers le site pour ses CSS et images.

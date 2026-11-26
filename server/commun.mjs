@@ -29,7 +29,12 @@ export const stamp = () => new Date().toISOString().replace(/[-:]/g, "").replace
 export async function readBody(req) {
   let raw = "";
   for await (const chunk of req) raw += chunk;
-  return raw ? JSON.parse(raw) : {};
+  const b = raw ? JSON.parse(raw) : {};
+  // Compteur de coûts : le projet, la page ou le produit de la demande.
+  try {
+    (await import("./couts.mjs")).attribuerCorps(b);
+  } catch {}
+  return b;
 }
 
 // Vignette d'une page (medias/_vignettes/<page>.png) refaite en arrière-plan

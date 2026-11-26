@@ -5,6 +5,7 @@
 // actions (lancer le produit, discuter avec un agent, écarter…).
 import { useEffect, useMemo, useState } from "react";
 import { Markdown } from "../mirror-pub-ui.jsx";
+import { CoutsPanneau } from "./Couts.jsx";
 
 const ORDRE = { "feu vert": 0, "à analyser": 1, "à surveiller": 2, "écarté": 3 };
 const FILTRES = [
@@ -411,6 +412,7 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
         )}
         {!moi && <p className="cat-muted">Chiffres relevés par WinningHunter à la date du résultat, sur un échantillon ; verdict et textes = interprétation de l'IA, à vérifier.</p>}
       </div>
+      <CoutsPanneau key={`couts-${c.id}`} cle={`produit-${c.id}`} titre="Dépense IA sur ce produit" compact />
       <RapportsAgents id={c.id} nb={c.nbRapports} lance={c.lance} />
       <div className="rg__collages">
         <b>Contenus collés (Amazon, Reddit)</b>{" "}

@@ -7,6 +7,8 @@ import { empreinte, merge3, partiesEmpreinte, partiesModifiees, PARTIES_A_RELIRE
 import { OffreFiche } from "./OffreFiche.jsx";
 import { controlesFiche } from "../engine/offre-fiche.js";
 import { BriefCampagne, Mecanismes } from "./DecisionsMessage.jsx";
+import { CoutsPanneau } from "./Couts.jsx";
+import { RegistreFaits } from "./Registre.jsx";
 
 // Fondations d'un projet (phase 0, une seule fois par produit) : un
 // questionnaire de faits que seul l'utilisateur connaît (surtout des cases),
@@ -895,6 +897,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             : "Brouillon : remplis le questionnaire."}
       </div>
 
+      <CoutsPanneau cle={`projet-${project.id}`} titre="Dépense IA de ce projet" />
       <PropositionsAgents rep={rep} set={set} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
@@ -975,6 +978,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
+      {/* Lot 1 (2026-11-25) : registre calculé sur le brouillon en cours. */}
+      <RegistreFaits project={{ ...project, offre, offreFiche: fiche, fondations: { ...f, reponses: rep, faits, message: msg } }} />
       <section className="cat-panel">
         <h3>4. Les preuves que tu as vraiment</h3>
         <div className="cat-fd__preuves">
