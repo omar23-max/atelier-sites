@@ -4952,3 +4952,12 @@ textarea {
 
 /* Flèche vers l'étape suivante en bas des étapes du projet (2026-11-25) */
 .cat-etape-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 24px 0 8px; padding-top: 14px; border-top: 1px solid #e6e6ef; }
+
+/* Problèmes de l'offre signalés à leur place (2026-11-25) */
+.is-pb-err { outline: 1.5px solid #e0473c; outline-offset: 2px; border-radius: 6px; }
+.is-pb-warn { outline: 1.5px solid #f0a020; outline-offset: 2px; border-radius: 6px; }
+tr.is-pb-err > td, tr.is-pb-warn > td { background: rgba(224, 71, 60, .04); }
+tr.is-pb-warn > td { background: rgba(240, 160, 32, .05); }
+@keyframes atl-pb-flash { 0%, 100% { box-shadow: 0 0 0 0 rgba(240, 160, 32, 0); } 30% { box-shadow: 0 0 0 6px rgba(240, 160, 32, .35); } }
+.is-pb-flash { animation: atl-pb-flash 1.2s ease 2; }
+.cat-reg__aller { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; text-decoration: underline dotted; }

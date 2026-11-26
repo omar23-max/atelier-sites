@@ -18,11 +18,16 @@ export function OffreFiche({ value, onChange, texteOffre }) {
   const setLevier = (k, patch) => up({ leviers: { ...leviers, [k]: { ...leviers[k], ...patch } } });
   const controles = controlesFiche(fiche);
   const proposes = !packs.length ? packsDepuisTexte(texteOffre) : [];
+  // Où sont les problèmes (2026-11-25) : chaque élément en cause est encadré.
+  const niveauDe = (cible) => {
+    const l = controlesFiche(fiche).filter((c) => c.cible === cible);
+    return l.some((c) => c.niveau === "erreur") ? "is-pb-err" : l.length ? "is-pb-warn" : "";
+  };
 
   return (
     <div className="cat-fiche">
       <div className="cat-fiche__row">
-        <label className="cat-field">
+        <label className={`cat-field ${niveauDe("devise")}`} data-cible="offre-devise">
           <span>Devise</span>
           <select value={fiche.devise ?? ""} onChange={(e) => up({ devise: e.target.value })}>
             <option value="">— choisir —</option>
@@ -67,7 +72,7 @@ export function OffreFiche({ value, onChange, texteOffre }) {
           </thead>
           <tbody>
             {packs.map((p, i) => (
-              <tr key={p.id ?? i}>
+              <tr key={p.id ?? i} className={niveauDe(`pack-${i}`)} data-cible={`offre-pack-${i}`}>
                 <td>
                   <input value={p.nom ?? ""} onChange={(e) => setPack(i, { nom: e.target.value })} placeholder="ex. La cure 90 jours" aria-label={`Nom du pack ${i + 1}`} />
                 </td>
@@ -110,7 +115,7 @@ export function OffreFiche({ value, onChange, texteOffre }) {
       </button>
 
       <div className="cat-fiche__grid">
-        <fieldset>
+        <fieldset className={niveauDe("garantie")} data-cible="offre-garantie">
           <legend>Garantie</legend>
           <div className="cat-fiche__row">
             <input inputMode="numeric" value={fiche.garantie?.duree ?? ""} onChange={(e) => up({ garantie: { ...fiche.garantie, duree: e.target.value } })} placeholder="90" aria-label="Durée de la garantie" />
@@ -121,7 +126,7 @@ export function OffreFiche({ value, onChange, texteOffre }) {
           </div>
           <input value={fiche.garantie?.conditions ?? ""} onChange={(e) => up({ garantie: { ...fiche.garantie, conditions: e.target.value } })} placeholder="ex. remboursé même flacon vide" aria-label="Conditions de la garantie" />
         </fieldset>
-        <fieldset>
+        <fieldset className={niveauDe("retours")} data-cible="offre-retours">
           <legend>Retours</legend>
           <div className="cat-fiche__row">
             <input inputMode="numeric" value={fiche.retours?.duree ?? ""} onChange={(e) => up({ retours: { ...fiche.retours, duree: e.target.value } })} placeholder="90" aria-label="Fenêtre de retour" />
@@ -132,12 +137,12 @@ export function OffreFiche({ value, onChange, texteOffre }) {
           </div>
           <input value={fiche.retours?.conditions ?? ""} onChange={(e) => up({ retours: { ...fiche.retours, conditions: e.target.value } })} placeholder="ex. frais de retour à la charge du client" aria-label="Conditions de retour" />
         </fieldset>
-        <fieldset>
+        <fieldset className={niveauDe("livraison")} data-cible="offre-livraison">
           <legend>Livraison</legend>
           <input value={fiche.livraison?.texte ?? ""} onChange={(e) => up({ livraison: { ...fiche.livraison, texte: e.target.value } })} placeholder="ex. 3 à 5 jours ouvrables" aria-label="Délai de livraison" />
           <input inputMode="decimal" value={fiche.livraison?.seuilGratuit ?? ""} onChange={(e) => up({ livraison: { ...fiche.livraison, seuilGratuit: e.target.value } })} placeholder={`Gratuite dès… ${dev}`} aria-label="Seuil de livraison gratuite" />
         </fieldset>
-        <fieldset>
+        <fieldset className={niveauDe("rarete")} data-cible="offre-rarete">
           <legend>Rareté / urgence (facultatif)</legend>
           <label className="cat-fiche__inline">
             <input type="checkbox" checked={Boolean(fiche.rarete?.active)} onChange={(e) => up({ rarete: { ...fiche.rarete, active: e.target.checked } })} /> Il y a une vraie limite
@@ -148,7 +153,7 @@ export function OffreFiche({ value, onChange, texteOffre }) {
 
       <span className="cat-fd__label">Bonus</span>
       {bonus.map((b, i) => (
-        <div key={b.id ?? i} className="cat-fiche__row">
+        <div key={b.id ?? i} className={`cat-fiche__row ${niveauDe(`bonus-${i}`)}`} data-cible={`offre-bonus-${i}`}>
           <input className="cat-fiche__grow" value={b.nom ?? ""} onChange={(e) => setBonus(i, { nom: e.target.value })} placeholder="ex. Guide « Mon plan énergie 90 jours »" aria-label={`Nom du bonus ${i + 1}`} />
           <input value={b.valeur ?? ""} onChange={(e) => setBonus(i, { valeur: e.target.value })} placeholder="valeur (facultatif)" aria-label={`Valeur du bonus ${i + 1}`} />
           <label className="cat-fiche__inline">

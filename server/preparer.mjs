@@ -23,6 +23,15 @@ const METHODE_MECANISME = `Tu es un copywriter direct response formé à la mét
 - UMS (mécanisme de la solution) : pourquoi CE produit agit là où le reste a échoué.
 Il doit être crédible, explicable en une phrase, mémorable (un nom), et démontrable : chaque piste dit quelles preuves il faudrait pour l'affirmer, et ce qu'on ne peut pas dire tant qu'on ne les a pas. Propose 3 pistes vraiment différentes, ancrées dans la recherche client du projet.`;
 
+const METHODE_BRIEF = `Tu es un stratège direct response (méthode Jeffrey Park + Arsh : système à deux pages, page choisie selon la température du trafic et le niveau de conscience d'Eugene Schwartz). Tu prépares le BRIEF D'UNE CAMPAGNE : la page que verra le visiteur après la pub.
+Règles de choix :
+- Niveau de conscience → type de page : inconscient ou conscient du problème → advertorial ou listicle (pré-vente), puis la page d'offre ; conscient des solutions → landing ou page produit ; conscient du produit / prêt à acheter → page d'offre.
+- Provenance : pub froide Meta/TikTok pour un nouveau produit, sauf indication contraire.
+- La promesse de la pub doit être reprise mot pour mot par la page (congruence pub → page) : écris une promesse courte, forte, tirée du message central et des angles du projet.
+- L'avatar prioritaire est l'un des avatars du projet (reprends son intitulé).
+- Action attendue : un seul geste concret, de préférence le pack le plus populaire de l'offre.
+Explique tes choix en quelques lignes (rapport), puis rends le JSON.`;
+
 const ETAPES = {
   produit: {
     titre: "Produit et clients",
@@ -61,6 +70,13 @@ const ETAPES = {
     agentNom: "Master Advertising Copywriter",
     schema: `{"propositions":[{"champ":"message.promesse|message.mecanisme|message.objection|resultats.promesse","texte":"…"}]}`,
     consigneSortie: "Formule le message central du projet : 2 ou 3 promesses principales puissantes, la façon d'expliquer le mécanisme choisi (ou la meilleure piste) en une ou deux phrases, et les 3 objections principales avec leur réponse (format « objection → réponse »).",
+  },
+  brief: {
+    titre: "Brief de campagne",
+    methode: METHODE_BRIEF,
+    agentNom: "Stratège de campagne (méthode Jeffrey + Arsh)",
+    schema: `{"propositions":[{"champ":"brief.avatar|brief.situation|brief.promessePub|brief.action","texte":"…"},{"champ":"brief.conscience","texte":"inconscient|probleme|solution|produit|pret"},{"champ":"brief.trafic","texte":"pub-froide|recherche|retargeting|email|boutique|influence"},{"champ":"brief.typePage","texte":"advertorial|listicle|comparatif|landing|offre|produit|accueil"},{"champ":"brief.langue","texte":"fr|en"}]}`,
+    consigneSortie: "Une seule proposition par champ (la meilleure), sauf « brief.promessePub » : 2 ou 3 promesses au choix. Pour les champs à choix (conscience, trafic, typePage, langue), le texte est EXACTEMENT l'une des valeurs permises.",
   },
   angles: {
     titre: "Angles",

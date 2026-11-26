@@ -66,29 +66,29 @@ export function controlesFiche(fiche) {
   const out = [];
   if (!fiche) return out;
   const packs = packsCalcules(fiche);
-  if (packs.length && !fiche.devise) out.push({ niveau: "erreur", texte: "Choisis la devise : sans elle, un prix peut être lu en $ ou en €." });
+  if (packs.length && !fiche.devise) out.push({ niveau: "erreur", cible: "devise", texte: "Choisis la devise : sans elle, un prix peut être lu en $ ou en €." });
   for (const [i, p] of packs.entries()) {
     const nom = p.nom || `Pack ${i + 1}`;
-    if (impossible(p.quantite, true)) out.push({ niveau: "erreur", texte: `${nom} : quantité impossible (${p.quantite}) : un nombre entier, 1 ou plus.` });
-    else if (!p.q) out.push({ niveau: "erreur", texte: `${nom} : quantité manquante.` });
-    if (impossible(p.offertes, true)) out.push({ niveau: "erreur", texte: `${nom} : unités offertes impossibles (${p.offertes}).` });
-    if (impossible(p.prix)) out.push({ niveau: "erreur", texte: `${nom} : prix impossible (${p.prix}) : un prix ne peut pas être négatif.` });
-    else if (p.prixN == null) out.push({ niveau: "erreur", texte: `${nom} : prix manquant.` });
-    if (impossible(p.prixBarre)) out.push({ niveau: "erreur", texte: `${nom} : prix barré impossible (${p.prixBarre}).` });
-    if (p.prixBarreN != null && p.prixN != null && p.prixBarreN <= p.prixN) out.push({ niveau: "erreur", texte: `${nom} : le prix barré (${p.prixBarreN}) doit être plus élevé que le prix (${p.prixN}).` });
-    if (p.o > 0 && p.remise != null && p.remise <= 0) out.push({ niveau: "erreur", texte: `${nom} : « ${p.q} + ${p.o} offert(s) » mais le prix par unité n'est pas plus bas que le pack de base.` });
-    if (p.abonnement && !String(p.cadence ?? "").trim()) out.push({ niveau: "attention", texte: `${nom} : abonnement sans cadence (ex. tous les 30 jours).` });
+    if (impossible(p.quantite, true)) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : quantité impossible (${p.quantite}) : un nombre entier, 1 ou plus.` });
+    else if (!p.q) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : quantité manquante.` });
+    if (impossible(p.offertes, true)) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : unités offertes impossibles (${p.offertes}).` });
+    if (impossible(p.prix)) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : prix impossible (${p.prix}) : un prix ne peut pas être négatif.` });
+    else if (p.prixN == null) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : prix manquant.` });
+    if (impossible(p.prixBarre)) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : prix barré impossible (${p.prixBarre}).` });
+    if (p.prixBarreN != null && p.prixN != null && p.prixBarreN <= p.prixN) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : le prix barré (${p.prixBarreN}) doit être plus élevé que le prix (${p.prixN}).` });
+    if (p.o > 0 && p.remise != null && p.remise <= 0) out.push({ cible: `pack-${i}`, niveau: "erreur", texte: `${nom} : « ${p.q} + ${p.o} offert(s) » mais le prix par unité n'est pas plus bas que le pack de base.` });
+    if (p.abonnement && !String(p.cadence ?? "").trim()) out.push({ cible: `pack-${i}`, niveau: "attention", texte: `${nom} : abonnement sans cadence (ex. tous les 30 jours).` });
   }
-  if (packs.filter((p) => p.populaire).length > 1) out.push({ niveau: "attention", texte: "Un seul pack peut être « le plus populaire »." });
-  for (const [lib, v] of [["Garantie", fiche.garantie?.duree], ["Retours", fiche.retours?.duree], ["Seuil de livraison gratuite", fiche.livraison?.seuilGratuit]]) if (impossible(v)) out.push({ niveau: "erreur", texte: `${lib} : valeur impossible (${v}).` });
+  if (packs.filter((p) => p.populaire).length > 1) out.push({ niveau: "attention", cible: "packs", texte: "Un seul pack peut être « le plus populaire »." });
+  for (const [lib, v] of [["Garantie", fiche.garantie?.duree], ["Retours", fiche.retours?.duree], ["Seuil de livraison gratuite", fiche.livraison?.seuilGratuit]]) if (impossible(v)) out.push({ niveau: "erreur", cible: { Garantie: "garantie", Retours: "retours" }[lib] ?? "livraison", texte: `${lib} : valeur impossible (${v}).` });
   const g = pos(fiche.garantie?.duree);
   const r = pos(fiche.retours?.duree);
   const jours = (d, u) => (d == null ? null : u === "mois" ? d * 30 : d);
   if (g != null && r != null && jours(r, fiche.retours?.unite) < jours(g, fiche.garantie?.unite))
-    out.push({ niveau: "erreur", texte: `La garantie (${g} ${fiche.garantie?.unite ?? "jours"}) dépasse la fenêtre de retour (${r} ${fiche.retours?.unite ?? "jours"}) : l'une contredit l'autre.` });
-  if (String(fiche.garantie?.conditions ?? "").trim() && g == null) out.push({ niveau: "attention", texte: "Garantie décrite sans durée." });
-  for (const b of fiche.bonus ?? []) if (b.nom && !b.livre) out.push({ niveau: "attention", texte: `Bonus « ${b.nom} » pas encore livrable : il ne doit pas être annoncé sur les pages.` });
-  if (fiche.rarete?.active && !String(fiche.rarete?.condition ?? "").trim()) out.push({ niveau: "erreur", texte: "Urgence / rareté activée sans vraie condition : à documenter, sinon à retirer." });
+    out.push({ niveau: "erreur", cible: "garantie", texte: `La garantie (${g} ${fiche.garantie?.unite ?? "jours"}) dépasse la fenêtre de retour (${r} ${fiche.retours?.unite ?? "jours"}) : l'une contredit l'autre.` });
+  if (String(fiche.garantie?.conditions ?? "").trim() && g == null) out.push({ niveau: "attention", cible: "garantie", texte: "Garantie décrite sans durée." });
+  for (const [bi, b] of (fiche.bonus ?? []).entries()) if (b.nom && !b.livre) out.push({ niveau: "attention", cible: `bonus-${bi}`, texte: `Bonus « ${b.nom} » pas encore livrable : il ne doit pas être annoncé sur les pages.` });
+  if (fiche.rarete?.active && !String(fiche.rarete?.condition ?? "").trim()) out.push({ niveau: "erreur", cible: "rarete", texte: "Urgence / rareté activée sans vraie condition : à documenter, sinon à retirer." });
   return out;
 }
 

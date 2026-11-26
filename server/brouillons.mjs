@@ -36,6 +36,14 @@ export const CHAMPS_BROUILLON = {
   "message.mecanisme": "Message central : mécanisme",
   "message.objection": "Message central : une objection",
   "offre.angles": "Offre : angles de vente",
+  "brief.avatar": "Brief : avatar prioritaire",
+  "brief.situation": "Brief : situation d'achat",
+  "brief.conscience": "Brief : niveau de conscience",
+  "brief.trafic": "Brief : provenance du trafic",
+  "brief.promessePub": "Brief : promesse de la pub",
+  "brief.typePage": "Brief : type de page",
+  "brief.langue": "Brief : langue",
+  "brief.action": "Brief : action attendue",
   offreFiche: "Fiche d'offre chiffrée",
 };
 // Rubriques des cellules de la grille → champ par défaut (modifiable ensuite).

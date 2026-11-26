@@ -478,7 +478,17 @@ const CHAMPS_BROUILLON = {
   "message.objection": "Message central : une objection",
   "offre.angles": "Offre : angles de vente",
   offreFiche: "Fiche d'offre chiffrée",
+  "brief.avatar": "Brief : avatar prioritaire",
+  "brief.situation": "Brief : situation d'achat",
+  "brief.conscience": "Brief : niveau de conscience",
+  "brief.trafic": "Brief : provenance du trafic",
+  "brief.promessePub": "Brief : promesse de la pub",
+  "brief.typePage": "Brief : type de page",
+  "brief.langue": "Brief : langue",
+  "brief.action": "Brief : action attendue",
 };
+// Champs à choix du brief : la proposition est une valeur de la liste.
+const CHOIX_BRIEF = { conscience: ["inconscient", "probleme", "solution", "produit", "pret"], trafic: ["pub-froide", "recherche", "retargeting", "email", "boutique", "influence"], typePage: ["advertorial", "listicle", "comparatif", "landing", "offre", "produit", "accueil"], langue: ["fr", "en"] };
 // Fiche d'offre proposée par l'agent : seules les cases VIDES sont remplies.
 const vide = (v) => v == null || String(v).trim() === "";
 function remplirVides(cur, prop) {
@@ -568,7 +578,7 @@ function BoutonPreparer({ projet, etape, onFini }) {
     </div>
   );
 }
-function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null, setMsg = null, fiche = null, setFiche = null, projet = null, rafraichir = null }) {
+function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null, setMsg = null, fiche = null, setFiche = null, brief = {}, setBrief = null, projet = null, rafraichir = null }) {
   const l = rep.brouillonsAgents ?? [];
   const [edits, setEdits] = useState({});
   const [voirHisto, setVoirHisto] = useState(false);
@@ -600,6 +610,15 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
         return setMsg({ ...m, objections: m.objections.map((x, j) => (j === i ? { objection: o ?? texte, reponse: r ?? "" } : x)) }), true;
       }
       return setMsg({ ...m, [k]: annule ? retirerTexte(m[k], texte) : ajouterTexte(m[k], texte) }), true;
+    }
+    // Brief (2026-11-25) : une case vide reçoit la proposition ; une case déjà
+    // remplie n'est pas écrasée (vide-la d'abord) ; les champs à choix prennent une valeur de la liste.
+    if (zone === "brief" && setBrief) {
+      if (annule) return setBrief({ ...(brief ?? {}), [k]: "" }), true;
+      const v = CHOIX_BRIEF[k] ? CHOIX_BRIEF[k].find((x) => texte.toLowerCase().includes(x)) : texte;
+      if (!v) return setErr(`Valeur inconnue pour ce champ du brief : « ${texte} ».`), false;
+      if (String(brief?.[k] ?? "").trim() && brief[k] !== v) return setErr("Cette case du brief est déjà remplie : vide-la d'abord si tu préfères la proposition."), false;
+      return setBrief({ ...(brief ?? {}), [k]: v }), true;
     }
     if (zone === "resultats" && projet) {
       const r = await fetch(`/api/brouillons/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "resultat", champ, texte, annuler: annule }) }).catch(() => null);
@@ -1074,7 +1093,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <CoutsPanneau cle={`projet-${project.id}`} titre="Dépense IA de ce projet" />
-      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} fiche={fiche} setFiche={setFiche} projet={project.id} rafraichir={recharger} />
+      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} fiche={fiche} setFiche={setFiche} brief={brief} setBrief={setBrief} projet={project.id} rafraichir={recharger} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
           <b>Brouillon repris</b> : tu avais quitté les Fondations sans enregistrer{restaure.at ? ` (le ${new Date(restaure.at).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" })})` : ""}.
@@ -1331,6 +1350,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         </p>
         <MessageEditor value={msg} onChange={setMsg} />
       </section>
+      <BoutonPreparer projet={project.id} etape="brief" onFini={recharger} />
       <section className="cat-panel">
         <h3>Brief de campagne</h3>
         <p className="cat-muted">

@@ -233,7 +233,32 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   const [pages, setPages] = useState(null); // [{ info, data, score, medias, origin }]
   const [allPages, setAllPages] = useState([]);
   const [templates, setTemplates] = useState([]);
-  const [tab, setTab] = useState(null); // ouvert sur Fondations tant qu'elles ne sont pas validées
+  // Étape ouverte gardée dans l'adresse (?etape=…, 2026-11-25) : un
+  // rafraîchissement ramène sur la même étape du projet.
+  const [tab, setTabBrut] = useState(() => {
+    const e = new URLSearchParams(location.search).get("etape");
+    return e && /^[a-z]+$/.test(e) ? e : null;
+  });
+  const setTab = (t) => {
+    setTabBrut(t);
+    try {
+      const q = new URLSearchParams(location.search);
+      if (t) q.set("etape", t);
+      else q.delete("etape");
+      history.replaceState(history.state, "", `${location.pathname}?${q}${location.hash}`);
+    } catch {}
+  };
+  // En quittant le projet (liste, autre projet) : l étape ne suit pas.
+  useEffect(
+    () => () => {
+      try {
+        const q = new URLSearchParams(location.search);
+        q.delete("etape");
+        history.replaceState(history.state, "", `${location.pathname}${q.toString() ? `?${q}` : ""}${location.hash}`);
+      } catch {}
+    },
+    [],
+  );
 
   const load = async () => {
     try {

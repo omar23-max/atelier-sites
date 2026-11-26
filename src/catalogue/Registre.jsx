@@ -50,11 +50,20 @@ export function RegistreFaits({ project }) {
   const manques = [...(ctx.aVerifier ?? [])];
   const controles = project.offreFiche ? controlesFiche(project.offreFiche).filter((c) => c.niveau === "erreur" || c.niveau === "attention") : [];
   const contradictions = [];
-  for (const c of controles) contradictions.push(`Offre${c.niveau === "erreur" ? "" : " (à surveiller)"} : ${c.texte}`);
+  for (const c of controles) contradictions.push({ texte: `Offre${c.niveau === "erreur" ? "" : " (à surveiller)"} : ${c.texte}`, cible: c.cible ? `offre-${c.cible}` : "offre-devise" });
   const NOMS_RELIRE = { produit: "le produit", commercial: "les prix ou les packs", marche: "le marché visé" };
   if (ext.validation?.aRelire?.length) contradictions.push({ texte: `Validation produit : ${ext.validation.aRelire.map((k) => NOMS_RELIRE[k] ?? k).join(", ")} ${ext.validation.aRelire.length > 1 ? "ont" : "a"} changé depuis le verdict.`, valider: true });
   if (ext.produit?.desaccord) contradictions.push(`Les agents ne sont pas d'accord sur le produit : ${ext.produit.desaccord.map((d) => `${d.titre} : ${d.verdict}`).join(" · ")}.`);
   const nbAtrier = (rep.brouillonsAgents ?? []).filter((b) => b.statut === "proposé").length;
+  // Fait défiler jusqu'à l'élément en cause et le fait clignoter.
+  function allerA(cible) {
+    const el = document.querySelector(`[data-cible="${cible}"]`) ?? (cible.startsWith("offre-pack") ? document.querySelector('[data-cible^="offre-pack"]') : null);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.classList.remove("is-pb-flash");
+    void el.offsetWidth;
+    el.classList.add("is-pb-flash");
+  }
   async function garderVerdict() {
     const r = await fetch(`/api/validation/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirmer: true }) }).catch(() => null);
     if (r?.ok) setExt((e) => ({ ...e, validation: { ...e.validation, aRelire: [] } }));
@@ -139,7 +148,15 @@ export function RegistreFaits({ project }) {
           <ul>
             {contradictions.map((x, i) => (
               <li key={`c${i}`} className="cat-reg__contra">
-                {typeof x === "string" ? x : x.texte}
+                {typeof x === "object" && x.cible ? (
+                  <button type="button" className="cat-reg__aller" onClick={() => allerA(x.cible)} title="Aller à l'endroit concerné, plus bas">
+                    {x.texte} ↓
+                  </button>
+                ) : typeof x === "string" ? (
+                  x
+                ) : (
+                  x.texte
+                )}
                 {x.valider && (
                   <>
                     {" "}
