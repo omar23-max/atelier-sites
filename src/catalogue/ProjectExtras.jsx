@@ -378,13 +378,14 @@ export function BrandTab({ project, pages, onSave, onMessage }) {
         <div className="cat-panel__head">
           <strong>6. Aperçu</strong>
         </div>
+        <p className="cat-muted">Maquette pour juger tes couleurs et tes polices ensemble : rien n&apos;y est cliquable, le bouton montre seulement son style.</p>
         <div className="cat-brand__apercu" style={{ background: c("fond"), color: c("texte"), fontFamily: form.polices.texte ? `"${form.polices.texte}", sans-serif` : undefined }}>
           <div className="cat-brand__bar" style={{ background: c("surface") }}>
             {form.logos[0] ? <img src={form.logos[0]} alt="" /> : <b style={{ fontFamily: form.polices.titres ? `"${form.polices.titres}", serif` : undefined }}>{form.nom || "Ta marque"}</b>}
           </div>
           <h2 style={{ fontFamily: form.polices.titres ? `"${form.polices.titres}", serif` : undefined, color: c("texte") }}>{form.slogan || "Ton slogan s'affiche ici"}</h2>
           <p>Un paragraphe dans la police du texte, pour juger la lecture : {form.nom || "ta marque"} explique simplement ce qu'elle apporte à ses clients.</p>
-          <span className="cat-brand__btn" style={{ background: c("bouton") }}>
+          <span className="cat-brand__btn" title="Exemple de bouton (non cliquable)" style={{ background: c("bouton"), cursor: "default" }}>
             Découvrir <span style={{ color: c("accent"), background: "#fff", borderRadius: 999, padding: "0 6px", marginLeft: 6 }}>→</span>
           </span>
           <div className="cat-brand__dark" style={{ background: c("sombre") }}>

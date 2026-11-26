@@ -235,6 +235,10 @@ function Marge({ project, onSave }) {
 // d'origine. Actions : ouvrir dans le Canvas, variante, télécharger, retirer.
 const SUIVI = { idee: "Idée", brouillon: "Brouillon", prete: "Prête", "en-test": "En test", gagnante: "Gagnante", arretee: "Arrêtée" };
 const AGENT_PUB = { rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator" };
+// Nom lisible de l'agent de chaque mode (mêmes noms que les fiches des médias).
+const AGENTS_PUB = { ugcVideo: "UGC Video Producer V2", pubVideo: "AI Video Ad Generator", rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "Transformation Image Ad Generator" };
+const nomAgent = (k, x) => AGENTS_PUB[k] ?? String(x?.agent ?? "").replace(/^(whitelabeler|shopfunnels)-/, "").replace(/-v-(\d)/, " V$1").replace(/-/g, " ");
+
 function RegistrePubs({ project, page, data, charger }) {
   const [f, setF] = useState({ type: "", suivi: "", angle: "" });
   const [local, setLocal] = useState({});
@@ -393,6 +397,8 @@ export function PublicitesTab({ project, pages }) {
   const [source, setSource] = useState(null);
   const [refs, setRefs] = useState([]);
   const [format, setFormat] = useState("4:5");
+  const [duree, setDuree] = useState(8);
+  const [qualite, setQualite] = useState("720p");
   const [consigne, setConsigne] = useState("");
   const [err, setErr] = useState(null);
   const charger = () =>
@@ -418,15 +424,22 @@ export function PublicitesTab({ project, pages }) {
     return () => clearInterval(t);
   }, [enCours, project.id]);
   const m = data.modes[mode];
+  const video = m?.kind === "video";
+  // Vidéo (2026-11-26) : les 2 modes vidéo du Canvas aussi ici ; format vertical ou horizontal seulement.
+  const choisirMode = (k) => {
+    setMode(k);
+    const v = data.modes[k]?.kind === "video";
+    setFormat((f) => (v ? (f === "16:9" ? "16:9" : "9:16") : ["4:5", "1:1", "9:16"].includes(f) ? f : "4:5"));
+  };
   async function creer() {
     setErr(null);
-    const r = await fetch(`/api/publicites/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, source: m?.source ? source : null, refs, format, consigne }) });
+    const r = await fetch(`/api/publicites/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, source: m?.source ? source : null, refs, format, consigne, ...(video ? { duree, qualite } : {}) }) });
     const b = await r.json().catch(() => ({}));
     if (!r.ok) return setErr(b.error ?? `Erreur ${r.status}`);
     setConsigne("");
     charger();
   }
-  const toggleRef = (u) => setRefs((l) => (l.includes(u) ? l.filter((x) => x !== u) : [...l, u].slice(0, 6)));
+  const toggleRef = (u) => setRefs((l) => (l.includes(u) ? l.filter((x) => x !== u) : [...l, u].slice(0, video ? 3 : 6)));
   const ouvrir = (espace) => page && (location.href = espace === "canvas" ? `/canvas.html?page=${encodeURIComponent(page)}` : `/?page=${encodeURIComponent(page)}&ouvrir=${espace}`);
   return (
     <section className="cat-card cat-val">
@@ -435,13 +448,14 @@ export function PublicitesTab({ project, pages }) {
 
       <RegistrePubs project={project} page={page} data={data} charger={charger} />
 
-      <h4>Créer une pub image ici</h4>
+      <h4>Créer une pub ici (image ou vidéo)</h4>
       <p className="cat-muted">Tu peux aussi créer dans le Canvas (bouton Créer : proposition, correction, discussion avec l'agent) : les pubs arrivent dans ce même registre.</p>
       <div className="cat-pub__modes">
-        {Object.entries(data.modes).filter(([, x]) => x.kind !== "video").map(([k, x]) => (
-          <button key={k} type="button" className={`cat-pub__mode${mode === k ? " is-on" : ""}`} onClick={() => setMode(k)}>
+        {Object.entries(data.modes).map(([k, x]) => (
+          <button key={k} type="button" className={`cat-pub__mode${mode === k ? " is-on" : ""}${x.kind === "video" ? " is-video" : ""}`} onClick={() => choisirMode(k)} title={`${x.kind === "video" ? "Vidéo" : "Image"} · agent : ${nomAgent(k, x)}`}>
             <b>{x.label}</b>
-            <small>{x.source ? "à partir d'une pub existante" : "à partir du projet"}</small>
+            <small>{x.kind === "video" ? "🎬 Vidéo · depuis tes photos" : `🖼 Image · ${x.source ? "depuis une pub existante" : "depuis le projet"}`}</small>
+            <small className="cat-pub__agent">Agent : {nomAgent(k, x)}</small>
           </button>
         ))}
       </div>
@@ -459,7 +473,8 @@ export function PublicitesTab({ project, pages }) {
         </div>
       )}
       <div>
-        <span className="cat-fd__label">Références du produit et de la marque (jusqu'à 6)</span>
+        <span className="cat-fd__label">{video ? "Photos du produit (jusqu'à 3 ; la première sert d'image de départ)" : "Références du produit et de la marque (jusqu'à 6)"}</span>
+        {video && <p className="cat-muted">Gemini Omni filme un seul plan continu de 4 à 15 s. Pour passer son filtre : pas d'enfant à l'image, pas de marque concurrente. Choisis des photos de TON produit, sinon il sera inventé.</p>}
         <div className="cat-pub__pick">
           {medias.map((x) => (
             <button key={x.url} type="button" className={refs.includes(x.url) ? "is-on" : ""} onClick={() => toggleRef(x.url)} title={x.url.split("/").pop()}>
@@ -471,17 +486,46 @@ export function PublicitesTab({ project, pages }) {
       <div className="cat-pub__row">
         <label>
           <span className="cat-fd__label">Format</span>
-          <select value={format} onChange={(e) => setFormat(e.target.value)}>
-            <option value="4:5">4:5 (fil Meta)</option>
-            <option value="1:1">1:1 (carré)</option>
-            <option value="9:16">9:16 (Stories, Reels)</option>
-          </select>
+          {video ? (
+            <select value={format} onChange={(e) => setFormat(e.target.value)}>
+              <option value="9:16">9:16 (Reels, TikTok, Stories)</option>
+              <option value="16:9">16:9 (horizontal)</option>
+            </select>
+          ) : (
+            <select value={format} onChange={(e) => setFormat(e.target.value)}>
+              <option value="4:5">4:5 (fil Meta)</option>
+              <option value="1:1">1:1 (carré)</option>
+              <option value="9:16">9:16 (Stories, Reels)</option>
+            </select>
+          )}
         </label>
+        {video && (
+          <>
+            <label>
+              <span className="cat-fd__label">Durée</span>
+              <select value={duree} onChange={(e) => setDuree(Number(e.target.value))}>
+                {[4, 6, 8, 10, 12, 15].map((d) => (
+                  <option key={d} value={d}>
+                    {d} s
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="cat-fd__label">Qualité</span>
+              <select value={qualite} onChange={(e) => setQualite(e.target.value)}>
+                <option value="360p">360p (essai, moins cher)</option>
+                <option value="720p">720p</option>
+                <option value="1080p">1080p (plus cher)</option>
+              </select>
+            </label>
+          </>
+        )}
         <label className="cat-pub__consigne">
           <span className="cat-fd__label">Précision (facultatif)</span>
           <input value={consigne} onChange={(e) => setConsigne(e.target.value)} placeholder="ex. angle « fatigué même après 8 h de sommeil », ambiance matinale" />
         </label>
-        <button type="button" className="cat-btn" disabled={!m || (m.source && !source)} onClick={creer} title="Payant : l'agent prépare la pub puis l'image est générée tout de suite (≈ 0,05 $). Pour relire la proposition avant de générer, passe par le Canvas (Créer avec un agent).">
+        <button type="button" className="cat-btn" disabled={!m || (m.source && !source) || (video && !refs.length)} onClick={creer} title={video ? "Payant : l'agent écrit le plan puis Gemini Omni filme tout de suite. Plus cher qu'une image : le prix dépend de la durée et de la qualité, il s'affiche dans le registre une fois la vidéo faite. Pour relire le plan avant de filmer, passe par le Canvas (bouton Vidéo)." : "Payant : l'agent prépare la pub puis l'image est générée tout de suite (≈ 0,05 $). Pour relire la proposition avant de générer, passe par le Canvas (Créer avec un agent)."}>
           Préparer et générer (payant)
         </button>
       </div>

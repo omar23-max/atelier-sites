@@ -642,7 +642,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
       if (annule) return setBrief({ ...(brief ?? {}), [k]: "" }), true;
       const v = CHOIX_BRIEF[k] ? CHOIX_BRIEF[k].find((x) => texte.toLowerCase().includes(x)) : texte;
       if (!v) return setErr(`Valeur inconnue pour ce champ du brief : « ${texte} ».`), false;
-      if (String(brief?.[k] ?? "").trim() && brief[k] !== v) return setErr("Cette case du brief est déjà remplie : vide-la d'abord si tu préfères la proposition."), false;
+      // Case déjà remplie (2026-11-26) : la proposition REMPLACE la valeur, gardée pour « Annuler ».
       return setBrief({ ...(brief ?? {}), [k]: v }), true;
     }
     if (zone === "resultats" && projet) {
@@ -662,7 +662,12 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     }
     const champ = champDe(b);
     const texte = texteDe(b).trim();
+    const avantBrief = champ.startsWith("brief.") ? String(brief?.[champ.slice(6)] ?? "") : undefined;
     const r = texte ? await ecrire(champ, texte) : false;
+    if (r === true && avantBrief) {
+      maj(b.id, { statut: "accepté", champ, ajoute: texte, briefAvant: avantBrief, decideLe: new Date().toISOString() });
+      return;
+    }
     if (r === "choisir") {
       const [o, rep2] = decoupe(texte);
       return setChoixObj({ id: b.id, o: o ?? texte, r: rep2 ?? "" });
@@ -688,6 +693,11 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
       maj(b.id, { statut: "proposé", ajoute: undefined, remplace: undefined, decideLe: undefined });
       return;
     }
+    if (b.briefAvant !== undefined && setBrief) {
+      setBrief({ ...(brief ?? {}), [String(b.champ).slice(6)]: b.briefAvant });
+      maj(b.id, { statut: "proposé", ajoute: undefined, briefAvant: undefined, decideLe: undefined });
+      return;
+    }
     if (b.champ === "offreFiche" && setFiche) {
       setFiche(b.ficheAvant ?? null);
       maj(b.id, { statut: "proposé", ficheAvant: undefined, decideLe: undefined });
@@ -698,7 +708,29 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     if (String(b.champ).startsWith("resultats.")) rafraichir?.();
   }
   const ordre = Object.keys(CHAMPS_BROUILLON);
-  const attente = l.filter((b) => b.statut === "proposé").sort((a, b) => ordre.indexOf(a.champ) - ordre.indexOf(b.champ));
+  // Ce qui est déjà dans le champ n'est pas reproposé (2026-11-26).
+  const norm = (x) => String(x ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+  const valeurDe = (champ) => {
+    const [zone, k] = String(champ).includes(".") ? String(champ).split(".") : ["reponses", champ];
+    if (zone === "reponses") return rep[k];
+    if (zone === "offre") return offre?.[k];
+    if (zone === "brief") return brief?.[k];
+    if (zone === "message" && msg) {
+      const m = normalizeMessage(msg);
+      return k === "objection" ? m.objections.map((x) => `${x.objection} ${x.reponse}`).join("\n") : m[k];
+    }
+    return "";
+  };
+  const dejaDedans = (b) => {
+    const t = norm(b.texte);
+    const v = norm(valeurDe(b.champ));
+    if (!t || !v) return false;
+    return String(b.champ).startsWith("brief.") ? v === t : v.includes(t);
+  };
+  const proposes = l.filter((b) => b.statut === "proposé");
+  const nbDeja = proposes.filter(dejaDedans).length;
+  const attente = proposes.filter((b) => !dejaDedans(b)).sort((a, b) => ordre.indexOf(a.champ) - ordre.indexOf(b.champ));
+  const actuelBrief = (champ) => (String(champ).startsWith("brief.") ? String(brief?.[String(champ).slice(6)] ?? "").trim() : "");
   const nbDe = (champ) => attente.filter((b) => b.champ === champ).length;
   function rejeterGroupe(champ) {
     if (!window.confirm(`Rejeter les ${nbDe(champ)} proposition(s) « ${CHAMPS_BROUILLON[champ] ?? champ} » ? (tu pourras les remettre depuis l'historique)`)) return;
@@ -710,6 +742,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
   return (
     <section className="cat-panel cat-fd__props">
       <h3>Propositions des agents {attente.length > 0 && <span className="cat-fd__propsnb">{attente.length} à trier</span>}</h3>
+      {nbDeja > 0 && <p className="cat-muted">{nbDeja} proposition(s) masquée(s) : leur texte est déjà dans tes champs.</p>}
       <p className="cat-muted">
         Trouvées par les agents de recherche (chat ou grille de la Recherche). « Ajouter au champ » met le texte à la fin du champ choisi, sans rien remplacer, et veut dire « je veux m'en servir » : ce n'est pas une preuve. Une accroche de concurrent ne décrit pas ton produit. Pense à enregistrer.
       </p>
@@ -721,6 +754,11 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
             <button type="button" className="cat-link" onClick={() => rejeterGroupe(b.champ)}>
               Rejeter les {nbDe(b.champ)}
             </button>
+            {actuelBrief(b.champ) && (
+              <div className="cat-fd__actuel">
+                Déjà choisi : « {actuelBrief(b.champ)} ». Ce sont des alternatives : garde ton choix (rejette-les) ou remplace-le.
+              </div>
+            )}
           </div>
         )}
         <div className="cat-fd__prop">
@@ -739,7 +777,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
           <textarea rows={2} value={texteDe(b)} onChange={(e) => edite(b, { texte: e.target.value })} aria-label="Texte proposé" />
           <span className="cat-fd__propbtns">
             <button type="button" className="cat-btn" disabled={!texteDe(b).trim()} onClick={() => accepter(b)}>
-              Ajouter au champ
+              {actuelBrief(champDe(b)) ? "Remplacer par celle-ci" : "Ajouter au champ"}
             </button>
             <button type="button" className="cat-link" onClick={() => maj(b.id, { statut: "rejeté", decideLe: new Date().toISOString() })}>
               Rejeter
@@ -1538,7 +1576,29 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
 // Barre d'avancement du projet : ① Fondations → ② Angles → ③ Pages → ④ Pubs →
 // ⑤ Audit → ⑥ Résultats. Chaque étape dit où elle en est.
+// « chez Claude » seulement tant que la demande n'est pas traitée ; ensuite
+// les fondations attendent la validation de l'utilisateur (2026-11-26).
+function useDemandeTraitee(project) {
+  const dossier = String(project?.fondations?.demande ?? "").replace(/^demandes\//, "");
+  const attend = project?.fondations?.statut === "demandée" && dossier;
+  const [traitee, setTraitee] = useState(false);
+  useEffect(() => {
+    if (!attend) return;
+    let fini = false;
+    fetch("/api/requests")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((l) => !fini && setTraitee((l ?? []).some((d) => d.dossier === dossier && d.statut === "traitée")))
+      .catch(() => {});
+    return () => {
+      fini = true;
+    };
+  }, [attend, dossier]);
+  return Boolean(attend && traitee);
+}
+const libelleDemandee = (traitee) => (traitee ? "à valider" : "chez Claude");
+
 export function ProjectProgress({ project, pages, onGo, current }) {
+  const fdTraitee = useDemandeTraitee(project);
   const fd = project.fondations?.statut;
   // Angles : faits quand des angles sont choisis ET la page mère désignée.
   // Pages : chaque angle choisi a sa page, et chaque page passe l'audit (≥ 80).
@@ -1548,7 +1608,7 @@ export function ProjectProgress({ project, pages, onGo, current }) {
   const exported = Object.values(project.publication ?? {}).filter((p) => p.html).length;
   const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
   const steps = [
-    ["fondations", "Fondations", fd === "validée" ? "done" : fd === "demandée" || fd === "modifiée" ? "doing" : foundationsFilled(project) ? "doing" : "todo", fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? "chez Claude" : "à faire"],
+    ["fondations", "Fondations", fd === "validée" ? "done" : fd === "demandée" || fd === "modifiée" ? "doing" : foundationsFilled(project) ? "doing" : "todo", fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? libelleDemandee(fdTraitee) : "à faire"],
     ["angles", "Angles", ang.chosen ? "done" : "todo", ang.chosen ? `${ang.chosen} choisi(s)` : "à choisir"],
     ["pages", "Pages", pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     // ["creatives", "Pubs", creatives.length ? "done" : "todo", creatives.length ? `${creatives.length} créative(s)` : "à faire"], // retiré pour l'instant (2026-11-12, demande de l'utilisateur)
@@ -1600,6 +1660,7 @@ export const PROJECT_MENU = [
 ];
 
 export function ProjectMenu({ project, pages, onGo, current }) {
+  const fdTraitee = useDemandeTraitee(project);
   const f = project.fondations ?? {};
   const rep = f.reponses ?? {};
   const fd = f.statut;
@@ -1666,7 +1727,7 @@ export function ProjectMenu({ project, pages, onGo, current }) {
         ))}
       </nav>
       <p className="cat-menu__fd">
-        Fondations : {fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? "chez Claude" : "brouillon"} (étapes {PROJECT_MENU.map((m, i) => (m.fd != null ? i + 1 : null)).filter(Boolean).join(", ").replace(/, (\d+)$/, " et $1")})
+        Fondations : {fd === "validée" ? "validées" : fd === "modifiée" ? "à revalider" : fd === "demandée" ? libelleDemandee(fdTraitee) : "brouillon"} (étapes {PROJECT_MENU.map((m, i) => (m.fd != null ? i + 1 : null)).filter(Boolean).join(", ").replace(/, (\d+)$/, " et $1")})
       </p>
     </div>
   );

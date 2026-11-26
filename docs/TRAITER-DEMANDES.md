@@ -2720,3 +2720,15 @@ Original 80 % → retour Modifiable 80 %.
 - Message central, objections pleines (2026-11-25) : « Ajouter au champ » propose de choisir l objection à remplacer (« Remplacer celle-ci ») ; Annuler remet l ancienne (remplace.avant).
 - Bandeau Préparer (2026-11-25) : « N proposition(s) à trier ↑ » (ou « tout est trié ») selon les brouillons de l étape ; un clic remonte au groupe de propositions concerné (clignotement).
 - Marque et design : « Noms possibles » en pastilles lisibles (cat-brand__nom ; l ancienne classe cat-chip faisait se chevaucher les noms) — 2026-11-25.
+
+- 2026-11-26 — Marque et design, « 6. Aperçu » : le bouton « Découvrir » ne mène à rien (voulu). Ajout d une phrase « Maquette… rien n y est cliquable » sous le titre, curseur normal et info-bulle sur le bouton.
+
+- 2026-11-26 — Propositions déjà validées reproposées (brief relancé). Fondations.jsx : une proposition dont le texte est déjà dans le champ est masquée (compteur « N masquée(s) ») ; pour une case du brief déjà remplie, le groupe affiche « Déjà choisi : … » et le bouton devient « Remplacer par celle-ci » (ancienne valeur gardée dans briefAvant pour Annuler). Plus d erreur « case déjà remplie ».
+
+- 2026-11-26 — 3 demandes traitées sur essai-plaid-jetable (design depuis kit, contenus x4 types, fondations). Contenus rédigés par ChatGPT (codex exec, dossier Desktop/codex-travail/contenus-plaid) puis fusionnés champ vide par champ vide avec contrôle chiffres/preuves ; copies /tmp/essai-plaid-jetable-avant-*-20261126.json.
+
+- 2026-11-26 — Libellé « Fondations : chez Claude » trompeur après traitement. Fondations.jsx : useDemandeTraitee lit /api/requests ; si la demande fondations.demande est « traitée », le menu et la progression affichent « à valider » (statut du projet inchangé).
+
+- 2026-11-26 — Publicités (Validation.jsx) : les 2 modes vidéo (Vidéo UGC, Pub vidéo depuis le projet) ajoutés au formulaire « Créer une pub ici (image ou vidéo) » : format 9:16/16:9, durée 4-15 s, qualité 360p/720p/1080p, 3 photos au plus (la 1re = image de départ), bouton grisé sans photo. Même route POST /api/publicites (duree, qualite) que le Canvas ; génération directe, relecture du plan seulement dans le Canvas.
+
+- 2026-11-26 — Publicités : chaque case de mode dit « 🖼 Image » ou « 🎬 Vidéo » + sa source, et « Agent : … » (petite ligne, coupée par … si trop longue, nom complet au survol ; AGENTS_PUB dans Validation.jsx). Marges resserrées : cases de 57 px (60 avant).
