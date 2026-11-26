@@ -210,10 +210,10 @@ export function BrandTab({ project, pages, onSave, onMessage }) {
         {prop && (
           <div className="cat-brand__prop">
             {prop.noms?.length > 1 && (
-              <p>
+              <p className="cat-brand__noms">
                 <b>Noms possibles :</b>{" "}
                 {prop.noms.map((n) => (
-                  <button key={n} type="button" className="cat-chip" onClick={() => set({ nom: n })}>
+                  <button key={n} type="button" className="cat-brand__nom" onClick={() => set({ nom: n })} title="Choisir ce nom (à enregistrer ensuite)">
                     {n}
                   </button>
                 ))}

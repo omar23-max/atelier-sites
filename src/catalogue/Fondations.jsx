@@ -512,7 +512,7 @@ function remplirVides(cur, prop) {
   return out;
 }
 // « Préparer » une étape avec son agent (lot 2, 2026-11-25).
-function BoutonPreparer({ projet, etape, onFini }) {
+function BoutonPreparer({ projet, etape, onFini, brouillons = [] }) {
   const [d, setD] = useState(null);
   const [web, setWeb] = useState(false);
   const [err, setErr] = useState(null);
@@ -540,6 +540,19 @@ function BoutonPreparer({ projet, etape, onFini }) {
   }, [tourne, dernier?.le]);
   if (!d) return null;
   const E = d.etapes?.[etape];
+  // Où vont les propositions de cette étape (2026-11-25) : un clic y remonte.
+  const PREFIXES = { produit: ["role", "usage", "qui", "douleur", "echec"], recherche: ["resultats.", "curiosite", "aggravation", "echec"], offre: ["offre", "offreFiche"], message: ["message.", "resultats.promesse"], brief: ["brief."] };
+  const voirPropositions = () => {
+    const pre = PREFIXES[etape] ?? [];
+    const g = [...document.querySelectorAll(".cat-fd__propgrp")].find((x) => pre.some((p) => (x.dataset.champ ?? "").startsWith(p)));
+    if (g) {
+      g.scrollIntoView({ block: "start", behavior: "smooth" });
+      g.classList.remove("is-pb-flash");
+      void g.offsetWidth;
+      g.classList.add("is-pb-flash");
+    } else document.querySelector(".cat-fd__props")?.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
+  const restent = (brouillons ?? []).filter((b) => b.statut === "proposé" && (PREFIXES[etape] ?? []).some((p) => String(b.champ ?? "").startsWith(p))).length;
   async function go() {
     setErr(null);
     // Déjà préparé (2026-11-25) : relancer coûte encore ; confirmation d'abord.
@@ -572,6 +585,15 @@ function BoutonPreparer({ projet, etape, onFini }) {
               rapport complet
             </a>
           )}
+          {!dernier.erreur && restent > 0 && (
+            <>
+              {" · "}
+              <button type="button" className="cat-link cat-prep__voir" onClick={voirPropositions} title="Les propositions ne remplissent rien toutes seules : tu les ajoutes ou les rejettes une par une, en haut de la page">
+                {restent} proposition(s) à trier ↑
+              </button>
+            </>
+          )}
+          {!dernier.erreur && PREFIXES[etape] && !restent && <span className="cat-muted"> · tout est trié</span>}
         </span>
       )}
       {err && <span className="rg__err">⚠ {err}</span>}
@@ -594,6 +616,9 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     return i < 0 ? cur : (cur.slice(0, i).replace(/\n$/, "") + cur.slice(i + texte.length)).replace(/^\n/, "");
   };
   const [err, setErr] = useState(null);
+  // Les 3 objections sont pleines : l'utilisateur choisit celle à remplacer.
+  const [choixObj, setChoixObj] = useState(null); // { id, o, r }
+  const decoupe = (texte) => texte.replace(/^\s*objection\s*:\s*/i, "").split(/\s*(?:→|->|\bR[ée]ponse\s*:)\s*/i);
   // Lot 2 : une proposition peut viser le questionnaire, l'offre, le message central ou les résultats.
   async function ecrire(champ, texte, annule = false) {
     const [zone, k] = champ.includes(".") ? champ.split(".") : ["reponses", champ];
@@ -606,7 +631,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
         const [o, r] = texte.replace(/^\s*objection\s*:\s*/i, "").split(/\s*(?:→|->|\bR[ée]ponse\s*:)\s*/i);
         if (annule) return setMsg({ ...m, objections: m.objections.map((x) => (x.objection === o ? { objection: "", reponse: "" } : x)) }), true;
         const i = m.objections.findIndex((x) => !x.objection.trim());
-        if (i < 0) return setErr("Les 3 objections du message central sont déjà remplies : vide une case d'abord."), false;
+        if (i < 0) return "choisir";
         return setMsg({ ...m, objections: m.objections.map((x, j) => (j === i ? { objection: o ?? texte, reponse: r ?? "" } : x)) }), true;
       }
       return setMsg({ ...m, [k]: annule ? retirerTexte(m[k], texte) : ajouterTexte(m[k], texte) }), true;
@@ -637,13 +662,32 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     }
     const champ = champDe(b);
     const texte = texteDe(b).trim();
-    if (!texte || !(await ecrire(champ, texte))) return;
+    const r = texte ? await ecrire(champ, texte) : false;
+    if (r === "choisir") {
+      const [o, rep2] = decoupe(texte);
+      return setChoixObj({ id: b.id, o: o ?? texte, r: rep2 ?? "" });
+    }
+    if (!r) return;
     maj(b.id, { statut: "accepté", champ, ajoute: texte, decideLe: new Date().toISOString() });
     // Résultats écrits côté serveur : on recharge APRÈS avoir noté la décision.
     if (champ.startsWith("resultats.")) rafraichir?.();
   }
+  // Remplace l'objection n° i du message central par la proposition choisie.
+  function remplacerObjection(b, i) {
+    const m = normalizeMessage(msg);
+    const avant = m.objections[i];
+    setMsg({ ...m, objections: m.objections.map((x, j) => (j === i ? { objection: choixObj.o, reponse: choixObj.r } : x)) });
+    maj(b.id, { statut: "accepté", champ: "message.objection", ajoute: texteDe(b).trim(), remplace: { index: i, avant }, decideLe: new Date().toISOString() });
+    setChoixObj(null);
+  }
   async function annuler(b) {
     setErr(null);
+    if (b.remplace && setMsg) {
+      const m = normalizeMessage(msg);
+      setMsg({ ...m, objections: m.objections.map((x, j) => (j === b.remplace.index ? b.remplace.avant : x)) });
+      maj(b.id, { statut: "proposé", ajoute: undefined, remplace: undefined, decideLe: undefined });
+      return;
+    }
     if (b.champ === "offreFiche" && setFiche) {
       setFiche(b.ficheAvant ?? null);
       maj(b.id, { statut: "proposé", ficheAvant: undefined, decideLe: undefined });
@@ -672,7 +716,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
       {attente.map((b, i) => (
         <div key={b.id}>
         {(i === 0 || attente[i - 1].champ !== b.champ) && (
-          <div className="cat-fd__propgrp">
+          <div className="cat-fd__propgrp" data-champ={b.champ}>
             <b>{CHAMPS_BROUILLON[b.champ] ?? b.champ}</b> <span className="cat-muted">({nbDe(b.champ)})</span>
             <button type="button" className="cat-link" onClick={() => rejeterGroupe(b.champ)}>
               Rejeter les {nbDe(b.champ)}
@@ -701,6 +745,24 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
               Rejeter
             </button>
           </span>
+          {choixObj?.id === b.id && (
+            <div className="cat-fd__remplacer">
+              <span className="cat-muted">Tes 3 objections sont déjà remplies. Laquelle remplacer par celle-ci ?</span>
+              {normalizeMessage(msg).objections.map((x, i) => (
+                <div key={i} className="cat-fd__remplacerl">
+                  <span>
+                    <b>{i + 1}.</b> {x.objection || "(vide)"} {x.reponse ? <span className="cat-muted">→ {x.reponse}</span> : null}
+                  </span>
+                  <button type="button" className="cat-btn cat-btn--ghost" onClick={() => remplacerObjection(b, i)}>
+                    Remplacer celle-ci
+                  </button>
+                </div>
+              ))}
+              <button type="button" className="cat-link" onClick={() => setChoixObj(null)}>
+                Annuler
+              </button>
+            </div>
+          )}
         </div>
         </div>
       ))}
@@ -1133,7 +1195,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       {step === 0 && !STEPS[0].ok && <p className="cat-fd__min">Minimum pour demander à Claude : ce que fait le produit, le problème principal et qui achète.</p>}
 
       <div className="cat-fd__step" hidden={step !== 0}>
-      <BoutonPreparer projet={project.id} etape="produit" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="produit" onFini={recharger} />
       <section className="cat-panel">
         <h3>1. Le produit</h3>
         {TEXTES.produit.map(([k, l, p, r]) => (
@@ -1174,7 +1236,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
-      <BoutonPreparer projet={project.id} etape="offre" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="offre" onFini={recharger} />
       {/* Lot 1 (2026-11-25) : registre calculé sur le brouillon en cours. */}
       <RegistreFaits project={{ ...project, offre, offreFiche: fiche, fondations: { ...f, reponses: rep, faits, message: msg } }} />
       <section className="cat-panel">
@@ -1234,7 +1296,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 2}>
-      <BoutonPreparer projet={project.id} etape="recherche" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="recherche" onFini={recharger} />
       <section className="cat-panel">
         <h3>7. Ce que tu as trouvé toi-même</h3>
         <p className="cat-muted">
@@ -1322,9 +1384,9 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <div className="cat-fd__step" hidden={step !== 3}>
-      <BoutonPreparer projet={project.id} etape="mecanisme" onFini={recharger} />
-      <BoutonPreparer projet={project.id} etape="message" onFini={recharger} />
-      <BoutonPreparer projet={project.id} etape="angles" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="mecanisme" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="message" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="angles" onFini={recharger} />
       <section className="cat-panel">
         <h3>Pistes de mécanisme (méthode Jeffrey)</h3>
         <p className="cat-muted">
@@ -1350,7 +1412,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         </p>
         <MessageEditor value={msg} onChange={setMsg} />
       </section>
-      <BoutonPreparer projet={project.id} etape="brief" onFini={recharger} />
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="brief" onFini={recharger} />
       <section className="cat-panel">
         <h3>Brief de campagne</h3>
         <p className="cat-muted">
