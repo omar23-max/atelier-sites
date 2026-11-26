@@ -106,10 +106,14 @@ async function sourcesProduit(root, projet) {
 async function lancer(root, projet, etape, web) {
   const E = ETAPES[etape];
   const dir = join(root, "projets-rapports", projet);
-  await mkdir(dir, { recursive: true });
   const le = new Date().toISOString();
   const journal = join(dir, "_preparations.json");
   try {
+    await mkdir(dir, { recursive: true });
+    // Trace durable : après un redémarrage, ce lancement apparaîtra « interrompu ».
+    const j0 = await lireJson(journal, []);
+    j0.unshift({ etape, le, enCours: true });
+    await writeFile(journal, JSON.stringify(j0.slice(0, 50), null, 1));
     const { loadEnv } = await import("vite");
     const env = loadEnv("development", root, "");
     if (!env.OPENAI_API_KEY) throw new Error("Clé OpenAI absente (OPENAI_API_KEY).");
@@ -139,15 +143,15 @@ async function lancer(root, projet, etape, web) {
     // Bloc JSON final ; le reste est le rapport.
     const bloc = [...texte.matchAll(/```json\s*([\s\S]*?)```/g)].pop();
     let data = {};
+    let lu = false;
     try {
       data = bloc ? JSON.parse(bloc[1]) : {};
-    } catch {
-      const i = texte.lastIndexOf("{");
-      try {
-        data = JSON.parse(texte.slice(texte.lastIndexOf("{\"", i), texte.lastIndexOf("}") + 1));
-      } catch {}
-    }
+      lu = Boolean(bloc) && data && typeof data === "object";
+    } catch {}
+    if (!data || typeof data !== "object") data = {};
     const rapport = (bloc ? texte.slice(0, bloc.index) : texte).trim();
+    // Réponse brute gardée telle quelle (propositions comprises), pour retraiter sans repayer.
+    await writeFile(join(dir, `${le.slice(0, 19).replace(/:/g, "-")}-${etape}.brut.txt`), texte, "utf8");
     const fichier = `${le.slice(0, 19).replace(/:/g, "-")}-${etape}.md`;
     await writeFile(join(dir, fichier), `# ${E.titre} — préparé par ${E.agentNom}\n\nRapport complet, ${le.slice(0, 10)} · ChatGPT${web ? " · recherche web" : ""}\nPropositions : à trier dans les Fondations. Observations et hypothèses de l'IA, pas des preuves.\n\n---\n\n${rapport}\n`, "utf8");
     // Rangement : propositions en brouillon ; pistes et angles ajoutés non choisis.
@@ -155,7 +159,8 @@ async function lancer(root, projet, etape, web) {
     const { muterProjet } = await import("./commun.mjs");
     const origine = { type: "preparer", etape, agent: E.agentNom, rapport: fichier, le };
     let n = 0;
-    if (Array.isArray(data.propositions)) n += await ajouterBrouillons(projet, data.propositions.map((x) => ({ ...x, agent: E.agentNom, source: /WH/.test(x.source ?? "") ? "WH" : /Web/i.test(x.source ?? "") ? "Web" : "Est" })), origine);
+    const sourceDe = (s = "") => (/WH/.test(s) ? "WH" : /Web/i.test(s) ? "Web" : /Amazon/i.test(s) ? "Amazon" : /Reddit/i.test(s) ? "Reddit" : "Est");
+    if (Array.isArray(data.propositions)) n += await ajouterBrouillons(projet, data.propositions.filter((x) => x && typeof x === "object" && x.texte).map((x) => ({ ...x, agent: E.agentNom, source: sourceDe(String(x.source ?? "")) })), origine);
     await muterProjet(projet, (pj) => {
       pj.fondations = pj.fondations ?? {};
       if (Array.isArray(data.mecanismes)) {
@@ -181,13 +186,13 @@ async function lancer(root, projet, etape, web) {
       pj.fondations.reponses.rapportsAgents = [...(pj.fondations.reponses.rapportsAgents ?? []), { id: `r-${projet}-${fichier}`.slice(0, 150), projet, fichier, agent: `${E.agentNom} (${E.titre})`, le }];
     });
     const u = body.usage ?? {};
-    const j = await lireJson(journal, []);
-    j.unshift({ etape, le, n, fichier, tokens: { entree: u.input_tokens ?? 0, sortie: u.output_tokens ?? 0 }, web: Boolean(web), sansJson: !bloc });
+    const j = (await lireJson(journal, [])).filter((x) => !(x.le === le && x.enCours));
+    j.unshift({ etape, le, n, fichier, tokens: { entree: u.input_tokens ?? 0, sortie: u.output_tokens ?? 0 }, web: Boolean(web), sansJson: !lu });
     await writeFile(journal, JSON.stringify(j.slice(0, 50), null, 1));
   } catch (e) {
-    const j = await lireJson(journal, []);
+    const j = (await lireJson(journal, [])).filter((x) => !(x.le === le && x.enCours));
     j.unshift({ etape, le, erreur: String(e.message).slice(0, 300) });
-    await writeFile(journal, JSON.stringify(j.slice(0, 50), null, 1));
+    await writeFile(journal, JSON.stringify(j.slice(0, 50), null, 1)).catch(() => {});
   } finally {
     enCours.delete(projet);
   }
@@ -204,7 +209,8 @@ export async function preparerRoute(req, res, parts, { root, readBody, json }) {
   }
   if (req.method === "GET") {
     const prix = (await lireJson(join(root, "couts", "prix.json"), {}))[MODEL];
-    const j = (await lireJson(join(dir, "_preparations.json"), [])).map((x) => (x.tokens && prix?.entree != null && prix?.sortie != null ? { ...x, dollars: Math.round(((x.tokens.entree * prix.entree + x.tokens.sortie * prix.sortie) / 1e6) * 100) / 100 } : x));
+    const actif = enCours.get(projet);
+    const j = (await lireJson(join(dir, "_preparations.json"), [])).map((x) => (x.enCours && !(actif && actif.etape === x.etape) ? { etape: x.etape, le: x.le, erreur: "Préparation interrompue (serveur redémarré) : relance-la." } : x)).filter((x) => !x.enCours).map((x) => (x.tokens && prix?.entree != null && prix?.sortie != null ? { ...x, dollars: Math.round(((x.tokens.entree * prix.entree + x.tokens.sortie * prix.sortie) / 1e6) * 100) / 100 } : x));
     return json(res, 200, { enCours: enCours.get(projet) ?? null, derniers: j, etapes: Object.fromEntries(Object.entries(ETAPES).map(([k, v]) => [k, { titre: v.titre, agent: v.agentNom }])) });
   }
   if (req.method !== "POST") return json(res, 405, { error: "Méthode refusée." });

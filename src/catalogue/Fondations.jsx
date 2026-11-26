@@ -565,7 +565,8 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     if (zone === "message" && setMsg) {
       const m = normalizeMessage(msg);
       if (k === "objection") {
-        const [o, r] = texte.split(/\s*(?:→|->)\s*/);
+        // « objection → réponse » ou « Objection : … Réponse : … ».
+        const [o, r] = texte.replace(/^\s*objection\s*:\s*/i, "").split(/\s*(?:→|->|\bR[ée]ponse\s*:)\s*/i);
         if (annule) return setMsg({ ...m, objections: m.objections.map((x) => (x.objection === o ? { objection: "", reponse: "" } : x)) }), true;
         const i = m.objections.findIndex((x) => !x.objection.trim());
         if (i < 0) return setErr("Les 3 objections du message central sont déjà remplies : vide une case d'abord."), false;
@@ -576,7 +577,6 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     if (zone === "resultats" && projet) {
       const r = await fetch(`/api/brouillons/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "resultat", champ, texte, annuler: annule }) }).catch(() => null);
       if (!r?.ok) return setErr("Les résultats n'ont pas pu être mis à jour."), false;
-      rafraichir?.();
       return true;
     }
     return false;
@@ -587,11 +587,14 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     const texte = texteDe(b).trim();
     if (!texte || !(await ecrire(champ, texte))) return;
     maj(b.id, { statut: "accepté", champ, ajoute: texte, decideLe: new Date().toISOString() });
+    // Résultats écrits côté serveur : on recharge APRÈS avoir noté la décision.
+    if (champ.startsWith("resultats.")) rafraichir?.();
   }
   async function annuler(b) {
     setErr(null);
     if (b.ajoute && !(await ecrire(b.champ, b.ajoute, true))) return;
     maj(b.id, { statut: "proposé", ajoute: undefined, decideLe: undefined });
+    if (String(b.champ).startsWith("resultats.")) rafraichir?.();
   }
   const ordre = Object.keys(CHAMPS_BROUILLON);
   const attente = l.filter((b) => b.statut === "proposé").sort((a, b) => ordre.indexOf(a.champ) - ordre.indexOf(b.champ));
@@ -749,6 +752,10 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [askTypes, setAskTypes] = useState(typesUsed.length ? typesUsed : TYPES_CONTENU);
   const [busy, setBusy] = useState(false);
   const set = (k, v) => setRep((r) => ({ ...r, [k]: v }));
+  // Rechargement après une écriture côté serveur (Préparer, résultats) : avec
+  // le brouillon LE PLUS RÉCENT (pas celui du moment où le bouton a été affiché).
+  const saveRef = useRef(null);
+  const recharger = () => setTimeout(() => saveRef.current?.(true).catch(() => {}), 400);
   const preuves = rep.preuves ?? {};
   const setPreuve = (k, patch) => set("preuves", { ...preuves, [k]: { ...preuves[k], ...patch } });
   const statut = f.statut ?? "brouillon";
@@ -840,6 +847,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
   // Enregistre tout (questionnaire, faits, message, cartes, offre) ; refait
   // la fusion si le projet a bougé entre la lecture et l'écriture (409).
+  saveRef.current = (silent, extra, opts) => saveAll(silent, extra, opts);
   async function saveAll(silent, extra = {}, opts = {}) {
     for (let essai = 0; essai < 3; essai++) {
       const out = await patchFresh(extra, opts);
@@ -1008,7 +1016,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <CoutsPanneau cle={`projet-${project.id}`} titre="Dépense IA de ce projet" />
-      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} projet={project.id} rafraichir={() => saveAll(true).catch(() => {})} />
+      <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} projet={project.id} rafraichir={recharger} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
           <b>Brouillon repris</b> : tu avais quitté les Fondations sans enregistrer{restaure.at ? ` (le ${new Date(restaure.at).toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" })})` : ""}.
@@ -1048,7 +1056,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       {step === 0 && !STEPS[0].ok && <p className="cat-fd__min">Minimum pour demander à Claude : ce que fait le produit, le problème principal et qui achète.</p>}
 
       <div className="cat-fd__step" hidden={step !== 0}>
-      <BoutonPreparer projet={project.id} etape="produit" onFini={() => saveAll(true).catch(() => {})} />
+      <BoutonPreparer projet={project.id} etape="produit" onFini={recharger} />
       <section className="cat-panel">
         <h3>1. Le produit</h3>
         {TEXTES.produit.map(([k, l, p, r]) => (
@@ -1089,7 +1097,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
-      <BoutonPreparer projet={project.id} etape="offre" onFini={() => saveAll(true).catch(() => {})} />
+      <BoutonPreparer projet={project.id} etape="offre" onFini={recharger} />
       {/* Lot 1 (2026-11-25) : registre calculé sur le brouillon en cours. */}
       <RegistreFaits project={{ ...project, offre, offreFiche: fiche, fondations: { ...f, reponses: rep, faits, message: msg } }} />
       <section className="cat-panel">
@@ -1149,7 +1157,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 2}>
-      <BoutonPreparer projet={project.id} etape="recherche" onFini={() => saveAll(true).catch(() => {})} />
+      <BoutonPreparer projet={project.id} etape="recherche" onFini={recharger} />
       <section className="cat-panel">
         <h3>7. Ce que tu as trouvé toi-même</h3>
         <p className="cat-muted">
@@ -1237,9 +1245,9 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <div className="cat-fd__step" hidden={step !== 3}>
-      <BoutonPreparer projet={project.id} etape="mecanisme" onFini={() => saveAll(true).catch(() => {})} />
-      <BoutonPreparer projet={project.id} etape="message" onFini={() => saveAll(true).catch(() => {})} />
-      <BoutonPreparer projet={project.id} etape="angles" onFini={() => saveAll(true).catch(() => {})} />
+      <BoutonPreparer projet={project.id} etape="mecanisme" onFini={recharger} />
+      <BoutonPreparer projet={project.id} etape="message" onFini={recharger} />
+      <BoutonPreparer projet={project.id} etape="angles" onFini={recharger} />
       <section className="cat-panel">
         <h3>Pistes de mécanisme (méthode Jeffrey)</h3>
         <p className="cat-muted">

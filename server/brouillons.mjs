@@ -39,8 +39,9 @@ export const CHAMPS_BROUILLON = {
 // Rubriques des cellules de la grille → champ par défaut (modifiable ensuite).
 const PAR_RUBRIQUE = { "Mots des clients": "collecteAutres", Concurrents: "collecteAutres", Marché: "collecteAutres", "Prix du marché": "collecteAutres", "Angles et accroches": "collecteAutres", Risques: "collecteAutres", "Conditions et inconnues": "collecteAutres", Autre: "collecteAutres" };
 
-const court = (t, n = 600) => String(t ?? "").replace(/[ \t]+/g, " ").trim().slice(0, n);
-const cle = (t) => String(t ?? "").toLowerCase().replace(/[^a-z0-9à-ÿ]+/g, "");
+const court = (t, n = 2000) => String(t ?? "").replace(/[ \t]+/g, " ").trim().slice(0, n);
+// Doublon = même texte, aux espaces et à la casse près (les chiffres et la ponctuation comptent).
+const cle = (t) => String(t ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 
 // Ajoute des propositions au projet (sans doublon : même champ + même texte).
 export async function ajouterBrouillons(projet, items, origine = {}) {
@@ -57,7 +58,7 @@ export async function ajouterBrouillons(projet, items, origine = {}) {
       const texte = court(x.texte);
       if (!texte || vus.has(`${champ}|${cle(texte)}`)) continue;
       vus.add(`${champ}|${cle(texte)}`);
-      l.push({ id: `b${Date.now().toString(36)}${n}${Math.random().toString(36).slice(2, 5)}`, champ, texte, source: ["WH", "Web", "Est", "Moi"].includes(x.source) ? x.source : "Est", agent: court(x.agent ?? origine.agent, 90), le: x.le ?? le, statut: "proposé", origine });
+      l.push({ id: `b${Date.now().toString(36)}${n}${Math.random().toString(36).slice(2, 5)}`, champ, texte, source: ["WH", "Web", "Est", "Moi", "Amazon", "Reddit"].includes(x.source) ? x.source : "Est", agent: court(x.agent ?? origine.agent, 90), le: x.le ?? le, statut: "proposé", origine });
       n++;
     }
     pj.fondations.reponses.brouillonsAgents = l;
