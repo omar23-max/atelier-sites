@@ -241,7 +241,7 @@ export async function listerCandidats(root) {
   const nbRapports = {};
   const dr = join(root, "agents", "rapports");
   if (existsSync(dr)) for (const d of await readdir(dr)) nbRapports[d] = (await readdir(join(dr, d)).catch(() => [])).filter((x) => FICHIER_RAPPORT.test(x)).length;
-  const tous = [...mes, ...agents].map((c) => {
+  const tous = [...mes, ...agents].filter((c) => !etat.etats[c.id]?.supprime).map((c) => {
     const e = etat.etats[c.id] ?? {};
     const out = { ...c, statut: e.statut ?? null, ajouts: [...(c.ajouts ?? []), ...(e.ajouts ?? [])], lance: c.lance ?? e.lance ?? null, variantes: [...(c.variantes ?? []), ...(e.variantes ?? [])], collages: [...(c.collages ?? []), ...(e.collages ?? [])], imagesAmazon: [...(c.imagesAmazon ?? []), ...(e.imagesAmazon ?? [])] };
     // Pas d'image (tes produits) : la première image Amazon sert de vignette.
@@ -518,7 +518,26 @@ async function routeInterne(req, res, parts, { root, readBody, json }) {
       return json(res, 502, { error: e.message });
     }
   }
+  // Supprimer de la grille (2026-11-27) : tes produits sont effacés ; un résultat
+  // d'agent est marqué « supprimé » (il ne revient pas, même s'il réapparaît dans un résultat).
+  if (b.action === "supprimerPlusieurs") {
+    const ids = (Array.isArray(b.ids) ? b.ids : []).map(String).filter((x) => /^[pm]-[a-z0-9-]{1,90}$/.test(x)).slice(0, 500);
+    await muter(root, (e) => {
+      for (const x of ids) {
+        if (x.startsWith("m-")) e.mes = e.mes.filter((m) => m.id !== x), delete e.etats[x];
+        else e.etats[x] = { supprime: true, le: new Date().toISOString() };
+      }
+    });
+    return json(res, 200, { ok: true, n: ids.length });
+  }
   if (!/^[pm]-[a-z0-9-]{1,90}$/.test(id)) return json(res, 400, { error: "Produit invalide." });
+  if (b.action === "supprimer") {
+    await muter(root, (e) => {
+      if (id.startsWith("m-")) e.mes = e.mes.filter((m) => m.id !== id), delete e.etats[id];
+      else e.etats[id] = { supprime: true, le: new Date().toISOString() };
+    });
+    return json(res, 200, { ok: true });
+  }
 
   // Copie d'une piste d'agent au moment où on la travaille (écarter, enrichir,
   // lancer) : elle reste dans la grille même sortie des 3 derniers résultats.

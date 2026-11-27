@@ -114,6 +114,21 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
             </button>
           ))}
         </span>
+        {filtre === "écartés" && nb("écartés") > 0 && (
+          <button
+            type="button"
+            className="cat-link rg__suppr-txt"
+            onClick={async () => {
+              const ids = (data?.candidats ?? []).filter(ecarte).map((c) => c.id);
+              if (!window.confirm(`Supprimer définitivement les ${ids.length} résultat(s) écarté(s) de la grille ?`)) return;
+              await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "supprimerPlusieurs", ids }) }).catch(() => null);
+              setSel(null);
+              charger();
+            }}
+          >
+            Supprimer les {nb("écartés")} écartés
+          </button>
+        )}
         <select value={tri} onChange={(e) => setTri(e.target.value)} aria-label="Trier">
           <option value="verdict">Trier : verdict</option>
           <option value="recent">Trier : plus récent</option>
@@ -544,9 +559,14 @@ function Detail({ c, agentsChat, onDiscuter, onOuvrir, recharger, onRetire }) {
             Retirer
           </button>
         ) : (
+          <>
+          <button type="button" className="cat-link rg__suppr-txt" onClick={async () => window.confirm(`Supprimer « ${c.nom} » de la grille ? Il ne reviendra pas, même si un agent le retrouve. (Les rapports et un projet déjà lancé ne sont pas touchés.)`) && (await action({ action: "supprimer" })) && onRetire()}>
+            Supprimer
+          </button>{" "}
           <button type="button" className="cat-link" onClick={async () => (await action({ action: "statut", statut: c.statut === "écarté" ? null : "écarté" })) && recharger()}>
             {c.statut === "écarté" ? "Remettre dans la grille" : "Écarter"}
           </button>
+          </>
         )}
       </div>
       {msg && <p className="cat-flash is-error">{msg}</p>}
