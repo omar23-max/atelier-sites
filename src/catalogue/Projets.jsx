@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { sections } from "../engine/sections.js";
 import { normalizeProps } from "../engine/render.js";
 import { PAGE_TYPES, declineParAngle, pageTypeById } from "../engine/page-types.js";
-import { scorePage } from "../engine/page-score.js";
+import { familiesOf, scorePage } from "../engine/page-score.js";
+import { blueprintOf, briefPourSection } from "../engine/page-blueprints.js";
 import { originalPhotoTargets } from "../engine/photos.js";
 import { pageTexts } from "../engine/texts.js";
 import { changePageOrigin, confirmDelete, createPage, empreinte, getPage, listMedias, listPages, listProjects, listTemplates, pageNameFor, renameProductInPages, saveProject, trashItem, uniquePageName } from "../projects.js";
@@ -471,6 +472,159 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   );
 }
 
+
+// ---- Lot 3 : page mère automatique (2026-11-27) ----
+// Plan du contenu d'abord (le type de page du brief et ses sections attendues),
+// puis les templates de ce type classés selon ce plan ; tu choisis ; la page est
+// créée et l'éditeur s'ouvre sur « Remplir depuis les Fondations ».
+const PILOTES_LS = (type) => `atl-pilotes-${type}`;
+function PageMereAuto({ project, pages, allPages, templates, onSave, onMessage }) {
+  const fd = project.fondations ?? {};
+  const type = fd.brief?.typePage || "listicle";
+  const typeLabel = pageTypeById[type]?.label ?? type;
+  const mere = project.meresParType?.[type];
+  const mereExiste = mere && pages.some((p) => p.info.name === mere);
+  const choisis = (project.angles ?? []).filter((a) => a.choisi);
+  const [angleId, setAngleId] = useState(() => (choisis.find((a) => a.mere) ?? choisis[0])?.id ?? "");
+  const [classement, setClassement] = useState(null); // [{ tpl, couverture, manque, pilote }]
+  const [tous, setTous] = useState(false);
+  const [busy, setBusy] = useState(null);
+  const [pilotes, setPilotes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(PILOTES_LS(type)) ?? "[]");
+    } catch {
+      return [];
+    }
+  });
+  const basculerPilote = (id) => {
+    const l = pilotes.includes(id) ? pilotes.filter((x) => x !== id) : [...pilotes, id];
+    setPilotes(l);
+    localStorage.setItem(PILOTES_LS(type), JSON.stringify(l));
+  };
+  const plan = blueprintOf(type);
+  const fondationsOk = fd.statut === "validée" || fd.statut === "modifiée";
+  async function classer() {
+    setBusy("classement");
+    try {
+      const candidats = templates.filter((t) => t.pageType === type && t.page);
+      const total = plan.reduce((n, b) => n + (b.points ?? 1), 0) || 1;
+      const out = [];
+      for (const tpl of candidats) {
+        const page = await getPage(tpl.page).catch(() => null);
+        if (!page?.content?.length) continue;
+        const familles = new Set(page.content.flatMap((item, i) => familiesOf(item, i, byId) ?? []));
+        const couverts = plan.filter((b) => b.families.some((f) => familles.has(f)));
+        const pts = couverts.reduce((n, b) => n + (b.points ?? 1), 0);
+        // Une page en quelques blocs géants « couvre » tout mais se remplit mal
+        // section par section : la note baisse quand elle a moins de blocs que le plan n'a de sections.
+        const decoupage = Math.min(1, page.content.length / Math.max(4, Math.round(plan.length * 0.7)));
+        const couverture = Math.round((pts / total) * 100);
+        // Sections que « Remplir depuis les Fondations » saura vraiment écrire.
+        const utiles = page.content.filter((item) => !["entete", "pied-de-page"].includes(byId[item.type]?.meta?.family));
+        const remplissables = utiles.filter((item) => briefPourSection(type, item, page.content.indexOf(item), byId, fd.contenus).length).length;
+        const ratio = utiles.length ? remplissables / utiles.length : 0;
+        out.push({ tpl, couverture, remplissables, utiles: utiles.length, note: Math.round(couverture * decoupage * (0.4 + 0.6 * ratio)), manque: plan.filter((b) => !couverts.includes(b)).map((b) => b.label), sections: page.content.length, peuDecoupee: decoupage < 1 });
+      }
+      out.sort((a, b) => Number(pilotes.includes(b.tpl.id)) - Number(pilotes.includes(a.tpl.id)) || b.note - a.note || (b.tpl.photos ?? 0) - (a.tpl.photos ?? 0));
+      setClassement(out);
+    } finally {
+      setBusy(null);
+    }
+  }
+  async function creer(tpl) {
+    const angle = choisis.find((a) => a.id === angleId) ?? null;
+    if (!confirm(`Créer la page mère « ${typeLabel} » à partir de « ${tpl.nom} »${angle ? ` (angle principal : « ${angle.titre} »)` : ""} ? L'éditeur s'ouvrira ensuite sur « Remplir depuis les Fondations » : rien n'est écrit sans ton clic.`)) return;
+    setBusy(tpl.id);
+    try {
+      const name = uniquePageName(pageNameFor(project.id, type, "mere"), allPages);
+      await createPage({ name, projet: project.id, produit: project.produit || project.nom, pageType: type, profil: "Tous les angles", source: tpl.page, pageAchat: "", origine: { type: "template", source: tpl.page } }, allPages);
+      // Langue du brief (sinon la page reste en anglais, langue par défaut des templates).
+      const langue = fd.brief?.langue === "en" ? "en" : "fr";
+      const lu = await fetch(`/api/pages/${encodeURIComponent(name)}`);
+      if (lu.ok) {
+        const pg = await lu.json();
+        pg.root = { ...(pg.root ?? {}), props: { ...(pg.root?.props ?? {}), langue } };
+        await fetch(`/api/pages/${encodeURIComponent(name)}`, { method: "PUT", headers: { "Content-Type": "application/json", ...(lu.headers.get("ETag") ? { "If-Match": lu.headers.get("ETag") } : {}) }, body: JSON.stringify(pg) });
+      }
+      const angles = (project.angles ?? []).map((a) => (a.id === angleId ? { ...a, mere: true, choisi: true, page: name, pageType: type } : a));
+      await onSave({ meresParType: { ...(project.meresParType ?? {}), [type]: name }, angles }, true);
+      location.href = `/?page=${encodeURIComponent(name)}&remplir=fondations`;
+    } catch (e) {
+      onMessage({ error: true, text: e.message });
+      setBusy(null);
+    }
+  }
+  const liste = classement ? (tous ? classement : classement.slice(0, 3)) : [];
+  return (
+    <section className="cat-panel cat-mereauto">
+      <h3>✨ Créer la page mère automatiquement</h3>
+      {mereExiste ? (
+        <p>
+          Ta page mère « {typeLabel} » existe déjà : <a href={`/?page=${encodeURIComponent(mere)}`}>l'ouvrir</a> ·{" "}
+          <a href={`/?page=${encodeURIComponent(mere)}&remplir=fondations`}>la remplir depuis les Fondations</a>.
+        </p>
+      ) : (
+        <>
+          <p className="cat-muted">
+            Type de page de ton brief : <b>{typeLabel}</b>. L'atelier classe les templates de ce type selon les {plan.length} sections que tes Fondations prévoient pour lui, tu choisis, puis la page est créée et l'éditeur
+            s'ouvre sur « Remplir depuis les Fondations » (les avis clients ne sont jamais écrits par l'IA, un chiffre absent des Fondations est remplacé par une consigne).
+          </p>
+          {!fondationsOk && <p className="cat-flash">Valide d'abord tes Fondations : la page reprend leur contenu.</p>}
+          {choisis.length > 0 && (
+            <label className="cat-field">
+              <span>Angle principal de la page mère</span>
+              <select value={angleId} onChange={(e) => setAngleId(e.target.value)}>
+                {choisis.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.titre}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <div className="cat-actions">
+            <button type="button" className="cat-btn" disabled={!fondationsOk || busy === "classement"} onClick={classer}>
+              {busy === "classement" ? "Classement…" : classement ? "Reclasser les templates" : "Classer les templates"}
+            </button>
+          </div>
+          {classement && !classement.length && <p className="cat-muted">Aucun template de type « {typeLabel} » dans le catalogue.</p>}
+          {liste.length > 0 && (
+            <div className="cat-mereauto__grille">
+              {liste.map(({ tpl, couverture, note, manque, sections, peuDecoupee, remplissables, utiles }, i) => (
+                <div key={tpl.id} className="cat-mereauto__carte">
+                  {tpl.vignette && <img src={tpl.vignette} alt="" loading="lazy" />}
+                  <b>
+                    {i === 0 && !tous ? "Recommandé : " : ""}
+                    {tpl.nom}
+                  </b>
+                  <small>
+                    Note {note}/100 · couvre {couverture} % du plan · {remplissables}/{utiles} sections remplies automatiquement · {tpl.photos ?? 0} photos
+                  </small>
+                  {peuDecoupee && <small className="cat-muted">Peu de blocs : se remplit moins bien section par section.</small>}
+                  {manque.length > 0 && <small className="cat-muted">Manque : {manque.slice(0, 4).join(", ")}{manque.length > 4 ? "…" : ""}</small>}
+                  <span className="cat-mereauto__btns">
+                    <button type="button" className="cat-btn" disabled={Boolean(busy)} onClick={() => creer(tpl)}>
+                      {busy === tpl.id ? "Création…" : "Créer la page mère"}
+                    </button>
+                    <button type="button" className="cat-link" title="Un template pilote passe toujours en tête du classement" onClick={() => basculerPilote(tpl.id)}>
+                      {pilotes.includes(tpl.id) ? "★ pilote" : "☆ en faire un pilote"}
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          {classement && classement.length > 3 && (
+            <button type="button" className="cat-link" onClick={() => setTous((t) => !t)}>
+              {tous ? "Voir seulement les 3 premiers" : `Voir les ${classement.length} templates`}
+            </button>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
+
 function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, onSave }) {
   // role : "mere:<id angle>" (page mère de ce type, pour cet angle), "mere"
   // (page mère sans angle), id d'un angle choisi dans l'onglet Angles (copie de
@@ -589,6 +743,7 @@ function PagesTab({ project, pages, allPages, templates, onChanged, onMessage, o
 
   return (
     <>
+      <PageMereAuto project={project} pages={pages} allPages={allPages} templates={templates} onSave={onSave} onMessage={onMessage} />
       <p className="cat-muted cat-pages__intro">
         Une page peut partir de trois origines : <b>un template</b> (ou une de tes pages, recopiée), <b>un lien</b> (la page d'un site,
         reproduite par Claude) ou <b>une page vide</b>. L'origine de chaque page est indiquée dans la colonne « Origine » ; « Changer » la

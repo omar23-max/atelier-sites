@@ -14,7 +14,7 @@ import { designById } from "./engine/designs.js";
 import { ROLES_VISUELS, autoRole, charteForItem, measureIn, roleLabel } from "./engine/charte.js";
 import { consigneLangue, langueOf } from "./engine/langue.js";
 import { scorePage, familiesOf } from "./engine/page-score.js";
-import { TYPES_CONTENU, briefFor } from "./engine/page-blueprints.js";
+import { TYPES_CONTENU, briefFor, briefPourSection } from "./engine/page-blueprints.js";
 import { pageTypeById } from "./engine/page-types.js";
 import { fondationsPourAudit, localFidelity, knownNumbers, hasUnknownFigure, knownClaims, hasUnknownClaim } from "./engine/fidelite.js";
 import { isAngleZone, pageRole, zonesFromMother } from "./angle-zones.js";
@@ -271,6 +271,16 @@ export async function savePageWith(getPuck, replacements) {
 }
 
 // ---- Panneau ----
+// Lot 3 : lu dès le chargement du fichier, avant que l éditeur ne réécrive l adresse.
+if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("remplir") === "fondations") {
+  // Le menu ✨ IA ouvre ses outils par l'événement « atl-ai-page » : on le renvoie
+  // chaque seconde jusqu'à ce que la fenêtre soit là (l'éditeur se monte en plusieurs temps).
+  let essais = 0;
+  const t = setInterval(() => {
+    if (document.querySelector(".atl-aidlg") || ++essais > 20) return clearInterval(t);
+    if (essais > 2) window.dispatchEvent(new CustomEvent("atl-ai-page", { detail: "fondations" }));
+  }, 1000);
+}
 export function Inspector({ children }) {
   const getPuck = useGetPuck();
   const content = usePuckSelect((s) => s.appState.data.content);
@@ -718,7 +728,8 @@ export function Inspector({ children }) {
   // Menu ✨ IA du rail de gauche (outils de toute la page), et « Refaire avec
   // l'IA » d'une image : la fenêtre Retravailler, sur cette image seulement.
   useEffect(() => {
-    const onPage = (e) => setPageAi(e.detail);
+    // Un seul éditeur ouvre la fenêtre (deux exemplaires écoutent : fenêtres en double, 2026-11-27).
+    const onPage = (e) => isMain() && setPageAi(e.detail);
     const onImage = () => {
       const cur = selRef.current;
       if (cur?.sectionId && cur.key) setAi({ sectionId: cur.sectionId, keys: [cur.key], tab: "images" });
@@ -735,6 +746,12 @@ export function Inspector({ children }) {
       setAi({ sectionId: id, keys: null, tab: "design", reference: e.detail.image ?? null });
     };
     window.addEventListener("atl-ai-page", onPage);
+    // Lot 3 (2026-11-27) : arrivée depuis « Créer la page mère » → l'outil s'ouvre seul.
+    const q = new URLSearchParams(location.search);
+    if (q.get("remplir") === "fondations") {
+      q.delete("remplir");
+      history.replaceState(history.state, "", `${location.pathname}?${q}${location.hash}`);
+    }
     window.addEventListener("atl-ai-image", onImage);
     window.addEventListener("atl-ai-section", onSection);
     return () => {
@@ -4334,6 +4351,18 @@ const sansNotes = (v) =>
     .filter(Boolean)
     .join("\n");
 
+// Avis clients glissés dans une section mixte (essai du 2026-11-27 : l'IA avait
+// réécrit les avis du concurrent en faux avis) : repérés texte par texte.
+const sansBalises = (t) => String(t ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+function genreAvis(t) {
+  const s = sansBalises(t);
+  if (/verified (purchase|buyer|customer)|achat vérifié|acheteur vérifié|avis vérifié/i.test(s) && s.length < 80) return "signature";
+  if (/^[A-ZÀ-Ý][a-zà-ÿ]+(?: [A-ZÀ-Ý][a-zà-ÿ]*\.?)?\s*[·•|]\s*\S/.test(s) && s.length < 60) return "signature";
+  if (/^[“"«„]/.test(s) && s.length > 30) return "citation";
+  return null;
+}
+const CONSIGNE_AVIS = { citation: "[À REMPLACER : avis client réel, tel qu'il a été écrit]", signature: "[Prénom du client · achat vérifié]" };
+
 function FillFromFoundations({ content, root, onApply }) {
   const [info, setInfo] = useState(null);
   const [picked, setPicked] = useState(null);
@@ -4350,7 +4379,7 @@ function FillFromFoundations({ content, root, onApply }) {
     // En-tête et pied de page : jamais remplis (dans une copie de page, leurs
     // liens de menu ressemblent à des titres de sections et trompent la détection).
     const nav = ["entete", "pied-de-page"].includes(byId[item.type]?.meta?.family) || /^(header|footer|en-?t[êe]te|pied de page|menu)/i.test(label);
-    const all = info?.project && !nav ? briefFor(type, familiesOf(item, i, byId), fd.contenus) : [];
+    const all = info?.project && !nav ? briefPourSection(type, item, i, byId, fd.contenus) : [];
     // Règles dures (2026-11-10, après un essai où l'IA a réécrit de faux avis) :
     // 1. les avis clients ne sont jamais écrits par l'IA (à placer à la main) ;
     // 2. un contenu encore marqué [À VALIDER] ou [MANQUE] n'est pas envoyé.
@@ -4359,8 +4388,10 @@ function FillFromFoundations({ content, root, onApply }) {
       .map((b) => ({ ...b, champs: b.champs.map((c) => ({ ...c, valeur: sansNotes(c.valeur) })).filter((c) => c.valeur) }))
       .filter((b) => b.champs.length);
     const pourquoi = briefs.length ? "" : !all.length ? "" : all.every((b) => b.key === "temoignages") ? "avis clients : à placer à la main, jamais écrits par l'IA" : "contenu encore marqué [À VALIDER] ou [MANQUE] dans les Fondations";
-    const texts = byId[item.type] ? aiTargets(item).texts : [];
-    return { id: item.props.id, item, label, nav, briefs, pourquoi, texts };
+    const tous = byId[item.type] ? aiTargets(item).texts : [];
+    const avis = tous.filter((x) => genreAvis(x.text));
+    const texts = tous.filter((x) => !genreAvis(x.text));
+    return { id: item.props.id, item, label, nav, briefs, pourquoi, texts, avis };
   });
   // Nombres connus du projet : tout chiffre « qui engage » écrit par l'IA et
   // absent de cette liste est remplacé par une consigne entre crochets.
@@ -4384,8 +4415,14 @@ function FillFromFoundations({ content, root, onApply }) {
     if (!confirm(`Remplir ${jobs.length} section(s) (${total} textes) avec le contenu des Fondations ? Les textes actuels de ces sections seront remplacés (Ctrl+Z pour annuler).`)) return;
     let done = 0;
     let guarded = 0;
+    let avisMis = 0;
     try {
       for (const job of jobs) {
+        // Avis d'origine : jamais réécrits par l'IA, remplacés par une consigne visible.
+        if (job.avis?.length) {
+          onApply(job.id, Object.fromEntries(job.avis.map((x) => [x.id, { text: CONSIGNE_AVIS[genreAvis(x.text)] }])));
+          avisMis += job.avis.length;
+        }
         const enAngle = angle && isAngleZone(job.item);
         const contexte = {
           marque: root.marque ?? "",
@@ -4401,6 +4438,7 @@ function FillFromFoundations({ content, root, onApply }) {
           ...(enAngle ? { angle: { titre: angle.titre, avatar: angle.avatar, douleur: angle.douleur, promesse: angle.promesse } } : {}),
           // Lot 3 (2026-11-18) : offre de la fiche, mécanisme choisi, brief.
           ...(info?.project?.offreFiche ? { offre: resumeFiche(info.project.offreFiche) } : {}),
+          ...(fd.mecanismeChoisi?.aucun ? { mecanismeChoisi: { aucun: true, consigne: "Pas de mécanisme : le produit se vend par son usage, son design ou son offre. N'invente aucune explication scientifique." } } : {}),
           ...(mecaChoisi ? { mecanismeChoisi: { nom: mecaChoisi.nom, probleme: mecaChoisi.ump, solution: mecaChoisi.ums, hypothese: mecaChoisi.statut !== "etaye", interdits: mecaChoisi.interdits } } : {}),
           ...(fd.brief && Object.keys(fd.brief).length ? { briefCampagne: { avatar: fd.brief.avatar, situation: fd.brief.situation, conscience: fd.brief.conscience, trafic: fd.brief.trafic, promessePub: fd.brief.promessePub, action: fd.brief.action } } : {}),
         };
@@ -4411,6 +4449,7 @@ function FillFromFoundations({ content, root, onApply }) {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              page: pageName, // coût imputé au projet de la page (plafond)
               items: batch,
               prompt:
                 "Écris chaque texte de cette section à partir du BRIEF du contexte (« section » → « contenu ») : c'est le contenu validé dans les Fondations du projet pour cette section de la page. Répartis ce contenu dans les textes selon leur rôle (titre, sous-titre, liste, avis, bouton…), en gardant la longueur de chaque texte et ses balises de mise en forme. N'ajoute aucune information, aucun chiffre, aucune preuve ni aucun avis absent du brief, du message central ou de l'offre (fiche d'offre ; un mécanisme marqué « hypothese » ne se présente jamais comme prouvé). Un passage du brief entre crochets (« [MANQUE … ] », « [À VALIDER … ] ») n'est pas une information : ne le recopie pas et n'invente rien à la place ; à cet endroit, reste général. Ne recopie pas les notes destinées à l'équipe (« coché d'avance », « en petit dessous », « ne pas écrire… »). Garde les signes † et * des allégations. La page d'origine vend UN AUTRE produit, d'une autre marque : n'en garde aucun nom de marque ou de produit, aucun prix, aucune monnaie, aucun chiffre, aucun avis, aucun ingrédient, aucun animal ni aucune promesse. Avis clients : recopie chaque avis du brief mot pour mot, avec son auteur, un avis par emplacement ; ne mélange pas deux avis, ne les complète pas, n'en crée pas ; n'écris ni « achat vérifié », ni note moyenne, ni nombre d'avis, ni répartition par étoiles si le brief ne les donne pas. S'il y a moins de contenu que de textes : un texte en trop qui est un simple libellé (« Quantité », « Voir plus », un intertitre neutre) est adapté au produit ; un texte en trop qui portait une information de la page d'origine (nom, prix, chiffre, avis, promesse, caractéristique) devient une consigne courte entre crochets qui dit quoi écrire, par exemple « [Avis client à ajouter] », « [Prix à compléter] », « [Bénéfice à compléter] ». Mieux vaut une consigne entre crochets qu'une information non prouvée." +
@@ -4437,7 +4476,7 @@ function FillFromFoundations({ content, root, onApply }) {
         }
       }
       setState({
-        done: `${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre ou preuve absents des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.`,
+        done: `${avisMis ? `${avisMis} texte(s) d'avis clients mis de côté (consigne « À REMPLACER » : place tes vrais avis à la main). ` : ""}${done} textes écrits depuis les Fondations${guarded ? `, dont ${guarded} remplacé(s) par une consigne entre crochets (chiffre ou preuve absents des Fondations)` : ""}. Vérifie avec l'outil Couverture → Fidélité aux Fondations. Vérifie les propositions ci-dessous, puis applique celles que tu gardes.`,
       });
     } catch (e) {
       setState({ error: `${e.message} (${done} / ${total} déjà écrits)` });

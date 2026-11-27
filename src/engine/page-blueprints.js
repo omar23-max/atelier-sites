@@ -15,7 +15,7 @@ import { hasMarker, realText } from "./fondations-etat.js";
 // éléments, 6 images, 7 sections d'appui), skill landing-page-jeffrey-arsh.
 // Règle de l'atelier : aucune preuve, aucun chiffre, aucun avis inventé. Ce qui
 // manque s'écrit [MANQUE].
-import { RULES, ruleLabel } from "./page-score.js";
+import { RULES, familiesOf, ruleLabel } from "./page-score.js";
 import { zoneOfFamilies } from "./zones.js";
 
 // Un champ : clé, libellé, aide (ce qu'on attend + un exemple), lignes.
@@ -301,6 +301,36 @@ export function briefFor(type, families = [], contenus = {}) {
     if (champs.length) out.push({ key: s.key, label: s.label, why: s.why, zone: s.zone, champs });
   }
   return out;
+}
+
+// Lot 3 (2026-11-27) : sections de copies au nom générique (« h1 », « 1. Nothing
+// else fixed it »). Si la détection ne trouve rien à écrire, on se fie au nom :
+// « h1 / hero » = le titre de la page, « 3. … » = la raison n° 3 d'une liste.
+export function familiesDeSecours(item, sectionsById) {
+  const sec = sectionsById?.[item.type];
+  const l = String(sec?.meta?.label ?? sec?.schema?.name ?? item.type ?? "").split(" — ")[0].trim();
+  const m = l.match(/^(\d{1,2})[.)]\s+\S/);
+  if (m) return { familles: ["listicle", "avantages"], raison: Number(m[1]) };
+  if (/^h1$|hero|headline/i.test(l)) return { familles: ["hero"] };
+  return null;
+}
+function uneRaison(texte, n) {
+  const lignes = String(texte ?? "").split("\n");
+  const i = lignes.findIndex((l) => new RegExp(`^\\s*${n}[.)]\\s`).test(l));
+  if (i < 0) return null;
+  let j = i + 1;
+  while (j < lignes.length && !/^\s*\d{1,2}[.)]\s/.test(lignes[j])) j++;
+  return lignes.slice(i, j).join("\n").trim();
+}
+// Le contenu des Fondations qui revient à UNE section de page (détection, puis secours).
+export function briefPourSection(type, item, index, sectionsById, contenus) {
+  let all = briefFor(type, familiesOf(item, index, sectionsById), contenus);
+  if (all.length) return all;
+  const s = familiesDeSecours(item, sectionsById);
+  if (!s) return [];
+  all = briefFor(type, s.familles, contenus);
+  if (s.raison) all = all.map((b) => ({ ...b, champs: b.champs.map((c) => ({ ...c, valeur: uneRaison(c.valeur, s.raison) ?? c.valeur })) }));
+  return all;
 }
 
 // Avancement d'une carte : champs remplis / champs à remplir.

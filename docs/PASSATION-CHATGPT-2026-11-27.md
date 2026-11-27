@@ -1,0 +1,20 @@
+# Passation à ChatGPT — 2026-11-27
+
+Atelier : `~/atelier-sites` (Node + Vite, serveur OVH, port 5180). Build : `npx vite build --logLevel error` ; après un changement dans `server/` : `sudo systemctl restart atelier`. Tests : `node scripts/tests/fondations-fiabilite.mjs` (68/68). Journal détaillé de chaque changement : `docs/TRAITER-DEMANDES.md` (fin du fichier). Projets d'essai : `essai-plaid-jetable`, `essai-mirror` (jetables).
+
+Règles de l'utilisateur : l'IA propose, l'utilisateur valide ; aucune preuve, aucun avis, aucun chiffre inventé (garde-fous dans le code) ; ne pas durcir les consignes d'écriture ; économiser les crédits ; textes d'aide simples, en français.
+
+## Fait pendant cette session (26-27 nov.)
+
+- **Agents army** : inventaire des 57 agents (`Desktop/affiches droles/agents-army-inventaire-a-jour.xlsx`), 24 doublons / hors sujet archivés (`agents/whitelabeler/_archives`), plan d'installation (`agents-army-installation.xlsx`).
+- **Agents installés** : Supplier Scout V2 (Recherche + Validation → marge fournisseur) ; modes de pub « Concept de pub original » (ChatGPT 2.0), « Refaire une pub concurrente (version WL) », « Maquette de marque » (Publicités, Canvas, Studio) ; Studio mode « Marque » ; Mirror image avec choix d'agent ; vidéo du Canvas : Prolonger + Détails ; Publicités : bloc « Plan de lancement Meta » (Andromeda, Facebook Ad Strategist) ; Publicités : types vidéo + relecture du plan avant de filmer.
+- **Avis ChatGPT appliqué** (`Desktop/affiches droles/avis-chatgpt-parcours-2026-11-26.md`) : bug des hooks des Propositions ; doubles lancements payants (Publicités, Mirror) ; Annuler sûr ; budget qui BLOQUE (`server/couts.mjs` garde(), plafond 5 $ par défaut par projet) ; erreurs Studio visibles ; reprise Mirror ; sources uniques (promesse = message central, prix = fiche d'offre, preuves = registre, objections / avatars / douleurs choisis dans la recherche, variantes de promesse) ; mécanisme facultatif (« Pas de mécanisme pour ce produit ») ; Fondations en 5 étapes (Produit et faisabilité, Clients et preuves, Offre et message, Angles et campagne + Marque).
+- **Chef de projet IA** (`server/coordinateur.mjs`) : 3 phases (client, offre, discours) qui enchaînent les « Préparer » et s'arrêtent à chaque décision ; testé sur essai-mirror (phase 1, 0,51 $, 39 propositions).
+- **Lot 3, page mère automatique** (`src/catalogue/Projets.jsx` PageMereAuto) : classement des templates du type du brief, création de la page, ouverture de l'éditeur sur « Remplir depuis les Fondations » ; reconnaissance de secours des sections (« h1 », « 3. … ») dans `src/engine/page-blueprints.js` briefPourSection ; avis d'origine jamais envoyés à l'IA (`genreAvis` dans `src/inspector-ui.jsx`) ; langue du brief ; essai réel sur le plaid (page `essai-plaid-jetable-listicle-mere`, template Hostage Tape).
+
+## En cours / à faire ensuite
+
+1. **Contrôle des restes du site d'origine** (demandé, pas commencé) : sur la page remplie, repérer les textes identiques au template (`root.props.importSource` → `pages/<template>.json`, comparer les textes par section et par `slot` via `aiTargets`), les mots de la marque d'origine, les liens vers le domaine d'origine ; proposer de les neutraliser (« [À REMPLACER : reste du site d'origine] ») dans la fenêtre IA, l'utilisateur applique. Restes connus sur la page du plaid : bandeau « 51 Million Strips Sold | Seen on Joe Rogan », étude clinique Dr Dan Gartenberg (section 12), « Watch: How to Apply Hostage Tape », lien du bouton vers hostagetape.com, toutes les images, 4 raisons au lieu de 7. Les liens (`link` des blocs) ne passent pas par `applyValues` : à ajouter.
+2. **Prix des modèles** à saisir dans le panneau Dépense IA : `gpt-5.4-mini` (remplissage des textes), images (Nano Banana, gpt-image-2) — sinon ils ne comptent pas dans le plafond.
+3. Lot 4 (images de la page, pages d'angle), lot 5 (pubs en lot), agents de priorité 3 à 5 (StorySell, Viral Hook, Essential GIF, Customer Experience Studio).
+4. L'utilisateur doit trier les 39 propositions d'essai-mirror pour débloquer la phase 2 du chef de projet.
