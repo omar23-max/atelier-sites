@@ -920,6 +920,10 @@ ${contexteProjet(pj, { limite: 12000 }).texte}`;
             return rechercheRoute(req, res, parts, { root, readBody, json });
           }
           // ---- « Préparer » une étape des Fondations avec son agent (lot 2, 2026-11-25) ----
+          if (parts[0] === "coordinateur") {
+            const { coordinateurRoute } = await import("./coordinateur.mjs");
+            return coordinateurRoute(req, res, parts, { root, readBody, json });
+          }
           if (parts[0] === "preparer") {
             const { preparerRoute } = await import("./preparer.mjs");
             return preparerRoute(req, res, parts, { root, readBody, json });

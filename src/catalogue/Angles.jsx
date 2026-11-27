@@ -84,7 +84,11 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
     .filter(([, p]) => p?.oui && p.detail && !/\[\s*MANQUE/i.test(p.detail))
     .map(([, p]) => p.detail);
   const preuves = [...new Set([...(msg?.preuves ?? []).filter(Boolean), ...preuvesFd])];
-  const listOf = (k) => (k === "objection" ? "cat-angles-objections" : k === "preuve" ? "cat-angles-preuves" : undefined);
+  // Sources uniques (2026-11-27) : public et douleur se choisissent dans la recherche client.
+  const listOf = (k) => (k === "objection" ? "cat-angles-objections" : k === "preuve" ? "cat-angles-preuves" : k === "avatar" ? "cat-angles-avatars" : k === "douleur" ? "cat-angles-douleurs" : undefined);
+  const texteDe = (x) => (typeof x === "string" ? x : x?.nom ?? x?.titre ?? x?.texte ?? "");
+  const avatarsRech = [...new Set((project.fondations?.resultats?.avatars ?? []).map(texteDe).map((x) => x.trim()).filter(Boolean))];
+  const douleursRech = [...new Set((project.fondations?.resultats?.douleurs ?? []).map(texteDe).map((x) => x.trim()).filter(Boolean))];
   const statutOf = (a) => (a.statut === "retenu" ? "retenu" : "hypothese");
   const pageNames = pages.map((p) => p.info.name);
   const set = (id, patch) => setAngles((list) => list.map((a) => (a.id === id ? { ...a, ...patch } : a)));
@@ -130,13 +134,23 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
       <MessageRecap project={project} onEdit={onGo ? () => onGo("fondations") : null} open={false} />
       <div className="cat-angles__socle">
         <b>Socle commun à tous les angles</b> : {(typeof project.produit === "string" ? project.produit : project.produit?.nom) || project.nom}
-        {project.offre?.prix ? ` · ${String(project.offre.prix).slice(0, 80)}` : ""}
+        {project.offreFiche?.packs?.length ? ` · ${project.offreFiche.packs.map((x) => `${x.nom} ${x.prix} $`).join(" · ")}` : project.offre?.prix ? ` · ${String(project.offre.prix).slice(0, 80)}` : ""}
         {msg?.mecanisme ? ` · mécanisme : ${String(msg.mecanisme).slice(0, 120)}${String(msg.mecanisme).length > 120 ? "…" : ""}` : ""}
         <small> Ce qui change d'un angle à l'autre : les critères ci-dessous.</small>
       </div>
       <datalist id="cat-angles-objections">
         {objections.map((o) => (
           <option key={o} value={o} />
+        ))}
+      </datalist>
+      <datalist id="cat-angles-avatars">
+        {avatarsRech.map((x) => (
+          <option key={x} value={x} />
+        ))}
+      </datalist>
+      <datalist id="cat-angles-douleurs">
+        {douleursRech.map((x) => (
+          <option key={x} value={x} />
         ))}
       </datalist>
       <datalist id="cat-angles-preuves">
@@ -227,7 +241,11 @@ export function AnglesTab({ project, pages, onSave, onMessage, onGo }) {
               ) : (
                 <label key={k} className="cat-angle__field">
                   <span>{l}</span>
-                  <textarea rows={1} value={a[k] ?? ""} onChange={(e) => set(a.id, { [k]: e.target.value })} placeholder={k === "situation" ? "Quand le problème se présente" : ""} />
+                  {listOf(k) ? (
+                    <input value={a[k] ?? ""} list={listOf(k)} onChange={(e) => set(a.id, { [k]: e.target.value })} placeholder="Choisir dans ta recherche client, ou écrire" />
+                  ) : (
+                    <textarea rows={1} value={a[k] ?? ""} onChange={(e) => set(a.id, { [k]: e.target.value })} placeholder={k === "situation" ? "Quand le problème se présente" : ""} />
+                  )}
                 </label>
               ),
             )}

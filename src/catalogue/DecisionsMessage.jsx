@@ -61,6 +61,25 @@ export function Mecanismes({ value = [], choix, onChange, onChoix, onToMessage, 
           </div>
         </details>
       ))}
+      {/* Mécanisme facultatif (avis ChatGPT, 2026-11-27) : un produit simple se vend par
+          son usage, son design ou son offre ; l'exiger pousse à inventer une explication. */}
+      {choix?.aucun ? (
+        <div className="cat-meca__choix">
+          <b>Pas de mécanisme pour ce produit</b>
+          <small>Le produit se vend par son usage, son design ou son offre. Les pages et les agents n'inventeront pas d'explication « scientifique ».</small>
+          <label className="cat-field">
+            <span>Pourquoi (gardé avec la décision)</span>
+            <textarea rows={2} value={choix?.raison ?? ""} onChange={(e) => onChoix({ ...choix, raison: e.target.value })} placeholder="ex. Cadeau personnalisé : on vend l'émotion et l'usage, pas une technologie" />
+          </label>
+          <button type="button" className="cat-link" onClick={() => onChoix(null)}>
+            Revenir aux pistes de mécanisme
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="cat-btn cat-btn--ghost cat-meca__aucun" onClick={() => onChoix({ id: "aucun", aucun: true, raison: "", le: new Date().toISOString() })} title="Pour un produit qui se vend par son usage, son design ou son offre (cadeau, déco, accessoire…)">
+          Pas de mécanisme pour ce produit
+        </button>
+      )}
       {chosen && (
         <div className="cat-meca__choix">
           <b>Piste choisie : {chosen.nom || "sans nom"}</b>

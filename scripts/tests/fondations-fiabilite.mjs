@@ -68,8 +68,9 @@ claim("A11", "« Certifié » seul : au moins un label documenté", { fondations
 const cont = { produit: {} };
 for (const s of blueprintOf("produit")) for (const ch of s.champs) (cont.produit[s.key] ??= {})[ch.k] = "[MANQUE : information à confirmer]";
 check("P01", "Des champs tous [MANQUE] comptent zéro contenu prêt", 0, contenuProgress(cont, "produit").done);
-const mf = (await readFile(join(root, "src/catalogue/Fondations.jsx"), "utf8")).includes("realText(m?.promesse) && realText(m?.mecanisme)");
-check("P02", "Le message central exige une vraie promesse et un vrai mécanisme", true, mf && !(realText("[MANQUE]") && realText("[À VALIDER]")));
+const mf = (await readFile(join(root, "src/catalogue/Fondations.jsx"), "utf8")).includes("realText(m?.promesse) && (realText(m?.mecanisme) || project.fondations?.mecanismeChoisi?.aucun)");
+// 2026-11-27 : mécanisme facultatif si « Pas de mécanisme pour ce produit » est choisi.
+check("P02", "Le message central exige une vraie promesse et un vrai mécanisme (ou « pas de mécanisme » choisi)", true, mf && !(realText("[MANQUE]") && realText("[À VALIDER]")));
 check("P03", "Un vrai texte compte", true, realText("Une peau plus ferme [À VALIDER : délai]"));
 {
   const [s0, s1] = blueprintOf("produit");

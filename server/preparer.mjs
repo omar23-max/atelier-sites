@@ -252,3 +252,18 @@ export async function preparerRoute(req, res, parts, { root, readBody, json }) {
   lancer(root, projet, b.etape, b.web === true).catch(() => {});
   return json(res, 202, { ok: true });
 }
+
+// ---- Pour le chef de projet IA (coordinateur, 2026-11-27) ----
+export const preparationEnCours = (projet) => enCours.has(projet);
+// Lance une étape, attend la fin, rend { n, fichier } ou { erreur }.
+export async function preparerEtape(root, projet, etape) {
+  if (!ETAPES[etape]) return { erreur: "Étape inconnue." };
+  if (enCours.has(projet)) return { erreur: "Une préparation tourne déjà sur ce projet." };
+  const debut = new Date().toISOString();
+  enCours.set(projet, { etape, depuis: debut, par: "coordinateur" });
+  await lancer(root, projet, etape, false).catch(() => {});
+  const j = await lireJson(join(root, "projets-rapports", projet, "_preparations.json"), []);
+  const x = j.find((e) => e.etape === etape && String(e.le) >= debut && !e.enCours);
+  if (!x) return { erreur: "Préparation sans résultat enregistré." };
+  return x.erreur ? { erreur: x.erreur } : { n: x.n ?? 0, fichier: x.fichier };
+}

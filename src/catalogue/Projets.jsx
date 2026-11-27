@@ -228,6 +228,8 @@ function ProjectProduct({ value, onSave }) {
   );
 }
 
+// Étapes fusionnées (2026-11-27) : validation → Produit et faisabilité ; preuves → Clients et preuves.
+const ANCIENNES_ETAPES = { validation: "produit", preuves: "recherche" };
 export function ProjectDetail({ id, onBack, onMessage }) {
   const [project, setProject] = useState(null);
   const [pages, setPages] = useState(null); // [{ info, data, score, medias, origin }]
@@ -236,10 +238,12 @@ export function ProjectDetail({ id, onBack, onMessage }) {
   // Étape ouverte gardée dans l'adresse (?etape=…, 2026-11-25) : un
   // rafraîchissement ramène sur la même étape du projet.
   const [tab, setTabBrut] = useState(() => {
-    const e = new URLSearchParams(location.search).get("etape");
+    // Anciennes étapes (avant les 5 étapes, 2026-11-27) → leur nouvelle place.
+    const e = ANCIENNES_ETAPES[new URLSearchParams(location.search).get("etape")] ?? new URLSearchParams(location.search).get("etape");
     return e && /^[a-z]+$/.test(e) ? e : null;
   });
-  const setTab = (t) => {
+  const setTab = (t0) => {
+    const t = ANCIENNES_ETAPES[t0] ?? t0;
     setTabBrut(t);
     try {
       const q = new URLSearchParams(location.search);
@@ -429,7 +433,7 @@ export function ProjectDetail({ id, onBack, onMessage }) {
           nav={{ prev: navOf(menuIndex - 1), next: navOf(menuIndex + 1) }}
         />
       </div>
-      {currentTab === "validation" && <ValidationTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}
+      {(currentTab === "validation" || currentTab === "produit") && <ValidationTab key={project.id} project={project} pages={pages} onSave={saveProjectPatch} onMessage={onMessage} />}
       {currentTab === "publicites" && <PublicitesTab key={project.id} project={project} pages={pages} />}
       {currentTab === "angles" && <AnglesTab key={project.id} project={project} pages={pages} allPages={allPages} templates={templates} onSave={saveProjectPatch} onChanged={load} onMessage={onMessage} onGo={setTab} />}
       {currentTab === "pages" && <PagesTab project={project} pages={pages} allPages={allPages} templates={templates} onChanged={load} onMessage={onMessage} onSave={saveProjectPatch} />}

@@ -87,7 +87,9 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
   const choix = f.mecanismeChoisi;
   const idMeca = typeof choix === "object" ? choix?.id : choix;
   const meca = (f.mecanismes ?? []).find((m) => m?.id === idMeca);
-  const mecanisme = meca
+  const mecanisme = choix?.aucun
+    ? { aucun: true, consigne: "Pas de mécanisme pour ce produit : il se vend par son usage, son design ou son offre. N'invente aucune explication scientifique ni « secret » technique.", raison: choix.raison ? court(choix.raison, 300) : undefined }
+    : meca
     ? { nom: meca.nom, probleme: court(meca.ump, 600), solution: court(meca.ums, 600), croyance: meca.croyance ? court(meca.croyance, 400) : undefined, statut: meca.statut === "etayee" ? "étayé par des preuves" : "hypothèse (ne pas présenter comme prouvé)", limites: meca.limites ? court(meca.limites, 400) : undefined, interdits: meca.interdits ? court(meca.interdits, 400) : undefined, raisonDuChoix: typeof choix === "object" && choix.raison ? court(choix.raison, 300) : undefined }
     : idMeca || undefined;
   const brief = f.brief && typeof f.brief === "object" ? Object.fromEntries(Object.entries(f.brief).filter(([, v]) => realText(typeof v === "string" ? v : JSON.stringify(v))).map(([k, v]) => [k, court(v, 500)])) : undefined;
@@ -112,7 +114,7 @@ export function contexteProjet(p, { campagne = null, limite = 16000 } = {}) {
     ["identite", { projet: p.nom, produit: prod, marque: p.marque?.nom || undefined, description: court(p.description, 900), statutFondations: f.statut, verrouille: p.marque?.nom ? "Le nom de marque et le produit sont déjà décidés : ne les renomme pas et ne propose pas d'autre nom, sauf si on te le demande." : undefined }],
     ["campagne", campagne || undefined],
     ["offreCommerciale", commerciale ? { ...commerciale, regle: "Prix, devise, packs, garantie, retours et bonus de référence : à reprendre tels quels. En cas de contradiction avec le texte de l'offre, CETTE fiche fait foi ; signale le conflit." } : undefined],
-    ["decide", { promesseRetenue: realText(f.message?.promesse) ? court(f.message.promesse, 400) : undefined, offre: offreTexte ? court(offreTexte, 3000) : undefined, messageCentral: f.message ? court(f.message, 1800) : undefined, mecanismeChoisi: mecanisme, anglesChoisis: anglesChoisis.length ? anglesChoisis.slice(0, 6) : undefined }],
+    ["decide", { promesseRetenue: realText(f.message?.promesse) ? court(f.message.promesse, 400) : undefined, variantesPromesse: Array.isArray(f.message?.variantes) && f.message.variantes.some((v) => String(v).trim()) ? { liste: f.message.variantes.filter((v) => String(v).trim()).slice(0, 8).map((v) => court(v, 200)), note: "Variantes à tester (accroches de pubs, tests) : jamais présentées comme la promesse officielle du projet." } : undefined, offre: offreTexte ? court(offreTexte, 3000) : undefined, messageCentral: f.message ? court((({ variantes, ...reste }) => reste)(typeof f.message === "object" ? f.message : { texte: f.message }), 1800) : undefined, mecanismeChoisi: mecanisme, anglesChoisis: anglesChoisis.length ? anglesChoisis.slice(0, 6) : undefined }],
     ["faitsAutorises", { preuves: pr.ok, faitsApprouves: faitsApprouves.length ? faitsApprouves : undefined, interdits: interdits ? court(interdits, 800) : undefined, regle: "N'utilise que ces preuves et ces faits approuvés (avec leur valeur exacte). Aucun chiffre, avis, étude, certification ou résultat inventé." }],
     ["brief", brief && Object.keys(brief).length ? { ...brief, note: "Brief de campagne enregistré : cadre par défaut, qu'une campagne précise peut spécialiser." } : undefined],
     ["marque", p.marque ? { nom: p.marque.nom, couleurs: p.marque.couleurs, polices: p.marque.polices, ton: p.marque.ton ?? rep.ton, logos: (p.marque.logos ?? []).length || undefined } : rep.ton ? { ton: rep.ton } : undefined],

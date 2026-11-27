@@ -219,14 +219,16 @@ export function normalizeMessage(m) {
   const objections = [...(m.objections ?? [])].map((o) => (typeof o === "string" ? { objection: o, reponse: "" } : { objection: o?.objection ?? "", reponse: o?.reponse ?? "" }));
   while (preuves.length < 3) preuves.push("");
   while (objections.length < 3) objections.push({ objection: "", reponse: "" });
-  return { promesse: m.promesse ?? "", mecanisme: m.mecanisme ?? "", preuves: preuves.slice(0, 3), objections: objections.slice(0, 3) };
+  // Variantes de la promesse (2026-11-26) : réserve d'accroches à tester, pas la promesse officielle.
+  const variantes = (Array.isArray(m.variantes) ? m.variantes : String(m.variantes ?? "").split("\n")).map((x) => String(x ?? ""));
+  return { promesse: m.promesse ?? "", variantes, mecanisme: m.mecanisme ?? "", preuves: preuves.slice(0, 3), objections: objections.slice(0, 3) };
 }
 
 // Prêt seulement avec une vraie promesse et un vrai mécanisme : des
 // marqueurs [MANQUE] / [À VALIDER] ne suffisent pas (audit F06, 2026-11-17).
 export function messageFilled(project) {
   const m = project.fondations?.message;
-  return Boolean(realText(m?.promesse) && realText(m?.mecanisme));
+  return Boolean(realText(m?.promesse) && (realText(m?.mecanisme) || project.fondations?.mecanismeChoisi?.aucun));
 }
 
 const normTxt = (t) => String(t ?? "").toLowerCase().replace(/\s+/g, " ").trim();
@@ -252,7 +254,7 @@ function preuvesDuRegistre(rep, faits, fiche) {
   return [...new Set(out)];
 }
 
-function MessageEditor({ value, onChange, preuvesDispo = [], motsPreuves = [] }) {
+function MessageEditor({ value, onChange, preuvesDispo = [], motsPreuves = [], sansMeca = false, objectionsDispo = [] }) {
   const m = normalizeMessage(value);
   const up = (patch) => onChange({ ...m, ...patch });
   const setPreuve = (i, v) => up({ preuves: m.preuves.map((p, j) => (j === i ? v : p)) });
@@ -260,8 +262,20 @@ function MessageEditor({ value, onChange, preuvesDispo = [], motsPreuves = [] })
   return (
     <>
       <Champ label="La promesse (le résultat, en une phrase)" rows={2} value={m.promesse} onChange={(v) => up({ promesse: v })} placeholder="ex. Une peau du cou plus ferme en 4 semaines, sans aiguille" />
-      <Champ label="Le mécanisme (pourquoi ça marche là où le reste a échoué)" rows={2} value={m.mecanisme} onChange={(v) => up({ mecanisme: v })} placeholder="ex. Un peptide qui agit sur…, là où les crèmes classiques restent en surface" />
-      <span className="cat-fd__label">Les 3 preuves fortes (seulement celles cochées en 4)</span>
+      {String(m.promesse).split("\n").filter((x) => x.trim()).length > 1 && (
+        <p className="cat-src is-diff">
+          Ta promesse contient {String(m.promesse).split("\n").filter((x) => x.trim()).length} lignes : garde la meilleure, les pages et les agents n'en reprennent qu'une.{" "}
+          <button type="button" className="cat-link" onClick={() => {
+            const l = String(m.promesse).split("\n").map((x) => x.trim()).filter(Boolean);
+            up({ promesse: l[0], variantes: [...new Set([...l.slice(1), ...m.variantes.filter((x) => x.trim())])] });
+          }}>
+            Garder la 1re ligne, ranger les autres en variantes
+          </button>
+        </p>
+      )}
+      <Champ label="Variantes à tester (une par ligne : accroches pour les pubs et les tests, pas la promesse officielle)" rows={3} value={m.variantes.join("\n")} onChange={(v) => up({ variantes: v.split("\n") })} placeholder="ex. Moins de chicane sur le divan : chacun son plaid" />
+      <Champ label={sansMeca ? "Le mécanisme (facultatif : tu as choisi « pas de mécanisme » ; laisse vide ou écris ce qui rend le produit unique, sans explication scientifique)" : "Le mécanisme (pourquoi ça marche là où le reste a échoué)"} rows={2} value={m.mecanisme} onChange={(v) => up({ mecanisme: v })} placeholder="ex. Un peptide qui agit sur…, là où les crèmes classiques restent en surface" />
+      <span className="cat-fd__label">Les 3 preuves fortes (seulement celles cochées en 5)</span>
       <div className="cat-fd__mc-list">
         {m.preuves.map((p, i) => {
           // Une preuve écrite à la main qui ne vient pas du registre est signalée.
@@ -274,6 +288,11 @@ function MessageEditor({ value, onChange, preuvesDispo = [], motsPreuves = [] })
           );
         })}
       </div>
+      <datalist id="atl-objections-recherche">
+        {objectionsDispo.map((d) => (
+          <option key={d} value={d.replace(/^\s*objection\s*:\s*/i, "").replace(/\s*(?:→|->|\bR[ée]ponse\s*:).*$/i, "").replace(/^[“"«]\s*|\s*[”"»]$/g, "")} />
+        ))}
+      </datalist>
       <datalist id="atl-preuves-registre">
         {preuvesDispo.map((d) => (
           <option key={d} value={d} />
@@ -284,7 +303,7 @@ function MessageEditor({ value, onChange, preuvesDispo = [], motsPreuves = [] })
       <div className="cat-fd__mc-obj">
         {m.objections.map((o, i) => (
           <div key={i}>
-            <input value={o.objection} onChange={(e) => setObj(i, "objection", e.target.value)} placeholder={`Objection ${i + 1} (ce que pense le client)`} aria-label={`Objection ${i + 1}`} />
+            <input value={o.objection} list="atl-objections-recherche" onChange={(e) => setObj(i, "objection", e.target.value)} placeholder={`Objection ${i + 1} (ce que pense le client)`} aria-label={`Objection ${i + 1}`} />
             <textarea rows={2} value={o.reponse} onChange={(e) => setObj(i, "reponse", e.target.value)} placeholder="La réponse (avec les faits du questionnaire)" aria-label={`Réponse ${i + 1}`} />
           </div>
         ))}
@@ -636,6 +655,97 @@ function BoutonPreparer({ projet, etape, onFini, brouillons = [] }) {
     </div>
   );
 }
+// ---- Chef de projet IA (coordinateur, premier lot, 2026-11-27) ----
+// Enchaîne les agents « Préparer » par phases et s'arrête à chaque décision.
+const ETAPE_NOM = { produit: "Produit", recherche: "Recherche client", offre: "Offre", mecanisme: "Mécanisme", message: "Message central", angles: "Angles", brief: "Brief" };
+function ChefDeProjet({ projet, onFini }) {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState(null);
+  const [ouvert, setOuvert] = useState(() => localStorage.getItem("atl-chef-ouvert") !== "0");
+  const tourne = d?.run?.statut === "en cours";
+  const avant = useRef(null);
+  const charger = () =>
+    fetch(`/api/coordinateur/${projet}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((x) => {
+        if (!x) return;
+        // Fin d'une phase : les propositions arrivent dans la page.
+        if (avant.current === "en cours" && x.run?.statut !== "en cours") onFini?.();
+        avant.current = x.run?.statut ?? null;
+        setD(x);
+      })
+      .catch(() => {});
+  useEffect(() => {
+    charger();
+  }, [projet]);
+  useEffect(() => {
+    if (!tourne) return;
+    const t = setInterval(charger, 4000);
+    return () => clearInterval(t);
+  }, [tourne, projet]);
+  useEffect(() => localStorage.setItem("atl-chef-ouvert", ouvert ? "1" : "0"), [ouvert]);
+  async function lancer(ph) {
+    setErr(null);
+    if (!window.confirm(`Lancer « ${ph.titre} » ? Le chef de projet enchaîne ${ph.etapes.map((e) => ETAPE_NOM[e] ?? e).join(", ")} (≈ ${ph.cout.toFixed(2)} $ au plus), puis s'arrête pour que tu tries. Rien n'est validé à ta place.`)) return;
+    const r = await fetch(`/api/coordinateur/${projet}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phase: ph.id }) }).catch(() => null);
+    const b = await r?.json().catch(() => ({}));
+    if (!r?.ok) return setErr(b?.error ?? "Échec");
+    avant.current = "en cours";
+    charger();
+  }
+  if (!d) return null;
+  const run = d.run;
+  const prochaine = d.phases.find((ph) => !ph.faite || ph.aTrier) ?? null;
+  return (
+    <section className="cat-panel cat-chef">
+      <div className="cat-chef__head">
+        <h3>🧭 Chef de projet IA</h3>
+        <button type="button" className="cat-link" onClick={() => setOuvert((o) => !o)}>
+          {ouvert ? "Replier" : "Déplier"}
+        </button>
+      </div>
+      {ouvert && (
+        <>
+          <p className="cat-muted">Il prépare les Fondations à ta place, phase par phase, avec les agents « Préparer », et s'arrête à chaque décision : tout arrive en propositions à trier, rien n'est validé sans toi. Le plafond de dépense du projet s'applique.</p>
+          <ol className="cat-chef__phases">
+            {d.phases.map((ph) => {
+              const actif = run?.phase === ph.id ? run : null;
+              return (
+                <li key={ph.id} className={`cat-chef__phase${ph.enCours ? " is-run" : ph.faite && !ph.aTrier ? " is-ok" : ""}`}>
+                  <b>{ph.titre}</b> <span className="cat-muted">· {ph.etapes.map((e) => ETAPE_NOM[e] ?? e).join(", ")}</span>
+                  <div className="cat-chef__etat">
+                    {ph.enCours ? (
+                      <span>⏳ En cours : {(actif?.etapes ?? []).map((e) => `${ETAPE_NOM[e.etape] ?? e.etape} ${e.statut === "fait" ? "✓" : e.statut === "en cours" ? "…" : e.statut === "erreur" ? "⚠" : "·"}`).join("  ")}</span>
+                    ) : ph.aTrier ? (
+                      <span className="is-warn">
+                        {ph.aTrier} proposition(s) à trier plus bas. {ph.arret}
+                      </span>
+                    ) : ph.faite ? (
+                      <span className="cat-muted">✓ Préparée.</span>
+                    ) : (
+                      <span className="cat-muted">À faire.</span>
+                    )}
+                    {actif && ["erreur", "interrompu"].includes(actif.statut) && <span className="is-warn"> · {actif.statut === "interrompu" ? "Interrompue (serveur redémarré)" : `Arrêtée : ${actif.erreur ?? "erreur"}`}. Relancer reprend où elle s'était arrêtée.</span>}
+                  </div>
+                  {!ph.enCours && !tourne && (ph.id === prochaine?.id || !ph.faite) && (
+                    <span className="cat-chef__btn">
+                      <button type="button" className="cat-btn cat-btn--ghost" disabled={Boolean(ph.bloque)} title={ph.bloque ?? ""} onClick={() => lancer(ph)}>
+                        {ph.faite ? "✨ Relancer" : actif && ["erreur", "interrompu"].includes(actif.statut) ? "✨ Reprendre" : "✨ Lancer"} (≈ {ph.cout.toFixed(2)} $ au plus)
+                      </button>
+                      {ph.bloque && <small className="cat-muted">{ph.bloque}</small>}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+          {err && <p className="cat-flash is-error">⚠ {err}</p>}
+        </>
+      )}
+    </section>
+  );
+}
+
 function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null, setMsg = null, fiche = null, setFiche = null, brief = {}, setBrief = null, projet = null, rafraichir = null }) {
   const l = rep.brouillonsAgents ?? [];
   const [edits, setEdits] = useState({});
@@ -668,6 +778,10 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
         const i = m.objections.findIndex((x) => !x.objection.trim());
         if (i < 0) return "choisir";
         return setMsg({ ...m, objections: m.objections.map((x, j) => (j === i ? { objection: o ?? texte, reponse: r ?? "" } : x)) }), true;
+      }
+      // Promesse déjà écrite (2026-11-26) : une nouvelle promesse devient une variante.
+      if (k === "promesse" && (annule ? m.variantes.includes(texte) : String(m.promesse).trim() && String(m.promesse).trim() !== texte)) {
+        return setMsg({ ...m, variantes: annule ? m.variantes.filter((x) => x !== texte) : [...new Set([...m.variantes.filter((x) => x.trim()), texte])] }), true;
       }
       return setMsg({ ...m, [k]: annule ? retirerTexte(m[k], texte) : ajouterTexte(m[k], texte) }), true;
     }
@@ -824,7 +938,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
           <textarea rows={2} value={texteDe(b)} onChange={(e) => edite(b, { texte: e.target.value })} aria-label="Texte proposé" />
           <span className="cat-fd__propbtns">
             <button type="button" className="cat-btn" disabled={!texteDe(b).trim()} onClick={() => accepter(b)}>
-              {actuelBrief(champDe(b)) ? "Remplacer par celle-ci" : "Ajouter au champ"}
+              {actuelBrief(champDe(b)) ? "Remplacer par celle-ci" : champDe(b) === "message.promesse" && String(normalizeMessage(msg).promesse).trim() ? "Ajouter aux variantes" : "Ajouter au champ"}
             </button>
             <button type="button" className="cat-link" onClick={() => maj(b.id, { statut: "rejeté", decideLe: new Date().toISOString() })}>
               Rejeter
@@ -984,10 +1098,10 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   const [p3, p3t] = countOf(TEXTES.collecte.map((x) => x[0]));
   const nbTypes = Object.values(cont ?? {}).filter((t) => Object.values(t ?? {}).some((s) => Object.values(s ?? {}).some((v) => realText(v)))).length;
   const STEPS = [
-    { label: "Produit et clients", etat: `${p1} / ${p1t} rempli(s)`, ok: foundationsFilled({ fondations: { reponses: rep } }) },
-    { label: "Preuves et offre", etat: nbPreuves ? `${nbPreuves} preuve(s) cochée(s)` : "aucune preuve cochée", ok: nbPreuves > 0 },
-    { label: "Recherche clients", etat: `${p3} / ${p3t} source(s)${res ? " · résultats de Claude" : ""}`, ok: p3 > 0 || Boolean(res) },
-    { label: "Message central", etat: `${messageFilled({ fondations: { message: msg } }) ? "rempli" : "à faire"}${choix?.id ? " · mécanisme choisi" : mecas.length ? ` · ${mecas.length} piste(s)` : ""}`, ok: messageFilled({ fondations: { message: msg } }) },
+    { label: "Produit et faisabilité", etat: `${p1} / ${p1t} rempli(s)`, ok: foundationsFilled({ fondations: { reponses: rep } }) },
+    { label: "Clients et preuves", etat: `${p3} / ${p3t} source(s)${res ? " · résultats" : ""} · ${nbPreuves} preuve(s)`, ok: (p3 > 0 || Boolean(res)) && nbPreuves > 0 },
+    { label: "Offre et message", etat: `${messageFilled({ fondations: { message: msg, mecanismeChoisi: choix } }) ? "rempli" : "à faire"}${choix?.aucun ? " · sans mécanisme" : choix?.id ? " · mécanisme choisi" : mecas.length ? ` · ${mecas.length} piste(s)` : ""}`, ok: messageFilled({ fondations: { message: msg, mecanismeChoisi: choix } }) },
+    { label: "Angles et campagne", etat: brief?.typePage || brief?.promessePub ? "brief rempli" : "brief à remplir", ok: Boolean(brief?.typePage || brief?.promessePub) },
     { label: "Contenus des pages", etat: `${nbTypes} type(s) de page`, ok: nbTypes > 0 },
   ];
   const go = (i) => {
@@ -1164,8 +1278,8 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   // n'est remplacé.
   async function askContenus() {
     if (!askTypes.length) return onMessage({ error: true, text: "Coche au moins un type de page." });
-    if (!messageFilled({ fondations: { message: msg } }))
-      return onMessage({ error: true, text: "Remplis d'abord le message central (partie 8) : la promesse et le mécanisme. Les cartes en découlent." });
+    if (!messageFilled({ fondations: { message: msg, mecanismeChoisi: choix } }))
+      return onMessage({ error: true, text: "Remplis d'abord le message central (partie 8) : la promesse, et le mécanisme (ou choisis « Pas de mécanisme pour ce produit »). Les cartes en découlent." });
     setBusy(true);
     try {
       await saveAll(true);
@@ -1221,8 +1335,9 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
   return (
     <div className="cat-fd">
       <p className="cat-muted">
-        Les faits que toi seul connais. Claude s'appuie sur ce qui est coché ici ; les chiffres sans preuve sont signalés, vérifie avant publication. Remplis
-        ce que tu sais, puis « Envoyer une demande à Claude » : la demande est mise en file (dis à Claude « traite les demandes ») ; il fera la recherche client et l'offre, et tu valideras.
+        Les faits que toi seul connais : les agents s'appuient sur ce qui est coché ici, et les chiffres sans preuve sont signalés. Remplis ce que tu sais, puis
+        laisse les agents préparer le reste : le « 🧭 Chef de projet IA » enchaîne les étapes, ou « ✨ Préparer » en lance une seule. Tout arrive en propositions à
+        trier plus bas ; rien n'entre dans tes Fondations sans toi.
       </p>
       <div className={`cat-fd__statut is-${statut === "modifiée" ? "modifiee" : statut}`}>
         {statut === "validée"
@@ -1240,6 +1355,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
       </div>
 
       <CoutsPanneau cle={`projet-${project.id}`} titre="Dépense IA de ce projet" />
+      <ChefDeProjet projet={project.id} onFini={recharger} />
       <PropositionsAgents rep={rep} set={set} offre={offre} setOffre={setOffre} msg={msg} setMsg={setMsg} fiche={fiche} setFiche={setFiche} brief={brief} setBrief={setBrief} projet={project.id} rafraichir={recharger} />
       {restaure && !conflit && (
         <div className="cat-fd__brouillon" role="status">
@@ -1321,69 +1437,11 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
 
       </div>
       <div className="cat-fd__step" hidden={step !== 1}>
-      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="offre" onFini={recharger} />
-      {/* Lot 1 (2026-11-25) : registre calculé sur le brouillon en cours. */}
-      <RegistreFaits project={{ ...project, offre, offreFiche: fiche, fondations: { ...f, reponses: rep, faits, message: msg } }} />
-      <section className="cat-panel">
-        <h3>4. Les preuves que tu as vraiment</h3>
-        <div className="cat-fd__preuves">
-          {PREUVES.map(([k, l, p]) => (
-            <div key={k} className={preuves[k]?.oui ? "is-on" : ""}>
-              <label>
-                <input type="checkbox" checked={Boolean(preuves[k]?.oui)} onChange={(e) => setPreuve(k, { oui: e.target.checked })} />
-                {l}
-              </label>
-              {preuves[k]?.oui && <input value={preuves[k]?.detail ?? ""} onChange={(e) => setPreuve(k, { detail: e.target.value })} placeholder={p} />}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="cat-panel">
-        <h3>Faits chiffrés</h3>
-        <p className="cat-muted">
-          Chaque chiffre que les pages peuvent citer : sa nature (un prix de 30 $ n'autorise pas « 30 jours »), sa valeur, d'où il vient. « Validé » :
-          utilisable ; « Retiré » : interdit, même s'il reste écrit ailleurs dans les Fondations ; « À confirmer » : à vérifier avant publication.
-        </p>
-        <FaitsEditor
-          value={faits}
-          onChange={setFaits}
-          sources={[
-            ["Questionnaire : produit", rep.role],
-            ["Questionnaire : preuves", JSON.stringify(rep.preuves ?? {})],
-            ["Offre", JSON.stringify(offre ?? {})],
-          ]}
-        />
-      </section>
-
-      {/* 5. L'offre : un seul formulaire (OfferTab), avec son propre bouton
-          Enregistrer — plus de doublon avec un onglet Offre séparé (2026-11-08). */}
-      <section className="cat-panel">
-        <h3>5. L'offre</h3>
-        <h4 className="cat-fd__sub">Fiche d'offre (packs, prix, conditions)</h4>
-        <p className="cat-muted">
-          Les données commerciales : les prix par unité et les remises se calculent seuls, et les pages reprennent ces chiffres. Les champs en dessous restent le
-          texte de vente.
-        </p>
-        <OffreFiche value={fiche} onChange={setFiche} texteOffre={offre.packs} />
-        <h4 className="cat-fd__sub">Texte de vente de l'offre</h4>
-        {offer && cloneElement(offer, { form: offre, setForm: setOffre, onSaveAll: (silent) => saveAll(silent), sources: { promesse: normalizeMessage(msg).promesse, packs: fiche?.packs ?? [] } })}
-      </section>
-
-      <section className="cat-panel">
-        <h3>6. Concurrents et ton</h3>
-        {TEXTES.concurrents.map(([k, l, p, r]) => (
-          <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
-        ))}
-        <span className="cat-fd__label">Ton de la marque</span>
-        <Cases options={CHOIX.ton} value={rep.ton} onChange={(v) => set("ton", v)} />
-      </section>
-
-      </div>
-      <div className="cat-fd__step" hidden={step !== 2}>
+      {/* Étapes regroupées (2026-11-27, avis ChatGPT) : 5 étapes au lieu de 7. */}
+      {/* 2. Clients et preuves : recherche client, puis ce qu'on peut prouver. */}
       <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="recherche" onFini={recharger} />
       <section className="cat-panel">
-        <h3>7. Ce que tu as trouvé toi-même</h3>
+        <h3>4. Ce que tu as trouvé toi-même</h3>
         <p className="cat-muted">
           Les vrais mots des clients, source par source. Amazon et Reddit refusent l'accès aux agents IA : ce que tu colles ici est la
           seule façon d'en profiter. Claude le lit en premier, puis complète avec ce qu'il peut consulter lui-même (sites, Trustpilot,
@@ -1466,13 +1524,71 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           </details>
         </section>
       )}
-      </div>
 
-      <div className="cat-fd__step" hidden={step !== 3}>
+      {/* Lot 1 (2026-11-25) : registre calculé sur le brouillon en cours. */}
+      <RegistreFaits project={{ ...project, offre, offreFiche: fiche, fondations: { ...f, reponses: rep, faits, message: msg } }} />
+<section className="cat-panel">
+        <h3>5. Les preuves que tu as vraiment</h3>
+        <div className="cat-fd__preuves">
+          {PREUVES.map(([k, l, p]) => (
+            <div key={k} className={preuves[k]?.oui ? "is-on" : ""}>
+              <label>
+                <input type="checkbox" checked={Boolean(preuves[k]?.oui)} onChange={(e) => setPreuve(k, { oui: e.target.checked })} />
+                {l}
+              </label>
+              {preuves[k]?.oui && <input value={preuves[k]?.detail ?? ""} onChange={(e) => setPreuve(k, { detail: e.target.value })} placeholder={p} />}
+            </div>
+          ))}
+        </div>
+      </section>
+
+<section className="cat-panel">
+        <h3>Faits chiffrés</h3>
+        <p className="cat-muted">
+          Chaque chiffre que les pages peuvent citer : sa nature (un prix de 30 $ n'autorise pas « 30 jours »), sa valeur, d'où il vient. « Validé » :
+          utilisable ; « Retiré » : interdit, même s'il reste écrit ailleurs dans les Fondations ; « À confirmer » : à vérifier avant publication.
+        </p>
+        <FaitsEditor
+          value={faits}
+          onChange={setFaits}
+          sources={[
+            ["Questionnaire : produit", rep.role],
+            ["Questionnaire : preuves", JSON.stringify(rep.preuves ?? {})],
+            ["Offre", JSON.stringify(offre ?? {})],
+          ]}
+        />
+      </section>
+
+<section className="cat-panel">
+        <h3>6. Concurrents et ton</h3>
+        {TEXTES.concurrents.map(([k, l, p, r]) => (
+          <Champ key={k} label={l} placeholder={p} rows={r} value={rep[k]} onChange={(v) => set(k, v)} />
+        ))}
+        <span className="cat-fd__label">Ton de la marque</span>
+        <Cases options={CHOIX.ton} value={rep.ton} onChange={(v) => set("ton", v)} />
+      </section>
+
+      </div>
+      <div className="cat-fd__step" hidden={step !== 2}>
+      {/* 3. Offre et message : l'offre chiffrée, puis le mécanisme (facultatif) et le message central. */}
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="offre" onFini={recharger} />
+      {/* 5. L'offre : un seul formulaire (OfferTab), avec son propre bouton
+          Enregistrer — plus de doublon avec un onglet Offre séparé (2026-11-08). */}
+      <section className="cat-panel">
+        <h3>7. L'offre</h3>
+        <h4 className="cat-fd__sub">Fiche d'offre (packs, prix, conditions)</h4>
+        <p className="cat-muted">
+          Les données commerciales : les prix par unité et les remises se calculent seuls, et les pages reprennent ces chiffres. Les champs en dessous restent le
+          texte de vente.
+        </p>
+        <OffreFiche value={fiche} onChange={setFiche} texteOffre={offre.packs} />
+        <h4 className="cat-fd__sub">Texte de vente de l'offre</h4>
+        {offer && cloneElement(offer, { form: offre, setForm: setOffre, onSaveAll: (silent) => saveAll(silent), sources: { promesse: normalizeMessage(msg).promesse, packs: fiche?.packs ?? [] } })}
+      </section>
+
       <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="mecanisme" onFini={recharger} />
       <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="message" onFini={recharger} />
-      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="angles" onFini={recharger} />
-      <section className="cat-panel">
+<section className="cat-panel">
         <h3>Pistes de mécanisme (méthode Jeffrey)</h3>
         <p className="cat-muted">
           Jusqu'à 5 pistes, chacune avec le mécanisme du problème (pourquoi rien n'a marché) et celui de la solution (pourquoi ce produit marche). Tu en choisis une
@@ -1488,17 +1604,23 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           onToMessage={(p) => setMsg({ ...normalizeMessage(msg), mecanisme: `${p.ums}${realText(p.ump) ? ` — là où le reste échoue : ${p.ump}` : ""}` })}
         />
       </section>
-      <section className="cat-panel cat-fd__mc">
+<section className="cat-panel cat-fd__mc">
         <h3>8. Message central</h3>
         <p className="cat-muted">
           Le discours unique du projet : toutes les pages (listicle, advertorial, landing, page produit, homepage) le reprennent, avec les
-          mots de leur angle autour. Claude le prépare avec « Envoyer une demande à Claude » ; tu le corriges ici. Aucune preuve qui ne soit cochée
-          en 4.
+          mots de leur angle autour. « ✨ Préparer » (ou le Chef de projet IA) le propose ; tu le corriges ici. Aucune preuve qui ne soit cochée
+          en 5.
         </p>
-        <MessageEditor value={msg} onChange={setMsg} preuvesDispo={preuvesDuRegistre(rep, faits, fiche)} motsPreuves={motsDuRegistre(rep, faits, fiche)} />
+        <MessageEditor value={msg} onChange={setMsg} sansMeca={Boolean(choix?.aucun)} objectionsDispo={[...new Set([...(res?.objections ?? []).map((x) => (typeof x === "string" ? x : x?.objection ?? x?.texte ?? "")), ...String(offre?.objections ?? "").split("\n")].map((x) => x.trim()).filter(Boolean))]} preuvesDispo={preuvesDuRegistre(rep, faits, fiche)} motsPreuves={motsDuRegistre(rep, faits, fiche)} />
       </section>
+
+      </div>
+
+      <div className="cat-fd__step" hidden={step !== 3}>
+      {/* 4. Angles et campagne : le brief ici, les angles en dessous (onglet Angles). */}
+      <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="angles" onFini={recharger} />
       <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="brief" onFini={recharger} />
-      <section className="cat-panel">
+<section className="cat-panel">
         <h3>Brief de campagne</h3>
         <p className="cat-muted">
           Le contexte de la page à écrire : pour qui, d'où vient le visiteur, quelle promesse la pub a faite, quel mécanisme, quelle offre, quelles preuves. La
@@ -1611,7 +1733,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
             les étapes de base sont prêtes (produit et clients, preuves et offre,
             recherche client, message central), ou pour revalider après une
             modification : pas de validation par erreur en cours de route. */}
-        {((STEPS.slice(0, 4).every((x) => x.ok) && choix?.id && (project.angles ?? []).some((x) => x.choisi)) || statut === "modifiée") && (
+        {((STEPS.slice(0, 3).every((x) => x.ok) && choix?.id && (project.angles ?? []).some((x) => x.choisi)) || statut === "modifiée") && (
           <button type="button" className="cat-btn" disabled={busy} onClick={validate}>
             {statut === "modifiée" ? "Valider à nouveau" : statut === "validée" ? "Valider de nouveau" : "Valider les fondations"}
           </button>
@@ -1691,12 +1813,12 @@ export const PROJECT_PHASES = [
   ["publier", "Publier", "pages et exports"],
 ];
 export const PROJECT_MENU = [
-  { id: "produit", label: "Produits et clients", fd: 0, phase: "valider" },
-  { id: "validation", label: "Validation produit", phase: "valider" },
-  { id: "recherche", label: "Recherche client", fd: 2, phase: "valider" },
-  { id: "preuves", label: "Preuves et offres", fd: 1, phase: "decider" },
-  { id: "message", label: "Message central", fd: 3, phase: "decider" },
-  { id: "angles", label: "Angles", phase: "decider" },
+  // 5 étapes de Fondations (2026-11-27) : la validation va dans « Produit et
+  // faisabilité », les preuves avec la recherche, l'offre avec le message, le brief avec les angles.
+  { id: "produit", label: "Produit et faisabilité", fd: 0, phase: "valider" },
+  { id: "recherche", label: "Clients et preuves", fd: 1, phase: "valider" },
+  { id: "message", label: "Offre et message", fd: 2, phase: "decider" },
+  { id: "angles", label: "Angles et campagne", fd: 3, phase: "decider" },
   { id: "marque", label: "Marque et design", phase: "decider" },
   { id: "contenus", label: "Contenu des pages", fd: 4, phase: "produire" },
   { id: "textes", label: "Textes", phase: "produire" },
@@ -1721,6 +1843,7 @@ export function ProjectMenu({ project, pages, onGo, current }) {
   const audites = pages.filter((p) => p.score?.type && p.score.score >= 80).length;
   const exported = Object.values(project.publication ?? {}).filter((p) => p.html).length;
   const pagesDone = pages.length && (!ang.chosen || ang.withPage === ang.chosen) && audites === pages.length;
+  // 5 étapes (2026-11-27) : états réunis (calculés après les anciens, plus bas).
   const st = {
     produit: [foundationsFilled(project) ? "done" : filled(rep.role) || filled(rep.qui) ? "doing" : "todo", foundationsFilled(project) ? `rempli${nbVideos ? ` · ${nbVideos} vidéo(s)` : ""}` : "à remplir"],
     validation: project.validation?.verdict ? ["done", `${{ GO: "GO", GO_CONDITIONS: "GO avec conditions", ALTERNATIVES: "Chercher mieux", NO_GO: "NON" }[project.validation.verdict] ?? project.validation.verdict}${project.validation.score != null ? ` · ${project.validation.score}/10` : ""}`] : ["todo", "verdict, tendance, marge"],
@@ -1742,6 +1865,15 @@ export function ProjectMenu({ project, pages, onGo, current }) {
     pages: [pagesDone ? "done" : pages.length ? "doing" : "todo", pages.length ? `${pages.length} page(s) · ${audites} ≥ 80` : "aucune"],
     publication: [pages.length && exported >= pages.length ? "done" : exported ? "doing" : "todo", `${exported} / ${pages.length} exportée(s)`],
   };
+  {
+    const ok = (k) => st[k]?.[0] === "done";
+    const v = project.validation?.verdict;
+    st.produit = [ok("produit") && v ? "done" : ok("produit") || v ? "doing" : "todo", `${st.produit[1]} · ${v ? st.validation[1] : "verdict à faire"}`];
+    st.recherche = [ok("recherche") && nbPreuves ? "done" : ok("recherche") || nbPreuves ? "doing" : "todo", `${st.recherche[1]} · ${nbPreuves} preuve(s)`];
+    st.message = [ok("message") && ok("preuves") ? "done" : ok("message") || project.offreFiche ? "doing" : "todo", `${st.preuves[1].replace(/^\d+ preuve\(s\) · /, "")} · message ${ok("message") ? "rempli" : "à faire"}`];
+    const b = f.brief ?? {};
+    st.angles = [ok("angles") && (b.typePage || b.promessePub) ? "done" : ok("angles") || b.typePage ? "doing" : "todo", `${st.angles[1]} · brief ${b.typePage || b.promessePub ? "rempli" : "à faire"}`];
+  }
   // Prochaine étape : la première, dans l'ordre des phases, qui reste à faire.
   const prochaine = PROJECT_MENU.find((m) => ["todo", "doing"].includes((st[m.id] ?? ["none"])[0]));
   return (
@@ -1859,7 +1991,7 @@ function VideosConcurrents({ value, onChange, project, onMessage, preuves = {}, 
   const nameOf = (u) => decodeURIComponent(String(u).split("/").pop());
   return (
     <section className="cat-panel cat-fdv">
-      <h3>4. Vidéos des concurrents (facultatif)</h3>
+      <h3>Vidéos des concurrents (facultatif)</h3>
       <p className="cat-muted">Des pubs vidéo qui marchent chez tes concurrents (téléchargées de WinningHunter, par exemple). « Analyser les angles » en tire l'accroche, l'angle, la promesse, les preuves et le script ; Claude s'en sert pour la recherche client et les angles.</p>
       <div className="cat-actions">
         <button type="button" className="cat-btn cat-btn--ghost" disabled={busy === "upload"} onClick={() => fileRef.current?.click()}>
