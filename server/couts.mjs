@@ -60,9 +60,20 @@ export function installerCompteur(root) {
       host = new URL(url).hostname;
     } catch {}
     const f = FOURNISSEURS.find(([re]) => re.test(host))?.[1];
-    const res = await vrai(input, init);
-    if (f) {
-      const st = { ...(ctxCout.getStore() ?? {}) };
+    if (!f) return vrai(input, init);
+    // Plafond (2026-11-26) : contrôle AVANT l'appel, côté serveur. Les appels en
+    // cours de la même clé sont réservés (montant prudent par appel).
+    const st = { ...(ctxCout.getStore() ?? {}) };
+    const cleAppel = await cleDe(st).catch(() => "general");
+    await garde(cleAppel, f);
+    engages.set(cleAppel, (engages.get(cleAppel) ?? 0) + (RESERVE[f] ?? 0));
+    let res;
+    try {
+      res = await vrai(input, init);
+    } finally {
+      engages.set(cleAppel, Math.max(0, (engages.get(cleAppel) ?? 0) - (RESERVE[f] ?? 0)));
+    }
+    {
       const corps = typeof init?.body === "string" ? init.body : "";
       if (f === "winninghunter") {
         noter(st, f, url, corps, res.status, "").catch(() => {});
@@ -77,6 +88,38 @@ export function installerCompteur(root) {
     }
     return res;
   };
+}
+
+// ---- Plafond de dépense par projet / produit (couts/budgets.json) ----
+// Montant réservé pendant un appel (on ne connaît son coût qu'après) : prudent
+// pour GPT-5.5 avec recherche web, plus petit pour les images.
+const RESERVE = { openai: 0.5, anthropic: 0.5, gemini: 0.15, winninghunter: 0 };
+const engages = new Map(); // clé → dollars réservés par les appels en cours
+const depenses = new Map(); // clé → { dollars, sansPrix, le } (cache court)
+export class BudgetAtteint extends Error {}
+async function depenseDe(cle) {
+  const c = depenses.get(cle);
+  if (c && Date.now() - c.le < 15000) return c;
+  const r = await resumeCouts(racine, cle);
+  const v = { dollars: r.total.dollars, sansPrix: r.total.sansPrix, le: Date.now() };
+  depenses.set(cle, v);
+  return v;
+}
+// Plafond par défaut des projets (2026-11-26, choix de l'utilisateur : 5 $),
+// réglable dans couts/budgets.json (« _defautProjet »). Un plafond propre au projet passe avant.
+const DEFAUT_PROJET = 5;
+const plafondDe = (budgets, cle) => budgets[cle] ?? (cle.startsWith("projet-") ? budgets._defautProjet ?? DEFAUT_PROJET : null);
+async function garde(cle, fournisseur) {
+  if (!racine) return;
+  const budgets = await lireJson(join(racine, "couts", "budgets.json"), {});
+  const plafond = plafondDe(budgets, cle);
+  if (plafond == null) return;
+  const { dollars } = await depenseDe(cle);
+  const engage = engages.get(cle) ?? 0;
+  if (dollars + engage + (RESERVE[fournisseur] ?? 0) > plafond) {
+    const qui = cle.startsWith("projet-") ? "ce projet" : cle.startsWith("produit-") ? "ce produit" : "cette partie de l'atelier";
+    throw new BudgetAtteint(`Plafond de dépense atteint pour ${qui} : ≈ ${dollars.toFixed(2)} $ dépensés${engage ? ` + ${engage.toFixed(2)} $ en cours` : ""} sur ${plafond} $. Rien n'a été facturé pour cette demande. Pour continuer, augmente le plafond (panneau « Dépense IA »).`);
+  }
 }
 
 function nombre(t, cle) {
@@ -125,6 +168,9 @@ async function noter(st, fournisseur, url, corps, statut, texte) {
   const dir = join(racine, "couts");
   await mkdir(dir, { recursive: true });
   await appendFile(join(dir, `${cle}.jsonl`), JSON.stringify(ligne) + "\n");
+  depenses.delete(cle);
+  // Un produit lancé compte aussi dans son projet : on vide tout le cache (petit).
+  if (cle.startsWith("produit-")) depenses.clear();
 }
 // À qui imputer : projet (ou projet de la page), sinon produit de la grille, sinon recherche.
 async function cleDe(st) {
@@ -193,7 +239,7 @@ export async function resumeCouts(root, cle) {
     } else if (m.entree || m.sortie) total.sansPrix += m.entree + m.sortie;
   }
   total.dollars = Math.round(total.dollars * 100) / 100;
-  return { cle, total, parModele: Object.values(parModele).sort((a, b) => b.entree + b.sortie - (a.entree + a.sortie)), derniers: toutes.slice(0, 15), prix, budget: budgets[cle] ?? null, depuis: toutes.at(-1)?.le ?? null };
+  return { cle, total, parModele: Object.values(parModele).sort((a, b) => b.entree + b.sortie - (a.entree + a.sortie)), derniers: toutes.slice(0, 15), prix, budget: plafondDe(budgets, cle), budgetDefaut: budgets[cle] == null && cle.startsWith("projet-"), depuis: toutes.at(-1)?.le ?? null };
 }
 
 export async function coutsRoute(req, res, parts, { root, readBody, json }) {
@@ -226,6 +272,7 @@ export async function coutsRoute(req, res, parts, { root, readBody, json }) {
     const f = join(root, "couts", "budgets.json");
     await lockFile(f, async () => {
       const bu = await lireJson(f, {});
+      depenses.delete(cle);
       if (v == null) delete bu[cle];
       else bu[cle] = v;
       await mkdir(join(root, "couts"), { recursive: true });

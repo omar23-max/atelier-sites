@@ -229,7 +229,30 @@ export function messageFilled(project) {
   return Boolean(realText(m?.promesse) && realText(m?.mecanisme));
 }
 
-function MessageEditor({ value, onChange }) {
+const normTxt = (t) => String(t ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+// Preuves que le message central peut citer (2026-11-26) : cochées en 4 avec leur
+// détail, faits approuvés, garantie de la fiche d'offre. Le message les choisit ici.
+// Mots qui reconnaissent chaque type de preuve cochée dans une phrase libre.
+const MOTS_PREUVE = { avis: /\bavis\b|review/i, etude: /étude|test clinique|essai/i, garantie: /garanti/i, certification: /certifi|label/i, avantApres: /avant|après/i, video: /vid[ée]o|témoign/i, presse: /presse|média|journal/i, expert: /expert|médecin|docteur|\bdr\b/i, ventes: /vendu|ventes|clients/i };
+function motsDuRegistre(rep, faits, fiche) {
+  const out = Object.entries(MOTS_PREUVE).filter(([k]) => rep?.preuves?.[k]?.oui).map(([, re]) => re);
+  if (fiche?.garantie?.duree) out.push(MOTS_PREUVE.garantie);
+  for (const x of faits ?? []) if (x?.etat === "valide" && x.valeur != null) out.push(new RegExp(String(x.valeur).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  return out;
+}
+function preuvesDuRegistre(rep, faits, fiche) {
+  const out = [];
+  for (const [k, label] of PREUVES) {
+    const p = rep?.preuves?.[k];
+    if (p?.oui) out.push(`${label}${p.detail ? ` : ${String(p.detail).slice(0, 160)}` : ""}`);
+  }
+  for (const x of faits ?? []) if (x?.etat === "valide" && x.valeur != null) out.push(`${x.nature ?? "Fait"} : ${x.valeur}${x.unite ? ` ${x.unite}` : ""}`);
+  const g = fiche?.garantie;
+  if (g?.duree) out.push(`Garantie ${g.duree} ${g.unite ?? "jours"}${g.conditions ? ` : ${String(g.conditions).slice(0, 160)}` : ""}`);
+  return [...new Set(out)];
+}
+
+function MessageEditor({ value, onChange, preuvesDispo = [], motsPreuves = [] }) {
   const m = normalizeMessage(value);
   const up = (patch) => onChange({ ...m, ...patch });
   const setPreuve = (i, v) => up({ preuves: m.preuves.map((p, j) => (j === i ? v : p)) });
@@ -240,10 +263,23 @@ function MessageEditor({ value, onChange }) {
       <Champ label="Le mécanisme (pourquoi ça marche là où le reste a échoué)" rows={2} value={m.mecanisme} onChange={(v) => up({ mecanisme: v })} placeholder="ex. Un peptide qui agit sur…, là où les crèmes classiques restent en surface" />
       <span className="cat-fd__label">Les 3 preuves fortes (seulement celles cochées en 4)</span>
       <div className="cat-fd__mc-list">
-        {m.preuves.map((p, i) => (
-          <input key={i} value={p} onChange={(e) => setPreuve(i, e.target.value)} placeholder={`Preuve ${i + 1}`} aria-label={`Preuve ${i + 1}`} />
-        ))}
+        {m.preuves.map((p, i) => {
+          // Une preuve écrite à la main qui ne vient pas du registre est signalée.
+          const hors = String(p ?? "").trim() && !/^\[(MANQUE|À VALIDER)/i.test(String(p).trim()) && !preuvesDispo.some((d) => normTxt(d).includes(normTxt(p).slice(0, 25)) || normTxt(p).includes(normTxt(d).slice(0, 25))) && !motsPreuves.some((re) => re.test(String(p)));
+          return (
+            <div key={i} className="cat-fd__mc-preuve">
+              <input value={p} onChange={(e) => setPreuve(i, e.target.value)} placeholder={`Preuve ${i + 1}`} aria-label={`Preuve ${i + 1}`} list="atl-preuves-registre" className={hors ? "is-pb-warn" : ""} />
+              {hors && <small className="cat-muted">Pas trouvée dans tes preuves cochées ni tes faits approuvés : vérifie-la, ou choisis-en une dans la liste.</small>}
+            </div>
+          );
+        })}
       </div>
+      <datalist id="atl-preuves-registre">
+        {preuvesDispo.map((d) => (
+          <option key={d} value={d} />
+        ))}
+      </datalist>
+      {preuvesDispo.length > 0 && <small className="cat-muted">Clique une case de preuve : la liste propose tes preuves cochées, tes faits approuvés et ta garantie.</small>}
       <span className="cat-fd__label">Les 3 objections principales et leur réponse</span>
       <div className="cat-fd__mc-obj">
         {m.objections.map((o, i) => (
@@ -638,7 +674,7 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     // Brief (2026-11-25) : une case vide reçoit la proposition ; une case déjà
     // remplie n'est pas écrasée (vide-la d'abord) ; les champs à choix prennent une valeur de la liste.
     if (zone === "brief" && setBrief) {
-      if (annule) return setBrief({ ...(brief ?? {}), [k]: "" }), true;
+      if (annule) return String(brief?.[k] ?? "") === String(valeurBrief(k, texte) ?? "") ? (setBrief({ ...(brief ?? {}), [k]: "" }), true) : dejaModifie();
       const v = CHOIX_BRIEF[k] ? CHOIX_BRIEF[k].find((x) => texte.toLowerCase().includes(x)) : texte;
       if (!v) return setErr(`Valeur inconnue pour ce champ du brief : « ${texte} ».`), false;
       // Case déjà remplie (2026-11-26) : la proposition REMPLACE la valeur, gardée pour « Annuler ».
@@ -684,20 +720,30 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
     maj(b.id, { statut: "accepté", champ: "message.objection", ajoute: texteDe(b).trim(), remplace: { index: i, avant }, decideLe: new Date().toISOString() });
     setChoixObj(null);
   }
+  // « Annuler » sûr (avis ChatGPT, 2026-11-26) : on ne défait une proposition
+  // que si son résultat est encore là tel quel ; sinon on garde la correction.
+  const dejaModifie = () => (setErr("Tu as modifié ce champ depuis que tu as ajouté la proposition : je ne l'annule pas, pour ne pas effacer ta correction. Corrige-le à la main si besoin."), false);
+  const valeurBrief = (k, texte) => (CHOIX_BRIEF[k] ? CHOIX_BRIEF[k].find((x) => String(texte).toLowerCase().includes(x)) : texte);
   async function annuler(b) {
     setErr(null);
     if (b.remplace && setMsg) {
       const m = normalizeMessage(msg);
+      const [o] = decoupe(String(b.ajoute ?? ""));
+      if (String(m.objections[b.remplace.index]?.objection ?? "").trim() !== String(o ?? b.ajoute ?? "").trim()) return dejaModifie();
       setMsg({ ...m, objections: m.objections.map((x, j) => (j === b.remplace.index ? b.remplace.avant : x)) });
       maj(b.id, { statut: "proposé", ajoute: undefined, remplace: undefined, decideLe: undefined });
       return;
     }
     if (b.briefAvant !== undefined && setBrief) {
+      const k = String(b.champ).slice(6);
+      if (String(brief?.[k] ?? "") !== String(valeurBrief(k, b.ajoute ?? "") ?? "")) return dejaModifie();
       setBrief({ ...(brief ?? {}), [String(b.champ).slice(6)]: b.briefAvant });
       maj(b.id, { statut: "proposé", ajoute: undefined, briefAvant: undefined, decideLe: undefined });
       return;
     }
     if (b.champ === "offreFiche" && setFiche) {
+      // La fiche doit être exactement celle qu'a produite la proposition.
+      if (b.valeur && JSON.stringify(fiche ?? null) !== JSON.stringify(remplirVides(b.ficheAvant ?? null, b.valeur))) return dejaModifie();
       setFiche(b.ficheAvant ?? null);
       maj(b.id, { statut: "proposé", ficheAvant: undefined, decideLe: undefined });
       return;
@@ -1321,7 +1367,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
         </p>
         <OffreFiche value={fiche} onChange={setFiche} texteOffre={offre.packs} />
         <h4 className="cat-fd__sub">Texte de vente de l'offre</h4>
-        {offer && cloneElement(offer, { form: offre, setForm: setOffre, onSaveAll: (silent) => saveAll(silent) })}
+        {offer && cloneElement(offer, { form: offre, setForm: setOffre, onSaveAll: (silent) => saveAll(silent), sources: { promesse: normalizeMessage(msg).promesse, packs: fiche?.packs ?? [] } })}
       </section>
 
       <section className="cat-panel">
@@ -1449,7 +1495,7 @@ export function FoundationsTab({ project, onSave, onMessage, request, offer, pag
           mots de leur angle autour. Claude le prépare avec « Envoyer une demande à Claude » ; tu le corriges ici. Aucune preuve qui ne soit cochée
           en 4.
         </p>
-        <MessageEditor value={msg} onChange={setMsg} />
+        <MessageEditor value={msg} onChange={setMsg} preuvesDispo={preuvesDuRegistre(rep, faits, fiche)} motsPreuves={motsDuRegistre(rep, faits, fiche)} />
       </section>
       <BoutonPreparer brouillons={rep.brouillonsAgents ?? []} projet={project.id} etape="brief" onFini={recharger} />
       <section className="cat-panel">

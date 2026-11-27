@@ -242,6 +242,9 @@ function StudioDialog({ onClose }) {
   // Audit F15 (2026-11-25) : au chargement, on fusionne le lot du serveur
   // (versions réunies par fichier) ; ensuite chaque changement y est envoyé.
   const lotCharge = useRef(false);
+  // Enregistrement du lot visible (avis ChatGPT, 2026-11-26) : un échec n'est plus silencieux.
+  const [lotErr, setLotErr] = useState(null);
+  const [lotEssai, setLotEssai] = useState(0);
   useEffect(() => {
     fetch(`/api/studio-lot/${pageName}`)
       .then((r) => (r.ok ? r.json() : {}))
@@ -271,10 +274,12 @@ function StudioDialog({ onClose }) {
     } catch {}
     if (!lotCharge.current) return;
     const t = setTimeout(() => {
-      fetch(`/api/studio-lot/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ results, retirees: [...retirees] }) }).catch(() => {});
+      fetch(`/api/studio-lot/${pageName}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ results, retirees: [...retirees] }) })
+        .then((r) => setLotErr(r.ok ? null : `Le serveur a refusé l'enregistrement (erreur ${r.status}).`))
+        .catch(() => setLotErr("Pas de connexion avec l'atelier : tes choix (versions gardées, images retirées) ne sont pas encore enregistrés."));
     }, 800);
     return () => clearTimeout(t);
-  }, [results, retirees]);
+  }, [results, retirees, lotEssai]);
   useEffect(() => {
     try {
       if (retirees.size) localStorage.setItem(LS_RETIREES, JSON.stringify([...retirees]));
@@ -781,6 +786,14 @@ function StudioDialog({ onClose }) {
                 pour {queue.length} image(s) à faire · environ {String(prix).replace(".", ",")} $ l'image ({MODELES[form.modele].label})
               </span>
             </div>
+            {lotErr && (
+              <p className="atl-mirror__err">
+                ⚠ {lotErr}{" "}
+                <button type="button" className="atl-mirror__linkbtn" onClick={() => setLotEssai((n) => n + 1)}>
+                  Réessayer
+                </button>
+              </p>
+            )}
             <span className="atl-mirror__label">Mode</span>
             <div className="atl-mirror__seg atl-mirror__seg--3">
               <button type="button" className={!pub && !marque ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "fidele", agent: "" })}>

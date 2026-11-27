@@ -280,6 +280,76 @@ function Marge({ project, onSave, recherche = null, page = null }) {
 // d'origine. Actions : ouvrir dans le Canvas, variante, télécharger, retirer.
 const SUIVI = { idee: "Idée", brouillon: "Brouillon", prete: "Prête", "en-test": "En test", gagnante: "Gagnante", arretee: "Arrêtée" };
 const AGENT_PUB = { rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator" };
+// Relecture du plan d'une vidéo avant de filmer (avis ChatGPT, 2026-11-26) :
+// rien n'est filmé (ni facturé chez Gemini Omni) sans ce clic.
+const PRIX_SECONDE = { "360p": 0.025, "720p": 0.075, "1080p": 0.11 };
+function PlansVideo({ project, data, charger }) {
+  const plans = (data.pubs ?? []).filter((x) => x.statut === "plan" && data.modes?.[x.mode]?.kind === "video");
+  const [edits, setEdits] = useState({});
+  const [msg, setMsg] = useState(null);
+  if (!plans.length) return null;
+  async function filmer(x) {
+    setMsg(null);
+    const e = edits[x.id] ?? {};
+    const r = await fetch(`/api/publicites/${project.id}/${x.id}/generer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: { voix: e.voix ?? x.plan?.voix ?? "", prompt: e.prompt ?? x.plan?.prompt ?? "" }, duree: e.duree ?? x.duree, qualite: e.qualite ?? x.qualite ?? "720p", format: x.format }) }).catch(() => null);
+    const b = await r?.json().catch(() => ({}));
+    if (!r?.ok) return setMsg(`⚠ ${b?.error ?? "Échec"}`);
+    charger();
+  }
+  return (
+    <div className="cat-pub__plans">
+      <h4>Plans vidéo à relire avant de filmer</h4>
+      {msg && <p className="cat-flash is-error">{msg}</p>}
+      {plans.map((x) => {
+        const e = edits[x.id] ?? {};
+        const duree = e.duree ?? x.duree ?? x.plan?.duree ?? 6;
+        const qualite = e.qualite ?? x.qualite ?? "720p";
+        const set = (patch) => setEdits((o) => ({ ...o, [x.id]: { ...e, ...patch } }));
+        return (
+          <div key={x.id} className="cat-pub__plan">
+            <b>{data.modes[x.mode]?.label}</b> {x.plan?.idee && <span className="cat-muted">· {x.plan.idee}</span>}
+            {x.plan?.accroche && <p>Accroche : « {x.plan.accroche} »</p>}
+            <label>
+              <span className="cat-fd__label">Voix off (dite pendant le plan, vide = sans voix)</span>
+              <textarea rows={2} value={e.voix ?? x.plan?.voix ?? ""} onChange={(ev) => set({ voix: ev.target.value })} />
+            </label>
+            <details>
+              <summary>Consigne envoyée à Gemini Omni (anglais)</summary>
+              <textarea rows={5} value={e.prompt ?? x.plan?.prompt ?? ""} onChange={(ev) => set({ prompt: ev.target.value })} />
+            </details>
+            <div className="cat-pub__row">
+              <label>
+                <span className="cat-fd__label">Durée</span>
+                <select value={duree} onChange={(ev) => set({ duree: Number(ev.target.value) })}>
+                  {[4, 6, 8, 10, 12, 15].map((d) => (
+                    <option key={d} value={d}>
+                      {d} s
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span className="cat-fd__label">Qualité</span>
+                <select value={qualite} onChange={(ev) => set({ qualite: ev.target.value })}>
+                  <option value="360p">360p (essai)</option>
+                  <option value="720p">720p</option>
+                  <option value="1080p">1080p</option>
+                </select>
+              </label>
+              <button type="button" className="cat-btn" onClick={() => filmer(x)}>
+                Filmer (≈ {(duree * (PRIX_SECONDE[qualite] ?? 0.075)).toFixed(2)} $)
+              </button>
+              <button type="button" className="cat-link" onClick={() => window.confirm("Abandonner ce plan ? (rien n'a été filmé)") && fetch(`/api/publicites/${project.id}/${x.id}`, { method: "DELETE" }).then(charger)}>
+                Abandonner
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // Nom lisible de l'agent de chaque mode (mêmes noms que les fiches des médias).
 const AGENTS_PUB = { ugcVideo: "UGC Video Producer V2", pubVideo: "AI Video Ad Generator", rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "Transformation Image Ad Generator", concept: "ChatGPT 2.0 Image Ad Generator", rebuildWL: "AI Ad Rebuilder V1 (WL)", maquetteMarque: "Brand Mockup Studio V1" };
 const nomAgent = (k, x) => AGENTS_PUB[k] ?? String(x?.agent ?? "").replace(/^(whitelabeler|shopfunnels)-/, "").replace(/-v-(\d)/, " V$1").replace(/-/g, " ");
@@ -344,7 +414,7 @@ function RegistrePubs({ project, page, data, charger }) {
           return (
             <article key={x.id} className={`cat-reg__card is-${x.suivi}`}>
               <div className="cat-reg__media">
-                {media ? x.type === "video" ? <video src={media} poster={x.poster ?? undefined} controls preload="metadata" /> : <img src={media} alt="" loading="lazy" /> : <span className="cat-muted">{x.statut === "erreur" ? `⚠ ${x.erreur ?? "Échec"}` : x.statut === "plan" ? "Proposition à générer (dans le Canvas)" : x.etape || "En cours…"}</span>}
+                {media ? x.type === "video" ? <video src={media} poster={x.poster ?? undefined} controls preload="metadata" /> : <img src={media} alt="" loading="lazy" /> : <span className="cat-muted">{x.statut === "erreur" ? `⚠ ${x.erreur ?? "Échec"}` : x.statut === "plan" ? "Proposition à relire avant de générer (plus bas, ou dans le Canvas)" : x.etape || "En cours…"}</span>}
                 <span className="cat-reg__type">{x.type === "video" ? "Vidéo" : "Image"}{x.format ? ` · ${x.format}` : ""}</span>
                 {x.versions?.length > 1 && (() => {
                   const cur = x.versionCourante ?? x.versions.at(-1).n;
@@ -478,7 +548,7 @@ export function PublicitesTab({ project, pages }) {
   };
   async function creer() {
     setErr(null);
-    const r = await fetch(`/api/publicites/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, source: m?.source ? source : null, refs, format, consigne, ...(video ? { duree, qualite } : {}) }) });
+    const r = await fetch(`/api/publicites/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, source: m?.source ? source : null, refs, format, consigne, ...(video ? { duree, qualite, arret: "plan" } : {}) }) });
     const b = await r.json().catch(() => ({}));
     if (!r.ok) return setErr(b.error ?? `Erreur ${r.status}`);
     setConsigne("");
@@ -570,11 +640,12 @@ export function PublicitesTab({ project, pages }) {
           <span className="cat-fd__label">Précision (facultatif)</span>
           <input value={consigne} onChange={(e) => setConsigne(e.target.value)} placeholder="ex. angle « fatigué même après 8 h de sommeil », ambiance matinale" />
         </label>
-        <button type="button" className="cat-btn" disabled={!m || (m.source && !source) || (video && !refs.length)} onClick={creer} title={video ? "Payant : l'agent écrit le plan puis Gemini Omni filme tout de suite. Plus cher qu'une image : le prix dépend de la durée et de la qualité, il s'affiche dans le registre une fois la vidéo faite. Pour relire le plan avant de filmer, passe par le Canvas (bouton Vidéo)." : "Payant : l'agent prépare la pub puis l'image est générée tout de suite (≈ 0,05 $). Pour relire la proposition avant de générer, passe par le Canvas (Créer avec un agent)."}>
-          Préparer et générer (payant)
+        <button type="button" className="cat-btn" disabled={!m || (m.source && !source) || (video && !refs.length)} onClick={creer} title={video ? "L'agent écrit d'abord le plan (≈ 0,05 $) ; tu le relis juste en dessous, puis tu cliques « Filmer » (le prix estimé est affiché avant)." : "Payant : l'agent prépare la pub puis l'image est générée tout de suite (≈ 0,05 $). Pour relire la proposition avant de générer, passe par le Canvas (Créer avec un agent)."}>
+          {video ? "Préparer le plan vidéo" : "Préparer et générer (payant)"}
         </button>
       </div>
       {err && <p className="cat-flash is-error">⚠ {err}</p>}
+      <PlansVideo project={project} data={data} charger={charger} />
 
       <h4>Plan de lancement Meta</h4>
       <p className="cat-muted">Une fois tes pubs prêtes : comment les lancer sur Facebook et Instagram (structure de campagne, budget de départ, quand couper, quand monter). L'agent lit ton projet (offre, angles, message central) ; dis-lui quelles pubs du registre tu veux tester. C'est une conversation : rien n'est dépensé chez Meta.</p>

@@ -181,7 +181,15 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
   // GET /api/mirror/<id>?page=… → état complet
   if (!parts[2] && req.method === "GET") {
     const scenes = await readJson(join(jobDir(id), "scenes.json"), null);
-    return json(res, 200, { ...st, base: `${baseUrl}/${id}`, scenes, enCours: [...running].filter((k) => k.startsWith(id)).map((k) => k.split(":")[1]) });
+    // Reprise (avis ChatGPT, 2026-11-26) : après un redémarrage, ce qui était
+    // « en cours » sans travail actif ici est montré « interrompu », avec la relance possible.
+    const INTERROMPU = "Interrompu (serveur redémarré) : relance cette étape ; ce qui était déjà fait est gardé.";
+    const etapes = { ...(st.etapes ?? {}) };
+    for (const [n, e] of Object.entries(etapes)) if (e?.statut === "en cours" && !running.has(`${id}:${n}`)) etapes[n] = { ...e, statut: "erreur", erreur: INTERROMPU };
+    const actifsImg = new Set([...running].filter((k) => k.startsWith(`${id}:image:`)).map((k) => k.slice(`${id}:image:`.length).replace(/\.[a-z0-9]+$/i, "")));
+    const images = { ...(st.images ?? {}) };
+    for (const [n, e] of Object.entries(images)) if (e?.statut === "en cours" && !actifsImg.has(n)) images[n] = { ...e, statut: "erreur", erreur: INTERROMPU };
+    return json(res, 200, { ...st, etapes, images, base: `${baseUrl}/${id}`, scenes, enCours: [...running].filter((k) => k.startsWith(id)).map((k) => k.split(":")[1]) });
   }
 
   // POST /api/mirror/<id>/reglages { photos, langue, notes }
@@ -408,7 +416,9 @@ Avoid wording that trips safety filters: no children, no medical or body claims,
       const wav = join(vdir, "voix.wav");
       const key = env.GEMINI_VEO_API_KEY || env.GEMINI_API_KEY;
       let audio = null;
-      for (const m of ["gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts"]) {
+      const txtVoix = join(vdir, "voix.txt");
+      const memeVoix = existsSync(wav) && existsSync(txtVoix) && (await readFile(txtVoix, "utf8").catch(() => "")) === o.voixOff;
+      for (const m of memeVoix ? [] : ["gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts"]) {
         const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
           method: "POST",
           headers: { "x-goog-api-key": key, "Content-Type": "application/json" },
@@ -423,10 +433,13 @@ Avoid wording that trips safety filters: no children, no medical or body claims,
           break;
         }
       }
-      if (!audio) throw new Error("La voix de synthèse n'a pas répondu : relance, ou choisis le son des plans.");
+      if (!audio && !memeVoix) throw new Error("La voix de synthèse n'a pas répondu : relance, ou choisis le son des plans.");
       const brut = join(vdir, "voix-brute.bin");
+      if (audio) {
       await writeFile(brut, audio.buf);
       await run(audio.buf.subarray(0, 4).toString() === "RIFF" ? ["-i", brut, wav] : ["-f", "s16le", "-ar", String(Number((audio.mime.match(/rate=(\d+)/) ?? [])[1]) || 24000), "-ac", "1", "-i", brut, wav]);
+      await writeFile(txtVoix, o.voixOff, "utf8");
+      }
       const dv = await probe(wav);
       const tempo = Math.min(1.35, Math.max(1, dv / total));
       const reste = Math.max(0, dv / tempo - total + 0.4);

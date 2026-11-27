@@ -548,7 +548,42 @@ const OFFER_FIELDS = [
 // Dans les Fondations (audit F04, 2026-11-17) : form / setForm / onSaveAll
 // viennent des Fondations, une seule sauvegarde pour le questionnaire, les
 // faits, le message et l'offre. Seule (sans ces props) : comme avant.
-export function OfferTab({ project, onSave, onMessage, form: ctrlForm, setForm: ctrlSet, onSaveAll }) {
+// Sources uniques (avis ChatGPT, 2026-11-26) : la promesse fait foi dans le
+// message central, les prix et packs dans la fiche d'offre chiffrée. Ici on
+// montre la source et on signale une copie qui diverge (rien n'est effacé).
+const montantsDe = (t) => [...String(t ?? "").matchAll(/(\d+(?:[.,]\d{1,2})?)\s*\$/g)].map((m) => Number(m[1].replace(",", ".")));
+const normTxt = (t) => String(t ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+function SourceUnique({ k, form, setForm, sources }) {
+  if (!sources) return null;
+  if (k === "promesse" && String(sources.promesse ?? "").trim()) {
+    const src = String(sources.promesse).trim();
+    const diff = String(form.promesse ?? "").trim() && !normTxt(form.promesse).includes(normTxt(src));
+    return (
+      <span className={`cat-src${diff ? " is-diff" : ""}`}>
+        Fait foi : la promesse du message central : « {src} ».{" "}
+        {diff && <>Ce texte est différent : les pages et les agents suivent le message central. </>}
+        {(diff || !String(form.promesse ?? "").trim()) && (
+          <button type="button" className="cat-link" onClick={() => setForm({ ...form, promesse: src })}>
+            Reprendre celle du message central
+          </button>
+        )}
+      </span>
+    );
+  }
+  if ((k === "prix" || k === "packs") && sources.packs?.length) {
+    const prix = new Set(sources.packs.flatMap((x) => [x.prix, x.prixBarre]).filter((v) => v != null && v !== "").map(Number));
+    const etrangers = [...new Set(montantsDe(form[k]).filter((n) => !prix.has(n)))];
+    return (
+      <span className={`cat-src${etrangers.length ? " is-diff" : ""}`}>
+        {k === "packs" ? <>Prix de référence (fiche d'offre ci-dessus) : {sources.packs.map((x) => `${x.nom} ${x.prix} $`).join(" · ")}. </> : <>Les prix de référence sont ceux de la fiche d'offre ci-dessus. </>}
+        {etrangers.length > 0 && <>Ce texte cite {etrangers.map((n) => `${n} $`).join(", ")}, absent(s) de la fiche : c'est la fiche qui fait foi.</>}
+      </span>
+    );
+  }
+  return null;
+}
+
+export function OfferTab({ project, onSave, onMessage, form: ctrlForm, setForm: ctrlSet, onSaveAll, sources = null }) {
   const [own, setOwn] = useState(project.offre ?? {});
   const form = ctrlForm ?? own;
   const setForm = ctrlSet ?? setOwn;
@@ -574,6 +609,7 @@ export function OfferTab({ project, onSave, onMessage, form: ctrlForm, setForm: 
         {OFFER_FIELDS.map(([key, label, placeholder, rows]) => (
           <label key={key} className="cat-field">
             <span>{label}</span>
+            <SourceUnique k={key} form={form} setForm={setForm} sources={sources} />
             {rows > 1 ? (
               <textarea rows={rows} value={form[key] ?? ""} onChange={(e) => setForm({ ...form, [key]: e.target.value })} placeholder={placeholder} />
             ) : (

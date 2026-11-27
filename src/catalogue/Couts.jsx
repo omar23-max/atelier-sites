@@ -18,7 +18,7 @@ export function CoutsPanneau({ cle, titre = "Dépense IA", compact = false }) {
     const pour = cle;
     return fetch(`/api/couts/${cle}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`Dépense non lue (${r.status})`))))
-      .then((x) => cleRef.current === pour && (setD(x), setBudget(x.budget ?? "")))
+      .then((x) => cleRef.current === pour && (setD(x), setBudget(x.budgetDefaut ? "" : x.budget ?? "")))
       .catch((e) => cleRef.current === pour && setMsg(`⚠ ${e.message}`));
   };
   useEffect(() => {
@@ -40,12 +40,12 @@ export function CoutsPanneau({ cle, titre = "Dépense IA", compact = false }) {
   const resume = rien
     ? "aucune dépense enregistrée pour l'instant"
     : `${fmt(t.entree)} tokens lus · ${fmt(t.sortie)} écrits${t.appelsWh ? ` · ${t.appelsWh} appel(s) WinningHunter` : ""}${t.dollars ? ` · ≈ ${t.dollars.toLocaleString("fr-CA")} $` : ""}${t.sansPrix ? " (prix à renseigner)" : ""}`;
-  const depasse = d.budget != null && t.dollars > d.budget;
+  const depasse = d.budget != null && t.dollars >= d.budget;
   return (
     <details className={`cat-couts${depasse ? " is-depasse" : ""}`}>
       <summary>
         <b>{titre}</b> : {resume}
-        {d.budget != null && <span className="cat-couts__budget"> · budget {d.budget} $ {depasse ? "dépassé" : `(${Math.round((t.dollars / d.budget) * 100) || 0} %)`}</span>}
+        {d.budget != null && <span className="cat-couts__budget"> · plafond {d.budget} ${d.budgetDefaut ? " (par défaut)" : ""} {depasse ? "atteint : nouveaux appels bloqués" : t.dollars >= d.budget * 0.8 ? `(${Math.round((t.dollars / d.budget) * 100)} % : bientôt atteint)` : `(${Math.round((t.dollars / d.budget) * 100) || 0} %)`}</span>}
       </summary>
       <p className="cat-muted">Compté automatiquement depuis le {d.depuis ? date(d.depuis) : "branchement du compteur (25 nov.)"} : chaque appel à OpenAI, Gemini, Claude ou WinningHunter fait pour {cle.startsWith("projet-") ? "ce projet (et la recherche du produit lancé dedans)" : cle.startsWith("produit-") ? "ce produit" : "la recherche"}. Les dépenses plus anciennes ne sont pas connues. Le coût en dollars n'apparaît que pour les modèles dont tu as saisi le prix (tableau de bord du fournisseur, rubrique Pricing).</p>
       {d.parModele.length > 0 && (
@@ -97,11 +97,11 @@ export function CoutsPanneau({ cle, titre = "Dépense IA", compact = false }) {
       {!compact && (
         <p className="cat-couts__ligne">
           Budget IA {cle.startsWith("projet-") ? "du projet" : "du produit"} :{" "}
-          <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="ex. 20" aria-label="Budget en dollars" /> ${" "}
+          <input value={budget} onChange={(e) => setBudget(e.target.value)} placeholder={cle.startsWith("projet-") ? `${d.budgetDefaut ? d.budget : 5} (par défaut)` : "ex. 20"} aria-label="Plafond en dollars" /> ${" "}
           <button type="button" className="cat-link" onClick={() => poster(`/api/couts/${cle}/budget`, { dollars: budget })}>
             Enregistrer
           </button>{" "}
-          <span className="cat-muted">Repère affiché ici ; le chef de projet (lot 6) s'arrêtera avant de le dépasser.</span>
+          <span className="cat-muted">Plafond : au-delà, l'atelier refuse les nouveaux appels payants {cle.startsWith("projet-") ? "de ce projet" : "de ce produit"} (une marge est gardée pour les appels en cours), avec un message ; rien n'est facturé. {cle.startsWith("projet-") ? "Vide = plafond par défaut des projets (5 $)." : "Vide = pas de plafond."} Les modèles sans prix saisi ne comptent pas dans le total.</span>
         </p>
       )}
       {d.derniers.length > 0 && (
