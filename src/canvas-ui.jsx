@@ -542,7 +542,7 @@ function CanvasBoard({ onClose, X }) {
     const vkey = vid ? `${vid.id}:${Math.round(vid.x)}:${Math.round(vid.y)}:${Math.round(vid.width)}:${appState.scrollX | 0}:${appState.scrollY | 0}:${z}` : "";
     if (vkey !== lastVid.current) {
       lastVid.current = vkey;
-      setSelVid(vid ? { id: vid.id, url: vid.customData.url, poster: vid.customData.poster ?? null, left: (vid.x + appState.scrollX) * z + vid.width * z * 0.5, top: (vid.y + appState.scrollY) * z } : null);
+      setSelVid(vid ? { id: vid.id, url: vid.customData.url, poster: vid.customData.poster ?? null, customData: vid.customData ?? {}, video: true, left: (vid.x + appState.scrollX) * z + vid.width * z * 0.5, top: (vid.y + appState.scrollY) * z } : null);
     }
     // Enregistrement seulement si le contenu ou la vue ont changé.
     const s = `${elements.map((e) => `${e.id}${e.version}`).join("")}|${appState.scrollX | 0}|${appState.scrollY | 0}|${z}|${appState.viewBackgroundColor}`;
@@ -879,6 +879,20 @@ function CanvasBoard({ onClose, X }) {
           <button type="button" className="is-main" onClick={() => setMirror({ url: selVid.url, poster: selVid.poster })}>
             Mirror : adapter à mon produit
           </button>
+          <button
+            type="button"
+            title="Continuer la scène de 3 à 10 s (Gemini Omni, payant)"
+            onClick={() => {
+              localStorage.setItem("atl-cv-besoin-video", "prolonger");
+              setPanel(null);
+              setTimeout(() => setPanel("video"), 0);
+            }}
+          >
+            Prolonger
+          </button>
+          <button type="button" onClick={() => setDetails(selVid)}>
+            Détails
+          </button>
           <button type="button" onClick={() => download(selVid.url, selVid.url.split("/").pop())} title="Télécharger" aria-label="Télécharger">
             ⤓
           </button>
@@ -941,15 +955,39 @@ function CanvasBoard({ onClose, X }) {
         <div className="atl-cv__modal" onPointerDown={() => setDetails(null)}>
           <div onPointerDown={(e) => e.stopPropagation()}>
             <div className="atl-cv__head">
-              <h3>Détails de l'image</h3>
+              <h3>{details.video ? "Détails de la vidéo" : "Détails de l'image"}</h3>
               <button type="button" onClick={() => setDetails(null)} aria-label="Fermer">
                 ×
               </button>
             </div>
-            <img src={details.url} alt="" className="atl-cv__detailimg" />
+            {details.video ? <video src={details.url} poster={details.poster ?? undefined} controls preload="metadata" className="atl-cv__detailimg" /> : <img src={details.url} alt="" className="atl-cv__detailimg" />}
             <dl className="atl-cv__dl">
               <dt>Origine</dt>
               <dd>{details.customData?.origine?.source ?? "Posée sur le tableau"}</dd>
+              {details.customData?.origine?.agent && (
+                <>
+                  <dt>Agent</dt>
+                  <dd>{details.customData.origine.agent}</dd>
+                </>
+              )}
+              {details.customData?.origine?.format && (
+                <>
+                  <dt>Format</dt>
+                  <dd>{details.customData.origine.format}</dd>
+                </>
+              )}
+              {details.customData?.origine?.cout != null && (
+                <>
+                  <dt>Coût</dt>
+                  <dd>≈ {Number(details.customData.origine.cout).toFixed(2)} $</dd>
+                </>
+              )}
+              {details.customData?.origine?.references?.length > 0 && (
+                <>
+                  <dt>Références</dt>
+                  <dd>{details.customData.origine.references.length} image(s)</dd>
+                </>
+              )}
               {details.customData?.origine?.modele && (
                 <>
                   <dt>Modèle</dt>
@@ -1046,10 +1084,13 @@ const BESOINS = [
   { id: "transformation", label: "Avant / après", agent: "AI Transformation Image Ad Generator", aide: "Visuel de démonstration avant / après." },
   { id: "scroll", label: "Pub qui arrête le défilement", agent: "Scroll-Stopping Image Ad Specialists", aide: "Image choc pensée pour le fil Facebook / Instagram." },
   { id: "marque", label: "Image aux couleurs de la marque", agent: "Branded Image Creator", aide: "Ton produit avec ton logo et ta palette." },
+  { id: "concept", label: "Concept de pub original", agent: "ChatGPT 2.0 AI Image Ad Generator", aide: "Une idée de pub neuve à partir de ton offre (GPT Image 2 par défaut)." },
+  { id: "rebuildWL", label: "Refaire une pub concurrente (version WL)", agent: "AI Ad Rebuilder V1", source: true, aide: "Comme la V3, à comparer : clique d'abord la pub concurrente, puis tes photos produit." },
+  { id: "maquetteMarque", label: "Maquette de marque", agent: "Brand Mockup Studio V1", aide: "Ta marque sur emballage, étiquette, carte, sac… Clique ton logo et tes photos produit." },
   { id: "sections", label: "Images d'une section de page", agent: null, aide: "Ouvre le panneau Sections." },
 ];
 const PRIX_PROPOSER = 0.05;
-const AGENT_SLUG = { ugcVideo: "shopfunnels-claude-ugc-video-producer-v-2", pubVideo: "shopfunnels-ai-video-ad-generator", rebuild: "shopfunnels-ai-ad-rebuilder-v-3", replicator: "shopfunnels-ai-winning-ad-replicator", ugc: "whitelabeler-hyper-realistic-ugc-image-studio-v-1", mockup: "whitelabeler-product-mockup-generator-v-1", marque: "whitelabeler-branded-image-creator-v-1", scroll: "shopfunnels-ai-scroll-stopping-image-ad-specialists", transformation: "shopfunnels-ai-transformation-image-ad-generator" };
+const AGENT_SLUG = { concept: "shopfunnels-chatgpt-2-0-ai-image-ad-generator", rebuildWL: "whitelabeler-ai-ad-rebuilder-v-1", maquetteMarque: "whitelabeler-brand-mockup-studio-v-1", ugcVideo: "shopfunnels-claude-ugc-video-producer-v-2", pubVideo: "shopfunnels-ai-video-ad-generator", rebuild: "shopfunnels-ai-ad-rebuilder-v-3", replicator: "shopfunnels-ai-winning-ad-replicator", ugc: "whitelabeler-hyper-realistic-ugc-image-studio-v-1", mockup: "whitelabeler-product-mockup-generator-v-1", marque: "whitelabeler-branded-image-creator-v-1", scroll: "shopfunnels-ai-scroll-stopping-image-ad-specialists", transformation: "shopfunnels-ai-transformation-image-ad-generator" };
 const sansQuery = (u) => String(u).split("?")[0];
 
 function CreatePanel({ projet, refs, setRefs, makeImage, addImagesAtCenter, setFlash, onSections, onClose }) {

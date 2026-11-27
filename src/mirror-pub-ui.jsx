@@ -403,6 +403,7 @@ export function MirrorImagePanel({ image, photosDuTableau, onPick, picking, onPl
   const [loading, setLoading] = useState(true);
   const [consigne, setConsigne] = useState("");
   const [modele, setModele] = useState("nano-banana");
+  const [agentImage, setAgentImage] = useState(() => localStorage.getItem("atl-mirror-agent-image") ?? "");
   const [edits, setEdits] = useState({}); // n → { accroche, sousTitre, cta, autres, prompt }
   const timer = useRef(null);
   const clean = (u) => String(u ?? "").split("?")[0];
@@ -465,7 +466,8 @@ export function MirrorImagePanel({ image, photosDuTableau, onPick, picking, onPl
     setErr(null);
     try {
       const jid = await ensure();
-      await api(`/${jid}/etape/adapter`, { consigne });
+      localStorage.setItem("atl-mirror-agent-image", agentImage);
+      await api(`/${jid}/etape/adapter`, { consigne, agentImage: agentImage || null });
       setConsigne("");
       setEdits({});
       await refresh(jid);
@@ -561,6 +563,19 @@ export function MirrorImagePanel({ image, photosDuTableau, onPick, picking, onPl
               )}
               {e?.statut !== "en cours" && (
                 <>
+                  <label className="atl-mir__field">
+                    Agent qui lit et adapte la pub
+                    <select value={agentImage} onChange={(ev) => setAgentImage(ev.target.value)}>
+                      <option value="">Aucun : méthode de l'atelier (la plus rapide)</option>
+                      <option value="shopfunnels-ai-ad-rebuilder-v-3">AI Ad Rebuilder V3 : refaire la pub avec ton produit</option>
+                      <option value="whitelabeler-ai-ad-rebuilder-v-1">AI Ad Rebuilder V1 (WL) : même rôle, à comparer à la V3</option>
+                      <option value="shopfunnels-ai-winning-ad-replicator">AI Winning Ad Replicator : reprendre la structure d'une pub gagnante</option>
+                      <option value="whitelabeler-image-mirror-studio-v-1">Image Mirror Studio : recréation fidèle</option>
+                      <option value="whitelabeler-style-mirror-image-creator-v-1">Style Mirror : même style, autre scène</option>
+                      <option value="shopfunnels-ai-image-recreator">AI Image Recreator : recréation proche</option>
+                    </select>
+                  </label>
+                  {e?.agentImage && <p className="atl-mir__muted">Dernière analyse faite avec : {e.agentImage.replace(/^(whitelabeler|shopfunnels)-/, "").replace(/-/g, " ")}</p>}
                   {e?.texte && <textarea rows={2} value={consigne} onChange={(ev) => setConsigne(ev.target.value)} placeholder="Consigne pour refaire l'analyse (facultatif)" />}
                   <button type="button" className="is-main" disabled={!photos.length} onClick={adapt}>
                     {e?.texte ? (consigne ? "Refaire avec cette consigne" : "Refaire l'analyse") : "Analyser et proposer 3 variantes"}

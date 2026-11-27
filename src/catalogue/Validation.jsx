@@ -10,7 +10,7 @@ const VERDICT = {
 };
 const liste = (a) => (Array.isArray(a) ? a.filter(Boolean) : a ? [a] : []);
 
-export function ValidationTab({ project, onSave, onMessage }) {
+export function ValidationTab({ project, pages = [], onSave, onMessage }) {
   const [etat, setEtat] = useState(null);
   const [err, setErr] = useState(null);
   async function charger() {
@@ -167,7 +167,7 @@ export function ValidationTab({ project, onSave, onMessage }) {
           )}
         </>
       )}
-      <Marge project={project} onSave={onSave} />
+      <Marge project={project} onSave={onSave} recherche={etat?.recherche ?? null} page={pages[0]?.info?.name ?? null} />
     </section>
   );
 }
@@ -191,8 +191,22 @@ function Bloc({ titre, niveau, sous, items }) {
 }
 
 // Calcul de marge (tes vrais chiffres), comme le tableau « Sourcing Strategy & Margins ».
-function Marge({ project, onSave }) {
+function Marge({ project, onSave, recherche = null, page = null }) {
   const [m, setM] = useState(() => ({ prix: "", cout: "", livraison: "", paiement: "3", cpa: "", ...(project.validationMarge ?? {}) }));
+  // Supplier Scout (2026-11-26) : ses chiffres remplissent le calcul, que tu corriges ensuite.
+  const scout = (recherche?.rapports ?? []).filter((x) => /supplier scout/i.test(x.agent ?? "")).sort((x, y) => String(y.le).localeCompare(String(x.le)))[0] ?? null;
+  const avisScout = [...(recherche?.analyses ?? [])].reverse().find((a) => /supplier scout/i.test(a.agent ?? ""));
+  const [fourn, setFourn] = useState(null); // { busy, err, note, voie }
+  async function reprendreFournisseur() {
+    setFourn({ busy: true });
+    const r = await fetch(`/api/validation/${project.id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fournisseur: true }) }).catch(() => null);
+    const b = await r?.json().catch(() => ({}));
+    if (!r?.ok) return setFourn({ err: b?.error ?? "Échec" });
+    const neuf = { ...m, ...(b.prix != null ? { prix: String(b.prix) } : {}), ...(b.cout != null ? { cout: String(b.cout) } : {}), ...(b.livraison != null ? { livraison: String(b.livraison) } : {}), source: "Supplier Scout" };
+    setM(neuf);
+    onSave({ validationMarge: neuf });
+    setFourn({ note: b.note, voie: b.voie });
+  }
   const n = (k) => Number(String(m[k] ?? "").replace(",", ".")) || 0;
   const frais = (n("prix") * n("paiement")) / 100;
   const brut = n("prix") - n("cout") - n("livraison") - frais;
@@ -207,6 +221,37 @@ function Marge({ project, onSave }) {
   return (
     <div className="cat-val__marge">
       <h4>Marge (tes chiffres)</h4>
+      <div className="cat-val__fourn">
+        <b>Coût fournisseur</b>{" "}
+        {scout ? (
+          <>
+            <span className="cat-muted">
+              Supplier Scout du {new Date(scout.le).toLocaleDateString("fr-CA")}
+              {avisScout?.resume ? ` : ${avisScout.resume}` : ""}
+            </span>{" "}
+            <a className="cat-link" href={`/api/candidats/rapport/${recherche.candidat}/${scout.fichier}`} target="_blank" rel="noopener noreferrer">
+              rapport complet
+            </a>
+            <div className="cat-actions">
+              <button type="button" className="cat-btn" disabled={fourn?.busy} onClick={reprendreFournisseur} title="Un petit appel IA (≈ 0,01 $) relève le coût produit et la livraison par unité dans son rapport ; tu corriges ensuite si besoin">
+                {fourn?.busy ? "Lecture du rapport…" : "Reprendre ses chiffres dans le calcul"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="cat-muted">L'agent Supplier Scout cherche des fournisseurs (AliExpress pour tester, Alibaba pour monter en volume) et calcule le coût livré d'une unité.</span>
+            <div className="cat-actions">
+              <a className={`cat-btn${page ? "" : " is-disabled"}`} href={page ? `/agents.html?agent=whitelabeler-ai-supplier-scout-v-2&page=${encodeURIComponent(page)}` : undefined}>
+                Chercher les fournisseurs (Supplier Scout)
+              </a>
+            </div>
+            <span className="cat-muted">Pour que son rapport s'attache à la fiche du produit, lance-le plutôt depuis la Recherche (« Discuter de ce produit »).</span>
+          </>
+        )}
+        {fourn?.err && <p className="cat-flash is-error">⚠ {fourn.err}</p>}
+        {fourn?.note && <p className="cat-muted">Repris : {fourn.voie ? `${fourn.voie}. ` : ""}{fourn.note} Corrige les cases si tes devis sont différents.</p>}
+      </div>
       <div className="cat-val__margeChamps">
         {champ("prix", "Prix de vente")}
         {champ("cout", "Coût du produit")}
@@ -236,7 +281,7 @@ function Marge({ project, onSave }) {
 const SUIVI = { idee: "Idée", brouillon: "Brouillon", prete: "Prête", "en-test": "En test", gagnante: "Gagnante", arretee: "Arrêtée" };
 const AGENT_PUB = { rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator" };
 // Nom lisible de l'agent de chaque mode (mêmes noms que les fiches des médias).
-const AGENTS_PUB = { ugcVideo: "UGC Video Producer V2", pubVideo: "AI Video Ad Generator", rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "Transformation Image Ad Generator" };
+const AGENTS_PUB = { ugcVideo: "UGC Video Producer V2", pubVideo: "AI Video Ad Generator", rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "Transformation Image Ad Generator", concept: "ChatGPT 2.0 Image Ad Generator", rebuildWL: "AI Ad Rebuilder V1 (WL)", maquetteMarque: "Brand Mockup Studio V1" };
 const nomAgent = (k, x) => AGENTS_PUB[k] ?? String(x?.agent ?? "").replace(/^(whitelabeler|shopfunnels)-/, "").replace(/-v-(\d)/, " V$1").replace(/-/g, " ");
 
 function RegistrePubs({ project, page, data, charger }) {
@@ -530,6 +575,17 @@ export function PublicitesTab({ project, pages }) {
         </button>
       </div>
       {err && <p className="cat-flash is-error">⚠ {err}</p>}
+
+      <h4>Plan de lancement Meta</h4>
+      <p className="cat-muted">Une fois tes pubs prêtes : comment les lancer sur Facebook et Instagram (structure de campagne, budget de départ, quand couper, quand monter). L'agent lit ton projet (offre, angles, message central) ; dis-lui quelles pubs du registre tu veux tester. C'est une conversation : rien n'est dépensé chez Meta.</p>
+      <div className="cat-actions">
+        <a className={`cat-btn${page ? "" : " is-disabled"}`} href={page ? `/agents.html?agent=shopfunnels-ai-andromeda-ad-strategist&page=${encodeURIComponent(page)}` : undefined} title="AI Andromeda Ad Strategist (ShopFunnels) : plan de lancement et de montée en budget, adapté au système Andromeda de Meta">
+          Plan de lancement (Andromeda)
+        </a>
+        <a className={`cat-btn cat-btn--ghost${page ? "" : " is-disabled"}`} href={page ? `/agents.html?agent=whitelabeler-facebook-ad-strategist-v-2&page=${encodeURIComponent(page)}` : undefined} title="Facebook Ad Strategist V2 (Whitelabeler) : analyse des pubs des concurrents">
+          Analyser les pubs concurrentes
+        </a>
+      </div>
 
       <h4>Pubs vidéos</h4>
       <p className="cat-muted">Mirror vidéo, dans le Canvas : analyse d'une pub concurrente (plans, script), adaptation à ton produit avec le contexte du projet, images de référence, puis prompts pour TopView ou Seedance.</p>

@@ -775,8 +775,8 @@ export function atelierApi() {
                     const t = String(pr.pageType ?? pr.type ?? "").toLowerCase();
                     dest = [/prod/.test(t) ? "produit" : /land/.test(t) ? "landing" : /home|accueil/.test(t) ? "homepage" : /advert|listic/.test(t) ? "advertorial" : null].filter(Boolean);
                   } catch {}
-                  if (b.mode === "pub") dest = [...new Set([...dest, "pub"])];
-                  await noterFiche(root, b.page, sOut.url, { type: "image", provenance: "creee", sous: parAgent ? "agent" : "studio", choix: "brouillon", destination: dest, origine: { source: `Studio · ${b.mode === "pub" ? "Pub" : "Miroir"}`, agent: parAgent?.agent ?? null, consigne: parAgent?.note || b.consigne || b.brief || "", depuis: b.source && !String(b.source).startsWith("data:") ? b.source : null, modele: sOut.modele ?? b.modele } });
+                  if (b.mode === "pub") dest = [...new Set([...dest, "pub"])]; else if (b.mode === "marque") dest = ["marque"];
+                  await noterFiche(root, b.page, sOut.url, { type: "image", provenance: "creee", sous: parAgent ? "agent" : "studio", choix: "brouillon", destination: dest, origine: { source: `Studio · ${b.mode === "pub" ? "Pub" : b.mode === "marque" ? "Marque" : "Miroir"}`, agent: parAgent?.agent ?? null, consigne: parAgent?.note || b.consigne || b.brief || "", depuis: b.source && !String(b.source).startsWith("data:") ? b.source : null, modele: sOut.modele ?? b.modele } });
                 } catch {}
                 return json(res, 200, { ...sOut, agent: parAgent?.agent ?? null, noteAgent: parAgent?.note ?? null });
               }

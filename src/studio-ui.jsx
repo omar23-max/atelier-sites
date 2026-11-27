@@ -152,7 +152,7 @@ function Progress() {
         return (
           <div key={d.dossier}>
             <span>
-              {d.details?.mode === "pub" ? "Pubs" : "Photos"} · {d.dossier.slice(0, 10)} : <b>{faites}</b> sur {total} générée(s)
+              {d.details?.mode === "pub" ? "Pubs" : d.details?.mode === "marque" ? "Maquettes de marque" : "Photos"} · {d.dossier.slice(0, 10)} : <b>{faites}</b> sur {total} générée(s)
               {d.progression?.etat ? ` · ${d.progression.etat}` : d.statut === "en attente" ? " · en attente" : ""}
               {d.progression?.sautees?.length > 0 && ` · ${d.progression.sautees.length} sautée(s), refusée(s) par l'IA`}
             </span>
@@ -175,7 +175,8 @@ function Progress() {
 // (/api/studio-lot, audit F15) : un autre navigateur retrouve le lot.
 // Lot E (2026-11-24) : agents qui peuvent écrire le prompt de chaque image.
 const STUDIO_AGENTS_MIROIR = [["whitelabeler-image-mirror-studio-v-1", "Image Mirror Studio V.1"], ["whitelabeler-style-mirror-image-creator-v-1", "Style Mirror Image Creator V.1"], ["shopfunnels-ai-image-recreator", "AI Image Recreator"]];
-const STUDIO_AGENTS_PUB = [["shopfunnels-ai-scroll-stopping-image-ad-specialists", "Scroll-Stopping Image Ad Specialists"], ["shopfunnels-ai-ad-rebuilder-v-3", "AI Ad Rebuilder V3"], ["whitelabeler-product-mockup-generator-v-1", "Product Mockup Generator"], ["whitelabeler-hyper-realistic-ugc-image-studio-v-1", "Hyper Realistic UGC Image Studio"], ["whitelabeler-branded-image-creator-v-1", "Branded Image Creator"]];
+const STUDIO_AGENTS_MARQUE = [["whitelabeler-brand-mockup-studio-v-1", "Brand Mockup Studio V1"], ["whitelabeler-branded-image-creator-v-1", "Branded Image Creator"]];
+const STUDIO_AGENTS_PUB = [["shopfunnels-ai-scroll-stopping-image-ad-specialists", "Scroll-Stopping Image Ad Specialists"], ["shopfunnels-ai-ad-rebuilder-v-3", "AI Ad Rebuilder V3"], ["whitelabeler-product-mockup-generator-v-1", "Product Mockup Generator"], ["whitelabeler-hyper-realistic-ugc-image-studio-v-1", "Hyper Realistic UGC Image Studio"], ["whitelabeler-branded-image-creator-v-1", "Branded Image Creator"], ["shopfunnels-chatgpt-2-0-ai-image-ad-generator", "ChatGPT 2.0 AI Image Ad Generator"], ["whitelabeler-ai-ad-rebuilder-v-1", "AI Ad Rebuilder V1 (à comparer à la V3)"], ["shopfunnels-ai-winning-ad-replicator", "AI Winning Ad Replicator"], ["shopfunnels-ai-transformation-image-ad-generator", "AI Transformation Image Ad Generator"]];
 const MODELES = {
   auto: { label: "Auto", prix: 0.05, aide: "GPT Image 2 : fiable, clé OpenAI de l'atelier." },
   "nano-banana": { label: "Nano Banana", prix: 0.04, aide: "Google : très fidèle au produit. Demande la facturation activée sur ton projet Google." },
@@ -236,6 +237,7 @@ function StudioDialog({ onClose }) {
   const design = designById[root.design];
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
   const pub = form.mode === "pub";
+  const marque = form.mode === "marque";
 
   // Audit F15 (2026-11-25) : au chargement, on fusionne le lot du serveur
   // (versions réunies par fichier) ; ensuite chaque changement y est envoyé.
@@ -754,7 +756,7 @@ function StudioDialog({ onClose }) {
                     <button type="button" className="atl-mirror__linkbtn" disabled={status[cur.key] === "encours"} onClick={() => generate(cur)}>
                       ↻ Refaire depuis l'originale
                     </button>
-                    {!pub && cur.sectionId && (
+                    {!pub && !marque && cur.sectionId && (
                       <button type="button" className="atl-mirror__linkbtn" onClick={() => install(cur, curVer.url, cur.key)}>
                         {curRes.installee ? "✓ Installée à sa place" : "Installer à sa place"}
                       </button>
@@ -781,14 +783,17 @@ function StudioDialog({ onClose }) {
             </div>
             <span className="atl-mirror__label">Mode</span>
             <div className="atl-mirror__seg">
-              <button type="button" className={!pub ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "fidele" })}>
+              <button type="button" className={!pub && !marque ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "fidele", agent: "" })}>
                 Miroir
               </button>
-              <button type="button" className={pub ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "pub" })}>
+              <button type="button" className={pub ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "pub", agent: "" })}>
                 Pub
               </button>
+              <button type="button" className={marque ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "marque", agent: "whitelabeler-brand-mockup-studio-v-1" })}>
+                Marque
+              </button>
             </div>
-            <small>{pub ? "Fait un visuel publicitaire à partir de chaque photo ; rangé à part, la page ne change pas." : "Refait chaque photo fidèlement, avec ton produit et ta marque à la place."}</small>
+            <small>{pub ? "Fait un visuel publicitaire à partir de chaque photo ; rangé à part, la page ne change pas." : marque ? "Fait de chaque photo une maquette de ta marque (logo et couleurs sur emballage, étiquette, carte…) ; rangé dans Médias → Marque, la page ne change pas." : "Refait chaque photo fidèlement, avec ton produit et ta marque à la place."}</small>
             {pub && (
               <div className="atl-mirror__pub">
                 <select value={form.format} onChange={set("format")} aria-label="Format">
@@ -849,7 +854,7 @@ function StudioDialog({ onClose }) {
             <span className="atl-mirror__label">Agent qui écrit le prompt</span>
             <select className="atl-mirror__agent" value={form.agent} onChange={set("agent")}>
               <option value="">Aucun : prompt de l'atelier (le plus rapide)</option>
-              {(pub ? STUDIO_AGENTS_PUB : STUDIO_AGENTS_MIROIR).map(([slug, nom]) => (
+              {(pub ? STUDIO_AGENTS_PUB : marque ? STUDIO_AGENTS_MARQUE : STUDIO_AGENTS_MIROIR).map(([slug, nom]) => (
                 <option key={slug} value={slug}>
                   {nom}
                 </option>

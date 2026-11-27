@@ -34,6 +34,16 @@ export const STEP_AGENTS = {
   motion: { slug: "shopfunnels-seedance-video-ad-cloner-v-1", titre: "Seedance Video Ad Cloner" },
   suite: { slug: "shopfunnels-seedance-video-ad-cloner-v-1", titre: "Seedance Video Ad Cloner" },
 };
+// Mirror image (2026-11-26) : agent au choix pour lire et adapter la pub ;
+// sa méthode passe avant, les règles de l'atelier (IMAGE_SYSTEM) restent prioritaires.
+export const IMAGE_AGENTS = {
+  "shopfunnels-ai-ad-rebuilder-v-3": "AI Ad Rebuilder V3",
+  "whitelabeler-ai-ad-rebuilder-v-1": "AI Ad Rebuilder V1 (WL)",
+  "shopfunnels-ai-winning-ad-replicator": "AI Winning Ad Replicator",
+  "whitelabeler-image-mirror-studio-v-1": "Image Mirror Studio (recréation fidèle)",
+  "whitelabeler-style-mirror-image-creator-v-1": "Style Mirror (même style, autre scène)",
+  "shopfunnels-ai-image-recreator": "AI Image Recreator",
+};
 async function agentText(root, slug) {
   const d = join(root, "agents", "whitelabeler");
   for (const f of [join(d, "consignes-propres", `${slug}.txt`), join(d, "consignes", `${slug}.txt`)]) if (existsSync(f)) return (await readFile(f, "utf8")).slice(0, 60000);
@@ -213,6 +223,7 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     if (running.has(key)) return json(res, 409, { error: "Cette étape tourne déjà." });
     const agent = b.agent && STEP_AGENTS[name] && st.etapes[name]?.texte ? STEP_AGENTS[name].slug : null;
     st.etapes[name] = { ...(st.etapes[name] ?? {}), statut: "en cours", debut: now(), erreur: null, consigne: String(b.consigne ?? "").slice(0, 4000), coupes: b.coupes ?? null, agent };
+    if (name === "adapter") st.etapes.adapter.agentImage = IMAGE_AGENTS[b.agentImage] ? b.agentImage : null;
     await save(st);
     running.add(key);
     runStep(id, name).finally(() => running.delete(key));
@@ -664,7 +675,9 @@ Avoid wording that trips safety filters: no children, no medical or body claims,
         const u = await dataUrl(join(root, normalize(p)), 900);
         if (u) content.push({ type: "text", text: `User's product photo: ${basename(p)}` }, { type: "image_url", image_url: { url: u } });
       }
-      const raw = await chat(env.OPENAI_API_KEY, IMAGE_SYSTEM, content, true);
+      const ag = s.etapes.adapter?.agentImage;
+      const system = ag ? `${await agentText(root, ag)}\n\n---\nTHE WORKSHOP'S RULES BELOW OVERRIDE THE METHOD ABOVE (output format, claims, product fidelity):\n\n${IMAGE_SYSTEM}` : IMAGE_SYSTEM;
+      const raw = await chat(env.OPENAI_API_KEY, system, content, true);
       let d;
       try {
         d = JSON.parse(raw);

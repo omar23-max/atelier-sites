@@ -207,7 +207,7 @@ if (command === "appliquer" && details.mode === "pub") {
   console.log(`✓ ${n} pub(s) dans ${place.url}/pubs/ (la page n'est pas modifiée).`);
 }
 
-if (command === "appliquer" && details.mode !== "pub") {
+if (command === "appliquer" && !["pub", "marque"].includes(details.mode)) {
   const pageFile = join(root, "pages", `${demande.page}.json`);
   const pageData = JSON.parse(await readFile(pageFile, "utf8"));
   await mkdir(join(root, "pages", "_historique"), { recursive: true });

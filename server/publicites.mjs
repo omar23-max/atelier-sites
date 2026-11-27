@@ -20,6 +20,10 @@ export const MODES = {
   marque: { label: "Image aux couleurs de la marque", agent: "whitelabeler-branded-image-creator-v-1" },
   scroll: { label: "Pub qui arrête le défilement", agent: "shopfunnels-ai-scroll-stopping-image-ad-specialists" },
   transformation: { label: "Avant / après", agent: "shopfunnels-ai-transformation-image-ad-generator" },
+  // Plan d'installation des agents (2026-11-26).
+  concept: { label: "Concept de pub original", agent: "shopfunnels-chatgpt-2-0-ai-image-ad-generator", modele: "gpt-image-2" },
+  rebuildWL: { label: "Refaire une pub concurrente (version WL)", agent: "whitelabeler-ai-ad-rebuilder-v-1", source: true },
+  maquetteMarque: { label: "Maquette de marque", agent: "whitelabeler-brand-mockup-studio-v-1" },
   // Vidéo (2026-11-24) : l'agent écrit la consigne Omni d'un plan continu, puis Omni filme.
   ugcVideo: { label: "Vidéo UGC", agent: "shopfunnels-claude-ugc-video-producer-v-2", kind: "video" },
   pubVideo: { label: "Pub vidéo depuis le projet", agent: "shopfunnels-ai-video-ad-generator", kind: "video" },
@@ -155,9 +159,9 @@ async function produire(root, projet, file, pub) {
   }
 }
 
-const AGENT_NOMS = { ugcVideo: "Claude UGC Video Producer V2", pubVideo: "AI Video Ad Generator", rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator" };
+const AGENT_NOMS = { ugcVideo: "Claude UGC Video Producer V2", pubVideo: "AI Video Ad Generator", rebuild: "AI Ad Rebuilder V3", replicator: "AI Winning Ad Replicator", ugc: "Hyper Realistic UGC Image Studio", mockup: "Product Mockup Generator", marque: "Branded Image Creator", scroll: "Scroll-Stopping Image Ad Specialists", transformation: "AI Transformation Image Ad Generator", concept: "ChatGPT 2.0 AI Image Ad Generator", rebuildWL: "AI Ad Rebuilder V1 (Whitelabeler)", maquetteMarque: "Brand Mockup Studio V1" };
 const MODELES_IMG = { "nano-banana": "Nano Banana", "nano-banana-pro": "Nano Banana Pro", "gpt-image-2": "GPT Image 2" };
-const DEST_MODE = { mockup: ["produit", "pub"], ugc: ["pub"], marque: ["marque", "pub"] };
+const DEST_MODE = { mockup: ["produit", "pub"], ugc: ["pub"], marque: ["marque", "pub"], maquetteMarque: ["marque", "pub"] };
 async function generer(root, projet, file, pub, env) {
   const plan = pub.plan ?? {};
   const modele = MODELES_IMG[pub.modele] ? pub.modele : "nano-banana";
@@ -197,6 +201,11 @@ export const STUDIO_AGENTS = {
   "shopfunnels-ai-scroll-stopping-image-ad-specialists": "Scroll-Stopping Image Ad Specialists",
   "shopfunnels-ai-ad-rebuilder-v-3": "AI Ad Rebuilder V3",
   "whitelabeler-branded-image-creator-v-1": "Branded Image Creator",
+  "shopfunnels-chatgpt-2-0-ai-image-ad-generator": "ChatGPT 2.0 AI Image Ad Generator",
+  "whitelabeler-ai-ad-rebuilder-v-1": "AI Ad Rebuilder V1",
+  "shopfunnels-ai-winning-ad-replicator": "AI Winning Ad Replicator",
+  "shopfunnels-ai-transformation-image-ad-generator": "AI Transformation Image Ad Generator",
+  "whitelabeler-brand-mockup-studio-v-1": "Brand Mockup Studio V1",
 };
 export async function promptParAgent({ root, env, slug, base, source, projet }) {
   if (!STUDIO_AGENTS[slug] || !env.OPENAI_API_KEY) return null;
@@ -419,7 +428,7 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
   const empreinteCreation = JSON.stringify([projet, b.mode, b.source ?? null, b.refs ?? [], b.format ?? "", String(b.consigne ?? ""), b.arret ?? null, b.depuisTexte ? String(b.depuisTexte).slice(0, 200) : null]);
   const recente = creationsRecentes.get(empreinteCreation);
   if (recente && Date.now() - recente.le < 8000) return json(res, 202, recente.pub);
-  const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: b.mode, source: okUrl(b.source) ? b.source : null, refs: (b.refs ?? []).filter(okUrl).slice(0, 6), format: MODES[b.mode].kind === "video" ? (b.format === "16:9" ? "16:9" : "9:16") : ["4:5", "1:1", "9:16"].includes(b.format) ? b.format : "4:5", duree: MODES[b.mode].kind === "video" ? Math.min(15, Math.max(4, Math.round(Number(b.duree) || 6))) : undefined, qualite: ["360p", "720p", "1080p"].includes(b.qualite) ? b.qualite : undefined, consigne: String(b.consigne ?? "").slice(0, 800), statut: "en cours", etape: "En file…", le: new Date().toISOString(), arret: b.arret === "plan" ? "plan" : null, origine: b.origine === "canvas" ? "canvas" : "publicites", depuisTexte: typeof b.depuisTexte === "string" ? b.depuisTexte.slice(0, 12000) : null, modele: MODELES_IMG[b.modele] ? b.modele : "nano-banana" };
+  const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: b.mode, source: okUrl(b.source) ? b.source : null, refs: (b.refs ?? []).filter(okUrl).slice(0, 6), format: MODES[b.mode].kind === "video" ? (b.format === "16:9" ? "16:9" : "9:16") : ["4:5", "1:1", "9:16"].includes(b.format) ? b.format : "4:5", duree: MODES[b.mode].kind === "video" ? Math.min(15, Math.max(4, Math.round(Number(b.duree) || 6))) : undefined, qualite: ["360p", "720p", "1080p"].includes(b.qualite) ? b.qualite : undefined, consigne: String(b.consigne ?? "").slice(0, 800), statut: "en cours", etape: "En file…", le: new Date().toISOString(), arret: b.arret === "plan" ? "plan" : null, origine: b.origine === "canvas" ? "canvas" : "publicites", depuisTexte: typeof b.depuisTexte === "string" ? b.depuisTexte.slice(0, 12000) : null, modele: MODELES_IMG[b.modele] ? b.modele : MODES[b.mode].modele ?? "nano-banana" };
   await sousVerrou(file, async () => {
     const d = await lireJson(file, { pubs: [] });
     d.pubs = [pub, ...d.pubs].slice(0, 200);

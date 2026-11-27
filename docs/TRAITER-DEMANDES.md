@@ -2738,3 +2738,12 @@ Original 80 % → retour Modifiable 80 %.
 - 2026-11-26 — AI Supplier Scout V2 branché dans la Recherche : carte de conversation (espace.json, UTILITE, ORDRE_CHAT) et liste « Discuter de ce produit » (ORDRE_ANALYSE) ; TITRES_CHAT « Supplier Scout » ; ses fournisseurs ne deviennent pas des variantes (candidats.mjs). Consigne adaptée : consignes-propres/whitelabeler-ai-supplier-scout-v-2.txt (fiche au lieu de capture, tableaux au lieu de Google Sheets, pas de prix inventé si AliExpress/Alibaba bloquent). taches.json : 24 agents archivés retirés. Copies /tmp/espace-avant-20261126.json, /tmp/taches-avant-20261126.json.
 
 - 2026-11-26 — essai-plaid-jetable, à la demande de l utilisateur : packs de la fiche d offre Duo 69,90 $ et Famille 94,90 $ (au lieu de 40 / 50), plaids offerts remis à 0 (le texte de l offre n en prévoit aucun) ; 5 notes [À VALIDER] des contenus remplacées par les prix. Copie /tmp/essai-plaid-jetable-avant-prix-20261126.json.
+
+- 2026-11-26 — Installation des agents, priorités 1-2 (plan Desktop/affiches droles/agents-army-installation.xlsx) :
+  - publicites.mjs MODES : concept (ChatGPT 2.0 Image Ad Generator, GPT Image 2 par défaut via MODES.modele), rebuildWL (AI Ad Rebuilder V1 WL, à comparer à la V3), maquetteMarque (Brand Mockup Studio, destination marque) ; présents dans Publicités (Validation.jsx), Canvas → Créer avec IA (BESOINS + AGENT_SLUG) ; STUDIO_AGENTS + Studio Pub (+ Winning Ad Replicator, Transformation).
+  - Studio : 3e mode « Marque » (STUDIO_AGENTS_MARQUE ; studioPrompt mode marque ; api.mjs destination marque ; jamais installé dans la page ; studio.mjs appliquer exclut marque).
+  - Canvas Mirror image : menu « Agent qui lit et adapte la pub » (IMAGE_AGENTS dans mirror.mjs ; consigne de l'agent avant IMAGE_SYSTEM, qui reste prioritaire ; etapes.adapter.agentImage).
+  - Canvas, vidéo sélectionnée : boutons « Prolonger » (ouvre Vidéo → Prolonger) et « Détails » (agent, format, coût, références).
+  - Publicités : bloc « Plan de lancement Meta » (liens agents.html?agent=…&page=… vers Andromeda et Facebook Ad Strategist V2).
+  - Validation → Marge : bloc « Coût fournisseur » (dernier rapport Supplier Scout ; POST /api/validation/<projet> {fournisseur:true} relève prix, coût et livraison par unité, ≈ 0,01 $) ; sans rapport, lien vers l'agent.
+  Vérifié dans le navigateur sauf le menu d'agent du Mirror image (aucune image sur le tableau du projet test). Tests 68/68.

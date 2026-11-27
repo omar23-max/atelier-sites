@@ -269,6 +269,40 @@ export async function validationRoute(req, res, parts, { root, readBody, json })
     await ecrire(etatFile, { ...e, porteSur: await versionsValidation(p), confirmeLe: new Date().toISOString() });
     return json(res, 200, { ok: true });
   }
+  // POST { fournisseur: true } (2026-11-26) : coût produit et livraison repris du
+  // dernier rapport du Supplier Scout (petit appel IA, sans recherche web).
+  if (b.fournisseur) {
+    const r = await depuisRecherche(root, projet);
+    const sc = (r?.rapports ?? []).filter((x) => /supplier scout/i.test(x.agent ?? "")).sort((x, y) => String(y.le).localeCompare(String(x.le)))[0];
+    if (!sc) return json(res, 404, { error: "Aucun rapport du Supplier Scout pour ce produit : lance-le d'abord (Recherche → Discuter de ce produit)." });
+    const texte = await readFile(join(root, "agents", "rapports", r.candidat, sc.fichier), "utf8");
+    const { loadEnv } = await import("vite");
+    const env = loadEnv("development", root, "");
+    if (!env.OPENAI_API_KEY) return json(res, 500, { error: "Clé OpenAI absente (OPENAI_API_KEY)." });
+    const consigne = `Voici le rapport d'un agent de sourcing. Relève les chiffres pour UN plaid (une unité) dans la voie que l'agent recommande pour lancer (en général Alibaba), en dollars canadiens (convertis avec le taux du rapport s'il le donne). Ne recalcule rien d'autre et n'invente rien : null si le rapport ne donne pas le chiffre.
+Réponds en JSON : {"prix": prix de vente d'une unité (pack de base) ou null, "cout": coût produit unitaire ou null, "livraison": livraison + droits + préparation par unité ou null, "voie": "en quelques mots, la voie retenue", "note": "une phrase : d'où viennent ces chiffres (fourchette, estimation…)"}
+Si le rapport donne une fourchette, prends le milieu et dis-le dans la note.
+
+---
+${texte.slice(0, 30000)}`;
+    const r2 = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: MODEL, text: { format: { type: "json_object" } }, input: [{ role: "user", content: [{ type: "input_text", text: consigne }] }] }),
+      signal: AbortSignal.timeout(90 * 1000),
+    }).catch((e) => ({ ok: false, json: async () => ({ error: { message: e.message } }) }));
+    const body = await r2.json().catch(() => ({}));
+    if (!r2.ok) return json(res, 502, { error: `OpenAI : ${String(body.error?.message ?? "erreur").slice(0, 200)}` });
+    const t = (body.output ?? []).filter((o) => o.type === "message").flatMap((o) => o.content ?? []).filter((x) => x.type === "output_text").map((x) => x.text).join("");
+    let d;
+    try {
+      d = extraireJson(t);
+    } catch {
+      return json(res, 502, { error: "Chiffres illisibles dans la réponse." });
+    }
+    const num = (v) => (typeof v === "number" && isFinite(v) ? Math.round(v * 100) / 100 : null);
+    return json(res, 200, { prix: num(d.prix), cout: num(d.cout), livraison: num(d.livraison), voie: String(d.voie ?? "").slice(0, 200), note: String(d.note ?? "").slice(0, 300), rapport: { candidat: r.candidat, fichier: sc.fichier, le: sc.le } });
+  }
   // POST { reprendre: true } : le rapport du Product Validator de la Recherche
   // est remis en forme (un petit appel IA, sans nouvelle recherche web ni WinningHunter).
   if (b.reprendre) {

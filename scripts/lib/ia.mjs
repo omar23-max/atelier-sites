@@ -229,6 +229,8 @@ export function studioPrompt(o) {
   const colors = o.marque?.couleurs ? Object.entries(o.marque.couleurs).map(([r, c]) => `${r} ${c}`).join(", ") : "";
   const fonts = o.marque?.polices ? Object.values(o.marque.polices).filter(Boolean).join(" / ") : "";
   const pub = o.mode === "pub";
+  // Mode « Marque » du Studio (2026-11-26) : la photo devient une maquette de marque.
+  const marque = o.mode === "marque";
   if (o.affiner) {
     return [
       "Edit image #1 (an image already made for this product) following the instruction below. Keep everything else exactly as it is: composition, people, setting, product, text.",
@@ -246,11 +248,13 @@ export function studioPrompt(o) {
     refs ? `The next images are the user's own references: ${refs}.` : "",
     pub
       ? `Turn image #1 into a scroll-stopping social media AD (${o.format ?? "4:5"}), keeping its idea: bold, clean layout, product as the hero.`
-      : "Recreate image #1 faithfully: same composition, framing, pose, setting, lighting and mood. People may look different but must play the same role.",
+      : marque
+        ? "Turn image #1 into a BRAND MOCKUP: keep its composition, setting and lighting, but make the user's brand the hero: their logo and colour palette on packaging, labels, tags, gift bags or cards that fit naturally in the scene. No other text than the brand name and, if given, its slogan."
+        : "Recreate image #1 faithfully: same composition, framing, pose, setting, lighting and mood. People may look different but must play the same role.",
     `Replace the product shown in the original with the user's product "${product}" exactly as it looks in the Product references (shape, colours, label, packaging).`,
     // Essai du 2026-11-11 : sur une photo sans produit, le modèle en ajoutait
     // un à la place d'une vignette.
-    pub ? "" : "If image #1 shows no product or packaging at all, do NOT add one: keep every element, only replace brand names and logos.",
+    pub || marque ? "" : "If image #1 shows no product or packaging at all, do NOT add one: keep every element, only replace brand names and logos.",
     o.description ? `What the product is: ${o.description}.` : "",
     "Brand: use the logo and style of the Brand references; never keep the original brand name, logo or packaging.",
     colors ? `Brand colours: ${colors}.` : "",
