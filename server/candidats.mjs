@@ -10,6 +10,74 @@
 import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+
+// ---- Miniatures des cellules sans image (2026-11-26) ----
+// Cache : agents/omar-winninghunter/_miniatures.json { adresse: "/medias/…" | "" }.
+// "" = déjà cherché, rien trouvé (on ne réessaie pas).
+const miniEnCours = new Set();
+async function lireMiniatures(root) {
+  try {
+    return JSON.parse(await readFile(join(root, "agents", "omar-winninghunter", "_miniatures.json"), "utf8"));
+  } catch {
+    return {};
+  }
+}
+let fileMini = Promise.resolve();
+function noterMiniature(root, cle, url) {
+  // Une écriture à la fois (plusieurs recherches tournent ensemble).
+  fileMini = fileMini
+    .then(async () => {
+      const f = join(root, "agents", "omar-winninghunter", "_miniatures.json");
+      const c = await lireMiniatures(root);
+      c[cle] = url;
+      await writeFile(f, JSON.stringify(c, null, 1) + "\n", "utf8");
+    })
+    .catch(() => {});
+  return fileMini;
+}
+function chercherMiniature(root, cle) {
+  if (miniEnCours.has(cle) || miniEnCours.size > 6) return;
+  miniEnCours.add(cle);
+  let adresse = cle;
+  (async () => {
+    let url = "";
+    try {
+      const ua = { "User-Agent": "Mozilla/5.0 (atelier)", Accept: "text/html,*/*" };
+      // La page produit d'abord ; si elle a disparu, l'accueil de la boutique.
+      let html = "";
+      let base = adresse;
+      for (const u of [adresse, new URL(adresse).origin]) {
+        html = await fetch(u, { headers: ua, redirect: "follow", signal: AbortSignal.timeout(10000) }).then((r) => (r.ok ? r.text() : "")).catch(() => "");
+        base = u;
+        if (html) break;
+      }
+      const m = html.match(/<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)(?::src)?["'][^>]*>/i);
+      let img = m ? (m[0].match(/content=["']([^"']+)["']/i) ?? [])[1] : null;
+      // Repli : première image produit Shopify de la page (pas le logo ni l'icône).
+      if (!img) img = (html.match(/\/\/[a-z0-9.-]+\/cdn\/shop\/(?:files|products)\/[^"' )?]+\.(?:jpe?g|png|webp)/gi) ?? []).find((u) => !/favicon|logo|icon|badge|payment|flag/i.test(u)) ?? null;
+      if (img && img.startsWith("//")) img = "https:" + img;
+      if (img) {
+        adresse = base;
+        img = new URL(img.replace(/&amp;/g, "&"), base).href;
+        const r = await fetch(img, { headers: ua, signal: AbortSignal.timeout(10000) });
+        const type = r.headers.get("content-type") ?? "";
+        const buf = Buffer.from(await r.arrayBuffer());
+        if (r.ok && /^image\//.test(type) && buf.length > 2000 && buf.length < 4_000_000) {
+          const ext = /png/.test(type) ? "png" : /webp/.test(type) ? "webp" : /gif/.test(type) ? "gif" : "jpg";
+          const nom = `${createHash("sha1").update(cle).digest("hex").slice(0, 16)}.${ext}`;
+          const dir = join(root, "medias", "recherche", "miniatures");
+          await mkdir(dir, { recursive: true });
+          await writeFile(join(dir, nom), buf);
+          url = `/medias/recherche/miniatures/${nom}`;
+        }
+      }
+    } catch {}
+    await noterMiniature(root, cle, url).catch(() => {});
+    miniEnCours.delete(cle);
+  })();
+}
 
 const RUBRIQUES = ["Concurrents", "Marché", "Prix du marché", "Mots des clients", "Angles et accroches", "Risques", "Conditions et inconnues", "Autre"];
 const court = (t, n = 200) => String(t ?? "").replace(/\s+/g, " ").trim().slice(0, n);
@@ -113,7 +181,7 @@ export async function listerCandidats(root) {
       for (const p of r.pistes ?? []) {
         if (!p.sujet || !norm(p.sujet)) continue;
         const id = `p-${norm(p.sujet)}`;
-        const ligne = (r.lignes ?? []).find((l) => String(l.id) === String(p.id));
+        const ligne = (r.lignes ?? []).find((l) => String(l.id) === String(p.id)) ?? (r.lignes ?? []).find((l) => l.boutique && String(p.id ?? "").includes(l.boutique));
         const source = { agent: slug, titre: titres[slug], fichier: f, le: r.le, pid: p.id ?? null, verdict: p.verdict ?? null };
         const c = par.get(id);
         if (c) {
@@ -128,7 +196,7 @@ export async function listerCandidats(root) {
           verdict: p.verdict ?? "à surveiller",
           sources: [source],
           mesures: mesuresDe(r, p, ligne),
-          boutique: ligne?.boutique ?? null,
+          boutique: ligne?.boutique ?? (/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(String(p.id ?? "")) ? String(p.id) : null),
           lien: ligne?.lien ?? null,
           pourquoi: p.pourquoi ?? "",
           produitConcret: p.produitConcret ?? "",
@@ -148,6 +216,26 @@ export async function listerCandidats(root) {
   // Pistes travaillées (écartées, enrichies, lancées) sorties des 3 derniers
   // résultats : reprises de leur copie, pour ne jamais disparaître.
   for (const [id, e] of Object.entries(etat.etats)) if (id.startsWith("p-") && !par.has(id) && e.copie) par.set(id, { ...e.copie, id, ancien: true });
+  // Miniatures manquantes (2026-11-26) : WinningHunter n'en donne pas toujours.
+  // a) une autre ligne de la même boutique (n'importe quel résultat) ;
+  // b) l'image d'aperçu (og:image) de la page produit ou du site, téléchargée
+  //    une fois en tâche de fond, sans crédit WinningHunter.
+  const imgBoutique = new Map();
+  for (const { r } of resultats) for (const l of r.lignes ?? []) if (l.boutique && l.images?.[0] && !imgBoutique.has(l.boutique)) imgBoutique.set(l.boutique, l.images[0]);
+  const cacheMin = await lireMiniatures(root);
+  for (const c of par.values()) {
+    // Adresses http:// bloquées sur le site en https : on demande la version sécurisée.
+    if (typeof c.image === "string" && c.image.startsWith("http://")) c.image = "https://" + c.image.slice(7);
+    if (c.image) continue;
+    if (c.boutique && imgBoutique.has(c.boutique)) {
+      c.image = imgBoutique.get(c.boutique);
+      continue;
+    }
+    const cle = c.lien || (c.boutique ? `https://${c.boutique}` : null);
+    if (!cle) continue;
+    if (cacheMin[cle]) c.image = cacheMin[cle];
+    else if (!(cle in cacheMin)) chercherMiniature(root, cle);
+  }
   const agents = [...par.values()];
   const mes = etat.mes.map((m) => ({ ...m, moi: !m.agent, verdict: "à analyser", sources: m.agent ? [{ agent: m.agent, titre: m.agentTitre ?? m.agent, le: m.le }] : [], mesures: [m.prix && ["Prix visé", m.prix], m.cout && ["Coût d'achat", m.cout]].filter(Boolean) }));
   const nbRapports = {};

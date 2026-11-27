@@ -2747,3 +2747,5 @@ Original 80 % → retour Modifiable 80 %.
   - Publicités : bloc « Plan de lancement Meta » (liens agents.html?agent=…&page=… vers Andromeda et Facebook Ad Strategist V2).
   - Validation → Marge : bloc « Coût fournisseur » (dernier rapport Supplier Scout ; POST /api/validation/<projet> {fournisseur:true} relève prix, coût et livraison par unité, ≈ 0,01 $) ; sans rapport, lien vers l'agent.
   Vérifié dans le navigateur sauf le menu d'agent du Mirror image (aucune image sur le tableau du projet test). Tests 68/68.
+
+- 2026-11-26 — Grille de la Recherche : miniatures manquantes (WinningHunter sans image pour beaucoup de pistes TikTok / veille boutiques). candidats.mjs : piste rattachée à sa ligne par numéro OU par boutique ; image reprise d une autre ligne de la même boutique ; sinon og:image ou 1re image Shopify de la page produit, puis de l accueil, téléchargée une fois en tâche de fond dans medias/recherche/miniatures (cache agents/omar-winninghunter/_miniatures.json, "" = rien trouvé) ; http:// passé en https://. 54/61 cellules avec image (36 avant). Limite : pour certaines boutiques, l image trouvée est le logo.

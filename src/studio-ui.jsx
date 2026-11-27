@@ -782,7 +782,7 @@ function StudioDialog({ onClose }) {
               </span>
             </div>
             <span className="atl-mirror__label">Mode</span>
-            <div className="atl-mirror__seg">
+            <div className="atl-mirror__seg atl-mirror__seg--3">
               <button type="button" className={!pub && !marque ? "is-on" : ""} onClick={() => setForm({ ...form, mode: "fidele", agent: "" })}>
                 Miroir
               </button>
