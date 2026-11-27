@@ -224,8 +224,13 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     const agent = b.agent && STEP_AGENTS[name] && st.etapes[name]?.texte ? STEP_AGENTS[name].slug : null;
     st.etapes[name] = { ...(st.etapes[name] ?? {}), statut: "en cours", debut: now(), erreur: null, consigne: String(b.consigne ?? "").slice(0, 4000), coupes: b.coupes ?? null, agent };
     if (name === "adapter") st.etapes.adapter.agentImage = IMAGE_AGENTS[b.agentImage] ? b.agentImage : null;
-    await save(st);
     running.add(key);
+    try {
+      await save(st);
+    } catch (e) {
+      running.delete(key);
+      throw e;
+    }
     runStep(id, name).finally(() => running.delete(key));
     return json(res, 200, { ok: true });
   }
@@ -248,8 +253,13 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
     if (parts[3] === "assembler") {
       if (!o.plans?.length || o.plans.some((p) => p.statut !== "faite")) return json(res, 409, { error: "Tous les plans ne sont pas faits." });
       st.etapes.omni = { ...o, son: b.son === "omni" ? "omni" : b.son === "voix" ? "voix" : o.son, statut: "en cours", debut: now(), erreur: null, etape: "Assemblage…" };
-      await save(st);
       running.add(key);
+      try {
+        await save(st);
+      } catch (e) {
+        running.delete(key);
+        throw e;
+      }
       runOmni(id, []).finally(() => running.delete(key));
       return json(res, 200, { ok: true });
     }
@@ -259,14 +269,24 @@ export async function mirrorRoute(req, res, parts, { root, mediaPlace, readBody,
       if (typeof b.prompt === "string" && b.prompt.trim()) o.plans[n].prompt = b.prompt.slice(0, 4000);
       o.plans[n] = { ...o.plans[n], statut: "en attente", erreur: null };
       st.etapes.omni = { ...o, statut: "en cours", debut: now(), erreur: null, etape: `Plan ${n + 1} refait…` };
-      await save(st);
       running.add(key);
+      try {
+        await save(st);
+      } catch (e) {
+        running.delete(key);
+        throw e;
+      }
       runOmni(id, [n]).finally(() => running.delete(key));
       return json(res, 200, { ok: true });
     }
     st.etapes.omni = { statut: "en cours", debut: now(), erreur: null, etape: "Découpage du scénario en plans…", qualite: ["360p", "720p", "1080p"].includes(b.qualite) ? b.qualite : "720p", son: b.son === "voix" ? "voix" : "omni", agent: OMNI_AGENTS[b.agent] ? b.agent : null, plans: [], final: null, cout: 0 };
-    await save(st);
     running.add(key);
+    try {
+      await save(st);
+    } catch (e) {
+      running.delete(key);
+      throw e;
+    }
     runOmni(id, null).finally(() => running.delete(key));
     return json(res, 200, { ok: true });
   }
@@ -452,8 +472,13 @@ Avoid wording that trips safety filters: no children, no medical or body claims,
     if (missing.length) return json(res, 409, { error: `Il manque : ${missing.join(", ")}. Génère d'abord les images dont celle-ci dépend (dans l'ordre), ou ajoute la photo produit.` });
     st.images = st.images ?? {};
     st.images[nom.replace(/\.[a-z0-9]+$/i, "")] = { ...(st.images[nom.replace(/\.[a-z0-9]+$/i, "")] ?? {}), statut: "en cours", modele, debut: now(), erreur: null };
-    await save(st);
     running.add(key);
+    try {
+      await save(st);
+    } catch (e) {
+      running.delete(key);
+      throw e;
+    }
     // Pub image : consigne complète écrite ici, avec les textes exacts (que
     // l'utilisateur a pu corriger dans le panneau).
     let full = null;

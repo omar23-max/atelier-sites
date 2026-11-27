@@ -604,7 +604,6 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
   const l = rep.brouillonsAgents ?? [];
   const [edits, setEdits] = useState({});
   const [voirHisto, setVoirHisto] = useState(false);
-  if (!l.length) return null;
   const maj = (id, patch) => set("brouillonsAgents", l.map((b) => (b.id === id ? { ...b, ...patch } : b)));
   const champDe = (b) => edits[b.id]?.champ ?? b.champ;
   const texteDe = (b) => edits[b.id]?.texte ?? b.texte;
@@ -739,6 +738,8 @@ function PropositionsAgents({ rep, set, offre = {}, setOffre = null, msg = null,
   }
   const faits = l.filter((b) => b.statut !== "proposé");
   const date = (s) => (s ? new Date(s).toLocaleDateString("fr-CA") : "");
+  // Retour anticipé seulement ici, après tous les hooks (avis ChatGPT, 2026-11-26).
+  if (!l.length) return null;
   return (
     <section className="cat-panel cat-fd__props">
       <h3>Propositions des agents {attente.length > 0 && <span className="cat-fd__propsnb">{attente.length} à trier</span>}</h3>

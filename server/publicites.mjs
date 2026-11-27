@@ -425,16 +425,22 @@ export async function publicitesRoute(req, res, parts, { root, readBody, json })
   if (!MODES[b.mode]) return json(res, 400, { error: "Mode inconnu." });
   if (MODES[b.mode].source && !b.source) return json(res, 400, { error: "Ce mode a besoin de la pub d'origine (image)." });
   const okUrl = (u) => typeof u === "string" && /^\/medias\//.test(u) && !u.includes("..");
-  const empreinteCreation = JSON.stringify([projet, b.mode, b.source ?? null, b.refs ?? [], b.format ?? "", String(b.consigne ?? ""), b.arret ?? null, b.depuisTexte ? String(b.depuisTexte).slice(0, 200) : null]);
+  const empreinteCreation = JSON.stringify([projet, b.mode, b.source ?? null, b.refs ?? [], b.format ?? "", String(b.consigne ?? ""), b.arret ?? null, b.depuisTexte ? String(b.depuisTexte).slice(0, 200) : null, b.duree ?? null, b.qualite ?? null, b.modele ?? null]);
   const recente = creationsRecentes.get(empreinteCreation);
   if (recente && Date.now() - recente.le < 8000) return json(res, 202, recente.pub);
   const pub = { id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, mode: b.mode, source: okUrl(b.source) ? b.source : null, refs: (b.refs ?? []).filter(okUrl).slice(0, 6), format: MODES[b.mode].kind === "video" ? (b.format === "16:9" ? "16:9" : "9:16") : ["4:5", "1:1", "9:16"].includes(b.format) ? b.format : "4:5", duree: MODES[b.mode].kind === "video" ? Math.min(15, Math.max(4, Math.round(Number(b.duree) || 6))) : undefined, qualite: ["360p", "720p", "1080p"].includes(b.qualite) ? b.qualite : undefined, consigne: String(b.consigne ?? "").slice(0, 800), statut: "en cours", etape: "En file…", le: new Date().toISOString(), arret: b.arret === "plan" ? "plan" : null, origine: b.origine === "canvas" ? "canvas" : "publicites", depuisTexte: typeof b.depuisTexte === "string" ? b.depuisTexte.slice(0, 12000) : null, modele: MODELES_IMG[b.modele] ? b.modele : MODES[b.mode].modele ?? "nano-banana" };
-  await sousVerrou(file, async () => {
-    const d = await lireJson(file, { pubs: [] });
-    d.pubs = [pub, ...d.pubs].slice(0, 200);
-    await ecrire(file, d);
-  });
+  // Réservée tout de suite : une 2e demande identique reçue pendant l'écriture reçoit cette même pub.
   creationsRecentes.set(empreinteCreation, { le: Date.now(), pub });
+  try {
+    await sousVerrou(file, async () => {
+      const d = await lireJson(file, { pubs: [] });
+      d.pubs = [pub, ...d.pubs].slice(0, 200);
+      await ecrire(file, d);
+    });
+  } catch (e) {
+    creationsRecentes.delete(empreinteCreation);
+    throw e;
+  }
   for (const [k, v] of creationsRecentes) if (Date.now() - v.le > 60000) creationsRecentes.delete(k);
   tourne(`${projet}:${pub.id}`, () => produire(root, projet, file, pub));
   return json(res, 202, pub);
