@@ -42,6 +42,33 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
   const [filtre, setFiltre] = useState("tous");
   const [tri, setTri] = useState("verdict");
   const [sel, setSel] = useState(() => sessionStorage.getItem("atl-grille-sel"));
+  // Cases à cocher sur les cartes (2026-11-27) : écarter ou supprimer plusieurs résultats.
+  const [coches, setCoches] = useState(() => new Set());
+  const [occupe, setOccupe] = useState(false);
+  const cocher = (id) => setCoches((cur) => {
+    const n = new Set(cur);
+    if (n.has(id)) n.delete(id);
+    else n.add(id);
+    return n;
+  });
+  async function enLot(quoi) {
+    const ids = [...coches];
+    if (!ids.length) return;
+    if (quoi === "supprimer" && !window.confirm(`Supprimer définitivement ${ids.length} résultat(s) de la grille ? Ils ne reviendront pas, même si un agent les retrouve.`)) return;
+    setOccupe(true);
+    try {
+      if (quoi === "supprimer") {
+        await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "supprimerPlusieurs", ids }) });
+      } else {
+        for (const id of ids) await fetch("/api/candidats", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, action: "statut", statut: quoi === "ecarter" ? "écarté" : null }) });
+      }
+      setCoches(new Set());
+      if (ids.includes(sel)) setSel(null);
+      charger();
+    } finally {
+      setOccupe(false);
+    }
+  }
   useEffect(() => {
     if (sel) sessionStorage.setItem("atl-grille-sel", sel);
   }, [sel]);
@@ -137,6 +164,26 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
       </div>
       {err && <p className="cat-flash is-error">⚠ {err}</p>}
 
+      {coches.size > 0 && (
+        <div className="rg__lot" role="toolbar" aria-label="Résultats cochés">
+          <b>{coches.size} coché(s)</b>
+          {filtre === "écartés" ? (
+            <button type="button" className="cat-btn cat-btn--ghost" disabled={occupe} onClick={() => enLot("remettre")}>
+              Remettre dans la grille
+            </button>
+          ) : (
+            <button type="button" className="cat-btn cat-btn--ghost" disabled={occupe} onClick={() => enLot("ecarter")}>
+              Écarter
+            </button>
+          )}
+          <button type="button" className="cat-btn rg__lot-suppr" disabled={occupe} onClick={() => enLot("supprimer")}>
+            Supprimer
+          </button>
+          <button type="button" className="cat-link" onClick={() => setCoches(new Set())}>
+            Tout décocher
+          </button>
+        </div>
+      )}
       <div className="rg__grid">
         <button type="button" className={`rg__cell rg__cell--add${sel === "new" ? " is-on" : ""}`} onClick={() => setSel("new")}>
           <span className="rg__plus">+</span>
@@ -151,7 +198,20 @@ export function RechercheGrille({ agentsOmar, agentsChat, onOuvrir, onDiscuter }
           </div>
         ))}
         {liste.map((c) => (
-          <button key={c.id} type="button" className={`rg__cell${c.id === sel ? " is-on" : ""}`} onClick={() => setSel(c.id)}>
+          <button key={c.id} type="button" className={`rg__cell${c.id === sel ? " is-on" : ""}${coches.has(c.id) ? " is-coche" : ""}`} onClick={() => setSel(c.id)}>
+            {!c.variante && (
+              <span
+                role="checkbox"
+                aria-checked={coches.has(c.id)}
+                aria-label={`Cocher « ${c.nom} »`}
+                tabIndex={0}
+                className="rg__coche"
+                onClick={(e) => (e.stopPropagation(), cocher(c.id))}
+                onKeyDown={(e) => (e.key === " " || e.key === "Enter") && (e.preventDefault(), e.stopPropagation(), cocher(c.id))}
+              >
+                {coches.has(c.id) ? "✓" : ""}
+              </span>
+            )}
             <span className="rg__img">{c.image ? <img src={c.image} alt="" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} /> : c.variante ? "💡" : c.id.startsWith("m-") ? "★" : "📦"}</span>
             <b>{c.nom}</b>
             <span className="rg__ligne">
